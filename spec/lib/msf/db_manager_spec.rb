@@ -22,6 +22,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::ExploitedHost'
   it_should_behave_like 'Msf::DBManager::Host'
   it_should_behave_like 'Msf::DBManager::IPAddress'
+  it_should_behave_like 'Msf::DBManager::Import'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ModuleCache'
@@ -65,7 +66,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :connect }
   it { is_expected.to respond_to :connection_established? }
   it { is_expected.to respond_to :create_db }
-  it { is_expected.to respond_to :dehex }
   it { is_expected.to respond_to :disconnect }
   it { is_expected.to respond_to :driver }
   it { is_expected.to respond_to :drivers }
@@ -73,7 +73,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :each_loot }
   it { is_expected.to respond_to :each_note }
   it { is_expected.to respond_to :each_vuln }
-  it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :events }
   it { is_expected.to respond_to :find_or_create_client }
@@ -83,9 +82,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :find_or_create_report }
   it { is_expected.to respond_to :find_or_create_task }
   it { is_expected.to respond_to :find_or_create_vuln }
-  it { is_expected.to respond_to :find_qualys_asset_ports }
-  it { is_expected.to respond_to :find_qualys_asset_vuln_refs }
-  it { is_expected.to respond_to :find_qualys_asset_vulns }
   it { is_expected.to respond_to :find_vuln_by_details }
   it { is_expected.to respond_to :find_vuln_by_refs }
   it { is_expected.to respond_to :get_client }
@@ -94,83 +90,9 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :get_vuln }
   it { is_expected.to respond_to :has_ref? }
   it { is_expected.to respond_to :has_vuln? }
-  it { is_expected.to respond_to :import }
-  it { is_expected.to respond_to :import_acunetix_noko_stream }
-  it { is_expected.to respond_to :import_acunetix_xml }
-  it { is_expected.to respond_to :import_amap_log }
-  it { is_expected.to respond_to :import_amap_log_file }
-  it { is_expected.to respond_to :import_amap_mlog }
-  it { is_expected.to respond_to :import_appscan_noko_stream }
-  it { is_expected.to respond_to :import_appscan_xml }
-  it { is_expected.to respond_to :import_burp_session_noko_stream }
-  it { is_expected.to respond_to :import_burp_session_xml }
-  it { is_expected.to respond_to :import_ci_noko_stream }
-  it { is_expected.to respond_to :import_ci_xml }
-  it { is_expected.to respond_to :import_file }
-  it { is_expected.to respond_to :import_filetype_detect }
-  it { is_expected.to respond_to :import_foundstone_noko_stream }
-  it { is_expected.to respond_to :import_foundstone_xml }
-  it { is_expected.to respond_to :import_fusionvm_xml }
-  it { is_expected.to respond_to :import_ip360_aspl_xml }
-  it { is_expected.to respond_to :import_ip360_xml_file }
-  it { is_expected.to respond_to :import_ip360_xml_v3 }
-  it { is_expected.to respond_to :import_ip_list }
-  it { is_expected.to respond_to :import_ip_list_file }
-  it { is_expected.to respond_to :import_libpcap }
-  it { is_expected.to respond_to :import_libpcap_file }
-  it { is_expected.to respond_to :import_mbsa_noko_stream }
-  it { is_expected.to respond_to :import_mbsa_xml }
-  it { is_expected.to respond_to :import_msf_collateral }
-  it { is_expected.to respond_to :import_msf_cred_dump }
-  it { is_expected.to respond_to :import_msf_cred_dump_zip }
-  it { is_expected.to respond_to :import_msf_file }
-  it { is_expected.to respond_to :import_msf_pwdump }
-  it { is_expected.to respond_to :import_msf_zip }
-  it { is_expected.to respond_to :import_nessus_nbe }
-  it { is_expected.to respond_to :import_nessus_nbe_file }
-  it { is_expected.to respond_to :import_nessus_xml }
-  it { is_expected.to respond_to :import_nessus_xml_file }
-  it { is_expected.to respond_to :import_nessus_xml_v2 }
-  it { is_expected.to respond_to :import_netsparker_xml }
-  it { is_expected.to respond_to :import_netsparker_xml_file }
-  it { is_expected.to respond_to :import_nexpose_noko_stream }
-  it { is_expected.to respond_to :import_nexpose_raw_noko_stream }
-  it { is_expected.to respond_to :import_nexpose_rawxml }
-  it { is_expected.to respond_to :import_nexpose_rawxml_file }
-  it { is_expected.to respond_to :import_nexpose_simplexml }
-  it { is_expected.to respond_to :import_nexpose_simplexml_file }
-  it { is_expected.to respond_to :import_nikto_xml }
-  it { is_expected.to respond_to :import_nmap_noko_stream }
-  it { is_expected.to respond_to :import_nmap_xml }
-  it { is_expected.to respond_to :import_nmap_xml_file }
-  it { is_expected.to respond_to :import_openvas_new_xml }
-  it { is_expected.to respond_to :import_openvas_new_xml_file }
-  it { is_expected.to respond_to :import_openvas_xml }
-  it { is_expected.to respond_to :import_outpost24_noko_stream }
-  it { is_expected.to respond_to :import_outpost24_xml }
-  it { is_expected.to respond_to :import_qualys_asset_xml }
-  it { is_expected.to respond_to :import_qualys_scan_xml }
-  it { is_expected.to respond_to :import_qualys_scan_xml_file }
-  it { is_expected.to respond_to :import_report }
-  it { is_expected.to respond_to :import_retina_xml }
-  it { is_expected.to respond_to :import_retina_xml_file }
-  it { is_expected.to respond_to :import_spiceworks_csv }
-  it { is_expected.to respond_to :import_wapiti_xml }
-  it { is_expected.to respond_to :import_wapiti_xml_file }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :inspect_single_packet }
-  it { is_expected.to respond_to :inspect_single_packet_http }
   it { is_expected.to respond_to :loots }
-  it { is_expected.to respond_to :msf_import_timestamps }
-  it { is_expected.to respond_to :netsparker_method_map }
-  it { is_expected.to respond_to :netsparker_params_map }
-  it { is_expected.to respond_to :netsparker_pname_map }
-  it { is_expected.to respond_to :netsparker_vulnerability_map }
-  it { is_expected.to respond_to :nexpose_host_from_rawxml }
-  it { is_expected.to respond_to :nexpose_refs_to_struct }
-  it { is_expected.to respond_to :nils_for_nulls }
-  it { is_expected.to respond_to :nmap_msf_service_map }
   it { is_expected.to respond_to :notes }
   it { is_expected.to respond_to :report_artifact }
   it { is_expected.to respond_to :report_client }
@@ -837,14 +759,11 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :report_web_site }
   it { is_expected.to respond_to :report_web_vuln }
   it { is_expected.to respond_to :reports }
-  it { is_expected.to respond_to :rexmlify }
   it { is_expected.to respond_to :service_name_map }
   it { is_expected.to respond_to :tasks }
-  it { is_expected.to respond_to :unserialize_object }
   it { is_expected.to respond_to :update_vuln_details }
   it { is_expected.to respond_to :usable }
   it { is_expected.to respond_to :usable= }
-  it { is_expected.to respond_to :validate_import_file }
   it { is_expected.to respond_to :vulns }
   it { is_expected.to respond_to :warn_about_rubies }
 end
