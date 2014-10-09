@@ -18,6 +18,7 @@ describe Msf::DBManager do
     db_manager
   end
 
+  it_should_behave_like 'Msf::DBManager::Host'
   it_should_behave_like 'Msf::DBManager::IPAddress'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
   it_should_behave_like 'Msf::DBManager::Migration'
@@ -63,7 +64,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :create_db }
   it { is_expected.to respond_to :creds }
   it { is_expected.to respond_to :dehex }
-  it { is_expected.to respond_to :del_host }
   it { is_expected.to respond_to :del_service }
   it { is_expected.to respond_to :disconnect }
   it { is_expected.to respond_to :driver }
@@ -71,7 +71,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :drivers= }
   it { is_expected.to respond_to :each_cred }
   it { is_expected.to respond_to :each_exploited_host }
-  it { is_expected.to respond_to :each_host }
   it { is_expected.to respond_to :each_loot }
   it { is_expected.to respond_to :each_note }
   it { is_expected.to respond_to :each_service }
@@ -82,7 +81,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :exploited_hosts }
   it { is_expected.to respond_to :find_or_create_client }
   it { is_expected.to respond_to :find_or_create_cred }
-  it { is_expected.to respond_to :find_or_create_host }
   it { is_expected.to respond_to :find_or_create_loot }
   it { is_expected.to respond_to :find_or_create_note }
   it { is_expected.to respond_to :find_or_create_ref }
@@ -96,15 +94,12 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :find_vuln_by_details }
   it { is_expected.to respond_to :find_vuln_by_refs }
   it { is_expected.to respond_to :get_client }
-  it { is_expected.to respond_to :get_host }
   it { is_expected.to respond_to :get_ref }
   it { is_expected.to respond_to :get_service }
   it { is_expected.to respond_to :get_session }
   it { is_expected.to respond_to :get_vuln }
-  it { is_expected.to respond_to :has_host? }
   it { is_expected.to respond_to :has_ref? }
   it { is_expected.to respond_to :has_vuln? }
-  it { is_expected.to respond_to :hosts }
   it { is_expected.to respond_to :import }
   it { is_expected.to respond_to :import_acunetix_noko_stream }
   it { is_expected.to respond_to :import_acunetix_xml }
@@ -182,7 +177,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :nexpose_refs_to_struct }
   it { is_expected.to respond_to :nils_for_nulls }
   it { is_expected.to respond_to :nmap_msf_service_map }
-  it { is_expected.to respond_to :normalize_host }
   it { is_expected.to respond_to :notes }
   it { is_expected.to respond_to :report_artifact }
   it { is_expected.to respond_to :report_auth }
@@ -194,7 +188,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :report_exploit_attempt }
   it { is_expected.to respond_to :report_exploit_failure }
   it { is_expected.to respond_to :report_exploit_success }
-  it { is_expected.to respond_to :report_host }
   it { is_expected.to respond_to :report_host_details }
   it { is_expected.to respond_to :report_host_tag }
   it { is_expected.to respond_to :report_import_note }
@@ -859,7 +852,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :services }
   it { is_expected.to respond_to :tasks }
   it { is_expected.to respond_to :unserialize_object }
-  it { is_expected.to respond_to :update_host_via_sysinfo }
   it { is_expected.to respond_to :update_vuln_details }
   it { is_expected.to respond_to :usable }
   it { is_expected.to respond_to :usable= }
