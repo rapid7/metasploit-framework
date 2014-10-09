@@ -76,6 +76,7 @@ class DBManager
   extend Metasploit::Framework::Require
 
   autoload :Cred, 'msf/core/db_manager/cred'
+  autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
   autoload :Host, 'msf/core/db_manager/host'
   autoload :IPAddress, 'msf/core/db_manager/ip_address'
   autoload :ModuleCache, 'msf/core/db_manager/module_cache'
@@ -87,6 +88,7 @@ class DBManager
   optionally_include_metasploit_credential_creation
 
   include Msf::DBManager::Cred
+  include Msf::DBManager::ExploitedHost
   include Msf::DBManager::Host
   include Msf::DBManager::ImportMsfXml
   include Msf::DBManager::IPAddress
@@ -982,15 +984,6 @@ class DBManager
   end
 
   #
-  # This method returns a list of all exploited hosts in the database.
-  #
-  def exploited_hosts(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.exploited_hosts
-  }
-  end
-
-  #
   # This method iterates the notes table calling the supplied block with the
   # note instance of each entry.
   #
@@ -1190,14 +1183,6 @@ class DBManager
     tag.critical = !!crit
     tag.hosts = tag.hosts | [host]
     tag.save! if tag.changed?
-  }
-  end
-
-  def each_exploited_host(wspace=workspace,&block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.exploited_hosts.each do |eh|
-      block.call(eh)
-    end
   }
   end
 
