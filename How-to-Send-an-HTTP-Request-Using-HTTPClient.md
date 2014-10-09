@@ -33,7 +33,7 @@ Here's a very basic example for `send_request_cgi`:
 
 Before you send a HTTP request, you will most likely have to do some URI parsing.  This is a tricky task, because sometimes when you join paths, you may accidentally get double slashes, like this: "/test//index.php".  Or for some reason you have a missing slash.  These are really commonly made mistakes.  So here's how you can handle it safely:
 
-1. Register your default URI datastore option as 'TARGETURI':
+**1** - Register your default URI datastore option as 'TARGETURI':
 
 Example:
 
@@ -44,7 +44,7 @@ Example:
 		], self.class)
 ```
 
-2. Load your TARGETURI with [`target_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way the URI input validation will kick in, and then you get a real `URI` object:
+**2** - Load your TARGETURI with [`target_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way the URI input validation will kick in, and then you get a real `URI` object:
 
 In this example, we'll just load the path:
 
@@ -52,7 +52,7 @@ In this example, we'll just load the path:
 	uri = target_uri.path
 ```
 
-3. When you want to join another URI, always use [`normalize_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#normalize_uri-instance_method):
+**3** - When you want to join another URI, always use [`normalize_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#normalize_uri-instance_method):
 
 Example:
 
@@ -61,7 +61,7 @@ Example:
 	uri = normalize_uri(uri, 'admin', 'upload.php')
 ```
 
-4. When you're done normalizing the URI, you're ready to use `send_request_cgi` or `send_request_raw`
+**4** - When you're done normalizing the URI, you're ready to use `send_request_cgi` or `send_request_raw`
 
 Please note: The `normalize_uri` method will always follow these rules:
 
