@@ -19,6 +19,7 @@ describe Msf::DBManager do
   end
 
   it_should_behave_like 'Msf::DBManager::Cred'
+  it_should_behave_like 'Msf::DBManager::ExploitedHost'
   it_should_behave_like 'Msf::DBManager::Host'
   it_should_behave_like 'Msf::DBManager::IPAddress'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
@@ -69,14 +70,12 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :driver }
   it { is_expected.to respond_to :drivers }
   it { is_expected.to respond_to :drivers= }
-  it { is_expected.to respond_to :each_exploited_host }
   it { is_expected.to respond_to :each_loot }
   it { is_expected.to respond_to :each_note }
   it { is_expected.to respond_to :each_vuln }
   it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :events }
-  it { is_expected.to respond_to :exploited_hosts }
   it { is_expected.to respond_to :find_or_create_client }
   it { is_expected.to respond_to :find_or_create_loot }
   it { is_expected.to respond_to :find_or_create_note }
