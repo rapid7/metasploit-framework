@@ -23,6 +23,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ModuleCache'
+  it_should_behave_like 'Msf::DBManager::Service'
   it_should_behave_like 'Msf::DBManager::Sink'
   it_should_behave_like 'Msf::DBManager::WMAP'
   it_should_behave_like 'Msf::DBManager::Workspace'
@@ -64,7 +65,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :create_db }
   it { is_expected.to respond_to :creds }
   it { is_expected.to respond_to :dehex }
-  it { is_expected.to respond_to :del_service }
   it { is_expected.to respond_to :disconnect }
   it { is_expected.to respond_to :driver }
   it { is_expected.to respond_to :drivers }
@@ -73,7 +73,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :each_exploited_host }
   it { is_expected.to respond_to :each_loot }
   it { is_expected.to respond_to :each_note }
-  it { is_expected.to respond_to :each_service }
   it { is_expected.to respond_to :each_vuln }
   it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :error }
@@ -85,7 +84,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :find_or_create_note }
   it { is_expected.to respond_to :find_or_create_ref }
   it { is_expected.to respond_to :find_or_create_report }
-  it { is_expected.to respond_to :find_or_create_service }
   it { is_expected.to respond_to :find_or_create_task }
   it { is_expected.to respond_to :find_or_create_vuln }
   it { is_expected.to respond_to :find_qualys_asset_ports }
@@ -95,7 +93,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :find_vuln_by_refs }
   it { is_expected.to respond_to :get_client }
   it { is_expected.to respond_to :get_ref }
-  it { is_expected.to respond_to :get_service }
   it { is_expected.to respond_to :get_session }
   it { is_expected.to respond_to :get_vuln }
   it { is_expected.to respond_to :has_ref? }
@@ -194,7 +191,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :report_loot }
   it { is_expected.to respond_to :report_note }
   it { is_expected.to respond_to :report_report }
-  it { is_expected.to respond_to :report_service }
 
   context '#report_session' do
     let(:options) do
@@ -849,7 +845,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :reports }
   it { is_expected.to respond_to :rexmlify }
   it { is_expected.to respond_to :service_name_map }
-  it { is_expected.to respond_to :services }
   it { is_expected.to respond_to :tasks }
   it { is_expected.to respond_to :unserialize_object }
   it { is_expected.to respond_to :update_vuln_details }
