@@ -9,7 +9,6 @@ require 'msf/core/exploit/mssql_commands'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
-  #include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
