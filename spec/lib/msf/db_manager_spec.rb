@@ -18,6 +18,7 @@ describe Msf::DBManager do
     db_manager
   end
 
+  it_should_behave_like 'Msf::DBManager::Cred'
   it_should_behave_like 'Msf::DBManager::Host'
   it_should_behave_like 'Msf::DBManager::IPAddress'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
@@ -63,13 +64,11 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :connect }
   it { is_expected.to respond_to :connection_established? }
   it { is_expected.to respond_to :create_db }
-  it { is_expected.to respond_to :creds }
   it { is_expected.to respond_to :dehex }
   it { is_expected.to respond_to :disconnect }
   it { is_expected.to respond_to :driver }
   it { is_expected.to respond_to :drivers }
   it { is_expected.to respond_to :drivers= }
-  it { is_expected.to respond_to :each_cred }
   it { is_expected.to respond_to :each_exploited_host }
   it { is_expected.to respond_to :each_loot }
   it { is_expected.to respond_to :each_note }
@@ -79,7 +78,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :events }
   it { is_expected.to respond_to :exploited_hosts }
   it { is_expected.to respond_to :find_or_create_client }
-  it { is_expected.to respond_to :find_or_create_cred }
   it { is_expected.to respond_to :find_or_create_loot }
   it { is_expected.to respond_to :find_or_create_note }
   it { is_expected.to respond_to :find_or_create_ref }
@@ -176,10 +174,7 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :nmap_msf_service_map }
   it { is_expected.to respond_to :notes }
   it { is_expected.to respond_to :report_artifact }
-  it { is_expected.to respond_to :report_auth }
-  it { is_expected.to respond_to :report_auth_info }
   it { is_expected.to respond_to :report_client }
-  it { is_expected.to respond_to :report_cred }
   it { is_expected.to respond_to :report_event }
   it { is_expected.to respond_to :report_exploit }
   it { is_expected.to respond_to :report_exploit_attempt }
