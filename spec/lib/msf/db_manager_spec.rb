@@ -23,6 +23,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ModuleCache'
   it_should_behave_like 'Msf::DBManager::Sink'
+  it_should_behave_like 'Msf::DBManager::WMAP'
   it_should_behave_like 'Msf::DBManager::Workspace'
 
   context 'CONSTANTS' do
@@ -60,31 +61,20 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :connect }
   it { is_expected.to respond_to :connection_established? }
   it { is_expected.to respond_to :create_db }
-  it { is_expected.to respond_to :create_request }
-  it { is_expected.to respond_to :create_target }
   it { is_expected.to respond_to :creds }
   it { is_expected.to respond_to :dehex }
   it { is_expected.to respond_to :del_host }
   it { is_expected.to respond_to :del_service }
-  it { is_expected.to respond_to :delete_all_targets }
   it { is_expected.to respond_to :disconnect }
   it { is_expected.to respond_to :driver }
   it { is_expected.to respond_to :drivers }
   it { is_expected.to respond_to :drivers= }
   it { is_expected.to respond_to :each_cred }
-  it { is_expected.to respond_to :each_distinct_target }
   it { is_expected.to respond_to :each_exploited_host }
   it { is_expected.to respond_to :each_host }
   it { is_expected.to respond_to :each_loot }
   it { is_expected.to respond_to :each_note }
-  it { is_expected.to respond_to :each_request }
-  it { is_expected.to respond_to :each_request_target }
-  it { is_expected.to respond_to :each_request_target_with_body }
-  it { is_expected.to respond_to :each_request_target_with_headers }
-  it { is_expected.to respond_to :each_request_target_with_path }
-  it { is_expected.to respond_to :each_request_target_with_query }
   it { is_expected.to respond_to :each_service }
-  it { is_expected.to respond_to :each_target }
   it { is_expected.to respond_to :each_vuln }
   it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :error }
@@ -110,7 +100,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :get_ref }
   it { is_expected.to respond_to :get_service }
   it { is_expected.to respond_to :get_session }
-  it { is_expected.to respond_to :get_target }
   it { is_expected.to respond_to :get_vuln }
   it { is_expected.to respond_to :has_host? }
   it { is_expected.to respond_to :has_ref? }
@@ -865,20 +854,9 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :report_web_site }
   it { is_expected.to respond_to :report_web_vuln }
   it { is_expected.to respond_to :reports }
-  it { is_expected.to respond_to :request_distinct_targets }
-  it { is_expected.to respond_to :request_sql }
-  it { is_expected.to respond_to :requests }
   it { is_expected.to respond_to :rexmlify }
-  it { is_expected.to respond_to :selected_host }
-  it { is_expected.to respond_to :selected_id }
-  it { is_expected.to respond_to :selected_port }
-  it { is_expected.to respond_to :selected_ssl }
-  it { is_expected.to respond_to :selected_wmap_target }
   it { is_expected.to respond_to :service_name_map }
   it { is_expected.to respond_to :services }
-  it { is_expected.to respond_to :sql_query }
-  it { is_expected.to respond_to :target_requests }
-  it { is_expected.to respond_to :targets }
   it { is_expected.to respond_to :tasks }
   it { is_expected.to respond_to :unserialize_object }
   it { is_expected.to respond_to :update_host_via_sysinfo }
