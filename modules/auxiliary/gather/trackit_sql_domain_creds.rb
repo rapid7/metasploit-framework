@@ -285,80 +285,90 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if loot[schema_owner] and loot[database_pw] and loot[database_type] and loot[database_server_name]
-
-      begin
-        resolved_ip = ::Rex::Socket.getaddress(loot[database_server_name].split('\\')[0])
-      rescue
-        resolved_ip = nil
+      # If it is Oracle we need to save the SID for creating the Credential Core, else we don't care
+      if loot[database_type] =~ /Oracle/i
+        sid = loot[database_server_name].split('\\')[1]
+      else
+        sid = nil
       end
 
-      service_data = {
-        address: (resolved_ip == nil ? rhost : resolved_ip),
-        port: rport,
-        service_name: (resolved_ip == nil ? (ssl ? 'https' : 'http') : loot[database_type]),
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-      }
+      credential_core = report_credential_core({
+         password: loot[database_pw],
+         username: loot[schema_owner],
+         sid: sid
+       })
 
-      credential_data = {
-        origin_type: :service,
-        module_fullname: self.fullname,
-        private_type: :password,
-        private_data: loot[database_pw],
-        username: loot[schema_owner] ,
-        # We store the SID for Oracle or the instance name for SQL Server.
-        # There's no realm_key for SQL Server so store it as Oracle anyway.
-        realm_key: (database_type == "SQLServer" ? nil : Metasploit::Model::Realm::Key::ORACLE_SYSTEM_IDENTIFIER),
-        realm_value: (database_type == "SQLServer" ? nil : loot[database_server_name].split('\\')[1])
-      }
+      # Get just the hostname
+      db_address= loot[database_server_name].split('\\')[0]
 
-      credential_data.merge!(service_data)
-      credential_core = create_credential(credential_data)
-
-      if resolved_ip == nil
-        create_credential_origin(credential_core)
-      else
-        login_data = {
+      begin
+        database_login_data = {
+          address: ::Rex::Socket.getaddress(db_address, true),
+          service_name: loot[database_type],
+          protocol: 'tcp',
+          workspace_id: myworkspace_id,
           core: credential_core,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
-        login_data.merge!(service_data)
-        create_credential_login(login_data)
+
+        # If it's Oracle, use the Oracle port, else use MSSQL
+        if loot[database_type] =~ /Oracle/i
+          database_login_data[:port] = 1521
+        else
+          database_login_data[:port] = 1433
+        end
+        create_credential_login(database_login_data)
+      # Skip creating the Login, but tell the user about it if we cannot resolve the DB Server Hostname
+      rescue SocketError
+        print_error "Could not resolve Database Server Hostname."
       end
 
       print_status("#{rhost}:#{rport} - Stored SQL credentials: #{loot[database_server_name]}:#{loot[schema_owner]}:#{loot[database_pw]}")
     end
 
     if loot[domain_admin_name] and loot[domain_admin_pw]
-      service_data = {
-        address: rhost,
-        # These are domain creds so it can be any port?
-        port: rport,
-        service_name: 'Domain',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-      }
-      credential_data = {
-        origin_type: :service,
-        module_fullname: self.fullname,
-        private_type: :password,
-        private_data: loot[domain_admin_pw],
+      report_credential_core({
+        password: loot[domain_admin_pw],
         username: loot[domain_admin_name].split('\\')[1],
-        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
-        realm_value: loot[domain_admin_name].split('\\')[0]
-      }
-
-      credential_data.merge!(service_data)
-      credential_core = create_credential(credential_data)
-      login_data = {
-        core: credential_core,
-        access_level: 'Domain Administrator',
-        status: Metasploit::Model::Login::Status::UNTRIED
-      }
-      login_data.merge!(service_data)
-      create_credential_login(login_data)
+        domain: loot[domain_admin_name].split('\\')[0]
+      })
 
       print_status("#{rhost}:#{rport} - Stored domain credentials: #{loot[domain_admin_name]}:#{loot[domain_admin_pw]}")
     end
+  end
+
+
+  def report_credential_core(cred_opts={})
+    # Set up the has for our Origin service
+    origin_service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'Domain',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: self.fullname,
+      private_type: :password,
+      private_data: cred_opts[:password],
+      username: cred_opts[:username]
+    }
+
+    if cred_opts[:domain]
+      credential_data.merge!({
+        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_value: cred_opts[:domain]
+      })
+    elsif cred_opts[:sid]
+      credential_data.merge!({
+         realm_key: Metasploit::Model::Realm::Key::ORACLE_SYSTEM_IDENTIFIER,
+         realm_value: cred_opts[:sid]
+       })
+    end
+
+    credential_data.merge!(origin_service_data)
+    create_credential(credential_data)
   end
 end
