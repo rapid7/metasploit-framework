@@ -1,4 +1,5 @@
 shared_examples_for 'Msf::DBManager::ModuleCache' do
+  it { is_expected.to respond_to :match_values }
   it { is_expected.to respond_to :module_to_details_hash }
   it { is_expected.to respond_to :modules_cached }
   it { is_expected.to respond_to :modules_cached= }
