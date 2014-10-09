@@ -8,12 +8,11 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/jenkins'
 
 class Metasploit3 < Msf::Auxiliary
-  
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
-  
+
   def initialize
     super(
       'Name'           => 'Jenkins-CI Login Utility',
@@ -28,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
 
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000 ])
-    
+
     deregister_options('RHOST')
   end
 
@@ -40,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
             user_file: datastore['USER_FILE'],
             userpass_file: datastore['USERPASS_FILE'],
             username: datastore['USERNAME'],
-            user_as_pass: datastore['USER_AS_PASS'],
+            user_as_pass: datastore['USER_AS_PASS']
     )
 
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
@@ -53,11 +52,11 @@ class Metasploit3 < Msf::Auxiliary
       user_agent: datastore['UserAgent'],
       vhost: datastore['VHOST']
     )
-   
+
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
+          module_fullname: fullname,
           workspace_id: myworkspace_id
       )
       if result.success?
@@ -68,10 +67,8 @@ class Metasploit3 < Msf::Auxiliary
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
         invalidate_login(credential_data)
-        vprint_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
-
   end
-
 end
