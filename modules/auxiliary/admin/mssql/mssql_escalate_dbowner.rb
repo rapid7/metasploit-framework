@@ -9,7 +9,7 @@ require 'msf/core/exploit/mssql_commands'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
-  include Msf::Auxiliary::Scanner
+  #include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
@@ -26,9 +26,9 @@ class Metasploit3 < Msf::Auxiliary
     ))
   end
 
-  def run_host(ip)
+  def run
     # Check connection and issue initial query
-    print_status("Attempting to connect to the database server at #{ip} as #{datastore['username']}...")
+    print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['username']}...")
     if mssql_login_datastore == false
       print_error('Login was unsuccessful. Check your credentials.')
       disconnect
