@@ -39,8 +39,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        # There is no TARGETURI because when Glassfish is installed, the path is /
         Opt::RPORT(4848),
-        OptString.new('TARGETURI', [true, 'The URI path of the GlassFish Server', '/']),
         OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
         OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', false]),
         OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
@@ -97,7 +97,6 @@ class Metasploit3 < Msf::Auxiliary
     @scanner = Metasploit::Framework::LoginScanner::Glassfish.new(
       host:               ip,
       port:               rport,
-      uri:                datastore['URI'],
       proxies:            datastore["PROXIES"],
       cred_details:       @cred_collection,
       stop_on_success:    datastore['STOP_ON_SUCCESS'],
