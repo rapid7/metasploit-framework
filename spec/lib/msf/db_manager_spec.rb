@@ -24,6 +24,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::IPAddress'
   it_should_behave_like 'Msf::DBManager::Import'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
+  it_should_behave_like 'Msf::DBManager::Loot'
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ModuleCache'
   it_should_behave_like 'Msf::DBManager::Service'
@@ -70,13 +71,11 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :driver }
   it { is_expected.to respond_to :drivers }
   it { is_expected.to respond_to :drivers= }
-  it { is_expected.to respond_to :each_loot }
   it { is_expected.to respond_to :each_note }
   it { is_expected.to respond_to :each_vuln }
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :events }
   it { is_expected.to respond_to :find_or_create_client }
-  it { is_expected.to respond_to :find_or_create_loot }
   it { is_expected.to respond_to :find_or_create_note }
   it { is_expected.to respond_to :find_or_create_ref }
   it { is_expected.to respond_to :find_or_create_report }
@@ -92,7 +91,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :has_vuln? }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :loots }
   it { is_expected.to respond_to :notes }
   it { is_expected.to respond_to :report_artifact }
   it { is_expected.to respond_to :report_client }
@@ -104,7 +102,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :report_host_details }
   it { is_expected.to respond_to :report_host_tag }
   it { is_expected.to respond_to :report_import_note }
-  it { is_expected.to respond_to :report_loot }
   it { is_expected.to respond_to :report_note }
   it { is_expected.to respond_to :report_report }
 
