@@ -18,6 +18,7 @@ describe Msf::DBManager do
     db_manager
   end
 
+  it_should_behave_like 'Msf::DBManager::IPAddress'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ModuleCache'
@@ -182,9 +183,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :initialize_database_support }
   it { is_expected.to respond_to :inspect_single_packet }
   it { is_expected.to respond_to :inspect_single_packet_http }
-  it { is_expected.to respond_to :ipv46_validator }
-  it { is_expected.to respond_to :ipv4_validator }
-  it { is_expected.to respond_to :ipv6_validator }
   it { is_expected.to respond_to :loots }
   it { is_expected.to respond_to :msf_import_timestamps }
   it { is_expected.to respond_to :netsparker_method_map }
@@ -871,7 +869,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :request_sql }
   it { is_expected.to respond_to :requests }
   it { is_expected.to respond_to :rexmlify }
-  it { is_expected.to respond_to :rfc3330_reserved }
   it { is_expected.to respond_to :selected_host }
   it { is_expected.to respond_to :selected_id }
   it { is_expected.to respond_to :selected_port }
@@ -889,7 +886,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :usable }
   it { is_expected.to respond_to :usable= }
   it { is_expected.to respond_to :validate_import_file }
-  it { is_expected.to respond_to :validate_ips }
   it { is_expected.to respond_to :vulns }
   it { is_expected.to respond_to :warn_about_rubies }
 end
