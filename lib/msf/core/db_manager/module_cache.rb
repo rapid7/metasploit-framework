@@ -13,6 +13,19 @@ module Msf::DBManager::ModuleCache
   # Instance Methods
   #
 
+  # Wraps values in +'%'+ for Arel::Prediciation#matches_any and other match* methods that map to SQL +'LIKE'+ or
+  # +'ILIKE'+
+  #
+  # @param values [Set<String>, #each] a list of strings.
+  # @return [Arrray<String>] strings wrapped like %<string>%
+  def match_values(values)
+    wrapped_values = values.collect { |value|
+      "%#{value}%"
+    }
+
+    wrapped_values
+  end
+
   def module_to_details_hash(m)
     res  = {}
     bits = []

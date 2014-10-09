@@ -367,18 +367,6 @@ class DBManager
     end
   end
 
-  # Wraps values in +'%'+ for Arel::Prediciation#matches_any and other match* methods that map to SQL +'LIKE'+ or
-  # +'ILIKE'+
-  #
-  # @param values [Set<String>, #each] a list of strings.
-  # @return [Arrray<String>] strings wrapped like %<string>%
-  def match_values(values)
-    wrapped_values = values.collect { |value|
-      "%#{value}%"
-    }
-
-    wrapped_values
-  end
 
   def rfc3330_reserved(ip)
     case ip.class.to_s
