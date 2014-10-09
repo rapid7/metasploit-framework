@@ -78,6 +78,7 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :nexpose_refs_to_struct }
   it { is_expected.to respond_to :nils_for_nulls }
   it { is_expected.to respond_to :nmap_msf_service_map }
+  it { is_expected.to respond_to :report_import_note }
   it { is_expected.to respond_to :rexmlify }
   it { is_expected.to respond_to :unserialize_object }
   it { is_expected.to respond_to :validate_import_file }
