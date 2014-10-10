@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
         cmd = datastore['CMD']
 
         connect
-        sock.put("\n"+cmd+"\n")
+        sock.put("\n#{cmd}\n")
         Rex.sleep(1)
         resp = sock.get_once
 
