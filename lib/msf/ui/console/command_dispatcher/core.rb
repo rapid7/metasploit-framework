@@ -2152,7 +2152,7 @@ class Core
           if (mod and (mod.auxiliary? or mod.post?))
             show_actions(mod)
           else
-            print_error("No auxiliary module selected.")
+            print_error("No auxiliary or post module selected.")
           end
 
         else
