@@ -2009,7 +2009,7 @@ class Core
       res << 'ENCODER'
     end
 
-    if (mod.auxiliary? or mod.post?)
+    if mod.kind_of?(Msf::Module::HasActions)
       res << "ACTION"
     end
 
@@ -2149,7 +2149,7 @@ class Core
             print_error("No exploit module selected.")
           end
         when "actions"
-          if (mod and (mod.auxiliary? or mod.post?))
+          if mod && mod.kind_of?(Msf::Module::HasActions)
             show_actions(mod)
           else
             print_error("No auxiliary or post module selected.")
@@ -2721,8 +2721,8 @@ class Core
       return option_values_encoders() if opt.upcase == 'StageEncoder'
     end
 
-    # Well-known option names specific to auxiliaries and posts
-    if (mod.auxiliary? or mod.post?)
+    # Well-known option names specific to modules with actions
+    if mod.kind_of?(Msf::Module::HasActions)
       return option_values_actions() if opt.upcase == 'ACTION'
     end
 
@@ -3147,7 +3147,7 @@ class Core
     end
 
     # Print the selected action
-    if mod.kind_of?(Msf::Module::HasActions)
+    if mod.kind_of?(Msf::Module::HasActions) && mod.action
       mod_action = Serializer::ReadableText.dump_module_action(mod, '   ')
       print("\n#{mod.type.capitalize} action:\n\n#{mod_action}\n") if (mod_action and mod_action.length > 0)
     end
