@@ -52,6 +52,8 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
             end
+          rescue ::JSON::ParserError
+            result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res.body)
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
           end
