@@ -188,16 +188,22 @@ module ModuleCommandDispatcher
           print_status("#{peer} - #{code[1]}")
         end
       else
-        print_error("#{peer} - Check failed: The state could not be determined.")
+        msg = "#{peer} - Check failed: The state could not be determined."
+        print_error(msg)
+        elog("#{msg}\n#{caller.join("\n")}")
       end
-    rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
+    rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error => e
       # Connection issues while running check should be handled by the module
-    rescue ::RuntimeError
+      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+    rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
+      elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue Msf::OptionValidateError => e
       print_error("Check failed: #{e.message}")
+      elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
       print_error("#{peer} - Check failed: #{e.class} #{e}")
+      elog("#{e.message}\n#{e.backtrace.join("\n")}")
     end
   end
 
