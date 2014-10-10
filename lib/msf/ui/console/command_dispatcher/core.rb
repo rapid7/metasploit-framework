@@ -2009,7 +2009,7 @@ class Core
       res << 'ENCODER'
     end
 
-    if (mod.auxiliary?)
+    if (mod.auxiliary? or mod.post?)
       res << "ACTION"
     end
 
@@ -2721,8 +2721,8 @@ class Core
       return option_values_encoders() if opt.upcase == 'StageEncoder'
     end
 
-    # Well-known option names specific to auxiliaries
-    if (mod.auxiliary?)
+    # Well-known option names specific to auxiliaries and posts
+    if (mod.auxiliary? or mod.post?)
       return option_values_actions() if opt.upcase == 'ACTION'
     end
 
@@ -2869,7 +2869,7 @@ class Core
 
 
   #
-  # Provide valid action options for the current auxiliary module
+  # Provide valid action options for the current module
   #
   def option_values_actions
     res = []
