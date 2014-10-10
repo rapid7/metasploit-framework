@@ -2152,7 +2152,7 @@ class Core
           if mod && mod.kind_of?(Msf::Module::HasActions)
             show_actions(mod)
           else
-            print_error("No auxiliary or post module selected.")
+            print_error("No module with actions selected.")
           end
 
         else
