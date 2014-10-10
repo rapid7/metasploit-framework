@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
         connect
         sock.put("\n"+cmd+"\n")
-        select(nil,nil,nil,0.5)
+        Rex.sleep(1)
         resp = sock.get_once
 
         if (resp and resp =~ /Welcome/)
