@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
         invalidate_login(credential_data)
-        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
   end

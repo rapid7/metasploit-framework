@@ -72,15 +72,15 @@ class Metasploit3 < Msf::Auxiliary
             print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
           else
             invalidate_login(credential_data)
-            print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+            vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
           end
         end
 
       else
-        print_error "#{target} - Unsupported target version of MySQL detected. Skipping."
+        vprint_error "#{target} - Unsupported target version of MySQL detected. Skipping."
       end
     rescue ::Rex::ConnectionError, ::EOFError => e
-      print_error "#{target} - Unable to connect: #{e.to_s}"
+      vprint_error "#{target} - Unable to connect: #{e.to_s}"
     end
   end
 
