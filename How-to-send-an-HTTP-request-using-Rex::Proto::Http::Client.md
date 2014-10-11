@@ -60,6 +60,18 @@ If the number of options #request_raw supports doesn't blow you mind, don't be d
 | pad_post_params | Enable padding for POST parameters |
 | pad_post_params_count | Number of random POST parameters. You also need pad_post_params for this |
 
+An example of using one of #request_cgi options:
+
+```ruby
+req = cli.request_cgi({
+	'uri'      =>'/test.php',
+	'vars_get' => {
+		'param1' => 'value',
+		'param2' => 'value'
+	}
+})
+```
+
 
 ## Sending an HTTP request
 
