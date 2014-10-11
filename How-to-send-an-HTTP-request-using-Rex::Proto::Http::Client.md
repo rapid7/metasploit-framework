@@ -113,7 +113,7 @@ cli.close
 
 ## URI Parsing
 
-Rex::Proto::Http::Client actually does not support URI parsing, so for URI format validation and normalization, you are on your own.
+Rex::Proto::Http::Client actually does not support URI parsing, so for URI format validation and normalization, you are on your own, and you should probably do it.
 
 For URI format validation, we recommend using Ruby's URI module. You can use HttpClient's #[target_uri](https://github.com/rapid7/metasploit-framework/blob/a65ee6cf30e6f671985876f83457cfcbea008e49/lib/msf/core/exploit/http/client.rb#L335) method as an example.
 
