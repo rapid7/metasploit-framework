@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  ALLOWED_COMMANDS = %w(u i p a g l T A q)
+  ALLOWED_COMMANDS = %w(a A i g l p q T u)
 
   def initialize
     super(
