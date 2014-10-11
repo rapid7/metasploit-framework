@@ -155,9 +155,20 @@ Rex::Proto::Http::Client also comes with its own collection of evasion options. 
 
 **NTLM Options**
 
+HTTP authentication is automatic in Rex::Proto::Http::Client, and when it comes to the NTLM provider, it gets its own options. You MUST use the #set_config method to set them:
 
+| Option | Data type | Default | Known configurable option |
+| ------ | --------- | ------- | ------------- |
+| usentlm2_session | Boolean | true | NTLM::UseNTLM2_session |
+| use_ntlmv2 | Boolean | true | NTLM::UseNTLMv2 |
+| send_lm | Boolean | true | NTLM::SendLM |
+| send_ntlm | Boolean | true | NTLM::SendNTLM |
+| SendSPN | Boolean | true | NTLM::SendSPN |
+| UseLMKey | Boolean | false | NTLM::UseLMKey |
+| domain | String | WORKSTATION | DOMAIN |
+| DigestAuthIIS | Boolean | true | DigestAuthIIS |
 
-* "Known configuration options" means there is a datastore option for it from HttpClient.
+Note: "Known configuration options" means there is a datastore option for it from HttpClient.
 
 ## URI Parsing
 
