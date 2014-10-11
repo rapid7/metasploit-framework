@@ -33,18 +33,31 @@ class Metasploit3 < Msf::Auxiliary
       cmd = datastore['CMD']
 
       connect
-      sock.put("\n#{cmd}\n")
-      Rex.sleep(1)
-      resp = sock.get_once
+      banner_resp = sock.get_once
+      if banner_resp && banner_resp =~ /^Welcome to the perfd server/
+        banner_resp.strip!
+        print_good("#{target_host}:#{rport}, Perfd server banner: #{banner_resp}")
+        perfd_service = report_service(host: rhost, port: rport, name: "perfd", proto: "tcp", info: banner_resp)
+        sock.puts("\n#{cmd}\n")
+        Rex.sleep(1)
+        cmd_resp = sock.get_once
 
-      if (resp && resp =~ /Welcome/)
-        print_good("#{target_host}:#{rport}, Perfd server banner: #{resp}")
-        report_service(:host => rhost, :port => rport, :name => "perfd", :proto => "tcp", :info => resp)
+        loot_name = "HP Ops Agent perfd #{cmd}"
+        path = store_loot(
+          "hp.ops.agent.perfd.#{cmd}",
+          'text/plain',
+          target_host,
+          cmd_resp,
+          nil,
+          "HP Ops Agent perfd #{cmd}",
+          perfd_service
+        )
+        print_status("#{target_host}:#{rport} - #{loot_name} saved in: #{path}")
       else
         print_error("#{target_host}:#{rport}, Perfd server banner detection failed!")
       end
       disconnect
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue Timeout::Error => e
       print_error(e.message)
     end
