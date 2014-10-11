@@ -6,7 +6,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -31,21 +30,20 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(target_host)
     begin
-        cmd = datastore['CMD']
+      cmd = datastore['CMD']
 
-        connect
-        sock.put("\n#{cmd}\n")
-        Rex.sleep(1)
-        resp = sock.get_once
+      connect
+      sock.put("\n#{cmd}\n")
+      Rex.sleep(1)
+      resp = sock.get_once
 
-        if (resp && resp =~ /Welcome/)
-          print_good("#{target_host}:#{rport}, Perfd server banner: #{resp}")
-          report_service(:host => rhost, :port => rport, :name => "perfd", :proto => "tcp", :info => resp)
-        else
-          print_error("#{target_host}:#{rport}, Perfd server banner detection failed!")
-        end
-        disconnect
-
+      if (resp && resp =~ /Welcome/)
+        print_good("#{target_host}:#{rport}, Perfd server banner: #{resp}")
+        report_service(:host => rhost, :port => rport, :name => "perfd", :proto => "tcp", :info => resp)
+      else
+        print_error("#{target_host}:#{rport}, Perfd server banner detection failed!")
+      end
+      disconnect
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
     rescue Timeout::Error => e
       print_error(e.message)
