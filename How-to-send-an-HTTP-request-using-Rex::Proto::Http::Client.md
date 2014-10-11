@@ -82,17 +82,7 @@ Here are examples of how to actually speak to an HTTP server with either #reques
 ```ruby
 cli = Rex::Proto::Http::Client.new(rhost),
 cli.connect
-req = cli.request_cgi({
-	'uri'      =>'/test.php',
-	'vars_get' => {
-		'param1' => 'value',
-		'param2' => 'value'
-	},
-	'vars_post' => {
-		'username' => 'user',
-		'password' => 'pass'
-	}
-})
+req = cli.request_cgi({'uri'=>'/'})
 res = cli.send_recv(req)
 cli.close
 ```
