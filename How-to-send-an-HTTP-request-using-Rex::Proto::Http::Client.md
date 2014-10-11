@@ -6,9 +6,9 @@ However, in some scenarios, you actually can't use the HttpClient mixin. The mos
 
 ## Making an HTTP request
 
-Even though our main topic of this documentation is about Rex::Proto::Http::Client, it does not know how to make HTTP requests, it just asks for one with its #request_cgi or #request_raw method. Instead, [Rex::Proto::Http::ClientRequest](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client_request.rb) is actually the mother of all Metasploit's HTTP requests.
+Even though our main topic of this documentation is about Rex::Proto::Http::Client, it does not know how to make HTTP requests. Instead, [Rex::Proto::Http::ClientRequest](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client_request.rb) is actually the mother of all Metasploit's HTTP requests.
 
-So how does Rex::Proto::Http::ClientRequest give birth to an HTTP request?
+So how does Rex::Proto::Http::ClientRequest give birth to an HTTP request? Well, you see son, it all begins when Rex::Proto::Http::Client asks for one with either the #request_cgi or the #request_raw method. The difference is that if #request_cgi is used, the request is meant to be CGI compatible. If #request_raw is used, then the request is likely used to violate the HTTP specification. In most cases, you want #request_cgi.
 
 ## Sending an HTTP request
 
