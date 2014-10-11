@@ -17,9 +17,10 @@ A raw HTTP request supports the following options:
 | query | Raw GET query string |
 | data | Raw POST data string |
 | encode | URI encoding |
+| uri | Raw URI string |
 | uri_encode_count | Number of times to encode |
 | uri_full_url | Full URL |
-| uri_dir_fake_relative | A rake relative URL |
+| uri_dir_fake_relative | A fake relative URL |
 | ssl | True to use https://, otherwise http:// |
 | agent | User-Agent. Default is: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)|
 | method | HTTP method |
