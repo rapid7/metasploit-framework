@@ -49,6 +49,17 @@ A raw HTTP request supports the following options:
 | ctype | Content type |
 | chunked_size | Body chunk size. Will also set Transfer-Encoding and Content-Length to "" |
 
+If the number of options #request_raw supports doesn't blow you mind, don't be disappointed. **#request_cgi inherits all the above**, and more:
+
+| Option/key name | Description |
+| --------------- | ----------- |
+| pad_get_params | Enable padding for GET parameters |
+| pad_get_params_count | Number of random GET parameters. You also need pad_get_params for this |
+| vars_get | A hash of GET parameters |
+| encode_params | Enable URI encoding for GET or POST parameters |
+| pad_post_params | Enable padding for POST parameters |
+| pad_post_params_count | Number of random POST parameters. You also need pad_post_params for this |
+
 
 ## Sending an HTTP request
 
