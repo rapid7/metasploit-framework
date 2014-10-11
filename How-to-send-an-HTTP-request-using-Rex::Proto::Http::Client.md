@@ -8,7 +8,31 @@ However, in some scenarios, you actually can't use the HttpClient mixin. The mos
 
 Even though our main topic of this documentation is about Rex::Proto::Http::Client, it does not know how to make HTTP requests. Instead, [Rex::Proto::Http::ClientRequest](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client_request.rb) is actually the mother of all Metasploit's HTTP requests.
 
-So how does Rex::Proto::Http::ClientRequest give birth to an HTTP request? Well, you see son, it all begins when Rex::Proto::Http::Client asks for one with either the #request_cgi or the #request_raw method. The difference is that if #request_cgi is used, the request is meant to be CGI compatible. If #request_raw is used, then the request is likely used to violate the HTTP specification. In most cases, you want #request_cgi.
+So how does Rex::Proto::Http::ClientRequest give birth to an HTTP request? Well, you see son, it all begins when Rex::Proto::Http::Client asks for one with either the #request_cgi or the #request_raw method. The difference is that if #request_cgi is used, the request is meant to be CGI compatible, and in most cases this is what you want. If #request_raw is used, then the request is likely used to violate the HTTP specification.
+
+A raw HTTP request supports the following options:
+
+| Option/key name | Description |
+| --------------- | ----------- |
+| query | Raw GET query string |
+| data | Raw POST data string |
+| encode | URI encoding |
+| agent | User-Agent. Default is: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)|
+| method_random_valid | A random HTTP method: GET, POST, or HEAD |
+| method_random_invalid | A random string as an HTTP method |
+| method_random_case | A random string with casings as an HTTP method |
+| pad_method_uri_count | Number of spaces |
+| pad_method_uri_type | Either a space, or a tab, or Apache specific. |
+| uri_fake_params_start | Appends '/%3fa=b/../' |
+| uri_fake_end | Appends '/%20HTTP/1.0/../../' |
+| pad_uri_version_count | Number of spaces between the URI and the version |
+| pad_uri_version_type | Either a space, or a tab, or Apache specific. |
+| proto | Protocol |
+| version | Version |
+| version_random_valid | A random version between 1.0 or 1.1 |
+| version_random_invalid | A random numeric string for the version |
+| version_random_case | A string with random casings for the version |
+
 
 ## Sending an HTTP request
 
