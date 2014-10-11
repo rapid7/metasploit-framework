@@ -41,38 +41,20 @@ A raw HTTP request supports the following options:
 | --------------- | --------- | ----------- |
 | query | String | Raw GET query string |
 | data | String | Raw POST data string |
-| encode | Boolean | URI encoding |
 | uri | String | Raw URI string |
-| uri_encode_count | Fixnum | Number of times to encode |
-| uri_full_url | Boolean | Full URL |
-| uri_dir_fake_relative | Boolean | Enable fake relative URL |
 | ssl | Boolean | True to use https://, otherwise http:// |
 | agent | String | User-Agent. Default is: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)|
 | method | String | HTTP method |
-| method_random_valid | Boolean | A random HTTP method: GET, POST, or HEAD |
-| method_random_invalid | Boolean | A random string as an HTTP method |
-| method_random_case | Boolean | A random string with casings as an HTTP method |
-| pad_method_uri_count | Fixnum | Number of spaces |
-| pad_method_uri_type | String | Either a space, or a tab, or Apache specific |
-| uri_fake_params_start | Boolean | Appends '/%3fa=b/../' |
-| uri_fake_end | Boolean | Appends '/%20HTTP/1.0/../../' |
-| pad_uri_version_count | Fixnum | Number of spaces between the URI and the version |
-| pad_uri_version_type | String | Either a space, or a tab, or Apache specific |
 | proto | String | Protocol |
 | version | String | Version |
-| version_random_valid | Boolean | A random version between 1.0 or 1.1 |
-| version_random_invalid | Boolean | A random numeric string for the version |
-| version_random_case | Boolean | A string with random casings for the version |
 | vhost | String | Host header |
 | port | Fixnum | Port for the host header |
 | authorization | String | The authorization header |
 | cookie | String | The cookie header |
 | connection | String | The connection header |
-| pad_fake_headers | Fixnum | Number of fake alphanumeric headers |
 | headers | Hash | A hash of custom headers. Safer than raw_headers |
 | raw_headers | String | A string of raw headers |
 | ctype | String | Content type |
-| chunked_size | Fixnum | Body chunk size. Will also set Transfer-Encoding and Content-Length to "" |
 
 An example of using #request_raw's options:
 
@@ -85,7 +67,7 @@ req = cli.request_raw({
 })
 ```
 
-If the number of options #request_raw supports doesn't blow you mind, don't be disappointed. **#request_cgi inherits all the above**, and more:
+**#request_cgi inherits all the above**, and more:
 
 | Option/key name | Data type | Description |
 | --------------- | --------- | ----------- |
@@ -135,6 +117,47 @@ cli.close
 ```
 
 ## Configuring advanced options
+
+** Evasion Options **
+
+Rex::Proto::Http::Client also comes with its own collection of evasion options. You can set them either when you're asking Rex::Proto::Http::ClientRequest to make the HTTP request, or you can set them with a #set_config method. The main difference is that if you are using #set_config, you should make these options user-configurable, and based on HttpClient's implementation, almost each has its own datastore option.
+
+| Option | Data type | Default | Known configurable option |
+| ------ | --------- | ------- | ------------- |
+| encode_params | Boolean | true | N/A |
+| encode | Boolean | false | N/A |
+| uri_encode_mode | String | hex-normal | HTTP::uri_encode_mode |
+| uri_encode_count | Fixnum | 1 | N/A |
+| uri_full_url | Boolean | false | HTTP::uri_full_url |
+| pad_method_uri_count | Fixnum | 1 | HTTP::pad_method_uri_count |
+| pad_uri_version_count | Fixnum | 1 | HTTP::pad_uri_version_count |
+| pad_method_uri_type | String | space | HTTP::pad_method_uri_type |
+| pad_uri_version_type | String | space | HTTP::pad_uri_version_type |
+| method_random_valid | Boolean | false | HTTP::method_random_valid |
+| method_random_invalid | Boolean | false | HTTP::method_random_invalid |
+| method_random_case | Boolean | false | HTTP::method_random_case |
+| version_random_valid | Boolean | false | N/A |
+| version_random_invalid| Boolean | false | N/A |
+| version_random_case | Boolean | false | N/A |
+| uri_dir_self_reference | Boolean | false | HTTP::uri_dir_self_reference |
+| uri_dir_fake_relative | Boolean | false | HTTP::uri_dir_fake_relative |
+| uri_use_backslashes | Boolean | false | HTTP::uri_use_backslashes |
+| pad_fake_headers | Boolean | pad_fake_headers| HTTP::pad_fake_headers |
+| pad_fake_headers_count | Fixnum | 16 | HTTP::pad_fake_headers_count |
+| pad_get_params | Boolean | false | HTTP::pad_get_params |
+| pad_get_params_count | Boolean | 8 | HTTP::pad_get_params_count |
+| pad_post_params | Boolean | false | HTTP::pad_post_params |
+| pad_post_params_count | Fixnum | 8 | HTTP::pad_post_params_count |
+| uri_fake_end | Boolean | false | HTTP::uri_fake_end |
+| uri_fake_params_start | Boolean | false | HTTP::uri_fake_params_start |
+| header_folding | Boolean | false | HTTP::header_folding |
+| chunked_size | Fixnum | 0 | N/A |
+
+** NTLM Options **
+
+
+
+* "Known configuration options" means there is a datastore option for it from HttpClient.
 
 ## URI Parsing
 
