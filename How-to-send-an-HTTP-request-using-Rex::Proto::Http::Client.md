@@ -12,42 +12,42 @@ So how does Rex::Proto::Http::ClientRequest give birth to an HTTP request? Well,
 
 A raw HTTP request supports the following options:
 
-| Option/key name | Description |
-| --------------- | ----------- |
-| query | Raw GET query string |
-| data | Raw POST data string |
-| encode | URI encoding |
-| uri | Raw URI string |
-| uri_encode_count | Number of times to encode |
-| uri_full_url | Full URL |
-| uri_dir_fake_relative | A fake relative URL |
-| ssl | True to use https://, otherwise http:// |
-| agent | User-Agent. Default is: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)|
-| method | HTTP method |
-| method_random_valid | A random HTTP method: GET, POST, or HEAD |
-| method_random_invalid | A random string as an HTTP method |
-| method_random_case | A random string with casings as an HTTP method |
-| pad_method_uri_count | Number of spaces |
-| pad_method_uri_type | Either a space, or a tab, or Apache specific |
-| uri_fake_params_start | Appends '/%3fa=b/../' |
-| uri_fake_end | Appends '/%20HTTP/1.0/../../' |
-| pad_uri_version_count | Number of spaces between the URI and the version |
-| pad_uri_version_type | Either a space, or a tab, or Apache specific |
-| proto | Protocol |
-| version | Version |
-| version_random_valid | A random version between 1.0 or 1.1 |
-| version_random_invalid | A random numeric string for the version |
-| version_random_case | A string with random casings for the version |
-| vhost | Host header |
-| port | Port for the host header |
-| authorization | The authorization header |
-| cookie | The cookie header |
-| connection | The connection header |
-| pad_fake_headers | Number of fake alphanumeric headers |
-| headers | A hash of custom headers. Safer than raw_headers |
-| raw_headers | A string of raw headers |
-| ctype | Content type |
-| chunked_size | Body chunk size. Will also set Transfer-Encoding and Content-Length to "" |
+| Option/key name | Data type | Description |
+| --------------- | --------- | ----------- |
+| query | String | Raw GET query string |
+| data | String | Raw POST data string |
+| encode | Boolean | URI encoding |
+| uri | String | Raw URI string |
+| uri_encode_count | Fixnum | Number of times to encode |
+| uri_full_url | Boolean | Full URL |
+| uri_dir_fake_relative | Boolean | Enable fake relative URL |
+| ssl | Boolean | True to use https://, otherwise http:// |
+| agent | String | User-Agent. Default is: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)|
+| method | String | HTTP method |
+| method_random_valid | Boolean | A random HTTP method: GET, POST, or HEAD |
+| method_random_invalid | Boolean | A random string as an HTTP method |
+| method_random_case | Boolean | A random string with casings as an HTTP method |
+| pad_method_uri_count | Fixnum | Number of spaces |
+| pad_method_uri_type | String | Either a space, or a tab, or Apache specific |
+| uri_fake_params_start | Boolean | Appends '/%3fa=b/../' |
+| uri_fake_end | Boolean | Appends '/%20HTTP/1.0/../../' |
+| pad_uri_version_count | Fixnum | Number of spaces between the URI and the version |
+| pad_uri_version_type | String | Either a space, or a tab, or Apache specific |
+| proto | String | Protocol |
+| version | String | Version |
+| version_random_valid | Boolean | A random version between 1.0 or 1.1 |
+| version_random_invalid | Boolean | A random numeric string for the version |
+| version_random_case | Boolean | A string with random casings for the version |
+| vhost | String | Host header |
+| port | Fixnum | Port for the host header |
+| authorization | String | The authorization header |
+| cookie | String | The cookie header |
+| connection | String | The connection header |
+| pad_fake_headers | Fixnum | Number of fake alphanumeric headers |
+| headers | Hash | A hash of custom headers. Safer than raw_headers |
+| raw_headers | String | A string of raw headers |
+| ctype | String | Content type |
+| chunked_size | Fixnum | Body chunk size. Will also set Transfer-Encoding and Content-Length to "" |
 
 An example of using #request_raw's options:
 
