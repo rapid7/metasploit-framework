@@ -62,14 +62,14 @@ req = cli.request_raw({
 
 If the number of options #request_raw supports doesn't blow you mind, don't be disappointed. **#request_cgi inherits all the above**, and more:
 
-| Option/key name | Description |
-| --------------- | ----------- |
-| pad_get_params | Enable padding for GET parameters |
-| pad_get_params_count | Number of random GET parameters. You also need pad_get_params for this |
-| vars_get | A hash of GET parameters |
-| encode_params | Enable URI encoding for GET or POST parameters |
-| pad_post_params | Enable padding for POST parameters |
-| pad_post_params_count | Number of random POST parameters. You also need pad_post_params for this |
+| Option/key name | Data type | Description |
+| --------------- | --------- | ----------- |
+| pad_get_params | Boolean | Enable padding for GET parameters |
+| pad_get_params_count | Fixnum | Number of random GET parameters. You also need pad_get_params for this |
+| vars_get | Hash | A hash of GET parameters |
+| encode_params | Boolean | Enable URI encoding for GET or POST parameters |
+| pad_post_params | Boolean | Enable padding for POST parameters |
+| pad_post_params_count | Fixnum | Number of random POST parameters. You also need pad_post_params for this |
 
 An example of using one of #request_cgi options:
 
