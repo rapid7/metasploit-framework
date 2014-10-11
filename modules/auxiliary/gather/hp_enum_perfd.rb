@@ -10,7 +10,10 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  ALLOWED_COMMANDS = %w(a A i g l p q T u)
+  # TODO: figure out what these do:
+  #   o: valid command, takes no args, does nothing
+  #   B, c, F, G, I, M, U, x: all require an "instance id" and possibly other args
+  ALLOWED_COMMANDS = %w(a A i g l p t T u w Z)
 
   def initialize
     super(
@@ -40,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['COMMANDS']
       bad_commands = commands - ALLOWED_COMMANDS
       unless bad_commands.empty?
-        raise ArgumentError, "Bad perfd command(s) #{bad_commands}"
+        fail ArgumentError, "Bad perfd command(s) #{bad_commands}"
       end
     end
   end
