@@ -20,8 +20,8 @@ As you can use, only the host argument is required, the rest are optional. But l
 | ssl | Boolean | True to enable it |
 | ssl_version | String | SSL2, SSL3, or TLS1 |
 | proxies | String | Configure a proxy |
-| username | Username for automatic authentication |
-| password | Password for automatic authentication |
+| username | String | Username for automatic authentication |
+| password | String | Password for automatic authentication |
 
 Code example of initialing Rex::Proto::Http::Client:
 
