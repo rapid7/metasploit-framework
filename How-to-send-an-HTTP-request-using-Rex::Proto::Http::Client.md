@@ -118,7 +118,7 @@ cli.close
 
 ## Configuring advanced options
 
-** Evasion Options **
+**Evasion Options**
 
 Rex::Proto::Http::Client also comes with its own collection of evasion options. You can set them either when you're asking Rex::Proto::Http::ClientRequest to make the HTTP request, or you can set them with a #set_config method. The main difference is that if you are using #set_config, you should make these options user-configurable, and based on HttpClient's implementation, almost each has its own datastore option.
 
@@ -153,7 +153,7 @@ Rex::Proto::Http::Client also comes with its own collection of evasion options. 
 | header_folding | Boolean | false | HTTP::header_folding |
 | chunked_size | Fixnum | 0 | N/A |
 
-** NTLM Options **
+**NTLM Options**
 
 
 
