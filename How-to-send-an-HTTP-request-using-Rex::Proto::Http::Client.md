@@ -179,3 +179,44 @@ For URI format validation, we recommend using Ruby's URI module. You can use Htt
 For URI normalization, we recommend HttpClient's #[normalize_uri](https://github.com/rapid7/metasploit-framework/blob/a65ee6cf30e6f671985876f83457cfcbea008e49/lib/msf/core/exploit/http/client.rb#L360) method as an example.
 
 ## Full Example
+
+```ruby
+cli = Rex::Proto::Http::Client.new(rhost, rport, {}, ssl, ssl_version, proxies, user, pass)
+cli.set_config(
+  'vhost' => vhost,
+  'agent' => datastore['UserAgent'],
+  'uri_encode_mode'        => datastore['HTTP::uri_encode_mode'],
+  'uri_full_url'           => datastore['HTTP::uri_full_url'],
+  'pad_method_uri_count'   => datastore['HTTP::pad_method_uri_count'],
+  'pad_uri_version_count'  => datastore['HTTP::pad_uri_version_count'],
+  'pad_method_uri_type'    => datastore['HTTP::pad_method_uri_type'],
+  'pad_uri_version_type'   => datastore['HTTP::pad_uri_version_type'],
+  'method_random_valid'    => datastore['HTTP::method_random_valid'],
+  'method_random_invalid'  => datastore['HTTP::method_random_invalid'],
+  'method_random_case'     => datastore['HTTP::method_random_case'],
+  'uri_dir_self_reference' => datastore['HTTP::uri_dir_self_reference'],
+  'uri_dir_fake_relative'  => datastore['HTTP::uri_dir_fake_relative'],
+  'uri_use_backslashes'    => datastore['HTTP::uri_use_backslashes'],
+  'pad_fake_headers'       => datastore['HTTP::pad_fake_headers'],
+  'pad_fake_headers_count' => datastore['HTTP::pad_fake_headers_count'],
+  'pad_get_params'         => datastore['HTTP::pad_get_params'],
+  'pad_get_params_count'   => datastore['HTTP::pad_get_params_count'],
+  'pad_post_params'        => datastore['HTTP::pad_post_params'],
+  'pad_post_params_count'  => datastore['HTTP::pad_post_params_count'],
+  'uri_fake_end'           => datastore['HTTP::uri_fake_end'],
+  'uri_fake_params_start'  => datastore['HTTP::uri_fake_params_start'],
+  'header_folding'         => datastore['HTTP::header_folding'],
+  'usentlm2_session'       => datastore['NTLM::UseNTLM2_session'],
+  'use_ntlmv2'             => datastore['NTLM::UseNTLMv2'],
+  'send_lm'                => datastore['NTLM::SendLM'],
+  'send_ntlm'              => datastore['NTLM::SendNTLM'],
+  'SendSPN'                => datastore['NTLM::SendSPN'],
+  'UseLMKey'               => datastore['NTLM::UseLMKey'],
+  'domain'                 => datastore['DOMAIN'],
+  'DigestAuthIIS'          => datastore['DigestAuthIIS']
+)
+cli.connect
+req = cli.request_cgi({'uri'=>'/'})
+res = cli.send_recv(req)
+cli.close
+```
