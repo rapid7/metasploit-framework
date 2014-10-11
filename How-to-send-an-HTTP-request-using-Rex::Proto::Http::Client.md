@@ -4,6 +4,31 @@ However, in some scenarios, you actually can't use the HttpClient mixin. The mos
 
 ## Initializing Rex::Proto::Http::Client
 
+The Rex::Proto::Http::Client initializer creates a new HTTP client instance, and the most important piece is this:
+
+```ruby
+def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '')
+```
+
+As you can use, only the host argument is required, the rest are optional. But let's go over all of them right quick:
+
+| Argument name | Data type | Description |
+| ------------- | --------- | ----------- |
+| host | String | Target host IP |
+| port | Fixnum | Target host port |
+| context | Hash | Determines what is responsible for requesting that a socket can be created |
+| ssl | Boolean | True to enable it |
+| ssl_version | String | SSL2, SSL3, or TLS1 |
+| proxies | String | Configure a proxy |
+| username | Username for automatic authentication |
+| password | Password for automatic authentication |
+
+Code example of initialing Rex::Proto::Http::Client:
+
+```ruby
+cli = Rex::Proto::Http::Client.new(rhost, rport, {}, true, 8181, proxies, 'username', 'password')
+```
+
 ## Making an HTTP request
 
 Even though our main topic of this documentation is about Rex::Proto::Http::Client, it does not know how to make HTTP requests. Instead, [Rex::Proto::Http::ClientRequest](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client_request.rb) is actually the mother of all Metasploit's HTTP requests.
