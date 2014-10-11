@@ -168,7 +168,7 @@ HTTP authentication is automatic in Rex::Proto::Http::Client, and when it comes 
 | domain | String | WORKSTATION | DOMAIN |
 | DigestAuthIIS | Boolean | true | DigestAuthIIS |
 
-Note: "Known configuration options" means there is a datastore option for it from HttpClient.
+Note: "Known configuration options" means there is a datastore option for it from HttpClient. If you can't use HttpClient, then you will have to consider register them yourself.
 
 ## URI Parsing
 
