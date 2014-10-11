@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Enum Environment Perfd Daemon',
+      'Name'        => 'HP Operations Manager Perfd Environment Scanner',
       'Description' => %q{
         This module will enumerate the environment
         HP Operation Manager via daemon perfd.
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(5227),
-      OptEnum.new("CMD", [true, 'Command to execute', 'p', [ 'u', 'i', 'p', 'a', 'g', 'l', 'T', 'A', 'q' ]])
+      OptEnum.new("CMD", [true, 'Command to execute', 'p', %w(u i p a g l T A q)])
     ], self.class)
   end
 
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         Rex.sleep(1)
         resp = sock.get_once
 
-        if (resp and resp =~ /Welcome/)
+        if (resp && resp =~ /Welcome/)
           print_good("#{target_host}:#{rport}, Perfd server banner: #{resp}")
           report_service(:host => rhost, :port => rport, :name => "perfd", :proto => "tcp", :info => resp)
         else
