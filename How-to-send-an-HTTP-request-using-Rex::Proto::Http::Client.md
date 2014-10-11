@@ -49,6 +49,17 @@ A raw HTTP request supports the following options:
 | ctype | Content type |
 | chunked_size | Body chunk size. Will also set Transfer-Encoding and Content-Length to "" |
 
+An example of using #request_raw's options:
+
+```ruby
+# cli is a Rex::Proto::Http::Client object
+req = cli.request_raw({
+	'uri'    =>'/test.php',
+	'method' => 'POST',
+	'data'   => 'A=B'
+})
+```
+
 If the number of options #request_raw supports doesn't blow you mind, don't be disappointed. **#request_cgi inherits all the above**, and more:
 
 | Option/key name | Description |
@@ -63,6 +74,7 @@ If the number of options #request_raw supports doesn't blow you mind, don't be d
 An example of using one of #request_cgi options:
 
 ```ruby
+# cli is a Rex::Proto::Http::Client object
 req = cli.request_cgi({
 	'uri'      =>'/test.php',
 	'vars_get' => {
