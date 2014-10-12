@@ -2009,7 +2009,7 @@ class Core
       res << 'ENCODER'
     end
 
-    if (mod.auxiliary?)
+    if mod.kind_of?(Msf::Module::HasActions)
       res << "ACTION"
     end
 
@@ -2149,10 +2149,10 @@ class Core
             print_error("No exploit module selected.")
           end
         when "actions"
-          if (mod and (mod.auxiliary? or mod.post?))
+          if mod && mod.kind_of?(Msf::Module::HasActions)
             show_actions(mod)
           else
-            print_error("No auxiliary module selected.")
+            print_error("No module with actions selected.")
           end
 
         else
@@ -2721,8 +2721,8 @@ class Core
       return option_values_encoders() if opt.upcase == 'StageEncoder'
     end
 
-    # Well-known option names specific to auxiliaries
-    if (mod.auxiliary?)
+    # Well-known option names specific to modules with actions
+    if mod.kind_of?(Msf::Module::HasActions)
       return option_values_actions() if opt.upcase == 'ACTION'
     end
 
@@ -2869,7 +2869,7 @@ class Core
 
 
   #
-  # Provide valid action options for the current auxiliary module
+  # Provide valid action options for the current module
   #
   def option_values_actions
     res = []
@@ -3146,6 +3146,12 @@ class Core
       print("\nExploit target:\n\n#{mod_targ}\n") if (mod_targ and mod_targ.length > 0)
     end
 
+    # Print the selected action
+    if mod.kind_of?(Msf::Module::HasActions) && mod.action
+      mod_action = Serializer::ReadableText.dump_module_action(mod, '   ')
+      print("\n#{mod.type.capitalize} action:\n\n#{mod_action}\n") if (mod_action and mod_action.length > 0)
+    end
+
     # Uncomment this line if u want target like msf2 format
     #print("\nTarget: #{mod.target.name}\n\n")
   end
@@ -3202,8 +3208,8 @@ class Core
   end
 
   def show_actions(mod) # :nodoc:
-    mod_actions = Serializer::ReadableText.dump_auxiliary_actions(mod, '   ')
-    print("\nAuxiliary actions:\n\n#{mod_actions}\n") if (mod_actions and mod_actions.length > 0)
+    mod_actions = Serializer::ReadableText.dump_module_actions(mod, '   ')
+    print("\n#{mod.type.capitalize} actions:\n\n#{mod_actions}\n") if (mod_actions and mod_actions.length > 0)
   end
 
   def show_advanced_options(mod) # :nodoc:
