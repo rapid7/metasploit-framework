@@ -35,6 +35,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Note'
   it_should_behave_like 'Msf::DBManager::Ref'
   it_should_behave_like 'Msf::DBManager::Report'
+  it_should_behave_like 'Msf::DBManager::Route'
   it_should_behave_like 'Msf::DBManager::Service'
   it_should_behave_like 'Msf::DBManager::Session'
   it_should_behave_like 'Msf::DBManager::SessionEvent'
@@ -87,8 +88,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :report_session_route }
-  it { is_expected.to respond_to :report_session_route_remove }
   it { is_expected.to respond_to :report_vuln_attempt }
   it { is_expected.to respond_to :report_web_form }
   it { is_expected.to respond_to :report_web_page }
