@@ -50,24 +50,6 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Web'
   it_should_behave_like 'Msf::DBManager::Workspace'
 
-  context '#add_rails_engine_migration_paths' do
-    def add_rails_engine_migration_paths
-      db_manager.add_rails_engine_migration_paths
-    end
-
-    it 'should not add duplicate paths to ActiveRecord::Migrator.migrations_paths' do
-      add_rails_engine_migration_paths
-
-      expect {
-        add_rails_engine_migration_paths
-      }.to_not change {
-        ActiveRecord::Migrator.migrations_paths.length
-      }
-
-      ActiveRecord::Migrator.migrations_paths.uniq.should == ActiveRecord::Migrator.migrations_paths
-    end
-  end
-
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :create_db }
   it { is_expected.to respond_to :disconnect }
