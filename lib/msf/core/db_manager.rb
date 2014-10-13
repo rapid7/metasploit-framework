@@ -21,16 +21,9 @@ require 'msf/core/host_state'
 require 'msf/core/service_state'
 require 'msf/core/task_manager'
 
-module Msf
-
-###
-#
 # The db module provides persistent storage and events. This class should be instantiated LAST
 # as the active_suppport library overrides Kernel.require, slowing down all future code loads.
-#
-###
-
-class DBManager
+class Msf::DBManager
   extend Metasploit::Framework::Require
 
   autoload :Adapter, 'msf/core/db_manager/adapter'
@@ -185,5 +178,4 @@ class DBManager
       $stderr.puts "**************************************************************************************"
     end
   end
-end
 end
