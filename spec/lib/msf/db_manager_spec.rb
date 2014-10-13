@@ -31,6 +31,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ModuleCache'
   it_should_behave_like 'Msf::DBManager::Note'
+  it_should_behave_like 'Msf::DBManager::Ref'
   it_should_behave_like 'Msf::DBManager::Report'
   it_should_behave_like 'Msf::DBManager::Service'
   it_should_behave_like 'Msf::DBManager::Sink'
@@ -80,10 +81,7 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :drivers }
   it { is_expected.to respond_to :drivers= }
   it { is_expected.to respond_to :error }
-  it { is_expected.to respond_to :find_or_create_ref }
-  it { is_expected.to respond_to :get_ref }
   it { is_expected.to respond_to :get_session }
-  it { is_expected.to respond_to :has_ref? }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
   it { is_expected.to respond_to :report_host_details }
