@@ -35,6 +35,7 @@ describe Rex::OLE::CLSID do
 
   describe "#to_s" do
     it "returns printable clsid" do
+      Rex::OLE::Util.set_endian(Rex::OLE::LITTLE_ENDIAN)
       expect(clsid.to_s).to eq('33221100-5544-7766-8899-aabbccddeeff')
     end
 
