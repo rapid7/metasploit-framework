@@ -1,14 +1,14 @@
 shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
 
   describe ".encode_byte" do
-    subject { described_class.encode_byte(block, badchars) }
+    subject(:encoded_byte) { described_class.encode_byte(block, badchars) }
 
     context "when too many badchars" do
       let(:block) { 0x41 }
       let(:badchars) { (0x00..0xff).to_a.pack("C*") }
 
       it "raises an error" do
-        expect { subject }.to raise_error(RuntimeError)
+        expect { encoded_byte }.to raise_error(RuntimeError)
       end
     end
 
@@ -17,7 +17,7 @@ shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
       let(:badchars) { 'B' }
 
       it "returns two-bytes encoding" do
-        expect(subject.length).to eq(2)
+        expect(encoded_byte.length).to eq(2)
       end
 
       it "returns encoding without badchars" do
@@ -30,7 +30,7 @@ shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
   end
 
   describe ".encode" do
-    subject { described_class.encode(buf, reg, offset, badchars) }
+    subject(:encoded_result) { described_class.encode(buf, reg, offset, badchars) }
     let(:buf) { 'ABCD' }
     let(:reg) { 'ECX' }
     let(:offset) { 0 }
@@ -39,7 +39,7 @@ shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
       let(:badchars) { (0x00..0xff).to_a.pack("C*") }
 
       it "raises an error" do
-        expect { subject }.to raise_error(RuntimeError)
+        expect { encoded_result }.to raise_error(RuntimeError)
       end
     end
 
@@ -57,7 +57,7 @@ shared_examples_for 'Rex::Encoder::Alpha2::Generic' do
   end
 
   describe ".add_terminator" do
-    subject { described_class.add_terminator }
+    subject(:terminator) { described_class.add_terminator }
 
     it { is_expected.to eq('AA') }
   end
