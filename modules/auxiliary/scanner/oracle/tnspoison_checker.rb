@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module simply checks the server for vulnerabilities like TNS Poison.
       },
-      'Author'         => ['ir0njaw (Kelesis Nikita'],
+      'Author'         => ['ir0njaw (Kelesis Nikita)'],
       'Company'        => ['Digital Security - http://dsec.ru'],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Oct 12 2014'))
