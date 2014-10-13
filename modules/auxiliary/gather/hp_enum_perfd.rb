@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    commands_help = ALLOWED_COMMANDS.join(' ')
+    commands_help = ALLOWED_COMMANDS.join(',')
     register_options(
     [
       Opt::RPORT(5227),
@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['COMMANDS']
       bad_commands = commands - ALLOWED_COMMANDS
       unless bad_commands.empty?
-        fail ArgumentError, "Bad perfd command(s) #{bad_commands}"
+        fail ArgumentError, "Bad perfd command(s): #{bad_commands}"
       end
     end
   end
