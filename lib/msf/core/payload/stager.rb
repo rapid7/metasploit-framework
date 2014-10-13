@@ -107,19 +107,13 @@ module Msf::Payload::Stager
   #
   # @return [String] The generated payload stage, as a string.
   def generate_stage
-    # XXX: This is nearly identical to Payload#internal_generate
-
     # Compile the stage as necessary
-    if stage_assembly and !stage_assembly.empty?
-      raw = build(stage_assembly, stage_offsets)
-    else
-      raw = stage_payload.dup
-    end
+    p = build(stage_payload, stage_assembly, stage_offsets, '-stg1')
 
     # Substitute variables in the stage
-    substitute_vars(raw, stage_offsets) if (stage_offsets)
+    substitute_vars(p, stage_offsets) if (stage_offsets)
 
-    return raw
+    return p
   end
 
   #
@@ -185,6 +179,11 @@ module Msf::Payload::Stager
   # @param (see Handler#create_session)
   # @return (see Handler#create_session)
   def handle_connection_stage(conn, opts={})
+    # Allow passing session transport information down from user level
+    # At present only used with standard meterpreters to switch between TLS and SSL
+    if datastore['TransportSSLVersion'] and not opts.has_key?(:transport_ssl_version)
+      opts.merge!({:transport_ssl_version => datastore['TransportSSLVersion'].intern})
+    end
     create_session(conn, opts)
   end
 
