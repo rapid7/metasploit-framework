@@ -78,7 +78,6 @@ class Metasploit3 < Msf::Auxiliary
     @scanner = Metasploit::Framework::LoginScanner::Smh.new(
       host:               ip,
       port:               rport,
-      uri:                datastore['URI'],
       proxies:            datastore["PROXIES"],
       cred_details:       @cred_collection,
       stop_on_success:    datastore['STOP_ON_SUCCESS'],
