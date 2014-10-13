@@ -81,6 +81,7 @@ class DBManager
   autoload :ExploitAttempt, 'msf/core/db_manager/exploit_attempt'
   autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
   autoload :Host, 'msf/core/db_manager/host'
+  autoload :HostDetail, 'msf/core/db_manager/host_detail'
   autoload :Import, 'msf/core/db_manager/import'
   autoload :IPAddress, 'msf/core/db_manager/ip_address'
   autoload :Loot, 'msf/core/db_manager/loot'
@@ -104,6 +105,7 @@ class DBManager
   include Msf::DBManager::ExploitAttempt
   include Msf::DBManager::ExploitedHost
   include Msf::DBManager::Host
+  include Msf::DBManager::HostDetail
   include Msf::DBManager::Import
   include Msf::DBManager::ImportMsfXml
   include Msf::DBManager::IPAddress
@@ -750,26 +752,6 @@ class DBManager
     tag.critical = !!crit
     tag.hosts = tag.hosts | [host]
     tag.save! if tag.changed?
-  }
-  end
-
-  #
-  # Populate the host_details table with additional
-  # information, matched by a specific criteria
-  #
-  def report_host_details(host, details)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-
-    detail = ::Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id)).first
-    if detail
-      details.each_pair do |k,v|
-        detail[k] = v
-      end
-      detail.save! if detail.changed?
-      detail
-    else
-      detail = ::Mdm::HostDetail.create(details.merge(:host_id => host.id))
-    end
   }
   end
 
