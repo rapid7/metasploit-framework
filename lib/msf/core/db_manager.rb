@@ -207,32 +207,6 @@ class DBManager
     true
   end
 
-  # Loads Metasploit Data Models and adds its migrations to migrations paths.
-  #
-  # @return [void]
-  def add_rails_engine_migration_paths
-    unless defined? ActiveRecord
-      fail "Bundle installed '--without #{Bundler.settings.without.join(' ')}'.  To clear the without option do " \
-           "`bundle install --without ''` (the --without flag with an empty string) or `rm -rf .bundle` to remove " \
-           "the .bundle/config manually and then `bundle install`"
-    end
-
-    Rails.application.railties.engines.each do |engine|
-      migrations_paths = engine.paths['db/migrate'].existent_directories
-
-      migrations_paths.each do |migrations_path|
-        # Since ActiveRecord::Migrator.migrations_paths can persist between
-        # instances of Msf::DBManager, such as in specs,
-        # migrations_path may already be part of
-        # migrations_paths, in which case it should not be added or multiple
-        # migrations with the same version number errors will occur.
-        unless ActiveRecord::Migrator.migrations_paths.include? migrations_path
-          ActiveRecord::Migrator.migrations_paths << migrations_path
-        end
-      end
-    end
-  end
-
   #
   # Determines if the database is functional
   #
