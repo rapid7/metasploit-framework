@@ -30,6 +30,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ModuleCache'
   it_should_behave_like 'Msf::DBManager::Note'
+  it_should_behave_like 'Msf::DBManager::Report'
   it_should_behave_like 'Msf::DBManager::Service'
   it_should_behave_like 'Msf::DBManager::Sink'
   it_should_behave_like 'Msf::DBManager::Vuln'
@@ -77,7 +78,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :drivers= }
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :find_or_create_ref }
-  it { is_expected.to respond_to :find_or_create_report }
   it { is_expected.to respond_to :find_or_create_task }
   it { is_expected.to respond_to :get_ref }
   it { is_expected.to respond_to :get_session }
@@ -91,7 +91,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :report_exploit_success }
   it { is_expected.to respond_to :report_host_details }
   it { is_expected.to respond_to :report_host_tag }
-  it { is_expected.to respond_to :report_report }
 
   context '#report_session' do
     let(:options) do
@@ -742,7 +741,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :report_web_page }
   it { is_expected.to respond_to :report_web_site }
   it { is_expected.to respond_to :report_web_vuln }
-  it { is_expected.to respond_to :reports }
   it { is_expected.to respond_to :service_name_map }
   it { is_expected.to respond_to :tasks }
   it { is_expected.to respond_to :update_vuln_details }
