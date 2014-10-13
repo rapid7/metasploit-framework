@@ -85,6 +85,7 @@ class DBManager
   autoload :Loot, 'msf/core/db_manager/loot'
   autoload :ModuleCache, 'msf/core/db_manager/module_cache'
   autoload :Note, 'msf/core/db_manager/note'
+  autoload :Report, 'msf/core/db_manager/report'
   autoload :Service, 'msf/core/db_manager/service'
   autoload :Sink, 'msf/core/db_manager/sink'
   autoload :Vuln, 'msf/core/db_manager/vuln'
@@ -105,6 +106,7 @@ class DBManager
   include Msf::DBManager::Migration
   include Msf::DBManager::ModuleCache
   include Msf::DBManager::Note
+  include Msf::DBManager::Report
   include Msf::DBManager::Service
   include Msf::DBManager::Sink
   include Msf::DBManager::Vuln
@@ -1094,38 +1096,6 @@ class DBManager
   end
 
 
-  # TODO This method does not attempt to find. It just creates
-  # a report based on the passed params.
-  def find_or_create_report(opts)
-    report_report(opts)
-  end
-
-  # Creates a Report based on passed parameters. Does not handle
-  # child artifacts.
-  # @param opts [Hash]
-  # @return [Integer] ID of created report
-  def report_report(opts)
-    return if not active
-    created = opts.delete(:created_at)
-    updated = opts.delete(:updated_at)
-    state   = opts.delete(:state)
-
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    report = Report.new(opts)
-    report.created_at = created
-    report.updated_at = updated
-
-    unless report.valid?
-      errors = report.errors.full_messages.join('; ')
-      raise RuntimeError "Report to be imported is not valid: #{errors}"
-    end
-    report.state = :complete # Presume complete since it was exported
-    report.save
-
-    report.id
-  }
-  end
-
   # Creates a ReportArtifact based on passed parameters.
   # @param opts [Hash] of ReportArtifact attributes
   def report_artifact(opts)
@@ -1162,15 +1132,6 @@ class DBManager
       raise RuntimeError "Artifact to be imported is not valid: #{errors}"
     end
     artifact.save
-  end
-
-  #
-  # This methods returns a list of all reports in the database
-  #
-  def reports(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.reports
-  }
   end
 
   #
