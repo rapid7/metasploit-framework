@@ -6,7 +6,7 @@ require 'rex/encoder/xdr'
 describe Rex::Encoder::XDR do
 
   describe ".encode_int" do
-    subject { described_class.encode_int(int) }
+    subject(:encoded_int) { described_class.encode_int(int) }
     let(:int) { 0x41424344 }
 
     it "returns an String" do
@@ -19,7 +19,7 @@ describe Rex::Encoder::XDR do
   end
 
   describe ".decode_int!" do
-    subject { described_class.decode_int!(data) }
+    subject(:decoded_int) { described_class.decode_int!(data) }
 
     context "when data is nil" do
       let(:data) { nil }
@@ -54,7 +54,7 @@ describe Rex::Encoder::XDR do
   end
 
   describe ".encode_lchar" do
-    subject { described_class.encode_lchar(char) }
+    subject(:encoded_lchar) { described_class.encode_lchar(char) }
 
     context "when char & 0x80 == 0" do
       let(:char) { 0x80 }
@@ -74,7 +74,7 @@ describe Rex::Encoder::XDR do
   end
 
   describe ".decode_lchar!" do
-    subject { described_class.decode_lchar!(data) }
+    subject(:decoded_lchar) { described_class.decode_lchar!(data) }
 
     context "when data's length is equal or greater than 4" do
       let(:data) { "\x41\x42\x43\x44" }
@@ -88,20 +88,20 @@ describe Rex::Encoder::XDR do
       let(:data) { "\x41" }
 
       it "raises an error" do
-        expect { subject }.to raise_error(NoMethodError)
+        expect { decoded_lchar }.to raise_error(NoMethodError)
       end
     end
   end
 
   describe ".encode_string" do
-    subject { described_class.encode_string(str, max) }
+    subject(:encoded_string) { described_class.encode_string(str, max) }
 
     context "when data is bigger than max" do
       let(:str) { "ABCDE" }
       let(:max) { 4 }
 
       it "raises an error" do
-        expect { subject }.to raise_error(ArgumentError)
+        expect { encoded_string }.to raise_error(ArgumentError)
       end
     end
 
@@ -124,7 +124,7 @@ describe Rex::Encoder::XDR do
   end
 
   describe ".decode_string!" do
-    subject { described_class.decode_string!(data) }
+    subject(:decoded_string) { described_class.decode_string!(data) }
 
     context "when encoded string length is 0" do
       let(:data) { "\x00\x00\x00\x00" }
@@ -162,13 +162,13 @@ describe Rex::Encoder::XDR do
   end
 
   describe ".encode_varray" do
-    subject { described_class.encode_varray(arr, max) }
+    subject(:encoded_varray) { described_class.encode_varray(arr, max) }
 
     context "when arr length is bigger than max" do
       let(:arr) { [1, 2, 3] }
       let(:max) { 2 }
       it "raises an error" do
-        expect { subject }.to raise_error(ArgumentError)
+        expect { encoded_varray }.to raise_error(ArgumentError)
       end
     end
 
@@ -191,7 +191,7 @@ describe Rex::Encoder::XDR do
   end
 
   describe ".decode_varray!" do
-    subject { described_class.decode_varray!(data) }
+    subject(:decoded_varray) { described_class.decode_varray!(data) }
 
     context "when encoded length is 0" do
       let(:data) { "\x00\x00\x00\x00" }
