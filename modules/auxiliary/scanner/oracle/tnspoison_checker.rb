@@ -13,11 +13,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Poison Oracle TNS Listener',
+      'Name'           => 'Oracle TNS Poison vulnerability',
       'Description'    => %q{
         This module simply checks the server for vulnerabilities like TNS Poison.
       },
-      'Author'         => ['ir0njaw'],
+      'Author'         => ['ir0njaw (Kelesis Nikita'],
+      'Company'        => ['Digital Security - http://dsec.ru'],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Oct 12 2014'))
 
