@@ -97,6 +97,7 @@ class DBManager
   autoload :Sink, 'msf/core/db_manager/sink'
   autoload :Task, 'msf/core/db_manager/task'
   autoload :Vuln, 'msf/core/db_manager/vuln'
+  autoload :VulnAttempt, 'msf/core/db_manager/vuln_attempt'
   autoload :VulnDetail, 'msf/core/db_manager/vuln_detail'
   autoload :WMAP, 'msf/core/db_manager/wmap'
   autoload :Workspace, 'msf/core/db_manager/workspace'
@@ -127,6 +128,7 @@ class DBManager
   include Msf::DBManager::Sink
   include Msf::DBManager::Task
   include Msf::DBManager::Vuln
+  include Msf::DBManager::VulnAttempt
   include Msf::DBManager::VulnDetail
   include Msf::DBManager::WMAP
   include Msf::DBManager::Workspace
@@ -417,25 +419,6 @@ class DBManager
   def check
   ::ActiveRecord::Base.connection_pool.with_connection {
     res = ::Mdm::Host.find(:first)
-  }
-  end
-
-  def report_vuln_attempt(vuln, opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    return if not vuln
-    info = {}
-
-    # Opts can be keyed by strings or symbols
-    ::Mdm::VulnAttempt.column_names.each do |kn|
-      k = kn.to_sym
-      next if ['id', 'vuln_id'].include?(kn)
-      info[k] = opts[kn] if opts[kn]
-      info[k] = opts[k]  if opts[k]
-    end
-
-    return unless info[:attempted_at]
-
-    vuln.vuln_attempts.create(info)
   }
   end
 
