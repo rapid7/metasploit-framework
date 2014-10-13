@@ -82,6 +82,7 @@ class DBManager
   autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
   autoload :Host, 'msf/core/db_manager/host'
   autoload :HostDetail, 'msf/core/db_manager/host_detail'
+  autoload :HostTag, 'msf/core/db_manager/host_tag'
   autoload :Import, 'msf/core/db_manager/import'
   autoload :IPAddress, 'msf/core/db_manager/ip_address'
   autoload :Loot, 'msf/core/db_manager/loot'
@@ -107,6 +108,7 @@ class DBManager
   include Msf::DBManager::ExploitedHost
   include Msf::DBManager::Host
   include Msf::DBManager::HostDetail
+  include Msf::DBManager::HostTag
   include Msf::DBManager::Import
   include Msf::DBManager::ImportMsfXml
   include Msf::DBManager::IPAddress
@@ -514,42 +516,6 @@ class DBManager
     return unless info[:attempted_at]
 
     vuln.vuln_attempts.create(info)
-  }
-  end
-
-
-  # This is only exercised by MSF3 XML importing for now. Needs the wait
-  # conditions and return hash as well.
-  def report_host_tag(opts)
-    name = opts.delete(:name)
-    raise DBImportError.new("Missing required option :name") unless name
-    addr = opts.delete(:addr)
-    raise DBImportError.new("Missing required option :addr") unless addr
-    wspace = opts.delete(:wspace)
-    raise DBImportError.new("Missing required option :wspace") unless wspace
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-
-    host = nil
-    report_host(:workspace => wspace, :address => addr)
-
-
-    host = get_host(:workspace => wspace, :address => addr)
-    desc = opts.delete(:desc)
-    summary = opts.delete(:summary)
-    detail = opts.delete(:detail)
-    crit = opts.delete(:crit)
-    possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, name).order("tags.id DESC").limit(1)
-    tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
-    tag.name = name
-    tag.desc = desc
-    tag.report_summary = !!summary
-    tag.report_detail = !!detail
-    tag.critical = !!crit
-    tag.hosts = tag.hosts | [host]
-    tag.save! if tag.changed?
   }
   end
 
