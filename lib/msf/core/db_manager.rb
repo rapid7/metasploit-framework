@@ -803,44 +803,6 @@ class DBManager
   }
   end
 
-  # Creates a ReportArtifact based on passed parameters.
-  # @param opts [Hash] of ReportArtifact attributes
-  def report_artifact(opts)
-    return if not active
-
-    artifacts_dir = Report::ARTIFACT_DIR
-    tmp_path = opts[:file_path]
-    artifact_name = File.basename tmp_path
-    new_path = File.join(artifacts_dir, artifact_name)
-    created = opts.delete(:created_at)
-    updated = opts.delete(:updated_at)
-
-    unless File.exists? tmp_path
-      raise DBImportError 'Report artifact file to be imported does not exist.'
-    end
-
-    unless (File.directory?(artifacts_dir) && File.writable?(artifacts_dir))
-      raise DBImportError "Could not move report artifact file to #{artifacts_dir}."
-    end
-
-    if File.exists? new_path
-      unique_basename = "#{(Time.now.to_f*1000).to_i}_#{artifact_name}"
-      new_path = File.join(artifacts_dir, unique_basename)
-    end
-
-    FileUtils.copy(tmp_path, new_path)
-    opts[:file_path] = new_path
-    artifact = ReportArtifact.new(opts)
-    artifact.created_at = created
-    artifact.updated_at = updated
-
-    unless artifact.valid?
-      errors = artifact.errors.full_messages.join('; ')
-      raise RuntimeError "Artifact to be imported is not valid: #{errors}"
-    end
-    artifact.save
-  end
-
   #
   # WMAP
   # Support methods
