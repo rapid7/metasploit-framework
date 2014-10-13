@@ -86,7 +86,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :has_ref? }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :report_artifact }
   it { is_expected.to respond_to :report_host_details }
   it { is_expected.to respond_to :report_host_tag }
 
