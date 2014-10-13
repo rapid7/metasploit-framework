@@ -1,3 +1,9 @@
+#
+# Standard library
+#
+
+require 'fileutils'
+
 module Msf::DBManager::Report
   # TODO This method does not attempt to find. It just creates
   # a report based on the passed params.

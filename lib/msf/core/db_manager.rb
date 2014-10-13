@@ -1,51 +1,9 @@
 # -*- coding: binary -*-
 
 #
-# Standard Library
-#
-
-require 'csv'
-require 'fileutils'
-require 'shellwords'
-require 'tmpdir'
-require 'uri'
-
-#
-#
 # Gems
 #
-#
 
-#
-# PacketFu
-#
-
-require 'packetfu'
-
-#
-# Rex
-#
-
-require 'rex/parser/acunetix_nokogiri'
-require 'rex/parser/appscan_nokogiri'
-require 'rex/parser/burp_session_nokogiri'
-require 'rex/parser/ci_nokogiri'
-require 'rex/parser/foundstone_nokogiri'
-require 'rex/parser/fusionvm_nokogiri'
-require 'rex/parser/ip360_aspl_xml'
-require 'rex/parser/ip360_xml'
-require 'rex/parser/mbsa_nokogiri'
-require 'rex/parser/nessus_xml'
-require 'rex/parser/netsparker_xml'
-require 'rex/parser/nexpose_raw_nokogiri'
-require 'rex/parser/nexpose_simple_nokogiri'
-require 'rex/parser/nexpose_xml'
-require 'rex/parser/nmap_nokogiri'
-require 'rex/parser/nmap_xml'
-require 'rex/parser/openvas_nokogiri'
-require 'rex/parser/outpost24_nokogiri'
-require 'rex/parser/retina_xml'
-require 'rex/parser/wapiti_nokogiri'
 require 'rex/socket'
 
 #

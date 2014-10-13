@@ -1,3 +1,9 @@
+#
+# Standard library
+#
+
+require 'shellwords'
+
 module Msf::DBManager::ModuleCache
   #
   # Attributes
