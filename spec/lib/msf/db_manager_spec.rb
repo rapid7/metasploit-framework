@@ -42,6 +42,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Sink'
   it_should_behave_like 'Msf::DBManager::Task'
   it_should_behave_like 'Msf::DBManager::Vuln'
+  it_should_behave_like 'Msf::DBManager::VulnAttempt'
   it_should_behave_like 'Msf::DBManager::VulnDetail'
   it_should_behave_like 'Msf::DBManager::WMAP'
   it_should_behave_like 'Msf::DBManager::Workspace'
@@ -88,7 +89,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :report_vuln_attempt }
   it { is_expected.to respond_to :report_web_form }
   it { is_expected.to respond_to :report_web_page }
   it { is_expected.to respond_to :report_web_site }
