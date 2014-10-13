@@ -24,6 +24,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::ExploitAttempt'
   it_should_behave_like 'Msf::DBManager::ExploitedHost'
   it_should_behave_like 'Msf::DBManager::Host'
+  it_should_behave_like 'Msf::DBManager::HostDetail'
   it_should_behave_like 'Msf::DBManager::IPAddress'
   it_should_behave_like 'Msf::DBManager::Import'
   it_should_behave_like 'Msf::DBManager::ImportMsfXml'
@@ -84,7 +85,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :get_session }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :report_host_details }
   it { is_expected.to respond_to :report_host_tag }
 
   context '#report_session' do
