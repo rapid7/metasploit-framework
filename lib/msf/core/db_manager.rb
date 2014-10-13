@@ -86,6 +86,7 @@ class DBManager
   autoload :Loot, 'msf/core/db_manager/loot'
   autoload :ModuleCache, 'msf/core/db_manager/module_cache'
   autoload :Note, 'msf/core/db_manager/note'
+  autoload :Ref, 'msf/core/db_manager/ref'
   autoload :Report, 'msf/core/db_manager/report'
   autoload :Service, 'msf/core/db_manager/service'
   autoload :Sink, 'msf/core/db_manager/sink'
@@ -110,6 +111,7 @@ class DBManager
   include Msf::DBManager::Migration
   include Msf::DBManager::ModuleCache
   include Msf::DBManager::Note
+  include Msf::DBManager::Ref
   include Msf::DBManager::Report
   include Msf::DBManager::Service
   include Msf::DBManager::Sink
@@ -752,29 +754,6 @@ class DBManager
   end
 
   #
-  # Find or create a reference matching this name
-  #
-  def find_or_create_ref(opts)
-    ret = {}
-    ret[:ref] = get_ref(opts[:name])
-    return ret[:ref] if ret[:ref]
-
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ref = ::Mdm::Ref.find_or_initialize_by_name(opts[:name])
-    if ref and ref.changed?
-      ref.save!
-    end
-    ret[:ref] = ref
-  }
-  end
-
-  def get_ref(name)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Ref.find_by_name(name)
-  }
-  end
-
-  #
   # Populate the host_details table with additional
   # information, matched by a specific criteria
   #
@@ -791,15 +770,6 @@ class DBManager
     else
       detail = ::Mdm::HostDetail.create(details.merge(:host_id => host.id))
     end
-  }
-  end
-
-  #
-  # Find a reference matching this name
-  #
-  def has_ref?(name)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    Mdm::Ref.find_by_name(name)
   }
   end
 
