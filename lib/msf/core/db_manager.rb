@@ -90,6 +90,7 @@ class DBManager
   autoload :Note, 'msf/core/db_manager/note'
   autoload :Ref, 'msf/core/db_manager/ref'
   autoload :Report, 'msf/core/db_manager/report'
+  autoload :Route, 'msf/core/db_manager/route'
   autoload :Service, 'msf/core/db_manager/service'
   autoload :Session, 'msf/core/db_manager/session'
   autoload :SessionEvent, 'msf/core/db_manager/session_event'
@@ -119,6 +120,7 @@ class DBManager
   include Msf::DBManager::Note
   include Msf::DBManager::Ref
   include Msf::DBManager::Report
+  include Msf::DBManager::Route
   include Msf::DBManager::Service
   include Msf::DBManager::Session
   include Msf::DBManager::SessionEvent
@@ -415,42 +417,6 @@ class DBManager
   def check
   ::ActiveRecord::Base.connection_pool.with_connection {
     res = ::Mdm::Host.find(:first)
-  }
-  end
-
-  def report_session_route(session, route)
-    return if not active
-    if session.respond_to? :db_record
-      s = session.db_record
-    else
-      s = session
-    end
-    unless s.respond_to?(:routes)
-      raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
-    end
-
-  ::ActiveRecord::Base.connection_pool.with_connection {
-
-    subnet, netmask = route.split("/")
-    s.routes.create(:subnet => subnet, :netmask => netmask)
-  }
-  end
-
-  def report_session_route_remove(session, route)
-    return if not active
-    if session.respond_to? :db_record
-      s = session.db_record
-    else
-      s = session
-    end
-    unless s.respond_to?(:routes)
-      raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
-    end
-
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    subnet, netmask = route.split("/")
-    r = s.routes.find_by_subnet_and_netmask(subnet, netmask)
-    r.destroy if r
   }
   end
 
