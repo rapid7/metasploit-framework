@@ -69,7 +69,6 @@ class Msf::DBManager
   include Msf::DBManager::HostDetail
   include Msf::DBManager::HostTag
   include Msf::DBManager::Import
-  include Msf::DBManager::ImportMsfXml
   include Msf::DBManager::IPAddress
   include Msf::DBManager::Loot
   include Msf::DBManager::Migration

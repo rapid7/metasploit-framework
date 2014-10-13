@@ -82,4 +82,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :rexmlify }
   it { is_expected.to respond_to :unserialize_object }
   it { is_expected.to respond_to :validate_import_file }
+
+  it_should_behave_like 'Msf::DBManager::Import::MsfXml'
 end

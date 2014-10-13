@@ -4,7 +4,7 @@
 # methods to be overridden in Pro without using alias_method_chain as
 # methods defined in a class cannot be overridden by including a module
 # (unless you're running Ruby 2.0 and can use prepend)
-module Msf::DBManager::ImportMsfXml
+module Msf::DBManager::Import::MsfXml
   #
   # CONSTANTS
   #

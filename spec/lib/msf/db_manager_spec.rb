@@ -30,7 +30,6 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::HostTag'
   it_should_behave_like 'Msf::DBManager::IPAddress'
   it_should_behave_like 'Msf::DBManager::Import'
-  it_should_behave_like 'Msf::DBManager::ImportMsfXml'
   it_should_behave_like 'Msf::DBManager::Loot'
   it_should_behave_like 'Msf::DBManager::Migration'
   it_should_behave_like 'Msf::DBManager::ModuleCache'

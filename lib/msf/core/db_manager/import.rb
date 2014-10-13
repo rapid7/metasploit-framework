@@ -34,6 +34,10 @@ require 'rex/parser/retina_xml'
 require 'rex/parser/wapiti_nokogiri'
 
 module Msf::DBManager::Import
+  autoload :MsfXml, 'msf/core/db_manager/import/msf_xml'
+
+  include Msf::DBManager::Import::MsfXml
+
   # If hex notation is present, turn them into a character.
   def dehex(str)
     hexen = str.scan(/\x5cx[0-9a-fA-F]{2}/n)
