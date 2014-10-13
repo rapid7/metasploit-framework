@@ -75,6 +75,7 @@ module Msf
 class DBManager
   extend Metasploit::Framework::Require
 
+  autoload :Adapter, 'msf/core/db_manager/adapter'
   autoload :Client, 'msf/core/db_manager/client'
   autoload :Connection, 'msf/core/db_manager/connection'
   autoload :Cred, 'msf/core/db_manager/cred'
@@ -106,6 +107,7 @@ class DBManager
 
   optionally_include_metasploit_credential_creation
 
+  include Msf::DBManager::Adapter
   include Msf::DBManager::Client
   include Msf::DBManager::Connection
   include Msf::DBManager::Cred
@@ -140,13 +142,6 @@ class DBManager
   # Provides :framework and other accessors
   include Msf::Framework::Offspring
 
-  #
-  # CONSTANTS
-  #
-
-  # The adapter to use to establish database connection.
-  ADAPTER = 'postgresql'
-
   # Mainly, it's Ruby 1.9.1 that cause a lot of problems now, along with Ruby 1.8.6.
   # Ruby 1.8.7 actually seems okay, but why tempt fate? Let's say 1.9.3 and beyond.
   def warn_about_rubies
@@ -159,15 +154,6 @@ class DBManager
 
   # Returns true if the prerequisites have been installed
   attr_accessor :usable
-
-  # Returns the list of usable database drivers
-  def drivers
-    @drivers ||= []
-  end
-  attr_writer :drivers
-
-  # Returns the active driver
-  attr_accessor :driver
 
   # Stores the error message for why the db was not loaded
   attr_accessor :error
@@ -219,29 +205,6 @@ class DBManager
     initialize_sink
 
     true
-  end
-
-  #
-  # Scan through available drivers
-  #
-  def initialize_adapter
-    ActiveRecord::Base.default_timezone = :utc
-
-    if connection_established? && ActiveRecord::Base.connection_config[:adapter] == ADAPTER
-      dlog("Already established connection to #{ADAPTER}, so reusing active connection.")
-      self.drivers << ADAPTER
-      self.driver = ADAPTER
-    else
-      begin
-        ActiveRecord::Base.establish_connection(adapter: ADAPTER)
-        ActiveRecord::Base.remove_connection
-      rescue Exception => error
-        @adapter_error = error
-      else
-        self.drivers << ADAPTER
-        self.driver = ADAPTER
-      end
-    end
   end
 
   # Loads Metasploit Data Models and adds its migrations to migrations paths.
