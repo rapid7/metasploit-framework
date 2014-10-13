@@ -37,6 +37,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Report'
   it_should_behave_like 'Msf::DBManager::Service'
   it_should_behave_like 'Msf::DBManager::Session'
+  it_should_behave_like 'Msf::DBManager::SessionEvent'
   it_should_behave_like 'Msf::DBManager::Sink'
   it_should_behave_like 'Msf::DBManager::Task'
   it_should_behave_like 'Msf::DBManager::Vuln'
@@ -86,7 +87,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :report_session_event }
   it { is_expected.to respond_to :report_session_route }
   it { is_expected.to respond_to :report_session_route_remove }
   it { is_expected.to respond_to :report_vuln_attempt }
