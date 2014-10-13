@@ -18,6 +18,7 @@ describe Msf::DBManager do
     db_manager
   end
 
+  it_should_behave_like 'Msf::DBManager::Adapter'
   it_should_behave_like 'Msf::DBManager::Client'
   it_should_behave_like 'Msf::DBManager::Connection'
   it_should_behave_like 'Msf::DBManager::Cred'
@@ -49,16 +50,6 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Web'
   it_should_behave_like 'Msf::DBManager::Workspace'
 
-  context 'CONSTANTS' do
-    context 'ADAPTER' do
-      subject(:adapter) {
-        described_class::ADAPTER
-      }
-
-      it { is_expected.to eq('postgresql') }
-    end
-  end
-
   context '#add_rails_engine_migration_paths' do
     def add_rails_engine_migration_paths
       db_manager.add_rails_engine_migration_paths
@@ -80,11 +71,7 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :create_db }
   it { is_expected.to respond_to :disconnect }
-  it { is_expected.to respond_to :driver }
-  it { is_expected.to respond_to :drivers }
-  it { is_expected.to respond_to :drivers= }
   it { is_expected.to respond_to :error }
-  it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
   it { is_expected.to respond_to :service_name_map }
   it { is_expected.to respond_to :warn_about_rubies }
