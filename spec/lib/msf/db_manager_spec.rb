@@ -45,6 +45,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::VulnAttempt'
   it_should_behave_like 'Msf::DBManager::VulnDetail'
   it_should_behave_like 'Msf::DBManager::WMAP'
+  it_should_behave_like 'Msf::DBManager::Web'
   it_should_behave_like 'Msf::DBManager::Workspace'
 
   context 'CONSTANTS' do
@@ -89,10 +90,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :error }
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :report_web_form }
-  it { is_expected.to respond_to :report_web_page }
-  it { is_expected.to respond_to :report_web_site }
-  it { is_expected.to respond_to :report_web_vuln }
   it { is_expected.to respond_to :service_name_map }
   it { is_expected.to respond_to :usable }
   it { is_expected.to respond_to :usable= }
