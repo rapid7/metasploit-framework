@@ -36,6 +36,7 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Sink'
   it_should_behave_like 'Msf::DBManager::Task'
   it_should_behave_like 'Msf::DBManager::Vuln'
+  it_should_behave_like 'Msf::DBManager::VulnDetail'
   it_should_behave_like 'Msf::DBManager::WMAP'
   it_should_behave_like 'Msf::DBManager::Workspace'
 
@@ -732,13 +733,11 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :report_session_route }
   it { is_expected.to respond_to :report_session_route_remove }
   it { is_expected.to respond_to :report_vuln_attempt }
-  it { is_expected.to respond_to :report_vuln_details }
   it { is_expected.to respond_to :report_web_form }
   it { is_expected.to respond_to :report_web_page }
   it { is_expected.to respond_to :report_web_site }
   it { is_expected.to respond_to :report_web_vuln }
   it { is_expected.to respond_to :service_name_map }
-  it { is_expected.to respond_to :update_vuln_details }
   it { is_expected.to respond_to :usable }
   it { is_expected.to respond_to :usable= }
   it { is_expected.to respond_to :warn_about_rubies }
