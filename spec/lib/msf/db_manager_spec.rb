@@ -20,6 +20,7 @@ describe Msf::DBManager do
 
   it_should_behave_like 'Msf::DBManager::Client'
   it_should_behave_like 'Msf::DBManager::Cred'
+  it_should_behave_like 'Msf::DBManager::Event'
   it_should_behave_like 'Msf::DBManager::ExploitedHost'
   it_should_behave_like 'Msf::DBManager::Host'
   it_should_behave_like 'Msf::DBManager::IPAddress'
@@ -75,7 +76,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :drivers }
   it { is_expected.to respond_to :drivers= }
   it { is_expected.to respond_to :error }
-  it { is_expected.to respond_to :events }
   it { is_expected.to respond_to :find_or_create_ref }
   it { is_expected.to respond_to :find_or_create_report }
   it { is_expected.to respond_to :find_or_create_task }
@@ -85,7 +85,6 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
   it { is_expected.to respond_to :report_artifact }
-  it { is_expected.to respond_to :report_event }
   it { is_expected.to respond_to :report_exploit }
   it { is_expected.to respond_to :report_exploit_attempt }
   it { is_expected.to respond_to :report_exploit_failure }
