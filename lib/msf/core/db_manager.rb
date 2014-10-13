@@ -78,6 +78,7 @@ class DBManager
   autoload :Client, 'msf/core/db_manager/client'
   autoload :Cred, 'msf/core/db_manager/cred'
   autoload :Event, 'msf/core/db_manager/event'
+  autoload :ExploitAttempt, 'msf/core/db_manager/exploit_attempt'
   autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
   autoload :Host, 'msf/core/db_manager/host'
   autoload :Import, 'msf/core/db_manager/import'
@@ -98,6 +99,7 @@ class DBManager
   include Msf::DBManager::Client
   include Msf::DBManager::Cred
   include Msf::DBManager::Event
+  include Msf::DBManager::ExploitAttempt
   include Msf::DBManager::ExploitedHost
   include Msf::DBManager::Host
   include Msf::DBManager::Import
@@ -692,191 +694,6 @@ class DBManager
   }
   end
 
-
-  def report_exploit_success(opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-
-    wspace = opts.delete(:workspace) || workspace
-    mrefs  = opts.delete(:refs) || return
-    host   = opts.delete(:host)
-    port   = opts.delete(:port)
-    prot   = opts.delete(:proto)
-    svc    = opts.delete(:service)
-    vuln   = opts.delete(:vuln)
-
-    timestamp = opts.delete(:timestamp)
-    username  = opts.delete(:username)
-    mname     = opts.delete(:module)
-
-    # Look up or generate the host as appropriate
-    if not (host and host.kind_of? ::Mdm::Host)
-      if svc.kind_of? ::Mdm::Service
-        host = svc.host
-      else
-        host = report_host(:workspace => wspace, :address => host )
-      end
-    end
-
-    # Bail if we dont have a host object
-    return if not host
-
-    # Look up or generate the service as appropriate
-    if port and svc.nil?
-      svc = report_service(:workspace => wspace, :host => host, :port => port, :proto => prot ) if port
-    end
-
-    if not vuln
-      # Create a references map from the module list
-      ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
-        if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
-          "#{ref.ctx_id}-#{ref.ctx_val}"
-        else
-          ref.to_s
-        end
-      })
-
-      # Try find a matching vulnerability
-      vuln = find_vuln_by_refs(ref_objs, host, svc)
-    end
-
-    # We have match, lets create a vuln_attempt record
-    if vuln
-      attempt_info = {
-        :vuln_id      => vuln.id,
-        :attempted_at => timestamp || Time.now.utc,
-        :exploited    => true,
-        :username     => username  || "unknown",
-        :module       => mname
-      }
-
-      attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
-      attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
-
-      vuln.vuln_attempts.create(attempt_info)
-
-      # Correct the vuln's associated service if necessary
-      if svc and vuln.service_id.nil?
-        vuln.service = svc
-        vuln.save
-      end
-    end
-
-    # Report an exploit attempt all the same
-    attempt_info = {
-      :attempted_at => timestamp || Time.now.utc,
-      :exploited    => true,
-      :username     => username  || "unknown",
-      :module       => mname
-    }
-
-    attempt_info[:vuln_id]    = vuln.id           if vuln
-    attempt_info[:session_id] = opts[:session_id] if opts[:session_id]
-    attempt_info[:loot_id]    = opts[:loot_id]    if opts[:loot_id]
-
-    if svc
-      attempt_info[:port]  = svc.port
-      attempt_info[:proto] = svc.proto
-    end
-
-    if port and svc.nil?
-      attempt_info[:port]  = port
-      attempt_info[:proto] = prot || "tcp"
-    end
-
-    host.exploit_attempts.create(attempt_info)
-  }
-  end
-
-  def report_exploit_failure(opts)
-
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    mrefs  = opts.delete(:refs) || return
-    host   = opts.delete(:host)
-    port   = opts.delete(:port)
-    prot   = opts.delete(:proto)
-    svc    = opts.delete(:service)
-    vuln   = opts.delete(:vuln)
-
-    timestamp  = opts.delete(:timestamp)
-    freason    = opts.delete(:fail_reason)
-    fdetail    = opts.delete(:fail_detail)
-    username   = opts.delete(:username)
-    mname      = opts.delete(:module)
-
-    # Look up the host as appropriate
-    if not (host and host.kind_of? ::Mdm::Host)
-      if svc.kind_of? ::Mdm::Service
-        host = svc.host
-      else
-        host = get_host( :workspace => wspace, :address => host )
-      end
-    end
-
-    # Bail if we dont have a host object
-    return if not host
-
-    # Look up the service as appropriate
-    if port and svc.nil?
-      prot ||= "tcp"
-      svc = get_service(wspace, host, prot, port) if port
-    end
-
-    if not vuln
-      # Create a references map from the module list
-      ref_objs = ::Mdm::Ref.where(:name => mrefs.map { |ref|
-        if ref.respond_to?(:ctx_id) and ref.respond_to?(:ctx_val)
-          "#{ref.ctx_id}-#{ref.ctx_val}"
-        else
-          ref.to_s
-        end
-      })
-
-      # Try find a matching vulnerability
-      vuln = find_vuln_by_refs(ref_objs, host, svc)
-    end
-
-    # Report a vuln_attempt if we found a match
-    if vuln
-      attempt_info = {
-        :attempted_at => timestamp || Time.now.utc,
-        :exploited    => false,
-        :fail_reason  => freason,
-        :fail_detail  => fdetail,
-        :username     => username  || "unknown",
-        :module       => mname
-      }
-
-      vuln.vuln_attempts.create(attempt_info)
-    end
-
-    # Report an exploit attempt all the same
-    attempt_info = {
-      :attempted_at => timestamp || Time.now.utc,
-      :exploited    => false,
-      :username     => username  || "unknown",
-      :module       => mname,
-      :fail_reason  => freason,
-      :fail_detail  => fdetail
-    }
-
-    attempt_info[:vuln_id] = vuln.id if vuln
-
-    if svc
-      attempt_info[:port]  = svc.port
-      attempt_info[:proto] = svc.proto
-    end
-
-    if port and svc.nil?
-      attempt_info[:port]  = port
-      attempt_info[:proto] = prot || "tcp"
-    end
-
-    host.exploit_attempts.create(attempt_info)
-  }
-  end
-
-
   def report_vuln_attempt(vuln, opts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     return if not vuln
@@ -896,22 +713,6 @@ class DBManager
   }
   end
 
-  def report_exploit_attempt(host, opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    return if not host
-    info = {}
-
-    # Opts can be keyed by strings or symbols
-    ::Mdm::VulnAttempt.column_names.each do |kn|
-      k = kn.to_sym
-      next if ['id', 'host_id'].include?(kn)
-      info[k] = opts[kn] if opts[kn]
-      info[k] = opts[k]  if opts[k]
-    end
-
-    host.exploit_attempts.create(info)
-  }
-  end
 
   # This is only exercised by MSF3 XML importing for now. Needs the wait
   # conditions and return hash as well.
@@ -1019,17 +820,6 @@ class DBManager
       detail = ::Mdm::HostDetail.create(details.merge(:host_id => host.id))
     end
   }
-  end
-
-  # report_exploit() used to be used to track sessions and which modules
-  # opened them. That information is now available with the session table
-  # directly. TODO: kill this completely some day -- for now just warn if
-  # some other UI is actually using it.
-  def report_exploit(opts={})
-    wlog("Deprecated method call: report_exploit()\n" +
-      "report_exploit() options: #{opts.inspect}\n" +
-      "report_exploit() call stack:\n\t#{caller.join("\n\t")}"
-    )
   end
 
   #
