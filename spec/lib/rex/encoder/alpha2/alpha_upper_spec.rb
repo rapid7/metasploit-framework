@@ -31,7 +31,7 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
   end
 
   describe ".gen_decoder_prefix" do
-    subject { described_class.gen_decoder_prefix(reg, offset) }
+    subject(:decoder_prefix) { described_class.gen_decoder_prefix(reg, offset) }
     let(:reg) { 'ECX' }
     let(:offset) { 5 }
 
@@ -44,7 +44,7 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 0 }
 
       it "raises an error" do
-        expect { subject }.to raise_error(ArgumentError)
+        expect { decoder_prefix }.to raise_error(ArgumentError)
       end
     end
 
@@ -53,14 +53,14 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 25 }
 
       it "raises an error" do
-        expect { subject }.to raise_error
+        expect { decoder_prefix }.to raise_error
       end
     end
   end
 
 
   describe ".gen_decoder" do
-    subject { described_class.gen_decoder(reg, offset) }
+    subject(:decoder) { described_class.gen_decoder(reg, offset) }
     let(:reg) { 'ECX' }
     let(:offset) { 5 }
 
@@ -77,7 +77,7 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 0 }
 
       it "raises an error" do
-        expect { subject }.to raise_error(ArgumentError)
+        expect { decoder }.to raise_error(ArgumentError)
       end
     end
 
@@ -86,7 +86,7 @@ describe Rex::Encoder::Alpha2::AlphaUpper do
       let(:offset) { 25 }
 
       it "raises an error" do
-        expect { subject }.to raise_error
+        expect { decoder }.to raise_error
       end
     end
   end

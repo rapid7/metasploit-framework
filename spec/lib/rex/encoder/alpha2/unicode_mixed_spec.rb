@@ -25,7 +25,7 @@ describe Rex::Encoder::Alpha2::UnicodeMixed do
   end
 
   describe ".gen_decoder_prefix" do
-    subject { described_class.gen_decoder_prefix(reg, offset) }
+    subject(:decoder_prefix) { described_class.gen_decoder_prefix(reg, offset) }
     let(:reg) { 'ECX' }
     let(:offset) { 5 }
 
@@ -38,7 +38,7 @@ describe Rex::Encoder::Alpha2::UnicodeMixed do
       let(:offset) { 0 }
 
       it "raises an error" do
-        expect { subject }.to raise_error(RuntimeError)
+        expect { decoder_prefix }.to raise_error(RuntimeError)
       end
     end
 
@@ -47,14 +47,14 @@ describe Rex::Encoder::Alpha2::UnicodeMixed do
       let(:offset) { 22 }
 
       it "raises an error" do
-        expect { subject }.to raise_error
+        expect { decoder_prefix }.to raise_error
       end
     end
   end
 
 
   describe ".gen_decoder" do
-    subject { described_class.gen_decoder(reg, offset) }
+    subject(:decoder) { described_class.gen_decoder(reg, offset) }
     let(:reg) { 'ECX' }
     let(:offset) { 5 }
 
@@ -71,7 +71,7 @@ describe Rex::Encoder::Alpha2::UnicodeMixed do
       let(:offset) { 0 }
 
       it "raises an error" do
-        expect { subject }.to raise_error(RuntimeError)
+        expect { decoder }.to raise_error(RuntimeError)
       end
     end
 
@@ -80,7 +80,7 @@ describe Rex::Encoder::Alpha2::UnicodeMixed do
       let(:offset) { 22 }
 
       it "raises an error" do
-        expect { subject }.to raise_error
+        expect { decoder }.to raise_error
       end
     end
   end

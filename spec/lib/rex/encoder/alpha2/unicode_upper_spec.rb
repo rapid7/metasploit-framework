@@ -25,13 +25,13 @@ describe Rex::Encoder::Alpha2::UnicodeUpper do
   end
 
   describe ".default_accepted_chars" do
-    subject { described_class.default_accepted_chars }
+    subject(:accepted_chars) { described_class.default_accepted_chars }
 
     it { is_expected.to eq(('B' .. 'Z').to_a + ('0' .. '9').to_a) }
   end
 
   describe ".gen_decoder_prefix" do
-    subject { described_class.gen_decoder_prefix(reg, offset) }
+    subject(:decoder_prefix) { described_class.gen_decoder_prefix(reg, offset) }
     let(:reg) { 'ECX' }
     let(:offset) { 5 }
 
@@ -44,7 +44,7 @@ describe Rex::Encoder::Alpha2::UnicodeUpper do
       let(:offset) { 0 }
 
       it "raises an error" do
-        expect(subject).to be_nil
+        expect(decoder_prefix).to be_nil
       end
     end
 
@@ -53,14 +53,14 @@ describe Rex::Encoder::Alpha2::UnicodeUpper do
       let(:offset) { 7 }
 
       it "raises an error" do
-        expect { subject }.to raise_error(RuntimeError)
+        expect { decoder_prefix }.to raise_error(RuntimeError)
       end
     end
   end
 
 
   describe ".gen_decoder" do
-    subject { described_class.gen_decoder(reg, offset) }
+    subject(:decoder) { described_class.gen_decoder(reg, offset) }
     let(:reg) { 'ECX' }
     let(:offset) { 5 }
 
@@ -77,7 +77,7 @@ describe Rex::Encoder::Alpha2::UnicodeUpper do
       let(:offset) { 0 }
 
       it "raises an error" do
-        expect { subject }.to raise_error(NoMethodError)
+        expect { decoder }.to raise_error(NoMethodError)
       end
     end
 
@@ -86,7 +86,7 @@ describe Rex::Encoder::Alpha2::UnicodeUpper do
       let(:offset) { 7 }
 
       it "raises an error" do
-        expect { subject }.to raise_error(RuntimeError)
+        expect { decoder }.to raise_error(RuntimeError)
       end
     end
   end
