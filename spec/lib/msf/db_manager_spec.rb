@@ -19,6 +19,7 @@ describe Msf::DBManager do
   end
 
   it_should_behave_like 'Msf::DBManager::Client'
+  it_should_behave_like 'Msf::DBManager::Connection'
   it_should_behave_like 'Msf::DBManager::Cred'
   it_should_behave_like 'Msf::DBManager::Event'
   it_should_behave_like 'Msf::DBManager::ExploitAttempt'
@@ -58,8 +59,6 @@ describe Msf::DBManager do
     end
   end
 
-  it { is_expected.to respond_to :active }
-
   context '#add_rails_engine_migration_paths' do
     def add_rails_engine_migration_paths
       db_manager.add_rails_engine_migration_paths
@@ -78,10 +77,7 @@ describe Msf::DBManager do
     end
   end
 
-  it { is_expected.to respond_to :after_establish_connection }
   it { is_expected.to respond_to :check }
-  it { is_expected.to respond_to :connect }
-  it { is_expected.to respond_to :connection_established? }
   it { is_expected.to respond_to :create_db }
   it { is_expected.to respond_to :disconnect }
   it { is_expected.to respond_to :driver }
@@ -91,7 +87,5 @@ describe Msf::DBManager do
   it { is_expected.to respond_to :initialize_adapter }
   it { is_expected.to respond_to :initialize_database_support }
   it { is_expected.to respond_to :service_name_map }
-  it { is_expected.to respond_to :usable }
-  it { is_expected.to respond_to :usable= }
   it { is_expected.to respond_to :warn_about_rubies }
 end
