@@ -77,6 +77,7 @@ class DBManager
 
   autoload :Client, 'msf/core/db_manager/client'
   autoload :Cred, 'msf/core/db_manager/cred'
+  autoload :Event, 'msf/core/db_manager/event'
   autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
   autoload :Host, 'msf/core/db_manager/host'
   autoload :Import, 'msf/core/db_manager/import'
@@ -94,6 +95,7 @@ class DBManager
 
   include Msf::DBManager::Client
   include Msf::DBManager::Cred
+  include Msf::DBManager::Event
   include Msf::DBManager::ExploitedHost
   include Msf::DBManager::Host
   include Msf::DBManager::Import
@@ -1032,27 +1034,6 @@ class DBManager
   def has_ref?(name)
   ::ActiveRecord::Base.connection_pool.with_connection {
     Mdm::Ref.find_by_name(name)
-  }
-  end
-
-  def events(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.events.find :all, :order => 'created_at ASC'
-  }
-  end
-
-  def report_event(opts = {})
-    return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    return if not wspace # Temp fix?
-    uname  = opts.delete(:username)
-
-    if ! opts[:host].kind_of? ::Mdm::Host and opts[:host]
-      opts[:host] = report_host(:workspace => wspace, :host => opts[:host])
-    end
-
-    ::Mdm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
   }
   end
 
