@@ -17,7 +17,6 @@ require 'rex/parser/burp_session_nokogiri'
 require 'rex/parser/ci_nokogiri'
 require 'rex/parser/foundstone_nokogiri'
 require 'rex/parser/fusionvm_nokogiri'
-require 'rex/parser/ip360_aspl_xml'
 require 'rex/parser/ip360_xml'
 require 'rex/parser/mbsa_nokogiri'
 require 'rex/parser/nessus_xml'
@@ -34,10 +33,12 @@ require 'rex/parser/wapiti_nokogiri'
 
 module Msf::DBManager::Import
   autoload :Acunetix, 'msf/core/db_manager/import/acunetix'
+  autoload :IP360, 'msf/core/db_manager/import/ip360'
   autoload :MsfXml, 'msf/core/db_manager/import/msf_xml'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
 
   include Msf::DBManager::Import::Acunetix
+  include Msf::DBManager::Import::IP360
   include Msf::DBManager::Import::MsfXml
   include Msf::DBManager::Import::Qualys
 
@@ -545,26 +546,6 @@ module Msf::DBManager::Import
     doc = Rex::Parser::FusionVMDocument.new(args,self)
     parser = ::Nokogiri::XML::SAX::Parser.new(doc)
     parser.parse(args[:data])
-  end
-
-  #
-  # Import IP360's ASPL database
-  #
-  def import_ip360_aspl_xml(args={}, &block)
-    data = args[:data]
-    wspace = args[:wspace] || workspace
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-
-    if not data.index("<ontology")
-      raise DBImportError.new("The ASPL file does not appear to be valid or may still be compressed")
-    end
-
-    base = ::File.join(Msf::Config.config_directory, "data", "ncircle")
-    ::FileUtils.mkdir_p(base)
-    ::File.open(::File.join(base, "ip360.aspl"), "wb") do |fd|
-      fd.write(data)
-    end
-    yield(:notice, "Saved the IP360 ASPL database to #{base}...")
   end
 
   #
