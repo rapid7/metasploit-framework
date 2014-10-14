@@ -168,7 +168,7 @@ class ReadableText
     output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
-    output << "  Disclosed: #{mod.disclosure_date}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
@@ -224,7 +224,7 @@ class ReadableText
     output << "     Module: #{mod.fullname}\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
-    output << "  Disclosed: #{mod.disclosure_date}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
@@ -270,7 +270,7 @@ class ReadableText
     output << "   Platform: #{mod.platform_to_s}\n"
     output << "       Arch: #{mod.arch_to_s}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
-    output << "  Disclosed: #{mod.disclosure_date}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
