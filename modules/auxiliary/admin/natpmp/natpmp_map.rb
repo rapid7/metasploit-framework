@@ -40,25 +40,29 @@ class Metasploit3 < Msf::Auxiliary
       })
       add_socket(udp_sock)
 
-      # get the external address first
-      vprint_status "#{host} - NATPMP - Probing for external address"
-      udp_sock.sendto(external_address_request, host, datastore['RPORT'], 0)
-      external_address = nil
-      while (r = udp_sock.recvfrom(12, 1) and r[1])
-        (ver, op, result, epoch, external_address) = parse_external_address_response(r[0])
-      end
+      # new
+      external_address = get_external_address(udp_sock, host, datastore['RPORT']) || host
+      actual_ext_port = map_port(udp_sock, host, datastore['RPORT'], datastore['INTERNAL_PORT'], datastore['EXTERNAL_PORT'], Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), datastore['LIFETIME'])
 
-      vprint_status "#{host} - NATPMP - Sending mapping request"
-      # build the mapping request
-      req = map_port_request(
-          datastore['INTERNAL_PORT'], datastore['EXTERNAL_PORT'],
-          Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), datastore['LIFETIME']
-      )
-      # send it
-      udp_sock.sendto(req, host, datastore['RPORT'], 0)
-      # handle the reply
-      while (r = udp_sock.recvfrom(16, 1) and r[1])
-        handle_reply(Rex::Socket.source_address(host), host, external_address, r)
+      if actual_ext_port
+        map_target = Rex::Socket.source_address(host)
+        if (datastore['EXTERNAL_PORT'] != actual_ext_port)
+          print_status(	"#{external_address} " +
+                  "#{datastore['EXTERNAL_PORT']}/#{datastore['PROTOCOL']} -> #{map_target} " +
+                  "#{datastore['INTERNAL_PORT']}/#{datastore['PROTOCOL']} couldn't be forwarded")
+        end
+        print_status(	"#{external_address} " +
+                "#{actual_ext_port}/#{datastore['PROTOCOL']} -> #{map_target} " +
+                "#{datastore['INTERNAL_PORT']}/#{datastore['PROTOCOL']} forwarded")
+
+        # report NAT-PMP as being open
+        report_service(
+          :host   => host,
+          :port   => datastore['RPORT'],
+          :proto  => 'udp',
+          :name  => 'natpmp',
+          :state => Msf::ServiceState::Open
+        )
       end
     rescue ::Interrupt
       raise $!
@@ -69,43 +73,4 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def handle_reply(map_target, host, external_address, pkt)
-    return if not pkt[1]
-
-    if(pkt[1] =~ /^::ffff:/)
-      pkt[1] = pkt[1].sub(/^::ffff:/, '')
-    end
-
-    (ver, op, result, epoch, internal_port, external_port, lifetime) = parse_map_port_response(pkt[0])
-
-    if (result == 0)
-      if (datastore['EXTERNAL_PORT'] != external_port)
-        print_status(	"#{external_address} " +
-                "#{datastore['EXTERNAL_PORT']}/#{datastore['PROTOCOL']} -> #{map_target} " +
-                "#{internal_port}/#{datastore['PROTOCOL']} couldn't be forwarded")
-      end
-      print_status(	"#{external_address} " +
-              "#{external_port}/#{datastore['PROTOCOL']} -> #{map_target} " +
-              "#{internal_port}/#{datastore['PROTOCOL']} forwarded")
-    end
-
-    # report NAT-PMP as being open
-    report_service(
-      :host   => host,
-      :port   => pkt[2],
-      :proto  => 'udp',
-      :name  => 'natpmp',
-      :state => Msf::ServiceState::Open
-    )
-
-    # report the external port as being open
-    if inside_workspace_boundary?(external_address)
-      report_service(
-        :host   => external_address,
-        :port   => external_port,
-        :proto  => datastore['PROTOCOL'].to_s.downcase,
-        :state => Msf::ServiceState::Open
-      )
-    end
-  end
 end
