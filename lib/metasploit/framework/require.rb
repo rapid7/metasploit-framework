@@ -72,6 +72,23 @@ module Metasploit
         end
       end
 
+      # Tries to require gems necessary for using a database with the framework.
+      #
+      # @example
+      #   Metasploit::Framework::Require.optionally_require_metasploit_db_gems
+      #
+      # @return [void]
+      def self.optionally_require_metasploit_db_gem_engines
+        optionally(
+          'metasploit/credential/engine',
+          'metasploit-credential not in the bundle',
+        )
+        optionally(
+          'metasploit_data_models/engine',
+          'metaspoit_data_models not in the bundle'
+        )
+      end
+
       #
       # Instance Methods
       #

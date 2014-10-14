@@ -428,7 +428,7 @@ class Msfcli
 
   def show_actions(m)
     readable = Msf::Serializer::ReadableText
-    $stdout.puts("\n" + readable.dump_auxiliary_actions(m[:module], @indent))
+    $stdout.puts("\n" + readable.dump_module_actions(m[:module], @indent))
   end
 
 
