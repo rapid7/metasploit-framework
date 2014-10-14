@@ -7,11 +7,25 @@ require 'metasploit/framework/command/base'
 
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::Base
+
+  def spinner(bool=true)
+    return if $msf_spinner_thread
+    $msf_spinner_thread = Thread.new do
+      loop do
+        %q{/-\|}.each_char do |c|
+          $stdout.print c
+          $stdout.print "\b"
+        end
+      end
+    end
+  end
+
   def start
     case parsed_options.options.subcommand
     when :version
       $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
     else
+      spinner
       driver.run
     end
   end
