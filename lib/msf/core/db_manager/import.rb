@@ -12,7 +12,6 @@ require 'uri'
 #
 
 require 'packetfu'
-require 'rex/parser/acunetix_nokogiri'
 require 'rex/parser/appscan_nokogiri'
 require 'rex/parser/burp_session_nokogiri'
 require 'rex/parser/ci_nokogiri'
@@ -34,9 +33,11 @@ require 'rex/parser/retina_xml'
 require 'rex/parser/wapiti_nokogiri'
 
 module Msf::DBManager::Import
+  autoload :Acunetix, 'msf/core/db_manager/import/acunetix'
   autoload :MsfXml, 'msf/core/db_manager/import/msf_xml'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
 
+  include Msf::DBManager::Import::Acunetix
   include Msf::DBManager::Import::MsfXml
   include Msf::DBManager::Import::Qualys
 
@@ -64,36 +65,6 @@ module Msf::DBManager::Import
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
     self.send "import_#{ftype}".to_sym, args, &block
-  end
-
-  def import_acunetix_noko_stream(args={},&block)
-    if block
-      doc = Rex::Parser::AcunetixDocument.new(args,framework.db) {|type, data| yield type,data }
-    else
-      doc = Rex::Parser::AcunetixFoundstoneDocument.new(args,self)
-    end
-    parser = ::Nokogiri::XML::SAX::Parser.new(doc)
-    parser.parse(args[:data])
-  end
-
-  def import_acunetix_xml(args={}, &block)
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:wspace] || workspace
-    if Rex::Parser.nokogiri_loaded
-      parser = "Nokogiri v#{::Nokogiri::VERSION}"
-      noko_args = args.dup
-      noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
-      if block
-        yield(:parser, parser)
-        import_acunetix_noko_stream(noko_args) {|type, data| yield type,data}
-      else
-        import_acunetix_noko_stream(noko_args)
-      end
-      return true
-    else # Sorry
-      raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
-    end
   end
 
   def import_amap_log(args={}, &block)
