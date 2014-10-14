@@ -8,7 +8,7 @@ require 'metasploit/framework/command/base'
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::Base
 
-  def spinner(bool=true)
+  def spinner
     return if $msf_spinner_thread
     $msf_spinner_thread = Thread.new do
       loop do
