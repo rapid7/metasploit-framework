@@ -1,3 +1,5 @@
+require 'rex/parser/ip360_xml'
+
 module Msf::DBManager::Import::IP360::V3
   #
   # Import IP360 XML v3 output
