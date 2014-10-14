@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/rapid7/metasploit-concern.git
-  revision: 32d66c52dc1d3b4dc251b624e6afb89478d14cf1
+  revision: e578221e88cfcbaccdb2de3dda957312ec334f4f
   branch: staging/rails-4.0
   specs:
     metasploit-concern (1.0.0.pre.rails.pre.4.0)
@@ -10,19 +10,21 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: c762469b1c6776bae2b873ab930e7ef54c6504af
+  revision: 1e5a5af75e9a8f431c7202160863aafa97d4dbe4
   branch: staging/rails-4.0
   specs:
     metasploit-credential (1.0.0.pre.rails.pre.4.0)
       metasploit-concern
+      metasploit-model
       metasploit_data_models
       pg
+      railties
       rubyntlm
       rubyzip (~> 1.1)
 
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: b9eb1708ae8d9cb8da3429dbf8b0f50c496fab92
+  revision: aeb1b89d7b2245f4df52976f9da0983e949bc2fe
   branch: staging/rails-4.0
   specs:
     metasploit-model (1.0.0.pre.rails.pre.4.0)
@@ -32,7 +34,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: c390c737f84906a7b665b8c442a0488e876f3624
+  revision: 84bbf41b552a778af75cec6107ce91ee0f57b959
   branch: staging/rails-4.0
   specs:
     metasploit_data_models (1.0.0.pre.rails.pre.4.0)
@@ -44,6 +46,7 @@ GIT
       pg
       postgres_ext
       railties (>= 4.0.9, < 4.1.0)
+      recog (~> 1.0)
 
 PATH
   remote: .
