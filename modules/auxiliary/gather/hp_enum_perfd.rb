@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'HP Operations Manager Perfd Environment Scanner',
       'Description' => %q{
-        This module will enumerate the environment
-        HP Operation Manager via daemon perfd.
+        This module will enumerate the process list of a remote machine by abusing
+        HP Operation Manager's unauthenticated 'perfd' daemon.
         },
       'Author'      => [ 'Roberto Soares Espreto <robertoespreto[at]gmail.com>' ],
       'License'     => MSF_LICENSE
