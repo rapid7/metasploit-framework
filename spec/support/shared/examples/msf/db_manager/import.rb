@@ -16,7 +16,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import_foundstone_noko_stream }
   it { is_expected.to respond_to :import_foundstone_xml }
   it { is_expected.to respond_to :import_fusionvm_xml }
-  it { is_expected.to respond_to :import_ip360_aspl_xml }
   it { is_expected.to respond_to :import_ip360_xml_file }
   it { is_expected.to respond_to :import_ip360_xml_v3 }
   it { is_expected.to respond_to :import_ip_list }
@@ -76,6 +75,7 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :validate_import_file }
 
   it_should_behave_like 'Msf::DBManager::Import::Acunetix'
+  it_should_behave_like 'Msf::DBManager::Import::IP360'
   it_should_behave_like 'Msf::DBManager::Import::MsfXml'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
 end
