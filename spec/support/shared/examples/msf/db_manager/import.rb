@@ -2,8 +2,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :dehex }
   it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :import }
-  it { is_expected.to respond_to :import_acunetix_noko_stream }
-  it { is_expected.to respond_to :import_acunetix_xml }
   it { is_expected.to respond_to :import_amap_log }
   it { is_expected.to respond_to :import_amap_log_file }
   it { is_expected.to respond_to :import_amap_mlog }
@@ -77,6 +75,7 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :unserialize_object }
   it { is_expected.to respond_to :validate_import_file }
 
+  it_should_behave_like 'Msf::DBManager::Import::Acunetix'
   it_should_behave_like 'Msf::DBManager::Import::MsfXml'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
 end
