@@ -63,7 +63,7 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
   end
 
   before do
-    http_scanner.version = good_version
+    http_scanner.instance_variable_set(:@version, good_version)
   end
 
   context '#send_request' do
@@ -222,13 +222,6 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
       end
     end
 
-    context 'when unsupported Glassfish version' do
-      it 'raises a GlassfishError exception' do
-        http_scanner.version = bad_version
-        expect { http_scanner.attempt_login(cred) }.to raise_exception(Metasploit::Framework::LoginScanner::GlassfishError)
-      end
-    end
-
     context 'when Glassfish version 2' do
       let(:login_ok_message) do
         '<title>Deploy Enterprise Applications/Modules</title>'
@@ -301,6 +294,43 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
         expect(http_scanner.attempt_login(cred)).to be_kind_of(Metasploit::Framework::LoginScanner::Result)
       end
     end
+  end
+
+  context '#extract_version' do
+    # Thanks to shodan for Server headers
+    subject(:extracted_version) { http_scanner.extract_version(server_header) }
+
+    context 'with 9.1 header' do
+      let(:server_header) { "Sun Java System Application Server 9.1_02" }
+      it { is_expected.to start_with("9") }
+    end
+
+    context 'with 4.0 header' do
+      let(:server_header) { "GlassFish Server Open Source Edition  4.0" }
+      it { is_expected.to start_with("4") }
+    end
+
+    context 'with 3.0 header' do
+      let(:server_header) { "GlassFish Server Open Source Edition 3.0.1" }
+      it { is_expected.to start_with("3") }
+    end
+
+    context 'with non-open-source header' do
+      let(:server_header) { "Oracle GlassFish Server 3.1.2.3" }
+      it { is_expected.to start_with("3") }
+    end
+
+    context 'with 2.1 header' do
+      let(:server_header) { "Sun GlassFish Enterprise Server v2.1" }
+      it { is_expected.to start_with("2") }
+    end
+
+    context 'with bogus header' do
+      let(:server_header) { "Apache-Coyote/1.1" }
+      it { is_expected.to be_nil }
+    end
+
+
   end
 
 end

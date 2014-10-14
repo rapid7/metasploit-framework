@@ -24,29 +24,13 @@ module Msf::ModuleManager::ModulePaths
 
     # Make the path completely canonical
     pathname = Pathname.new(path_without_trailing_file_separator).expand_path
-    extension = pathname.extname
 
-    if extension == Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION
-      unless pathname.exist?
-        raise ArgumentError, "The path supplied does not exist", caller
-      end
-
-      nested_paths << pathname.to_s
-    else
-      # Make sure the path is a valid directory
-      unless pathname.directory?
-        raise ArgumentError, "The path supplied is not a valid directory.", caller
-      end
-
-      nested_paths << pathname.to_s
-
-      # Identify any fastlib archives inside of this path
-      fastlib_glob = pathname.join('**', "*#{Msf::Modules::Loader::Archive::ARCHIVE_EXTENSION}")
-
-      Dir.glob(fastlib_glob).each do |fastlib_path|
-        nested_paths << fastlib_path
-      end
+    # Make sure the path is a valid directory
+    unless pathname.directory?
+      raise ArgumentError, "The path supplied is not a valid directory.", caller
     end
+
+    nested_paths << pathname.to_s
 
     # Update the module paths appropriately
     self.module_paths = (module_paths + nested_paths).flatten.uniq

@@ -173,7 +173,7 @@ module Metasploit
             #Client time
             chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || ''
 
-            spnopt = {:use_spn => send_spn, :name =>  self.rhost}
+            spnopt = {:use_spn => send_spn, :name =>  rhost}
 
             resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(user, pass, challenge_key,
                                                                                                            domain_name, default_name, default_domain,

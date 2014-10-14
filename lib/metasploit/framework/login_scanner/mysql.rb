@@ -16,64 +16,70 @@ module Metasploit
         include Metasploit::Framework::Tcp::Client
 
         DEFAULT_PORT         = 3306
-        LIKELY_PORTS         = [ 3306 ]
-        LIKELY_SERVICE_NAMES = [ 'mysql' ]
-        PRIVATE_TYPES        = [ :password ]
-        REALM_KEY           = nil
+        LIKELY_PORTS         = [3306]
+        LIKELY_SERVICE_NAMES = ['mysql']
+        PRIVATE_TYPES        = [:password]
+        REALM_KEY            = nil
 
         def attempt_login(credential)
           result_options = {
-              credential: credential,
-              host: host,
-              port: port,
-              protocol: 'tcp',
-              service_name: 'mysql'
+            credential:   credential,
+            host:         host,
+            port:         port,
+            protocol:     'tcp',
+            service_name: 'mysql'
           }
 
-          # manage our behind the scenes socket. Close any existing one and open a new one
-          disconnect if self.sock
-          connect
-
           begin
+            # manage our behind the scenes socket. Close any existing one and open a new one
+            disconnect if self.sock
+            connect
+
             ::RbMysql.connect({
-              :host           => host,
-              :port           => port,
-              :read_timeout   => 300,
-              :write_timeout  => 300,
-              :socket         => sock,
-              :user           => credential.public,
-              :password       => credential.private,
-              :db             => ''
+              :host          => host,
+              :port          => port,
+              :read_timeout  => 300,
+              :write_timeout => 300,
+              :socket        => sock,
+              :user          => credential.public,
+              :password      => credential.private,
+              :db            => ''
             })
-          rescue Errno::ECONNREFUSED
+
+          rescue Rex::HostUnreachable
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof: "Connection refused"
+              proof:  "Host was unreachable"
+            })
+          rescue Errno::ECONNREFUSED, Rex::ConnectionRefused
+            result_options.merge!({
+              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
+              proof:  "Connection refused"
             })
           rescue RbMysql::ClientError
             result_options.merge!({
-                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-                proof: "Connection timeout"
+              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
+              proof:  "Connection timeout"
             })
-          rescue Errno::ETIMEDOUT
+          rescue Errno::ETIMEDOUT, Rex::ConnectionTimeout
             result_options.merge!({
-                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-                proof: "Operation Timed out"
+              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
+              proof:  "Operation Timed out"
             })
           rescue RbMysql::HostNotPrivileged
             result_options.merge!({
-                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-                proof: "Unable to login from this host due to policy"
+              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
+              proof:  "Unable to login from this host due to policy"
             })
           rescue RbMysql::AccessDeniedError
             result_options.merge!({
-                status: Metasploit::Model::Login::Status::INCORRECT,
-                proof: "Access Denied"
+              status: Metasploit::Model::Login::Status::INCORRECT,
+              proof:  "Access Denied"
             })
           rescue RbMysql::HostIsBlocked
             result_options.merge!({
-                status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-                proof: "Host blocked"
+              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
+              proof:  "Host blocked"
             })
           end
 

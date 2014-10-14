@@ -22,10 +22,19 @@ require 'rspec/rails/mocks'
 
 FILE_FIXTURES_PATH = File.expand_path(File.dirname(__FILE__)) + '/file_fixtures/'
 
+# Load the shared examples from the following engines
+engines = [
+  Metasploit::Concern,
+  Rails
+]
+
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
-Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each do |f|
-  require f
+engines.each do |engine|
+  support_glob = engine.root.join('spec', 'support', '**', '*.rb')
+  Dir[support_glob].each { |f|
+    require f
+  }
 end
 
 RSpec.configure do |config|

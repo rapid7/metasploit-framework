@@ -5,10 +5,6 @@ module Metasploit
   module Framework
     module LoginScanner
 
-      # I don't want to raise RuntimeError to be able to abort login
-      class GlassfishError < StandardError
-      end
-
       # The Glassfish HTTP LoginScanner class provides methods to do login routines
       # for Glassfish 2, 3 and 4.
       class Glassfish < HTTP
@@ -16,14 +12,49 @@ module Metasploit
         DEFAULT_PORT  = 4848
         PRIVATE_TYPES = [ :password ]
 
-        # @!attribute version
+        # @!attribute [r] version
         #   @return [String] Glassfish version
-        attr_accessor :version
+        attr_reader :version
 
         # @!attribute jsession
         #   @return [String] Cookie session
         attr_accessor :jsession
 
+        # (see Base#check_setup)
+        def check_setup
+          begin
+            res = send_request({'uri' => '/common/index.jsf'})
+            return "Connection failed" if res.nil?
+            if !([200, 302].include?(res.code))
+              return "Unexpected HTTP response code #{res.code} (is this really Glassfish?)"
+            end
+
+            # If remote login is enabled on 4.x, it redirects to https on the
+            # same port.
+            if !self.ssl && res.headers['Location'] =~ /^https:/
+              self.ssl = true
+              res = send_request({'uri' => '/common/index.jsf'})
+              if res.nil?
+                return "Connection failed after SSL redirection"
+              end
+              if res.code != 200
+                return "Unexpected HTTP response code #{res.code} after SSL redirection (is this really Glassfish?)"
+              end
+            end
+
+            res = send_request({'uri' => '/login.jsf'})
+            return "Connection failed" if res.nil?
+            extract_version(res.headers['Server'])
+
+            if @version.nil? || @version !~ /^[2349]/
+              return "Unsupported version ('#{@version}')"
+            end
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+            return "Unable to connect to target"
+          end
+
+          false
+        end
 
         # Sends a HTTP request with Rex
         #
@@ -126,9 +157,9 @@ module Metasploit
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
           elsif res && is_secure_admin_disabled?(res)
-            return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
+            return {:status => Metasploit::Model::Login::Status::DENIED_ACCESS, :proof => res.body}
           elsif res && res.code == 400
-            raise GlassfishError, "400: Bad HTTP request from try_login"
+            return {:status => Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, :proof => res.body}
           end
 
           {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.body}
@@ -146,12 +177,10 @@ module Metasploit
             case self.version
             when /^[29]\.x$/
               status = try_glassfish_2(credential)
-              result_opts.merge!(status: status[:status], proof:status[:proof])
+              result_opts.merge!(status)
             when /^[34]\./
               status = try_glassfish_3(credential)
-              result_opts.merge!(status: status[:status], proof:status[:proof])
-           else
-              raise GlassfishError, "Glassfish version '#{self.version}' not supported"
+              result_opts.merge!(status)
             end
           rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
@@ -159,6 +188,31 @@ module Metasploit
 
           Result.new(result_opts)
         end
+
+        #
+        # Extract the target's glassfish version from the HTTP Server header
+        # (ex: Sun Java System Application Server 9.x)
+        #
+        # @param banner [String] `Server` header from a Glassfish service response
+        # @return [String] version string, e.g. '2.x'
+        # @return [nil] If the banner did not match any of the expected values
+        def extract_version(banner)
+          # Set version.  Some GlassFish servers return banner "GlassFish v3".
+          if banner =~ /(GlassFish Server|Open Source Edition)[[:blank:]]*(\d\.\d)/
+            @version = $2
+          elsif banner =~ /GlassFish v(\d)/
+            @version = $1
+          elsif banner =~ /Sun GlassFish Enterprise Server v2/
+            @version = '2.x'
+          elsif banner =~ /Sun Java System Application Server 9/
+            @version = '9.x'
+          else
+            @version = nil
+          end
+
+          return @version
+        end
+
 
       end
     end

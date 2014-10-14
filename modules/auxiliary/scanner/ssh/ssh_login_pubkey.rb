@@ -6,6 +6,7 @@
 require 'msf/core'
 require 'net/ssh'
 require 'metasploit/framework/login_scanner/ssh'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 

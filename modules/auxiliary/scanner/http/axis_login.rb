@@ -6,6 +6,7 @@
 
 require 'msf/core'
 require 'metasploit/framework/login_scanner/axis2'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -82,6 +83,8 @@ class Metasploit3 < Msf::Auxiliary
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: 5,
+      user_agent: datastore['UserAgent'],
+      vhost: datastore['VHOST']
     )
 
     scanner.scan! do |result|

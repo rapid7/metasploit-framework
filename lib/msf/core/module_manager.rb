@@ -7,7 +7,6 @@ require 'pathname'
 #
 # Project
 #
-require 'fastlib'
 require 'msf/core'
 require 'msf/core/module_set'
 

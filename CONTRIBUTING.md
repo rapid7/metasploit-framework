@@ -6,12 +6,12 @@ world -- a better place!
 Are you about to report a bug? Sorry to hear it.
 
 Here's our [Issue tracker](https://github.com/rapid7/metasploit-framework/issues).
-Please try to be as specific you can about your problem, include steps
+Please try to be as specific as you can about your problem, include steps
 to reproduce (cut and paste from your console output if it's helpful), and
 what you were expecting to happen.
 
 Are you about to report a security vulnerability in Metasploit itself?
-How ironic! Please take a look at Rapid's [Vulnerability
+How ironic! Please take a look at Rapid7's [Vulnerability
 Disclosure Policy](https://www.rapid7.com/disclosure.jsp), and send
 your report to security@rapid7.com using [our PGP key](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2380F85B8AD4DB8D).
 

