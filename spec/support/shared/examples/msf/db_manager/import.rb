@@ -55,8 +55,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import_openvas_xml }
   it { is_expected.to respond_to :import_outpost24_noko_stream }
   it { is_expected.to respond_to :import_outpost24_xml }
-  it { is_expected.to respond_to :import_qualys_scan_xml }
-  it { is_expected.to respond_to :import_qualys_scan_xml_file }
   it { is_expected.to respond_to :import_report }
   it { is_expected.to respond_to :import_retina_xml }
   it { is_expected.to respond_to :import_retina_xml_file }
