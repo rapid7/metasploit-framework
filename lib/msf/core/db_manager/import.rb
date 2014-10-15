@@ -366,11 +366,6 @@ module Msf::DBManager::Import
     return obj
   end
 
-  # Convert the string "NULL" to actual nil
-  def nils_for_nulls(str)
-    str == "NULL" ? nil : str
-  end
-
   def report_import_note(wspace,addr)
     if @import_filedata.kind_of?(Hash) && @import_filedata[:filename] && @import_filedata[:filename] !~ /msfe-nmap[0-9]{8}/
     report_note(
