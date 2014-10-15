@@ -37,6 +37,7 @@ module Msf::DBManager::Import
   autoload :Nessus, 'msf/core/db_manager/import/nessus'
   autoload :Netsparker, 'msf/core/db_manager/import/netsparker'
   autoload :Nexpose, 'msf/core/db_manager/import/nexpose'
+  autoload :Nikto, 'msf/core/db_manager/import/nikto'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
 
   include Msf::DBManager::Import::Acunetix
@@ -54,6 +55,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Nessus
   include Msf::DBManager::Import::Netsparker
   include Msf::DBManager::Import::Nexpose
+  include Msf::DBManager::Import::Nikto
   include Msf::DBManager::Import::Qualys
 
   # If hex notation is present, turn them into a character.
@@ -348,63 +350,6 @@ module Msf::DBManager::Import
     end
 
     raise DBImportError.new("Could not automatically determine file type")
-  end
-
-  #
-  # Imports Nikto scan data from -Format xml as notes.
-  #
-  def import_nikto_xml(args={}, &block)
-    data = args[:data]
-    wspace = args[:wspace] || workspace
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    doc = rexmlify(data)
-    doc.elements.each do |f|
-      f.elements.each('scandetails') do |host|
-        # Get host information
-        addr = host.attributes['targetip']
-        next if not addr
-        if bl.include? addr
-          next
-        else
-          yield(:address,addr) if block
-        end
-        # Get service information
-        port = host.attributes['targetport']
-        next if port.to_i == 0
-        uri = URI.parse(host.attributes['sitename']) rescue nil
-        next unless uri and uri.scheme
-        # Collect and report scan descriptions.
-        host.elements.each do |item|
-          if item.elements['description']
-            desc_text = item.elements['description'].text
-            next if desc_text.nil? or desc_text.empty?
-            desc_data = {
-                :workspace => wspace,
-                :host      => addr,
-                :type      => "service.nikto.scan.description",
-                :data      => desc_text,
-                :proto     => "tcp",
-                :port      => port.to_i,
-                :sname     => uri.scheme,
-                :update    => :unique_data,
-                :task      => args[:task]
-            }
-            # Always report it as a note.
-            report_note(desc_data)
-            # Sometimes report it as a vuln, too.
-            # XXX: There's a Vuln.info field but nothing reads from it? See Bug #5837
-            if item.attributes['osvdbid'].to_i != 0
-              desc_data[:refs] = ["OSVDB-#{item.attributes['osvdbid']}"]
-              desc_data[:name] = "NIKTO-#{item.attributes['id']}"
-              desc_data.delete(:data)
-              desc_data.delete(:type)
-              desc_data.delete(:update)
-              report_vuln(desc_data)
-            end
-          end
-        end
-      end
-    end
   end
 
   def import_nmap_noko_stream(args, &block)
