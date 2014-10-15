@@ -2,8 +2,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :dehex }
   it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :import }
-  it { is_expected.to respond_to :import_burp_session_noko_stream }
-  it { is_expected.to respond_to :import_burp_session_xml }
   it { is_expected.to respond_to :import_ci_noko_stream }
   it { is_expected.to respond_to :import_ci_xml }
   it { is_expected.to respond_to :import_file }
@@ -70,6 +68,7 @@ shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::Acunetix'
   it_should_behave_like 'Msf::DBManager::Import::Amap'
   it_should_behave_like 'Msf::DBManager::Import::Appscan'
+  it_should_behave_like 'Msf::DBManager::Import::Burp'
   it_should_behave_like 'Msf::DBManager::Import::IP360'
   it_should_behave_like 'Msf::DBManager::Import::MsfXml'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
