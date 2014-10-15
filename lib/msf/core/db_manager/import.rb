@@ -12,7 +12,6 @@ require 'uri'
 #
 
 require 'packetfu'
-require 'rex/parser/mbsa_nokogiri'
 require 'rex/parser/nessus_xml'
 require 'rex/parser/netsparker_xml'
 require 'rex/parser/nexpose_raw_nokogiri'
@@ -36,6 +35,7 @@ module Msf::DBManager::Import
   autoload :IP360, 'msf/core/db_manager/import/ip360'
   autoload :IPList, 'msf/core/db_manager/import/ip_list'
   autoload :Libpcap, 'msf/core/db_manager/import/libpcap'
+  autoload :MBSA, 'msf/core/db_manager/import/mbsa'
   autoload :MsfXml, 'msf/core/db_manager/import/msf_xml'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
 
@@ -49,6 +49,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::IP360
   include Msf::DBManager::Import::IPList
   include Msf::DBManager::Import::Libpcap
+  include Msf::DBManager::Import::MBSA
   include Msf::DBManager::Import::MsfXml
   include Msf::DBManager::Import::Qualys
 
@@ -344,36 +345,6 @@ module Msf::DBManager::Import
     end
 
     raise DBImportError.new("Could not automatically determine file type")
-  end
-
-  def import_mbsa_noko_stream(args={},&block)
-    if block
-      doc = Rex::Parser::MbsaDocument.new(args,framework.db) {|type, data| yield type,data }
-    else
-      doc = Rex::Parser::MbsaDocument.new(args,self)
-    end
-    parser = ::Nokogiri::XML::SAX::Parser.new(doc)
-    parser.parse(args[:data])
-  end
-
-  def import_mbsa_xml(args={}, &block)
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:wspace] || workspace
-    if Rex::Parser.nokogiri_loaded
-      parser = "Nokogiri v#{::Nokogiri::VERSION}"
-      noko_args = args.dup
-      noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
-      if block
-        yield(:parser, parser)
-        import_mbsa_noko_stream(noko_args) {|type, data| yield type,data}
-      else
-        import_mbsa_noko_stream(noko_args)
-      end
-      return true
-    else # Sorry
-      raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
-    end
   end
 
   # Imports loot, tasks, and reports from an MSF ZIP report.
