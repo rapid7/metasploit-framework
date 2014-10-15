@@ -11,7 +11,6 @@ require 'uri'
 #
 
 require 'packetfu'
-require 'rex/parser/wapiti_nokogiri'
 
 module Msf::DBManager::Import
   autoload :Acunetix, 'msf/core/db_manager/import/acunetix'
@@ -36,6 +35,7 @@ module Msf::DBManager::Import
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
   autoload :Retina, 'msf/core/db_manager/import/retina'
   autoload :Spiceworks, 'msf/core/db_manager/import/spiceworks'
+  autoload :Wapiti, 'msf/core/db_manager/import/wapiti'
 
   include Msf::DBManager::Import::Acunetix
   include Msf::DBManager::Import::Amap
@@ -59,6 +59,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Qualys
   include Msf::DBManager::Import::Retina
   include Msf::DBManager::Import::Spiceworks
+  include Msf::DBManager::Import::Wapiti
 
   # If hex notation is present, turn them into a character.
   def dehex(str)
@@ -446,27 +447,6 @@ module Msf::DBManager::Import
         return :something_significant
       end
     end
-  end
-
-  def import_wapiti_xml(args={}, &block)
-    if block
-      doc = Rex::Parser::WapitiDocument.new(args,framework.db) {|type, data| yield type,data }
-    else
-      doc = Rex::Parser::WapitiDocument.new(args,self)
-    end
-    parser = ::Nokogiri::XML::SAX::Parser.new(doc)
-    parser.parse(args[:data])
-  end
-
-  def import_wapiti_xml_file(args={})
-    filename = args[:filename]
-    wspace = args[:wspace] || workspace
-
-    data = ""
-    ::File.open(filename, 'rb') do |f|
-      data = f.read(f.stat.size)
-    end
-    import_wapiti_xml(args.merge(:data => data))
   end
 
   # @param report [REXML::Element] to be imported
