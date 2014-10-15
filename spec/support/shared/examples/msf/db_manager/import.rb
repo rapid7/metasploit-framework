@@ -4,9 +4,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import }
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
-  it { is_expected.to respond_to :import_nmap_noko_stream }
-  it { is_expected.to respond_to :import_nmap_xml }
-  it { is_expected.to respond_to :import_nmap_xml_file }
   it { is_expected.to respond_to :import_openvas_new_xml }
   it { is_expected.to respond_to :import_openvas_new_xml_file }
   it { is_expected.to respond_to :import_openvas_xml }
@@ -22,7 +19,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :inspect_single_packet_http }
   it { is_expected.to respond_to :msf_import_timestamps }
   it { is_expected.to respond_to :nils_for_nulls }
-  it { is_expected.to respond_to :nmap_msf_service_map }
   it { is_expected.to respond_to :report_import_note }
   it { is_expected.to respond_to :rexmlify }
   it { is_expected.to respond_to :unserialize_object }
@@ -44,5 +40,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::Netsparker'
   it_should_behave_like 'Msf::DBManager::Import::Nexpose'
   it_should_behave_like 'Msf::DBManager::Import::Nikto'
+  it_should_behave_like 'Msf::DBManager::Import::Nmap'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
 end
