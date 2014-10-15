@@ -56,7 +56,7 @@ class Rex::Socket::Parameters
   # @option hash [Bool] 'Bool' Create a bare socket
   # @option hash [Bool] 'Server' Whether or not this should be a server
   # @option hash [Bool] 'SSL' Whether or not SSL should be used
-  # @option hash [String] 'SSLVersion' Specify SSL2, SSL3, or TLS1 (SSL3 is
+  # @option hash [String] 'SSLVersion' Specify SSL2, SSL3, or TLS1 (TLS1 is
   #   default)
   # @option hash [String] 'SSLCert' A file containing an SSL certificate (for
   #   server sockets)
