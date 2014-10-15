@@ -2,7 +2,6 @@
 # Standard library
 #
 
-require 'csv'
 require 'fileutils'
 require 'tmpdir'
 require 'uri'
@@ -36,6 +35,7 @@ module Msf::DBManager::Import
   autoload :Outpost24, 'msf/core/db_manager/import/outpost24'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
   autoload :Retina, 'msf/core/db_manager/import/retina'
+  autoload :Spiceworks, 'msf/core/db_manager/import/spiceworks'
 
   include Msf::DBManager::Import::Acunetix
   include Msf::DBManager::Import::Amap
@@ -58,6 +58,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Outpost24
   include Msf::DBManager::Import::Qualys
   include Msf::DBManager::Import::Retina
+  include Msf::DBManager::Import::Spiceworks
 
   # If hex notation is present, turn them into a character.
   def dehex(str)
@@ -512,54 +513,6 @@ module Msf::DBManager::Import
       artifact_opts[:file_path].gsub!(/^\./, tmp)
 
       report_artifact(artifact_opts)
-    end
-  end
-
-  def import_spiceworks_csv(args={}, &block)
-    data = args[:data]
-    wspace = args[:wspace] || workspace
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    CSV.parse(data) do |row|
-      next unless (["Name", "Manufacturer", "Device Type"] & row).empty? #header
-      name = row[0]
-      manufacturer = row[1]
-      device = row[2]
-      model = row[3]
-      ip = row[4]
-      serialno = row[5]
-      location = row[6]
-      os = row[7]
-
-      next unless ip
-      next if bl.include? ip
-
-      conf = {
-      :workspace => wspace,
-      :host      => ip,
-      :name      => name,
-      :task      => args[:task]
-      }
-
-
-      if os
-        report_note(
-          :workspace => wspace,
-          :task => args[:task],
-          :host => ip,
-          :type => 'host.os.spiceworks_fingerprint',
-          :data => {
-            :os => os.to_s.strip
-          }
-        )
-      end
-
-      info = []
-      info << "Serial Number: #{serialno}" unless (serialno.blank? or serialno == name)
-      info << "Location: #{location}" unless location.blank?
-      conf[:info] = info.join(", ") unless info.empty?
-
-      host = report_host(conf)
-      report_import_note(wspace, host)
     end
   end
 
