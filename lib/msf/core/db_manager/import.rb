@@ -34,6 +34,7 @@ module Msf::DBManager::Import
   autoload :Foundstone, 'msf/core/db_manager/import/foundstone'
   autoload :FusionVM, 'msf/core/db_manager/import/fusion_vm'
   autoload :IP360, 'msf/core/db_manager/import/ip360'
+  autoload :IPList, 'msf/core/db_manager/import/ip_list'
   autoload :MsfXml, 'msf/core/db_manager/import/msf_xml'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
 
@@ -45,6 +46,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Foundstone
   include Msf::DBManager::Import::FusionVM
   include Msf::DBManager::Import::IP360
+  include Msf::DBManager::Import::IPList
   include Msf::DBManager::Import::MsfXml
   include Msf::DBManager::Import::Qualys
 
@@ -340,33 +342,6 @@ module Msf::DBManager::Import
     end
 
     raise DBImportError.new("Could not automatically determine file type")
-  end
-
-  def import_ip_list(args={}, &block)
-    data = args[:data]
-    wspace = args[:wspace] || workspace
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-
-    data.each_line do |ip|
-      ip.strip!
-      if bl.include? ip
-        next
-      else
-        yield(:address,ip) if block
-      end
-      host = find_or_create_host(:workspace => wspace, :host=> ip, :state => Msf::HostState::Alive, :task => args[:task])
-    end
-  end
-
-  def import_ip_list_file(args={})
-    filename = args[:filename]
-    wspace = args[:wspace] || workspace
-
-    data = ""
-    ::File.open(filename, 'rb') do |f|
-      data = f.read(f.stat.size)
-    end
-    import_ip_list(args.merge(:data => data))
   end
 
   # The libpcap file format is handled by PacketFu for data
