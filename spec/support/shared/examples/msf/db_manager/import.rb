@@ -4,11 +4,9 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import }
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
-  it { is_expected.to respond_to :import_msf_collateral }
   it { is_expected.to respond_to :import_msf_cred_dump }
   it { is_expected.to respond_to :import_msf_cred_dump_zip }
   it { is_expected.to respond_to :import_msf_pwdump }
-  it { is_expected.to respond_to :import_msf_zip }
   it { is_expected.to respond_to :import_nessus_nbe }
   it { is_expected.to respond_to :import_nessus_nbe_file }
   it { is_expected.to respond_to :import_nessus_xml }
