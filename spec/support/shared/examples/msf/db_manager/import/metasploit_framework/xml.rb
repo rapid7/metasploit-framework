@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'builder'
 
-shared_examples_for 'Msf::DBManager::Import::MsfXml' do
+shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   # Serialized format from pro/modules/auxiliary/pro/report.rb
   def serialize(object)
     # FIXME https://www.pivotaltracker.com/story/show/46578647
@@ -85,7 +85,7 @@ shared_examples_for 'Msf::DBManager::Import::MsfXml' do
   end
 
   it 'should include methods from module so method can be overridden easier in pro' do
-    db_manager.should be_a Msf::DBManager::Import::MsfXml
+    db_manager.should be_a Msf::DBManager::Import::MetasploitFramework::XML
   end
 
   context 'CONSTANTS' do
@@ -136,25 +136,25 @@ shared_examples_for 'Msf::DBManager::Import::MsfXml' do
     end
 
     it_should_behave_like(
-        'Msf::DBManager::Import::MsfXml#check_msf_xml_version! with root tag',
+        'Msf::DBManager::Import::MetasploitFramework::XML#check_msf_xml_version! with root tag',
         'MetasploitExpressV1',
         :allow_yaml => true
     )
 
     it_should_behave_like(
-        'Msf::DBManager::Import::MsfXml#check_msf_xml_version! with root tag',
+        'Msf::DBManager::Import::MetasploitFramework::XML#check_msf_xml_version! with root tag',
         'MetasploitExpressV2',
         :allow_yaml => true
     )
 
     it_should_behave_like(
-        'Msf::DBManager::Import::MsfXml#check_msf_xml_version! with root tag',
+        'Msf::DBManager::Import::MetasploitFramework::XML#check_msf_xml_version! with root tag',
         'MetasploitExpressV3',
         :allow_yaml => false
     )
 
     it_should_behave_like(
-        'Msf::DBManager::Import::MsfXml#check_msf_xml_version! with root tag',
+        'Msf::DBManager::Import::MetasploitFramework::XML#check_msf_xml_version! with root tag',
         'MetasploitExpressV4',
         :allow_yaml => false
     )
@@ -575,7 +575,7 @@ shared_examples_for 'Msf::DBManager::Import::MsfXml' do
     end
 
     context 'call to #import_msf_web_element' do
-      it_should_behave_like 'Msf::DBManager::Import::MsfXml#import_msf_web_element specialization'
+      it_should_behave_like 'Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_element specialization'
 
       context 'specialization return' do
         let(:element) do
@@ -671,7 +671,7 @@ shared_examples_for 'Msf::DBManager::Import::MsfXml' do
     end
 
     context 'call to #import_msf_web_element' do
-      it_should_behave_like 'Msf::DBManager::Import::MsfXml#import_msf_web_element specialization'
+      it_should_behave_like 'Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_element specialization'
 
       context 'specialization return' do
         let(:element) do
@@ -842,7 +842,7 @@ shared_examples_for 'Msf::DBManager::Import::MsfXml' do
     end
 
     context 'call to #import_msf_web_element' do
-      it_should_behave_like 'Msf::DBManager::Import::MsfXml#import_msf_web_element specialization'
+      it_should_behave_like 'Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_element specialization'
 
       context 'specialization return' do
         let(:element) do

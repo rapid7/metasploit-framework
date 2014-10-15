@@ -36,7 +36,7 @@ module Msf::DBManager::Import
   autoload :IPList, 'msf/core/db_manager/import/ip_list'
   autoload :Libpcap, 'msf/core/db_manager/import/libpcap'
   autoload :MBSA, 'msf/core/db_manager/import/mbsa'
-  autoload :MsfXml, 'msf/core/db_manager/import/msf_xml'
+  autoload :MetasploitFramework, 'msf/core/db_manager/import/metasploit_framework'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
 
   include Msf::DBManager::Import::Acunetix
@@ -50,7 +50,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::IPList
   include Msf::DBManager::Import::Libpcap
   include Msf::DBManager::Import::MBSA
-  include Msf::DBManager::Import::MsfXml
+  include Msf::DBManager::Import::MetasploitFramework
   include Msf::DBManager::Import::Qualys
 
   # If hex notation is present, turn them into a character.

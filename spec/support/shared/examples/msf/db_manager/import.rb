@@ -64,6 +64,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::IPList'
   it_should_behave_like 'Msf::DBManager::Import::Libpcap'
   it_should_behave_like 'Msf::DBManager::Import::MBSA'
-  it_should_behave_like 'Msf::DBManager::Import::MsfXml'
+  it_should_behave_like 'Msf::DBManager::Import::MetasploitFramework'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
 end
