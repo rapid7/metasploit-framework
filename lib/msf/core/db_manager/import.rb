@@ -12,7 +12,6 @@ require 'uri'
 #
 
 require 'packetfu'
-require 'rex/parser/appscan_nokogiri'
 require 'rex/parser/burp_session_nokogiri'
 require 'rex/parser/ci_nokogiri'
 require 'rex/parser/foundstone_nokogiri'
@@ -33,12 +32,14 @@ require 'rex/parser/wapiti_nokogiri'
 module Msf::DBManager::Import
   autoload :Acunetix, 'msf/core/db_manager/import/acunetix'
   autoload :Amap, 'msf/core/db_manager/import/amap'
+  autoload :Appscan, 'msf/core/db_manager/import/appscan'
   autoload :IP360, 'msf/core/db_manager/import/ip360'
   autoload :MsfXml, 'msf/core/db_manager/import/msf_xml'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
 
   include Msf::DBManager::Import::Acunetix
   include Msf::DBManager::Import::Amap
+  include Msf::DBManager::Import::Appscan
   include Msf::DBManager::Import::IP360
   include Msf::DBManager::Import::MsfXml
   include Msf::DBManager::Import::Qualys
@@ -67,36 +68,6 @@ module Msf::DBManager::Import
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
     self.send "import_#{ftype}".to_sym, args, &block
-  end
-
-  def import_appscan_noko_stream(args={},&block)
-    if block
-      doc = Rex::Parser::AppscanDocument.new(args,framework.db) {|type, data| yield type,data }
-    else
-      doc = Rex::Parser::AppscanDocument.new(args,self)
-    end
-    parser = ::Nokogiri::XML::SAX::Parser.new(doc)
-    parser.parse(args[:data])
-  end
-
-  def import_appscan_xml(args={}, &block)
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:wspace] || workspace
-    if Rex::Parser.nokogiri_loaded
-      parser = "Nokogiri v#{::Nokogiri::VERSION}"
-      noko_args = args.dup
-      noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
-      if block
-        yield(:parser, parser)
-        import_appscan_noko_stream(noko_args) {|type, data| yield type,data}
-      else
-        import_appscan_noko_stream(noko_args)
-      end
-      return true
-    else # Sorry
-      raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
-    end
   end
 
   def import_burp_session_noko_stream(args={},&block)
