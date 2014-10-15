@@ -118,6 +118,16 @@ describe Msf::Module do
   it { is_expected.to respond_to :vprint_warning }
   it { is_expected.to respond_to :workspace }
 
+  context 'CONSTANTS' do
+    context 'UpdateableOptions' do
+      subject(:updateable_options) {
+        described_class::UpdateableOptions
+      }
+
+      it { is_expected.to match_array(%w{Name Description Alias PayloadCompat})}
+    end
+  end
+
   context 'class' do
     subject {
       described_class
