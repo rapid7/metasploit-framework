@@ -171,6 +171,8 @@ shared_examples_for 'Msf::DBManager::Import::MsfXml' do
     end
   end
 
+  it { is_expected.to respond_to :import_msf_file }
+
   context '#import_msf_text_element' do
     let(:parent_element) do
       document.root
