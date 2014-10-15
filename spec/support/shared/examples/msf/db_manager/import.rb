@@ -5,7 +5,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
   it { is_expected.to respond_to :import_nessus_xml }
-  it { is_expected.to respond_to :import_nessus_xml_file }
   it { is_expected.to respond_to :import_nessus_xml_v2 }
   it { is_expected.to respond_to :import_netsparker_xml }
   it { is_expected.to respond_to :import_netsparker_xml_file }
