@@ -5,9 +5,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
   it { is_expected.to respond_to :import_nexpose_noko_stream }
-  it { is_expected.to respond_to :import_nexpose_raw_noko_stream }
-  it { is_expected.to respond_to :import_nexpose_rawxml }
-  it { is_expected.to respond_to :import_nexpose_rawxml_file }
   it { is_expected.to respond_to :import_nexpose_simplexml }
   it { is_expected.to respond_to :import_nexpose_simplexml_file }
   it { is_expected.to respond_to :import_nikto_xml }
@@ -28,8 +25,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :inspect_single_packet }
   it { is_expected.to respond_to :inspect_single_packet_http }
   it { is_expected.to respond_to :msf_import_timestamps }
-  it { is_expected.to respond_to :nexpose_host_from_rawxml }
-  it { is_expected.to respond_to :nexpose_refs_to_struct }
   it { is_expected.to respond_to :nils_for_nulls }
   it { is_expected.to respond_to :nmap_msf_service_map }
   it { is_expected.to respond_to :report_import_note }
@@ -51,5 +46,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::MetasploitFramework'
   it_should_behave_like 'Msf::DBManager::Import::Nessus'
   it_should_behave_like 'Msf::DBManager::Import::Netsparker'
+  it_should_behave_like 'Msf::DBManager::Import::Nexpose'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
 end
