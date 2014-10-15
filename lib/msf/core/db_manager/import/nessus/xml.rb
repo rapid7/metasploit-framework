@@ -1,4 +1,10 @@
 module Msf::DBManager::Import::Nessus::XML
+  autoload :V1, 'msf/core/db_manager/import/nessus/xml/v1'
+  autoload :V2, 'msf/core/db_manager/import/nessus/xml/v2'
+
+  include Msf::DBManager::Import::Nessus::XML::V1
+  include Msf::DBManager::Import::Nessus::XML::V2
+
   #
   # Import Nessus XML v1 and v2 output
   #
