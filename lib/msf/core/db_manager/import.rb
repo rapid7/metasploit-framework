@@ -12,7 +12,6 @@ require 'uri'
 #
 
 require 'packetfu'
-require 'rex/parser/outpost24_nokogiri'
 require 'rex/parser/retina_xml'
 require 'rex/parser/wapiti_nokogiri'
 
@@ -35,6 +34,7 @@ module Msf::DBManager::Import
   autoload :Nikto, 'msf/core/db_manager/import/nikto'
   autoload :Nmap, 'msf/core/db_manager/import/nmap'
   autoload :OpenVAS, 'msf/core/db_manager/import/open_vas'
+  autoload :Outpost24, 'msf/core/db_manager/import/outpost24'
   autoload :Qualys, 'msf/core/db_manager/import/qualys'
 
   include Msf::DBManager::Import::Acunetix
@@ -55,6 +55,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Nikto
   include Msf::DBManager::Import::Nmap
   include Msf::DBManager::Import::OpenVAS
+  include Msf::DBManager::Import::Outpost24
   include Msf::DBManager::Import::Qualys
 
   # If hex notation is present, turn them into a character.
@@ -464,36 +465,6 @@ module Msf::DBManager::Import
       data = f.read(f.stat.size)
     end
     import_wapiti_xml(args.merge(:data => data))
-  end
-
-  def import_outpost24_noko_stream(args={},&block)
-    if block
-      doc = Rex::Parser::Outpost24Document.new(args,framework.db) {|type, data| yield type,data }
-    else
-      doc = Rex::Parser::Outpost24Document.new(args,self)
-    end
-    parser = ::Nokogiri::XML::SAX::Parser.new(doc)
-    parser.parse(args[:data])
-  end
-
-  def import_outpost24_xml(args={}, &block)
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:wspace] || workspace
-    if Rex::Parser.nokogiri_loaded
-      parser = "Nokogiri v#{::Nokogiri::VERSION}"
-      noko_args = args.dup
-      noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
-      if block
-        yield(:parser, parser)
-        import_outpost24_noko_stream(noko_args) {|type, data| yield type,data}
-      else
-        import_outpost24_noko_stream(noko_args)
-      end
-      return true
-    else # Sorry
-      raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
-    end
   end
 
   # @param report [REXML::Element] to be imported
