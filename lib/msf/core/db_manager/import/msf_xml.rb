@@ -52,6 +52,18 @@ module Msf::DBManager::Import::MsfXml
   # Instance Methods
   #
 
+  # Import a Metasploit XML file.
+  def import_msf_file(args={})
+    filename = args[:filename]
+    wspace = args[:wspace] || workspace
+
+    data = ""
+    ::File.open(filename, 'rb') do |f|
+      data = f.read(f.stat.size)
+    end
+    import_msf_xml(args.merge(:data => data))
+  end
+
   # Imports web_form element using {Msf::DBManager#report_web_form}.
   #
   # @param element [REXML::Element] web_form element.

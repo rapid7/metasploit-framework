@@ -516,18 +516,6 @@ module Msf::DBManager::Import
     nil
   end
 
-  # Import a Metasploit XML file.
-  def import_msf_file(args={})
-    filename = args[:filename]
-    wspace = args[:wspace] || workspace
-
-    data = ""
-    ::File.open(filename, 'rb') do |f|
-      data = f.read(f.stat.size)
-    end
-    import_msf_xml(args.merge(:data => data))
-  end
-
   # Perform in an import of an msfpwdump file
   def import_msf_pwdump(args={}, &block)
     filename = File.basename(args[:data].path)
