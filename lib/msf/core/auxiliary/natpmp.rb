@@ -23,5 +23,13 @@ module Auxiliary::NATPMP
       self.class
     )
   end
+
+  def lifetime
+    @lifetime ||= datastore['LIFETIME']
+  end
+
+  def protocol
+    @protocol ||= datastore['PROTOCOL']
+  end
 end
 end

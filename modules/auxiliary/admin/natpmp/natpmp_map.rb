@@ -22,13 +22,48 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('EXTERNAL_PORT', [true, 'The external port to foward from']),
-        OptPort.new('INTERNAL_PORT', [true, 'The internal port to forward to']),
-        OptInt.new('LIFETIME', [true, "Time in ms to keep this port forwarded", 3600000]),
+        OptString.new('EXTERNAL_PORTS', [true, 'The external ports to foward from (0 to let the target choose)', 0]),
+        OptString.new('INTERNAL_PORTS', [true, 'The internal ports to forward to', '22,135-139,80,443,445']),
+        OptInt.new('LIFETIME', [true, "Time in ms to keep this port forwarded (set to 0 to destroy a mapping)", 3600000]),
         OptEnum.new('PROTOCOL', [true, "Protocol to forward", 'TCP', %w(TCP UDP)]),
       ],
       self.class
     )
+  end
+
+  def build_ports(ports_string)
+    # We don't use Rex::Socket.portspec_crack because we need to allow 0 and preserve order
+    ports = []
+    ports_string.split(/[ ,]/).map { |s| s.strip }.compact.each do |port_part|
+      if /^(?<port>\d+)$/ =~ port_part
+        ports << port.to_i
+      elsif /^(?<low>\d+)\s*-\s*(?<high>\d+)$/ =~ port_part
+        ports |= (low..high).to_a.map(&:to_i)
+      else
+        fail ArgumentError, "Invalid port specification #{port_part}"
+      end
+    end
+    ports
+  end
+
+  def setup
+    super
+    @external_ports = build_ports(datastore['EXTERNAL_PORTS'])
+    @internal_ports = build_ports(datastore['INTERNAL_PORTS'])
+
+    if @external_ports.size > @internal_ports.size
+      fail ArgumentError, "Too many external ports specified (#{@external_ports.size}); " +
+        "must be one port (0) or #{@internal_ports.size} ports"
+    end
+
+    if @external_ports.size < @internal_ports.size
+      if @external_ports != [0]
+        fail ArgumentError, "Incorrect number of external ports specified (#{@external_ports.size}); " +
+          "must be one port (0) or #{@internal_ports.size} ports"
+      else
+        @external_ports = [0] * @internal_ports.size
+      end
+    end
   end
 
   def run_host(host)
@@ -40,22 +75,35 @@ class Metasploit3 < Msf::Auxiliary
       })
       add_socket(udp_sock)
 
-      # new
       external_address = get_external_address(udp_sock, host, datastore['RPORT']) || host
-      actual_ext_port = map_port(udp_sock, host, datastore['RPORT'], datastore['INTERNAL_PORT'], datastore['EXTERNAL_PORT'], Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), datastore['LIFETIME'])
 
-      if actual_ext_port
+      @external_ports.each_index do |i|
+        external_port = @external_ports[i]
+        internal_port = @internal_ports[i]
+
+        actual_ext_port = map_port(udp_sock, host, datastore['RPORT'], internal_port, external_port, Rex::Proto::NATPMP.const_get(protocol), lifetime)
         map_target = Rex::Socket.source_address(host)
-        if (datastore['EXTERNAL_PORT'] != actual_ext_port)
-          print_status(	"#{external_address} " +
-                  "#{datastore['EXTERNAL_PORT']}/#{datastore['PROTOCOL']} -> #{map_target} " +
-                  "#{datastore['INTERNAL_PORT']}/#{datastore['PROTOCOL']} couldn't be forwarded")
+        requested_forwarding = "#{external_address}:#{external_port}/#{protocol}" +
+                              " -> " +
+                              "#{map_target}:#{internal_port}/#{protocol}"
+        if actual_ext_port
+          map_target = Rex::Socket.source_address(host)
+          actual_forwarding = "#{external_address}:#{actual_ext_port}/#{protocol}" +
+                                " -> " +
+                                "#{map_target}:#{internal_port}/#{protocol}"
+          if external_port == 0
+            print_good("#{actual_forwarding} forwarded")
+          else
+            if (external_port != 0 && external_port != actual_ext_port)
+              print_good("#{requested_forwarding} could not be forwarded, but #{actual_forwarding} could")
+            else
+              print_good("#{requested_forwarding} forwarded")
+            end
+          end
+        else
+          print_error("#{requested_forwarding} could not be forwarded")
         end
-        print_status(	"#{external_address} " +
-                "#{actual_ext_port}/#{datastore['PROTOCOL']} -> #{map_target} " +
-                "#{datastore['INTERNAL_PORT']}/#{datastore['PROTOCOL']} forwarded")
 
-        # report NAT-PMP as being open
         report_service(
           :host   => host,
           :port   => datastore['RPORT'],
