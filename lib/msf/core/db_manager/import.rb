@@ -12,7 +12,6 @@ require 'uri'
 #
 
 require 'packetfu'
-require 'rex/parser/nessus_xml'
 require 'rex/parser/netsparker_xml'
 require 'rex/parser/nexpose_raw_nokogiri'
 require 'rex/parser/nexpose_simple_nokogiri'
