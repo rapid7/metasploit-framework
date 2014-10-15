@@ -80,7 +80,7 @@ begin
 
     # Raise an error if no selected versions are supported
     if versions.length == 0
-      raise ArgumentError, 'The system OpenSSL does not support the request SSL/TLS version'
+      raise ArgumentError, 'The system OpenSSL does not support the requested SSL/TLS version'
     end
 
     last_error = nil
