@@ -92,4 +92,72 @@ module Msf::DBManager::Import::Nessus::XML::V2
     REXML::Document.parse_stream(data, parser)
 
   end
+
+  protected
+
+  #
+  # NESSUS v2 file format has a dramatically different layout
+  # for ReportItem data
+  #
+  def handle_nessus_v2(wspace,hobj,port,proto,name,nasl,nasl_name,severity,description,cve,bid,xref,msf,task=nil)
+    addr = hobj.address
+
+    info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto, :task => task }
+
+    unless name =~ /^unknown$|\?$/
+      info[:name] = name
+    end
+
+    if port.to_i != 0
+      report_service(info)
+    end
+
+    if nasl.nil? || nasl.empty? || nasl == 0 || nasl == "0"
+      return
+    end
+
+    refs = []
+
+    cve.each do |r|
+      r.to_s.gsub!(/C(VE|AN)\-/, '')
+      refs.push('CVE-' + r.to_s)
+    end if cve
+
+    bid.each do |r|
+      refs.push('BID-' + r.to_s)
+    end if bid
+
+    xref.each do |r|
+      ref_id, ref_val = r.to_s.split(':')
+      ref_val ? refs.push(ref_id + '-' + ref_val) : refs.push(ref_id)
+    end if xref
+
+    msfref = "MSF-" << msf if msf
+    refs.push msfref if msfref
+
+    nss = 'NSS-' + nasl
+    if nasl_name.nil? || nasl_name.empty?
+      vuln_name = nss
+    else
+      vuln_name = nasl_name
+    end
+
+    refs << nss.strip
+
+    vuln = {
+      :workspace => wspace,
+      :host => hobj,
+      :name => vuln_name,
+      :info => description ? description : "",
+      :refs => refs,
+      :task => task,
+    }
+
+    if port.to_i != 0
+      vuln[:port]  = port
+      vuln[:proto] = proto
+    end
+
+    report_vuln(vuln)
+  end
 end
