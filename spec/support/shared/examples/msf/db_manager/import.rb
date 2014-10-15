@@ -4,8 +4,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import }
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
-  it { is_expected.to respond_to :import_outpost24_noko_stream }
-  it { is_expected.to respond_to :import_outpost24_xml }
   it { is_expected.to respond_to :import_report }
   it { is_expected.to respond_to :import_retina_xml }
   it { is_expected.to respond_to :import_retina_xml_file }
@@ -39,5 +37,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::Nikto'
   it_should_behave_like 'Msf::DBManager::Import::Nmap'
   it_should_behave_like 'Msf::DBManager::Import::OpenVAS'
+  it_should_behave_like 'Msf::DBManager::Import::Outpost24'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
 end
