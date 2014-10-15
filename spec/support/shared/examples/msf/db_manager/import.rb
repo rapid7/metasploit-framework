@@ -5,7 +5,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
   it { is_expected.to respond_to :msf_import_timestamps }
-  it { is_expected.to respond_to :nils_for_nulls }
   it { is_expected.to respond_to :report_import_note }
   it { is_expected.to respond_to :rexmlify }
   it { is_expected.to respond_to :unserialize_object }
