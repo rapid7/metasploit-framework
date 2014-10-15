@@ -4,8 +4,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import }
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
-  it { is_expected.to respond_to :import_nessus_nbe }
-  it { is_expected.to respond_to :import_nessus_nbe_file }
   it { is_expected.to respond_to :import_nessus_xml }
   it { is_expected.to respond_to :import_nessus_xml_file }
   it { is_expected.to respond_to :import_nessus_xml_v2 }
@@ -60,5 +58,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::Libpcap'
   it_should_behave_like 'Msf::DBManager::Import::MBSA'
   it_should_behave_like 'Msf::DBManager::Import::MetasploitFramework'
+  it_should_behave_like 'Msf::DBManager::Import::Nessus'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
 end
