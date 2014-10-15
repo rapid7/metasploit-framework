@@ -5,7 +5,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
   it { is_expected.to respond_to :import_report }
-  it { is_expected.to respond_to :import_spiceworks_csv }
   it { is_expected.to respond_to :import_wapiti_xml }
   it { is_expected.to respond_to :import_wapiti_xml_file }
   it { is_expected.to respond_to :inspect_single_packet }
@@ -38,4 +37,5 @@ shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::Outpost24'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
   it_should_behave_like 'Msf::DBManager::Import::Retina'
+  it_should_behave_like 'Msf::DBManager::Import::Spiceworks'
 end
