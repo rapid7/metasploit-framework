@@ -4,8 +4,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import }
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
-  it { is_expected.to respond_to :import_ip_list }
-  it { is_expected.to respond_to :import_ip_list_file }
   it { is_expected.to respond_to :import_libpcap }
   it { is_expected.to respond_to :import_libpcap_file }
   it { is_expected.to respond_to :import_mbsa_noko_stream }
@@ -68,6 +66,7 @@ shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::Foundstone'
   it_should_behave_like 'Msf::DBManager::Import::FusionVM'
   it_should_behave_like 'Msf::DBManager::Import::IP360'
+  it_should_behave_like 'Msf::DBManager::Import::IPList'
   it_should_behave_like 'Msf::DBManager::Import::MsfXml'
   it_should_behave_like 'Msf::DBManager::Import::Qualys'
 end
