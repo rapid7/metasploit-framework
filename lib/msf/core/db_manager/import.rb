@@ -12,8 +12,6 @@ require 'uri'
 #
 
 require 'packetfu'
-require 'rex/parser/nexpose_simple_nokogiri'
-require 'rex/parser/nexpose_xml'
 require 'rex/parser/nmap_nokogiri'
 require 'rex/parser/nmap_xml'
 require 'rex/parser/openvas_nokogiri'
