@@ -47,7 +47,7 @@ module Metasploit
         # (see Base#check_setup)
         def check_setup
           http_client = Rex::Proto::Http::Client.new(
-            host, port, {}, ssl, ssl_version
+            host, port, {}, ssl, ssl_version, proxies
           )
           request = http_client.request_cgi(
             'uri' => uri,
@@ -96,7 +96,7 @@ module Metasploit
 
           http_client = Rex::Proto::Http::Client.new(
             host, port, {}, ssl, ssl_version,
-            nil, credential.public, credential.private
+            proxies, credential.public, credential.private
           )
 
           http_client = config_client(http_client)

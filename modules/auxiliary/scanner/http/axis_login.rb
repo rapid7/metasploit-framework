@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       host: ip,
       port: rport,
       uri: datastore['URI'],
-      proxies: datastore["PROXIES"],
+      proxies: proxies,
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: 5,
