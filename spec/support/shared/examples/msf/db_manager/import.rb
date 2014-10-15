@@ -4,8 +4,6 @@ shared_examples_for 'Msf::DBManager::Import' do
   it { is_expected.to respond_to :import }
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
-  it { is_expected.to respond_to :inspect_single_packet }
-  it { is_expected.to respond_to :inspect_single_packet_http }
   it { is_expected.to respond_to :msf_import_timestamps }
   it { is_expected.to respond_to :nils_for_nulls }
   it { is_expected.to respond_to :report_import_note }
