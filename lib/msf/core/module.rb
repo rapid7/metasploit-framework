@@ -26,6 +26,7 @@ class Module
   autoload :PlatformList, 'msf/core/module/platform_list'
   autoload :Rank, 'msf/core/module/rank'
   autoload :Reference, 'msf/core/module/reference'
+  autoload :SiteReference, 'msf/core/module/reference'
   autoload :Target, 'msf/core/module/target'
   autoload :Type, 'msf/core/module/type'
   autoload :UI, 'msf/core/module/ui'
@@ -537,7 +538,6 @@ end
 # Alias the data types so people can reference them just by Msf:: and not
 # Msf::Module::
 #
-Reference = Msf::Module::Reference
 SiteReference = Msf::Module::SiteReference
 Platform = Msf::Module::Platform
 Target = Msf::Module::Target
