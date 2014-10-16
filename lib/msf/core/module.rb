@@ -13,6 +13,9 @@ module Msf
 ###
 class Module
   autoload :Failure, 'msf/core/module/failure'
+  autoload :ModuleStore, 'msf/core/module/module_store'
+
+  include Msf::Module::ModuleStore
 
   # Modules can subscribe to a user-interface, and as such they include the
   # UI subscriber module.  This provides methods like print, print_line, etc.
@@ -788,20 +791,6 @@ class Module
   end
 
   #
-  # Read a value from the module store
-  #
-  def [](k)
-    self.module_store[k]
-  end
-
-  #
-  # Store a value into the module
-  #
-  def []=(k,v)
-    self.module_store[k] = v
-  end
-
-  #
   # The array of zero or more authors.
   #
   attr_reader   :author
@@ -838,11 +827,6 @@ class Module
   # The job identifier that this module is running as, if any.
   #
   attr_accessor :job_id
-
-  #
-  # A generic hash used for passing additional information to modules
-  #
-  attr_accessor :module_store
 
   #
   # The last exception to occur using this module
