@@ -38,7 +38,6 @@ end
 REF_TYPES = %w(CVE BID OSVDB EDB)
 
 describe Msf::Module do
-  it { is_expected.to respond_to :alias }
   it { is_expected.to respond_to :arch? }
   it { is_expected.to respond_to :arch_to_s }
   it { is_expected.to respond_to :author_to_s }
@@ -47,8 +46,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :comm }
   it { is_expected.to respond_to :debugging? }
   it { is_expected.to respond_to :derived_implementor? }
-  it { is_expected.to respond_to :description }
-  it { is_expected.to respond_to :disclosure_date }
   it { is_expected.to respond_to :each_arch }
   it { is_expected.to respond_to :each_author }
   it { is_expected.to respond_to :encoder? }
@@ -58,18 +55,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :framework }
   it { is_expected.to respond_to :fullname }
   it { is_expected.to respond_to :generate_uuid }
-  it { is_expected.to respond_to :info_fixups }
-  it { is_expected.to respond_to :merge_check_key }
-  it { is_expected.to respond_to :merge_info }
-  it { is_expected.to respond_to :merge_info_advanced_options }
-  it { is_expected.to respond_to :merge_info_alias }
-  it { is_expected.to respond_to :merge_info_description }
-  it { is_expected.to respond_to :merge_info_evasion_options }
-  it { is_expected.to respond_to :merge_info_name }
-  it { is_expected.to respond_to :merge_info_options }
-  it { is_expected.to respond_to :merge_info_string }
-  it { is_expected.to respond_to :merge_info_version }
-  it { is_expected.to respond_to :name }
   it { is_expected.to respond_to :nop? }
   it { is_expected.to respond_to :orig_cls }
   it { is_expected.to respond_to :owner }
@@ -90,24 +75,14 @@ describe Msf::Module do
   it { is_expected.to respond_to :target_host }
   it { is_expected.to respond_to :target_port }
   it { is_expected.to respond_to :type }
-  it { is_expected.to respond_to :update_info }
   it { is_expected.to respond_to :workspace }
 
   it_should_behave_like 'Msf::Module::Compatibility'
   it_should_behave_like 'Msf::Module::DataStore'
+  it_should_behave_like 'Msf::Module::ModuleInfo'
   it_should_behave_like 'Msf::Module::ModuleStore'
   it_should_behave_like 'Msf::Module::Options'
   it_should_behave_like 'Msf::Module::UI'
-
-  context 'CONSTANTS' do
-    context 'UpdateableOptions' do
-      subject(:updateable_options) {
-        described_class::UpdateableOptions
-      }
-
-      it { is_expected.to match_array(%w{Name Description Alias PayloadCompat})}
-    end
-  end
 
   context 'class' do
     subject {
