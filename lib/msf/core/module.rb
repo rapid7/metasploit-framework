@@ -22,6 +22,7 @@ class Module
   autoload :HasActions, 'msf/core/module/has_actions'
   autoload :ModuleInfo, 'msf/core/module/module_info'
   autoload :ModuleStore, 'msf/core/module/module_store'
+  autoload :Network, 'msf/core/module/network'
   autoload :Options, 'msf/core/module/options'
   autoload :Platform, 'msf/core/module/platform'
   autoload :PlatformList, 'msf/core/module/platform_list'
@@ -39,6 +40,7 @@ class Module
   include Msf::Module::FullName
   include Msf::Module::ModuleInfo
   include Msf::Module::ModuleStore
+  include Msf::Module::Network
   include Msf::Module::Options
   include Msf::Module::Rank
   include Msf::Module::Search
@@ -174,20 +176,6 @@ class Module
   end
 
   #
-  # Returns the address of the last target host (rough estimate)
-  #
-  def target_host
-    self.respond_to?('rhost') ? rhost : self.datastore['RHOST']
-  end
-
-  #
-  # Returns the address of the last target port (rough estimate)
-  #
-  def target_port
-    self.respond_to?('rport') ? rport : self.datastore['RPORT']
-  end
-
-  #
   # Returns the current workspace
   #
   def workspace
@@ -263,28 +251,11 @@ class Module
   end
 
   #
-  # The default communication subsystem for this module.  We may need to move
-  # this somewhere else.
-  #
-  def comm
-    Rex::Socket::Comm::Local
-  end
-
-  #
   # Returns true if this module is being debugged.  The debug flag is set
   # by setting datastore['DEBUG'] to 1|true|yes
   #
   def debugging?
     (datastore['DEBUG'] || '') =~ /^(1|t|y)/i
-  end
-
-  #
-  # Indicates whether the module supports IPv6. This is true by default,
-  # but certain modules require additional work to be compatible or are
-  # hardcoded in terms of application support and should be skipped.
-  #
-  def support_ipv6?
-    true
   end
 
   #
