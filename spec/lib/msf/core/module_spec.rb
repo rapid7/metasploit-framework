@@ -38,15 +38,12 @@ end
 REF_TYPES = %w(CVE BID OSVDB EDB)
 
 describe Msf::Module do
-  it { is_expected.to respond_to :arch? }
-  it { is_expected.to respond_to :arch_to_s }
   it { is_expected.to respond_to :author_to_s }
   it { is_expected.to respond_to :auxiliary? }
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :comm }
   it { is_expected.to respond_to :debugging? }
   it { is_expected.to respond_to :derived_implementor? }
-  it { is_expected.to respond_to :each_arch }
   it { is_expected.to respond_to :each_author }
   it { is_expected.to respond_to :encoder? }
   it { is_expected.to respond_to :exploit? }
@@ -77,6 +74,7 @@ describe Msf::Module do
   it { is_expected.to respond_to :type }
   it { is_expected.to respond_to :workspace }
 
+  it_should_behave_like 'Msf::Module::Arch'
   it_should_behave_like 'Msf::Module::Compatibility'
   it_should_behave_like 'Msf::Module::DataStore'
   it_should_behave_like 'Msf::Module::ModuleInfo'
