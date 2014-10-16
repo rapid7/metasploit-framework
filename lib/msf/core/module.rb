@@ -12,9 +12,11 @@ module Msf
 #
 ###
 class Module
-  autoload :Failure, 'msf/core/module/failure'
+  autoload :DataStore, 'msf/core/module/data_store'
+  autoload :ModuleStore, 'msf/core/module/module_store'
   autoload :ModuleStore, 'msf/core/module/module_store'
 
+  include Msf::Module::DataStore
   include Msf::Module::ModuleStore
 
   # Modules can subscribe to a user-interface, and as such they include the
@@ -569,32 +571,6 @@ class Module
   end
 
   #
-  # Overrides the class' own datastore with the one supplied.  This is used
-  # to allow modules to share datastores, such as a payload sharing an
-  # exploit module's datastore.
-  #
-  def share_datastore(ds)
-    self.datastore = ds
-    self.datastore.import_options(self.options)
-  end
-
-  #
-  # Imports default options into the module's datastore, optionally clearing
-  # all of the values currently set in the datastore.
-  #
-  def import_defaults(clear_datastore = true)
-    # Clear the datastore if the caller asked us to
-    self.datastore.clear if clear_datastore
-
-    self.datastore.import_options(self.options, 'self', true)
-
-    # If there are default options, import their values into the datastore
-    if (module_info['DefaultOptions'])
-      self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
-    end
-  end
-
-  #
   # This method ensures that the options associated with this module all
   # have valid values according to each required option in the option
   # container.
@@ -806,10 +782,6 @@ class Module
   # The reference count for the module.
   #
   attr_reader   :references
-  #
-  # The module-specific datastore instance.
-  #
-  attr_reader   :datastore
   #
   # The module-specific options.
   #
@@ -1112,7 +1084,7 @@ protected
   end
 
   attr_accessor :module_info # :nodoc:
-  attr_writer   :author, :arch, :platform, :references, :datastore, :options # :nodoc:
+  attr_writer   :author, :arch, :platform, :references, :options # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
 
