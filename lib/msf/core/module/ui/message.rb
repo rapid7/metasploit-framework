@@ -1,5 +1,9 @@
 # Methods for print messages with status indicators
 module Msf::Module::UI::Message
+  autoload :Verbose, 'msf/core/module/ui/message/verbose'
+
+  include Msf::Module::UI::Message::Verbose
+
   def print_error(msg='')
     super(print_prefix + msg)
   end

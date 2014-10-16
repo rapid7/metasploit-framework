@@ -96,12 +96,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :type }
   it { is_expected.to respond_to :update_info }
   it { is_expected.to respond_to :validate }
-  it { is_expected.to respond_to :vprint_debug }
-  it { is_expected.to respond_to :vprint_error }
-  it { is_expected.to respond_to :vprint_good }
-  it { is_expected.to respond_to :vprint_line }
-  it { is_expected.to respond_to :vprint_status }
-  it { is_expected.to respond_to :vprint_warning }
   it { is_expected.to respond_to :workspace }
 
   it_should_behave_like 'Msf::Module::Compatibility'

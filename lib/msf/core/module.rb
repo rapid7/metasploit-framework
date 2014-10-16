@@ -176,31 +176,6 @@ class Module
     obj
   end
 
-  # Verbose version of #print_status
-  def vprint_status(msg)
-    print_status(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
-  end
-  # Verbose version of #print_error
-  def vprint_error(msg)
-    print_error(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
-  end
-  # Verbose version of #print_good
-  def vprint_good(msg)
-    print_good(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
-  end
-  # Verbose version of #print_line
-  def vprint_line(msg)
-    print_line(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
-  end
-  # Verbose version of #print_debug
-  def vprint_debug(msg)
-    print_debug(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
-  end
-  # Verbose version of #print_warning
-  def vprint_warning(msg)
-    print_warning(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
-  end
-
   #
   # Returns the module's framework full reference name.  This is the
   # short name that end-users work with (refname) plus the type
