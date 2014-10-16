@@ -45,8 +45,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :auxiliary? }
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :comm }
-  it { is_expected.to respond_to :compat }
-  it { is_expected.to respond_to :compatible? }
   it { is_expected.to respond_to :debugging? }
   it { is_expected.to respond_to :deregister_options }
   it { is_expected.to respond_to :derived_implementor? }
@@ -62,7 +60,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :fullname }
   it { is_expected.to respond_to :generate_uuid }
   it { is_expected.to respond_to :info_fixups }
-  it { is_expected.to respond_to :init_compat }
   it { is_expected.to respond_to :merge_check_key }
   it { is_expected.to respond_to :merge_info }
   it { is_expected.to respond_to :merge_info_advanced_options }
@@ -114,6 +111,7 @@ describe Msf::Module do
   it { is_expected.to respond_to :vprint_warning }
   it { is_expected.to respond_to :workspace }
 
+  it_should_behave_like 'Msf::Module::Compatibility'
   it_should_behave_like 'Msf::Module::DataStore'
   it_should_behave_like 'Msf::Module::ModuleStore'
 
