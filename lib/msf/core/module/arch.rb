@@ -1,5 +1,17 @@
 module Msf::Module::Arch
   #
+  # Attributes
+  #
+
+  # @!attribute arch
+  #   The array of zero or more architectures.
+  attr_reader   :arch
+
+  #
+  # Instance Methods
+  #
+
+  #
   # Return whether or not the module supports the supplied architecture.
   #
   def arch?(what)
@@ -23,4 +35,12 @@ module Msf::Module::Arch
   def each_arch(&block)
     arch.each(&block)
   end
+
+  protected
+
+  #
+  # Attributes
+  #
+
+  attr_writer :arch
 end

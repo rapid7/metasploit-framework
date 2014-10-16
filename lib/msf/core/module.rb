@@ -553,10 +553,7 @@ class Module
   # The array of zero or more authors.
   #
   attr_reader   :author
-  #
-  # The array of zero or more architectures.
-  #
-  attr_reader   :arch
+
   #
   # The array of zero or more platforms.
   #
@@ -623,7 +620,7 @@ protected
     (self.method(method_name).to_s.match(/#{parent}[^:]/)) ? false : true
   end
 
-  attr_writer   :author, :arch, :platform, :references # :nodoc:
+  attr_writer   :author, :platform, :references # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
 
