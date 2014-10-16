@@ -16,17 +16,12 @@ class Module
   autoload :DataStore, 'msf/core/module/data_store'
   autoload :ModuleStore, 'msf/core/module/module_store'
   autoload :ModuleStore, 'msf/core/module/module_store'
+  autoload :UI, 'msf/core/module/ui'
 
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
   include Msf::Module::ModuleStore
-
-  # Modules can subscribe to a user-interface, and as such they include the
-  # UI subscriber module.  This provides methods like print, print_line, etc.
-  # User interfaces are designed to be medium independent, and as such the
-  # user interface subscribes are designed to provide a flexible way of
-  # interacting with the user, n stuff.
-  include Rex::Ui::Subscriber
+  include Msf::Module::UI
 
   # Make include public so we can runtime extend
   public_class_method :include
@@ -180,45 +175,6 @@ class Module
     obj.module_store = self.module_store.clone
     obj
   end
-
-  #
-  # Overwrite the Subscriber print_(status|error|good) to do time stamps
-  #
-
-  def print_prefix
-    ret = ''
-    if (datastore['TimestampOutput'] =~ /^(t|y|1)/i) || (
-      framework && framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
-    )
-      prefix = "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
-
-      xn ||= datastore['ExploitNumber']
-      xn ||= framework.datastore['ExploitNumber']
-      if xn.is_a?(Fixnum)
-        prefix << "[%04d] " % xn
-      end
-
-      ret = prefix
-    end
-    ret
-  end
-
-  def print_status(msg='')
-    super(print_prefix + msg)
-  end
-
-  def print_error(msg='')
-    super(print_prefix + msg)
-  end
-
-  def print_good(msg='')
-    super(print_prefix + msg)
-  end
-
-  def print_warning(msg='')
-    super(print_prefix + msg)
-  end
-
 
   #
   # Overwrite the Subscriber print_line to do custom prefixes
