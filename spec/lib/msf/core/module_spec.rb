@@ -78,13 +78,8 @@ describe Msf::Module do
   it { is_expected.to respond_to :platform? }
   it { is_expected.to respond_to :platform_to_s }
   it { is_expected.to respond_to :post? }
-  it { is_expected.to respond_to :print_error }
-  it { is_expected.to respond_to :print_good }
   it { is_expected.to respond_to :print_line }
   it { is_expected.to respond_to :print_line_prefix }
-  it { is_expected.to respond_to :print_prefix }
-  it { is_expected.to respond_to :print_status }
-  it { is_expected.to respond_to :print_warning }
   it { is_expected.to respond_to :privileged? }
   it { is_expected.to respond_to :rank }
   it { is_expected.to respond_to :rank_to_h }
@@ -114,6 +109,7 @@ describe Msf::Module do
   it_should_behave_like 'Msf::Module::Compatibility'
   it_should_behave_like 'Msf::Module::DataStore'
   it_should_behave_like 'Msf::Module::ModuleStore'
+  it_should_behave_like 'Msf::Module::UI'
 
   context 'CONSTANTS' do
     context 'UpdateableOptions' do
