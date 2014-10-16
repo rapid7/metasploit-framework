@@ -14,12 +14,14 @@ module Msf
 class Module
   autoload :Compatibility, 'msf/core/module/compatibility'
   autoload :DataStore, 'msf/core/module/data_store'
+  autoload :ModuleInfo, 'msf/core/module/module_info'
   autoload :ModuleStore, 'msf/core/module/module_store'
   autoload :Options, 'msf/core/module/options'
   autoload :UI, 'msf/core/module/ui'
 
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
+  include Msf::Module::ModuleInfo
   include Msf::Module::ModuleStore
   include Msf::Module::Options
   include Msf::Module::UI
@@ -242,35 +244,6 @@ class Module
   #
   def file_path
     self.class.file_path
-  end
-
-  #
-  # Return the module's name from the module information hash.
-  #
-  def name
-    module_info['Name']
-  end
-
-  #
-  # Returns the module's alias, if it has one.  Otherwise, the module's
-  # name is returned.
-  #
-  def alias
-    module_info['Alias']
-  end
-
-  #
-  # Return the module's description.
-  #
-  def description
-    module_info['Description']
-  end
-
-  #
-  # Returns the disclosure date, if known.
-  #
-  def disclosure_date
-    date_str = Date.parse(module_info['DisclosureDate'].to_s) rescue nil
   end
 
   #
@@ -645,10 +618,6 @@ protected
   def generate_uuid
     self.uuid = Rex::Text.rand_text_alphanumeric(8).downcase
   end
-  #
-  # The list of options that support merging in an information hash.
-  #
-  UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat" ]
 
   #
   # Sets the modules unsupplied info fields to their default values.
@@ -669,24 +638,6 @@ protected
   end
 
   #
-  # Register options with a specific owning class.
-  #
-  def info_fixups
-    # Each reference should be an array consisting of two elements
-    refs = module_info['References']
-    if(refs and not refs.empty?)
-      refs.each_index do |i|
-        if !(refs[i].respond_to?('[]') and refs[i].length == 2)
-          refs[i] = nil
-        end
-      end
-
-      # Purge invalid references
-      refs.delete(nil)
-    end
-  end
-
-  #
   # Checks to see if a derived instance of a given module implements a method
   # beyond the one that is provided by a base class.  This is a pretty lame
   # way of doing it, but I couldn't find a better one, so meh.
@@ -695,155 +646,6 @@ protected
     (self.method(method_name).to_s.match(/#{parent}[^:]/)) ? false : true
   end
 
-  #
-  # Merges options in the info hash in a sane fashion, as some options
-  # require special attention.
-  #
-  def merge_info(info, opts)
-    opts.each_pair { |name, val|
-      merge_check_key(info, name, val)
-    }
-
-    info
-  end
-
-  #
-  # Updates information in the supplied info hash and merges other
-  # information.  This method is used to override things like Name, Version,
-  # and Description without losing the ability to merge architectures,
-  # platforms, and options.
-  #
-  def update_info(info, opts)
-    opts.each_pair { |name, val|
-      # If the supplied option name is one of the ones that we should
-      # override by default
-      if (UpdateableOptions.include?(name) == true)
-        # Only if the entry is currently nil do we use our value
-        if (info[name] == nil)
-          info[name] = val
-        end
-      # Otherwise, perform the merge operation like normal
-      else
-        merge_check_key(info, name, val)
-      end
-    }
-
-    return info
-  end
-
-  #
-  # Checks and merges the supplied key/value pair in the supplied hash.
-  #
-  def merge_check_key(info, name, val)
-    if (self.respond_to?("merge_info_#{name.downcase}"))
-      eval("merge_info_#{name.downcase}(info, val)")
-    else
-      # If the info hash already has an entry for this name
-      if (info[name])
-        # If it's not an array, convert it to an array and merge the
-        # two
-        if (info[name].kind_of?(Array) == false)
-          curr       = info[name]
-          info[name] = [ curr ]
-        end
-
-        # If the value being merged is an array, add each one
-        if (val.kind_of?(Array) == true)
-          val.each { |v|
-            if (info[name].include?(v) == false)
-              info[name] << v
-            end
-          }
-        # Otherwise just add the value
-        elsif (info[name].include?(val) == false)
-          info[name] << val
-        end
-      # Otherwise, just set the value equal if no current value
-      # exists
-      else
-        info[name] = val
-      end
-    end
-  end
-
-  #
-  # Merge aliases with an underscore delimiter.
-  #
-  def merge_info_alias(info, val)
-    merge_info_string(info, 'Alias', val, '_')
-  end
-
-  #
-  # Merges the module name.
-  #
-  def merge_info_name(info, val)
-    merge_info_string(info, 'Name', val, ', ', true)
-  end
-
-  #
-  # Merges the module description.
-  #
-  def merge_info_description(info, val)
-    merge_info_string(info, 'Description', val, ". ", true)
-  end
-
-  #
-  # Merge the module version.
-  #
-  def merge_info_version(info, val)
-    merge_info_string(info, 'Version', val)
-  end
-
-  #
-  # Merges a given key in the info hash with a delimiter.
-  #
-  def merge_info_string(info, key, val, delim = ', ', inverse = false)
-    if (info[key])
-      if (inverse == true)
-        info[key] = info[key] + delim + val
-      else
-        info[key] = val + delim + info[key]
-      end
-    else
-      info[key] = val
-    end
-  end
-
-  #
-  # Merges options.
-  #
-  def merge_info_options(info, val, advanced = false, evasion = false)
-
-    key_name = ((advanced) ? 'Advanced' : (evasion) ? 'Evasion' : '') + 'Options'
-
-    new_cont = OptionContainer.new
-    new_cont.add_options(val, advanced, evasion)
-    cur_cont = OptionContainer.new
-    cur_cont.add_options(info[key_name] || [], advanced, evasion)
-
-    new_cont.each_option { |name, option|
-      next if (cur_cont.get(name))
-
-      info[key_name]  = [] if (!info[key_name])
-      info[key_name] << option
-    }
-  end
-
-  #
-  # Merges advanced options.
-  #
-  def merge_info_advanced_options(info, val)
-    merge_info_options(info, val, true, false)
-  end
-
-  #
-  # Merges advanced options.
-  #
-  def merge_info_evasion_options(info, val)
-    merge_info_options(info, val, false, true)
-  end
-
-  attr_accessor :module_info # :nodoc:
   attr_writer   :author, :arch, :platform, :references # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
