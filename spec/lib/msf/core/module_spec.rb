@@ -54,9 +54,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :platform? }
   it { is_expected.to respond_to :platform_to_s }
   it { is_expected.to respond_to :privileged? }
-  it { is_expected.to respond_to :rank }
-  it { is_expected.to respond_to :rank_to_h }
-  it { is_expected.to respond_to :rank_to_s }
   it { is_expected.to respond_to :refname }
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }
@@ -73,6 +70,7 @@ describe Msf::Module do
   it_should_behave_like 'Msf::Module::ModuleInfo'
   it_should_behave_like 'Msf::Module::ModuleStore'
   it_should_behave_like 'Msf::Module::Options'
+  it_should_behave_like 'Msf::Module::Rank'
   it_should_behave_like 'Msf::Module::Type'
   it_should_behave_like 'Msf::Module::UI'
 
