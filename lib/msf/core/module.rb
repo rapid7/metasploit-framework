@@ -18,6 +18,7 @@ class Module
   autoload :ModuleInfo, 'msf/core/module/module_info'
   autoload :ModuleStore, 'msf/core/module/module_store'
   autoload :Options, 'msf/core/module/options'
+  autoload :Type, 'msf/core/module/type'
   autoload :UI, 'msf/core/module/ui'
 
   include Msf::Module::Arch
@@ -26,6 +27,7 @@ class Module
   include Msf::Module::ModuleInfo
   include Msf::Module::ModuleStore
   include Msf::Module::Options
+  include Msf::Module::Type
   include Msf::Module::UI
 
   # Make include public so we can runtime extend
@@ -33,13 +35,6 @@ class Module
 
   class << self
     include Framework::Offspring
-
-    #
-    # Class method to figure out what type of module this is
-    #
-    def type
-      raise NotImplementedError
-    end
 
     def fullname
       type + '/' + refname
@@ -313,13 +308,6 @@ class Module
   end
 
   #
-  # Return the module's abstract type.
-  #
-  def type
-    raise NotImplementedError
-  end
-
-  #
   # Return a comma separated list of author for this module.
   #
   def author_to_s
@@ -499,48 +487,6 @@ class Module
   # Just some handy quick checks
   #
   ##
-
-  #
-  # Returns true if this module is an exploit module.
-  #
-  def exploit?
-    (type == MODULE_EXPLOIT)
-  end
-
-  #
-  # Returns true if this module is a payload module.
-  #
-  def payload?
-    (type == MODULE_PAYLOAD)
-  end
-
-  #
-  # Returns true if this module is an encoder module.
-  #
-  def encoder?
-    (type == MODULE_ENCODER)
-  end
-
-  #
-  # Returns true if this module is a nop module.
-  #
-  def nop?
-    (type == MODULE_NOP)
-  end
-
-  #
-  # Returns true if this module is an auxiliary module.
-  #
-  def auxiliary?
-    (type == MODULE_AUX)
-  end
-
-  #
-  # Returns true if this module is an post-exploitation module.
-  #
-  def post?
-    (type == MODULE_POST)
-  end
 
   #
   # Returns false since this is the real module
