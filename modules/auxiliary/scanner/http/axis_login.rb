@@ -56,8 +56,9 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'GET',
         'uri'     => datastore['URI']
       }, 20)
-    rescue
-      print_error("The Axis2 login page does not exist at #{target_url}")
+    rescue => e
+      print_error("Failed to retrieve Axis2 login page at #{target_url}")
+      print_error("Error: #{e.class}: #{e}")
       return
     end
 
