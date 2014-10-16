@@ -47,18 +47,15 @@ describe Msf::Module do
   it { is_expected.to respond_to :fail_with }
   it { is_expected.to respond_to :file_path }
   it { is_expected.to respond_to :framework }
-  it { is_expected.to respond_to :fullname }
   it { is_expected.to respond_to :generate_uuid }
   it { is_expected.to respond_to :orig_cls }
   it { is_expected.to respond_to :owner }
   it { is_expected.to respond_to :platform? }
   it { is_expected.to respond_to :platform_to_s }
   it { is_expected.to respond_to :privileged? }
-  it { is_expected.to respond_to :refname }
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }
   it { is_expected.to respond_to :set_defaults }
-  it { is_expected.to respond_to :shortname }
   it { is_expected.to respond_to :support_ipv6? }
   it { is_expected.to respond_to :target_host }
   it { is_expected.to respond_to :target_port }
@@ -67,6 +64,7 @@ describe Msf::Module do
   it_should_behave_like 'Msf::Module::Arch'
   it_should_behave_like 'Msf::Module::Compatibility'
   it_should_behave_like 'Msf::Module::DataStore'
+  it_should_behave_like 'Msf::Module::FullName'
   it_should_behave_like 'Msf::Module::ModuleInfo'
   it_should_behave_like 'Msf::Module::ModuleStore'
   it_should_behave_like 'Msf::Module::Options'
