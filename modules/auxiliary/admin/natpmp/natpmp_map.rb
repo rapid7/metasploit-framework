@@ -23,9 +23,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('EXTERNAL_PORTS', [true, 'The external ports to foward from (0 to let the target choose)', 0]),
-        OptString.new('INTERNAL_PORTS', [true, 'The internal ports to forward to', '22,135-139,80,443,445']),
-        OptInt.new('LIFETIME', [true, "Time in ms to keep this port forwarded (set to 0 to destroy a mapping)", 3600000]),
-        OptEnum.new('PROTOCOL', [true, "Protocol to forward", 'TCP', %w(TCP UDP)]),
+        OptString.new('INTERNAL_PORTS', [true, 'The internal ports to forward to', '22,135-139,80,443,445'])
       ],
       self.class
     )
@@ -87,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
                               " -> " +
                               "#{map_target}:#{internal_port}/#{protocol}"
         if actual_ext_port
-          map_target = Rex::Socket.source_address(host)
+          map_target = datastore['CHOST'] ? datastore['CHOST'] : Rex::Socket.source_address(host)
           actual_forwarding = "#{external_address}:#{actual_ext_port}/#{protocol}" +
                                 " -> " +
                                 "#{map_target}:#{internal_port}/#{protocol}"

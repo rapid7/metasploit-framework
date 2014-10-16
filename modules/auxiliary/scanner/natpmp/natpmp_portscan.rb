@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"]),
-        OptEnum.new('PROTOCOL', [true, "Protocol to scan", 'TCP', %w(TCP UDP)]),
+        OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"])
       ], self.class)
   end
 
@@ -47,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       # clear all mappings
-      map_port(udp_sock, host, datastore['RPORT'], 0, 0, Rex::Proto::NATPMP.const_get(protocol), lifetime)
+      map_port(udp_sock, host, datastore['RPORT'], 0, 0, Rex::Proto::NATPMP.const_get(protocol), 0)
 
       Rex::Socket.portspec_crack(datastore['PORTS']).each do |port|
         map_req = map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
