@@ -78,8 +78,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :platform? }
   it { is_expected.to respond_to :platform_to_s }
   it { is_expected.to respond_to :post? }
-  it { is_expected.to respond_to :print_line }
-  it { is_expected.to respond_to :print_line_prefix }
   it { is_expected.to respond_to :privileged? }
   it { is_expected.to respond_to :rank }
   it { is_expected.to respond_to :rank_to_h }
