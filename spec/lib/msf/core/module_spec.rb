@@ -44,12 +44,6 @@ describe Msf::Module do
     }
 
     it { is_expected.to respond_to :cached? }
-    it { is_expected.to respond_to :fullname }
     it { is_expected.to respond_to :is_usable }
-    it { is_expected.to respond_to :rank }
-    it { is_expected.to respond_to :rank_to_h }
-    it { is_expected.to respond_to :rank_to_s }
-    it { is_expected.to respond_to :shortname }
-    it { is_expected.to respond_to :type }
   end
 end
