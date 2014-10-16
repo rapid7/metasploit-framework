@@ -46,7 +46,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :comm }
   it { is_expected.to respond_to :debugging? }
-  it { is_expected.to respond_to :deregister_options }
   it { is_expected.to respond_to :derived_implementor? }
   it { is_expected.to respond_to :description }
   it { is_expected.to respond_to :disclosure_date }
@@ -83,9 +82,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :rank_to_h }
   it { is_expected.to respond_to :rank_to_s }
   it { is_expected.to respond_to :refname }
-  it { is_expected.to respond_to :register_advanced_options }
-  it { is_expected.to respond_to :register_evasion_options }
-  it { is_expected.to respond_to :register_options }
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }
   it { is_expected.to respond_to :set_defaults }
@@ -95,12 +91,12 @@ describe Msf::Module do
   it { is_expected.to respond_to :target_port }
   it { is_expected.to respond_to :type }
   it { is_expected.to respond_to :update_info }
-  it { is_expected.to respond_to :validate }
   it { is_expected.to respond_to :workspace }
 
   it_should_behave_like 'Msf::Module::Compatibility'
   it_should_behave_like 'Msf::Module::DataStore'
   it_should_behave_like 'Msf::Module::ModuleStore'
+  it_should_behave_like 'Msf::Module::Options'
   it_should_behave_like 'Msf::Module::UI'
 
   context 'CONSTANTS' do
