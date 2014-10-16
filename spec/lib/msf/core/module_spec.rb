@@ -38,8 +38,6 @@ end
 REF_TYPES = %w(CVE BID OSVDB EDB)
 
 describe Msf::Module do
-  it { is_expected.to respond_to :[] }
-  it { is_expected.to respond_to :[]= }
   it { is_expected.to respond_to :alias }
   it { is_expected.to respond_to :arch? }
   it { is_expected.to respond_to :arch_to_s }
@@ -117,6 +115,8 @@ describe Msf::Module do
   it { is_expected.to respond_to :vprint_status }
   it { is_expected.to respond_to :vprint_warning }
   it { is_expected.to respond_to :workspace }
+
+  it_should_behave_like 'Msf::Module::ModuleStore'
 
   context 'CONSTANTS' do
     context 'UpdateableOptions' do
