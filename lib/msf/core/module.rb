@@ -13,12 +13,20 @@ module Msf
 ###
 class Module
   autoload :Arch, 'msf/core/module/arch'
+  autoload :Author, 'msf/core/module/author'
+  autoload :AuxiliaryAction, 'msf/core/module/auxiliary_action'
   autoload :Compatibility, 'msf/core/module/compatibility'
   autoload :DataStore, 'msf/core/module/data_store'
+  autoload :Deprecated, 'msf/core/module/deprecated'
+  autoload :HasActions, 'msf/core/module/has_actions'
   autoload :ModuleInfo, 'msf/core/module/module_info'
   autoload :ModuleStore, 'msf/core/module/module_store'
   autoload :Options, 'msf/core/module/options'
+  autoload :Platform, 'msf/core/module/platform'
+  autoload :PlatformList, 'msf/core/module/platform_list'
   autoload :Rank, 'msf/core/module/rank'
+  autoload :Reference, 'msf/core/module/reference'
+  autoload :Target, 'msf/core/module/target'
   autoload :Type, 'msf/core/module/type'
   autoload :UI, 'msf/core/module/ui'
 
@@ -82,14 +90,6 @@ class Module
   def self.is_usable
     true
   end
-
-  require 'msf/core/module/author'
-  require 'msf/core/module/platform_list'
-  require 'msf/core/module/reference'
-  require 'msf/core/module/target'
-  require 'msf/core/module/auxiliary_action'
-  require 'msf/core/module/has_actions'
-  require 'msf/core/module/deprecated'
 
   #
   # Creates an instance of an abstract module using the supplied information
