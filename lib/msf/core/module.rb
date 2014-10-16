@@ -18,6 +18,7 @@ class Module
   autoload :ModuleInfo, 'msf/core/module/module_info'
   autoload :ModuleStore, 'msf/core/module/module_store'
   autoload :Options, 'msf/core/module/options'
+  autoload :Rank, 'msf/core/module/rank'
   autoload :Type, 'msf/core/module/type'
   autoload :UI, 'msf/core/module/ui'
 
@@ -27,6 +28,7 @@ class Module
   include Msf::Module::ModuleInfo
   include Msf::Module::ModuleStore
   include Msf::Module::Options
+  include Msf::Module::Rank
   include Msf::Module::Type
   include Msf::Module::UI
 
@@ -44,26 +46,6 @@ class Module
       refname.split('/').last
     end
 
-    #
-    # Returns this module's ranking.
-    #
-    def rank
-      (const_defined?('Rank')) ? const_get('Rank') : NormalRanking
-    end
-
-    #
-    # Returns this module's ranking as a string representation.
-    #
-    def rank_to_s
-      RankingName[rank]
-    end
-
-    #
-    # Returns this module's ranking as a string for display.
-    #
-    def rank_to_h
-      rank_to_s.gsub('Rank', '').downcase
-    end
     #
     # The module's name that is assigned it it by the framework
     # or derived from the path that the module is loaded from.
@@ -195,27 +177,6 @@ class Module
   #
   def refname
     self.class.refname
-  end
-
-  #
-  # Returns the module's rank.
-  #
-  def rank
-    self.class.rank
-  end
-
-  #
-  # Returns the module's rank in string format.
-  #
-  def rank_to_s
-    self.class.rank_to_s
-  end
-
-  #
-  # Returns the module's rank in display format.
-  #
-  def rank_to_h
-    self.class.rank_to_h
   end
 
   #
