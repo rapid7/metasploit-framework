@@ -39,26 +39,20 @@ REF_TYPES = %w(CVE BID OSVDB EDB)
 
 describe Msf::Module do
   it { is_expected.to respond_to :author_to_s }
-  it { is_expected.to respond_to :auxiliary? }
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :comm }
   it { is_expected.to respond_to :debugging? }
   it { is_expected.to respond_to :derived_implementor? }
   it { is_expected.to respond_to :each_author }
-  it { is_expected.to respond_to :encoder? }
-  it { is_expected.to respond_to :exploit? }
   it { is_expected.to respond_to :fail_with }
   it { is_expected.to respond_to :file_path }
   it { is_expected.to respond_to :framework }
   it { is_expected.to respond_to :fullname }
   it { is_expected.to respond_to :generate_uuid }
-  it { is_expected.to respond_to :nop? }
   it { is_expected.to respond_to :orig_cls }
   it { is_expected.to respond_to :owner }
-  it { is_expected.to respond_to :payload? }
   it { is_expected.to respond_to :platform? }
   it { is_expected.to respond_to :platform_to_s }
-  it { is_expected.to respond_to :post? }
   it { is_expected.to respond_to :privileged? }
   it { is_expected.to respond_to :rank }
   it { is_expected.to respond_to :rank_to_h }
@@ -71,7 +65,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :support_ipv6? }
   it { is_expected.to respond_to :target_host }
   it { is_expected.to respond_to :target_port }
-  it { is_expected.to respond_to :type }
   it { is_expected.to respond_to :workspace }
 
   it_should_behave_like 'Msf::Module::Arch'
@@ -80,6 +73,7 @@ describe Msf::Module do
   it_should_behave_like 'Msf::Module::ModuleInfo'
   it_should_behave_like 'Msf::Module::ModuleStore'
   it_should_behave_like 'Msf::Module::Options'
+  it_should_behave_like 'Msf::Module::Type'
   it_should_behave_like 'Msf::Module::UI'
 
   context 'class' do
