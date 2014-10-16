@@ -20,6 +20,7 @@ require 'rex/ui'
 module Msf
   autoload :Author, 'msf/core/author'
   autoload :Reference, 'msf/core/reference'
+  autoload :SiteReference, 'msf/core/site_reference'
 
   #
   # Constants
