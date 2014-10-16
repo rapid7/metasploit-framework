@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Post
           print_good "Found #{profiles.size} profile files in Firefox"
           profiles.each do |profile_path|
             file_paths = ["#{profile_path}/prefs.js"]
-            found_dbs_paths.push(file_paths) unless file_paths.nil?
+            found_dbs_paths.push(file_paths)
           end
         end
 
