@@ -533,12 +533,4 @@ protected
   attr_writer   :license # :nodoc:
 
 end
-
-#
-# Alias the data types so people can reference them just by Msf:: and not
-# Msf::Module::
-#
-Target = Msf::Module::Target
-
 end
-
