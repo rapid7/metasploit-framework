@@ -12,6 +12,7 @@ module Msf
 #
 ###
 class Module
+  autoload :Arch, 'msf/core/module/arch'
   autoload :Compatibility, 'msf/core/module/compatibility'
   autoload :DataStore, 'msf/core/module/data_store'
   autoload :ModuleInfo, 'msf/core/module/module_info'
@@ -19,6 +20,7 @@ class Module
   autoload :Options, 'msf/core/module/options'
   autoload :UI, 'msf/core/module/ui'
 
+  include Msf::Module::Arch
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
   include Msf::Module::ModuleInfo
@@ -329,31 +331,6 @@ class Module
   #
   def each_author(&block)
     author.each(&block)
-  end
-
-  #
-  # Return a comma separated list of supported architectures, if any.
-  #
-  def arch_to_s
-    arch.join(", ")
-  end
-
-  #
-  # Enumerate each architecture.
-  #
-  def each_arch(&block)
-    arch.each(&block)
-  end
-
-  #
-  # Return whether or not the module supports the supplied architecture.
-  #
-  def arch?(what)
-    if (what == ARCH_ANY)
-      true
-    else
-      arch.index(what) != nil
-    end
   end
 
   #
