@@ -538,7 +538,6 @@ end
 # Alias the data types so people can reference them just by Msf:: and not
 # Msf::Module::
 #
-Platform = Msf::Module::Platform
 Target = Msf::Module::Target
 
 end
