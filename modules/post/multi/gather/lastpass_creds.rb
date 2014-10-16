@@ -73,7 +73,6 @@ class Metasploit3 < Msf::Post
   # Finds the databases in the victim's machine
   def database_paths
     platform = session.platform
-    found_dbs_paths = []
     existing_profiles = user_profiles
 
     case platform
@@ -91,7 +90,7 @@ class Metasploit3 < Msf::Post
             print_good "Found #{profiles.size} profile files in Firefox"
             profiles.each do |profile_path|
               file_paths = ["#{profile_path}\\prefs.js"]
-              found_dbs_paths.push(file_paths) unless file_paths.nil?
+              found_dbs_paths.push(file_paths)
             end
           end
 
@@ -124,7 +123,7 @@ class Metasploit3 < Msf::Post
             print_good "Found #{profiles.size} profile files in Firefox"
             profiles.each do |profile_path|
               file_paths = ["#{profile_path}\\prefs.js"]
-              found_dbs_paths.push(file_paths) unless file_paths.nil?
+              found_dbs_paths.push(file_paths)
             end
           end
 
@@ -186,7 +185,7 @@ class Metasploit3 < Msf::Post
           print_good "Found #{profiles.size} profile files in Firefox"
           profiles.each do |profile_path|
             file_paths = ["#{profile_path}\\prefs.js"]
-            found_dbs_paths.push(file_paths) unless file_paths.nil?
+            found_dbs_paths.push(file_paths)
           end
         end
 
@@ -213,6 +212,14 @@ class Metasploit3 < Msf::Post
 
     found_dbs_paths.flatten
   end
+
+  # Returns a list of DB paths in the victims' machine
+  def find_db_paths(path, browser)
+    found_dbs_paths = []
+
+  end
+
+
 
   # Returns the relevant information from user profiles
   def user_profiles
