@@ -55,8 +55,13 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
       fp = http_fingerprint(:response => res)
       if fp
-        print_good("#{peer} #{fp} accepts SSLv3")
-        report_poodle_vuln(ip)
+        vprint_status("#{peer} connected and fingerprinted: #{fp}")
+        # TODO: Interrogate the connection itself to see what version
+        # was used. Where that actually lives is eluding me. :/
+        if datastore['SSLVersion'] == 'SSL3'
+          print_good("#{peer} accepts SSLv3")
+          report_poodle_vuln(ip)
+        end
       end
     rescue ::OpenSSL::SSL::SSLError => e
       ssl_version = e.message.match(/ state=([^\s]+)/)[1]
