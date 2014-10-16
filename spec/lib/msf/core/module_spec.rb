@@ -5,7 +5,6 @@ require 'msf/core/module'
 describe Msf::Module do
   it { is_expected.to respond_to :author_to_s }
   it { is_expected.to respond_to :check }
-  it { is_expected.to respond_to :comm }
   it { is_expected.to respond_to :debugging? }
   it { is_expected.to respond_to :derived_implementor? }
   it { is_expected.to respond_to :each_author }
@@ -21,9 +20,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }
   it { is_expected.to respond_to :set_defaults }
-  it { is_expected.to respond_to :support_ipv6? }
-  it { is_expected.to respond_to :target_host }
-  it { is_expected.to respond_to :target_port }
   it { is_expected.to respond_to :workspace }
 
   it_should_behave_like 'Msf::Module::Arch'
@@ -32,6 +28,7 @@ describe Msf::Module do
   it_should_behave_like 'Msf::Module::FullName'
   it_should_behave_like 'Msf::Module::ModuleInfo'
   it_should_behave_like 'Msf::Module::ModuleStore'
+  it_should_behave_like 'Msf::Module::Network'
   it_should_behave_like 'Msf::Module::Options'
   it_should_behave_like 'Msf::Module::Rank'
   it_should_behave_like 'Msf::Module::Search'
