@@ -176,18 +176,6 @@ class Module
     obj
   end
 
-  #
-  # Overwrite the Subscriber print_line to do custom prefixes
-  #
-
-  def print_line_prefix
-    datastore['CustomPrintPrefix'] || framework.datastore['CustomPrintPrefix'] || ''
-  end
-
-  def print_line(msg='')
-    super(print_line_prefix + msg)
-  end
-
   # Verbose version of #print_status
   def vprint_status(msg)
     print_status(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']

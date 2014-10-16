@@ -1,4 +1,5 @@
 module Msf::Module::UI
+  autoload :Line, 'msf/core/module/ui/line'
   autoload :Message, 'msf/core/module/ui/message'
 
   # Modules can subscribe to a user-interface, and as such they include the
@@ -8,6 +9,8 @@ module Msf::Module::UI
   # interacting with the user, n stuff.
   include Rex::Ui::Subscriber
 
+  # Overwrite the {Rex::UI::Subscriber#print_line} to do custom prefixes
+  include Msf::Module::UI::Line
   # Overwrite the {Rex::Ui::Subscriber} print_(status|error|good) to do time stamps
   include Msf::Module::UI::Message
 end
