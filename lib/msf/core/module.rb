@@ -15,12 +15,13 @@ class Module
   autoload :Compatibility, 'msf/core/module/compatibility'
   autoload :DataStore, 'msf/core/module/data_store'
   autoload :ModuleStore, 'msf/core/module/module_store'
-  autoload :ModuleStore, 'msf/core/module/module_store'
+  autoload :Options, 'msf/core/module/options'
   autoload :UI, 'msf/core/module/ui'
 
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
   include Msf::Module::ModuleStore
+  include Msf::Module::Options
   include Msf::Module::UI
 
   # Make include public so we can runtime extend
@@ -412,15 +413,6 @@ class Module
   end
 
   #
-  # This method ensures that the options associated with this module all
-  # have valid values according to each required option in the option
-  # container.
-  #
-  def validate
-    self.options.validate(self.datastore)
-  end
-
-  #
   # Returns true if this module is being debugged.  The debug flag is set
   # by setting datastore['DEBUG'] to 1|true|yes
   #
@@ -623,10 +615,7 @@ class Module
   # The reference count for the module.
   #
   attr_reader   :references
-  #
-  # The module-specific options.
-  #
-  attr_reader   :options
+
   #
   # Whether or not this module requires privileged access.
   #
@@ -695,44 +684,6 @@ protected
       # Purge invalid references
       refs.delete(nil)
     end
-  end
-
-  #
-  # Register options with a specific owning class.
-  #
-  def register_options(options, owner = self.class)
-    self.options.add_options(options, owner)
-    self.datastore.import_options(self.options, 'self', true)
-    import_defaults(false)
-  end
-
-  #
-  # Register advanced options with a specific owning class.
-  #
-  def register_advanced_options(options, owner = self.class)
-    self.options.add_advanced_options(options, owner)
-    self.datastore.import_options(self.options, 'self', true)
-    import_defaults(false)
-  end
-
-  #
-  # Register evasion options with a specific owning class.
-  #
-  def register_evasion_options(options, owner = self.class)
-    self.options.add_evasion_options(options, owner)
-    self.datastore.import_options(self.options, 'self', true)
-    import_defaults(false)
-  end
-
-  #
-  # Removes the supplied options from the module's option container
-  # and data store.
-  #
-  def deregister_options(*names)
-    names.each { |name|
-      self.options.remove_option(name)
-      self.datastore.delete(name)
-    }
   end
 
   #
@@ -893,7 +844,7 @@ protected
   end
 
   attr_accessor :module_info # :nodoc:
-  attr_writer   :author, :arch, :platform, :references, :options # :nodoc:
+  attr_writer   :author, :arch, :platform, :references # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
 
