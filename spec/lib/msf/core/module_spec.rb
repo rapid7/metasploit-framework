@@ -61,7 +61,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :framework }
   it { is_expected.to respond_to :fullname }
   it { is_expected.to respond_to :generate_uuid }
-  it { is_expected.to respond_to :import_defaults }
   it { is_expected.to respond_to :info_fixups }
   it { is_expected.to respond_to :init_compat }
   it { is_expected.to respond_to :merge_check_key }
@@ -100,7 +99,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }
   it { is_expected.to respond_to :set_defaults }
-  it { is_expected.to respond_to :share_datastore }
   it { is_expected.to respond_to :shortname }
   it { is_expected.to respond_to :support_ipv6? }
   it { is_expected.to respond_to :target_host }
@@ -116,6 +114,7 @@ describe Msf::Module do
   it { is_expected.to respond_to :vprint_warning }
   it { is_expected.to respond_to :workspace }
 
+  it_should_behave_like 'Msf::Module::DataStore'
   it_should_behave_like 'Msf::Module::ModuleStore'
 
   context 'CONSTANTS' do
