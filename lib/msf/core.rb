@@ -18,6 +18,12 @@ require 'rex'
 require 'rex/ui'
 
 module Msf
+  autoload :Author, 'msf/core/author'
+
+  #
+  # Constants
+  #
+
   LogSource = "core"
 end
 

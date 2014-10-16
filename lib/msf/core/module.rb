@@ -537,7 +537,6 @@ end
 # Alias the data types so people can reference them just by Msf:: and not
 # Msf::Module::
 #
-Author = Msf::Module::Author
 Reference = Msf::Module::Reference
 SiteReference = Msf::Module::SiteReference
 Platform = Msf::Module::Platform
