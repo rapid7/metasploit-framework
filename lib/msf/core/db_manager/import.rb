@@ -115,7 +115,10 @@ module Msf::DBManager::Import
     else
       case data[0,4]
       when "PK\x03\x04"
-        data = Zip::File.open(filename)
+        # When Msf::DBManager::Import::MetasploitFramework is included, it's child namespace of
+        # Msf::DBManager::Import::MetasploitFramework::Zip becomes resolvable as Zip here, so need to use ::Zip so Zip
+        # is resolved as one from rubyzip gem.
+        data = ::Zip::File.open(filename)
       when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
         data = PacketFu::PcapFile.new(:filename => filename)
       else
@@ -174,8 +177,10 @@ module Msf::DBManager::Import
   #
   # @raise [Msf::DBImportError] if the type can't be detected
   def import_filetype_detect(data)
-
-    if data and data.kind_of? Zip::File
+    # When Msf::DBManager::Import::MetasploitFramework is included, it's child namespace of
+    # Msf::DBManager::Import::MetasploitFramework::Zip becomes resolvable as Zip here, so need to use ::Zip so Zip
+    # is resolved as one from rubyzip gem.
+    if data and data.kind_of? ::Zip::File
       if data.entries.empty?
         raise Msf::DBImportError.new("The zip file provided is empty.")
       end
