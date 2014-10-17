@@ -537,7 +537,7 @@ class Driver < Msf::Ui::Driver
 
     if $msf_spinner_thread
       $msf_spinner_thread.kill
-      $stdout.print "\n"
+      $stderr.print "\n"
     end
 
     run_single("banner") unless opts['DisableBanner']

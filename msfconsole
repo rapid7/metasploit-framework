@@ -46,4 +46,3 @@ require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot'
 require 'metasploit/framework/command/console'
 
 Metasploit::Framework::Command::Console.start
-$stdout.puts "[*] Metasploit Framework console session ended"
