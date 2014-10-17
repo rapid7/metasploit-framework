@@ -9,7 +9,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :fail_with }
   it { is_expected.to respond_to :file_path }
   it { is_expected.to respond_to :framework }
-  it { is_expected.to respond_to :generate_uuid }
   it { is_expected.to respond_to :orig_cls }
   it { is_expected.to respond_to :owner }
   it { is_expected.to respond_to :platform? }
