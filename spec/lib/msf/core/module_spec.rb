@@ -3,12 +3,9 @@ require 'spec_helper'
 require 'msf/core/module'
 
 describe Msf::Module do
-  it { is_expected.to respond_to :author }
-  it { is_expected.to respond_to :author_to_s }
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :debugging? }
   it { is_expected.to respond_to :derived_implementor? }
-  it { is_expected.to respond_to :each_author }
   it { is_expected.to respond_to :fail_with }
   it { is_expected.to respond_to :file_path }
   it { is_expected.to respond_to :framework }
