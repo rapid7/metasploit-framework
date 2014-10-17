@@ -13,6 +13,7 @@ module Msf
 ###
 class Module
   autoload :Arch, 'msf/core/module/arch'
+  autoload :Author, 'msf/core/module/author'
   autoload :AuxiliaryAction, 'msf/core/module/auxiliary_action'
   autoload :Compatibility, 'msf/core/module/compatibility'
   autoload :DataStore, 'msf/core/module/data_store'
@@ -34,6 +35,7 @@ class Module
   autoload :UI, 'msf/core/module/ui'
 
   include Msf::Module::Arch
+  include Msf::Module::Author
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
   include Msf::Module::FullName
@@ -215,20 +217,6 @@ class Module
   end
 
   #
-  # Return a comma separated list of author for this module.
-  #
-  def author_to_s
-    author.collect { |author| author.to_s }.join(", ")
-  end
-
-  #
-  # Enumerate each author.
-  #
-  def each_author(&block)
-    author.each(&block)
-  end
-
-  #
   # Return a comma separated list of supported platforms, if any.
   #
   def platform_to_s
@@ -276,11 +264,6 @@ class Module
   def self.cached?
     false
   end
-
-  #
-  # The array of zero or more authors.
-  #
-  attr_reader   :author
 
   #
   # The array of zero or more platforms.
@@ -348,7 +331,7 @@ protected
     (self.method(method_name).to_s.match(/#{parent}[^:]/)) ? false : true
   end
 
-  attr_writer   :author, :platform, :references # :nodoc:
+  attr_writer   :platform, :references # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
 

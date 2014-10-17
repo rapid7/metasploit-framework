@@ -3,6 +3,7 @@ require 'spec_helper'
 require 'msf/core/module'
 
 describe Msf::Module do
+  it { is_expected.to respond_to :author }
   it { is_expected.to respond_to :author_to_s }
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :debugging? }
