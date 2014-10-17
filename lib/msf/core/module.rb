@@ -33,6 +33,7 @@ class Module
   autoload :Target, 'msf/core/module/target'
   autoload :Type, 'msf/core/module/type'
   autoload :UI, 'msf/core/module/ui'
+  autoload :UUID, 'msf/core/module/uuid'
 
   include Msf::Module::Arch
   include Msf::Module::Author
@@ -47,6 +48,7 @@ class Module
   include Msf::Module::Search
   include Msf::Module::Type
   include Msf::Module::UI
+  include Msf::Module::UUID
 
   # Make include public so we can runtime extend
   public_class_method :include
@@ -293,16 +295,7 @@ class Module
   #
   attr_accessor :error
 
-  #
-  # A unique identifier for this module instance
-  #
-  attr_reader :uuid
-
-protected
-  attr_writer :uuid
-  def generate_uuid
-    self.uuid = Rex::Text.rand_text_alphanumeric(8).downcase
-  end
+  protected
 
   #
   # Sets the modules unsupplied info fields to their default values.

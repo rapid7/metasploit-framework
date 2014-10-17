@@ -18,6 +18,7 @@ describe Msf::Module do
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }
   it { is_expected.to respond_to :set_defaults }
+  it { is_expected.to respond_to :uuid }
   it { is_expected.to respond_to :workspace }
 
   it_should_behave_like 'Msf::Module::Arch'
