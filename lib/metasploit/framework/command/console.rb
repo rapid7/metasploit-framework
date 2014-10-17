@@ -11,6 +11,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
   def spinner
     return if $msf_spinner_thread
     $msf_spinner_thread = Thread.new do
+      $stdout.print "[*] Starting the Metasploit Framework console..."
       loop do
         %q{/-\|}.each_char do |c|
           $stdout.print c
