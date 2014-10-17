@@ -159,9 +159,9 @@ module Msf::Module::ModuleInfo
 
     key_name = ((advanced) ? 'Advanced' : (evasion) ? 'Evasion' : '') + 'Options'
 
-    new_cont = OptionContainer.new
+    new_cont = Msf::OptionContainer.new
     new_cont.add_options(val, advanced, evasion)
-    cur_cont = OptionContainer.new
+    cur_cont = Msf::OptionContainer.new
     cur_cont.add_options(info[key_name] || [], advanced, evasion)
 
     new_cont.each_option { |name, option|
