@@ -18,6 +18,7 @@ class Module
   autoload :Compatibility, 'msf/core/module/compatibility'
   autoload :DataStore, 'msf/core/module/data_store'
   autoload :Deprecated, 'msf/core/module/deprecated'
+  autoload :Failure, 'msf/core/module/failure'
   autoload :FullName, 'msf/core/module/full_name'
   autoload :HasActions, 'msf/core/module/has_actions'
   autoload :ModuleInfo, 'msf/core/module/module_info'
