@@ -43,7 +43,7 @@ module Msf::DBManager::Import::Amap
     when :amap_mlog
       import_amap_mlog(args.merge(:data => data))
     else
-      raise DBImportError.new("Could not determine file type")
+      raise Msf::DBImportError.new("Could not determine file type")
     end
   end
 

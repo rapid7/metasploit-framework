@@ -24,11 +24,11 @@ module Msf::DBManager::Report
     updated = opts.delete(:updated_at)
 
     unless File.exists? tmp_path
-      raise DBImportError 'Report artifact file to be imported does not exist.'
+      raise Msf::DBImportError 'Report artifact file to be imported does not exist.'
     end
 
     unless (File.directory?(artifacts_dir) && File.writable?(artifacts_dir))
-      raise DBImportError "Could not move report artifact file to #{artifacts_dir}."
+      raise Msf::DBImportError "Could not move report artifact file to #{artifacts_dir}."
     end
 
     if File.exists? new_path

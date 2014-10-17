@@ -32,7 +32,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       m_ver = nil
     end
     unless m_ver and btag
-      raise DBImportError.new("Unsupported Metasploit XML document format")
+      raise Msf::DBImportError.new("Unsupported Metasploit XML document format")
     end
 
     host_info = {}
@@ -70,7 +70,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
         loot_file = ::File.split(loot_info[:orig_path]).last
         if ::File.exists? loot_dir
           unless (::File.directory?(loot_dir) && ::File.writable?(loot_dir))
-            raise DBImportError.new("Could not move files to #{loot_dir}")
+            raise Msf::DBImportError.new("Could not move files to #{loot_dir}")
           end
         else
           ::FileUtils.mkdir_p(loot_dir)
@@ -120,7 +120,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
         task_file = ::File.split(task_info[:orig_path]).last
         if ::File.exists? tasks_dir
           unless (::File.directory?(tasks_dir) && ::File.writable?(tasks_dir))
-            raise DBImportError.new("Could not move files to #{tasks_dir}")
+            raise Msf::DBImportError.new("Could not move files to #{tasks_dir}")
           end
         else
           ::FileUtils.mkdir_p(tasks_dir)
@@ -158,7 +158,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     new_tmp = ::File.join(Dir::tmpdir,"msf","imp_#{Rex::Text::rand_text_alphanumeric(4)}",@import_filedata[:zip_basename])
     if ::File.exists? new_tmp
       unless (::File.directory?(new_tmp) && ::File.writable?(new_tmp))
-        raise DBImportError.new("Could not extract zip file to #{new_tmp}")
+        raise Msf::DBImportError.new("Could not extract zip file to #{new_tmp}")
       end
     else
       FileUtils.mkdir_p(new_tmp)
@@ -175,7 +175,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       if File.exists? tmp_subdirs
         unless (::File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs))
           # if it exists but we can't write to it, give up
-          raise DBImportError.new("Could not extract zip file to #{tmp_subdirs}")
+          raise Msf::DBImportError.new("Could not extract zip file to #{tmp_subdirs}")
         end
       else
         ::FileUtils.mkdir(tmp_subdirs)
