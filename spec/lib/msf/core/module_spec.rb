@@ -27,7 +27,7 @@ describe Msf::Module do
   it_should_behave_like 'Msf::Module::Network'
   it_should_behave_like 'Msf::Module::Options'
   it_should_behave_like 'Msf::Module::Privileged'
-  it_should_behave_like 'Msf::Module::Rank'
+  it_should_behave_like 'Msf::Module::Ranking'
   it_should_behave_like 'Msf::Module::Search'
   it_should_behave_like 'Msf::Module::Type'
   it_should_behave_like 'Msf::Module::UI'

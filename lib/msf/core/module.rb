@@ -28,7 +28,7 @@ class Module
   autoload :Platform, 'msf/core/module/platform'
   autoload :PlatformList, 'msf/core/module/platform_list'
   autoload :Privileged, 'msf/core/module/privileged'
-  autoload :Rank, 'msf/core/module/rank'
+  autoload :Ranking, 'msf/core/module/ranking'
   autoload :Reference, 'msf/core/module/reference'
   autoload :Search, 'msf/core/module/search'
   autoload :SiteReference, 'msf/core/module/reference'
@@ -47,7 +47,7 @@ class Module
   include Msf::Module::Network
   include Msf::Module::Options
   include Msf::Module::Privileged
-  include Msf::Module::Rank
+  include Msf::Module::Ranking
   include Msf::Module::Search
   include Msf::Module::Type
   include Msf::Module::UI

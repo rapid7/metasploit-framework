@@ -1,4 +1,4 @@
-module Msf::Module::Rank
+module Msf::Module::Ranking
   extend ActiveSupport::Concern
 
   module ClassMethods
