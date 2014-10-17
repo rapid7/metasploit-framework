@@ -20,7 +20,7 @@ module Msf::Module::Ranking
     # Returns this module's ranking as a string representation.
     #
     def rank_to_s
-      RankingName[rank]
+      Msf::RankingName[rank]
     end
   end
 
