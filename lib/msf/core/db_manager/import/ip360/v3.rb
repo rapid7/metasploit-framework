@@ -39,7 +39,7 @@ module Msf::DBManager::Import::IP360::V3
     end
 
     if not aspl_path
-      raise DBImportError.new("The nCircle IP360 ASPL file is not present.\n    Download ASPL from nCircle VNE | Administer | Support | Resources, unzip it, and import it first")
+      raise Msf::DBImportError.new("The nCircle IP360 ASPL file is not present.\n    Download ASPL from nCircle VNE | Administer | Support | Resources, unzip it, and import it first")
     end
 
     # parse nCircle ASPL file

@@ -3,11 +3,11 @@ module Msf::DBManager::HostTag
   # conditions and return hash as well.
   def report_host_tag(opts)
     name = opts.delete(:name)
-    raise DBImportError.new("Missing required option :name") unless name
+    raise Msf::DBImportError.new("Missing required option :name") unless name
     addr = opts.delete(:addr)
-    raise DBImportError.new("Missing required option :addr") unless addr
+    raise Msf::DBImportError.new("Missing required option :addr") unless addr
     wspace = opts.delete(:wspace)
-    raise DBImportError.new("Missing required option :wspace") unless wspace
+    raise Msf::DBImportError.new("Missing required option :wspace") unless wspace
   ::ActiveRecord::Base.connection_pool.with_connection {
     if wspace.kind_of? String
       wspace = find_workspace(wspace)

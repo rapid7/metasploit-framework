@@ -181,7 +181,7 @@ public
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions[:state] = [ServiceState::Open] if opts[:only_up]
+    conditions[:state] = [Msf::ServiceState::Open] if opts[:only_up]
     conditions[:proto] = opts[:proto] if opts[:proto]
     conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
     conditions[:port] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
@@ -381,7 +381,7 @@ public
       sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
     elsif(opts[:proto] && opts[:port])
       conditions = {}
-      conditions[:state] = [ServiceState::Open] if opts[:up]
+      conditions[:state] = [Msf::ServiceState::Open] if opts[:up]
       conditions[:proto] = opts[:proto] if opts[:proto]
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]

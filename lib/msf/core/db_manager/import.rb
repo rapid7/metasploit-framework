@@ -107,7 +107,7 @@ module Msf::DBManager::Import
       data = f.read(Metasploit::Credential::Exporter::Pwdump::FILE_ID_STRING.size)
     end
     if data.nil?
-      raise DBImportError.new("Zero-length file")
+      raise Msf::DBImportError.new("Zero-length file")
     end
 
     if data.index(Metasploit::Credential::Exporter::Pwdump::FILE_ID_STRING)
@@ -115,7 +115,10 @@ module Msf::DBManager::Import
     else
       case data[0,4]
       when "PK\x03\x04"
-        data = Zip::File.open(filename)
+        # When Msf::DBManager::Import::MetasploitFramework is included, it's child namespace of
+        # Msf::DBManager::Import::MetasploitFramework::Zip becomes resolvable as Zip here, so need to use ::Zip so Zip
+        # is resolved as one from rubyzip gem.
+        data = ::Zip::File.open(filename)
       when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
         data = PacketFu::PcapFile.new(:filename => filename)
       else
@@ -172,12 +175,14 @@ module Msf::DBManager::Import
   #
   # If there is no match, an error is raised instead.
   #
-  # @raise DBImportError if the type can't be detected
+  # @raise [Msf::DBImportError] if the type can't be detected
   def import_filetype_detect(data)
-
-    if data and data.kind_of? Zip::File
+    # When Msf::DBManager::Import::MetasploitFramework is included, it's child namespace of
+    # Msf::DBManager::Import::MetasploitFramework::Zip becomes resolvable as Zip here, so need to use ::Zip so Zip
+    # is resolved as one from rubyzip gem.
+    if data and data.kind_of? ::Zip::File
       if data.entries.empty?
-        raise DBImportError.new("The zip file provided is empty.")
+        raise Msf::DBImportError.new("The zip file provided is empty.")
       end
 
       @import_filedata ||= {}
@@ -194,7 +199,7 @@ module Msf::DBManager::Import
 
       # TODO This check for our zip export should be more extensive
       if xml_files.empty?
-        raise DBImportError.new("The zip file provided is not a Metasploit Zip Export")
+        raise Msf::DBImportError.new("The zip file provided is not a Metasploit Zip Export")
       end
 
       @import_filedata[:zip_xml] = xml_files.first
@@ -207,7 +212,7 @@ module Msf::DBManager::Import
       # Don't check for emptiness here because unlike other formats, we
       # haven't read any actual data in yet, only magic bytes to discover
       # that this is indeed a pcap file.
-      #raise DBImportError.new("The pcap file provided is empty.") if data.body.empty?
+      #raise Msf::DBImportError.new("The pcap file provided is empty.") if data.body.empty?
       @import_filedata ||= {}
       @import_filedata[:type] = "Libpcap Packet Capture"
       return :libpcap
@@ -222,7 +227,7 @@ module Msf::DBManager::Import
     # This is a text string, lets make sure its treated as binary
     data = data.unpack("C*").pack("C*")
     if data and data.to_s.strip.length == 0
-      raise DBImportError.new("The data provided to the import function was empty")
+      raise Msf::DBImportError.new("The data provided to the import function was empty")
     end
 
     # Parse the first line or 4k of data from the file
@@ -354,7 +359,7 @@ module Msf::DBManager::Import
       return :msf_pwdump
     end
 
-    raise DBImportError.new("Could not automatically determine file type")
+    raise Msf::DBImportError.new("Could not automatically determine file type")
   end
 
   # Handles timestamps from Metasploit Express/Pro imports.
@@ -440,7 +445,7 @@ module Msf::DBManager::Import
   def validate_import_file(data)
     begin
       import_filetype_detect(data)
-    rescue DBImportError
+    rescue Msf::DBImportError
       return false
     end
     return true

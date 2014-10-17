@@ -10,7 +10,7 @@ module Msf::DBManager::Import::IP360::ASPL
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     if not data.index("<ontology")
-      raise DBImportError.new("The ASPL file does not appear to be valid or may still be compressed")
+      raise Msf::DBImportError.new("The ASPL file does not appear to be valid or may still be compressed")
     end
 
     base = ::File.join(Msf::Config.config_directory, "data", "ncircle")

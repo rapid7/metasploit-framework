@@ -160,7 +160,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     )
 
     context 'with other' do
-      it 'should raise DBImportError' do
+      it 'should raise Msf::DBImportError' do
         expect {
           metadata
         }.to raise_error(

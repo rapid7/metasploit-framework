@@ -27,7 +27,7 @@ module Msf::DBManager::Import::Acunetix
       end
       return true
     else # Sorry
-      raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
+      raise Msf::DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
     end
   end
 
