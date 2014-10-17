@@ -95,7 +95,7 @@ module Msf::DBManager::Service
         dlog("Unknown attribute for Service: #{k}")
       end
     }
-    service.state ||= ServiceState::Open
+    service.state ||= Msf::ServiceState::Open
     service.info  ||= ""
 
     if (service and service.changed?)
@@ -118,7 +118,7 @@ module Msf::DBManager::Service
   def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
   ::ActiveRecord::Base.connection_pool.with_connection {
     conditions = {}
-    conditions[:state] = [ServiceState::Open] if only_up
+    conditions[:state] = [Msf::ServiceState::Open] if only_up
     conditions[:proto] = proto if proto
     conditions["hosts.address"] = addresses if addresses
     conditions[:port] = ports if ports
