@@ -14,8 +14,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :owner }
   it { is_expected.to respond_to :platform? }
   it { is_expected.to respond_to :platform_to_s }
-  it { is_expected.to respond_to :privileged }
-  it { is_expected.to respond_to :privileged? }
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }
   it { is_expected.to respond_to :set_defaults }
@@ -29,6 +27,7 @@ describe Msf::Module do
   it_should_behave_like 'Msf::Module::ModuleStore'
   it_should_behave_like 'Msf::Module::Network'
   it_should_behave_like 'Msf::Module::Options'
+  it_should_behave_like 'Msf::Module::Privileged'
   it_should_behave_like 'Msf::Module::Rank'
   it_should_behave_like 'Msf::Module::Search'
   it_should_behave_like 'Msf::Module::Type'
