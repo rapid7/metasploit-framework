@@ -13,7 +13,6 @@ module Msf
 ###
 class Module
   autoload :Arch, 'msf/core/module/arch'
-  autoload :Author, 'msf/core/module/author'
   autoload :AuxiliaryAction, 'msf/core/module/auxiliary_action'
   autoload :Compatibility, 'msf/core/module/compatibility'
   autoload :DataStore, 'msf/core/module/data_store'
@@ -103,7 +102,7 @@ class Module
     info_fixups
 
     # Transform some of the fields to arrays as necessary
-    self.author = Author.transform(module_info['Author'])
+    self.author = Msf::Author.transform(module_info['Author'])
     self.arch = Rex::Transformer.transform(module_info['Arch'], Array, [ String ], 'Arch')
     self.platform = PlatformList.transform(module_info['Platform'])
     self.references = Rex::Transformer.transform(module_info['References'], Array, [ SiteReference, Reference ], 'Ref')
