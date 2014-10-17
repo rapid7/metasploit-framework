@@ -18,42 +18,42 @@ module Msf::Module::Type
   # Returns true if this module is an auxiliary module.
   #
   def auxiliary?
-    (type == MODULE_AUX)
+    (type == Msf::MODULE_AUX)
   end
 
   #
   # Returns true if this module is an encoder module.
   #
   def encoder?
-    (type == MODULE_ENCODER)
+    (type == Msf::MODULE_ENCODER)
   end
 
   #
   # Returns true if this module is an exploit module.
   #
   def exploit?
-    (type == MODULE_EXPLOIT)
+    (type == Msf::MODULE_EXPLOIT)
   end
 
   #
   # Returns true if this module is a nop module.
   #
   def nop?
-    (type == MODULE_NOP)
+    (type == Msf::MODULE_NOP)
   end
 
   #
   # Returns true if this module is a payload module.
   #
   def payload?
-    (type == MODULE_PAYLOAD)
+    (type == Msf::MODULE_PAYLOAD)
   end
 
   #
   # Returns true if this module is an post-exploitation module.
   #
   def post?
-    (type == MODULE_POST)
+    (type == Msf::MODULE_POST)
   end
 
   #

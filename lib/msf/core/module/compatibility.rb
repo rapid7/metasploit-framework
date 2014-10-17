@@ -17,11 +17,11 @@ module Msf::Module::Compatibility
     return true if (mod == nil)
 
     # Determine which hash to used based on the supplied module type
-    if (mod.type == MODULE_ENCODER)
+    if (mod.type == Msf::MODULE_ENCODER)
       ch = self.compat['Encoder']
-    elsif (mod.type == MODULE_NOP)
+    elsif (mod.type == Msf::MODULE_NOP)
       ch = self.compat['Nop']
-    elsif (mod.type == MODULE_PAYLOAD)
+    elsif (mod.type == Msf::MODULE_PAYLOAD)
       ch = self.compat['Payload']
       if self.respond_to?("target") and self.target and self.target['Payload'] and self.target['Payload']['Compat']
         ch = ch.merge(self.target['Payload']['Compat'])
