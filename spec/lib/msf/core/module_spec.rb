@@ -14,6 +14,7 @@ describe Msf::Module do
   it { is_expected.to respond_to :owner }
   it { is_expected.to respond_to :platform? }
   it { is_expected.to respond_to :platform_to_s }
+  it { is_expected.to respond_to :privileged }
   it { is_expected.to respond_to :privileged? }
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }

@@ -26,6 +26,7 @@ class Module
   autoload :Options, 'msf/core/module/options'
   autoload :Platform, 'msf/core/module/platform'
   autoload :PlatformList, 'msf/core/module/platform_list'
+  autoload :Privileged, 'msf/core/module/privileged'
   autoload :Rank, 'msf/core/module/rank'
   autoload :Reference, 'msf/core/module/reference'
   autoload :Search, 'msf/core/module/search'
@@ -44,6 +45,7 @@ class Module
   include Msf::Module::ModuleStore
   include Msf::Module::Network
   include Msf::Module::Options
+  include Msf::Module::Privileged
   include Msf::Module::Rank
   include Msf::Module::Search
   include Msf::Module::Type
@@ -233,13 +235,6 @@ class Module
   end
 
   #
-  # Returns whether or not the module requires or grants high privileges.
-  #
-  def privileged?
-    privileged == true
-  end
-
-  #
   # Returns true if this module is being debugged.  The debug flag is set
   # by setting datastore['DEBUG'] to 1|true|yes
   #
@@ -276,10 +271,6 @@ class Module
   #
   attr_reader   :references
 
-  #
-  # Whether or not this module requires privileged access.
-  #
-  attr_reader   :privileged
   #
   # The license under which this module is provided.
   #
