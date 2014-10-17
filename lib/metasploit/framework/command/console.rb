@@ -25,7 +25,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
     when :version
       $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
     else
-      spinner
+      spinner unless parsed_options.options.console.quiet
       driver.run
     end
   end
