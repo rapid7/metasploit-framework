@@ -145,7 +145,7 @@ class Metasploit3 < Msf::Post
           'Safari' => "#{user_profile['AppData']}/Safari/Databases/safari-extension_com.lastpass.lpsafariextension-n24rep3bmn_0"
         }
       else
-        print_error "platform not recognized: #{platform}"
+        print_error "Platform not recognized: #{platform}"
       end
 
       browser_path_map.each_pair do |browser, path|
