@@ -32,6 +32,8 @@ class Metasploit3 < Msf::Auxiliary
     connect
     version = sock.get_once
 
+    return if version.blank?
+
     print_good("#{ip}:#{rport} - rsync #{version.strip} found")
     report_service(:host => ip, :port => rport, :proto => 'tcp', :name => 'rsync')
     report_note(
