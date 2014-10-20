@@ -81,4 +81,9 @@ describe 'modules' do
                         module_type: 'exploit',
                         modules_pathname: modules_pathname,
                         type_directory: 'exploits'
+
+  it_should_behave_like 'all modules with module type can be instantiated',
+                        module_type: 'nop',
+                        modules_pathname: modules_pathname,
+                        type_directory: 'nops'
 end
