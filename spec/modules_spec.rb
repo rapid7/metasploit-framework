@@ -34,7 +34,7 @@ describe 'modules' do
 
     context module_type do
       let(:module_set) {
-        framework.send(module_type)
+        framework.modules.module_set(module_type)
       }
 
       type_pathname = modules_pathname.join(type_directory)
@@ -71,4 +71,9 @@ describe 'modules' do
                         module_type: 'auxiliary',
                         modules_pathname: modules_pathname,
                         type_directory: 'auxiliary'
+
+  it_should_behave_like 'all modules with module type can be instantiated',
+                        module_type: 'encoder',
+                        modules_pathname: modules_pathname,
+                        type_directory: 'encoders'
 end
