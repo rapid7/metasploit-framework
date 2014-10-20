@@ -76,4 +76,9 @@ describe 'modules' do
                         module_type: 'encoder',
                         modules_pathname: modules_pathname,
                         type_directory: 'encoders'
+
+  it_should_behave_like 'all modules with module type can be instantiated',
+                        module_type: 'exploit',
+                        modules_pathname: modules_pathname,
+                        type_directory: 'exploits'
 end
