@@ -42,11 +42,12 @@ module Metasploit
               'data' => body
             })
             res = cli.send_recv(req)
-            print res
             if res && res.code == 302 && res.headers['location'] && res.headers['location'].include?('UI')
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.headers)
+            elsif res.nil?
+              result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT)
             else
-              result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
+              result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res.headers)
             end
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)

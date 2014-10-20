@@ -54,6 +54,11 @@ class Metasploit3 < Msf::Auxiliary
       vhost: datastore['VHOST']
     )
 
+    if ssl
+      scanner.ssl = datastore['SSL']
+      scanner.ssl_version = datastore['SSLVERSION']
+    end
+
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
