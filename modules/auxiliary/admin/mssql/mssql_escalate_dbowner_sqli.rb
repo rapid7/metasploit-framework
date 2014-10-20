@@ -162,8 +162,11 @@ class Metasploit3 < Msf::Auxiliary
       parsed_result =result.body.scan( /EVILSQLISTART([^>]*)EVILSQLISTOP/).last.first
 
       # Return sysadmin status
-      return parsed_result
+      if parsed_result
+        return parsed_result
+      end
     end
+    nil
   end
 
   # Attempt to escalate privileges
