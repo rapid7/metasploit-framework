@@ -40,7 +40,7 @@ todb@ubuntu:~$ curl -Lo ~/.msf4/modules/exploits/test/test_module.rb https://gis
 
 Then, in my msfconsole window:
 
-````bash
+```
 msf > reload_all
 [*] Reloading modules from all module paths...
 IIIIII    dTb.dTb        _.---._
@@ -94,8 +94,7 @@ msf exploit(test_module) > exploit
 [*] Started reverse handler on 192.168.145.1:4444 
 [+] Hello, world!
 msf exploit(test_module) > 
-
-````
+```
 
 ## Troubleshooting
 
