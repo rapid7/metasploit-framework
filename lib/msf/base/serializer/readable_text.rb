@@ -31,7 +31,7 @@ class ReadableText
       when MODULE_AUX
         return dump_auxiliary_module(mod, indent)
       when MODULE_POST
-        return dump_basic_module(mod, indent)
+        return dump_post_module(mod, indent)
       else
         return dump_generic_module(mod, indent)
     end
@@ -84,14 +84,14 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
-  # Dumps an auxiliary's actions
+  # Dumps a module's actions
   #
-  # @param mod [Msf::Auxiliary] the auxiliary module.
+  # @param mod [Msf::Module] the module.
   # @param indent [String] the indentation to use (only the length
   #   matters)
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
-  def self.dump_auxiliary_actions(mod, indent = '', h = nil)
+  def self.dump_module_actions(mod, indent = '', h = nil)
     tbl = Rex::Ui::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,
@@ -104,6 +104,28 @@ class ReadableText
     mod.actions.each_with_index { |target, idx|
       tbl << [ target.name || 'All' , target.description || '' ]
     }
+
+    tbl.to_s + "\n"
+  end
+
+  # Dumps the module's selected action
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use (only the length
+  #   matters)
+  # @param h [String] the string to display as the table heading.
+  # @return [String] the string form of the table.
+  def self.dump_module_action(mod, indent = '', h = nil)
+    tbl = Rex::Ui::Text::Table.new(
+      'Indent'  => indent.length,
+      'Header'  => h,
+      'Columns' =>
+        [
+          'Name',
+          'Description',
+        ])
+
+    tbl << [ mod.action.name || 'All', mod.action.description || '' ]
 
     tbl.to_s + "\n"
   end
@@ -146,6 +168,7 @@ class ReadableText
     output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
@@ -201,6 +224,7 @@ class ReadableText
     output << "     Module: #{mod.fullname}\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
@@ -209,6 +233,58 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
+
+    # Actions
+    if mod.action
+      output << "Available actions:\n"
+      output << dump_module_actions(mod, indent)
+    end
+
+    # Options
+    if (mod.options.has_options?)
+      output << "Basic options:\n"
+      output << dump_options(mod, indent)
+      output << "\n"
+    end
+
+    # Description
+    output << "Description:\n"
+    output << word_wrap(Rex::Text.compress(mod.description))
+    output << "\n"
+
+    # References
+    output << dump_references(mod, indent)
+
+    return output
+  end
+
+  # Dumps information about a post module.
+  #
+  # @param mod [Msf::Post] the post module.
+  # @param indent [String] the indentation to use.
+  # @return [String] the string form of the information.
+  def self.dump_post_module(mod, indent = '')
+    output  = "\n"
+    output << "       Name: #{mod.name}\n"
+    output << "     Module: #{mod.fullname}\n"
+    output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
+    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
+    output << "\n"
+
+    # Authors
+    output << "Provided by:\n"
+    mod.each_author { |author|
+      output << indent + author.to_s + "\n"
+    }
+    output << "\n"
+
+    # Actions
+    if mod.action
+      output << "Available actions:\n"
+      output << dump_module_actions(mod, indent)
+    end
 
     # Options
     if (mod.options.has_options?)
@@ -311,8 +387,9 @@ class ReadableText
   #
   # @param mod [Msf::Module] the module.
   # @param indent [String] the indentation to use.
+  # @param missing [Boolean] dump only empty required options.
   # @return [String] the string form of the information.
-  def self.dump_options(mod, indent = '')
+  def self.dump_options(mod, indent = '', missing = false)
     tbl = Rex::Ui::Text::Table.new(
       'Indent'  => indent.length,
       'Columns' =>
@@ -325,13 +402,13 @@ class ReadableText
 
     mod.options.sorted.each { |entry|
       name, opt = entry
+      val = mod.datastore[name] || opt.default
 
       next if (opt.advanced?)
       next if (opt.evasion?)
+      next if (missing && opt.valid?(val))
 
-      val_display = opt.display_value(mod.datastore[name] || opt.default)
-
-      tbl << [ name, val_display, opt.required? ? "yes" : "no", opt.desc ]
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     }
 
     return tbl.to_s

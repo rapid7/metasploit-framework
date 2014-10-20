@@ -78,7 +78,8 @@ class Railgun
     'crypt32',
     'wlanapi',
     'wldap32',
-    'version'
+    'version',
+    'psapi'
   ].freeze
 
   ##

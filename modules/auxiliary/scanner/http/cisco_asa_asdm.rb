@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if res &&
          res.code == 200 &&
-         res.headers['Set-Cookie'].match(/webvpn/)
+         res.get_cookies.include?('webvpn')
 
         return true
       else

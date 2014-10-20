@@ -38,9 +38,11 @@ class Archive
   #
   # If fdata is set, the file is populated with that data
   # from the calling method. If fdata is nil, then the
-  # fs is checked for the file.
+  # fs is checked for the file. If central_dir_name is set
+  # it will be used to spoof the name at the Central Directory
+  # at packing time.
   #
-  def add_file(fname, fdata=nil, xtra=nil, comment=nil)
+  def add_file(fname, fdata=nil, xtra=nil, comment=nil, central_dir_name=nil)
     if (not fdata)
       begin
         st = File.stat(fname)
@@ -62,7 +64,7 @@ class Archive
       end
     end
 
-    @entries << Entry.new(fname, fdata, @compmeth, ts, attrs, xtra, comment)
+    @entries << Entry.new(fname, fdata, @compmeth, ts, attrs, xtra, comment, central_dir_name)
   end
 
 

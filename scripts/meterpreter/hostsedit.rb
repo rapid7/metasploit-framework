@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 # Meterpreter script for modifying the hosts file in windows
 # given a single entrie or several in a file and clear the
 # DNS cache on the target machine.

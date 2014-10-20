@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -268,11 +268,6 @@ class Metasploit3 < Msf::Auxiliary
     method = datastore['RTYPE'].split('_')[1]
     theaders = ('Authorization: NTLM ' << hash << "\r\n" <<
           "Connection: Keep-Alive\r\n" )
-
-    if (method == 'POST')
-      theaders << 'Content-Length: ' <<
-        (@finalputdata.length + 4).to_s()<< "\r\n"
-    end
 
     # HTTP_HEADERFILE is how this module supports cookies, multipart forms, etc
     if datastore['HTTP_HEADERFILE'] != nil

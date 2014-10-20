@@ -80,7 +80,7 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 
 		host.services.each do |serv|
 			next if not serv.host
-			next if (serv.state != ServiceState::Open)
+			next if (serv.state != Msf::ServiceState::Open)
 			next if (serv.name !~ /smb/) 
 
 			print_line("using psexec - Pass the hash")

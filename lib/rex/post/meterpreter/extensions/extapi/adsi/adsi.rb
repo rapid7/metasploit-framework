@@ -32,7 +32,7 @@ class Adsi
   # @param fields [Array] Array of string fields to return for
   #   each result found
   #
-  # @returns [Hash] Array of field names with associated results.
+  # @return [Hash] Array of field names with associated results.
   #
   def domain_query(domain_name, filter, max_results, page_size, fields)
     request = Packet.create_request('extapi_adsi_domain_query')

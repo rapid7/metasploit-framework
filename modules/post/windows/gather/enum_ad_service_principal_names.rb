@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
       'License'      => MSF_LICENSE,
       'Author'       =>
         [
-          'Ben Campbell <ben.campbell[at]mwrinfosecurity.com>', #Metasploit Module
+          'Ben Campbell', #Metasploit Module
           'Scott Sutherland' #Original Powershell Code
         ],
       'Platform'     => [ 'win' ],

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
         such users have their passwords specified in these fields.
         },
         'License'      => MSF_LICENSE,
-        'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+        'Author'       => [ 'Ben Campbell' ],
         'Platform'     => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'References'	=>

@@ -1,4 +1,12 @@
 ##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
+##
 #
 # This script exploits the Task Scheduler 2.0 XML 0day exploited by Stuxnet
 #

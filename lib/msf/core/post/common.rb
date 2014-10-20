@@ -110,7 +110,14 @@ module Msf::Post::Common
         break if d == ""
         o << d
       end
-      process.channel.close
+      o.chomp! if o
+
+      begin
+        process.channel.close
+      rescue IOError => e
+        # Channel was already closed, but we got the cmd output, so let's soldier on.
+      end
+
       process.close
     when /shell/
       o = session.shell_command_token("#{cmd} #{args}", time_out)

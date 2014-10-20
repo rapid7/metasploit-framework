@@ -104,7 +104,7 @@ class ModRM
         i = o
         s = 1
       when Expression
-        if o.op == :* and (o.rexpr.kind_of? Reg or o.lexpr.kind_of? Reg)
+        if o.op == :* and (o.rexpr.kind_of?(Reg) or o.lexpr.kind_of?(Reg))
           # scaled index
           raise otok, 'mrm: too many indexes' if i
           s = o.lexpr
@@ -129,7 +129,9 @@ class ModRM
     walker[regify[content.reduce]]
 
     # ensure found immediate is really an immediate
-    raise otok, 'mrm: reg in imm' if imm.kind_of? Expression and not imm.externals.grep(Reg).empty?
+    raise otok, 'mrm: reg in imm' if imm.kind_of?(Expression) and not imm.externals.grep(Reg).empty?
+
+    raise otok, 'mrm: bad reg size' if b.kind_of?(Reg) and i.kind_of?(Reg) and b.sz != i.sz
 
     # find default address size
     adsz = b ? b.sz : i ? i.sz : nil

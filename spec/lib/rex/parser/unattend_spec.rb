@@ -16,7 +16,7 @@ comb = REXML::Document.new('<unattend xmlns="urn:schemas-microsoft-com:unattend"
 describe Rex::Parser::Unattend do
 
   context "#parse" do
-    it "returns passwords for b64" do 
+    it "returns passwords for b64" do
       results = described_class.parse(b64)
       results.length.should eq(2)
       results[0]['password'].should eq(Rex::Text.to_unicode('Temp123'))

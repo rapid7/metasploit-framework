@@ -31,5 +31,36 @@ module Msf::Payload::Dalvik
     [str.length].pack("N") + str
   end
 
+  def string_sub(data, placeholder="", input="")
+    data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
+  end
+
+  def generate_cert
+    x509_name = OpenSSL::X509::Name.parse(
+      "C=Unknown/ST=Unknown/L=Unknown/O=Unknown/OU=Unknown/CN=Unknown"
+      )
+    key  = OpenSSL::PKey::RSA.new(1024)
+    cert = OpenSSL::X509::Certificate.new
+    cert.version = 2
+    cert.serial = 1
+    cert.subject = x509_name
+    cert.issuer = x509_name
+    cert.public_key = key.public_key
+
+    # Some time within the last 3 years
+    cert.not_before = Time.now - rand(3600*24*365*3)
+
+    # From http://developer.android.com/tools/publishing/app-signing.html
+    # """
+    # A validity period of more than 25 years is recommended.
+    #
+    # If you plan to publish your application(s) on Google Play, note
+    # that a validity period ending after 22 October 2033 is a
+    # requirement. You can not upload an application if it is signed
+    # with a key whose validity expires before that date.
+    # """
+    cert.not_after = cert.not_before + 3600*24*365*20 # 20 years
+    return cert, key
+  end
 end
 
