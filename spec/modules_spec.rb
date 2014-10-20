@@ -86,4 +86,9 @@ describe 'modules' do
                         module_type: 'nop',
                         modules_pathname: modules_pathname,
                         type_directory: 'nops'
+
+  it_should_behave_like 'all modules with module type can be instantiated',
+                        module_type: 'post',
+                        modules_pathname: modules_pathname,
+                        type_directory: 'posts'
 end
