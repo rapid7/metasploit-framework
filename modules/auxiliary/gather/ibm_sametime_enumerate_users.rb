@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,6 +23,11 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'kicks4kittens' # Metasploit module
+        ],
+      'References' =>
+        [
+          [ 'CVE', '2013-3975' ],
+          [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21671201']
         ],
       'DefaultOptions' =>
         {

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     version = res.headers['X-Jenkins']
-    vprint_status("#{peer} - Jenkins Version - #{version}")
+    print_status("#{peer} - Jenkins Version - #{version}")
     report_service(
       :host  => rhost,
       :port  => rport,
@@ -120,17 +120,17 @@ class Metasploit3 < Msf::Auxiliary
         )
       end
     when 403
-      vprint_status("#{peer} - #{uri_path} restricted (403)")
+      print_status("#{peer} - #{uri_path} restricted (403)")
     when 401
-      vprint_status("#{peer} - #{uri_path} requires authentication (401): #{res.headers['WWW-Authenticate']}")
+      print_status("#{peer} - #{uri_path} requires authentication (401): #{res.headers['WWW-Authenticate']}")
     when 404
-      vprint_status("#{peer} - #{uri_path} not found (404)")
+      print_status("#{peer} - #{uri_path} not found (404)")
     when 301
-      vprint_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      print_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     when 302
-      vprint_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+      print_status("#{peer} - #{uri_path} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
     else
-      vprint_status("#{peer} - #{uri_path} Don't know how to handle response code #{res.code}")
+      print_status("#{peer} - #{uri_path} Don't know how to handle response code #{res.code}")
     end
   end
 
@@ -164,52 +164,37 @@ class Metasploit3 < Msf::Auxiliary
       infos[td] = tds[idx+1].get_text.to_s.strip if infos.has_key?(td)
     end
 
+    fprint = {}
+    jinfo  = {}
+
     # print out the goodies
     infos.each do |k, v|
       next if v.nil?
+      v = v.strip
+      next if v.length == 0
+
+      jinfo[k.gsub(/\s+/, '_')] = v
+
       case k
       when "os.name"
         vprint_line("   OS: #{v}")
-        report_host({:host => rhost, :os_name => v})
+        fprint['os.product'] = v
       when "os.version"
         vprint_line("   OS Version: #{v}")
-        report_host({:host => rhost, :os_flavor => v})
+        fprint['os.version'] = v
       when "sun.os.patch.level"
         vprint_line("   Patch Level: #{v}")
       when "os.arch"
         vprint_line("   Arch: #{v}")
-        report_note({
-          :type  => "system_arch",
-          :host  => rhost,
-          :data  => "Arch: #{v}",
-          :update => :unique_data
-        })
+        fprint['os.arch'] = v
       when "user.name"
         vprint_line("   User: #{v}")
-        report_note({
-          :type  => "jenkins_user",
-          :host  => rhost,
-          :port  => rport,
-          :proto => 'tcp',
-          :data  => "User: #{v}",
-          :update => :unique_data
-        })
       when "USERDOMAIN"
         vprint_line("   Domain: #{v}")
-        report_note({
-          :type  => "system_domain",
-          :host  => rhost,
-          :data  => "Domain: #{v}",
-          :update => :unique_data
-        })
+        fprint['host.domain'] = v
       when "COMPUTERNAME"
         vprint_line("   Computer Name: #{v}")
-        report_note({
-          :type  => "system_computer",
-          :host  => rhost,
-          :data  => "Computer Name: #{v}",
-          :update => :unique_data
-        })
+        fprint['host.name'] = v
       when "SystemDrive"
         vprint_line("   System Drive: #{v}")
       when "SHELL"
@@ -222,30 +207,20 @@ class Metasploit3 < Msf::Auxiliary
         vprint_line("   Home Directory: #{v}")
       when "user.language"
         vprint_line("   Language: #{v}")
-        report_note({
-          :type  => "system_lang",
-          :host  => rhost,
-          :data  => "Language: #{v}",
-          :update => :unique_data
-        })
+        fprint['os.language'] = v
       when "user.country"
         vprint_line("   Country: #{v}")
-        report_note({
-          :type  => "system_country",
-          :host  => rhost,
-          :data  => "Country: #{v}",
-          :update => :unique_data
-        })
       when "user.timezone"
         vprint_line("   Timezone: #{v}")
-        report_note({
-          :type  => "system_timezone",
-          :host  => rhost,
-          :data  => "Timezone: #{v}",
-          :update => :unique_data
-        })
       end
     end
+
+    # Report a fingerprint.match for OS fingerprinting support, tied to this service
+    report_note(:host => rhost, :port => rport, :proto => 'tcp', :ntype => 'fingerprint.match', :data => fprint)
+    
+    # Report a jenkins information note for future analysis, tied to this service
+    report_note(:host => rhost, :port => rport, :proto => 'tcp', :ntype => 'jenkins.info', :data => jinfo)
+
     vprint_line('')
   end
 end

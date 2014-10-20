@@ -334,7 +334,7 @@ module Services
         raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{handle["GetLastError"]}")
       end
 
-      vals = status['lpServiceStatus'].unpack('L*')
+      vals = status['lpServiceStatus'].unpack('V*')
       adv.CloseServiceHandle(handle["return"])
 
       ret = {

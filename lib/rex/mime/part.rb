@@ -36,8 +36,8 @@ class Part
 
   # Returns the Content-Transfer-Encoding of the part.
   #
-  # @returns [nil] if the part hasn't Content-Transfer-Encoding.
-  # @returns [String] The Content-Transfer-Encoding or the part.
+  # @return [nil] if the part hasn't Content-Transfer-Encoding.
+  # @return [String] The Content-Transfer-Encoding or the part.
   def transfer_encoding
     h = header.find('Content-Transfer-Encoding')
     return nil if h.nil?

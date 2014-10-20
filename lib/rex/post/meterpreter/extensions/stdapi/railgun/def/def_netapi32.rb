@@ -84,6 +84,13 @@ class Def_netapi32
         ['LPVOID','buffer','in']
     ])
 
+    dll.add_function('NetUserChangePassword', 'DWORD', [
+      ["PWCHAR","domainname","in"],
+      ["PWCHAR","username","in"],
+      ["PWCHAR","oldpassword","in"],
+      ["PWCHAR","newpassword","in"]
+    ])
+
     return dll
   end
 

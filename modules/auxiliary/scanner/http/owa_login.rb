@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -93,26 +93,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
   end
 
-  def cleanup
-    # Restore the original settings
-    datastore['BLANK_PASSWORDS'] = @blank_passwords_setting
-    datastore['USER_AS_PASS']    = @user_as_pass_setting
-  end
-
   def run
-    # Store the original setting
-    @blank_passwords_setting = datastore['BLANK_PASSWORDS']
-
-    # OWA doesn't support blank passwords or usernames!
-    datastore['BLANK_PASSWORDS'] = false
-
-    # If there's a pre-defined username/password, we need to turn off USER_AS_PASS
-    # so that the module won't just try username:username, and then exit.
-    @user_as_pass_setting = datastore['USER_AS_PASS']
-    if not datastore['USERNAME'].nil? and not datastore['PASSWORD'].nil?
-      print_status("Disabling 'USER_AS_PASS' because you've specified an username/password")
-      datastore['USER_AS_PASS'] = false
-    end
 
     vhost = datastore['VHOST'] || datastore['RHOST']
 
@@ -200,7 +181,7 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    if action.name != "OWA_2013" and not res.headers['set-cookie']
+    if action.name != "OWA_2013" and res.get_cookies.empty?
         print_error("#{msg} Received invalid repsonse due to a missing cookie (possibly due to invalid version), aborting")
         return :abort
     end
@@ -233,8 +214,9 @@ class Metasploit3 < Msf::Auxiliary
       end
     else
        # these two lines are the authentication info
-      sessionid = 'sessionid=' << res.headers['set-cookie'].split('sessionid=')[1].split('; ')[0]
-      cadata = 'cadata=' << res.headers['set-cookie'].split('cadata=')[1].split('; ')[0]
+      cookies = res.get_cookies
+      sessionid = 'sessionid=' << cookies.split('sessionid=')[1].split('; ')[0]
+      cadata = 'cadata=' << cookies.split('cadata=')[1].split('; ')[0]
       headers['Cookie'] = 'PBack=0; ' << sessionid << '; ' << cadata
     end
 

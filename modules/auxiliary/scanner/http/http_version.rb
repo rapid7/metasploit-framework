@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -33,13 +33,12 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     begin
       connect
-
-      res = send_request_raw({'uri' => '/', 'method' => 'GET' })
-      return if not res
-
+      res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
       fp = http_fingerprint(:response => res)
       print_status("#{ip}:#{rport} #{fp}") if fp
     rescue ::Timeout::Error, ::Errno::EPIPE
+    ensure
+      disconnect
     end
   end
 

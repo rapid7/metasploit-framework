@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -29,13 +29,17 @@ class Metasploit4 < Msf::Auxiliary
       "References" => [
         ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
       ],
-      "License" => MSF_LICENSE
+      "License" => MSF_LICENSE,
+      "Actions" => [
+        ["Scan", "Description" => "Scan for ready messages"],
+        ["Change", "Description" => "Change ready message"],
+        ["Reset", "Description" => "Reset ready message"]
+      ],
+      "DefaultAction" => "Scan"
     ))
 
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
-      OptBool.new("CHANGE", [false, "Change ready message", false]),
-      OptBool.new("RESET", [false, "Reset ready message if CHANGE", false]),
       OptString.new("MESSAGE", [false, "Ready message", "PC LOAD LETTER"])
     ], self.class)
   end
@@ -45,14 +49,11 @@ class Metasploit4 < Msf::Auxiliary
     pjl = Rex::Proto::PJL::Client.new(sock)
     pjl.begin_job
 
-    if datastore["CHANGE"]
-      if datastore["RESET"]
-        message = ""
-      else
-        message = datastore["MESSAGE"]
-      end
-
-      pjl.set_rdymsg(message)
+    case action.name
+    when "Change"
+      pjl.set_rdymsg(datastore["MESSAGE"])
+    when "Reset"
+      pjl.set_rdymsg("")
     end
 
     rdymsg = pjl.get_rdymsg
