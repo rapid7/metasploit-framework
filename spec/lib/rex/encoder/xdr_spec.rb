@@ -23,16 +23,16 @@ describe Rex::Encoder::XDR do
 
     context "when data is nil" do
       let(:data) { nil }
-      it "returns 0" do
-        is_expected.to be(0)
+      it "raises an error" do
+        expect { decoded_int }.to raise_error(ArgumentError)
       end
     end
 
     context "when data is empty" do
       let(:data) { '' }
 
-      it "returns nil" do
-        is_expected.to be_nil
+      it "raises an error" do
+        expect { decoded_int }.to raise_error(ArgumentError)
       end
     end
 
@@ -88,7 +88,7 @@ describe Rex::Encoder::XDR do
       let(:data) { "\x41" }
 
       it "raises an error" do
-        expect { decoded_lchar }.to raise_error(NoMethodError)
+        expect { decoded_lchar }.to raise_error(ArgumentError)
       end
     end
   end
@@ -205,16 +205,16 @@ describe Rex::Encoder::XDR do
       context "and no values" do
         let(:data) { "\x00\x00\x00\x02" }
 
-        it "returns an Array filled with nils" do
-          expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([nil, nil])
+        it "raises an error" do
+          expect { described_class.decode_varray!(data) { |s| described_class.decode_int!(s) } }.to raise_error(ArgumentError)
         end
       end
 
       context "longer than available values" do
         let(:data) { "\x00\x00\x00\x02\x00\x00\x00\x41" }
 
-        it "returns Array padded with nils" do
-          expect(described_class.decode_varray!(data) { |s| described_class.decode_int!(s) }).to eq([0x41, nil])
+        it "raises an error" do
+          expect { described_class.decode_varray!(data) { |s| described_class.decode_int!(s) } }.to raise_error(ArgumentError)
         end
       end
     end
