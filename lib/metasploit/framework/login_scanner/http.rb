@@ -116,8 +116,8 @@ module Metasploit
             if response && response.code == 200
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           ensure
             http_client.close
           end

@@ -215,6 +215,7 @@ module Metasploit
             proof = e
           rescue ::Rex::ConnectionError
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+            proof = e
           end
 
           if status == Metasploit::Model::Login::Status::SUCCESSFUL && simple.client.auth_user.nil?

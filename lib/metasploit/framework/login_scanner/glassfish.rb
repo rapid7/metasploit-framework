@@ -182,8 +182,8 @@ module Metasploit
               status = try_glassfish_3(credential)
               result_opts.merge!(status)
             end
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
           Result.new(result_opts)

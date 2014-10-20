@@ -42,8 +42,8 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: response)
             end
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
           Result.new(result_opts)

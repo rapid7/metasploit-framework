@@ -75,8 +75,8 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: "Server nonce not present, potentially not an IP Board install or bad URI.")
             end
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
           Result.new(result_opts)
