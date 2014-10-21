@@ -10,7 +10,7 @@ module Msf
 ###
 module Auxiliary::LLMNR
 
-  include Auxiliary::Scanner
+  include Auxiliary::UDPScanner
 
   #
   # Initializes an instance of an auxiliary module that uses LLMNR
@@ -20,7 +20,7 @@ module Auxiliary::LLMNR
     super
     register_options(
     [
-      Opt::RHOSTS('224.0.0.252'),
+      OptAddressRange.new('RHOSTS', [true, 'The multicast address or CIDR range of targets to query', '224.0.0.252']),
       Opt::RPORT(5355)
     ], self.class)
   end

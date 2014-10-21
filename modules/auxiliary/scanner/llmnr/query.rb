@@ -10,7 +10,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::LLMNR
-  #include Msf::Auxiliary::DRDoS
 
   def initialize(info = {})
     super(update_info(info,
