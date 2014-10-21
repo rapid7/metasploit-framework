@@ -63,11 +63,36 @@ describe 'modules/payloads' do
     end
   end
 
+  modules_pathname = Pathname.new(__FILE__).parent.parent.parent.join('modules')
+
   #
-  # lets
+  # Callbacks
   #
 
-  modules_pathname = Pathname.new(__FILE__).parent.parent.parent.join('modules')
+  before(:all) do
+    @expected_ancestor_reference_name_set = Set.new
+    @actual_ancestor_reference_name_set = Set.new
+
+    payloads_pathname = modules_pathname.join('payloads')
+
+    Dir.glob(payloads_pathname.join('**', '*.rb')) do |expected_ancestor_path|
+      expected_ancestor_pathname = Pathname.new(expected_ancestor_path)
+      expected_ancestor_reference_pathname = expected_ancestor_pathname.relative_path_from(payloads_pathname)
+      expected_ancestor_reference_name = expected_ancestor_reference_pathname.to_path.gsub(/.rb$/, '')
+
+      @expected_ancestor_reference_name_set.add(expected_ancestor_reference_name)
+    end
+  end
+
+  after(:all) do
+    missing_ancestor_reference_name_set = @expected_ancestor_reference_name_set - @actual_ancestor_reference_name_set
+
+    unless missing_ancestor_reference_name_set.empty?
+      formatted_missing_ancestor_reference_names = missing_ancestor_reference_name_set.sort.join("\n  ")
+
+      $stderr.puts "Some payloads are untested:\n  #{formatted_missing_ancestor_reference_names}"
+    end
+  end
 
   context 'aix/ppc/shell_bind_tcp' do
     it_should_behave_like 'payload can be instantiated',
