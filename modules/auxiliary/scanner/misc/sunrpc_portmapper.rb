@@ -6,22 +6,21 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SunRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
-      'Name'          => 'SunRPC Portmap Program Enumerator',
-      'Description'   => %q{
-          This module calls the target portmap service and enumerates all
-        program entries and their running port numbers.
-      },
-      'Author'	       => ['<tebo[at]attackresearch.com>'],
-      'References'	 =>
+      'Name'        => 'SunRPC Portmap Program Enumerator',
+      'Description' => '
+        This module calls the target portmap service and enumerates all program
+        entries and their running port numbers.
+      ',
+      'Author'      => ['<tebo[at]attackresearch.com>'],
+      'References'  =>
         [
-          ['URL',	'http://www.ietf.org/rfc/rfc1057.txt'],
+          ['URL',	'http://www.ietf.org/rfc/rfc1057.txt']
         ],
       'License'	=> MSF_LICENSE
     )
@@ -37,15 +36,14 @@ class Metasploit3 < Msf::Auxiliary
       procedure	= 4
 
       sunrpc_create('udp', program, progver)
-      sunrpc_authnull()
+      sunrpc_authnull
       resp = sunrpc_call(procedure, "")
 
-      progs = resp[3,1].unpack('C')[0]
+      progs = resp[3, 1].unpack('C')[0]
       maps = []
       if (progs == 0x01)
-        while XDR.decode_int!(resp) == 1 do
-          map = XDR.decode!(resp, Integer, Integer, Integer, Integer)
-          maps << map
+        while XDR.decode_int!(resp) == 1
+          maps << XDR.decode!(resp, Integer, Integer, Integer, Integer)
         end
       end
       sunrpc_destroy
@@ -53,13 +51,13 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{peer} - Found #{maps.size} programs available")
 
       table = Rex::Ui::Text::Table.new(
-        'Header'  => "SunRPC Programs for #{ip}.",
+        'Header'  => "SunRPC Programs for #{ip}",
         'Indent'  => 1,
         'Columns' => %w(Name Number Version Port Protocol)
       )
 
       maps.each do |map|
-        prog, vers, prot_num, port = map[0,4]
+        prog, vers, prot_num, port = map[0, 4]
         thing = "RPC Program ##{prog} v#{vers} on port #{port} w/ protocol #{prot_num}"
         if prot_num == 0x06
           proto = 'tcp'
@@ -73,11 +71,11 @@ class Metasploit3 < Msf::Auxiliary
         resolved = progresolv(prog)
         table << [ resolved, prog, vers, port, proto ]
         report_service(
-          :host => ip,
-          :port => port,
-          :proto => proto,
-          :name => resolved,
-          :info => "Prog: #{prog} Version: #{vers} - via portmapper"
+          host: ip,
+          port: port,
+          proto: proto,
+          name: resolved,
+          info: "Prog: #{prog} Version: #{vers} - via portmapper"
         )
       end
 
@@ -85,5 +83,4 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Rex::Proto::SunRPC::RPCTimeout
     end
   end
-
 end
