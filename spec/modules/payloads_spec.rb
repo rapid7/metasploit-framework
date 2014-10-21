@@ -89,8 +89,14 @@ describe 'modules/payloads' do
   after(:all) do
     missing_ancestor_reference_name_set = @expected_ancestor_reference_name_set - @actual_ancestor_reference_name_set
 
-    unless missing_ancestor_reference_name_set.empty?
-      open('log/untested-payloads.log', 'w') do |f|
+    untested_payloads_pathname = Pathname.new('log/untested-payloads.log')
+
+    if missing_ancestor_reference_name_set.empty?
+      if untested_payloads_pathname.exist?
+        untested_payloads_pathname.delete
+      end
+    else
+      untested_payloads_pathname.open('w') do |f|
         missing_ancestor_reference_name_set.sort.each do |missing_ancestor_reference_name|
           f.puts missing_ancestor_reference_name
         end
@@ -99,15 +105,15 @@ describe 'modules/payloads' do
       $stderr.puts "Some payloads are untested.  See log/untested-payload.log for details."
     end
   end
-  #
-  # context 'aix/ppc/shell_bind_tcp' do
-  #   it_should_behave_like 'payload can be instantiated',
-  #                         ancestor_reference_names: [
-  #                             'singles/aix/ppc/shell_bind_tcp'
-  #                         ],
-  #                         modules_pathname: modules_pathname,
-  #                         reference_name: 'aix/ppc/shell_bind_tcp'
-  # end
+
+  context 'aix/ppc/shell_bind_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                              'singles/aix/ppc/shell_bind_tcp'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'aix/ppc/shell_bind_tcp'
+  end
 
   context 'aix/ppc/shell_find_port' do
     it_should_behave_like 'payload can be instantiated',
