@@ -39,6 +39,8 @@ describe 'modules/payloads' do
     context reference_name  do
       ancestor_reference_names.each do |ancestor_reference_name|
         it "can load '#{module_type}/#{ancestor_reference_name}'" do
+          @actual_ancestor_reference_name_set.add(ancestor_reference_name)
+
           loaded = loader.load_module(modules_path, module_type, ancestor_reference_name)
 
           expect(loaded).to eq(true), "#{ancestor_reference_name} failed to load from #{modules_path}"
