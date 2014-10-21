@@ -88,4 +88,4 @@ https://github.com/rapid7/metasploit-framework/pull/[PULL REQUEST NUMBER HERE]
 2. Select label "module".
 3. In the search box, enter additional keywords related to the module. The module's title probably provides the best keywords.
 
-Note: If the module was written before Jan 2013, you WILL NOT find the pull request for it.
+Note: If the module was written before Nov 2011, you WILL NOT find the pull request for it.
