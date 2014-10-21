@@ -45,7 +45,7 @@ sudo apt-get -y install \
   ncurses-dev bison curl wget postgresql \
   postgresql-contrib libpq-dev \
   libapr1 libaprutil1 libsvn1 \
-  libpcap-dev
+  libpcap-dev libsqlite3-dev
 ````
 
 Note that this does **not** include an appropriate text editor or IDE,
