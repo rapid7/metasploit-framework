@@ -25,12 +25,11 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'License'	=> MSF_LICENSE
     )
-
-    register_options([], self.class)
   end
 
   def run_host(ip)
-    vprint_status "#{ip}:#{rport} - SunRPC - Enumerating programs"
+    peer = "#{ip}:#{rport}"
+    vprint_status "#{peer} - SunRPC - Enumerating programs"
 
     begin
       program		= 100000
@@ -44,34 +43,45 @@ class Metasploit3 < Msf::Auxiliary
       progs = resp[3,1].unpack('C')[0]
       maps = []
       if (progs == 0x01)
-        print_good("#{ip}:#{rport} - Programs available")
         while XDR.decode_int!(resp) == 1 do
           map = XDR.decode!(resp, Integer, Integer, Integer, Integer)
           maps << map
         end
       end
       sunrpc_destroy
+      return if maps.empty?
+      print_good("#{peer} - Found #{maps.size} programs available")
 
-      lines = []
+      table = Rex::Ui::Text::Table.new(
+        'Header'  => "SunRPC Programs for #{ip}.",
+        'Indent'  => 1,
+        'Columns' => %w(Name Number Version Port Protocol)
+      )
+
       maps.each do |map|
-        prog, vers, prot, port = map[0,4]
-        prot = 	if prot == 0x06; "tcp"
-          elsif prot == 0x11; "udp"
-          end
-        lines << "\t#{progresolv(prog)} - #{port}/#{prot}"
+        prog, vers, prot_num, port = map[0,4]
+        thing = "RPC Program ##{prog} v#{vers} on port #{port} w/ protocol #{prot_num}"
+        if prot_num == 0x06
+          proto = 'tcp'
+        elsif prot_num == 0x11
+          proto = 'udp'
+        else
+          print_error("#{peer}: unknown protocol number for #{thing}")
+          next
+        end
 
+        resolved = progresolv(prog)
+        table << [ resolved, prog, vers, port, proto ]
         report_service(
           :host => ip,
           :port => port,
-          :proto => prot,
-          :name => progresolv(prog),
+          :proto => proto,
+          :name => resolved,
           :info => "Prog: #{prog} Version: #{vers} - via portmapper"
         )
       end
 
-      # So we don't print a line for every program version
-      lines.uniq.each {|line| print_line(line)}
-
+      print_good(table.to_s)
     rescue ::Rex::Proto::SunRPC::RPCTimeout
     end
   end
