@@ -191,6 +191,14 @@ class Console::CommandDispatcher::Extapi::Adsi
 
 protected
 
+  #
+  # Convert an ADSI result row to a table row so that it can
+  #   be rendered to screen appropriately.
+  #
+  # @param result [Array[Hash]] Array of type/value pairs.
+  #
+  # @return [Array[String]] Renderable view of the value.
+  #
   def to_table_row(result)
     values = []
 

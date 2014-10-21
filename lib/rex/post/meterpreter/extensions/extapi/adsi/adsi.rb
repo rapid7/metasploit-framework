@@ -60,6 +60,16 @@ class Adsi
 
 protected
 
+  #
+  # Retrieve the results of the query from the response
+  #   packet that was returned from Meterpreter.
+  #
+  # @param response [Packet] Reference to the received
+  #   packet that was returned from Meterpreter.
+  #
+  # @return [Array[Array[[Hash]]] Collection of results from
+  #   the ADSI query.
+  #
   def extract_results(response)
     results = []
 
@@ -70,6 +80,15 @@ protected
     results
   end
 
+  #
+  # Extract a single row of results from a TLV group.
+  #
+  # @param tlv_container [Packet] Reference to the TLV
+  #   group to pull the values from.
+  #
+  # @return [Array[Hash]] Collection of values from
+  #   the single ADSI query result row.
+  #
   def extract_values(tlv_container)
     values = []
     tlv_container.get_tlvs(TLV_TYPE_ANY).each do |v|
@@ -78,6 +97,14 @@ protected
     values
   end
 
+  #
+  # Convert a single ADSI result value into a usable
+  #   value that also describes its type.
+  #
+  # @param v [TLV] The TLV item that contains the value.
+  #
+  # @return [Hash] The type/value pair from the TLV.
+  #
   def extract_value(v)
     value = {
       :type => :unknown
