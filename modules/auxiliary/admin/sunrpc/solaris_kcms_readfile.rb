@@ -127,6 +127,8 @@ class Metasploit3 < Msf::Auxiliary
     # done
     sunrpc_destroy
 
+  rescue ::Rex::Proto::SunRPC::RPCError => e
+    vprint_error(e.to_s)
   rescue ::Rex::Proto::SunRPC::RPCTimeout
     print_warning 'Warning: ' + $!
     print_warning 'Exploit may or may not have succeeded.'
