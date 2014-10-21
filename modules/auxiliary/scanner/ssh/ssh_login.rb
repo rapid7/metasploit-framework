@@ -47,8 +47,6 @@ class Metasploit3 < Msf::Auxiliary
       ]
     )
 
-    deregister_options('RHOST')
-
   end
 
   def rport
@@ -115,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
       host: ip,
       port: rport,
       cred_details: cred_collection,
-      proxies: proxies,
+      proxies: datastore['Proxies'],
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: datastore['SSH_TIMEOUT'],
     )

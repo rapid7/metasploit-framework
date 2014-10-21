@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Auxiliary
       port: rport,
       cred_details: keys,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
-      proxies: proxies,
+      proxies: datastore['Proxies'],
       connection_timeout: datastore['SSH_TIMEOUT'],
     )
 
