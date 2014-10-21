@@ -47,7 +47,7 @@ module Metasploit
         # (see Base#check_setup)
         def check_setup
           http_client = Rex::Proto::Http::Client.new(
-            host, port, {}, ssl, ssl_version
+            host, port, {}, ssl, ssl_version, proxies
           )
           request = http_client.request_cgi(
             'uri' => uri,
@@ -96,7 +96,7 @@ module Metasploit
 
           http_client = Rex::Proto::Http::Client.new(
             host, port, {}, ssl, ssl_version,
-            nil, credential.public, credential.private
+            proxies, credential.public, credential.private
           )
 
           http_client = config_client(http_client)
@@ -116,8 +116,8 @@ module Metasploit
             if response && response.code == 200
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           ensure
             http_client.close
           end
