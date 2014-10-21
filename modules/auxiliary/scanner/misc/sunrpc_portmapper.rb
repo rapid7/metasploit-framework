@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       progver		= 2
       procedure	= 4
 
-      sunrpc_create('udp', program, progver)
+      return unless sunrpc_create('udp', program, progver)
       sunrpc_authnull
       resp = sunrpc_call(procedure, "")
 
@@ -80,7 +80,8 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       print_good(table.to_s)
-    rescue ::Rex::Proto::SunRPC::RPCTimeout
+    rescue ::Rex::Proto::SunRPC::RPCTimeout, ::Rex::Proto::SunRPC::RPCError => e
+      vprint_error(e.to_s)
     end
   end
 end
