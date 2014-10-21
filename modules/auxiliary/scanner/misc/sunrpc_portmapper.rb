@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       sunrpc_destroy
       return if maps.empty?
-      print_good("#{peer} - Found #{maps.size} programs available")
+      vprint_good("#{peer} - Found #{maps.size} programs available")
 
       table = Rex::Ui::Text::Table.new(
         'Header'  => "SunRPC Programs for #{ip}",
