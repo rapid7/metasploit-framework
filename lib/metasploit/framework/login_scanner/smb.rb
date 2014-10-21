@@ -213,7 +213,7 @@ module Metasploit
           rescue ::Rex::Proto::SMB::Exceptions::Error => e
             status = Metasploit::Model::Login::Status::INCORRECT
             proof = e
-          rescue ::Rex::ConnectionError
+          rescue ::Rex::ConnectionError => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
           end
