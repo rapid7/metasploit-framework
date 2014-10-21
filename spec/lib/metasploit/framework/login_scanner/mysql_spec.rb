@@ -75,7 +75,7 @@ describe Metasploit::Framework::LoginScanner::MySQL do
 
         it 'returns a result with the proof containing an appropriate error message' do
           ::RbMysql.should_receive(:connect).and_raise Errno::ETIMEDOUT
-          expect(login_scanner.attempt_login(pub_pub).proof.message).to eq "Operation timed out"
+          expect(login_scanner.attempt_login(pub_pub).proof.message).to eq "Connection timed out"
         end
       end
 
