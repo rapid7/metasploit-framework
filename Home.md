@@ -30,6 +30,7 @@ to [[Setting Up a Metasploit Development Environment]].
 # Metasploit Resources #
 
 - [[Downloads by Version]]
+- [[How to use a Metasploit module appropriately]]
 - [[Evading Anti Virus]]
 - [[Loading External Modules]]
 - [[Exploit Ranking]]
