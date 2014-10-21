@@ -62,7 +62,7 @@ msf exploit(ms08_067_netapi) > set
 
 ## Find the module's pull request
 
-The Metasploit repository is hosted on Github (duh... you're on it right now), and the developers/contributors rely on it heavily for development. Before a module is made public, it is submitted as a "pull request" for final testing and review. In there, you will find pretty much everything you need to know about the module, and probably things you won't learn from reading the module's description or some random blog post. The information is like gold, really.
+The Metasploit repository is hosted on Github (duh... you're on it right now), and the developers/contributors rely on it heavily for development. Before a module is made public, it is submitted as a [pull request](https://help.github.com/articles/using-pull-requests/) for final testing and review. In there, you will find pretty much everything you need to know about the module, and probably things you won't learn from reading the module's description or some random blog post. The information is like gold, really.
 
 Things you might learn from reading a pull request:
 
