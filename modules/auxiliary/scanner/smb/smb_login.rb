@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     # more active role, so make them regular options.
     register_options(
       [
+        Opt::Proxies,
         OptString.new('SMBPass', [ false, "SMB Password" ]),
         OptString.new('SMBUser', [ false, "SMB Username" ]),
         OptString.new('SMBDomain', [ false, "SMB Domain", '' ]),

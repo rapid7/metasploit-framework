@@ -38,6 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         Opt::RPORT(5900),
         OptString.new('PASSWORD', [ false, 'The password to test' ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",

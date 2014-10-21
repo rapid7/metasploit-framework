@@ -27,6 +27,11 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '1999-0502'] # Weak password
         ]
     ))
+
+    register_options(
+      [
+        Opt::Proxies
+      ], self.class)
   end
 
   def target

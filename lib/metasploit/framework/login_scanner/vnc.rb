@@ -72,7 +72,7 @@ module Metasploit
                 status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
               )
             end
-          rescue ::EOFError, Errno::ENOTCONN, Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ENOTCONN, Rex::ConnectionError, ::Timeout::Error => e
             result_options.merge!(
                 proof: e.message,
                 status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
