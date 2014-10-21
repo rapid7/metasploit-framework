@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         Opt::RPORT(22),
         OptPath.new('USER_FILE',
                     [true, 'File containing usernames, one per line', nil]),
