@@ -26,10 +26,9 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-        Opt::RHOST('224.0.0.252'),
         OptString.new('NAME', [ true, 'The name to query', 'localhost' ]),
-        OptInt.new('TYPE', [ true, 'The query type', 1 ]),
-        OptInt.new('CLASS', [ true, 'The query class', 1 ])
+        OptInt.new('TYPE', [ true, 'The query type #', 255 ]),
+        OptInt.new('CLASS', [ true, 'The query class #', 1 ])
       ], self.class)
   end
 

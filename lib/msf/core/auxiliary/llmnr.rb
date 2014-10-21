@@ -20,7 +20,8 @@ module Auxiliary::LLMNR
     super
     register_options(
     [
-      Opt::RPORT(5355),
+      Opt::RHOSTS('224.0.0.252'),
+      Opt::RPORT(5355)
     ], self.class)
   end
 end
