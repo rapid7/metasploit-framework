@@ -5,6 +5,7 @@ module Metasploit
     module MSSQL
 
       module Client
+        extend ActiveSupport::Concern
         include Metasploit::Framework::Tcp::Client
 
         NTLM_CRYPT = Rex::Proto::NTLM::Crypt
