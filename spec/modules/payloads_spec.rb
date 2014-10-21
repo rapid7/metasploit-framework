@@ -1660,8 +1660,8 @@ describe 'modules/payloads' do
   context 'osx/x86/bundleinject/bind_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/osx/bundleinject',
-                              'stagers/osx/x86/bind_tcp'
+                              'stagers/osx/x86/bind_tcp',
+                              'stages/osx/x86/bundleinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/bundleinject/bind_tcp'
@@ -1670,8 +1670,8 @@ describe 'modules/payloads' do
   context 'osx/x86/bundleinject/reverse_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/osx/bundleinject',
-                              'stagers/osx/x86/reverse_tcp'
+                              'stagers/osx/x86/reverse_tcp',
+                              'stages/osx/x86/bundleinject',
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'osx/x86/bundleinject/reverse_tcp'
@@ -2040,8 +2040,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/bind_ipv6_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/bind_ipv6_tcp'
+                              'stagers/windows/bind_ipv6_tcp',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_ipv6_tcp'
@@ -2050,8 +2050,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/bind_nonx_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/bind_nonx_tcp'
+                              'stagers/windows/bind_nonx_tcp',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_nonx_tcp'
@@ -2060,8 +2060,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/bind_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/bind_tcp'
+                              'stagers/windows/bind_tcp',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_tcp'
@@ -2070,8 +2070,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/bind_tcp_rc4' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/bind_tcp_rc4'
+                              'stagers/windows/bind_tcp_rc4',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_tcp_rc4'
@@ -2080,8 +2080,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/find_tag' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/findtag_ord'
+                              'stagers/windows/findtag_ord',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/find_tag'
@@ -2090,8 +2090,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_hop_http' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_hop_http'
+                              'stagers/windows/reverse_hop_http',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_hop_http'
@@ -2100,8 +2100,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_http' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_http'
+                              'stagers/windows/reverse_http',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_http'
@@ -2110,8 +2110,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_ipv6_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_ipv6_tcp'
+                              'stagers/windows/reverse_ipv6_tcp',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_ipv6_tcp'
@@ -2120,8 +2120,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_nonx_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_nonx_tcp'
+                              'stagers/windows/reverse_nonx_tcp',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_nonx_tcp'
@@ -2130,8 +2130,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_ord_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_ord_tcp'
+                              'stagers/windows/reverse_ord_tcp',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_ord_tcp'
@@ -2140,8 +2140,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_tcp'
+                              'stagers/windows/reverse_tcp',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp'
@@ -2150,8 +2150,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_tcp_allports' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_tcp_allports'
+                              'stagers/windows/reverse_tcp_allports',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp_allports'
@@ -2160,8 +2160,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_tcp_dns' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_tcp_dns'
+                              'stagers/windows/reverse_tcp_dns',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp_dns'
@@ -2170,8 +2170,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_tcp_rc4' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_tcp_rc4'
+                              'stagers/windows/reverse_tcp_rc4',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp_rc4'
@@ -2180,8 +2180,8 @@ describe 'modules/payloads' do
   context 'windows/dllinject/reverse_tcp_rc4_dns' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/reflectivedllinject',
-                              'stagers/windows/reverse_tcp_rc4_dns'
+                              'stagers/windows/reverse_tcp_rc4_dns',
+                              'stages/windows/dllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/reverse_tcp_rc4_dns'
@@ -2208,7 +2208,7 @@ describe 'modules/payloads' do
   context 'windows/exec' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/exec'
+                              'singles/windows/exec'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/exec'
@@ -2217,7 +2217,7 @@ describe 'modules/payloads' do
   context 'windows/loadlibrary' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/loadlibrary'
+                              'singles/windows/loadlibrary'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/loadlibrary'
@@ -2423,8 +2423,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/bind_ipv6_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/bind_ipv6_tcp'
+                              'stagers/windows/bind_ipv6_tcp',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_ipv6_tcp'
@@ -2433,8 +2433,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/bind_nonx_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/bind_nonx_tcp'
+                              'stagers/windows/bind_nonx_tcp',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_nonx_tcp'
@@ -2443,8 +2443,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/bind_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/bind_tcp'
+                              'stagers/windows/bind_tcp',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_tcp'
@@ -2453,8 +2453,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/bind_tcp_rc4' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/bind_tcp_rc4'
+                              'stagers/windows/bind_tcp_rc4',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_tcp_rc4'
@@ -2463,8 +2463,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/find_tag' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/findtag_ord'
+                              'stagers/windows/findtag_ord',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/find_tag'
@@ -2473,8 +2473,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/reverse_ipv6_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/reverse_ipv6_tcp'
+                              'stagers/windows/reverse_ipv6_tcp',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_ipv6_tcp'
@@ -2483,8 +2483,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/reverse_nonx_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/reverse_nonx_tcp'
+                              'stagers/windows/reverse_nonx_tcp',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_nonx_tcp'
@@ -2493,8 +2493,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/reverse_ord_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/reverse_ord_tcp'
+                              'stagers/windows/reverse_ord_tcp',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_ord_tcp'
@@ -2503,8 +2503,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/reverse_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/reverse_tcp'
+                              'stagers/windows/reverse_tcp',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp'
@@ -2513,8 +2513,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/reverse_tcp_allports' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/reverse_tcp_allports'
+                              'stagers/windows/reverse_tcp_allports',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp_allports'
@@ -2523,8 +2523,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/reverse_tcp_dns' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/reverse_tcp_dns'
+                              'stagers/windows/reverse_tcp_dns',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp_dns'
@@ -2533,8 +2533,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/reverse_tcp_rc4' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/reverse_tcp_rc4'
+                              'stagers/windows/reverse_tcp_rc4',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp_rc4'
@@ -2543,8 +2543,8 @@ describe 'modules/payloads' do
   context 'windows/patchupdllinject/reverse_tcp_rc4_dns' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
-                              '../../lib/msf/core/payload/windows/dllinject',
-                              'stagers/windows/reverse_tcp_rc4_dns'
+                              'stagers/windows/reverse_tcp_rc4_dns',
+                              'stages/windows/patchupdllinject'
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/reverse_tcp_rc4_dns'
