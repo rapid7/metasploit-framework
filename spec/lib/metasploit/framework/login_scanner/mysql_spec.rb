@@ -51,7 +51,7 @@ describe Metasploit::Framework::LoginScanner::MySQL do
 
         it 'returns a result with the proof containing an appropriate error message' do
           ::RbMysql.should_receive(:connect).and_raise Errno::ECONNREFUSED
-          expect(login_scanner.attempt_login(pub_pub).proof.message).to eq "Connection refused"
+          expect(login_scanner.attempt_login(pub_pub).proof).to be_a(Errno::ECONNREFUSED)
         end
       end
 
@@ -63,7 +63,7 @@ describe Metasploit::Framework::LoginScanner::MySQL do
 
         it 'returns a result with the proof containing an appropriate error message' do
           ::RbMysql.should_receive(:connect).and_raise RbMysql::ClientError
-          expect(login_scanner.attempt_login(pub_pub).proof.message).to eq "RbMysql::ClientError"
+          expect(login_scanner.attempt_login(pub_pub).proof).to be_a(RbMysql::ClientError)
         end
       end
 
@@ -75,7 +75,7 @@ describe Metasploit::Framework::LoginScanner::MySQL do
 
         it 'returns a result with the proof containing an appropriate error message' do
           ::RbMysql.should_receive(:connect).and_raise Errno::ETIMEDOUT
-          expect(login_scanner.attempt_login(pub_pub).proof.message).to eq "Connection timed out"
+          expect(login_scanner.attempt_login(pub_pub).proof).to be_a(Errno::ETIMEDOUT)
         end
       end
 
@@ -87,7 +87,7 @@ describe Metasploit::Framework::LoginScanner::MySQL do
 
         it 'returns a result with the proof containing an appropriate error message' do
           ::RbMysql.should_receive(:connect).and_raise RbMysql::HostNotPrivileged, "Host not privileged"
-          expect(login_scanner.attempt_login(pub_pub).proof.message).to eq "Host not privileged"
+          expect(login_scanner.attempt_login(pub_pub).proof).to be_a(RbMysql::HostNotPrivileged)
         end
       end
 
@@ -99,7 +99,7 @@ describe Metasploit::Framework::LoginScanner::MySQL do
 
         it 'returns a result with the proof containing an appropriate error message' do
           ::RbMysql.should_receive(:connect).and_raise RbMysql::AccessDeniedError, "Access Denied"
-          expect(login_scanner.attempt_login(pub_pub).proof.message).to eq "Access Denied"
+          expect(login_scanner.attempt_login(pub_pub).proof).to be_a(RbMysql::AccessDeniedError)
         end
       end
     end
