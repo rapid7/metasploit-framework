@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -27,6 +27,11 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '1999-0502'] # Weak password
         ]
     ))
+
+    register_options(
+      [
+        Opt::Proxies
+      ], self.class)
   end
 
   def target

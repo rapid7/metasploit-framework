@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -37,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         Opt::RPORT(21),
         OptBool.new('RECORD_GUEST', [ false, "Record anonymous/guest logins to the database", false])
       ], self.class)

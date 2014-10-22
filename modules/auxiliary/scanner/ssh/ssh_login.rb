@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -46,8 +46,6 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
       ]
     )
-
-    deregister_options('RHOST')
 
   end
 
@@ -115,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
       host: ip,
       port: rport,
       cred_details: cred_collection,
-      proxies: proxies,
+      proxies: datastore['Proxies'],
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: datastore['SSH_TIMEOUT'],
     )
