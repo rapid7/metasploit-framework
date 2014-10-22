@@ -175,8 +175,7 @@ class Metasploit3 < Msf::Post
           aborted = true if !ret.empty?
         end
         if aborted
-          print_error('Error: Unable to execute the following command:')
-          print_error(cmd.inspect)
+          print_error('Error: Unable to execute the following command: ' + cmd.inspect)
           print_error('Output: ' + ret.inspect) if ret && !ret.empty?
           break
         end
