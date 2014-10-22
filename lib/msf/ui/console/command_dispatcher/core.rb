@@ -45,7 +45,7 @@ class Core
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
     "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
+    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -1787,20 +1787,32 @@ class Core
         end
 
       when 'upexec'
-        if ((session = framework.sessions.get(sid)))
-          if (session.interactive?)
-            if (session.type == "shell") # XXX: check for windows?
-              session.init_ui(driver.input, driver.output)
-              session.execute_script('spawn_meterpreter', nil)
-              session.reset_ui
+        session_list = build_sessions_array(sid)
+        print_status("Executing 'post/multi/manage/shell_to_meterpreter' on session(s): #{session_list}")
+        session_list.each do |sess|
+          if ((session = framework.sessions.get(sess)))
+            if (session.interactive?)
+              if (session.type == "shell")
+                session.init_ui(driver.input, driver.output)
+                session.execute_script('post/multi/manage/shell_to_meterpreter')
+                session.reset_ui
+              else
+                print_error("Session #{sess} is not a command shell session, skipping...")
+                next
+              end
             else
-              print_error("Session #{sid} is not a command shell session.")
+              print_error("Session #{sess} is non-interactive, skipping...")
+              next
             end
           else
-            print_error("Session #{sid} is non-interactive.")
+            print_error("Invalid session identifier: #{sess}")
+            next
           end
-        else
-          print_error("Invalid session identifier: #{sid}")
+
+          if session_list.count > 1
+            print_status("Sleeping 5 seconds to allow the previous handler to finish..")
+            sleep(5)
+          end
         end
 
       when 'reset_ring'
@@ -3342,6 +3354,27 @@ class Core
     finish = line_num + after
     return all_lines.slice(start..finish)
   end
+
+  # Generate an array of session IDs when presented with input such as '1' or  '1,2,4-6,10' or '1,2,4..6,10'
+  def build_sessions_array(sid_list)
+    session_list = Array.new
+    temp_list = sid_list.split(",")
+
+    temp_list.each do |ele|
+      if ele.include? '-'
+        temp_array = (ele.split("-").inject {|s,e| s.to_i..e.to_i}).to_a
+        session_list.concat(temp_array)
+      elsif ele.include? '..'
+        temp_array = (ele.split("..").inject {|s,e| s.to_i..e.to_i}).to_a
+        session_list.concat(temp_array)
+      else
+        session_list.push(ele.to_i)
+      end
+    end
+
+    return session_list.uniq.sort
+  end
+
 end
 
 
