@@ -63,8 +63,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def scanner_postscan(_batch)
     @results.keys.each do |k|
-      resp = ::Net::DNS::Packet.parse(k)
-      print_good("#{k} responded with #{resp.inspect}")
+      resps.each do |resp|
+        print_good("#{k} responded with #{::Net::DNS::Packet.parse(resp)}")
+      end
     end
   end
 end
