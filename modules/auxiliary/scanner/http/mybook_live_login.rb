@@ -37,10 +37,7 @@ class Metasploit3 < Msf::Auxiliary
             blank_passwords: datastore['BLANK_PASSWORDS'],
             pass_file: datastore['PASS_FILE'],
             password: datastore['PASSWORD'],
-            user_file: datastore['USER_FILE'],
-            userpass_file: datastore['USERPASS_FILE'],
-            username: 'admin',
-            user_as_pass: datastore['USER_AS_PASS']
+            username: 'admin'
     )
 
     scanner = Metasploit::Framework::LoginScanner::MyBookLive.new(

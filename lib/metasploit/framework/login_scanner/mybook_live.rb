@@ -45,7 +45,7 @@ module Metasploit
             if res && res.code == 302 && res.headers['location'] && res.headers['location'].include?('UI')
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.headers)
             elsif res.nil?
-              result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT)
+              result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: 'No response')
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res.headers)
             end
