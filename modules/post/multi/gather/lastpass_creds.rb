@@ -164,7 +164,6 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    #found_dbs_map.delete_if { |account, browser_map paths.empty? }
     found_dbs_map
   end
 
@@ -220,20 +219,22 @@ class Metasploit3 < Msf::Post
   def file_paths(path, browser, account)
     found_dbs_paths = []
 
+    files = []
     if directory?(path)
+      sep = session.platform =~ /win/ ? '\\' : '/'
       if session.type == "meterpreter"
         files = client.fs.dir.entries(path)
-        files.each do |file_path|
-          found_dbs_paths.push(File.join(path, file_path)) if file_path != '.' &&  file_path != '..'
-        end
       elsif session.type == "shell"
         files = session.shell_command("ls \"#{path}\"").split
-        files.each do |file_path|
-          found_dbs_paths.push(File.join(path, file_path)) if file_path != 'Shared'
-        end
       else
         print_error "Session type not recognized: #{session.type}"
         return found_dbs_paths
+      end
+    end
+
+    files.each do |file_path|
+      unless %w(. .. Shared).include?(file_path)
+        found_dbs_paths.push([path, file_path].join(sep))
       end
     end
 
@@ -245,6 +246,7 @@ class Metasploit3 < Msf::Post
     found_dbs_paths = []
 
     if directory?(path)
+      sep = session.platform =~ /win/ ? '\\' : '/'
       if session.type == "meterpreter"
         files = client.fs.dir.entries(path)
       elsif session.type == "shell"
@@ -256,7 +258,7 @@ class Metasploit3 < Msf::Post
 
       files.reject! { |file| %w(. ..).include?(file) }
       files.each do |file_path|
-        found_dbs_paths.push(File.join(path, file_path, 'prefs.js')) if file_path.match(/.*\.default/)
+        found_dbs_paths.push([path, file_path, 'prefs.js'].join(sep)) if file_path.match(/.*\.default/)
       end
     end
 
