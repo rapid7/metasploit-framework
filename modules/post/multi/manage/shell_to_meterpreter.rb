@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Post
     # Return if the job has already finished
     return nil if framework.jobs[listener_job_id].nil?
 
-    Thread.new do
+    framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) {
       if !aborted
         timer = 0
         while !framework.jobs[listener_job_id].nil? && timer < 10
@@ -211,7 +211,7 @@ class Metasploit3 < Msf::Post
       end
       print_status('Stopping multi/handler')
       framework.jobs.stop_job(listener_job_id)
-    end
+    }
   end
 
   #
