@@ -56,7 +56,6 @@ module Metasploit
             # Create our VNC client overtop of the socket
             vnc = Rex::Proto::RFB::Client.new(sock, :allow_none => false)
 
-
             if vnc.handshake
               if vnc_auth(vnc,credential.private)
                 result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
@@ -77,6 +76,8 @@ module Metasploit
                 proof: e.message,
                 status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             )
+          ensure
+            disconnect
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

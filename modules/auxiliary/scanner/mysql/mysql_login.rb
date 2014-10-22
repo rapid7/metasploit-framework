@@ -60,7 +60,9 @@ class Metasploit3 < Msf::Auxiliary
             proxies: datastore['PROXIES'],
             cred_details: cred_collection,
             stop_on_success: datastore['STOP_ON_SUCCESS'],
-            connection_timeout: 30
+            connection_timeout: 30,
+            max_send_size: datastore['TCP::max_send_size'],
+            send_delay: datastore['TCP::send_delay'],
         )
 
         scanner.scan! do |result|
@@ -74,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
             credential_data[:core] = credential_core
             create_credential_login(credential_data)
 
-            print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+            print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
           else
             invalidate_login(credential_data)
             vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

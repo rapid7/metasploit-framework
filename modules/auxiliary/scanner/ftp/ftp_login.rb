@@ -75,6 +75,8 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
         connection_timeout: 30
     )
 
