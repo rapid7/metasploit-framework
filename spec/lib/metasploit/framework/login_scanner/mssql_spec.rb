@@ -35,6 +35,7 @@ describe Metasploit::Framework::LoginScanner::MSSQL do
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: true
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
   it_behaves_like 'Metasploit::Framework::LoginScanner::NTLM'
+  it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
   it { should respond_to :windows_authentication }
 
