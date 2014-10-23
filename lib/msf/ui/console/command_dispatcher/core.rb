@@ -41,7 +41,7 @@ class Core
     "-v" => [ false, "List verbose fields"                            ],
     "-q" => [ false, "Quiet mode"                                     ],
     "-d" => [ true,  "Detach an interactive session"                  ],
-    "-k" => [ true,  "Terminate session"                              ],
+    "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
     "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
@@ -1708,11 +1708,15 @@ class Core
         end
 
       when 'kill'
-        if ((session = framework.sessions.get(sid)))
-          print_status("Killing session #{sid}")
-          session.kill
-        else
-          print_error("Invalid session identifier: #{sid}")
+        session_list = build_sessions_array(sid)
+        print_status("Killing the following session(s): #{session_list}")
+        session_list.each do |sess|
+          if ((session = framework.sessions.get(sess)))
+            print_status("Killing session #{sess}")
+            session.kill
+          else
+            print_error("Invalid session identifier: #{sess}")
+          end
         end
 
       when 'killall'
