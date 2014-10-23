@@ -5,10 +5,6 @@ describe 'modules/payloads' do
 
   include_context 'untested payloads', modules_pathname: modules_pathname
 
-  #
-  # Callbacks
-  #
-
   context 'aix/ppc/shell_bind_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
