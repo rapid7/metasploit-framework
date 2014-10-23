@@ -1,3 +1,43 @@
+# @note Requires use of 'untested payloads' shared context for tracking of `@actual_ancestor_reference_name_set`.
+#
+# Tests that the `:ancestor_reference_names` can be loaded from `:modules_pathname` and once the ancestors are loaded
+# that `:reference_name` can be instantiated.
+#
+# @example Using 'payload can be instantiated' with `Metasploit::Framework::Spec::UntestedPayloads.define_task` and 'untested payloads' shared context
+#   # Rakefile
+#   require 'metasploit/framework/spec/untested_payloads'
+#
+#   # defined spec task with rspec-rails
+#   My::Application.load_tasks
+#   # extends spec task to fail when there are untested payloads
+#   Metasploit::Framework::Spec::UntestedPayloads.define_task
+#
+#   # spec/modules/payloads_spec.rb
+#   require 'spec_helper'
+#
+#   describe 'modules/payloads' do
+#      modules_pathname = Pathname.new(__FILE__).parent.parent.parent.join('modules')
+#
+#      include_context 'untested payloads', modules_pathname: modules_pathname
+#
+#      context 'my/staged/payload/handler' do
+#        it_should_behave_like 'payload can be instantiated',
+#                              ancestor_reference_names: [
+#                                'stages/my/payload',
+#                                'stagers/my/payload/handler'
+#                              ],
+#                              modules_pathname: modules_pathname,
+#                              reference_name: 'my/staged/payload/handler'
+#      end
+#   end
+#
+# @param options [Hash{Symbol => Array<String>, Pathname, String}]
+# @option options [Array<String>] :ancestor_reference_names The reference names of the payload modules that are included
+#   in {Msf::Payload} to make the `:reference_name` payload.
+# @option options [Pathname] :modules_pathname The `modules` directory from which to load `:ancestor_reference_names`.
+# @option options [String] :reference_name The reference name for payload class that should be instantiated from mixing
+#   `:ancestor_reference_names`.
+# @return [void]
 shared_examples_for 'payload can be instantiated' do |options|
   options.assert_valid_keys(:ancestor_reference_names, :modules_pathname, :reference_name)
 
