@@ -33,10 +33,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def setup
+    super
     # They must select at least blank passwords, provide a pass file or a password
     one_required = %w(BLANK_PASSWORDS PASS_FILE PASSWORD)
-    unless one_required.any? { |o| datastore[o] }
+    unless one_required.any? { |o| datastore.has_key?(o) && datastore[o] }
       fail_with(Failure::BadConfig, "Invalid options: One of #{one_required.join(', ')} must be set")
+    end
+    if !datastore['PASS_FILE']
+      if !datastore['BLANK_PASSWORDS'] && datastore['PASSWORD'].blank?
+        fail_with(Failure::BadConfig, "PASSWORD or PASS_FILE must be set to a non-empty string if not BLANK_PASSWORDS")
+      end
     end
   end
 

@@ -33,13 +33,14 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
           begin
-            body = "data[Login][owner_name]=admin&data[Login][owner_passwd]=#{credential.private}"
+            cred = Rex::Text.uri_encode(credential.private)
+            body = "data%5BLogin%5D%5Bowner_name%5D=admin&data%5BLogin%5D%5Bowner_passwd%5D=#{cred}"
             cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version)
             cli.connect
             req = cli.request_cgi(
               'method' => 'POST',
               'uri' => '/UI/login',
-              'data' => Rex::Text.uri_encode(body)
+              'data' => body
             )
             res = cli.send_recv(req)
             if res && res.code == 302 && res.headers['location'] && res.headers['location'].include?('UI')
