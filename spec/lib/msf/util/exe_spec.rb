@@ -25,7 +25,7 @@ describe Msf::Util::EXE do
   end
 
   describe '.is_eicar_corrupted?' do
-    it 'returns true' do
+    it 'returns false' do
       expect(described_class.is_eicar_corrupted?).to be_false
     end
   end
