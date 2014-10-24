@@ -1931,15 +1931,19 @@ to_linux_x86_elf(framework, code, exeopts)
   # EICAR Canary: https://www.metasploit.com/redmine/projects/framework/wiki/EICAR
   #
   def self.is_eicar_corrupted?
-    path = ::File.expand_path(::File.join(::File.dirname(__FILE__), "..", "..", "..", "data", "eicar.com"))
-    ret = true
+    path = ::File.expand_path(::File.join(
+      ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
+    )
+    return true unless ::File.exists?(path)
+    ret = false
     if ::File.exists?(path)
       begin
         data = ::File.read(path)
         unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"
-          ret = false
+          ret = true
         end
       rescue ::Exception
+        ret = true
       end
     end
     ret
