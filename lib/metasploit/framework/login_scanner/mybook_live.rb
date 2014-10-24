@@ -22,10 +22,10 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
-              credential: credential,
-              host: host,
-              port: port,
-              protocol: 'tcp'
+            credential: credential,
+            host: host,
+            port: port,
+            protocol: 'tcp'
           }
           if ssl
             result_opts[:service_name] = 'https'
@@ -33,14 +33,15 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
           begin
-            body = "data%5BLogin%5D%5Bowner_name%5D=admin&data%5BLogin%5D%5Bowner_passwd%5D=#{Rex::Text.uri_encode(credential.private)}"
+            cred = Rex::Text.uri_encode(credential.private)
+            body = "data%5BLogin%5D%5Bowner_name%5D=admin&data%5BLogin%5D%5Bowner_passwd%5D=#{cred}"
             cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version)
             cli.connect
-            req = cli.request_cgi({
+            req = cli.request_cgi(
               'method' => 'POST',
               'uri' => '/UI/login',
               'data' => body
-            })
+            )
             res = cli.send_recv(req)
             if res && res.code == 302 && res.headers['location'] && res.headers['location'].include?('UI')
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.headers)

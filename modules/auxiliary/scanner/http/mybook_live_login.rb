@@ -27,17 +27,31 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
 
     register_autofilter_ports([ 80 ])
-    
-    #username is hardcoded into application
+
+    # username is hardcoded into application
     deregister_options('RHOST', 'USERNAME', 'USER_FILE', 'USER_AS_PASS', 'DB_ALL_USERS')
+  end
+
+  def setup
+    super
+    # They must select at least blank passwords, provide a pass file or a password
+    one_required = %w(BLANK_PASSWORDS PASS_FILE PASSWORD)
+    unless one_required.any? { |o| datastore.has_key?(o) && datastore[o] }
+      fail_with(Failure::BadConfig, "Invalid options: One of #{one_required.join(', ')} must be set")
+    end
+    if !datastore['PASS_FILE']
+      if !datastore['BLANK_PASSWORDS'] && datastore['PASSWORD'].blank?
+        fail_with(Failure::BadConfig, "PASSWORD or PASS_FILE must be set to a non-empty string if not BLANK_PASSWORDS")
+      end
+    end
   end
 
   def run_host(ip)
     cred_collection = Metasploit::Framework::CredentialCollection.new(
-            blank_passwords: datastore['BLANK_PASSWORDS'],
-            pass_file: datastore['PASS_FILE'],
-            password: datastore['PASSWORD'],
-            username: 'admin'
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      username: 'admin'
     )
 
     scanner = Metasploit::Framework::LoginScanner::MyBookLive.new(
@@ -59,8 +73,8 @@ class Metasploit3 < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: fullname,
-          workspace_id: myworkspace_id
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
       )
       if result.success?
         credential_core = create_credential(credential_data)
@@ -70,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
         invalidate_login(credential_data)
-        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
+        vprint_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
   end
