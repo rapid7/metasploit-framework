@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         This module provides a DNS service that redirects
       all queries to a particular address.
       },
-      'Author'      => ['ddz', 'hdm'],
+      'Author'      => ['ddz', 'hdm', 'Fatih Ozavci <viproy.com/fozavci> (only for IN::SRV)'],
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
@@ -181,6 +181,21 @@ class Metasploit3 < Msf::Auxiliary
           ar = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
           request.add_answer(name, 60, ns)
           request.add_additional(name, 60, ar)
+
+        when 'IN::SRV'
+          res = Resolv::DNS.new().getresources(Resolv::DNS::Name.create("#{name}"),Resolv::DNS::Resource::IN::SRV)
+          host = res[0].target
+          port = res[0].port.to_i
+          weight = res[0].weight.to_i
+          priority = res[0].priority.to_i
+          host_ip = Resolv::DNS.new().getaddress(host).to_s
+          srv = Resolv::DNS::Resource::IN::SRV.new(priority,weight,port,Resolv::DNS::Name.create(host))
+          ns = Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
+          ar = Resolv::DNS::Resource::IN::A.new(host_ip)
+          request.add_answer(name, 10, srv)
+          request.add_authority(name, 60, ns)
+          request.add_additional(Resolv::DNS::Name.create(host), 60, ar)
+
         when 'IN::PTR'
           soa = Resolv::DNS::Resource::IN::SOA.new(
             Resolv::DNS::Name.create("ns.internet.com"),
