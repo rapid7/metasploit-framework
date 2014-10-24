@@ -31,9 +31,11 @@ module Banner
   # Returns a random metasploit logo.
   #
   def self.readfile(fname)
-    base = File.expand_path(File.dirname(__FILE__))
-    pathname = File.join(base, "logos", fname)
-    fdata = "<< Missing banner: #{fname} >>"
+    pathname = fname
+    unless File.absolute_path(pathname) == pathname
+      pathname = File.join(::Msf::Config.logos_directory, fname)
+    end
+    fdata = "<< Missing banner: #{pathname} >>"
     begin
       raise ArgumentError unless File.readable?(pathname)
       raise ArgumentError unless File.stat(pathname).size < 4096
