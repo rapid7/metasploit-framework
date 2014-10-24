@@ -676,12 +676,9 @@ require 'msf/core/exe/segment_injector'
     set_template_default(opts, "template_armle_darwin.bin")
 
     mo = self.get_file_contents(opts[:template])
-    puts "mo is #{mo.class}:len #{mo.length}"
     bo = self.find_payload_tag(mo, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag")
-    puts "bo is #{bo.class}:#{bo.to_s}"
     mo[bo, code.length] = code
-    puts "mo after is #{mo.class}:#{mo.to_s}:#{mo.length}"
-    return mo
+    mo
   end
 
   def self.to_osx_ppc_macho(framework, code, opts = {})
@@ -1864,7 +1861,7 @@ to_linux_x86_elf(framework, code, exeopts)
         end
       end
     when 'macho', 'osx-app'
-      case arch
+      macho = case arch
       when ARCH_X86,nil
         to_osx_x86_macho(framework, code, exeopts)
       when ARCH_X86_64
@@ -1876,7 +1873,7 @@ to_linux_x86_elf(framework, code, exeopts)
       when ARCH_PPC
         to_osx_ppc_macho(framework, code, exeopts)
       end
-      Msf::Util::EXE.to_osx_app(output) if fmt == 'osx-app'
+      fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho
     when 'vba'
       Msf::Util::EXE.to_vba(framework, code, exeopts)
     when 'vba-exe'
@@ -1957,7 +1954,7 @@ to_linux_x86_elf(framework, code, exeopts)
   def self.find_payload_tag(mo, err_msg)
     bo = mo.index('PAYLOAD:')
     unless bo
-      raise RuntimeError, "Invalid OSX PPC Mach-O template: missing \"PAYLOAD:\" tag"
+      raise RuntimeError, err_msg
     end
     bo
   end
