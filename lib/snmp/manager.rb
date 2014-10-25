@@ -63,11 +63,8 @@ class RexUDPTransport
         rescue NoMethodError
             @socket.send(data, 0, host, port)
         rescue ::Errno::EISCONN
-            @socket.close
-            @socket = UDPSocket.open
-            @socket.send(data,0,host,port)
+            @socket.write(data)
         end
-
     end
 
     def recv(max_bytes)
@@ -719,4 +716,3 @@ class TrapListener
 end
 
 end
-
