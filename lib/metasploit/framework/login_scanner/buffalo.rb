@@ -47,7 +47,7 @@ module Metasploit
             })
             res = cli.send_recv(req)
             body = JSON.parse(res.body)
-            if res && body.has_key?('data') && body['data'].length && body['data'][0]['pageMode'] == 0
+            if res && body.has_key?('success') && body['success']
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.body)
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
