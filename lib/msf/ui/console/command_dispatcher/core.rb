@@ -1711,7 +1711,8 @@ class Core
         session_list = build_sessions_array(sid)
         print_status("Killing the following session(s): #{session_list}")
         session_list.each do |sess|
-          if ((session = framework.sessions.get(sess)))
+          session = framework.sessions.get(sess)
+          if session
             print_status("Killing session #{sess}")
             session.kill
           else
