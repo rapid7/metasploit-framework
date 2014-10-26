@@ -120,10 +120,8 @@ class Metasploit3 < Msf::Auxiliary
 
     # Report output
     print_good("#{peer} - Command completed successfuly!")
-    if datastore['VERBOSE']
-      print_status("Output for \"#{datastore['COMMAND']}\":")
-      print_line("#{output}")
-    end
+    vprint_status("Output for \"#{datastore['COMMAND']}\":")
+    vprint_line("#{output}")
 
     report_note(
       :rhost => datastore['RHOSTS'], 
