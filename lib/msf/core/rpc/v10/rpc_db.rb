@@ -140,6 +140,42 @@ public
     invalidate_login(opts)
   end
 
+  def rpc_creds(xopts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      ret = {}
+      ret[:creds] = []
+      opts, wspace = init_db_opts_workspace(xopts)
+      limit = opts.delete(:limit) || 100
+      offset = opts.delete(:offset) || 0
+      query = Metasploit::Credential::Core.where(
+        workspace_id: wspace
+      ).offset(offset).limit(limit)
+      query.each do |cred|
+        host = ''
+        port = 0
+        proto = ''
+        sname = ''
+        unless cred.logins.empty?
+          login = cred.logins.first
+          host = login.service.host.address.to_s
+          sname = login.service.name.to_s if login.service.name.present?
+          port = login.service.port.to_i
+          proto = login.service.proto.to_s
+        end
+        ret[:creds] << {
+                :user => cred.public.username.to_s,
+                :pass => cred.private.data.to_s,
+                :updated_at => cred.private.updated_at.to_i,
+                :type => cred.private.type.to_s,
+                :host => host,
+                :port => port,
+                :proto => proto,
+                :sname => sname}
+      end
+      ret
+    }
+  end
+
   def rpc_hosts(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
