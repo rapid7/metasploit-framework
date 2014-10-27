@@ -26,8 +26,14 @@ Same thing for VNC, remote desktop, or other remote admin tools, etc.
 When you generate a reverse shell, you must know how to configure the following:
 
 * **LHOST** - This is the IP address you want your target machine to connect to, literally. If you're in a local area network, it is very unlike your target machine can reach you unless you both are in the same network. In that case, you will have to [find out your public-facing IP address](https://www.google.com/webhp?q=ip#q=ip), and then configure your network to port-forward that connection to your box. LHOST should not be "localhost", or "0.0.0.0", or "127.0.0.1", basically if you do, you're basically telling the target machine to connect to itself.
-* **LPORT** - This is the port listening on attacker's box.
+* **LPORT** - This the port you want your target machine to connect to.
 
-When you set up a listener for the reverse shell
+When you set up a listener for the reverse shell, you also at least need to configure LHOST and LPORT, but slightly different meanings (different perspective):
+
+* **LHOST** - This is the IP address you want your listener to bind to.
+* **LPORT** - This is the port you want your listener to bind to.
+
+You should make sure the listener has started first before executing the reverse shell.
 
 ## Demonstration
+
