@@ -35,7 +35,7 @@ Same thing for VNC, remote desktop, or other remote admin tools, etc.
 
 ## How to set up for a reverse shell during payload generation
 
-When you generate a reverse shell, you must know how to configure the following:
+When you generate a reverse shell with either msfpayload or msfvenom, you must know how to configure the following:
 
 * **LHOST** - This is the IP address you want your target machine to connect to, literally. If you're in a local area network, it is very unlike your target machine can reach you unless you both are in the same network. In that case, you will have to [find out your public-facing IP address](https://www.google.com/webhp?q=ip#q=ip), and then configure your network to port-forward that connection to your box. LHOST should not be "localhost", or "0.0.0.0", or "127.0.0.1", basically if you do, you're basically telling the target machine to connect to itself.
 * **LPORT** - This the port you want your target machine to connect to.
