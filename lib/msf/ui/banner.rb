@@ -8,6 +8,7 @@ module Ui
 #
 ###
 module Banner
+
   #
   # Returns a specific metasploit logo. If the specified file is a relative path
   # then the file will be searched for first in the included local directory,
@@ -39,6 +40,7 @@ module Banner
     return self.readfile ENV['MSFLOGO'] if ENV['MSFLOGO']
 
     logos = []
+
     # Easter egg (always a cow themed logo): export/set GOCOW=1
     if ENV['GOCOW']
       logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + 'cow*.txt'))
