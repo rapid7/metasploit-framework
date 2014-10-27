@@ -1,8 +1,8 @@
 env:
   - RAKE_TASK=cucumber
   - RAKE_TASK=cucumber:boot
-  - RAKE_TASK=spec SPEC="--tag content"
-  - RAKE_TASK=spec SPEC="--tag ~content"
+  - RAKE_TASK=spec SPEC_OPTS="--tag content"
+  - RAKE_TASK=spec SPEC_OPTS="--tag ~content"
 
 language: ruby
 before_install:
