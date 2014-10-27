@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -31,6 +31,8 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     connect
     version = sock.get_once
+
+    return if version.blank?
 
     print_good("#{ip}:#{rport} - rsync #{version.strip} found")
     report_service(:host => ip, :port => rport, :proto => 'tcp', :name => 'rsync')

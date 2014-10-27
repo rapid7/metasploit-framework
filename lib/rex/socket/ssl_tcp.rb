@@ -56,18 +56,55 @@ begin
   def initsock(params = nil)
     super
 
-    version = :SSLv3
-    if(params)
+    # The autonegotiation preference for SSL/TLS versions
+    versions = [:TLSv1, :SSLv3, :SSLv23, :SSLv2]
+
+    # Limit this to a specific SSL/TLS version if specified
+    if params
       case params.ssl_version
       when 'SSL2', :SSLv2
-        version = :SSLv2
+        versions = [:SSLv2]
       when 'SSL23', :SSLv23
-        version = :SSLv23
+        versions = [:SSLv23]
+      when 'SSL3', :SSLv3
+        versions = [:SSLv3]
       when 'TLS1', :TLSv1
-        version = :TLSv1
+        versions = [:TLSv1]
+      else
+        # Leave the version list as-is (Auto)
       end
     end
 
+    # Limit our versions to those supported by the linked OpenSSL library
+    versions = versions.select {|v| OpenSSL::SSL::SSLContext::METHODS.include? v }
+
+    # Raise an error if no selected versions are supported
+    if versions.length == 0
+      raise ArgumentError, 'The system OpenSSL does not support the requested SSL/TLS version'
+    end
+
+    last_error = nil
+
+    # Iterate through SSL/TLS versions until we successfully negotiate
+    versions.each do |version|
+      begin
+        # Try intializing the socket with this SSL/TLS version
+        # This will throw an exception if it fails
+        initsock_with_ssl_version(params, version)
+
+        # Success! Record what method was used and return
+        self.ssl_negotiated_version = version
+        return
+      rescue OpenSSL::SSL::SSLError => e
+        last_error = e
+      end
+    end
+
+    # No SSL/TLS versions succeeded, raise the last error
+    raise last_error
+  end
+
+  def initsock_with_ssl_version(params, version)
     # Build the SSL connection
     self.sslctx  = OpenSSL::SSL::SSLContext.new(version)
 
@@ -84,7 +121,9 @@ begin
       # Could also do this as graceful faildown in case a passed verify_mode is not supported
       self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
     end
+
     self.sslctx.options = OpenSSL::SSL::OP_ALL
+
     if params.ssl_cipher
       self.sslctx.ciphers = params.ssl_cipher
     end
@@ -100,7 +139,6 @@ begin
 
     # XXX - enabling this causes infinite recursion, so disable for now
     # self.sslsock.sync_close = true
-
 
     # Force a negotiation timeout
     begin
@@ -327,11 +365,13 @@ begin
   end
 
   attr_reader :peer_verified # :nodoc:
+  attr_reader :ssl_negotiated_version # :nodoc:
   attr_accessor :sslsock, :sslctx # :nodoc:
 
 protected
 
   attr_writer :peer_verified # :nodoc:
+  attr_writer :ssl_negotiated_version # :nodoc:
 
 
 rescue LoadError

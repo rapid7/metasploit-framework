@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,8 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"]),
-        OptEnum.new('PROTOCOL', [true, "Protocol to scan", 'TCP', %w(TCP UDP)]),
+        OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"])
       ], self.class)
   end
 
@@ -36,15 +35,9 @@ class Metasploit3 < Msf::Auxiliary
       )
       add_socket(udp_sock)
       peer = "#{host}:#{datastore['RPORT']}"
-      vprint_status("#{peer} Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} using NATPMP")
+      vprint_status("#{peer} Scanning #{protocol} ports #{datastore['PORTS']} using NATPMP")
 
-      # first, send a request to get the external address
-      udp_sock.sendto(external_address_request, host, datastore['RPORT'], 0)
-      external_address = nil
-      while (r = udp_sock.recvfrom(12, 0.25) and r[1])
-        (ver,op,result,epoch,external_address) = parse_external_address_response(r[0])
-      end
-
+      external_address = get_external_address(udp_sock, host, datastore['RPORT'])
       if (external_address)
         print_good("#{peer} responded with external address of #{external_address}")
       else
@@ -52,18 +45,14 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
 
-      Rex::Socket.portspec_crack(datastore['PORTS']).each do |port|
-        # send one request to clear the mapping if *we've* created it before
-        clear_req = map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 0)
-        udp_sock.sendto(clear_req, host, datastore['RPORT'], 0)
-        while (r = udp_sock.recvfrom(16, 1.0) and r[1])
-        end
+      # clear all mappings
+      map_port(udp_sock, host, datastore['RPORT'], 0, 0, Rex::Proto::NATPMP.const_get(protocol), 0)
 
-        # now try the real mapping
+      Rex::Socket.portspec_crack(datastore['PORTS']).each do |port|
         map_req = map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
         udp_sock.sendto(map_req, host, datastore['RPORT'], 0)
         while (r = udp_sock.recvfrom(16, 1.0) and r[1])
-          handle_reply(host, external_address, r)
+          break if handle_reply(host, external_address, r)
         end
       end
 
@@ -94,6 +83,14 @@ class Metasploit3 < Msf::Auxiliary
       if (int != ext)
         state = Msf::ServiceState::Open
         print_good("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with unmatched ports")
+        if inside_workspace_boundary?(external_addr)
+          report_service(
+            :host   => external_addr,
+            :port   => int,
+            :proto  => protocol,
+            :state => state
+          )
+        end
       else
         state = Msf::ServiceState::Closed
         print_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports") if (datastore['DEBUG'])
@@ -103,15 +100,6 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response") if (datastore['DEBUG'])
     end
 
-    if inside_workspace_boundary?(external_addr)
-      report_service(
-        :host   => external_addr,
-        :port   => int,
-        :proto  => protocol,
-        :state => state
-      )
-    end
-
     report_service(
       :host 	=> host,
       :port 	=> pkt[2],
@@ -119,5 +107,6 @@ class Metasploit3 < Msf::Auxiliary
       :proto 	=> 'udp',
       :state	=> Msf::ServiceState::Open
     )
+    true
   end
 end
