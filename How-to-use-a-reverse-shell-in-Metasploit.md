@@ -19,8 +19,15 @@ Generally speaking, if you can backdoor an existing service, you may not need a 
 
 If the target machine is running a web server that supports a server-side programming language, then you can leave a backdoor in that language. For example, many Apache servers support PHP, then you can use a PHP "web shell". IIS servers usually support ASP, or ASP.net. The Metasploit Framework offers payloads in all these languages (and many others).
 
-Same thing for VNC, remote desktop, or other admin tools, etc.
+Same thing for VNC, remote desktop, or other remote admin tools, etc.
 
-## How to set up for a reverse shell
+## How to set up for a reverse shell during payload generation
+
+When you generate a reverse shell, you must know how to configure the following:
+
+* **LHOST** - This is the IP address you want your target machine to connect to, literally. If you're in a local area network, it is very unlike your target machine can reach you unless you both are in the same network. In that case, you will have to [find out your public-facing IP address](https://www.google.com/webhp?q=ip#q=ip), and then configure your network to port-forward that connection to your box. LHOST should not be "localhost", or "0.0.0.0", or "127.0.0.1", basically if you do, you're basically telling the target machine to connect to itself.
+* **LPORT** - This is the port listening on attacker's box.
+
+When you set up a listener for the reverse shell
 
 ## Demonstration
