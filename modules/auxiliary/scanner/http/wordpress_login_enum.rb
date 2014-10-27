@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -13,8 +13,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'          => 'Wordpress Brute Force and User Enumeration Utility',
-      'Description'   => 'Wordpress Authentication Brute Force and User Enumeration Utility',
+      'Name'          => 'WordPress Brute Force and User Enumeration Utility',
+      'Description'   => 'WordPress Authentication Brute Force and User Enumeration Utility',
       'Author'        =>
         [
           'Alligator Security Team',
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
 
     unless wordpress_and_online?
-      print_error("#{target_uri} does not seeem to be Wordpress site")
+      print_error("#{target_uri} does not seem to be WordPress site")
       return
     end
 
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       # Brute force previously found users
       if not usernames.empty?
         print_status("#{target_uri} - Brute-forcing previously found accounts...")
-        passwords = load_password_vars(datastore['PASS_FILE'])
+        passwords = load_password_vars
         usernames.each do |user|
           passwords.each do |pass|
             do_login(user, pass)

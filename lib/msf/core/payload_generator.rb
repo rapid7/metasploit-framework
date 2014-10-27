@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'active_support/core_ext/numeric/bytes'
 module Msf
 
@@ -311,7 +312,7 @@ module Msf
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif badchars.present?
-        framework.encoders.each_module_ranked('Arch' => [arch]) do |name, mod|
+        framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
           encoders << framework.encoders.create(name)
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
@@ -363,7 +364,9 @@ module Msf
       iterations.times do |x|
         shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
         cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
-        raise EncoderSpaceViolation, "encoder has made a buffer that is too big" if shellcode.length > space
+        if shellcode.length > space
+          raise EncoderSpaceViolation, "encoder has made a buffer that is too big"
+        end
       end
       shellcode
     end
