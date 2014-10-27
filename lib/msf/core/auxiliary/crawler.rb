@@ -44,7 +44,7 @@ module Auxiliary::HttpCrawler
         OptString.new('HTTPAdditionalHeaders', [false, "A list of additional headers to send (separated by \\x01)"]),
         OptString.new('HTTPCookie', [false, "A HTTP cookie header to send with each request"]),
         OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', false]),
-        OptEnum.new('SSLVersion', [ false, 'Specify the version of SSL that should be used', 'SSL3', ['SSL2', 'SSL23', 'SSL3', 'TLS1']]),
+        OptEnum.new('SSLVersion', [ false, 'Specify the version of SSL that should be used', 'Auto', ['Auto', 'SSL2', 'SSL23', 'SSL3', 'TLS1']]),
       ], self.class
     )
 

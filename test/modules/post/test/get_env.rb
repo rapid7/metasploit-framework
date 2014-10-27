@@ -1,5 +1,6 @@
+require 'msf/core'
 
-$:.push "test/lib" unless $:.include? "test/lib"
+lib = File.join(Msf::Config.install_root, "test", "lib")
 require 'module_test'
 
 #load 'test/lib/module_test.rb'

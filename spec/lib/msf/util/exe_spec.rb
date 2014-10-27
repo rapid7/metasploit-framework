@@ -24,6 +24,12 @@ describe Msf::Util::EXE do
     end
   end
 
+  describe '.is_eicar_corrupted?' do
+    it 'returns false' do
+      expect(described_class.is_eicar_corrupted?).to eq(false)
+    end
+  end
+
   describe '.to_executable_fmt' do
     it "should output nil when given a bogus format" do
       bin = subject.to_executable_fmt($framework, "", "", "", "does not exist", {})
@@ -57,8 +63,8 @@ describe Msf::Util::EXE do
           fmt   = format_hash[:format]
           arch  = format_hash[:arch]
 
-          if format_hash[:pending]
-            pending "returns an executable when given arch=#{arch}, fmt=#{fmt}"
+          if format_hash[:skip]
+            skip "returns an executable when given arch=#{arch}, fmt=#{fmt}"
             next
           end
 
