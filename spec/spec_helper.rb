@@ -48,6 +48,8 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
 
+  config.treat_symbols_as_metadata_keys_with_true_values = true
+
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
