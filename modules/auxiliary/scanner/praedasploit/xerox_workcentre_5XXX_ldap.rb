@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 
     start_listener
     unless @data
-      print_error('Failed to start listiner or the printer did not send us the creds. :(')
+      print_error('Failed to start listiner or the printer did not send us the credentials. :(')
       status = restore_ldap_server
       unless status
         print_error('Failed to restore old LDAP server. Please manually restore')
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
     ldap_creds = "#{ldap_binary_creds[0]}:#{ldap_binary_creds[1]}"
 
     #Woot we got creds so lets save them.#
-    print_good("The following creds were capured: #{ldap_creds}")
+    print_good("The following credential were captured: #{ldap_creds}")
     loot_name     = 'ldap.cp.creds'
     loot_type     = 'text/plain'
     loot_filename = 'ldap-creds.text'
