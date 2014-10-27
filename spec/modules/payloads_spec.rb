@@ -31,75 +31,75 @@ describe 'modules/payloads' do
                           modules_pathname: modules_pathname,
                           reference_name: 'aix/ppc/shell_interact'
   end
-
-  context 'aix/ppc/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
-                          ancestor_reference_names: [
-                              'singles/aix/ppc/shell_reverse_tcp'
-                          ],
-                          modules_pathname: modules_pathname,
-                          reference_name: 'aix/ppc/shell_reverse_tcp'
-  end
-
-  context 'android/meterpreter/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
-                          ancestor_reference_names: [
-                              'stagers/android/reverse_http',
-                              'stages/android/meterpreter'
-                          ],
-                          modules_pathname: modules_pathname,
-                          reference_name: 'android/meterpreter/reverse_http'
-  end
-
-  context 'android/meterpreter/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
-                          ancestor_reference_names: [
-                              'stagers/android/reverse_https',
-                              'stages/android/meterpreter'
-                          ],
-                          modules_pathname: modules_pathname,
-                          reference_name: 'android/meterpreter/reverse_https'
-  end
-
-  context 'android/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
-                          ancestor_reference_names: [
-                              'stagers/android/reverse_tcp',
-                              'stages/android/meterpreter'
-                          ],
-                          modules_pathname: modules_pathname,
-                          reference_name: 'android/meterpreter/reverse_tcp'
-  end
-
-  context 'android/shell/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
-                          ancestor_reference_names: [
-                              'stagers/android/reverse_http',
-                              'stages/android/shell'
-                          ],
-                          modules_pathname: modules_pathname,
-                          reference_name: 'android/shell/reverse_http'
-  end
-
-  context 'android/shell/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
-                          ancestor_reference_names: [
-                              'stagers/android/reverse_https',
-                              'stages/android/shell'
-                          ],
-                          modules_pathname: modules_pathname,
-                          reference_name: 'android/shell/reverse_https'
-  end
-
-  context 'android/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
-                          ancestor_reference_names: [
-                              'stagers/android/reverse_tcp',
-                              'stages/android/shell'
-                          ],
-                          modules_pathname: modules_pathname,
-                          reference_name: 'android/shell/reverse_tcp'
-  end
+  #
+  # context 'aix/ppc/shell_reverse_tcp' do
+  #   it_should_behave_like 'payload can be instantiated',
+  #                         ancestor_reference_names: [
+  #                             'singles/aix/ppc/shell_reverse_tcp'
+  #                         ],
+  #                         modules_pathname: modules_pathname,
+  #                         reference_name: 'aix/ppc/shell_reverse_tcp'
+  # end
+  #
+  # context 'android/meterpreter/reverse_http' do
+  #   it_should_behave_like 'payload can be instantiated',
+  #                         ancestor_reference_names: [
+  #                             'stagers/android/reverse_http',
+  #                             'stages/android/meterpreter'
+  #                         ],
+  #                         modules_pathname: modules_pathname,
+  #                         reference_name: 'android/meterpreter/reverse_http'
+  # end
+  #
+  # context 'android/meterpreter/reverse_https' do
+  #   it_should_behave_like 'payload can be instantiated',
+  #                         ancestor_reference_names: [
+  #                             'stagers/android/reverse_https',
+  #                             'stages/android/meterpreter'
+  #                         ],
+  #                         modules_pathname: modules_pathname,
+  #                         reference_name: 'android/meterpreter/reverse_https'
+  # end
+  #
+  # context 'android/meterpreter/reverse_tcp' do
+  #   it_should_behave_like 'payload can be instantiated',
+  #                         ancestor_reference_names: [
+  #                             'stagers/android/reverse_tcp',
+  #                             'stages/android/meterpreter'
+  #                         ],
+  #                         modules_pathname: modules_pathname,
+  #                         reference_name: 'android/meterpreter/reverse_tcp'
+  # end
+  #
+  # context 'android/shell/reverse_http' do
+  #   it_should_behave_like 'payload can be instantiated',
+  #                         ancestor_reference_names: [
+  #                             'stagers/android/reverse_http',
+  #                             'stages/android/shell'
+  #                         ],
+  #                         modules_pathname: modules_pathname,
+  #                         reference_name: 'android/shell/reverse_http'
+  # end
+  #
+  # context 'android/shell/reverse_https' do
+  #   it_should_behave_like 'payload can be instantiated',
+  #                         ancestor_reference_names: [
+  #                             'stagers/android/reverse_https',
+  #                             'stages/android/shell'
+  #                         ],
+  #                         modules_pathname: modules_pathname,
+  #                         reference_name: 'android/shell/reverse_https'
+  # end
+  #
+  # context 'android/shell/reverse_tcp' do
+  #   it_should_behave_like 'payload can be instantiated',
+  #                         ancestor_reference_names: [
+  #                             'stagers/android/reverse_tcp',
+  #                             'stages/android/shell'
+  #                         ],
+  #                         modules_pathname: modules_pathname,
+  #                         reference_name: 'android/shell/reverse_tcp'
+  # end
 
   context 'bsd/sparc/shell_bind_tcp' do
     it_should_behave_like 'payload can be instantiated',
