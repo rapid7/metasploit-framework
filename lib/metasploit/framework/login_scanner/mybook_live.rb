@@ -14,8 +14,8 @@ module Metasploit
 
         # (see Base#set_sane_defaults)
         def set_sane_defaults
-          self.uri = "/UI/login" if self.uri.nil?
-          self.method = "POST" if self.method.nil?
+          self.uri = '/UI/login' if self.uri.nil?
+          self.method = 'POST' if self.method.nil?
 
           super
         end
@@ -38,8 +38,8 @@ module Metasploit
             cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version)
             cli.connect
             req = cli.request_cgi(
-              'method' => 'POST',
-              'uri' => '/UI/login',
+              'method' => method,
+              'uri' => uri,
               'data' => body
             )
             res = cli.send_recv(req)
