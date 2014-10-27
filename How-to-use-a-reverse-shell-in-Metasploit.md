@@ -17,7 +17,7 @@ If you find yourself in one of the following scenarios (but not limited to), the
 
 Generally speaking, if you can backdoor an existing service, you may not need a reverse shell. For example: if the target machine is already running a SSH server, then you can try adding a new user to it and use that.
 
-If the target machine is running a web server that supports a server-side programming language, then you can leave a backdoor in that language. For example, many Apache servers support PHP, then you can use a PHP "web shell". IIS servers usually support ASP, or ASP.net.
+If the target machine is running a web server that supports a server-side programming language, then you can leave a backdoor in that language. For example, many Apache servers support PHP, then you can use a PHP "web shell". IIS servers usually support ASP, or ASP.net. The Metasploit Framework offers payloads in all these languages (and many others).
 
 Same thing for VNC, remote desktop, or other admin tools, etc.
 
