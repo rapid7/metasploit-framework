@@ -209,7 +209,7 @@ class Metasploit3 < Msf::Auxiliary
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
       #Login didn't work. no point on going on.
-        vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+        vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
         return :Skip_pass
       end
     else
@@ -243,8 +243,8 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    if res.code == 302
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+    if res.redirect?
+      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
       return :skip_pass
     end
 
@@ -263,7 +263,7 @@ class Metasploit3 < Msf::Auxiliary
       report_auth_info(report_hash)
       return :next_user
     else
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response body did not match)")
       return :skip_pass
     end
   end
