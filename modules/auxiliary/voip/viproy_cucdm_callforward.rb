@@ -32,17 +32,14 @@ class Metasploit3 < Msf::Auxiliary
         'License'     => MSF_LICENSE,
         'Actions'     =>
             [
-                [ 'FORWARD', {
+                [ 'Forward', {
                     'Description' => 'Enabling the call forwarding for the MAC address.'
                 } ],
-                [ 'INFO', {
+                [ 'Info', {
                     'Description' => 'Retrieving the call forwarding information for the MAC address.'
-                } ],
-                [ 'list', {
-                    'Description' => 'List the actions that would be started'
                 } ]
             ],
-        'DefaultAction'  => 'INFO'
+        'DefaultAction'  => 'Info'
 
     )
 

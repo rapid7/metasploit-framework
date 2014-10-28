@@ -30,23 +30,20 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
           [
-              [ 'GET', {
+              [ 'List', {
                   'Description' => 'Getting the speeddials for the MAC address.'
               } ],
-              [ 'MODIFY', {
+              [ 'Modify', {
                   'Description' => 'Modifying a speeddial for the MAC address.'
               } ],
-              [ 'ADD', {
+              [ 'Add', {
                   'Description' => 'Adding a speeddial for the MAC address.'
               } ],
-              [ 'DELETE', {
+              [ 'Delete', {
                   'Description' => 'Deleting a speeddial for the MAC address.'
-              } ],
-              [ 'list', {
-                  'Description' => 'List the actions that would be started'
               } ]
           ],
-      'DefaultAction'  => 'GET'
+      'DefaultAction'  => 'List'
     )
 
     register_options(
