@@ -22,7 +22,7 @@ If you find yourself in one of the following scenarios (but not limited to), the
 
 * The target machine is behind a different private network.
 * The target machine's firewall blocks incoming connection attempts to your bindshell.
-* Your payload is unable to bind the port it wants due to whatever reason.
+* Your payload is unable to bind to the port it wants due to whatever reason.
 * You simply can't decide what to choose.
 
 ## When a reverse shell isn't needed
