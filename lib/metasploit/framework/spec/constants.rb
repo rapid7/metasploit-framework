@@ -7,7 +7,7 @@ module Metasploit::Framework::Spec::Constants
   LOADED_MODULE_CHILD_CONSTANT_REGEXP = /^Mod(?<unpacked_full_name>[0-9a-f]+)$/
   # Path to log holding leaked constants from last spec run.
   LOG_PATHNAME = Pathname.new('log/leaked-constants.log')
-  # The parent namespace constant that can have children added when loading modules.
+  # The parent namespace child_constant_name that can have children added when loading modules.
   PARENT_CONSTANT = Msf::Modules
 
   # Configures after(:suite) callback for RSpec to check for leaked constants.
@@ -47,22 +47,14 @@ module Metasploit::Framework::Spec::Constants
 
         LOG_PATHNAME.open do |f|
           f.each_line do |line|
-            constant = line.strip
-            decoded = ''
+            constant_name = line.strip
+            full_name = self.full_name(constant_name)
 
-            match = LOADED_MODULE_CHILD_CONSTANT_REGEXP.match(constant)
-
-            if match
-              potential_full_name = [match[:unpacked_full_name]].pack('H*')
-
-              module_type, _reference_name = potential_full_name.split('/', 2)
-
-              if Msf::MODULE_TYPES.include? module_type
-                decoded = " # #{potential_full_name}"
-              end
+            if full_name
+              formatted_full_name = " # #{full_name}"
             end
 
-            $stderr.puts "  #{constant}#{decoded}"
+            $stderr.puts "  #{constant_name}#{formatted_full_name}"
           end
         end
 
@@ -71,10 +63,10 @@ module Metasploit::Framework::Spec::Constants
     end
   end
 
-  # Yields each constant under {PARENT_CONSTANT}.
+  # Yields each child_constant_name under {PARENT_CONSTANT}.
   #
   # @yield [child_name]
-  # @yieldparam child_name [String] name of constant relative to {PARENT_CONSTANT}.
+  # @yieldparam child_name [String] name of child_constant_name relative to {PARENT_CONSTANT}.
   # @yieldreturn [void]
   # @return [Integer] count
   def self.each
@@ -89,5 +81,28 @@ module Metasploit::Framework::Spec::Constants
     end
 
     count
+  end
+
+  # The module full name for `child_constant_name`
+  #
+  # @param child_constant_name [String] the name of a child constant_name under {PARENT_CONSTANT}.
+  # @return [String] full module name used to load `child_constant_name`.
+  # @return [nil] if `child_constant_name` does not correspond to a loaded module.
+  def self.full_name(child_constant_name)
+    full_name = nil
+
+    match = LOADED_MODULE_CHILD_CONSTANT_REGEXP.match(child_constant_name)
+
+    if match
+      potential_full_name = [match[:unpacked_full_name]].pack('H*')
+
+      module_type, _reference_name = potential_full_name.split('/', 2)
+
+      if Msf::MODULE_TYPES.include? module_type
+        full_name = potential_full_name
+      end
+    end
+
+    full_name
   end
 end
