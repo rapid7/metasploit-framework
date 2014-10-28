@@ -215,12 +215,21 @@ class Metasploit3 < Msf::Auxiliary
     else
        # The authentication info is in the cookies on this response
       cookies = res.get_cookies
-      sessionid_value = cookies.split('sessionid=')[1]
-      sessionid_value = sessionid_value.to_s.split('; ')[0]
-      sessionid_header = "sessionid=#{sessionid_value}"
-      cadata_value = cookies.split('cadata=')[1]
-      cadata_value = cadata_value.to_s.split('; ')[0]
-      cadata_header = "cadata=#{cadata_value}"
+      cookie_header = 'PBack=0'
+      %w(sessionid cadata).each do |necessary_cookie|
+        if cookies =~ /#{necessary_cookie}=([^;]+)/
+          cookie_header << "; #{Regexp.last_match(1)}"
+        else
+          print_error("#{msg} Missing #{necessary_cookie} cookie.  This is not OWA 2010")
+          return :abort
+        end
+      end
+        sessionid_value = cookies.split('sessionid=')[1]
+        sessionid_value = sessionid_value.to_s.split('; ')[0]
+        sessionid_header = "sessionid=#{sessionid_value}"
+        cadata_value = cookies.split('cadata=')[1]
+        cadata_value = cadata_value.to_s.split('; ')[0]
+        cadata_header = "cadata=#{cadata_value}"
       headers['Cookie'] = 'PBack=0; ' << sessionid_header << '; ' << cadata_header
     end
 
