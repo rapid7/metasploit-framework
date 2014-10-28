@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         This module provides a DNS service that redirects
       all queries to a particular address.
       },
-      'Author'      => ['ddz', 'hdm', 'Fatih Ozavci <viproy.com/fozavci> (only for IN::SRV)'],
+      'Author'      => ['ddz', 'hdm', 'Fatih Ozavci <viproy.com/fozavci>'],
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
