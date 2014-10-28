@@ -9,6 +9,15 @@ module Metasploit::Framework::Spec::Constants
   LOG_PATHNAME = Pathname.new('log/leaked-constants.log')
   # The parent namespace child_constant_name that can have children added when loading modules.
   PARENT_CONSTANT = Msf::Modules
+  # Constant names under {PARENT_CONSTANT} that can persist between specs because they are part of the loader library
+  # and not dynamically loaded code
+  PERSISTENT_CHILD_CONSTANT_NAMES = %w{
+    Error
+    Loader
+    MetasploitClassCompatibilityError
+    Namespace
+    VersionCompatibilityError
+  }.map(&:to_sym)
 
   # Configures after(:suite) callback for RSpec to check for leaked constants.
   def self.configure!
@@ -66,7 +75,7 @@ module Metasploit::Framework::Spec::Constants
   # Yields each child_constant_name under {PARENT_CONSTANT}.
   #
   # @yield [child_name]
-  # @yieldparam child_name [String] name of child_constant_name relative to {PARENT_CONSTANT}.
+  # @yieldparam child_name [Symbol] name of child_constant_name relative to {PARENT_CONSTANT}.
   # @yieldreturn [void]
   # @return [Integer] count
   def self.each
@@ -76,8 +85,10 @@ module Metasploit::Framework::Spec::Constants
     child_constant_names = PARENT_CONSTANT.constants(inherit)
 
     child_constant_names.each do |child_constant_name|
-      count += 1
-      yield child_constant_name
+      unless PERSISTENT_CHILD_CONSTANT_NAMES.include? child_constant_name
+        count += 1
+        yield child_constant_name
+      end
     end
 
     count
