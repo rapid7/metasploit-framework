@@ -224,13 +224,7 @@ class Metasploit3 < Msf::Auxiliary
           return :abort
         end
       end
-        sessionid_value = cookies.split('sessionid=')[1]
-        sessionid_value = sessionid_value.to_s.split('; ')[0]
-        sessionid_header = "sessionid=#{sessionid_value}"
-        cadata_value = cookies.split('cadata=')[1]
-        cadata_value = cadata_value.to_s.split('; ')[0]
-        cadata_header = "cadata=#{cadata_value}"
-      headers['Cookie'] = 'PBack=0; ' << sessionid_header << '; ' << cadata_header
+      headers['Cookie'] = cookie_header
     end
 
     begin
