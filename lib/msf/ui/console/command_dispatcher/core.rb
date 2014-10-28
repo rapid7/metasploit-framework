@@ -798,10 +798,10 @@ class Core
         # Terminate the supplied job ID(s)
         when "-k"
           job_list = build_jobs_array(val)
-          print_status("Killing the following job(s): #{job_list.join(', ')}")
+          print_status("Stopping the following job(s): #{job_list.join(', ')}")
           job_list.map(&:to_s).each do |job|
             if framework.jobs.has_key?(job)
-              print_status("Killing job #{job}")
+              print_status("Stopping job #{job}")
               framework.jobs.stop_job(job)
             else
               print_error("Invalid job identifier: #{job}")
