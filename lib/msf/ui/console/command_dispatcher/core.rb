@@ -1733,13 +1733,16 @@ class Core
         end
 
       when 'detach'
-        if ((session = framework.sessions.get(sid)))
-          print_status("Detaching session #{sid}")
-          if (session.interactive?)
-            session.detach()
+        session_list = build_sessions_array(sid)
+        print_status("Detaching the following session(s): #{session_list.join(', ')}")
+        session_list.each do |sess|
+          session = framework.sessions.get(sess)
+          if session
+            print_status("Detaching session #{sess}")
+            session.detach
+          else
+            print_error("Invalid session identifier: #{sess}")
           end
-        else
-          print_error("Invalid session identifier: #{sid}")
         end
 
       when 'interact'
