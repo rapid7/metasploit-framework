@@ -37,7 +37,7 @@ Same thing for VNC, remote desktop, SMB (psexec), or other remote admin tools, e
 
 When you generate a reverse shell with either msfpayload or msfvenom, you must know how to configure the following:
 
-* **LHOST** - This is the IP address you want your target machine to connect to, literally. If you're in a local area network, it is unlikely your target machine can actually reach you unless you both are in the same network. In that case, you will have to [find out your public-facing IP address](https://www.google.com/webhp?q=ip#q=ip), and then configure your network to port-forward that connection to your box. LHOST should not be "localhost", or "0.0.0.0", or "127.0.0.1", because if you do, you're telling the target machine to connect to itself.
+* **LHOST** - This is the IP address you want your target machine to connect to, literally. If you're in a local area network, it is unlikely your target machine can actually reach you unless you both are in the same network. In that case, you will have to [find out your public-facing IP address](https://www.google.com/webhp?q=ip#q=ip), and then configure your network to port-forward that connection to your box. LHOST should not be "localhost", or "0.0.0.0", or "127.0.0.1", because if you do, you're telling the target machine to connect to itself (or it may not work at all).
 * **LPORT** - This the port you want your target machine to connect to.
 
 When you set up a listener for the reverse shell, you also at least need to configure LHOST and LPORT, but slightly different meanings (different perspective):
