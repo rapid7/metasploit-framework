@@ -204,7 +204,11 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       #No password change required moving on.
-      reason = res.headers['location'].split('reason=')[1]
+      unless location = res.headers['location']
+        print_error("#{msg} No HTTP redirect.  This is not OWA 2013, aborting.")
+        return :abort
+      end
+      reason = location.split('reason=')[1]
       if reason == nil
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
@@ -220,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
         if cookies =~ /#{necessary_cookie}=([^;]+)/
           cookie_header << "; #{Regexp.last_match(1)}"
         else
-          print_error("#{msg} Missing #{necessary_cookie} cookie.  This is not OWA 2010")
+          print_error("#{msg} Missing #{necessary_cookie} cookie.  This is not OWA 2010, aborting")
           return :abort
         end
       end
