@@ -133,8 +133,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def add_user(cookie, tries = 3)
-    username = random_username()
-    password = random_password()
+    username = random_username
+    password = random_password
 
     tries.times do |i|
       print_good "#{peer} - Attemping to add User: #{username}, Pass: #{password}"
@@ -213,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     # Validate we're dealing with Cisco SSL VPN
-    unless validate_cisco_ssl_vpn()
+    unless validate_cisco_ssl_vpn
       vprint_error "#{peer} - Does not appear to be Cisco SSL VPN"
       :abort
     end
