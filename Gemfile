@@ -40,6 +40,8 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails' , '>= 2.12', '< 3.0.0'
+  # did you mean
+  gem 'did_you_mean'
 end
 
 group :pcap do
