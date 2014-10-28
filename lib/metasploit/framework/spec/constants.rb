@@ -5,6 +5,7 @@ require 'msf/core/modules'
 module Metasploit::Framework::Spec::Constants
   extend ActiveSupport::Autoload
 
+  autoload :Each
   autoload :Suite
 
   #
@@ -24,6 +25,16 @@ module Metasploit::Framework::Spec::Constants
     Namespace
     VersionCompatibilityError
   }.map(&:to_sym)
+
+  # Cleans child constants from {PARENT_CONSTANT}.
+  #
+  # @return [void]
+  # @see each
+  def self.clean
+    each do |child_name|
+      PARENT_CONSTANT.send(:remove_const, child_name)
+    end
+  end
 
   # Yields each child_constant_name under {PARENT_CONSTANT}.
   #

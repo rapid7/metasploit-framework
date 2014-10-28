@@ -1,7 +1,4 @@
-require 'msf/core/modules'
-
-# Monitor constants created by module loading to ensure that the loads in one example don't interfere with the
-# assertions in another example.
+# Logs if constants created by module loading are left over after suite has completed.
 module Metasploit::Framework::Spec::Constants::Suite
   #
   # CONSTANTS
@@ -18,9 +15,9 @@ module Metasploit::Framework::Spec::Constants::Suite
           count = 0
 
           LOG_PATHNAME.open('w') do |f|
-            count = Metasploit::Framework::Spec::Constants.each { |child_name|
+            count = Metasploit::Framework::Spec::Constants.each do |child_name|
               f.puts child_name
-            }
+            end
           end
 
           if count > 0
@@ -57,6 +54,11 @@ module Metasploit::Framework::Spec::Constants::Suite
             $stderr.puts "  #{constant_name}#{formatted_full_name}"
           end
         end
+
+        $stderr.puts
+        $stderr.puts "Add `Metasploit::Framework::Spec::Constants::Each.configure!` to `spec/spec_helper.rb` " \
+                     "**NOTE: `Metasploit::Framework::Spec::Constants::Each` may report false leaks if `after(:all)` " \
+                     "is used to clean up constants instead of `after(:each)`**"
 
         exit 1
       end
