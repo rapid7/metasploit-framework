@@ -49,7 +49,7 @@ class Core
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
-    "-k" => [ true,  "Terminate the specified job name."              ],
+    "-k" => [ true,  "Terminate jobs by job ID and/or range."         ],
     "-K" => [ false, "Terminate all running jobs."                    ],
     "-i" => [ true,  "Lists detailed information about a running job."],
     "-l" => [ false, "List all running jobs."                         ],
@@ -795,13 +795,17 @@ class Core
         when "-l"
           dump_list = true
 
-        # Terminate the supplied job name
+        # Terminate the supplied job ID(s)
         when "-k"
-          if (not framework.jobs.has_key?(val))
-            print_error("No such job")
-          else
-            print_line("Stopping job: #{val}...")
-            framework.jobs.stop_job(val)
+          job_list = build_jobs_array(val)
+          print_status("Killing the following job(s): #{job_list.join(', ')}")
+          job_list.map(&:to_s).each do |job|
+            if framework.jobs.has_key?(job)
+              print_status("Killing job #{job}")
+              framework.jobs.stop_job(job)
+            else
+              print_error("Invalid job identifier: #{job}")
+            end
           end
         when "-K"
           print_line("Stopping all jobs...")
@@ -1709,7 +1713,7 @@ class Core
 
       when 'kill'
         session_list = build_sessions_array(sid)
-        print_status("Killing the following session(s): #{session_list}")
+        print_status("Killing the following session(s): #{session_list.join(', ')}")
         session_list.each do |sess|
           session = framework.sessions.get(sess)
           if session
@@ -1729,13 +1733,16 @@ class Core
         end
 
       when 'detach'
-        if ((session = framework.sessions.get(sid)))
-          print_status("Detaching session #{sid}")
-          if (session.interactive?)
-            session.detach()
+        session_list = build_sessions_array(sid)
+        print_status("Detaching the following session(s): #{session_list.join(', ')}")
+        session_list.each do |sess|
+          session = framework.sessions.get(sess)
+          if session
+            print_status("Detaching session #{sess}")
+            session.detach
+          else
+            print_error("Invalid session identifier: #{sess}")
           end
-        else
-          print_error("Invalid session identifier: #{sid}")
         end
 
       when 'interact'
@@ -3378,6 +3385,26 @@ class Core
     end
 
     return session_list.uniq.sort
+  end
+
+  # Generate an array of job IDs when presented with input such as '1' or  '1,2,4-6,10' or '1,2,4..6,10'
+  def build_jobs_array(jid_list)
+    job_list = Array.new
+    temp_list = jid_list.split(",")
+
+    temp_list.each do |ele|
+      if ele.include? '-'
+        temp_array = (ele.split("-").inject {|s,e| s.to_i..e.to_i}).to_a
+        job_list.concat(temp_array)
+      elsif ele.include? '..'
+        temp_array = (ele.split("..").inject {|s,e| s.to_i..e.to_i}).to_a
+        job_list.concat(temp_array)
+      else
+        job_list.push(ele.to_i)
+      end
+    end
+
+    return job_list.uniq.sort
   end
 
 end
