@@ -33,18 +33,6 @@ if (RUBY_VERSION =~ /^1\.9\.1/)
   $stderr.puts "*** Ruby 1.9.1 is not supported, please upgrade to Ruby 1.9.3 or newer."
 end
 
-if(RUBY_VERSION =~ /^(1\.9|2\.0)\./)
-  # Load rubygems before changing default_internal, otherwise we may get
-  # Encoding::UndefinedConversionError as the gemspec files are loaded
-  require 'rubygems'
-  Gem::Version # trigger Rubygems to fully load
-
-  # Force binary encoding for Ruby versions that support it
-  if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
-    Encoding.default_external = Encoding.default_internal = "binary"
-  end
-end
-
 if(RUBY_PLATFORM == 'java')
   require 'socket'
   s = Socket.new(::Socket::AF_INET, ::Socket::SOCK_STREAM, ::Socket::IPPROTO_TCP)

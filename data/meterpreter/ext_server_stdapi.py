@@ -252,6 +252,7 @@ TLV_META_TYPE_STRING     = (1 << 16)
 TLV_META_TYPE_UINT       = (1 << 17)
 TLV_META_TYPE_RAW        = (1 << 18)
 TLV_META_TYPE_BOOL       = (1 << 19)
+TLV_META_TYPE_QWORD      = (1 << 20)
 TLV_META_TYPE_COMPRESSED = (1 << 29)
 TLV_META_TYPE_GROUP      = (1 << 30)
 TLV_META_TYPE_COMPLEX    = (1 << 31)
@@ -284,10 +285,10 @@ TLV_TYPE_CHANNEL_CLASS         = TLV_META_TYPE_UINT    | 54
 ##
 # General
 ##
-TLV_TYPE_HANDLE                = TLV_META_TYPE_UINT    | 600
+TLV_TYPE_HANDLE                = TLV_META_TYPE_QWORD   | 600
 TLV_TYPE_INHERIT               = TLV_META_TYPE_BOOL    | 601
-TLV_TYPE_PROCESS_HANDLE        = TLV_META_TYPE_UINT    | 630
-TLV_TYPE_THREAD_HANDLE         = TLV_META_TYPE_UINT    | 631
+TLV_TYPE_PROCESS_HANDLE        = TLV_META_TYPE_QWORD   | 630
+TLV_TYPE_THREAD_HANDLE         = TLV_META_TYPE_QWORD   | 631
 
 ##
 # Fs
@@ -346,7 +347,7 @@ TLV_TYPE_SHUTDOWN_HOW          = TLV_META_TYPE_UINT    | 1530
 ##
 # Registry
 ##
-TLV_TYPE_HKEY                  = TLV_META_TYPE_UINT    | 1000
+TLV_TYPE_HKEY                  = TLV_META_TYPE_QWORD   | 1000
 TLV_TYPE_ROOT_KEY              = TLV_TYPE_HKEY
 TLV_TYPE_BASE_KEY              = TLV_META_TYPE_STRING  | 1001
 TLV_TYPE_PERMISSION            = TLV_META_TYPE_UINT    | 1002
@@ -376,12 +377,12 @@ DELETE_KEY_FLAG_RECURSIVE = (1 << 0)
 ##
 # Process
 ##
-TLV_TYPE_BASE_ADDRESS          = TLV_META_TYPE_UINT    | 2000
+TLV_TYPE_BASE_ADDRESS          = TLV_META_TYPE_QWORD   | 2000
 TLV_TYPE_ALLOCATION_TYPE       = TLV_META_TYPE_UINT    | 2001
 TLV_TYPE_PROTECTION            = TLV_META_TYPE_UINT    | 2002
 TLV_TYPE_PROCESS_PERMS         = TLV_META_TYPE_UINT    | 2003
 TLV_TYPE_PROCESS_MEMORY        = TLV_META_TYPE_RAW     | 2004
-TLV_TYPE_ALLOC_BASE_ADDRESS    = TLV_META_TYPE_UINT    | 2005
+TLV_TYPE_ALLOC_BASE_ADDRESS    = TLV_META_TYPE_QWORD   | 2005
 TLV_TYPE_MEMORY_STATE          = TLV_META_TYPE_UINT    | 2006
 TLV_TYPE_MEMORY_TYPE           = TLV_META_TYPE_UINT    | 2007
 TLV_TYPE_ALLOC_PROTECTION      = TLV_META_TYPE_UINT    | 2008
@@ -397,16 +398,16 @@ TLV_TYPE_PARENT_PID            = TLV_META_TYPE_UINT    | 2307
 TLV_TYPE_IMAGE_FILE            = TLV_META_TYPE_STRING  | 2400
 TLV_TYPE_IMAGE_FILE_PATH       = TLV_META_TYPE_STRING  | 2401
 TLV_TYPE_PROCEDURE_NAME        = TLV_META_TYPE_STRING  | 2402
-TLV_TYPE_PROCEDURE_ADDRESS     = TLV_META_TYPE_UINT    | 2403
-TLV_TYPE_IMAGE_BASE            = TLV_META_TYPE_UINT    | 2404
+TLV_TYPE_PROCEDURE_ADDRESS     = TLV_META_TYPE_QWORD   | 2403
+TLV_TYPE_IMAGE_BASE            = TLV_META_TYPE_QWORD   | 2404
 TLV_TYPE_IMAGE_GROUP           = TLV_META_TYPE_GROUP   | 2405
 TLV_TYPE_IMAGE_NAME            = TLV_META_TYPE_STRING  | 2406
 
 TLV_TYPE_THREAD_ID             = TLV_META_TYPE_UINT    | 2500
 TLV_TYPE_THREAD_PERMS          = TLV_META_TYPE_UINT    | 2502
 TLV_TYPE_EXIT_CODE             = TLV_META_TYPE_UINT    | 2510
-TLV_TYPE_ENTRY_POINT           = TLV_META_TYPE_UINT    | 2511
-TLV_TYPE_ENTRY_PARAMETER       = TLV_META_TYPE_UINT    | 2512
+TLV_TYPE_ENTRY_POINT           = TLV_META_TYPE_QWORD   | 2511
+TLV_TYPE_ENTRY_PARAMETER       = TLV_META_TYPE_QWORD   | 2512
 TLV_TYPE_CREATION_FLAGS        = TLV_META_TYPE_UINT    | 2513
 
 TLV_TYPE_REGISTER_NAME         = TLV_META_TYPE_STRING  | 2540
@@ -425,7 +426,7 @@ TLV_TYPE_DESKTOP               = TLV_META_TYPE_STRING  | 3002
 # Event Log
 ##
 TLV_TYPE_EVENT_SOURCENAME      = TLV_META_TYPE_STRING  | 4000
-TLV_TYPE_EVENT_HANDLE          = TLV_META_TYPE_UINT    | 4001
+TLV_TYPE_EVENT_HANDLE          = TLV_META_TYPE_QWORD   | 4001
 TLV_TYPE_EVENT_NUMRECORDS      = TLV_META_TYPE_UINT    | 4002
 
 TLV_TYPE_EVENT_READFLAGS       = TLV_META_TYPE_UINT    | 4003
@@ -471,10 +472,14 @@ ERROR_FAILURE = 1
 ERROR_CONNECTION_ERROR = 10000
 
 # Windows Constants
-GAA_FLAG_SKIP_ANYCAST    = 0x0002
-GAA_FLAG_SKIP_MULTICAST  = 0x0004
-GAA_FLAG_INCLUDE_PREFIX  = 0x0010
-GAA_FLAG_SKIP_DNS_SERVER = 0x0080
+GAA_FLAG_SKIP_ANYCAST             = 0x0002
+GAA_FLAG_SKIP_MULTICAST           = 0x0004
+GAA_FLAG_INCLUDE_PREFIX           = 0x0010
+GAA_FLAG_SKIP_DNS_SERVER          = 0x0080
+PROCESS_TERMINATE                 = 0x0001
+PROCESS_VM_READ                   = 0x0010
+PROCESS_QUERY_INFORMATION         = 0x0400
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 
 WIN_AF_INET  = 2
 WIN_AF_INET6 = 23
@@ -665,12 +670,11 @@ def stdapi_sys_config_sysinfo(request, response):
 
 @meterpreter.register_function
 def stdapi_sys_process_close(request, response):
-	proc_h_id = packet_get_tlv(request, TLV_TYPE_PROCESS_HANDLE)
+	proc_h_id = packet_get_tlv(request, TLV_TYPE_HANDLE)
 	if not proc_h_id:
 		return ERROR_SUCCESS, response
 	proc_h_id = proc_h_id['value']
-	proc_h = meterpreter.channels[proc_h_id]
-	proc_h.kill()
+	del meterpreter.processes[proc_h_id]
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -717,6 +721,23 @@ def stdapi_sys_process_execute(request, response):
 @meterpreter.register_function
 def stdapi_sys_process_getpid(request, response):
 	response += tlv_pack(TLV_TYPE_PID, os.getpid())
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_sys_process_kill(request, response):
+	for pid in packet_enum_tlvs(request, TLV_TYPE_PID):
+		pid = pid['value']
+		if has_windll:
+			k32 = ctypes.windll.kernel32
+			proc_h = k32.OpenProcess(PROCESS_TERMINATE, False, pid)
+			if not proc_h:
+				return ERROR_FAILURE, response
+			if not k32.TerminateProcess(proc_h, 0):
+				return ERROR_FAILURE, response
+		elif hasattr(os, 'kill'):
+			os.kill(pid, 9)
+		else:
+			return ERROR_FAILURE, response
 	return ERROR_SUCCESS, response
 
 def stdapi_sys_process_get_processes_via_proc(request, response):
@@ -771,9 +792,6 @@ def stdapi_sys_process_get_processes_via_ps(request, response):
 
 def stdapi_sys_process_get_processes_via_windll(request, response):
 	TH32CS_SNAPPROCESS = 2
-	PROCESS_QUERY_INFORMATION = 0x0400
-	PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
-	PROCESS_VM_READ = 0x10
 	TOKEN_QUERY = 0x0008
 	TokenUser = 1
 	k32 = ctypes.windll.kernel32

@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 # This is a Meterpreter script designed to be used by the Metasploit Framework
 #
 # The goal of this script is to obtain system information from a victim through

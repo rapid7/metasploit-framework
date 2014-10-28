@@ -25,8 +25,9 @@ class Header
         next
       end
 
-      var,val = line.split(':')
-      next if not val
+      var, val = line.split(':', 2)
+      next if val.nil?
+
       self.headers << [ var.to_s.strip, val.to_s.strip ]
       prev = self.headers.length - 1
     end

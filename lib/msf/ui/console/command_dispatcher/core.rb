@@ -45,7 +45,7 @@ class Core
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
     "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
+    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -164,16 +164,6 @@ class Core
     "Core"
   end
 
-  # Indicates the base dir where Metasploit Framework is installed.
-  def msfbase_dir
-    base = __FILE__
-    while File.symlink?(base)
-      base = File.expand_path(File.readlink(base), File.dirname(base))
-    end
-    File.expand_path(
-      File.join(File.dirname(base), "..","..","..","..","..")
-    )
-  end
 
   def cmd_color_help
     print_line "Usage: color <'true'|'false'|'auto'>"
@@ -408,7 +398,7 @@ class Core
     avdwarn = nil
 
     banner_trailers = {
-      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Msf::Framework::VersionCore} api:#{Msf::Framework::VersionAPI}]%clr",
+      :version     => "%yelmetasploit v#{Msf::Framework::Version} [core:#{Metasploit::Framework::Core::GEM_VERSION} api:#{Metasploit::Framework::API::GEM_VERSION}]%clr",
       :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
       :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
       :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
@@ -670,6 +660,14 @@ class Core
     if(framework.sessions.length > 0 and not forced)
       print_status("You have active sessions open, to exit anyway type \"exit -y\"")
       return
+    elsif(driver.confirm_exit and not forced)
+      print("Are you sure you want to exit Metasploit? [y/N]: ")
+      response = gets.downcase.chomp
+      if(response == "y" || response == "yes")
+        driver.stop
+      else
+        return
+      end
     end
 
     driver.stop
@@ -1789,20 +1787,32 @@ class Core
         end
 
       when 'upexec'
-        if ((session = framework.sessions.get(sid)))
-          if (session.interactive?)
-            if (session.type == "shell") # XXX: check for windows?
-              session.init_ui(driver.input, driver.output)
-              session.execute_script('spawn_meterpreter', nil)
-              session.reset_ui
+        session_list = build_sessions_array(sid)
+        print_status("Executing 'post/multi/manage/shell_to_meterpreter' on session(s): #{session_list}")
+        session_list.each do |sess|
+          if ((session = framework.sessions.get(sess)))
+            if (session.interactive?)
+              if (session.type == "shell")
+                session.init_ui(driver.input, driver.output)
+                session.execute_script('post/multi/manage/shell_to_meterpreter')
+                session.reset_ui
+              else
+                print_error("Session #{sess} is not a command shell session, skipping...")
+                next
+              end
             else
-              print_error("Session #{sid} is not a command shell session.")
+              print_error("Session #{sess} is non-interactive, skipping...")
+              next
             end
           else
-            print_error("Session #{sid} is non-interactive.")
+            print_error("Invalid session identifier: #{sess}")
+            next
           end
-        else
-          print_error("Invalid session identifier: #{sid}")
+
+          if session_list.count > 1
+            print_status("Sleeping 5 seconds to allow the previous handler to finish..")
+            sleep(5)
+          end
         end
 
       when 'reset_ring'
@@ -2011,7 +2021,7 @@ class Core
       res << 'ENCODER'
     end
 
-    if (mod.auxiliary?)
+    if mod.kind_of?(Msf::Module::HasActions)
       res << "ACTION"
     end
 
@@ -2072,7 +2082,7 @@ class Core
     global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
     print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
-    module_opts = %w{ advanced evasion targets actions }
+    module_opts = %w{ missing advanced evasion targets actions }
     print_status("Additional module-specific parameters are: #{module_opts.join(", ")}")
   end
 
@@ -2115,6 +2125,12 @@ class Core
           else
             show_global_options
           end
+        when 'missing'
+          if (mod)
+            show_missing(mod)
+          else
+            print_error("No module selected.")
+          end
         when 'advanced'
           if (mod)
             show_advanced_options(mod)
@@ -2145,10 +2161,10 @@ class Core
             print_error("No exploit module selected.")
           end
         when "actions"
-          if (mod and (mod.auxiliary? or mod.post?))
+          if mod && mod.kind_of?(Msf::Module::HasActions)
             show_actions(mod)
           else
-            print_error("No auxiliary module selected.")
+            print_error("No module with actions selected.")
           end
 
         else
@@ -2169,7 +2185,7 @@ class Core
 
     res = %w{all encoders nops exploits payloads auxiliary post plugins options}
     if (active_module)
-      res.concat(%w{ advanced evasion targets actions })
+      res.concat(%w{ missing advanced evasion targets actions })
       if (active_module.respond_to? :compatible_sessions)
         res << "sessions"
       end
@@ -2717,8 +2733,8 @@ class Core
       return option_values_encoders() if opt.upcase == 'StageEncoder'
     end
 
-    # Well-known option names specific to auxiliaries
-    if (mod.auxiliary?)
+    # Well-known option names specific to modules with actions
+    if mod.kind_of?(Msf::Module::HasActions)
       return option_values_actions() if opt.upcase == 'ACTION'
     end
 
@@ -2865,7 +2881,7 @@ class Core
 
 
   #
-  # Provide valid action options for the current auxiliary module
+  # Provide valid action options for the current module
   #
   def option_values_actions
     res = []
@@ -2998,7 +3014,7 @@ class Core
       print_warning "to start Metasploit Community / Pro."
       return false
     end
-    svc_log = File.expand_path(File.join(msfbase_dir, ".." , "engine", "prosvc_stdout.log"))
+    svc_log = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], "apps" , "pro", "engine", "prosvc_stdout.log"))
     unless ::File.readable_real? svc_log
       print_error "Unable to access log file: #{svc_log}"
       return false
@@ -3033,7 +3049,7 @@ class Core
   end
 
   def start_metasploit_service
-    cmd = File.expand_path(File.join(msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
+    cmd = File.expand_path(File.join(ENV['METASPLOIT_ROOT'], 'scripts', 'start.sh'))
     return unless ::File.executable_real? cmd
     %x{#{cmd}}.each_line do |line|
       print_status line.chomp
@@ -3059,7 +3075,7 @@ class Core
 
   # Determines if this is an apt-based install
   def is_apt
-    File.exists?(File.expand_path(File.join(msfbase_dir, '.apt')))
+    File.exists?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
   end
 
   # Determines if we're a Metasploit Pro/Community/Express
@@ -3142,8 +3158,37 @@ class Core
       print("\nExploit target:\n\n#{mod_targ}\n") if (mod_targ and mod_targ.length > 0)
     end
 
+    # Print the selected action
+    if mod.kind_of?(Msf::Module::HasActions) && mod.action
+      mod_action = Serializer::ReadableText.dump_module_action(mod, '   ')
+      print("\n#{mod.type.capitalize} action:\n\n#{mod_action}\n") if (mod_action and mod_action.length > 0)
+    end
+
     # Uncomment this line if u want target like msf2 format
     #print("\nTarget: #{mod.target.name}\n\n")
+  end
+
+  def show_missing(mod) # :nodoc:
+    mod_opt = Serializer::ReadableText.dump_options(mod, '   ', true)
+    print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+
+    # If it's an exploit and a payload is defined, create it and
+    # display the payload's options
+    if (mod.exploit? and mod.datastore['PAYLOAD'])
+      p = framework.payloads.create(mod.datastore['PAYLOAD'])
+
+      if (!p)
+        print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
+        return
+      end
+
+      p.share_datastore(mod.datastore)
+
+      if (p)
+        p_opt = Serializer::ReadableText.dump_options(p, '   ', true)
+        print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+      end
+    end
   end
 
   def show_global_options
@@ -3157,7 +3202,7 @@ class Core
       )
     [
       [ 'ConsoleLogging', framework.datastore['ConsoleLogging'] || "false", 'Log all console input and output' ],
-      [ 'LogLevel', framework.datastore['LogLevel'] || "0", 'Verbosity of logs (default 0, max 5)' ],
+      [ 'LogLevel', framework.datastore['LogLevel'] || "0", 'Verbosity of logs (default 0, max 3)' ],
       [ 'MinimumRank', framework.datastore['MinimumRank'] || "0", 'The minimum rank of exploits that will run without explicit confirmation' ],
       [ 'SessionLogging', framework.datastore['SessionLogging'] || "false", 'Log all input and output for sessions' ],
       [ 'TimestampOutput', framework.datastore['TimestampOutput'] || "false", 'Prefix all console output with a timestamp' ],
@@ -3175,8 +3220,8 @@ class Core
   end
 
   def show_actions(mod) # :nodoc:
-    mod_actions = Serializer::ReadableText.dump_auxiliary_actions(mod, '   ')
-    print("\nAuxiliary actions:\n\n#{mod_actions}\n") if (mod_actions and mod_actions.length > 0)
+    mod_actions = Serializer::ReadableText.dump_module_actions(mod, '   ')
+    print("\n#{mod.type.capitalize} actions:\n\n#{mod_actions}\n") if (mod_actions and mod_actions.length > 0)
   end
 
   def show_advanced_options(mod) # :nodoc:
@@ -3309,6 +3354,27 @@ class Core
     finish = line_num + after
     return all_lines.slice(start..finish)
   end
+
+  # Generate an array of session IDs when presented with input such as '1' or  '1,2,4-6,10' or '1,2,4..6,10'
+  def build_sessions_array(sid_list)
+    session_list = Array.new
+    temp_list = sid_list.split(",")
+
+    temp_list.each do |ele|
+      if ele.include? '-'
+        temp_array = (ele.split("-").inject {|s,e| s.to_i..e.to_i}).to_a
+        session_list.concat(temp_array)
+      elsif ele.include? '..'
+        temp_array = (ele.split("..").inject {|s,e| s.to_i..e.to_i}).to_a
+        session_list.concat(temp_array)
+      else
+        session_list.push(ele.to_i)
+      end
+    end
+
+    return session_list.uniq.sort
+  end
+
 end
 
 

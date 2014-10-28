@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
         Optionally geolocate the target by gathering local wireless networks and
         performing a lookup against Google APIs.},
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Tom Sellers <tom [at] fadedcode.net>'],
+        'Author'        => [ 'Tom Sellers <tom[at]fadedcode.net>'],
         'Platform'      => %w{ osx win linux bsd solaris },
         'SessionTypes'  => [ 'meterpreter', 'shell' ],
       ))

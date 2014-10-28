@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 
     users_table = Rex::Ui::Text::Table.new(
       'Header'  => 'Advantech WebAccess Users',
-      'Ident'   => 1,
+      'Indent'   => 1,
       'Columns' => ['Username', 'Encrypted Password', 'Key', 'Recovered password', 'Origin']
     )
 

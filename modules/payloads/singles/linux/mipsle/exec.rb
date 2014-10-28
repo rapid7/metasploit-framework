@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,7 +20,7 @@ module Metasploit3
          },
       'Author'        =>
         [
-          'Michael Messner <devnull@s3cur1ty.de>', #metasploit payload
+          'Michael Messner <devnull[at]s3cur1ty.de>', #metasploit payload
           'entropy@phiral.net'  #original payload
         ],
       'References'    =>

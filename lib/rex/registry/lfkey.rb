@@ -41,7 +41,7 @@ class LFHashRecord
   attr_accessor :nodekey_offset, :nodekey_name_verification
 
   def initialize(hive_blob, offset)
-    @nodekey_offset = hive_blob[offset, 4].unpack('l').first
+    @nodekey_offset = hive_blob[offset, 4].unpack('V').first
     @nodekey_name_verification = hive_blob[offset+0x04, 4].to_s
   end
 

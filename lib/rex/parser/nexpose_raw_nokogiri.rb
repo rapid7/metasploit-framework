@@ -504,7 +504,7 @@ module Rex
         }
       }
       note[:data][:vendor] = @report_data[:os]["os_vendor"] if @report_data[:os]["os_vendor"]
-      note[:data][:product] = @report_data[:os]["os_product"] if @report_data[:os]["os_prduct"]
+      note[:data][:product] = @report_data[:os]["os_product"] if @report_data[:os]["os_product"]
       note[:data][:version] = @report_data[:os]["os_version"] if @report_data[:os]["os_version"]
       note[:data][:arch] = @report_data[:os]["os_arch"] if @report_data[:os]["os_arch"]
       db_report(:note, note)
