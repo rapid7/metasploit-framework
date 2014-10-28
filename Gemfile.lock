@@ -15,6 +15,7 @@ GEM
     arel (3.0.2)
     bcrypt-ruby (3.1.2)
     builder (3.0.4)
+    coderay (1.1.0)
     database_cleaner (1.1.1)
     diff-lcs (1.2.4)
     factory_girl (4.2.0)
@@ -26,6 +27,7 @@ GEM
       activerecord (>= 3.2.13)
       activesupport
       pg
+    method_source (0.8.2)
     mini_portile (0.5.1)
     msgpack (0.5.5)
     multi_json (1.0.4)
@@ -35,6 +37,10 @@ GEM
     packetfu (1.1.9)
     pcaprub (0.11.3)
     pg (0.16.0)
+    pry (0.10.1)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
     rake (10.1.0)
     redcarpet (3.0.0)
     rkelly-remix (0.0.6)
@@ -53,6 +59,7 @@ GEM
       multi_json (~> 1.0.3)
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
+    slop (3.6.0)
     timecop (0.6.3)
     tzinfo (0.3.37)
     yard (0.8.7)
@@ -75,6 +82,7 @@ DEPENDENCIES
   packetfu (= 1.1.9)
   pcaprub
   pg (>= 0.11)
+  pry
   rake (>= 10.0.0)
   redcarpet
   rkelly-remix (= 0.0.6)
