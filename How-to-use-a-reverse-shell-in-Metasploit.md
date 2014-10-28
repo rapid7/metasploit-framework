@@ -31,7 +31,7 @@ Generally speaking, if you can backdoor an existing service, you may not need a 
 
 If the target machine is running a web server that supports a server-side programming language, then you can leave a backdoor in that language. For example, many Apache servers support PHP, then you can use a PHP "web shell". IIS servers usually support ASP, or ASP.net. The Metasploit Framework offers payloads in all these languages (and many others).
 
-Same thing for VNC, remote desktop, or other remote admin tools, etc.
+Same thing for VNC, remote desktop, SMB (psexec), or other remote admin tools, etc.
 
 ## How to set up for a reverse shell during payload generation
 
