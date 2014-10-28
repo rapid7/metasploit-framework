@@ -61,7 +61,7 @@ module Metasploit
         # @param (see Rex::Proto::Http::Resquest#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version)
+          cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version, proxies)
           cli.connect
           req = cli.request_raw(opts)
           res = cli.send_recv(req)
@@ -182,8 +182,8 @@ module Metasploit
               status = try_glassfish_3(credential)
               result_opts.merge!(status)
             end
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
           Result.new(result_opts)
