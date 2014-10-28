@@ -213,11 +213,15 @@ class Metasploit3 < Msf::Auxiliary
         return :Skip_pass
       end
     else
-       # these two lines are the authentication info
+       # The authentication info is in the cookies on this response
       cookies = res.get_cookies
-      sessionid = 'sessionid=' << cookies.split('sessionid=')[1].split('; ')[0]
-      cadata = 'cadata=' << cookies.split('cadata=')[1].split('; ')[0]
-      headers['Cookie'] = 'PBack=0; ' << sessionid << '; ' << cadata
+      sessionid_value = cookies.split('sessionid=')[1]
+      sessionid_value = sessionid_value.to_s.split('; ')[0]
+      sessionid_header = "sessionid=#{sessionid_value}"
+      cadata_value = cookies.split('cadata=')[1]
+      cadata_value = cadata_value.to_s.split('; ')[0]
+      cadata_header = "cadata=#{cadata_value}"
+      headers['Cookie'] = 'PBack=0; ' << sessionid_header << '; ' << cadata_header
     end
 
     begin
