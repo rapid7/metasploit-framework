@@ -5,9 +5,7 @@
 
 require 'msf/core'
 
-
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Skinny
   include Msf::Exploit::Remote::Tcp
@@ -21,51 +19,51 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-          OptString.new('MAC',   [ true, "MAC Address"]),
-          OptString.new('TARGET',   [ true, "Target number (e.g. 986100)"]),
-          Opt::RPORT(2000),
+        OptString.new('MAC',   [ true, "MAC Address"]),
+        OptString.new('TARGET',   [ true, "Target number (e.g. 986100)"]),
+        Opt::RPORT(2000)
       ], self.class)
     register_advanced_options(
       [
-          OptString.new('PROTO_TYPE',   [ true, "Device Type (e.g. SIP,SEP)", "SEP"]),
-          OptString.new('LINE',   [ false, "Source line (e.g. 1,2)"]),
-          OptString.new('DEVICE_IP',   [ false, "IP address of the device for spoofing"]),
-          OptString.new('CISCOCLIENT',   [ true, "Cisco software type (ipphone,cipc)","cipc"]),
-          OptString.new('CAPABILITIES',   [ false, "Capabilities of the device (e.g. Router, Host, Switch)", "Host"]),
-          OptString.new('PLATFORM',   [ false, "Platform of the device", "Cisco IP Phone 7975"]),
-          OptString.new('SOFTWARE',   [ false, "Software of the device", "SCCP75.9-3-1SR2-1S"]),
-          OptString.new('DEBUG',   [ false, "Debug level" ]),
+        OptString.new('PROTO_TYPE',   [ true, "Device Type (e.g. SIP,SEP)", "SEP"]),
+        OptString.new('LINE',   [ false, "Source line (e.g. 1,2)"]),
+        OptString.new('DEVICE_IP',   [ false, "IP address of the device for spoofing"]),
+        OptString.new('CISCOCLIENT',   [ true, "Cisco software type (ipphone,cipc)", "cipc"]),
+        OptString.new('CAPABILITIES',   [ false, "Capabilities of the device (e.g. Router, Host, Switch)", "Host"]),
+        OptString.new('PLATFORM',   [ false, "Platform of the device", "Cisco IP Phone 7975"]),
+        OptString.new('SOFTWARE',   [ false, "Software of the device", "SCCP75.9-3-1SR2-1S"]),
+        OptString.new('DEBUG',   [ false, "Debug level" ])
       ], self.class)
   end
 
   def run
-    #options from the user
-    if datastore['MAC'] and datastore['TARGET']
+    # options from the user
+    if datastore['MAC'] && datastore['TARGET']
       mac = datastore['MAC'].upcase
     else
-      raise RuntimeError ,'MAC and TARGET should be defined'
+      fail RuntimeError, 'MAC and TARGET should be defined'
     end
-    line=datastore['LINE'] || 1
-    target=datastore['TARGET']
-    client=datastore['CISCOCLIENT'].downcase
-    capabilities=datastore['CAPABILITIES'] || "Host"
-    platform=datastore['PLATFORM'] || "Cisco IP Phone 7975"
-    software=datastore['SOFTWARE'] || "SCCP75.9-3-1SR2-1S"
+    line = datastore['LINE'] || 1
+    target = datastore['TARGET']
+    client = datastore['CISCOCLIENT'].downcase
+    capabilities = datastore['CAPABILITIES'] || "Host"
+    platform = datastore['PLATFORM'] || "Cisco IP Phone 7975"
+    software = datastore['SOFTWARE'] || "SCCP75.9-3-1SR2-1S"
     if datastore['DEVICE_IP']
-      device_ip=datastore['DEVICE_IP']
+      device_ip = datastore['DEVICE_IP']
     else
-      device_ip=Rex::Socket.source_address(datastore['RHOST'])
+      device_ip = Rex::Socket.source_address(datastore['RHOST'])
     end
-    device="#{datastore['PROTO_TYPE']}#{mac.gsub(":","")}"
+    device = "#{datastore['PROTO_TYPE']}#{mac.gsub(":", "")}"
 
-    #Skinny Call Test
+    # Skinny Call Test
     begin
       connect
 
-      #Registration
-      register(sock,device,device_ip,client,mac,false)
-      #Call
-      call(sock,line,target)
+      # Registration
+      register(sock, device, device_ip, client, mac, false)
+      # Call
+      call(sock, line, target)
 
       disconnect
     rescue Rex::ConnectionError => e
@@ -73,5 +71,4 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
   end
-
 end
