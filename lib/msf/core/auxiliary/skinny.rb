@@ -201,7 +201,7 @@ module Msf
     def getresponse
       responses = []
       while sock.has_read_data?(2)
-        return nil if sock.eof?
+        return responses if sock.eof?
         res = sock.get_once
         len = bytes_to_length(res[0, 4])
         firstbyte = 0
