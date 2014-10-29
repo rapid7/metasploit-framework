@@ -31,20 +31,8 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def short(v)
-    [ (v & 0xFF00) >> 8, v & 0x00FF ].pack("CC")
-  end
-
-  def build_probe(qname, qtype, qclass)
-      short(rand(0xFFF)) + # transaction ID
-      "\x00\x00" + # flags
-      "\x00\x01" + # questions
-      "\x00\x00" + # answer RRs
-      "\x00\x00" + # authority RRs
-      "\x00\x00" + # additional RRs
-      [ qname.length, qname ].pack("Ca#{qname.length+1}") +  # name
-      short(qtype) +  # type
-      short(qclass)  # class
+  def setup
+    @probe = ::Net::DNS::Packet.new(qname, qtype, qclass).data
   end
 
   def scanner_process(data, shost, _sport)
@@ -53,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scan_host(ip)
-    scanner_send(build_probe(datastore['NAME'], datastore['TYPE'], datastore['CLASS']), ip, datastore['RPORT'])
+    scanner_send(@probe, ip, datastore['RPORT'])
   end
 
   def scanner_prescan(batch)
