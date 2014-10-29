@@ -11,6 +11,11 @@ module Metasploit::Framework::Spec::Constants::Each
   def self.configure!
     unless @configured
       RSpec.configure do |config|
+        config.before(:each) do
+          # clean so that leaks from earlier example aren't attributed to this example
+          Metasploit::Framework::Spec::Constants.clean
+        end
+
         config.after(:each) do
           child_names = Metasploit::Framework::Spec::Constants.to_enum(:each).to_a
 
@@ -26,10 +31,9 @@ module Metasploit::Framework::Spec::Constants::Each
 
             message = lines.join("\n")
 
-            # clean so that leaks from one example aren't attributed to later examples
-            Metasploit::Framework::Spec::Constants.clean
-
-            fail message
+            # use caller metadata so that Jump to Source in the Rubymine RSpec running jumps to the example instead of
+            # here
+            fail RuntimeError, message, example.metadata[:caller]
           end
         end
       end

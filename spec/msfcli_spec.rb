@@ -81,6 +81,8 @@ describe Msfcli do
     # This one is slow because we're loading all modules
     #
     context ".dump_module_list" do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
       it "it should dump a list of modules" do
         tbl = ''
         stdout = get_stdout {
@@ -221,6 +223,7 @@ describe Msfcli do
     end
 
     context ".init_modules" do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
       it "should inititalize an exploit module" do
         args = 'exploit/windows/smb/psexec S'
@@ -298,6 +301,8 @@ describe Msfcli do
     end
 
     context ".engage_mode" do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
       it "should show me the summary of module auxiliary/scanner/http/http_version" do
         args = 'auxiliary/scanner/http/http_version s'
         stdout = get_stdout {
