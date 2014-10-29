@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
       [
           OptString.new('PROTO_TYPE',   [ true, "Device Type (e.g. SIP,SEP)", "SEP"]),
           OptString.new('LINE',   [ false, "Source line (e.g. 1,2)"]),
-          OptString.new('DEVICE_IP',   [ false, "IP address of the device"]),
+          OptString.new('DEVICE_IP',   [ false, "IP address of the device for spoofing"]),
           OptString.new('CISCOCLIENT',   [ true, "Cisco software type (ipphone,cipc)","cipc"]),
           OptString.new('CAPABILITIES',   [ false, "Capabilities of the device (e.g. Router, Host, Switch)", "Host"]),
           OptString.new('PLATFORM',   [ false, "Platform of the device", "Cisco IP Phone 7975"]),
