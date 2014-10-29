@@ -62,6 +62,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to obfuscate JavaScript in Metasploit]]
 - [[How to log in Metasploit]]
 - [[How to deprecate a Metasploit module]]
+- [[How to use the Msf::Exploit::Remote::Tcp mixin]]
 
 # GitHub Resources #
 
