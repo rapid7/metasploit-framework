@@ -10,15 +10,35 @@ module Msf
     attr_accessor :prxclient_port, :prxclient_ip, :client_port, :client_ip
     attr_accessor :prxserver_port, :prxserver_ip, :server_port, :server_ip
 
+    def initialize
+      super
+      register_advanced_options(
+        [
+          OptString.new('PROTO_TYPE', [true, 'Device Type (e.g. SIP,SEP)', 'SEP']),
+          OptString.new('DEVICE_IP',  [false, 'IP address of the device for spoofing']),
+          OptEnum.new('CISCOCLIENT',  [true, 'Cisco software type', %w(ipphone cipc), 'cipc']),
+          OptString.new('CAPABILITIES', [false, 'Capabilities of the device (e.g. Router, Host, Switch)', 'Host']),
+          OptString.new('PLATFORM', [false, 'Platform of the device', 'Cisco IP Phone 7975']),
+          OptString.new('SOFTWARE', [false, 'Software of the device', 'SCCP75.9-3-1SR2-1S']),
+          OptBool.new('DEBUG', [false, 'Debug level', false ])
+        ], self.class)
+    end
+
+    def mac
+      format_mac(datastore['MAC'])
+    end
+
     # Formats the provided MAC into a consistent form
     def format_mac(mac)
-      if mac =~ /^[a-z0-9]{12}/i
+      if mac =~ /^[a-f0-9]{12}$/i
         parts = mac.scan(/../)
       else
         parts = mac.split(/[:\-]/)
       end
-      raise ArgumentError, "#{mac} is not a valid MAC" unless parts.size == 6
-      parts.map { |p| p.rjust(2, '0') }.join(':')
+      if parts.size != 6 || parts.any? { |p| p !~ /^[a-f0-9]{1,2}$/i }
+        raise ArgumentError, "#{mac} is not a valid MAC"
+      end
+      parts.map { |p| p.rjust(2, '0') }.join(':').upcase
     end
 
     def register(sock, device, device_ip, client, mac, configinfo = true)
@@ -629,7 +649,7 @@ module Msf
       macs = []
       contents = IO.read(f)
       contents.split("\n").each do |line|
-        macs << format_mac(line)upcase
+        macs << format_mac(line).upcase
       end
       macs
     end

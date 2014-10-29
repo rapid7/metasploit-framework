@@ -26,27 +26,16 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
     register_advanced_options(
       [
-        OptString.new('LINE',   [ false, "Source line (e.g. 1,2)", "1"]),
-        OptString.new('PROTO_TYPE',   [ true, "Device Type (e.g. SIP,SEP)", "SEP"]),
-        OptString.new('DEVICE_IP',   [ false, "IP address of the device for spoofing"]),
-        OptString.new('CISCOCLIENT',   [ true, "Cisco software type (ipphone,cipc)", "cipc"]),
-        OptString.new('CAPABILITIES',   [ false, "Capabilities of the device (e.g. Router, Host, Switch)", "Host"]),
-        OptString.new('PLATFORM',   [ false, "Platform of the device", "Cisco IP Phone 7975"]),
-        OptString.new('SOFTWARE',   [ false, "Software of the device", "SCCP75.9-3-1SR2-1S"]),
-        OptString.new('DEBUG',   [ false, "Debug level" ])
+        OptInt.new('LINE',   [true, "Source line (e.g. 1,2)", 1]),
       ], self.class)
   end
 
-  def mac
-    format_mac(datastore['MAC']).upcase
-  end
-
   def run
-    line = datastore['LINE'] || "1"
+    line = datastore['LINE']
     client = datastore['CISCOCLIENT'].downcase
-    capabilities = datastore['CAPABILITIES'] || "Host"
-    platform = datastore['PLATFORM'] || "Cisco IP Phone 7975"
-    software = datastore['SOFTWARE'] || "SCCP75.9-3-1SR2-1S"
+    capabilities = datastore['CAPABILITIES']
+    platform = datastore['PLATFORM']
+    software = datastore['SOFTWARE']
     rhost = datastore['RHOST']
     action = datastore['ACTION']
     if datastore['DEVICE_IP']
