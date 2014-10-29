@@ -137,7 +137,7 @@ module Msf::DBManager::Session
 
     s = ::Mdm::Session.new(sess_data)
     s.save!
-
+        
     if session and session.exploit_task and session.exploit_task.record
       session_task =  session.exploit_task.record
       if session_task.class == Mdm::Task
