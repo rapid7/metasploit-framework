@@ -51,7 +51,6 @@ class Metasploit3 < Msf::Auxiliary
     capabilities = datastore['CAPABILITIES'] || "Host"
     platform = datastore['PLATFORM'] || "Cisco IP Phone 7975"
     software = datastore['SOFTWARE'] || "SCCP75.9-3-1SR2-1S"
-    fail RuntimeError, 'MAC or MACFILE should be defined' unless datastore['MAC'] || datastore['MACFILE']
     if datastore['MACFILE']
       macs = macfileimport(datastore['MACFILE'])
     else

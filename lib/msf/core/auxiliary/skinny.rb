@@ -15,16 +15,19 @@ module Msf
       sock.put(prep_register(device, device_ip, client))
       print_status("Register request sent for #{device}")
 
-      c = 0
+      retry_limit = 3
+      retries = 0
       while true
         # Auto-registration enabled systems need extra 6 sec
         # Retrieving the response from the socket
         responses = getresponse
-        if responses == []
-          c += 1
-          if c == 3
+        if responses.empty?
+          retries += 1
+          if retries > retry_limit
             print_error("Register request timed-out.")
             return nil
+          else
+            vprint_status("Retry #{retries} of #{retry_limit} for register request")
           end
         else
           break
@@ -201,7 +204,7 @@ module Msf
       print_debug("No data to read.") if datastore["DEBUG"] == true
       return responses
     rescue => e
-      return r = ["error", e, nil]
+      return r = ["error", e.class, nil]
     end
 
     def getconfiguration(r, m, lines, configinfo)
