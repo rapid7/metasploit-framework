@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def setup
-    @probe = ::Net::DNS::Packet.new(qname, qtype, qclass).data
+    @probe = ::Net::DNS::Packet.new(datastore['NAME'], datastore['TYPE'], datastore['CLASS']).data
   end
 
   def scanner_process(data, shost, _sport)
