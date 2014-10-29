@@ -154,16 +154,21 @@ module Msf
           r, m, l = response
           if r == "StartToneMessage"
             starttonereceived = true
-            @callidentifier = m.split("\t")[0].split(": ")[1]
-            vprint_status("Call identifier is #{@callidentifier}")
+            callidentifier = m.split("\t")[0].split(": ")[1]
+            vprint_status("Call identifier is #{callidentifier}")
           end
         end
         c += 1
       end
 
+      unless starttonereceived
+        print_error("No call identifier obtained.  Call failed")
+        return nil
+      end
+
       # Dialing the number
       target.each_char do |n|
-        sock.put(prep_keypadbutton(n, line, @callidentifier))
+        sock.put(prep_keypadbutton(n, line, callidentifier))
       end
       print_status("Numbers dialed for line #{line}")
 
