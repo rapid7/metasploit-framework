@@ -169,6 +169,7 @@ attr_accessor :sock, :thread
     last_notified = now - @notified_times[host]
     if last_notified == 0 or last_notified > 10
       @notified_times[host] = now
+      true
     else
       false
     end
