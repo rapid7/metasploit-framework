@@ -10,6 +10,17 @@ module Msf
     attr_accessor :prxclient_port, :prxclient_ip, :client_port, :client_ip
     attr_accessor :prxserver_port, :prxserver_ip, :server_port, :server_ip
 
+    # Formats the provided MAC into a consistent form
+    def format_mac(mac)
+      if mac =~ /^[a-z0-9]{12}/i
+        parts = mac.scan(/../)
+      else
+        parts = mac.split(/[:\-]/)
+      end
+      raise ArgumentError, "#{mac} is not a valid MAC" unless parts.size == 6
+      parts.map { |p| p.rjust(2, '0') }.join(':')
+    end
+
     def register(sock, device, device_ip, client, mac, configinfo = true)
       # Register request
       sock.put(prep_register(device, device_ip, client))
@@ -618,7 +629,7 @@ module Msf
       macs = []
       contents = IO.read(f)
       contents.split("\n").each do |line|
-        macs << line.upcase
+        macs << format_mac(line)upcase
       end
       macs
     end

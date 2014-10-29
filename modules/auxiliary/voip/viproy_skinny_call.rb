@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def mac
-    datastore['MAC'].upcase
+    format_mac(datastore['MAC']).upcase
   end
 
   def run
