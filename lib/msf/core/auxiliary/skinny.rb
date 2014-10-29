@@ -35,7 +35,7 @@ module Msf
         r, m, l = response
         case r
         when "error"
-          print_error("Connection error : #{e}")
+          print_error("Connection error : #{m}")
           return nil
         when "RegisterAckMessage"
           print_good("#{mac} MAC address is registered on #{rhost}")
