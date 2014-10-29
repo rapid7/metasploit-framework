@@ -36,6 +36,16 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def mac
+    datastore['MAC'].upcase
+  end
+
+  def setup
+    unless datastore['MAC'] || datastore['MACFILE']
+      fail_with(ArgumentError, 'MAC or MACFILE must be defined')
+    end
+  end
+
   def run
     # options from the user
     capabilities = datastore['CAPABILITIES'] || "Host"
@@ -47,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
     else
       macs = []
     end
-    macs << datastore['MAC'].upcase if datastore['MAC']
+    macs << mac if datastore['MAC']
     client = datastore['CISCOCLIENT'].downcase
     if datastore['DEVICE_IP']
       device_ip = datastore['DEVICE_IP']

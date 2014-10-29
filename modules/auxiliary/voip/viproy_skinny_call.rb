@@ -36,13 +36,11 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def mac
+    datastore['MAC'].upcase
+  end
+
   def run
-    # options from the user
-    if datastore['MAC'] && datastore['TARGET']
-      mac = datastore['MAC'].upcase
-    else
-      fail RuntimeError, 'MAC and TARGET should be defined'
-    end
     line = datastore['LINE'] || 1
     target = datastore['TARGET']
     client = datastore['CISCOCLIENT'].downcase
