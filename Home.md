@@ -63,6 +63,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to log in Metasploit]]
 - [[How to deprecate a Metasploit module]]
 - [[How to use the Msf::Exploit::Remote::Tcp mixin]]
+- [[How to manage and test Microsoft patches for your exploit]]
 
 # GitHub Resources #
 
