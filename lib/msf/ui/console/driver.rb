@@ -56,19 +56,33 @@ class Driver < Msf::Ui::Driver
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
 
     # Choose a readline library before calling the parent
-    rl = false
     rl_err = nil
-    begin
-      if(opts['RealReadline'])
-        require 'readline'
-        rl = true
+    if(opts['RealReadline'])
+      # Remove the gem version from load path to be sure we're getting the
+      # stdlib readline.
+      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
+      rb_readline_path = File.join(gem_dir, "lib")
+      index = $LOAD_PATH.index(rb_readline_path)
+      if index
+        $LOAD_PATH.delete_at(index)
       end
-    rescue ::LoadError
-      rl_err = $!
     end
 
-    # Default to the RbReadline wrapper
-    require 'readline_compatible' if(not rl)
+    begin
+      require 'readline'
+    rescue ::LoadError => e
+      if rl_err.nil? && rb_readline_path && index
+        rl_err = e
+        # Put the gem back and see if that works
+        $LOAD_PATH.insert(index, rb_readline_path)
+        index = rb_readline_path = nil
+        retry
+      else
+        # Either didn't have the gem to fall back on, or we failed twice.
+        # Nothing more to do here.
+        raise e
+      end
+    end
 
     histfile = opts['HistFile'] || Msf::Config.history_file
 

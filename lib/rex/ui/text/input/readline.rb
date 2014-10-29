@@ -20,11 +20,7 @@ begin
     #
     def initialize(tab_complete_proc = nil)
       if(not Object.const_defined?('Readline'))
-        begin
-          require 'readline'
-        rescue ::LoadError
-          require 'readline_compatible'
-        end
+        require 'readline'
       end
 
       self.extend(::Readline)

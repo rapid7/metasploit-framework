@@ -74,6 +74,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'packetfu', '1.1.9'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
+  # required for OS fingerprinting
+  spec.add_runtime_dependency 'recog', '~> 1.0'
+  # read... lines...
+  spec.add_runtime_dependency 'rb-readline'
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules
@@ -82,6 +86,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
-  # required for OS fingerprinting
-  spec.add_runtime_dependency 'recog', '~> 1.0'
 end
