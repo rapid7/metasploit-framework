@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect(true, 'RPORT' => datastore['JPORT'].to_i)
       sock.put(create_print_job)
-    rescue ::Timeout::Error
+    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse 
       print_error("Error connecting to #{rhost}")
       return
     ensure
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
       res = sock.get_once
       passwd = res.match(/\r\n\s(.+?)\n/)
       return passwd ? passwd[1] : ''
-    rescue
+    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse
       print_error("Error getting password from #{rhost}")
       return
     ensure
