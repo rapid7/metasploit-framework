@@ -10,13 +10,13 @@ module Msf
     attr_accessor :prxclient_port, :prxclient_ip, :client_port, :client_ip
     attr_accessor :prxserver_port, :prxserver_ip, :server_port, :server_ip
 
-    def initialize
+    def initialize(info = {})
       super
       register_advanced_options(
         [
           OptString.new('PROTO_TYPE', [true, 'Device Type (e.g. SIP,SEP)', 'SEP']),
           OptString.new('DEVICE_IP',  [false, 'IP address of the device for spoofing']),
-          OptEnum.new('CISCOCLIENT',  [true, 'Cisco software type', %w(ipphone cipc), 'cipc']),
+          OptEnum.new('CISCOCLIENT',  [true, 'Cisco software type', 'cipc', %w(ipphone cipc)]),
           OptString.new('CAPABILITIES', [false, 'Capabilities of the device (e.g. Router, Host, Switch)', 'Host']),
           OptString.new('PLATFORM', [false, 'Platform of the device', 'Cisco IP Phone 7975']),
           OptString.new('SOFTWARE', [false, 'Software of the device', 'SCCP75.9-3-1SR2-1S']),
