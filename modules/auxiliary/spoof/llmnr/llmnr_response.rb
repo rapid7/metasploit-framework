@@ -74,14 +74,6 @@ attr_accessor :sock, :thread
 
     dns_pkt.question.each do |question|
       name = question.qName
-      unless name =~ /#{datastore['REGEX']}/i
-        vprint_status("#{rhost.to_s.ljust 16} llmnr - #{name} did not match REGEX \"#{datastore['REGEX']}\"")
-        next
-      end
-
-      if should_print_reply?(name)
-        print_good("#{rhost.to_s.ljust 16} llmnr - #{name} matches regex, responding with #{datastore['SPOOFIP']}")
-      end
 
       # qType is not a Fixnum, so to compare it with `case` we have to
       # convert it
@@ -103,8 +95,16 @@ attr_accessor :sock, :thread
           :address => (spoof.ipv6? ? spoof : spoof.ipv4_mapped).to_s
         )
       else
-        print_warning("#{rhost.to_s.ljust 16} llmnr - Unknown RR type, this shouldn't happen. Skipping")
+        vprint_warning("#{rhost.to_s.ljust 16} LLMNR - Skipping unhandled RR query type #{question.qType}")
         next
+      end
+
+      if name =~ /#{datastore['REGEX']}/i
+        if should_print_reply?(name)
+          print_good("#{rhost.to_s.ljust 16} LLMNR - #{name} matches regex, responding with #{datastore['SPOOFIP']}")
+        end
+      else
+        vprint_status("#{rhost.to_s.ljust 16} LLMNR - #{name} did not match REGEX \"#{datastore['REGEX']}\"")
       end
     end
 
