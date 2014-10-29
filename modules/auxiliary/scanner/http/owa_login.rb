@@ -302,7 +302,7 @@ class Metasploit3 < Msf::Auxiliary
         next
       end
 
-      if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+      if res && res.code == 401 && res.headers.has_key?('WWW-Authenticate') && res.headers['WWW-Authenticate'].match(/^NTLM/i)
         hash = res['WWW-Authenticate'].split('NTLM ')[1]
         domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
         print_good("Found target domain: " + domain)
