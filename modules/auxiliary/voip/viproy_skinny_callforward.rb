@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
         forwardstatreceived = false
         c = 0
         while c < 3 && !forwardstatreceived
-          responses = getresponse
+          responses = getresponse || []
 
           # Retrieving the forward status response from the socket
           responses.each do|response|

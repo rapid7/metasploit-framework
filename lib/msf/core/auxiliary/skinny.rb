@@ -51,7 +51,7 @@ module Msf
       while true
         # Auto-registration enabled systems need extra 6 sec
         # Retrieving the response from the socket
-        responses = getresponse
+        responses = getresponse || []
         if responses.empty?
           retries += 1
           if retries > retry_limit
@@ -65,7 +65,7 @@ module Msf
         end
       end
 
-      responses.each do|response|
+      responses.each do |response|
         r, m, l = response
         case r
         when "error"
@@ -113,14 +113,13 @@ module Msf
       until configstatrecevied
         print_debug("Config status is looping") if datastore["DEBUG"] == true
         # Retrieving the response from the socket
-        responses = getresponse
+        responses = getresponse || []
 
-        responses.each do|response|
+        responses.each do |response|
           r, m, l = response
           case r
           when "error"
-            print_error("#{mac} configuration couldn't retrieved from #{rhost}")
-            print_error("Error is #{m}")
+            print_error("#{mac} configuration couldn't retrieved from #{rhost}: error #{m}")
             return nil
             break
           when /ConfigStatMessage/
@@ -147,10 +146,10 @@ module Msf
       starttonereceived = false
       c = 0
       while c < 3 && !starttonereceived
-        responses = getresponse
+        responses = getresponse || []
 
         # Retrieving the start tone response from the socket
-        responses.each do|response|
+        responses.each do |response|
           r, m, l = response
           if r == "StartToneMessage"
             starttonereceived = true
@@ -176,9 +175,9 @@ module Msf
       callresreceived = false
       c = 0
       while c < 3 && !callresreceived
-        responses = getresponse
+        responses = getresponse || []
 
-        responses.each do|response|
+        responses.each do |response|
           r, m, l = response
           case r
           when "CallInfoMessage"
@@ -205,42 +204,44 @@ module Msf
 
     def getresponse
       responses = []
-      while sock.has_read_data?(2)
-        return responses if sock.eof?
-        res = sock.get_once
-        len = bytes_to_length(res[0, 4])
-        firstbyte = 0
-        print_debug("Initial length #{len}, resource length is #{res.length}") if datastore["DEBUG"] == true
-        while firstbyte == 0 || (len != 0 && len + 8 < res.length)
-          print_debug("Skinny length is #{len} and Data length is #{res.length}") if datastore["DEBUG"] == true
-          r, m, lines = skinny_parser(res[firstbyte, len + 8])
-          responses << [r, m, lines]
-          if m =~ /\t/
-            vprint_status("Response received: #{r}")
-            m.split("\t").each do |k|
-              vprint_status("  #{k}")
-            end
-          else
-            if m.nil?
+      begin
+        while sock.has_read_data?(2)
+          return nil if sock.eof?
+          res = sock.get_once
+          len = bytes_to_length(res[0, 4])
+          firstbyte = 0
+          print_debug("Initial length #{len}, resource length is #{res.length}") if datastore["DEBUG"] == true
+          while firstbyte == 0 || (len != 0 && len + 8 < res.length)
+            print_debug("Skinny length is #{len} and Data length is #{res.length}") if datastore["DEBUG"] == true
+            r, m, lines = skinny_parser(res[firstbyte, len + 8])
+            responses << [r, m, lines]
+            if m =~ /\t/
               vprint_status("Response received: #{r}")
+              m.split("\t").each do |k|
+                vprint_status("  #{k}")
+              end
             else
-              vprint_status("Response received: #{r} => #{m}")
+              if m.nil?
+                vprint_status("Response received: #{r}")
+              else
+                vprint_status("Response received: #{r} => #{m}")
+              end
+            end
+            firstbyte = firstbyte + len + 8
+            print_debug("New first byte is #{firstbyte}") if datastore["DEBUG"] == true
+            unless res[firstbyte, 4].nil? # or res[len,4].unpack('H*')[0] == "00000000"
+              print_debug("Extra response received: #{res[firstbyte, 4]}, #{res[firstbyte, 4].unpack('H*')[0]}") if datastore["DEBUG"] == true
+              len = bytes_to_length(res[firstbyte, 4])
+              print_debug("First Byte: #{firstbyte}, Length #{len}") if datastore["DEBUG"] == true
             end
           end
-          firstbyte = firstbyte + len + 8
-          print_debug("New first byte is #{firstbyte}") if datastore["DEBUG"] == true
-          unless res[firstbyte, 4].nil? # or res[len,4].unpack('H*')[0] == "00000000"
-            print_debug("Extra response received: #{res[firstbyte, 4]}, #{res[firstbyte, 4].unpack('H*')[0]}") if datastore["DEBUG"] == true
-            len = bytes_to_length(res[firstbyte, 4])
-            print_debug("First Byte: #{firstbyte}, Length #{len}") if datastore["DEBUG"] == true
-          end
+          print_debug("Multi-response loop is broken.") if datastore["DEBUG"] == true
         end
-        print_debug("Multi-response loop is broken.") if datastore["DEBUG"] == true
+        print_debug("No data to read.") if datastore["DEBUG"] == true
+        return responses
+      rescue => e
+        return r = ["error", e, nil]
       end
-      print_debug("No data to read.") if datastore["DEBUG"] == true
-      return responses
-    rescue => e
-      return r = ["error", e.class, nil]
     end
 
     def getconfiguration(r, m, lines, configinfo)
@@ -258,9 +259,9 @@ module Msf
           vprint_status("Line request sent for #{i + 1} of #{lines}")
 
           print_debug("Line status is looping") if datastore["DEBUG"] == true
-          responses = getresponse
+          responses = getresponse || []
 
-          responses.each do|response|
+          responses.each do |response|
             r, m, l = response
             if r == "LineStatMessage"
               print_good("The line #{i + 1} information:") if configinfo
@@ -303,7 +304,7 @@ module Msf
       mac = device[3, 12]
       p = "\x01\x00\x00\x00" # register message
       p << "#{device}\x00\x00\x00\x00\x00\x00\x00\x00\x00" # device id
-      p << ip_to_bytes(device_ip) # "\xC0\xA8\n6" #ip address
+      p << ip_to_bytes(device_ip) # ip address
       if cipc == "cipc"
         # cisco ip communicator client
         device_type = 30016
@@ -312,7 +313,7 @@ module Msf
         device_type = 309
       end
       p << length_to_bytes(device_type, 4) # device type
-      p << "\x05\x00\x00\x00"
+      p << "\x05\x00\x00\x00" # max streams
 
       if cipc == "cipc"
         # cisco ip communicator client
@@ -638,7 +639,7 @@ module Msf
     def ip_to_bytes(dip)
       # print_status("Device IP: #{dip}")
       b = []
-      dip.split('.').each do|p|
+      dip.split('.').each do |p|
         b << [ "%02X" % p ].pack('H*')
       end
       b = b.join('')
