@@ -42,6 +42,8 @@ class Metasploit3 < Msf::Auxiliary
     remove
 
     if passwd
+      print_good("#{rhost}:#{rport} - Password found: #{passwd}")
+
       loot_name     = 'xerox.password'
       loot_type     = 'text/plain'
       loot_filename = 'xerox-password.text'
