@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'Dell MFP 3115n color job username exractor',
+      'Name'           => 'Dell MFP 3115n color job username enumerator',
       'Description'    => %{
-        This module is used to harvests the usernames from the color job log file on a Dell MFP 3115n.
+        This module is used to harvests the usernames from the color job log file on a Dell MFP 3115cn.
       },
       'Author'         =>
         [
@@ -29,8 +29,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', false]),
-        OptInt.new('RPORT', [ true, 'The target port', 80]),
-        OptInt.new('TIMEOUT', [true, 'Timeout for printer probe', 20])
+        OptInt.new('RPORT', [ true, 'The target port where the printers web admin interface is', 80]),
+        OptInt.new('TIMEOUT', [true, 'Timeout for printer probe. How long we are going to wait before we give up', 20])
 
       ], self.class)
   end
