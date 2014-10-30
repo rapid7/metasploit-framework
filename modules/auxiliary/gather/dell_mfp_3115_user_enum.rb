@@ -2,8 +2,6 @@
 # This module requires Metasploit: http//metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'rex/proto/http'
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -29,17 +27,17 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', false]),
-        OptInt.new('RPORT', [ true, 'The target port where the printers web admin interface is', 80]),
+        OptPort.new('RPORT', [ true, 'The target port where the printers web admin interface is', 80]),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer probe. How long we are going to wait before we give up', 20])
 
       ], self.class)
   end
 
   def run_host(ip)
-    print_status("Attempting to enumerate usernames from: #{rhost}")
+    print_status("Attempting to enumerate usernames from: #{peer}")
 
     users = pull_usernames
-    return if users.nil?
+    return if users.blank?
 
     print_status('Finished extracting usernames')
     usernames = ''
@@ -72,13 +70,13 @@ class Metasploit3 < Msf::Auxiliary
         'uri'       => '/ews/job/log.htm',
         'method'    => 'GET'
       }, datastore['TIMEOUT'].to_i)
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{rhost}:#{rport} - Connection failed.")
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
+      print_error("#{peer} - Connection failed.")
       return
     end
 
     if res == nil?
-      print_error("#{rhost}:#{rport} - Connection failed.")
+      print_error("#{peer} - Connection failed.")
       return false
     end
 
@@ -86,15 +84,15 @@ class Metasploit3 < Msf::Auxiliary
     record_total = html_body.xpath('/html/body/table/tr/td/table[3]/tr/td/table/td').length
     record_loop = (record_total / 10)
 
-    @i = 13
+    i = 13
     print_status('Trying to extract usernames')
     while record_loop > 0
-      tr_name = html_body.xpath("/html/body/table/tr/td/table[3]/tr/td/table/td[#{@i}]").text
+      tr_name = html_body.xpath("/html/body/table/tr/td/table[3]/tr/td/table/td[#{i}]").text
       unless tr_name.blank?
         usernames << tr_name.strip
       end
 
-      @i += 10
+      i += 10
       record_loop -= 1
     end
     usernames.uniq!
