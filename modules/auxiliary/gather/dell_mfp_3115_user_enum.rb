@@ -10,9 +10,9 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Dell MFP 3115n color job username enumerator',
+      'Name'           => 'Dell MFP 3115n Color Job Username Enumerator',
       'Description'    => %{
         This module is used to harvests the usernames from the color job log file on a Dell MFP 3115cn.
       },
@@ -41,23 +41,21 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status('Finished extracting usernames')
     usernames = ''
-    unless users.blank?
-      users.each do |user|
-        usernames << user << "\n"
-      end
+    users.each do |user|
+      usernames << user << "\n"
     end
 
-    #Woot we got usernames so lets save them.
+    # Woot we got usernames so lets save them.
     print_good("Found the following users: #{users}")
     loot_name     = 'dell.mfp.usernames'
     loot_type     = 'text/plain'
     loot_filename = 'dell-usernames.text'
     loot_desc     = 'Dell MFP Username Harvester'
-    p = store_loot(loot_name, loot_type, datastore['RHOST'], usernames, loot_filename, loot_desc)
+    p = store_loot(loot_name, loot_type, ip, usernames, loot_filename, loot_desc)
     print_status("Credentials saved in: #{p}")
 
     users.each do | user |
-      register_creds('DELL-HTTP', rhost, '80', user, '')
+      register_creds('DELL-HTTP', ip, '80', user, '')
     end
   end
 
@@ -72,12 +70,12 @@ class Metasploit3 < Msf::Auxiliary
       }, datastore['TIMEOUT'].to_i)
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       print_error("#{peer} - Connection failed.")
-      return
+      return []
     end
 
     if res == nil?
       print_error("#{peer} - Connection failed.")
-      return false
+      return []
     end
 
     html_body = ::Nokogiri::HTML(res.body)
@@ -88,9 +86,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status('Trying to extract usernames')
     while record_loop > 0
       tr_name = html_body.xpath("/html/body/table/tr/td/table[3]/tr/td/table/td[#{i}]").text
-      unless tr_name.blank?
-        usernames << tr_name.strip
-      end
+      usernames << tr_name.strip unless tr_name.blank?
 
       i += 10
       record_loop -= 1
