@@ -33,7 +33,7 @@ module Metasploit::Framework::Spec::Constants::Each
   def self.configure!
     unless @configured
       RSpec.configure do |config|
-        config.before(:each) do
+        config.before(:each) do |example|
           leaks_cleaned = Metasploit::Framework::Spec::Constants.clean
 
           if leaks_cleaned
@@ -44,7 +44,7 @@ module Metasploit::Framework::Spec::Constants::Each
           Metasploit::Framework::Spec::Constants::Each.leaks_cleaned ||= leaks_cleaned
         end
 
-        config.after(:each) do
+        config.after(:each) do |example|
           child_names = Metasploit::Framework::Spec::Constants.to_enum(:each).to_a
 
           if child_names.length > 0
