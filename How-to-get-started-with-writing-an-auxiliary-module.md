@@ -50,7 +50,7 @@ Here's the most basic example of an auxiliary module. We'll explain a bit more a
 
 ```ruby
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -86,7 +86,7 @@ Because the ```Msf::Auxiliary::Scanner``` mixin is so popular, we figured you wa
 
 ```ruby
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
