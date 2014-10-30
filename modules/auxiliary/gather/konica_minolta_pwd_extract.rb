@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # This next section will post the XML soap messages for information gathering.
   def run_host(ip)
-    print_status("Attempting to extract username and password from the host at #{rhost}")
+    print_status("Attempting to extract username and password from the host at #{peer}")
     version
   end
 
@@ -126,8 +126,7 @@ class Metasploit3 < Msf::Auxiliary
     login(major, minor)
 
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-    print_error("#{rhost} - Version check Connection failed.")
-    return nil
+    print_error("#{peer} - Version check Connection failed.")
   end
 
   # This section logs on and retrieves AuthKey token
@@ -147,8 +146,7 @@ class Metasploit3 < Msf::Auxiliary
       authkey = ("#{authkey_parse}")
       extract(major, minor, authkey)
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("#{rhost} - Login Connection failed.")
-      return
+      print_error("#{peer} - Login Connection failed.")
     end
   end
 
