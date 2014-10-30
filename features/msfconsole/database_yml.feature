@@ -48,7 +48,7 @@ Feature: `msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `msfconsole -L --environment test --yaml command_line.yml` interactively
+    When I run `msfconsole --environment test --yaml command_line.yml` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
     Then the output should contain "command_line_metasploit_framework_test"
@@ -84,7 +84,7 @@ Feature: `msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `msfconsole -L --environment test` interactively
+    When I run `msfconsole --environment test` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
     Then the output should contain "environment_metasploit_framework_test"
@@ -113,7 +113,7 @@ Feature: `msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `msfconsole -L --environment test` interactively
+    When I run `msfconsole --environment test` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
     Then the output should contain "user_metasploit_framework_test"
@@ -133,7 +133,7 @@ Feature: `msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `msfconsole -L --environment test` interactively
+    When I run `msfconsole --environment test` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "exit"
     Then the output should contain "project_metasploit_framework_test"
@@ -148,7 +148,7 @@ Feature: `msfconsole` `database.yml`
     And a mocked home directory
     And I cd to "../.."
     And the project "database.yml" does not exist
-    When I run `msfconsole -L --environment test` interactively
+    When I run `msfconsole --environment test` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     And I type "db_status"
     And I type "exit"
@@ -158,8 +158,8 @@ Feature: `msfconsole` `database.yml`
     And the output should not contain "project_metasploit_framework_test"
     And the output should contain "[*] postgresql selected, no connection"
 
-  Scenario: Starting `msfconsole -L` with a valid database.yml
-    Given I run `msfconsole -L` interactively
+  Scenario: Starting `msfconsole` with a valid database.yml
+    Given I run `msfconsole` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     When I type "db_status"
     And I type "exit"
