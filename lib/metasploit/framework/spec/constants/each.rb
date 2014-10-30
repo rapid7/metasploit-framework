@@ -34,8 +34,14 @@ module Metasploit::Framework::Spec::Constants::Each
     unless @configured
       RSpec.configure do |config|
         config.before(:each) do
+          leaks_cleaned = Metasploit::Framework::Spec::Constants.clean
+
+          if leaks_cleaned
+            $stderr.puts "Cleaned leaked constants before #{example.metadata.full_description}"
+          end
+
           # clean so that leaks from earlier example aren't attributed to this example
-          Metasploit::Framework::Spec::Constants::Each.leaks_cleaned ||= Metasploit::Framework::Spec::Constants.clean
+          Metasploit::Framework::Spec::Constants::Each.leaks_cleaned ||= leaks_cleaned
         end
 
         config.after(:each) do
