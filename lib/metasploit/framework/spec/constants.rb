@@ -28,12 +28,28 @@ module Metasploit::Framework::Spec::Constants
 
   # Cleans child constants from {PARENT_CONSTANT}.
   #
-  # @return [void]
+  # @return [true] if there were leaked constants that were cleaned.
+  # @return [false] if there were no leaked constants.
   # @see each
   def self.clean
-    each do |child_name|
+    count = each do |child_name|
       PARENT_CONSTANT.send(:remove_const, child_name)
     end
+
+    count != 0
+  end
+
+  # Adds actions to `spec` task so that `rake spec` fails if any of the following:
+  #
+  # # `log/leaked-constants.log` exists after printing out the leaked constants.
+  # # {Each.configured!} is unnecessary in `spec/spec_helper.rb` and should be removed.
+  #
+  # @return [void]
+  def self.define_task
+    Suite.define_task
+    # After Suite as Suite will kill for leaks before Each say it cleaned no leaks in case there are leaks in an
+    # `after(:all)` that {Each} won't catch in its `after(:each)` checks.
+    Each.define_task
   end
 
   # Yields each child_constant_name under {PARENT_CONSTANT}.

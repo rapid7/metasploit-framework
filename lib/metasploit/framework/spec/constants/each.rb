@@ -5,6 +5,28 @@
 #
 # Fails example if it leaks module loading constants.
 module Metasploit::Framework::Spec::Constants::Each
+  #
+  # CONSTANTS
+  #
+
+  LOG_PATHNAME = Pathname.new('log/remove-cleaner')
+
+  #
+  # Module Methods
+  #
+
+  class << self
+    attr_accessor :leaks_cleaned
+  end
+
+  # Is {Metasploit::Framework::Spec::Constants::Each.configure!} still necessary or should it be removed?
+  #
+  # @return [true] if {configure!}'s `before(:each)` cleaned up leaked constants
+  # @return [false] otherwise
+  def self.leaks_cleaned?
+    !!@leaks_cleaned
+  end
+
   # Configures after(:each) callback for RSpe to fail example if leaked constants.
   #
   # @return [void]
@@ -13,7 +35,7 @@ module Metasploit::Framework::Spec::Constants::Each
       RSpec.configure do |config|
         config.before(:each) do
           # clean so that leaks from earlier example aren't attributed to this example
-          Metasploit::Framework::Spec::Constants.clean
+          Metasploit::Framework::Spec::Constants::Each.leaks_cleaned ||= Metasploit::Framework::Spec::Constants.clean
         end
 
         config.after(:each) do
@@ -36,9 +58,44 @@ module Metasploit::Framework::Spec::Constants::Each
             fail RuntimeError, message, example.metadata[:caller]
           end
         end
+
+        config.after(:suite) do
+          if Metasploit::Framework::Spec::Constants::Each.leaks_cleaned?
+            if LOG_PATHNAME.exist?
+              LOG_PATHNAME.delete
+            end
+          else
+            LOG_PATHNAME.open('w') { |f|
+              f.write('1')
+            }
+          end
+        end
       end
 
       @configured = true
+    end
+  end
+
+  # Whether {configure!} was called
+  #
+  # @return [Boolean]
+  def self.configured?
+    !!@configured
+  end
+
+  # Adds action to `spec` task so that `rake spec` fails if {configured!} is unnecessary in `spec/spec_helper.rb` and
+  # should be removed
+  #
+  # @return [void]
+  def self.define_task
+    Rake::Task.define_task(:spec) do
+      if LOG_PATHNAME.exist?
+        $stderr.puts "No leaks were cleaned by `#{self}.configured!`.  Remove it from `spec/spec_helper.rb` so it " \
+                     "does not interfere with contexts that persist loaded modules for entire context and clean up " \
+                     "modules in `after(:all)`."
+
+        exit(1)
+      end
     end
   end
 end
