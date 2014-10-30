@@ -72,7 +72,6 @@ class Metasploit3 < Msf::Auxiliary
       domains = datastore['TARGET_URLS'].split(',')
 
       script = js_obfuscate <<-EOS
-        window.onerror=alert;
         var targets = JSON.parse(atob("#{Rex::Text.encode_base64(JSON.generate(domains))}"));
         targets.forEach(function(target, i){
           var obj = document.createElement('object');
