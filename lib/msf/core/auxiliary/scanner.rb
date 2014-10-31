@@ -244,7 +244,7 @@ def scanner_show_progress
   if(pct >= (@range_percent + @show_percent))
     @range_percent = @range_percent + @show_percent
     tdlen = @range_count.to_s.length
-    print_status("Scanned #{"%.#{tdlen}d" % @range_done} of #{@range_count} hosts (#{"%.3d" % pct.to_i}% complete)")
+    print_status("Scanned #{"%.#{tdlen}d" % @range_done} of #{@range_count} hosts (#{"%.3g" % pct}% complete)")
   end
 end
 
