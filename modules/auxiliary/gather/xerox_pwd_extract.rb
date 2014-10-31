@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect(true, 'RPORT' => jport)
       sock.put(remove_print_job)
-    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse
+    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse
       print_error("#{rhost}:#{jport} - Error removing print job from #{rhost}")
     ensure
       disconnect
