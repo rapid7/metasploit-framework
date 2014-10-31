@@ -797,7 +797,11 @@ class Core
 
         # Terminate the supplied job ID(s)
         when "-k"
-          job_list = build_jobs_array(val)
+          job_list = build_range_array(val)
+          if job_list.blank?
+            print_error("Please specify valid job identifier(s)")
+            return false
+          end
           print_status("Stopping the following job(s): #{job_list.join(', ')}")
           job_list.map(&:to_s).each do |job|
             if framework.jobs.has_key?(job)
@@ -1615,10 +1619,6 @@ class Core
         when "-k"
           method = 'kill'
           sid = val if val
-          if not sid
-            print_error("Specify a session to kill")
-            return false
-          end
 
         when "-K"
           method = 'killall'
@@ -1653,13 +1653,16 @@ class Core
       end
     }
 
-    if sid and not framework.sessions.get(sid)
-      print_error("Invalid session id")
-      return false
-    end
-
     if method.nil? and sid
       method = 'interact'
+    end
+
+    unless sid.blank? || method == 'interact'
+      session_list = build_range_array(sid)
+      if session_list.blank?
+        print_error("Please specify valid session identifier(s)")
+        return false
+      end
     end
 
     # Now, perform the actual method
@@ -1672,7 +1675,7 @@ class Core
         end
         cmds.each do |cmd|
           if sid
-            sessions = [ sid ]
+            sessions = session_list
           else
             sessions = framework.sessions.keys.sort
           end
@@ -1712,7 +1715,6 @@ class Core
         end
 
       when 'kill'
-        session_list = build_sessions_array(sid)
         print_status("Killing the following session(s): #{session_list.join(', ')}")
         session_list.each do |sess|
           session = framework.sessions.get(sess)
@@ -1727,27 +1729,30 @@ class Core
       when 'killall'
         print_status("Killing all sessions...")
         framework.sessions.each_sorted do |s|
-          if ((session = framework.sessions.get(s)))
-            session.kill
-          end
+          session = framework.sessions.get(s)
+          session.kill if session
         end
 
       when 'detach'
-        session_list = build_sessions_array(sid)
         print_status("Detaching the following session(s): #{session_list.join(', ')}")
         session_list.each do |sess|
           session = framework.sessions.get(sess)
-          if session
+          if session && session.interactive?
             print_status("Detaching session #{sess}")
-            session.detach
+            begin
+              session.detach
+            rescue NoMethodError
+              print_error "#{sess} is not detachable"
+            end
           else
             print_error("Invalid session identifier: #{sess}")
           end
         end
 
       when 'interact'
-        if ((session = framework.sessions.get(sid)))
-          if (session.interactive?)
+        session = framework.sessions.get(sid)
+        if session
+          if session.interactive?
             print_status("Starting interaction with #{session.name}...\n") if (quiet == false)
 
             self.active_session = session
@@ -1756,7 +1761,7 @@ class Core
 
             self.active_session = nil
 
-            if (driver.input.supports_readline)
+            if driver.input.supports_readline
               driver.input.reset_tab_completion
             end
 
@@ -1768,7 +1773,7 @@ class Core
         end
 
       when 'scriptall'
-        if (script.nil?)
+        if script.nil?
           print_error("No script specified!")
           return false
         end
@@ -1778,17 +1783,16 @@ class Core
         script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
 
         if sid
-          print_status("Running script #{script} on session #{sid}...")
-          sessions = [ sid ]
+          sessions = session_list
         else
-          print_status("Running script #{script} on all sessions...")
           sessions = framework.sessions.keys.sort
         end
-
         sessions.each do |s|
-          if ((session = framework.sessions.get(s)))
-            if (script_paths[session.type])
+          session = framework.sessions.get(s)
+          if session
+            if script_paths[session.type]
               print_status("Session #{s} (#{session.session_host}):")
+              print_status("Running script #{script} on #{session.type} session #{s} (#{session.session_host})")
               begin
                 session.execute_file(script_paths[session.type], extra)
               rescue ::Exception => e
@@ -1799,12 +1803,12 @@ class Core
         end
 
       when 'upexec'
-        session_list = build_sessions_array(sid)
         print_status("Executing 'post/multi/manage/shell_to_meterpreter' on session(s): #{session_list}")
         session_list.each do |sess|
-          if ((session = framework.sessions.get(sess)))
-            if (session.interactive?)
-              if (session.type == "shell")
+          session = framework.sessions.get(sess)
+          if session
+            if session.interactive?
+              if session.type == "shell"
                 session.init_ui(driver.input, driver.output)
                 session.execute_script('post/multi/manage/shell_to_meterpreter')
                 session.reset_ui
@@ -3367,44 +3371,29 @@ class Core
     return all_lines.slice(start..finish)
   end
 
-  # Generate an array of session IDs when presented with input such as '1' or  '1,2,4-6,10' or '1,2,4..6,10'
-  def build_sessions_array(sid_list)
-    session_list = Array.new
-    temp_list = sid_list.split(",")
+  # Generate an array of job or session IDs when presented with input such as '1' or  '1,2,4-6,10' or '1,2,4..6,10'
+  def build_range_array(id_list)
+    return if id_list.blank?
+    item_list = []
+    temp_list = id_list.split(",")
 
     temp_list.each do |ele|
+      return if ele.count('-') > 1
+      return if ele[0] == '-' || ele[-1] == '-'
+      return if ele[0] == '.' || ele[-1] == '.'
+
       if ele.include? '-'
-        temp_array = (ele.split("-").inject {|s,e| s.to_i..e.to_i}).to_a
-        session_list.concat(temp_array)
+        temp_array = (ele.split("-").inject { |s, e| s.to_i..e.to_i }).to_a
+        item_list.concat(temp_array)
       elsif ele.include? '..'
-        temp_array = (ele.split("..").inject {|s,e| s.to_i..e.to_i}).to_a
-        session_list.concat(temp_array)
+        temp_array = (ele.split("..").inject { |s, e| s.to_i..e.to_i }).to_a
+        item_list.concat(temp_array)
       else
-        session_list.push(ele.to_i)
+        item_list.push(ele.to_i)
       end
     end
 
-    return session_list.uniq.sort
-  end
-
-  # Generate an array of job IDs when presented with input such as '1' or  '1,2,4-6,10' or '1,2,4..6,10'
-  def build_jobs_array(jid_list)
-    job_list = Array.new
-    temp_list = jid_list.split(",")
-
-    temp_list.each do |ele|
-      if ele.include? '-'
-        temp_array = (ele.split("-").inject {|s,e| s.to_i..e.to_i}).to_a
-        job_list.concat(temp_array)
-      elsif ele.include? '..'
-        temp_array = (ele.split("..").inject {|s,e| s.to_i..e.to_i}).to_a
-        job_list.concat(temp_array)
-      else
-        job_list.push(ele.to_i)
-      end
-    end
-
-    return job_list.uniq.sort
+    item_list.uniq.sort
   end
 
 end
