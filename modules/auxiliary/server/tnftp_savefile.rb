@@ -14,7 +14,16 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'tnftp "savefile" Arbitrary Command Execution',
       'Description' => %q{
-        This module exploits a vulnerability.
+        This module exploits an arbitrary command execution vulnerability in
+        tnftp's handling of the resolved output filename - called "savefile" in
+        the source - from a requested resource.
+
+        If tnftp is executed without the -o command-line option, it will resolve
+        the output filename from the last component of the requested resource.
+
+        If the output filename begins with a "|" character, tnftp will pass the
+        fetched resource's output to the command directly following the "|"
+        character through the use of the popen() function.
       },
       'Author' => [
         'Jared McNeill', # Vulnerability discovery
