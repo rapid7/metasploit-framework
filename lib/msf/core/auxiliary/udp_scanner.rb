@@ -20,20 +20,22 @@ module Auxiliary::UDPScanner
 
     register_options(
     [
-      Opt::CHOST,
-      OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
+      Opt::RPORT,
+      OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256])
+      OptInt.new('THREADS', [true, "The number of concurrent threads", 10])
     ], self.class)
 
     register_advanced_options(
     [
+      Opt::CHOST,
+      Opt::CPORT,
       OptInt.new('ScannerRecvInterval', [true, 'The maximum numbers of sends before entering the processing loop', 30]),
       OptInt.new('ScannerMaxResends', [true, 'The maximum times to resend a packet when out of buffers', 10]),
       OptInt.new('ScannerRecvQueueLimit', [true, 'The maximum queue size before breaking out of the processing loop', 100]),
-      OptInt.new('ScannerRecvWindow', [true, 'The number of seconds to wait post-scan to catch leftover replies', 15]),
+      OptInt.new('ScannerRecvWindow', [true, 'The number of seconds to wait post-scan to catch leftover replies', 15])
 
     ], self.class)
   end
-
 
   # Define our batch size
   def run_batch_size
@@ -44,6 +46,7 @@ module Auxiliary::UDPScanner
   def run_batch(batch)
     @udp_sock = Rex::Socket::Udp.create({
       'LocalHost' => datastore['CHOST'] || nil,
+      'LocalPort' => datastore['CPORT'] || 0,
       'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
     })
     add_socket(@udp_sock)
@@ -153,6 +156,14 @@ module Auxiliary::UDPScanner
     end
 
     queue.length
+  end
+
+  def cport
+    datastore['CPORT']
+  end
+
+  def rport
+    datastore['RPORT']
   end
 
   #
