@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called before the scan block
   def scanner_prescan(batch)
+    vprint_status("Sending probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
     @results = {}
     @probe = "abracadabra!"
   end
