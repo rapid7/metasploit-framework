@@ -8,7 +8,7 @@
 
 # inherit_from: .rubocop_todo.yml
 
-Style/ClassLength:
+Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
   Enabled: true
   Exclude:
@@ -25,14 +25,14 @@ Style/Encoding:
   Description: 'We prefer binary to UTF-8.'
   EnforcedStyle: 'when_needed'
 
-Style/LineLength:
+Metrics/LineLength:
   Description: >-
                   Metasploit modules often pattern match against very
                   long strings when identifying targets.
   Enabled: true
   Max: 180
 
-Style/MethodLength:
+Metrics/MethodLength:
   Enabled: true
   Description: >-
                   While the style guide suggests 10 lines, exploit definitions
