@@ -24,16 +24,10 @@ class Metasploit3 < Msf::Auxiliary
         'License'        => MSF_LICENSE
       )
     )
-    register_options(
-      [
-        OptString.new('NAME', [ true, 'The name to query', 'localhost' ]),
-        OptInt.new('TYPE', [ true, 'The query type #', 255 ]),
-        OptInt.new('CLASS', [ true, 'The query class #', 1 ])
-      ], self.class)
   end
 
   def setup
-    @probe = ::Net::DNS::Packet.new(datastore['NAME'], datastore['TYPE'], datastore['CLASS']).data
+    @probe = ::Net::DNS::Packet.new(datastore['NAME'], query_type_num, query_class_num).data
   end
 
   def scanner_process(data, shost, _sport)
@@ -42,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_prescan(batch)
-    print_status("Sending LLMNR queries to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    print_status("Sending LLMNR #{query_type_name} #{query_class_name} queries to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
     @results = {}
   end
 
