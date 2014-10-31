@@ -248,7 +248,7 @@ class Client
     cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
     cert.sign(key, OpenSSL::Digest::SHA1.new)
 
-    ctx = OpenSSL::SSL::SSLContext.new(:SSLv3)
+    ctx = OpenSSL::SSL::SSLContext.new
     ctx.key = key
     ctx.cert = cert
 

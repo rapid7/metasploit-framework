@@ -73,7 +73,7 @@ class RPC_Session < RPC_Base
     s = _valid_session(sid,"shell")
     s.exploit_datastore['LHOST'] = lhost
     s.exploit_datastore['LPORT'] = lport
-    s.execute_script('spawn_meterpreter', nil)
+    s.execute_script('post/multi/manage/shell_to_meterpreter')
     { "result" => "success" }
   end
 

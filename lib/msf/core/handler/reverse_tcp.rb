@@ -70,7 +70,7 @@ module ReverseTcp
   #
   def setup_handler
     if datastore['Proxies'] and not datastore['ReverseAllowProxy']
-      raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
+      raise RuntimeError, "TCP connect-back payloads cannot be used with Proxies. Use 'set ReverseAllowProxy true' to override this behaviour."
     end
 
     ex = false

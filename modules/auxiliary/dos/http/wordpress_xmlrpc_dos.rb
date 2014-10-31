@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -29,7 +29,8 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'http://wordpress.org/news/2014/08/wordpress-3-9-2/'],
           ['URL', 'http://www.breaksec.com/?p=6362'],
           ['URL', 'http://mashable.com/2014/08/06/wordpress-xml-blowup-dos/'],
-          ['URL', 'https://core.trac.wordpress.org/changeset/29404']
+          ['URL', 'https://core.trac.wordpress.org/changeset/29404'],
+          ['WPVDB', '7526']
         ],
       'DisclosureDate'=> 'Aug 6 2014'
     ))

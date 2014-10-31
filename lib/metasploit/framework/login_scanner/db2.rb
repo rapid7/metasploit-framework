@@ -39,10 +39,10 @@ module Metasploit
                 result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
               end
             end
-          rescue ::Rex::ConnectionError, ::Rex::ConnectionTimeout, ::Rex::Proto::DRDA::RespError,::Timeout::Error  => e
+          rescue ::Rex::ConnectionError, ::Rex::Proto::DRDA::RespError, ::Timeout::Error => e
             result_options.merge!({
               status:  Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof: e.message
+              proof: e,
             })
           end
 

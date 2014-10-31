@@ -472,10 +472,14 @@ ERROR_FAILURE = 1
 ERROR_CONNECTION_ERROR = 10000
 
 # Windows Constants
-GAA_FLAG_SKIP_ANYCAST    = 0x0002
-GAA_FLAG_SKIP_MULTICAST  = 0x0004
-GAA_FLAG_INCLUDE_PREFIX  = 0x0010
-GAA_FLAG_SKIP_DNS_SERVER = 0x0080
+GAA_FLAG_SKIP_ANYCAST             = 0x0002
+GAA_FLAG_SKIP_MULTICAST           = 0x0004
+GAA_FLAG_INCLUDE_PREFIX           = 0x0010
+GAA_FLAG_SKIP_DNS_SERVER          = 0x0080
+PROCESS_TERMINATE                 = 0x0001
+PROCESS_VM_READ                   = 0x0010
+PROCESS_QUERY_INFORMATION         = 0x0400
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 
 WIN_AF_INET  = 2
 WIN_AF_INET6 = 23
@@ -666,12 +670,11 @@ def stdapi_sys_config_sysinfo(request, response):
 
 @meterpreter.register_function
 def stdapi_sys_process_close(request, response):
-	proc_h_id = packet_get_tlv(request, TLV_TYPE_PROCESS_HANDLE)
+	proc_h_id = packet_get_tlv(request, TLV_TYPE_HANDLE)
 	if not proc_h_id:
 		return ERROR_SUCCESS, response
 	proc_h_id = proc_h_id['value']
-	proc_h = meterpreter.channels[proc_h_id]
-	proc_h.kill()
+	del meterpreter.processes[proc_h_id]
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -718,6 +721,23 @@ def stdapi_sys_process_execute(request, response):
 @meterpreter.register_function
 def stdapi_sys_process_getpid(request, response):
 	response += tlv_pack(TLV_TYPE_PID, os.getpid())
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_sys_process_kill(request, response):
+	for pid in packet_enum_tlvs(request, TLV_TYPE_PID):
+		pid = pid['value']
+		if has_windll:
+			k32 = ctypes.windll.kernel32
+			proc_h = k32.OpenProcess(PROCESS_TERMINATE, False, pid)
+			if not proc_h:
+				return ERROR_FAILURE, response
+			if not k32.TerminateProcess(proc_h, 0):
+				return ERROR_FAILURE, response
+		elif hasattr(os, 'kill'):
+			os.kill(pid, 9)
+		else:
+			return ERROR_FAILURE, response
 	return ERROR_SUCCESS, response
 
 def stdapi_sys_process_get_processes_via_proc(request, response):
@@ -772,9 +792,6 @@ def stdapi_sys_process_get_processes_via_ps(request, response):
 
 def stdapi_sys_process_get_processes_via_windll(request, response):
 	TH32CS_SNAPPROCESS = 2
-	PROCESS_QUERY_INFORMATION = 0x0400
-	PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
-	PROCESS_VM_READ = 0x10
 	TOKEN_QUERY = 0x0008
 	TokenUser = 1
 	k32 = ctypes.windll.kernel32
