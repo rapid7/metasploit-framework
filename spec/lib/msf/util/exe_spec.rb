@@ -24,6 +24,12 @@ describe Msf::Util::EXE do
     end
   end
 
+  describe '.is_eicar_corrupted?' do
+    it 'returns false' do
+      expect(described_class.is_eicar_corrupted?).to eq(false)
+    end
+  end
+
   describe '.to_executable_fmt' do
     it "should output nil when given a bogus format" do
       bin = subject.to_executable_fmt($framework, "", "", "", "does not exist", {})

@@ -48,6 +48,7 @@ shared_context 'Msf::Util::Exe' do
     "linux" => [
       { :format => "elf", :arch => "x86",    :file_fp => /ELF 32.*SYSV/ },
       { :format => "elf", :arch => "x64",    :file_fp => /ELF 64.*SYSV/ },
+      { :format => "elf-so", :arch => "x64", :file_fp => /ELF 64.*SYSV/ },
       { :format => "elf", :arch => "armle",  :file_fp => /ELF 32.*ARM/ },
       { :format => "elf", :arch => "mipsbe", :file_fp => /ELF 32-bit MSB\s+executable, MIPS/ },
       { :format => "elf", :arch => "mipsle", :file_fp => /ELF 32-bit LSB\s+executable, MIPS/ },

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -25,7 +25,7 @@ module Metasploit3
         ],
       'References'    =>
         [
-          'EDB' => '18226',
+          ['EDB', '18226']
         ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',

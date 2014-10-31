@@ -312,7 +312,7 @@ module Msf
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif badchars.present?
-        framework.encoders.each_module_ranked('Arch' => [arch]) do |name, mod|
+        framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
           encoders << framework.encoders.create(name)
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
