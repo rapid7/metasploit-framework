@@ -158,11 +158,12 @@ class Metasploit3 < Msf::Post
     creds
   end
 
+  # Reads key=value pairs from the specified file, returning them as a Hash of key => value
   def get_settings(file)
     settings = {}
     read_file(file).split("\n").each do |line|
-      if line =~ /^\s*([^#][^=]+)=(.*)/
-        settings[Regexp.last_match(1)] = Regexp.last_match(2)
+      if /^\s*(?<setting>[^#][^=]+)=(?<value>.*)/ =~ line
+        settings[setting] = value
       end
     end
 
