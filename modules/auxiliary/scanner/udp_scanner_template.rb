@@ -9,23 +9,26 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
-  def initialize
+  def initialize(info = {})
     super(
-      # TODO: fill in all of this
-      'Name'           => 'UDP Scanner Example',
-      'Description'    => %q(
-        This module is an example of how to send probes to UDP services
-        en-masse, analyze any responses, and then report on any discovered
-        hosts, services, vulnerabilities or otherwise noteworthy things.
-        Simply address any of the TODOs.
-      ),
-      'Author'         => 'Joe Contributor <joe_contributor[at]example.com>',
-      'References'     =>
-        [
-          ['URL', 'https://example.com/~jcontributor']
-        ],
-      'DisclosureDate' => 'Mar 15 2014',
-      'License'        => MSF_LICENSE
+      update_info(
+        info,
+        # TODO: fill in all of this
+        'Name'           => 'UDP Scanner Example',
+        'Description'    => %q(
+          This module is an example of how to send probes to UDP services
+          en-masse, analyze any responses, and then report on any discovered
+          hosts, services, vulnerabilities or otherwise noteworthy things.
+          Simply address any of the TODOs.
+        ),
+        'Author'         => 'Joe Contributor <joe_contributor[at]example.com>',
+        'References'     =>
+          [
+            ['URL', 'https://example.com/~jcontributor']
+          ],
+        'DisclosureDate' => 'Mar 15 2014',
+        'License'        => MSF_LICENSE
+      )
     )
 
     register_options(
