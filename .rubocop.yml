@@ -44,6 +44,11 @@ Metrics/MethodLength:
 Style/Encoding:
   Enabled: false
 
+# %q() is super useful for long strings split over multiple lines and
+# is very common in module constructors for things like descriptions
+Style/UnneededPercentQ:
+  Enabled: false
+
 Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
