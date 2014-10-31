@@ -8,7 +8,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
 
   def initialize
@@ -25,11 +24,14 @@ class Metasploit3 < Msf::Auxiliary
       'DisclosureDate' => 'Mar 15 2014',
       'License'        => MSF_LICENSE
     )
+
     register_options(
     [
+      # TODO: change to the port you need to scan
       Opt::RPORT(12345)
     ], self.class)
 
+    # TODO: add any advanced, special options here, otherwise remove
     register_advanced_options(
     [
       OptBool.new('SPECIAL', [true, 'Try this special thing', false])
@@ -39,10 +41,9 @@ class Metasploit3 < Msf::Auxiliary
   # Called for each IP in the batch
   def scan_host(ip)
     if datastore['SPECIAL']
-      scanner_send("Please and thank you, #{ip}!", ip, rport)
-    else
-      scanner_send(@probe, ip, datastore['RPORT'])
+      @probe = "Please and thank you, #{ip}!"
     end
+    scanner_send(@probe, ip, datastore['RPORT'])
   end
 
   # Called for each response packet
@@ -60,6 +61,7 @@ class Metasploit3 < Msf::Auxiliary
   # Called after the scan block
   def scanner_postscan(batch)
     @results.each_pair do |host, responses|
+      peer = "#{host}:#{rport}"
 
       # consider confirming that any of the responses are actually
       # valid responses for this service before reporing it or
@@ -74,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
       if responses.any? { |response| response =~ /[a-z0-9]{5}/i }
         print_good("#{peer} - Vulnerable to something!")
         report_vuln(
-          host: k,
+          host: host,
           port: rport,
           proto: 'udp',
           name: 'something!',
