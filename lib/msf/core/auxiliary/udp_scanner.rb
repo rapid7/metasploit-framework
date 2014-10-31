@@ -8,13 +8,17 @@ module Msf
 #
 ###
 module Auxiliary::UDPScanner
-
   include Auxiliary::Scanner
+
+  # A hash of results of a given batch run, keyed by host
+  attr_accessor :results
+
+  # A probe to be sent to each host
+  attr_accessor :probe
 
   #
   # Initializes an instance of an auxiliary module that scans UDP
   #
-
   def initialize(info = {})
     super
 
@@ -167,11 +171,12 @@ module Auxiliary::UDPScanner
   end
 
   #
-  # The including module override these methods
+  # The including module may override some of these methods
   #
 
-  # Called for each IP in the batch
+  # Called for each IP in the batch.  This will send all necessary probes.
   def scan_host(ip)
+    scanner_send(@probe, ip, datastore['RPORT'])
   end
 
   # Called for each response packet
@@ -180,11 +185,12 @@ module Auxiliary::UDPScanner
 
   # Called before the scan block
   def scanner_prescan(batch)
+    vprint_status("Sending probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    @results = {}
   end
 
   # Called after the scan block
   def scanner_postscan(batch)
   end
-
 end
 end
