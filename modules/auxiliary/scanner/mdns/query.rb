@@ -8,6 +8,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
+  include Msf::Auxiliary::MDNS
 
   def initialize(info = {})
     super(
