@@ -7,20 +7,21 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::LLMNR
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'LLMNR Query',
-      'Description'    => %q(
-      ),
-      'Author'         =>
-        [
-          'Jon Hart <jon_hart[at]rapid7.com>'
-        ],
-      'License'        => MSF_LICENSE,
+    super(
+      update_info(
+        info,
+        'Name'           => 'LLMNR Query',
+        'Description'    => %q(
+        ),
+        'Author'         =>
+          [
+            'Jon Hart <jon_hart[at]rapid7.com>'
+          ],
+        'License'        => MSF_LICENSE
       )
     )
     register_options(
@@ -40,12 +41,7 @@ class Metasploit3 < Msf::Auxiliary
     @results[shost] << data
   end
 
-  def scan_host(ip)
-    scanner_send(@probe, ip, datastore['RPORT'])
-  end
-
   def scanner_prescan(batch)
-    @results = {}
     print_status("Sending LLMNR queries to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
   end
 
