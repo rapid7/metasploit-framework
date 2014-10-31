@@ -43,6 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def scanner_prescan(batch)
     print_status("Sending LLMNR queries to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    @results = {}
   end
 
   def scanner_postscan(_batch)
