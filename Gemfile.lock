@@ -58,6 +58,8 @@ GEM
       cucumber (>= 1.1.1)
       rspec-expectations (>= 2.7.0)
     bcrypt (3.1.7)
+    binding_of_caller (0.7.2)
+      debug_inspector (>= 0.0.1)
     builder (3.0.4)
     capybara (2.4.1)
       mime-types (>= 1.16)
@@ -78,6 +80,9 @@ GEM
       cucumber (>= 1.2.0)
       nokogiri (>= 1.5.0)
       rails (>= 3.0.0)
+    debug_inspector (0.0.2)
+    did_you_mean (0.7.0)
+      binding_of_caller
     diff-lcs (1.2.5)
     erubis (2.7.0)
     factory_girl (4.4.0)
@@ -219,6 +224,7 @@ DEPENDENCIES
   activerecord (>= 3.0.0, < 4.0.0)
   aruba
   cucumber-rails
+  did_you_mean
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
