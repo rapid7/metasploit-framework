@@ -16,7 +16,10 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'           => 'Buffalo NAS Login Utility',
-      'Description'    => 'This module simply attempts to login to a Buffalo NAS instance using a specific user/pass. It is confirmed to work with 1.68',
+      'Description'    => %q{
+        This module simply attempts to login to a Buffalo NAS instance using a specific
+        username and password. It has been confirmed to work on version 1.68
+      },
       'Author'         => [ 'Nicholas Starke <starke.nicholas[at]gmail.com>' ],
       'License'        => MSF_LICENSE
     )
