@@ -10,46 +10,46 @@ describe Net::DNS::RR::Types do
   end
 
   describe '#initialize' do
-    subject(:type) do
+    subject(:rr_type) do
       described_class.allocate
     end
 
     it 'raises when initialized with no args' do
-      expect { type.send(:initialize) }.to raise_error(ArgumentError)
+      expect { rr_type.send(:initialize) }.to raise_error(ArgumentError)
     end
 
-    it 'respects default type when initialized with a nil type' do
-      type.send(:initialize, nil)
-      expect(type.to_i).to eql(1)
-      expect(type.to_s).to eql('A')
+    it 'respects default RR type when initialized with a nil RR type' do
+      rr_type.send(:initialize, nil)
+      expect(rr_type.to_i).to eql(1)
+      expect(rr_type.to_s).to eql('A')
     end
 
     # TODO: figure out why this doesn't work
-    skip 'respects configured default type' do
-      type.send(:default=, 'CNAME')
-      expect(type.to_i).to eql(5)
-      expect(type.to_s).to eql('CNAME')
+    skip 'respects configured default RR type' do
+      rr_type.send(:default=, 'CNAME')
+      expect(rr_type.to_i).to eql(5)
+      expect(rr_type.to_s).to eql('CNAME')
     end
 
-    it 'initializes with a valid Fixnum argument' do
-      type.send(:initialize, 1)
-      expect(type.to_i).to eql(1)
-      expect(type.to_s).to eql('A')
+    it 'initializes with a valid RR type Fixnum argument' do
+      rr_type.send(:initialize, 2)
+      expect(rr_type.to_i).to eql(2)
+      expect(rr_type.to_s).to eql('NS')
     end
 
-    it 'raises when the supplied Fixnum is invalid' do
-      expect { type.send(:initialize, 123456) }.to raise_error(TypeArgumentError)
-      expect { type.send(:initialize, -1) }.to raise_error(TypeArgumentError)
+    it 'raises when the supplied RR type Fixnum is invalid' do
+      expect { rr_type.send(:initialize, 123456) }.to raise_error(TypeArgumentError)
+      expect { rr_type.send(:initialize, -1) }.to raise_error(TypeArgumentError)
     end
 
-    it 'initializes with a valid String argument' do
-      type.send(:initialize, 'SRV')
-      expect(type.to_i).to eql(33)
-      expect(type.to_s).to eql('SRV')
+    it 'initializes with a valid RR type String argument' do
+      rr_type.send(:initialize, 'SRV')
+      expect(rr_type.to_i).to eql(33)
+      expect(rr_type.to_s).to eql('SRV')
     end
 
-    it 'raises when the supplied String is invalid' do
-      expect { type.send(:initialize, 'cats') }.to raise_error(TypeArgumentError)
+    it 'raises when the supplied RR type String is invalid' do
+      expect { rr_type.send(:initialize, 'cats') }.to raise_error(TypeArgumentError)
     end
   end
 end
