@@ -12,10 +12,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'Xerox Administrator Console Password Extract',
-      'Description'    => %{
-        This module will extract the management consoles admin password from the Xerox file system
-        using firmware bootstrap injection.
+      'Name'           => 'Xerox Administrator Console Password Extractor',
+      'Description'    => %q{
+        This module will extract the management console's admin password from the
+        Xerox file system using firmware bootstrap injection.
       },
       'Author'         =>
         [

@@ -14,8 +14,8 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info={})
     super(update_info(info,
       'Name'           => 'Xerox Workcentre 5735 LDAP Service Redential Extractor',
-      'Description'    => %{
-        This module extract the printers LDAP user and password from Xerox workcentre 5735.
+      'Description'    => %q{
+        This module extract the printer's LDAP username and password from Xerox Workcentre 5735.
       },
       'Author'         =>
         [
