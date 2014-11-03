@@ -186,6 +186,145 @@ describe Rex::OLE::DirEntry do
     end
   end
 
+  describe "#from_s" do
+    let(:valid_direntry) do
+      "\x52\x00\x6f\x00\x6f\x00\x74\x00\x20\x00\x45\x00\x6e\x00\x74\x00\x72\x00\x79\x00\x00\x00" + # name (_ab)
+      ("\x00" * 42) + # padding
+      "\x16\x00" + # _cb
+      "\x05" + # _mse
+      "\x00" + #_bflags
+      "\xff\xff\xff\xff" + # _sidLeftSib
+      "\xff\xff\xff\xff" + # _sidRightSib
+      "\xff\xff\xff\xff" + # _sidChild
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" + # clsid
+      "\x00\x00\x00\x00" + # _dwUserFlags
+      "\x00\x00\x00\x00\x00\x00\x00\x00" + # _ctime
+      "\x00\x00\x00\x00\x00\x00\x00\x00" + # _metime
+      "\xfe\xff\xff\xff" + # _sectStart
+      "\x00\x00\x00\x00\x00\x00\x00\x00" # _ulSize
+    end
+
+    let(:invalid_name_length)do
+      "\x52\x00\x6f\x00\x6f\x00\x74\x00\x20\x00\x45\x00\x6e\x00\x74\x00\x72\x00\x79\x00\x00\x00" + # name (_ab)
+      ("\x00" * 42) + # padding
+      "\x41\x00" + # _cb (invalid, major than 0x40)
+      "\x05" + # _mse
+      "\x00" + #_bflags
+      "\xff\xff\xff\xff" + # _sidLeftSib
+      "\xff\xff\xff\xff" + # _sidRightSib
+      "\xff\xff\xff\xff" + # _sidChild
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" + # clsid
+      "\x00\x00\x00\x00" + # _dwUserFlags
+      "\x00\x00\x00\x00\x00\x00\x00\x00" + # _ctime
+      "\x00\x00\x00\x00\x00\x00\x00\x00" + # _metime
+      "\xfe\xff\xff\xff" + # _sectStart
+      "\x00\x00\x00\x00\x00\x00\x00\x00" # _ulSize
+    end
+
+    let(:mismatch_length) do
+      "\x52\x00\x6f\x00\x6f\x00\x74\x00\x20\x00\x45\x00\x6e\x00\x74\x00\x72\x00\x79\x00\x00\x00" + # name (_ab)
+      ("\x00" * 42) + # padding
+      "\x13\x00" + # _cb (invalid length, shorter than real name length)
+      "\x05" + # _mse
+      "\x00" + #_bflags
+      "\xff\xff\xff\xff" + # _sidLeftSib
+      "\xff\xff\xff\xff" + # _sidRightSib
+      "\xff\xff\xff\xff" + # _sidChild
+      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" + # clsid
+      "\x00\x00\x00\x00" + # _dwUserFlags
+      "\x00\x00\x00\x00\x00\x00\x00\x00" + # _ctime
+      "\x00\x00\x00\x00\x00\x00\x00\x00" + # _metime
+      "\xfe\xff\xff\xff" + # _sectStart
+      "\x00\x00\x00\x00\x00\x00\x00\x00" # _ulSize
+    end
+
+    let(:sid) { 0 }
+
+    context "when name length major than 64" do
+      it "raises RuntimeError" do
+        expect { dir_entry.from_s(sid, invalid_name_length) }.to raise_error(RuntimeError)
+      end
+    end
+
+    context "when name length doesn't match real length" do
+      it "raises RuntimeError" do
+        expect { dir_entry.from_s(sid, mismatch_length) }.to raise_error(RuntimeError)
+      end
+    end
+
+    context "when valid buf" do
+      it "uses argument sid" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.sid).to eq(sid)
+      end
+
+      it "parses _ab from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_ab)).to eq('Root Entry')
+      end
+
+      it "parses _cb from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_cb)).to eq(22)
+      end
+
+      it "parses _mse from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_mse)).to eq(Rex::OLE::STGTY_ROOT)
+      end
+
+      it "parses _bflags from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_bflags)).to eq(0)
+      end
+
+      it "parses _sidLeftSib from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry._sidLeftSib).to eq(Rex::OLE::SECT_FREE)
+      end
+
+      it "parses _sidRightSib from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry._sidRightSib).to eq(Rex::OLE::SECT_FREE)
+      end
+
+      it "parses _sidChild from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry._sidChild).to eq(Rex::OLE::SECT_FREE)
+      end
+
+      it "parses _clsId from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_clsId)).to be_a(Rex::OLE::CLSID)
+      end
+
+      it "parses _dwUserFlags from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_dwUserFlags)).to eq(0)
+      end
+
+      it "parses _ctime from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_ctime)).to eq("\x00" * 8)
+      end
+
+      it "parses _mtime from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_mtime)).to eq("\x00" * 8)
+      end
+
+      it "parses _sectStart from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_sectStart)).to eq(Rex::OLE::SECT_END)
+      end
+
+      it "parses _ulSize from buf" do
+        dir_entry.from_s(sid, valid_direntry)
+        expect(dir_entry.instance_variable_get(:@_ulSize)).to eq(0)
+      end
+    end
+  end
+
   describe "#pack" do
     it "returns an string" do
       expect(dir_entry.pack).to be_an(String)
