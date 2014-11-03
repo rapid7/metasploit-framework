@@ -63,10 +63,6 @@ class Metasploit3 < Msf::Auxiliary
       max = 9999
       print_error("Highest PIN value can be is 9999. Setting MAX to 9999 and continuing.")
     end
-    if min > 9999
-      min = 0
-      print_error("Highest PIN value can be is 9999. Setting MIN to 0 and continuing.")
-    end
     if min > max
       min = 0
       max = 9999
