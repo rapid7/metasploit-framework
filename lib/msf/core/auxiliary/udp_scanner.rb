@@ -176,7 +176,7 @@ module Auxiliary::UDPScanner
 
   # Called for each IP in the batch.  This will send all necessary probes.
   def scan_host(ip)
-    scanner_send(@probe, ip, datastore['RPORT'])
+    scanner_send(@probe, ip, rport)
   end
 
   # Called for each response packet
