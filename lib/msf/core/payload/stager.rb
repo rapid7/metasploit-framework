@@ -141,7 +141,9 @@ module Msf::Payload::Stager
         warning_msg << " (#{conn.peerhost})"  if conn.respond_to? :peerhost
         warning_msg << ": #{$!}"
         print_warning warning_msg
-        conn.close if conn.respond_to? :close
+        if conn.respond_to? :close && !conn.closed?
+          conn.close
+        end
         return
       end
 
@@ -256,7 +258,7 @@ module Msf::Payload::Stager
         'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
         'ForceSaveRegisters' => true,
         'ForceEncode'        => true)
-      
+
       if encp.encoder
         print_status("Encoded stage with #{encp.encoder.refname}")
         estg = encp.encoded
