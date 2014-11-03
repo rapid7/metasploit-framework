@@ -3,6 +3,8 @@ require 'msf/core'
 
 module Msf
 
+  autoload :OptionContainer, 'msf/core/option_container'
+
 ###
 #
 # The module base class is responsible for providing the common interface
