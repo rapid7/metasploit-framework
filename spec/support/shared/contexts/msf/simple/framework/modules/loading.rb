@@ -5,9 +5,6 @@
 #
 #   let(:encoder) {
 #     load_and_create_module(
-#       ancestor_reference_names: %w{
-#         x86/shikata_ga_nai
-#       },
 #       modules_path: modules_path,
 #       module_type: 'encoder',
 #       reference_name: 'x86/shikata_ga_nai'
@@ -36,6 +33,33 @@ shared_context 'Msf::Simple::Framework#modules loading' do
   #
   # Methods
   #
+
+  # Derives ancestor reference names from `:reference_name`.
+  #
+  # @param options [Hash{Symbol => Array<String>,String}]
+  # @option options [Array<String>] :ancestor_reference_names Override derivation from `:reference_name` and uses these
+  #   `:ancestor_reference_names` instead.
+  # @option options [String] :module_type the type of the module with `:reference_name`.
+  # @option options [String] :reference_name the name of the module under `:module_type` whose ancestor reference names
+  #   to derive.
+  # @return [Array<String>] ancestor reference names.
+  # @raise [KeyError] if `:ancestor_reference_names` is not given when `:module_type` is `'payload'`.
+  # @raise [KeyError] unless `:module_type` is given.
+  # @raise [KeyError] unless `:reference_name` is given.
+  def derive_ancestor_reference_names(options={})
+    options.assert_valid_keys(:ancestor_reference_names, :module_type, :reference_name)
+
+    options.fetch(:ancestor_reference_names) {
+      module_type = options.fetch(:module_type)
+
+      if module_type == 'payload'
+        raise KeyError, ":ancestor_reference_names must be given when :module_type is 'payload'"
+      end
+
+      # non-payload's single ancestor has the same reference name as the created module.
+      options.fetch(:reference_name)
+    }
+  end
 
   # The module loader that can load module ancestors from `modules_path`
   #
@@ -105,19 +129,26 @@ shared_context 'Msf::Simple::Framework#modules loading' do
   # @option options [String] :module_type the type of module
   # @option options [String] :modules_path the 'modules' directory from which to load `:ancestor_reference_names`.
   # @return [Msf::Module]
-  # @raise [KeyError] unless :ancestor_reference_names is given.
+  # @raise [KeyError] if `:ancestor_reference_names` is not given when `:module_type` is `'payload'`.
   # @raise [KeyError] unless :modules_path is given.
   # @raise [KeyError] unless :module_type is given.
   # @raise [KeyError] unless :reference_name is given.
   def load_and_create_module(options={})
     options.assert_valid_keys(:ancestor_reference_names, :modules_path, :module_type, :reference_name)
 
-    ancestor_reference_names = options.fetch(:ancestor_reference_names)
-    module_type = options.fetch(:module_type)
     reference_name = options.fetch(:reference_name)
+    module_type = options.fetch(:module_type)
+
+    ancestor_reference_names = self.derive_ancestor_reference_names(
+        options.except(:modules_path)
+    )
+
+    modules_path = options.fetch(:modules_path)
 
     expect_to_load_module_ancestors(
-        options.except(:reference_name)
+        ancestor_reference_names: ancestor_reference_names,
+        modules_path: modules_path,
+        module_type: module_type
     )
 
     module_set = module_set_for_type(module_type)
