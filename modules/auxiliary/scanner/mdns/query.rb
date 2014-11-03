@@ -45,6 +45,12 @@ class Metasploit3 < Msf::Auxiliary
   def scanner_postscan(_batch)
     @results.each_pair do |peer, resps|
       resps.each do |resp|
+        resp_message = Resolv::DNS::Message.decode(resp)
+        resp_message.answer.each do |a|
+          puts a.class
+          puts a
+          puts "#"*20
+        end
         print_good("#{peer} responded with #{Resolv::DNS::Message.decode(resp).inspect}")
       end
     end
