@@ -16,6 +16,8 @@ class Metasploit3 < Msf::Auxiliary
         info,
         'Name'           => 'mDNS Query',
         'Description'    => %q(
+          This module sends mDNS queries, which are really just normal UDP DNS
+          queries done (usually) over multicast on a different port, 5353.
         ),
         'Author'         =>
           [

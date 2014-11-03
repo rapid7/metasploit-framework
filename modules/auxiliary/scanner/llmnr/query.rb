@@ -16,6 +16,10 @@ class Metasploit3 < Msf::Auxiliary
         info,
         'Name'           => 'LLMNR Query',
         'Description'    => %q(
+          This module sends LLMNR queries, which are really just normal UDP DNS
+          queries done (usually) over multicast on a different port, 5355.
+          Targets other than the default RHOSTS' 224.0.0.252 should not respond
+          but may anyway.
         ),
         'Author'         =>
           [
