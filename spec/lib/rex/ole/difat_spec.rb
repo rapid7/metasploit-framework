@@ -90,9 +90,13 @@ describe Rex::OLE::DIFAT do
   end
 
   describe "#length" do
+    subject(:difat_length) do
+      difat.length
+    end
+
     context "when @entries is empty" do
       it "returns 0" do
-        expect(difat.length).to eq(0)
+        is_expected.to eq(0)
       end
     end
 
@@ -100,7 +104,7 @@ describe Rex::OLE::DIFAT do
       it "returns the @entries length" do
         difat[0] = 1
         difat[1] = 2
-        expect(difat.length).to eq(2)
+        is_expected.to eq(2)
       end
     end
   end
@@ -164,29 +168,124 @@ describe Rex::OLE::DIFAT do
   end
 
   describe "#to_s" do
+    subject(:difat_string) do
+      difat.to_s
+    end
+
     it "returns an String" do
-      expect(difat.to_s).to be_an(String)
+      is_expected.to be_an(String)
     end
 
     it "starts with {" do
-      expect(difat.to_s).to start_with('{')
+      is_expected.to start_with('{')
     end
 
     it "ends with }" do
-      expect(difat.to_s).to end_with('}')
+      is_expected.to end_with('}')
     end
 
     it "contains @entries values" do
       difat + [Rex::OLE::SECT_FAT, 1, 2, 3, Rex::OLE::SECT_DIF, Rex::OLE::SECT_FREE, Rex::OLE::SECT_END]
-      expect(difat.to_s).to match(/FAT, 0x1, 0x2, 0x3, DIF, FREE, END/)
+      is_expected.to match(/FAT, 0x1, 0x2, 0x3, DIF, FREE, END/)
     end
   end
 
   describe "#read" do
-
+    context "when difat is empty" do
+      it "returns nil" do
+        expect(difat.read).to be_nil
+      end
+    end
   end
 
   describe "#write" do
+    context "when entries is empty" do
+      it "returns 0" do
+        expect(difat.write).to eq(0)
+      end
+ 
+      it "fills the first 109 FAT sectors in the storage header" do
+        difat.write
+        storage = difat.instance_variable_get(:@stg)
+        expect(storage.header._sectFat.length).to eq(109)
+      end
+
+      it "fills the first 109 FAT sectors in the storage header with SECT_FREE" do
+        difat.write
+        storage = difat.instance_variable_get(:@stg)
+        storage.header._sectFat.each { |s|
+          expect(s).to eq(Rex::OLE::SECT_FREE)
+        }
+      end
+    end
+
+    context "when entries length is less than 109" do
+      let(:entries) { [1] * 20 }
+
+      it "returns the number of entries" do
+        difat + entries
+        expect(difat.write).to eq(20)
+      end
+
+      it "fills the first 109 FAT sectors in the storage header" do
+        difat + entries
+        difat.write
+        storage = difat.instance_variable_get(:@stg)
+        expect(storage.header._sectFat.length).to eq(109)
+      end
+
+      it "fills the first FAT sectors with the entries" do
+        difat + entries
+        difat.write
+        storage = difat.instance_variable_get(:@stg)
+        (0..entries.length - 1).each { |i|
+          expect(storage.header._sectFat[i]).to eq(1)
+        }
+      end
+
+      it "fills the remaining FAT sectors with FREE sectors" do
+        difat + entries
+        difat.write
+        storage = difat.instance_variable_get(:@stg)
+        (entries.length..109 - 1).each { |i|
+          expect(storage.header._sectFat[i]).to eq(Rex::OLE::SECT_FREE)
+        }
+      end
+    end
+
+    context "when entries length is 109" do
+      let(:entries) { [1] * 109 }
+
+      it "returns the number of entries" do
+        difat + entries
+        expect(difat.write).to eq(109)
+      end
+
+      it "fills the first 109 FAT sectors in the storage header" do
+        difat + entries
+        difat.write
+        storage = difat.instance_variable_get(:@stg)
+        expect(storage.header._sectFat.length).to eq(109)
+      end
+
+      it "fills the first 109 FAT sectors with the entries" do
+        difat + entries
+        difat.write
+        storage = difat.instance_variable_get(:@stg)
+        (0..storage.header._sectFat.length - 1).each { |i|
+          expect(storage.header._sectFat[i]).to eq(1)
+        }
+      end
+    end
+
+    context "when entries length is greater than 109" do
+      let(:entries) { [1] * 110 }
+
+      it "raises a RuntimeError" do
+        difat + entries
+        expect { difat.write }.to raise_error(RuntimeError)
+      end
+    end
 
   end
 end
