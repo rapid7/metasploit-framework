@@ -31,6 +31,12 @@ class Metasploit3 < Msf::Encoder::Xor
   # being encoded.
   #
   def decoder_stub(state)
+
+    # Sanity check that saved_registers doesn't overlap with modified_registers
+    if (modified_registers & saved_registers).length > 0
+      raise BadGenerateError
+    end
+
     decoder =
       Rex::Arch::X86.set(
         Rex::Arch::X86::ECX,
@@ -48,4 +54,18 @@ class Metasploit3 < Msf::Encoder::Xor
     return decoder
   end
 
+  # Indicate that this module can preserve some registers
+  def preserves_registers?
+    true
+  end
+
+  # A list of registers always touched by this encoder
+  def modified_registers
+    [ Rex::Arch::X86::EBX, Rex::Arch::X86::ECX ]
+  end
+
+  # Convert the SaveRegisters to an array of x86 register constants
+  def saved_registers
+    Rex::Arch::X86.register_names_to_ids(datastore['SaveRegisters'])
+  end
 end
