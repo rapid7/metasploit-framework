@@ -13,9 +13,6 @@ module Auxiliary::UDPScanner
   # A hash of results of a given batch run, keyed by host
   attr_accessor :results
 
-  # A probe to be sent to each host
-  attr_accessor :probe
-
   #
   # Initializes an instance of an auxiliary module that scans UDP
   #
@@ -174,9 +171,13 @@ module Auxiliary::UDPScanner
   # The including module may override some of these methods
   #
 
+  # Builds and returns the probe to be sent
+  def build_probe
+  end
+
   # Called for each IP in the batch.  This will send all necessary probes.
   def scan_host(ip)
-    scanner_send(@probe, ip, rport)
+    scanner_send(build_probe, ip, rport)
   end
 
   # Called for each response packet

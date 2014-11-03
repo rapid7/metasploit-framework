@@ -48,9 +48,11 @@ class Metasploit3 < Msf::Auxiliary
     super
     # TODO: do any sort of preliminary sanity checking, like perhaps validating some options
     # in the datastore, etc.
+  end
 
-    # TODO: build the appropriate probe here
-    @probe = 'abracadabra!'
+  # TODO: construct the appropriate probe here.
+  def build_probe
+    @probe ||= 'abracadabra!'
   end
 
   # TODO: this is called before the scan block for each batch of hosts.  Do any
