@@ -2,28 +2,10 @@ require 'spec_helper'
 require 'msf/core/encoded_payload'
 
 describe Msf::EncodedPayload do
-  include_context 'Msf::Simple::Framework'
-  include_context 'Metasploit::Framework::Spec::Constants cleaner'
+  include_context 'Msf::Simple::Framework#modules loading'
 
   let(:ancestor_reference_names) {
     %w{singles/linux/x86/shell_reverse_tcp}
-  }
-
-  let(:loader) {
-    loader = framework.modules.send(:loaders).find { |loader|
-      loader.loadable?(modules_path)
-    }
-
-    # Override load_error so that rspec will print it instead of going to framework log
-    def loader.load_error(module_path, error)
-      raise error
-    end
-
-    loader
-  }
-
-  let(:modules_path) {
-    Rails.application.paths['modules'].expanded.first
   }
 
   let(:module_type) {
@@ -34,18 +16,13 @@ describe Msf::EncodedPayload do
     'linux/x86/shell_reverse_tcp'
   }
 
-  let(:module_set) {
-    framework.modules.module_set(module_type)
-  }
-
   let(:payload) {
-    ancestor_reference_names.each do |ancestor_reference_name|
-      loaded = loader.load_module(modules_path, module_type, ancestor_reference_name)
-
-      expect(loaded).to eq(true), "#{ancestor_reference_name} failed to load from #{modules_path}"
-    end
-
-    module_set.create(reference_name)
+    load_and_create_module(
+        ancestor_reference_names: ancestor_reference_names,
+        modules_path: modules_path,
+        module_type: module_type,
+        reference_name: reference_name
+    )
   }
 
   subject(:encoded_payload) do
