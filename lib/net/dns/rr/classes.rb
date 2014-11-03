@@ -89,18 +89,15 @@ module Net # :nodoc:
         # *PRIVATE* method
         def new_from_string(cls)
           case cls
-          when /^CLASS(?<class_num>\d+)$/
-            class_num = class_num.to_i
-            raise ClassArgumentError, "Invalid class #{class_num}" if class_num > 0xFFFF
-            @str = cls
-            @num = class_num
+          when /^CLASS(\d+)$/
+            new_from_num(Regexp.last_match(1).to_i)
           else
             # String with name of class
             if Classes.has_key? cls
               @str = cls
               @num = Classes[cls]
             else
-              raise ClassArgumentError, "Unknown cls #{cls}"
+              raise ClassArgumentError, "Unknown class #{cls}"
             end
           end
         end

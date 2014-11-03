@@ -46,10 +46,17 @@ describe Net::DNS::RR::Classes do
       rr_class.send(:initialize, 'CH')
       expect(rr_class.to_i).to eql(3)
       expect(rr_class.to_s).to eql('CH')
+      rr_class.send(:initialize, 'CLASS9')
+      expect(rr_class.to_i).to eql(9)
+      expect(rr_class.to_s).to eql('CLASS9')
+      rr_class.send(:initialize, 'CLASS1')
+      expect(rr_class.to_i).to eql(1)
+      expect(rr_class.to_s).to eql('IN')
     end
 
     it 'raises when the supplied RR class String is invalid' do
       expect { rr_class.send(:initialize, 'cats') }.to raise_error(ClassArgumentError)
+      expect { rr_class.send(:initialize, 'CLASS123456') }.to raise_error(ClassArgumentError)
     end
   end
 end

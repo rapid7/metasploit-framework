@@ -167,11 +167,8 @@ module Net # :nodoc:
         # *PRIVATE* method
         def new_from_string(type)
           case type
-          when /^TYPE(?<type_num>\d+)$/
-            type_num = type_num.to_i
-            raise TypeArgumentError, "Invalid type #{type_num}" if type_num > 0xFFFF
-            @str = type
-            @num = type_num
+          when /^TYPE(\d+)$/
+            new_from_num(Regexp.last_match(1).to_i)
           else
             # String with name of type
             if Types.has_key? type
