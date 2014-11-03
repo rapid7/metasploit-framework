@@ -5,7 +5,6 @@
 #
 #   let(:encoder) {
 #     load_and_create_module(
-#       modules_path: modules_path,
 #       module_type: 'encoder',
 #       reference_name: 'x86/shikata_ga_nai'
 #     )
@@ -20,7 +19,6 @@
 #         stagers/android/reverse_https
 #         stages/android/meterpreter
 #       },
-#       modules_path: modules_path,
 #       module_type: 'payload',
 #       reference_name: 'android/meterpreter/reverse_tcp'
 #     )
@@ -127,10 +125,10 @@ shared_context 'Msf::Simple::Framework#modules loading' do
   # @option options [String] :modules_path path to the `modules` directory from which to load
   #   `:ancestor_reference_names`.
   # @option options [String] :module_type the type of module
-  # @option options [String] :modules_path the 'modules' directory from which to load `:ancestor_reference_names`.
+  # @option options [String] :modules_path (#modules_path) the 'modules' directory from which to load
+  #   `:ancestor_reference_names`.
   # @return [Msf::Module]
   # @raise [KeyError] if `:ancestor_reference_names` is not given when `:module_type` is `'payload'`.
-  # @raise [KeyError] unless :modules_path is given.
   # @raise [KeyError] unless :module_type is given.
   # @raise [KeyError] unless :reference_name is given.
   def load_and_create_module(options={})
@@ -143,7 +141,9 @@ shared_context 'Msf::Simple::Framework#modules loading' do
         options.except(:modules_path)
     )
 
-    modules_path = options.fetch(:modules_path)
+    modules_path = options.fetch(:modules_path) {
+      self.modules_path
+    }
 
     expect_to_load_module_ancestors(
         ancestor_reference_names: ancestor_reference_names,

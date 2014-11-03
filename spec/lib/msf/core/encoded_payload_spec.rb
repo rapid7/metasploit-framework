@@ -19,7 +19,6 @@ describe Msf::EncodedPayload do
   let(:payload) {
     load_and_create_module(
         ancestor_reference_names: ancestor_reference_names,
-        modules_path: modules_path,
         module_type: module_type,
         reference_name: reference_name
     )
