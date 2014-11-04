@@ -98,7 +98,7 @@ module Metasploit::Framework::Spec::Constants::Each
       if LOG_PATHNAME.exist?
         $stderr.puts "No leaks were cleaned by `#{self}.configured!`.  Remove it from `spec/spec_helper.rb` so it " \
                      "does not interfere with contexts that persist loaded modules for entire context and clean up " \
-                     "modules in `after(:all)`."
+                     "modules in `after(:all)` and then `rm log/remove-cleaner`"
 
         exit(1)
       end
