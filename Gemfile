@@ -3,6 +3,8 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec
 
+gem 'rb-readline', require: false
+
 group :db do
   rails_version_constraints = ['>= 4.0.9', '< 4.1.0']
   # Needed for Msf::DbManager

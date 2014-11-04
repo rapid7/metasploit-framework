@@ -44,6 +44,9 @@ module Banner
     # Easter egg (always a cow themed logo): export/set GOCOW=1
     if ENV['GOCOW']
       logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + 'cow*.txt'))
+    # Easter egg (always a halloween themed logo): export/set THISISHALLOWEEN=1
+    elsif ( ENV['THISISHALLOWEEN'] || Time.now.strftime("%m%d") == "1031" )
+      logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + '*.hwtxt'))
     else
       logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + '*.txt'))
       logos.concat(Dir.glob(::Msf::Config.user_logos_directory + File::SEPARATOR + '*.txt'))

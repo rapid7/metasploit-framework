@@ -413,6 +413,27 @@ class Encoder < Module
     buf
   end
 
+  #
+  # Determines whether the encoder can preserve registers at all
+  #
+  def preserves_registers?
+    false
+  end
+
+  #
+  # A list of registers always modified by the encoder
+  #
+  def modified_registers
+    []
+  end
+
+  #
+  # Determines whether the encoder can preserve the stack frame
+  #
+  def preserves_stack?
+    false
+  end
+
 protected
 
   #
