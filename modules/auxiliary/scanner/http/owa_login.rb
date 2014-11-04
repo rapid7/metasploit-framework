@@ -93,12 +93,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
   end
 
-  def run
-
-    vhost = datastore['VHOST'] || datastore['RHOST']
-
-    print_status("#{msg} Testing version #{action.name}")
-
+  def setup
     # Here's a weird hack to check if each_user_pass is empty or not
     # apparently you cannot do each_user_pass.empty? or even inspect() it
     isempty = true
@@ -106,7 +101,13 @@ class Metasploit3 < Msf::Auxiliary
       isempty = false
       break
     end
-    print_error("No username/password specified") if isempty
+    raise ArgumentError, "No username/password specified" if isempty
+  end
+
+  def run
+    vhost = datastore['VHOST'] || datastore['RHOST']
+
+    print_status("#{msg} Testing version #{action.name}")
 
     auth_path   = action.opts['AuthPath']
     inbox_path  = action.opts['InboxPath']
