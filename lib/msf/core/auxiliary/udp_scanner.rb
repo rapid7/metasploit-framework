@@ -23,7 +23,6 @@ module Auxiliary::UDPScanner
     [
       Opt::RPORT,
       OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-      OptInt.new('THREADS', [true, "The number of concurrent threads", 10])
     ], self.class)
 
     register_advanced_options(
