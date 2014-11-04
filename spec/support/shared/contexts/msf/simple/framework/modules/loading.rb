@@ -55,7 +55,9 @@ shared_context 'Msf::Simple::Framework#modules loading' do
       end
 
       # non-payload's single ancestor has the same reference name as the created module.
-      options.fetch(:reference_name)
+      reference_name = options.fetch(:reference_name)
+
+      [reference_name]
     }
   end
 
@@ -89,7 +91,7 @@ shared_context 'Msf::Simple::Framework#modules loading' do
     loader = loader_for_modules_path(modules_path)
     loaded = loader.load_module(modules_path, module_type, ancestor_reference_name)
 
-    expect(loaded).to eq(true), "#{ancestor_reference_name} failed to load from #{modules_path}"
+    expect(loaded).to eq(true), "#{module_type}/#{ancestor_reference_name} failed to load from #{modules_path}"
   end
 
   # Expects to laod `:ancestor_reference_names` of `:module_type` from `:modules_path`
