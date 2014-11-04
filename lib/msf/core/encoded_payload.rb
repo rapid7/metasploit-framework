@@ -158,6 +158,18 @@ class EncodedPayload
           next
         end
 
+        # If the caller explictly requires register preservation, make sure
+        # that the module in question can handle it. This is mostly used by
+        # the stage encoder path.
+        if (reqs['ForceSaveRegisters'] and
+            reqs['EncoderOptions'] and
+            (reqs['EncoderOptions']['SaveRegisters'].to_s.length > 0) and
+            (! self.encoder.preserves_registers?))
+          wlog("#{pinst.refname}: Encoder #{encoder.refname} does not preserve registers and the caller needs #{reqs['EncoderOptions']['SaveRegisters']} preserved.",
+            'core', LEV_1)
+          next
+        end
+
         # Import the datastore from payload (and likely exploit by proxy)
         self.encoder.share_datastore(pinst.datastore)
 
@@ -224,12 +236,10 @@ class EncodedPayload
         self.encoded = eout
         break
       }
-
       # If the encoded payload is nil, raise an exception saying that we
       # suck at life.
       if (self.encoded == nil)
         self.encoder = nil
-
         raise NoEncodersSucceededError,
           "#{pinst.refname}: All encoders failed to encode.",
           caller

@@ -38,6 +38,7 @@ end
 REF_TYPES = %w(CVE BID OSVDB EDB)
 
 describe Msf::Module do
+
   it { is_expected.to respond_to :[] }
   it { is_expected.to respond_to :[]= }
   it { is_expected.to respond_to :alias }
@@ -50,8 +51,6 @@ describe Msf::Module do
   it { is_expected.to respond_to :compat }
   it { is_expected.to respond_to :compatible? }
   it { is_expected.to respond_to :debugging? }
-  it { is_expected.to respond_to :deregister_options }
-  it { is_expected.to respond_to :derived_implementor? }
   it { is_expected.to respond_to :description }
   it { is_expected.to respond_to :disclosure_date }
   it { is_expected.to respond_to :each_arch }
@@ -62,20 +61,7 @@ describe Msf::Module do
   it { is_expected.to respond_to :file_path }
   it { is_expected.to respond_to :framework }
   it { is_expected.to respond_to :fullname }
-  it { is_expected.to respond_to :generate_uuid }
   it { is_expected.to respond_to :import_defaults }
-  it { is_expected.to respond_to :info_fixups }
-  it { is_expected.to respond_to :init_compat }
-  it { is_expected.to respond_to :merge_check_key }
-  it { is_expected.to respond_to :merge_info }
-  it { is_expected.to respond_to :merge_info_advanced_options }
-  it { is_expected.to respond_to :merge_info_alias }
-  it { is_expected.to respond_to :merge_info_description }
-  it { is_expected.to respond_to :merge_info_evasion_options }
-  it { is_expected.to respond_to :merge_info_name }
-  it { is_expected.to respond_to :merge_info_options }
-  it { is_expected.to respond_to :merge_info_string }
-  it { is_expected.to respond_to :merge_info_version }
   it { is_expected.to respond_to :name }
   it { is_expected.to respond_to :nop? }
   it { is_expected.to respond_to :orig_cls }
@@ -96,19 +82,14 @@ describe Msf::Module do
   it { is_expected.to respond_to :rank_to_h }
   it { is_expected.to respond_to :rank_to_s }
   it { is_expected.to respond_to :refname }
-  it { is_expected.to respond_to :register_advanced_options }
-  it { is_expected.to respond_to :register_evasion_options }
-  it { is_expected.to respond_to :register_options }
   it { is_expected.to respond_to :register_parent }
   it { is_expected.to respond_to :replicant }
-  it { is_expected.to respond_to :set_defaults }
   it { is_expected.to respond_to :share_datastore }
   it { is_expected.to respond_to :shortname }
   it { is_expected.to respond_to :support_ipv6? }
   it { is_expected.to respond_to :target_host }
   it { is_expected.to respond_to :target_port }
   it { is_expected.to respond_to :type }
-  it { is_expected.to respond_to :update_info }
   it { is_expected.to respond_to :validate }
   it { is_expected.to respond_to :vprint_debug }
   it { is_expected.to respond_to :vprint_error }
@@ -117,6 +98,34 @@ describe Msf::Module do
   it { is_expected.to respond_to :vprint_status }
   it { is_expected.to respond_to :vprint_warning }
   it { is_expected.to respond_to :workspace }
+
+  [
+    :deregister_options,
+    :derived_implementor?,
+    :generate_uuid,
+    :info_fixups,
+    :init_compat,
+    :merge_check_key,
+    :merge_info,
+    :merge_info_advanced_options,
+    :merge_info_alias,
+    :merge_info_description,
+    :merge_info_evasion_options,
+    :merge_info_name,
+    :merge_info_options,
+    :merge_info_string,
+    :merge_info_version,
+    :register_advanced_options,
+    :register_evasion_options,
+    :register_options,
+    :set_defaults,
+    :update_info,
+
+  ].each do |sym|
+    it "should respond to protected method #{sym}" do
+      expect { subject.respond_to?(sym, true) }.to be_truthy
+    end
+  end
 
   context 'CONSTANTS' do
     context 'UpdateableOptions' do
