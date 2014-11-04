@@ -4,6 +4,9 @@ require 'spec_helper'
 require 'rex/ole'
 
 describe Rex::OLE::Header do
+  before(:each) do
+    Rex::OLE::Util.set_endian(Rex::OLE::LITTLE_ENDIAN)
+  end
 
   subject(:header) do
     described_class.new
@@ -240,7 +243,7 @@ describe Rex::OLE::Header do
         hdr << 'A' * 16 # @_clid
         hdr << 'BB' # @_uMinorVersion
         hdr << 'CC' # @_uMajorVersion
-        hdr << 'DD' # @_uByteOrder
+        hdr << "\xfe\xff" # @_uByteOrder
         hdr << 'EE' # @_uSectorShift
         hdr << 'FF' # @_uMiniSectorShift
         hdr << '123456' # padding
@@ -275,7 +278,7 @@ describe Rex::OLE::Header do
 
       it "sets byte order from input" do
         header.read(correct_fd)
-        expect(header.instance_variable_get(:@_uByteOrder)).to eq(0x4444)
+        expect(header.instance_variable_get(:@_uByteOrder)).to eq(Rex::OLE::LITTLE_ENDIAN)
       end
 
       it "sets the size of sectors from input" do
