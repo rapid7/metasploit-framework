@@ -6,30 +6,13 @@ shared_examples_for 'all modules with module type can be instantiated' do |optio
   modules_path = modules_pathname.to_path
   type_directory = options.fetch(:type_directory)
 
-  include_context 'Msf::Simple::Framework'
+  include_context 'Msf::Simple::Framework#modules loading'
 
   #
   # lets
   #
 
-  let(:loader) {
-    loader = framework.modules.send(:loaders).find { |loader|
-      loader.loadable?(modules_path)
-    }
-
-    # Override load_error so that rspec will print it instead of going to framework log
-    def loader.load_error(module_path, error)
-      raise error
-    end
-
-    loader
-  }
-
   context module_type do
-    let(:module_set) {
-      framework.modules.module_set(module_type)
-    }
-
     type_pathname = modules_pathname.join(type_directory)
     module_extension = ".rb"
     module_extension_regexp = /#{Regexp.escape(module_extension)}$/
@@ -41,17 +24,11 @@ shared_examples_for 'all modules with module type can be instantiated' do |optio
 
       context module_reference_name do
         it 'can be instantiated' do
-          loaded = loader.load_module(modules_path, module_type, module_reference_name)
-
-          expect(loaded).to eq(true), "#{module_reference_name} failed to load from #{modules_path}"
-
-          module_instance = nil
-
-          expect {
-            module_instance = module_set.create(module_reference_name)
-          }.not_to raise_error
-
-          expect(module_instance).not_to be_nil, "Could not instantiate #{module_type}/#{module_reference_name}"
+          load_and_create_module(
+              module_type: module_type,
+              modules_path: modules_path,
+              reference_name: module_reference_name
+          )
         end
       end
     end
