@@ -4,7 +4,7 @@ module Metasploit::Framework::Spec::Constants::Suite
   # CONSTANTS
   #
 
-  LOGS_PATHNAME = Pathname.new('log/metasploit/framework/spec/constants/suite.log')
+  LOGS_PATHNAME = Pathname.new('log/metasploit/framework/spec/constants/suite')
 
   # Logs leaked constants to {LOG_PATHNAME} and prints `message` to stderr.
   #
