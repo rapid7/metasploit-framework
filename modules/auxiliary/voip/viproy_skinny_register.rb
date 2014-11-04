@@ -5,9 +5,7 @@
 
 require 'msf/core'
 
-
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Skinny
   include Msf::Exploit::Remote::Tcp
@@ -21,48 +19,42 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options(
       [
-          OptString.new('MAC',   [ false, "MAC Address"]),
-          OptString.new('MACFILE',   [ false, "Input file contains MAC Addresses"]),
-          Opt::RPORT(2000),
-      ], self.class)
-
-    register_advanced_options(
-      [
-          OptString.new('PROTO_TYPE',   [ true, "Device Type (e.g. SIP,SEP)", "SEP"]),
-          OptString.new('DEVICE_IP',   [ false, "IP address of the device for spoofing"]),
-          OptString.new('CISCOCLIENT',   [ true, "Cisco software type (ipphone,cipc)","cipc"]),
-          OptString.new('CAPABILITIES',   [ false, "Capabilities of the device (e.g. Router, Host, Switch)", "Host"]),
-          OptString.new('PLATFORM',   [ false, "Platform of the device", "Cisco IP Phone 7975"]),
-          OptString.new('SOFTWARE',   [ false, "Software of the device", "SCCP75.9-3-1SR2-1S"]),
-          OptString.new('DEBUG',   [ false, "Debug level" ]),
+        OptString.new('MAC',   [ false, "MAC Address"]),
+        OptString.new('MACFILE',   [ false, "Input file contains MAC Addresses"]),
+        Opt::RPORT(2000)
       ], self.class)
   end
 
+  def setup
+    unless datastore['MAC'] || datastore['MACFILE']
+      fail_with(ArgumentError, 'MAC or MACFILE must be defined')
+    end
+  end
+
   def run
-    #options from the user
-    capabilities=datastore['CAPABILITIES'] || "Host"
-    platform=datastore['PLATFORM'] || "Cisco IP Phone 7975"
-    software=datastore['SOFTWARE'] || "SCCP75.9-3-1SR2-1S"
-    raise RuntimeError ,'MAC or MACFILE should be defined' unless datastore['MAC'] or datastore['MACFILE']
+    # options from the user
+    capabilities = datastore['CAPABILITIES']
+    platform = datastore['PLATFORM']
+    software = datastore['SOFTWARE']
     if datastore['MACFILE']
       macs = macfileimport(datastore['MACFILE'])
     else
       macs = []
     end
-    macs << datastore['MAC'].upcase if datastore['MAC']
-    client=datastore['CISCOCLIENT'].downcase
+    macs << mac if datastore['MAC']
+    client = datastore['CISCOCLIENT'].downcase
     if datastore['DEVICE_IP']
-      device_ip=datastore['DEVICE_IP']
+      device_ip = datastore['DEVICE_IP']
     else
-      device_ip=Rex::Socket.source_address(datastore['RHOST'])
+      device_ip = Rex::Socket.source_address(datastore['RHOST'])
     end
 
-    #Skinny Registration Test
+    # Skinny Registration Test
     macs.each do |mac|
-      device="#{datastore['PROTO_TYPE']}#{mac.gsub(":","")}"
+      device = "#{datastore['PROTO_TYPE']}#{mac.gsub(":", "")}"
       begin
         connect
-        register(sock,device,device_ip,client,mac)
+        register(sock, device, device_ip, client, mac)
         disconnect
       rescue Rex::ConnectionError => e
         print_error("Connection failed: #{e.class}: #{e}")
