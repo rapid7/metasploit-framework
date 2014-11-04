@@ -248,6 +248,11 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
+    if res.redirect?
+      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
+      return :skip_pass
+    end
+
     if res.body =~ login_check
       print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
@@ -262,12 +267,6 @@ class Metasploit3 < Msf::Auxiliary
 
       report_auth_info(report_hash)
       return :next_user
-
-    if res.redirect?
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
-      return :skip_pass
-    end
-
     else
       vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response body did not match)")
       return :skip_pass
