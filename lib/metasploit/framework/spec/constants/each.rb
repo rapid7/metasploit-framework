@@ -9,7 +9,7 @@ module Metasploit::Framework::Spec::Constants::Each
   # CONSTANTS
   #
 
-  LOG_PATHNAME = Pathname.new('log/remove-cleaner')
+  LOG_PATHNAME = Pathname.new('log/metasploit/framework/spec/constants/each.remove')
 
   #
   # Module Methods
