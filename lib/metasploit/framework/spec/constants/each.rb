@@ -9,7 +9,7 @@ module Metasploit::Framework::Spec::Constants::Each
   # CONSTANTS
   #
 
-  LOG_PATHNAME = Pathname.new('log/metasploit/framework/spec/constants/each.remove')
+  LOG_PATHNAME = Pathname.new('log/metasploit/framework/spec/constants/each.log')
 
   #
   # Module Methods
@@ -72,7 +72,9 @@ module Metasploit::Framework::Spec::Constants::Each
             end
           else
             LOG_PATHNAME.open('w') { |f|
-              f.write('1')
+              f.puts "No leaks were cleaned by `Metasploit::Framework::Spec::Constants::Each.configured!`.  Remove " \
+                     "it from `spec/spec_helper.rb` so it does not interfere with contexts that persist loaded " \
+                     "modules for entire context and clean up modules in `after(:all)` and then `rm log/remove-cleaner`"
             }
           end
         end
@@ -96,9 +98,11 @@ module Metasploit::Framework::Spec::Constants::Each
   def self.define_task
     Rake::Task.define_task(:spec) do
       if LOG_PATHNAME.exist?
-        $stderr.puts "No leaks were cleaned by `#{self}.configured!`.  Remove it from `spec/spec_helper.rb` so it " \
-                     "does not interfere with contexts that persist loaded modules for entire context and clean up " \
-                     "modules in `after(:all)` and then `rm log/remove-cleaner`"
+        LOG_PATHNAME.open { |f|
+          f.each_line do |line|
+            $stderr.write line
+          end
+        }
 
         exit(1)
       end

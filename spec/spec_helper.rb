@@ -56,4 +56,5 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
 end
 
+Metasploit::Framework::Spec::Constants::Each.configure!
 Metasploit::Framework::Spec::Constants::Suite.configure!
