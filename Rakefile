@@ -1,6 +1,7 @@
 #!/usr/bin/env rake
 require File.expand_path('../config/application', __FILE__)
 require 'metasploit/framework/require'
+require 'metasploit/framework/spec/untested_payloads'
 
 # @note must be before `Metasploit::Framework::Application.load_tasks`
 #
@@ -10,3 +11,4 @@ Metasploit::Framework::Require.optionally_active_record_railtie
 
 Metasploit::Framework::Application.load_tasks
 Metasploit::Framework::Spec::Constants.define_task
+Metasploit::Framework::Spec::UntestedPayloads.define_task
