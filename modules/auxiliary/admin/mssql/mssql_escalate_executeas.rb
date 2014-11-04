@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       disconnect
       return
     else
-      # Display list of accessible databases to user
+      # Display list of users that can be impersonated
       print_good("#{imp_user_list.length} users can be impersonated:")
       imp_user_list.each do |db|
         print_status(" - #{db[0]}")
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
     sql = "SELECT DISTINCT b.name
     FROM  sys.server_permissions a
     INNER JOIN sys.server_principals b
-    ON a.grantor_principal_id = b.principal_id 
+    ON a.grantor_principal_id = b.principal_id
     WHERE a.permission_name = 'IMPERSONATE'"
 
     result = mssql_query(sql)
@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
   def check_imp_sysadmin(trust_db_list)
     # Check if the user has the db_owner role is any databases
     trust_db_list.each do |imp_user|
-      # Setup query      
+      # Setup query
       sql = "select IS_SRVROLEMEMBER('sysadmin','#{imp_user[0]}') as status"
 
       # Run query
@@ -136,11 +136,11 @@ class Metasploit3 < Msf::Auxiliary
       parse_results = result[:rows]
       status = parse_results[0][0]
       if status == 1
-        print_good(" - #{imp_user[0]} is a sysadmin!")        
-        return imp_user                  
+        print_good(" - #{imp_user[0]} is a sysadmin!")
+        return imp_user
       else
         print_status(" - #{imp_user[0]} is NOT sysadmin!")
-      end 
+      end
     end
     nil
   end
