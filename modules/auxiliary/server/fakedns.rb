@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
           # <hostname> SOA -> windows XP self hostname lookup
           #
 
-          answer = Resolv::DNS::Resource::IN::A.new(target_host() )
+          answer = Resolv::DNS::Resource::IN::A.new(target_host(src_addr))
 
           if (@match_target and not @bypass) or (not @match_target and @bypass)
             # Resolve FAKE response
