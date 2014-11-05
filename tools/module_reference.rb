@@ -57,13 +57,12 @@ opts = Rex::Parser::Arguments.new(
   "-f" => [ true, "Filter based on Module Type [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary] (Default = ALL)."],
   "-t" => [ true, "Type of Reference to sort by #{types.keys}"],
   "-x" => [ true, "String or RegEx to try and match against the Reference Field"],
-  "-o" => [ false, "Save the results to a file"]
+  "-o" => [ true, "Save the results to a file"]
 )
 
 flags = []
 
 opts.parse(ARGV) { |opt, idx, val|
-  val = (val || '').upcase
   case opt
   when "-h"
     puts "\nMetasploit Script for Displaying Module Reference information."
@@ -88,6 +87,7 @@ opts.parse(ARGV) { |opt, idx, val|
     flags << "Module Filter: #{val}"
     filter = val
   when "-t"
+    val = (val || '').upcase
     unless types.has_key(val)
       puts "Invalid Type Supplied: #{val}"
       puts "Please use one of these: #{types.keys.inspect}"
@@ -153,12 +153,12 @@ end
 
 def save_results(path, results)
   begin
-    File.new(path, 'wb') do |f|
+    File.open(path, 'wb') do |f|
       f.write(results)
     end
     puts "Results saved to: #{path}"
-  rescue
-    puts "Failed to save the file"
+  rescue Exception => e
+    puts "Failed to save the file: #{e.message}"
   end
 end
 
@@ -234,10 +234,7 @@ end
 
 puts
 puts tbl.to_s
+puts
 
-if check
-  puts
-  puts "Number of bad references found: #{bad_refs_count}"
-end
-
+puts "Number of bad references found: #{bad_refs_count}" if check
 save_results(save, tbl.to_s) if save
