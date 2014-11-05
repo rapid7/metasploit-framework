@@ -240,4 +240,4 @@ if check
   puts "Number of bad references found: #{bad_refs_count}"
 end
 
-save_results(save, tbl.tos) if save
+save_results(save, tbl.to_s) if save
