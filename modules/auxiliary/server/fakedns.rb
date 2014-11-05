@@ -149,8 +149,7 @@ class Metasploit3 < Msf::Auxiliary
           if (@match_target and not @bypass) or (not @match_target and @bypass)
             # Resolve FAKE response
             if (@log_console)
-              print_status("DNS target domain found: #{@match_name}")
-              print_status("DNS target domain #{name.to_s} faked")
+              print_status("DNS target domain #{@match_name} found; Returning fake A records for #{name}")
             end
           else
             # Resolve the exception domain
@@ -162,8 +161,7 @@ class Metasploit3 < Msf::Auxiliary
               next
             end
             if (@log_console)
-              print_status("DNS bypass domain found: #{@match_name}")
-              print_status("DNS bypass domain #{name.to_s} resolved #{ip}")
+              print_status("DNS bypass domain #{@match_name} found; Returning real A records for #{name}")
             end
           end
 
@@ -195,6 +193,14 @@ class Metasploit3 < Msf::Auxiliary
             next
           end
 
+          if @log_console
+            if @bypass || !@match_target
+              print_status("DNS bypass domain #{@match_name} found; Returning real SRV records for #{name}")
+            else
+              print_status("DNS target domain #{@match_name} found; Returning fake SRV records for #{name}")
+            end
+          end
+
           resources.each do |resource|
             host = resource.target
             port = resource.port.to_i
@@ -204,19 +210,11 @@ class Metasploit3 < Msf::Auxiliary
               # if we are in bypass mode or we are in fake mode but the target didn't match,
               # just return the real response RRs
               answers << Resolv::DNS::Resource::IN::SRV.new(priority, weight, port, Resolv::DNS::Name.create(host))
-              if (@log_console)
-                print_status("DNS bypass domain found: #{@match_name}")
-                print_status("SRV records listed for #{@match_name}")
-              end
             else
               # Prepare the FAKE response
               answers << Resolv::DNS::Resource::IN::SRV.new(5,0,datastore['SRV_PORT'],Resolv::DNS::Name.create(name))
               additionals << [ host, @targ || ::Rex::Socket.source_address(addr[3].to_s) ]
               authorities << Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
-              if (@log_console)
-                print_status("DNS target domain found: #{@match_name}")
-                print_status("DNS target domain #{name.to_s} faked")
-              end
             end
           end
           # don't uniq the SRV answers -- return what the real response had
