@@ -234,7 +234,10 @@ end
 
 puts
 puts tbl.to_s
-puts
-puts "Number of bad references found: #{bad_refs_count}"
+
+if check
+  puts
+  puts "Number of bad references found: #{bad_refs_count}"
+end
 
 save_results(save, tbl.tos) if save
