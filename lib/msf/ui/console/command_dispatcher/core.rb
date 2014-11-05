@@ -1613,7 +1613,7 @@ class Core
         method = 'killall'
       when "-d"
         method = 'detach'
-        sid = val || nil
+        sid = val
       # Run a script on all meterpreter sessions
       when "-s"
         unless script
