@@ -1613,7 +1613,7 @@ class Core
         method = 'killall'
       when "-d"
         method = 'detach'
-        sid = val
+        sid = val || nil
       # Run a script on all meterpreter sessions
       when "-s"
         unless script
@@ -1698,8 +1698,8 @@ class Core
         end
       end
     when 'kill'
+      print_status("Killing the following session(s): #{session_list.join(', ')}")
       session_list.each do |sess_id|
-        print_status("Killing the following session(s): #{session_list.join(', ')}")
         session = framework.sessions.get(sess_id)
         if session
           print_status("Killing session #{sess_id}")
@@ -2973,12 +2973,11 @@ class Core
   protected
 
   #
-  # verifies that a given session_id is valid and that the session is interactive
-  # interactive.  The various return values allow the caller to make better
-  # decisions on what action can & should be taken depending on the capabilities
-  # of the session and the caller's objective while making it simple to use in
-  # the nominal case where the caller needs session_id to match an interactive
-  # session
+  # verifies that a given session_id is valid and that the session is interactive.
+  # The various return values allow the caller to make better decisions on what
+  # action can & should be taken depending on the capabilities of the session
+  # and the caller's objective while making it simple to use in the nominal case
+  # where the caller needs session_id to match an interactive session
   #
   # @param session_id [String] A session id, which is an integer as a string
   # @param quiet [Boolean] True means the method will produce no error messages
