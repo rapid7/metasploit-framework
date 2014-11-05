@@ -14,7 +14,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'metasploit-framework-db'
+  spec.name          = 'metasploit-framework-full'
   spec.version       = Metasploit::Framework::GEM_VERSION
   spec.authors       = ['Metasploit Hackers']
   spec.email         = ['metasploit-hackers@lists.sourceforge.net']
