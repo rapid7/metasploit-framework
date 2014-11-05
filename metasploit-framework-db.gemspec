@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'metasploit-credential', '~> 0.12.0'
   # Database models shared between framework and Pro.
   spec.add_runtime_dependency 'metasploit_data_models', '~> 0.21.1'
+  # depend on metasploit-framewrok as the optional gems are useless with the actual code
   spec.add_runtime_dependency 'metasploit-framework', "= #{spec.version}"
   # Needed for module caching in Mdm::ModuleDetails
   spec.add_runtime_dependency 'pg', '>= 0.11'
