@@ -20,6 +20,8 @@ require 'rspec/rails/fixture_support'
 require 'rspec/rails/matchers'
 require 'rspec/rails/mocks'
 
+require 'metasploit/framework/spec'
+
 FILE_FIXTURES_PATH = File.expand_path(File.dirname(__FILE__)) + '/file_fixtures/'
 
 # Load the shared examples from the following engines
@@ -56,4 +58,5 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
 end
 
+Metasploit::Framework::Spec::Constants::Suite.configure!
 Metasploit::Framework::Spec::Threads::Suite.configure!

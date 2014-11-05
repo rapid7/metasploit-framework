@@ -100,6 +100,8 @@ describe Msf::Modules::Loader::Base do
 
     context 'NAMESPACE_MODULE_CONTENT' do
       context 'derived module' do
+        include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
         let(:namespace_module_names) do
           ['Msf', 'Modules', 'Mod617578696c696172792f72737065632f6d6f636b']
         end
@@ -278,6 +280,8 @@ describe Msf::Modules::Loader::Base do
       end
 
       context 'with file changed' do
+        include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
         let(:module_full_name) do
           File.join('auxiliary', module_reference_name)
         end
@@ -689,6 +693,8 @@ describe Msf::Modules::Loader::Base do
     end
 
     context '#create_namespace_module' do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
       let(:namespace_module_names) do
         [
             'Msf',
@@ -778,6 +784,8 @@ describe Msf::Modules::Loader::Base do
     end
 
     context '#current_module' do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
       let(:module_names) do
         [
             'Msf',
@@ -918,6 +926,8 @@ describe Msf::Modules::Loader::Base do
     end
 
     context '#namespace_module_transaction' do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
       let(:relative_name) do
         'Mod617578696c696172792f72737065632f6d6f636b'
       end
@@ -948,7 +958,8 @@ describe Msf::Modules::Loader::Base do
         end
 
         it 'should remove the pre-existing namespace module' do
-          Msf::Modules.should_receive(:remove_const).with(relative_name)
+          expect(Msf::Modules).to receive(:remove_const).with(relative_name.to_sym).and_call_original
+          expect(Msf::Modules).to receive(:remove_const).with(relative_name).and_call_original
 
           subject.send(:namespace_module_transaction, module_full_name) do |namespace_module|
             true
@@ -1177,6 +1188,8 @@ describe Msf::Modules::Loader::Base do
       end
 
       context 'with namespace_module nil' do
+        include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
         #
         # lets
         #
@@ -1194,7 +1207,7 @@ describe Msf::Modules::Loader::Base do
         end
 
         it 'should remove relative_name' do
-          parent_module.should_receive(:remove_const).with(relative_name)
+          expect(parent_module).to receive(:remove_const).with(relative_name).and_call_original
 
           subject.send(:restore_namespace_module, parent_module, relative_name, namespace_module)
         end
@@ -1239,6 +1252,8 @@ describe Msf::Modules::Loader::Base do
           end
 
           context 'with the current constant being the namespace_module' do
+            include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
             it 'should not change the constant' do
               parent_module.const_defined?(relative_name).should be_truthy
 
@@ -1254,6 +1269,9 @@ describe Msf::Modules::Loader::Base do
             end
 
             it 'should not remove the constant and then set it' do
+              # Allow 'Metasploit::Framework::Spec::Constants cleaner' removal
+              expect(parent_module).to receive(:remove_const).with(relative_name.to_sym).and_call_original
+
               parent_module.should_not_receive(:remove_const).with(relative_name)
               parent_module.should_not_receive(:const_set).with(relative_name, @current_namespace_module)
 
@@ -1262,9 +1280,13 @@ describe Msf::Modules::Loader::Base do
           end
 
           context 'without the current constant being the namespace_module' do
+            include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
             it 'should remove relative_name from parent_module' do
               parent_module.const_defined?(relative_name).should be_truthy
-              parent_module.should_receive(:remove_const).with(relative_name)
+
+              expect(parent_module).to receive(:remove_const).with(relative_name).and_call_original
+              expect(parent_module).to receive(:remove_const).with(relative_name.to_sym).and_call_original
 
               subject.send(:restore_namespace_module, parent_module, relative_name, @original_namespace_module)
             end
@@ -1280,6 +1302,8 @@ describe Msf::Modules::Loader::Base do
         end
 
         context 'without relative_name being a defined constant' do
+          include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
           it 'should set relative_name on parent_module to namespace_module' do
             parent_module.const_defined?(relative_name).should be_falsey
 
