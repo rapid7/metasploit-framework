@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   # no files, just dependencies
   spec.files         = []
 
+  spec.add_runtime_dependency 'metasploit-framework', "= #{spec.version}"
   spec.add_runtime_dependency 'network_interface', '~> 0.0.1'
   # For sniffer and raw socket modules
   spec.add_runtime_dependency 'pcaprub'

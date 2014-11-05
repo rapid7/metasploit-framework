@@ -27,6 +27,7 @@ PATH
       metasploit_data_models (~> 0.21.1)
       pg (>= 0.11)
     metasploit-framework-pcap (4.10.1.pre.dev)
+      metasploit-framework (= 4.10.1.pre.dev)
       network_interface (~> 0.0.1)
       pcaprub
 
