@@ -37,9 +37,7 @@ group :development, :test do
 end
 
 group :pcap do
-  gem 'network_interface', '~> 0.0.1'
-  # For sniffer and raw socket modules
-  gem 'pcaprub'
+  gemspec name: 'metasploit-framework-pcap'
 end
 
 group :test do

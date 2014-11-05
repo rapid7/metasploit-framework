@@ -26,6 +26,9 @@ PATH
       metasploit-framework (= 4.10.1.pre.dev)
       metasploit_data_models (~> 0.21.1)
       pg (>= 0.11)
+    metasploit-framework-pcap (4.10.1.pre.dev)
+      network_interface (~> 0.0.1)
+      pcaprub
 
 GEM
   remote: https://rubygems.org/
@@ -231,8 +234,7 @@ DEPENDENCIES
   fivemat (= 1.2.1)
   metasploit-framework!
   metasploit-framework-db!
-  network_interface (~> 0.0.1)
-  pcaprub
+  metasploit-framework-pcap!
   pry
   rake (>= 10.0.0)
   rb-readline
