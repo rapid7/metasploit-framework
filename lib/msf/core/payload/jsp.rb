@@ -28,13 +28,6 @@ module Msf::Payload::JSP
     var_in = Rex::Text.rand_text_alpha_lower(2)
     var_out = Rex::Text.rand_text_alpha_lower(3)
 
-    # The 'out' name variable can cause conflicts
-    # when compiling the JSP under Tomcat with the
-    # JASPER engine
-    while var_out == 'out'
-      var_out = Rex::Text.rand_text_alpha_lower(3)
-    end
-
     jsp = <<-EOS
 <%@page import="java.lang.*"%>
 <%@page import="java.util.*"%>
@@ -105,13 +98,6 @@ module Msf::Payload::JSP
     var_os = Rex::Text.rand_text_alpha_lower(2)
     var_in = Rex::Text.rand_text_alpha_lower(2)
     var_out = Rex::Text.rand_text_alpha_lower(3)
-
-    # The 'out' name variable can cause conflicts
-    # when compiling the JSP under Tomcat with the
-    # JASPER engine
-    while var_out == 'out'
-      var_out = Rex::Text.rand_text_alpha_lower(3)
-    end
 
     jsp = <<-EOS
 <%@page import="java.lang.*"%>
