@@ -49,6 +49,10 @@ module Metasploit
 
           def self.define_task
             Rake::Task.define_task('metasploit:framework:spec:threads:suite') do
+              if Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME.exist?
+                Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME.delete
+              end
+
               parent_pathname = Pathname.new(__FILE__).parent
               threads_logger_pathname = parent_pathname.join('logger')
               load_pathname = parent_pathname.parent.parent.parent.parent.expand_path
@@ -57,6 +61,8 @@ module Metasploit
             end
 
             Rake::Task.define_task(spec: 'metasploit:framework:spec:threads:suite')
+
+            Rake::Task.define_task()
           end
         end
       end
