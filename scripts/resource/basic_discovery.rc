@@ -114,7 +114,7 @@ run_single("unsetg RHOSTS") # we dont need it anymore
 framework.db.workspace.hosts.each do |host|
 	host.services.each do |serv|
 		next if not serv.host
-		next if (serv.state != ServiceState::Open)
+		next if (serv.state != Msf::ServiceState::Open)
 		#next if (serv.name =~ /smb/ or serv.name =~ /microsoft-ds/ or serv.name =~ /netbios/ or serv.port == 445 or serv.port == 139 or serv.port == 137 or serv.name =~ /smtp/ or serv.port == 25 or serv.name =~ /snmp/ or serv.port == 161 or serv.name =~ /ssh/ or serv.port == 22 or serv.name =~ /telnet/ or serv.port == 23)
 		if (serv.name =~ /smb/ or serv.name =~ /microsoft-ds/ or serv.name =~ /netbios/ or serv.port == 445 or serv.port == 139 or serv.port == 137)
 			if(serv.port == 445)

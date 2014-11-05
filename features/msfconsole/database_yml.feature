@@ -157,11 +157,11 @@ Feature: `msfconsole` `database.yml`
     And the output should not contain "user_metasploit_framework_test"
     And the output should not contain "project_metasploit_framework_test"
     And the output should contain "[*] postgresql selected, no connection"
-    
+
   Scenario: Starting `msfconsole` with a valid database.yml
     Given I run `msfconsole` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
     When I type "db_status"
     And I type "exit"
     Then the output should contain "[*] postgresql connected to metasploit_framework_test"
-  
+

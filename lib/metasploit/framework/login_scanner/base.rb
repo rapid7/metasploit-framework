@@ -88,6 +88,7 @@ module Metasploit
 
           def each_credential
             cred_details.each do |raw_cred|
+
               # This could be a Credential object, or a Credential Core, or an Attempt object
               # so make sure that whatever it is, we end up with a Credential.
               credential = raw_cred.to_credential
@@ -101,6 +102,11 @@ module Metasploit
                 credential.realm_key = self.class::REALM_KEY
                 yield credential
               elsif credential.realm.blank? && self.class::REALM_KEY.present? && self.class::DEFAULT_REALM.present?
+                # XXX: This is messing up the display for mssql when not using
+                # Windows authentication, e.g.:
+                #   [+] 10.0.0.53:1433 - LOGIN SUCCESSFUL: WORKSTATION\sa:msfadmin
+                # Realm gets ignored in that case, so it still functions, it
+                # just gives the user bogus info
                 credential.realm_key = self.class::REALM_KEY
                 credential.realm     = self.class::DEFAULT_REALM
                 yield credential
@@ -144,8 +150,10 @@ module Metasploit
             successful_users = Set.new
 
             each_credential do |credential|
-              # For Pro bruteforce Reuse and Guess we need to note that we skipped an attempt.
+              # Skip users for whom we've have already found a password
               if successful_users.include?(credential.public)
+                # For Pro bruteforce Reuse and Guess we need to note that we
+                # skipped an attempt.
                 if credential.parent.respond_to?(:skipped)
                   credential.parent.skipped = true
                   credential.parent.save!

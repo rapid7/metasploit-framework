@@ -4,6 +4,7 @@ module Metasploit
   module Framework
     module Telnet
       module Client
+        extend ActiveSupport::Concern
         include Metasploit::Framework::Tcp::Client
         include Msf::Auxiliary::Login
 
