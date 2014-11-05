@@ -125,7 +125,13 @@ class Message
   end
 
   def to_s
-    msg = force_crlf(self.header.to_s + "\r\n")
+    header_string = self.header.to_s
+
+    if header_string.empty?
+      msg = ''
+    else
+      msg = force_crlf(self.header.to_s + "\r\n")
+    end
 
     unless self.content.blank?
       msg << force_crlf(self.content + "\r\n")
