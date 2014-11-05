@@ -47,6 +47,7 @@ filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
 type    ='ALL'
 match   = nil
 check   = false
+save    = nil
 
 opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ],
@@ -56,6 +57,7 @@ opts = Rex::Parser::Arguments.new(
   "-f" => [ true, "Filter based on Module Type [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary] (Default = ALL)."],
   "-t" => [ true, "Type of Reference to sort by #{types.keys}"],
   "-x" => [ true, "String or RegEx to try and match against the Reference Field"],
+  "-o" => [ false, "Save the results to a file"]
 )
 
 flags = []
@@ -95,6 +97,9 @@ opts.parse(ARGV) { |opt, idx, val|
   when "-x"
     flags << "Regex: #{val}"
     match = Regexp.new(val)
+  when "-o"
+    flags << "Output to file: Yes"
+    save = val
   end
 }
 
@@ -144,6 +149,17 @@ def is_url_alive?(uri)
   end
 
   true
+end
+
+def save_results(path, results)
+  begin
+    File.new(path, 'wb') do |f|
+      f.write(results)
+    end
+    puts "Results saved to: #{path}"
+  rescue
+    puts "Failed to save the file"
+  end
 end
 
 # Always disable the database (we never need it just to list module
@@ -220,3 +236,5 @@ puts
 puts tbl.to_s
 puts
 puts "Number of bad references found: #{bad_refs_count}"
+
+save_results(save, tbl.tos) if save
