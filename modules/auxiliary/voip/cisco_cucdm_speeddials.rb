@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         for unauthorised speeddial manipulation using this module. This tool can be tested with the fake
         voss-xmlservice component of Viproy.
       },
-      'Author'      => 'Fatih Ozavci <viproy.com/fozavci>',
+      'Author'      => 'fozavci',
       'References'     =>
           [
               ['CVE', '2014-3300'],
