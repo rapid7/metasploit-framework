@@ -204,7 +204,6 @@ class Metasploit3 < Msf::Auxiliary
               # if we are in bypass mode or we are in fake mode but the target didn't match,
               # just return the real response RRs
               answers << Resolv::DNS::Resource::IN::SRV.new(priority, weight, port, Resolv::DNS::Name.create(host))
-              additionals << [ host, Resolv::DNS.new().getaddress(host).to_s ]
               if (@log_console)
                 print_status("DNS bypass domain found: #{@match_name}")
                 print_status("SRV records listed for #{@match_name}")
