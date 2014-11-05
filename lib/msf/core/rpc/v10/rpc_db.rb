@@ -285,6 +285,7 @@ public
     res[:workspaces] = []
     self.framework.db.workspaces.each do |j|
       ws = {}
+      ws[:id] = j.id
       ws[:name] = j.name
       ws[:created_at] = j.created_at.to_i
       ws[:updated_at] = j.updated_at.to_i
@@ -295,7 +296,7 @@ public
 
   def rpc_current_workspace
     db_check
-    { "workspace" => self.framework.db.workspace.name }
+    { "workspace" => self.framework.db.workspace.name, "workspace_id" => self.framework.db.workspace.id }
   end
 
   def rpc_get_workspace(wspace)
@@ -306,6 +307,7 @@ public
     if(wspace)
       w = {}
       w[:name] = wspace.name
+      w[:id] = wspace.id
       w[:created_at] = wspace.created_at.to_i
       w[:updated_at] = wspace.updated_at.to_i
       ret[:workspace] << w
@@ -350,6 +352,15 @@ public
     db_check
     wspace = self.framework.db.add_workspace(wspace)
     return { 'result' => 'success' } if(wspace)
+    { 'result' => 'failed' }
+  }
+  end
+
+  def rpc_add_host(xopts)
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    opts, wspace = init_db_opts_workspace(xopts)
+    host = self.framework.db.add_host(opts)
+    return { 'result' => 'success' } if(host)
     { 'result' => 'failed' }
   }
   end
