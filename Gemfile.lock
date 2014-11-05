@@ -21,11 +21,9 @@ PATH
       sqlite3
       tzinfo
     metasploit-framework-db (4.10.1.pre.dev)
-      activerecord (< 4.0.0)
-      metasploit-credential (~> 0.12.0)
       metasploit-framework (= 4.10.1.pre.dev)
-      metasploit_data_models (~> 0.21.1)
-      pg (>= 0.11)
+      metasploit-framework-db (= 4.10.1.pre.dev)
+      metasploit-framework-pcap (= 4.10.1.pre.dev)
     metasploit-framework-pcap (4.10.1.pre.dev)
       metasploit-framework (= 4.10.1.pre.dev)
       network_interface (~> 0.0.1)
@@ -62,8 +60,6 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.3)
-    arel-helpers (2.0.1)
-      activerecord (>= 3.1.0, < 5)
     aruba (0.6.1)
       childprocess (>= 0.3.6)
       cucumber (>= 1.1.1)
@@ -112,26 +108,9 @@ GEM
     metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.12.0)
-      metasploit-concern (~> 0.3.0)
-      metasploit-model (~> 0.28.0)
-      metasploit_data_models (~> 0.21.0)
-      pg
-      railties (< 4.0.0)
-      rubyntlm
-      rubyzip (~> 1.1)
     metasploit-model (0.28.0)
       activesupport
       railties (< 4.0.0)
-    metasploit_data_models (0.21.1)
-      activerecord (>= 3.2.13, < 4.0.0)
-      activesupport
-      arel-helpers
-      metasploit-concern (~> 0.3.0)
-      metasploit-model (~> 0.28.0)
-      pg
-      railties (< 4.0.0)
-      recog (~> 1.0)
     meterpreter_bins (0.0.10)
     method_source (0.8.2)
     mime-types (1.25.1)
@@ -143,7 +122,6 @@ GEM
       mini_portile (= 0.6.0)
     packetfu (1.1.9)
     pcaprub (0.11.3)
-    pg (0.17.1)
     polyglot (0.3.5)
     pry (0.10.0)
       coderay (~> 1.1.0)
@@ -199,7 +177,6 @@ GEM
       rspec-core (~> 2.99.0)
       rspec-expectations (~> 2.99.0)
       rspec-mocks (~> 2.99.0)
-    rubyntlm (0.4.0)
     rubyzip (1.1.6)
     shoulda-matchers (2.6.2)
     simplecov (0.5.4)
