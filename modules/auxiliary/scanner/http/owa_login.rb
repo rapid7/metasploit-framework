@@ -18,8 +18,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'Outlook Web App (OWA) Brute Force Utility',
       'Description'    => %q{
-        This module tests credentials on OWA 2003, 2007, 2010, 2013 servers. The default
-        action is set to OWA 2010.
+        This module tests credentials on OWA 2003, 2007, 2010, and 2013 servers.
       },
       'Author'         =>
         [
@@ -70,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
             }
           ]
         ],
-      'DefaultAction' => 'OWA_2010',
+      'DefaultAction' => 'OWA_2013',
       'DefaultOptions' => {
         'SSL' => true
       }
