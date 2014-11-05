@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptInt.new('SRV_PORT', [ false, "The Port field in the SRV response for the FAKE action", 5060]),
+        OptPort.new('RR_SRV_PORT', [ false, "The port field in the SRV response when FAKE", 5060]),
         OptBool.new('LogConsole', [ false, "Determines whether to log all request to the console", true]),
         OptBool.new('LogDatabase', [ false, "Determines whether to log all request to the database", false]),
       ], self.class)
@@ -212,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
               answers << Resolv::DNS::Resource::IN::SRV.new(priority, weight, port, Resolv::DNS::Name.create(host))
             else
               # Prepare the FAKE response
-              answers << Resolv::DNS::Resource::IN::SRV.new(5,0,datastore['SRV_PORT'],Resolv::DNS::Name.create(name))
+              answers << Resolv::DNS::Resource::IN::SRV.new(5,0,datastore['RR_SRV_PORT'],Resolv::DNS::Name.create(name))
               additionals << [ host, @targ || ::Rex::Socket.source_address(addr[3].to_s) ]
               authorities << Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
             end
