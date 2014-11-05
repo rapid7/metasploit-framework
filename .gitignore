@@ -9,7 +9,7 @@ Gemfile.local.lock
 .rvmrc
 # Allow for a local choice of (unsupported / semi-supported) ruby versions
 # See PR #4136 for usage, but example usage:
-#   rvm --create --versions-conf use # 2.1.4@metasploit-framework
+#   rvm --create --versions-conf use 2.1.4@metasploit-framework
 .versions.conf
 # YARD cache directory
 .yardoc
