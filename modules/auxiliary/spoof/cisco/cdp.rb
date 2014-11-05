@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
         'Name'				=> 'CDP Discovery and Spoofing',
         'Description' => 'This module captures and sends Cisco Discovery Protocol packets for discovery',
-        'Author'      => 'Fatih Ozavci <viproy.com/fozavci>',
+        'Author'      => 'fozavci',
         'License'     =>  MSF_LICENSE,
         'Actions'			=>
             [
