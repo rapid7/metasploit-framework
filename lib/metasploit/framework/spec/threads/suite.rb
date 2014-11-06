@@ -40,8 +40,9 @@ module Metasploit
 
                     raise RuntimeError,
                           "#{thread_count} #{'thread'.pluralize(thread_count)} exist(s) when " \
-                  "only #{EXPECTED_THREAD_COUNT_BEFORE_SUITE} " \
-                  "#{'thread'.pluralize(EXPECTED_THREAD_COUNT_BEFORE_SUITE)} expected before suite runs:\n#{log}"
+                          "only #{EXPECTED_THREAD_COUNT_BEFORE_SUITE} " \
+                          "#{'thread'.pluralize(EXPECTED_THREAD_COUNT_BEFORE_SUITE)} expected before suite runs:\n" \
+                          "#{log}"
                   end
                 end
               end
