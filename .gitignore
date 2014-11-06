@@ -7,6 +7,12 @@ Gemfile.local.lock
 .sublime-project
 # RVM control file, keep this to avoid backdooring Metasploit
 .rvmrc
+# Allow for a local choice of (unsupported / semi-supported) ruby versions
+# See PR #4136 for usage, but example usage for rvm:
+#   rvm --create --versions-conf use 2.1.4@metasploit-framework
+# Because rbenv doesn't use .versions.conf, to achieve this same functionality, run:
+#   rbenv shell 2.1.4
+.versions.conf
 # YARD cache directory
 .yardoc
 # Mac OS X files
