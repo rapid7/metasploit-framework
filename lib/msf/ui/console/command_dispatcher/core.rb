@@ -1569,6 +1569,10 @@ class Core
     print_line
     print_line "Active session manipulation and interaction."
     print(@@sessions_opts.usage)
+    print_line
+    print_line "Many options allow specifying session ranges using commas and dashes."
+    print_line "For example:  sessions -s checkvm -i 1,3-5  or  sessions -k 1-2,5,6"
+    print_line
   end
 
   #
@@ -1608,12 +1612,12 @@ class Core
         method = 'list'
       when "-k"
         method = 'kill'
-        sid = val if val
+        sid = val || false
       when "-K"
         method = 'killall'
       when "-d"
         method = 'detach'
-        sid = val
+        sid = val || false
       # Run a script on all meterpreter sessions
       when "-s"
         unless script
@@ -1623,7 +1627,7 @@ class Core
       # Upload and exec to the specific command session
       when "-u"
         method = 'upexec'
-        sid = val
+        sid = val || false
       # Reset the ring buffer read pointer
       when "-r"
         reset_ring = true
@@ -1641,7 +1645,7 @@ class Core
       method = 'interact'
     end
 
-    unless sid.blank? || method == 'interact'
+    unless sid.nil? || method == 'interact'
       session_list = build_range_array(sid)
       if session_list.blank?
         print_error("Please specify valid session identifier(s)")
@@ -1662,8 +1666,13 @@ class Core
         else
           sessions = framework.sessions.keys.sort
         end
+        if sessions.blank?
+          print_error("Please specify valid session identifier(s) using -i")
+          return false
+        end
         sessions.each do |s|
-          session = framework.sessions.get(s)
+          session = verify_session(s)
+          next unless session
           print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
 
           if session.type == 'meterpreter'
