@@ -33,9 +33,13 @@ Here's how and when we plan to shut down Redmine
 |  Sep 24, 2014 | Lock Redmine against new issues from non-Contributors. | Yes |
 |  Oct 7, 2014 | Reset all users passwords prior to export | No |
 |  Oct 10, 2014 | Complete the conversion to GitHub Issues | Yes! [See the list](https://dev.metasploit.com/redmine/issues?per_page=100&query_id=741) |
-|  Nov 13, 2014 | Export the Redmine database and offer as a tarball download | No |
-|  Nov 13, 2014 | Update Project descriptions to list the tarball download | No |
-|  Dec 1, 2014 | Deactivate Redmine, tweet and blog about it. | No |
+|  Dec 13, 2014 | Export the Redmine database and offer as a tarball download | No |
+|  Dec 13, 2014 | Update Project descriptions to list the tarball download | No |
+|  Jan 5, 2015 | Deactivate Redmine, tweet and blog about it. | No |
+
+**Update**: Turns out, sanitizing the Redmine instance for mass distribution is kind of hard -- we're not really anxious about accidentally shipping sensistive info that was access controlled by the UI. I don't believe that the last three steps here will be trivial to accomplish, so bumping out the dates for now.
+
+It's possible that Redmine will just cease to be, which will be sad, but I haven't heard anyone really outside of Rapid7 wanting to maintain the historical data.
 
 ----
 
