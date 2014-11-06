@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         on < 4.4 that embed the WebView component. If successful, an attacker can leverage this bug
         to scrape both cookie data and page contents from a vulnerable browser window.
 
-        Target URLs that use X-Frame-Options can not be exploited with this vulnerability.
+        Target URLs that use X-Frame-Options cannot be exploited with this vulnerability.
 
         Some sample UXSS scripts are provided in data/exploits/uxss.
       },
