@@ -30,7 +30,7 @@ msf exploit(ms08_067_netapi) > info
 
 ## Read the target list
 
-Every Metasploit exploit has a target list. Basically this is a list of setups the developers have tested before making the exploit publicly available.
+Every Metasploit exploit has a target list. Basically this is a list of setups the developers have tested before making the exploit publicly available. If your target machine isn't on the list, it's better to assume the exploit has never been tested on that particular setup.
 
 If the exploit supports automatic targeting, it is always the first item on the list (or index 0). The first item is also almost always the default target. What this means is that you should never assume the exploit will automatically select a target for you if you've never used it before, and that the default setup might not be the one you're testing against.
 
