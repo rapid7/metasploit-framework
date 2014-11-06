@@ -7,6 +7,8 @@ module Rex
 module PeParsey
 class PeBase
 
+  IMAGE_SCN_MEM_WRITE                   = 0x8000_0000
+  IMAGE_DLL_CHARACTERISTICS_NO_SECURITY = 0xf000
 
   # #define IMAGE_DOS_SIGNATURE                 0x5A4D      // MZ
   IMAGE_DOS_SIGNATURE = 0x5a4d
@@ -386,6 +388,11 @@ class PeBase
   #   #define IMAGE_SIZEOF_NT_OPTIONAL32_HEADER    224
   #
 
+
+  # SO means Structure Offset
+  SO_ADDRESS_OF_ENTRY_POINT = 0x10
+  SO_DLL_CHARACTERISTICS    = 0x46
+
   IMAGE_NT_OPTIONAL_HDR32_MAGIC     = 0x10b
   IMAGE_SIZEOF_NT_OPTIONAL32_HEADER = 224
   IMAGE_OPTIONAL_HEADER32 = Rex::Struct2::CStructTemplate.new(
@@ -587,6 +594,9 @@ class PeBase
     end
 
   end
+
+  # SO means Structure Offset
+  SO_SECTION_CHARACTERISTICS = 0x24
 
   # #define IMAGE_SIZEOF_SECTION_HEADER          40
   IMAGE_SIZEOF_SECTION_HEADER = 40
