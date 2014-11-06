@@ -108,6 +108,8 @@ That's really all there is to it. The most common problems that people (includin
 
 Note that the `$HOME` directory for Metasploit Community Edition is going to be `root` and not your own user directory, so if you are expecting modules to show up in the Metasploit CE (or Express, or Pro) web UIs, you will want to stash your external modules in `/root/.msf4/modules`. Of course, this means you need root access to the machine in question, but hey, you're a l33t Metasploit user, so that shouldn't be too hard.
 
+Also note that if your modules are not displaying in the web UI, you should restart Pro service.  
+
 ### Windows
 
 For Windows users, the above is all true, except for accessing the modules from the web GUI. Sadly, you're a little out of luck; the module load paths on Windows are a little more restrictive and don't allow for external modules. However, the Console2-based Metasploit Console (Start > Programs > Metasploit > Metasploit Console) will work out just fine.
