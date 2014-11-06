@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Metasploit Hackers']
   spec.email         = ['metasploit-hackers@lists.sourceforge.net']
   spec.summary       = 'metasploit-framework with all optional dependencies'
-  spec.description   = 'Gems needed to access the PostgreSQL database anin metasploit-framework'
+  spec.description   = 'Gems needed to access the PostgreSQL database in metasploit-framework'
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
