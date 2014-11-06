@@ -3,8 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec
 
-gem 'rb-readline', require: false
-
 group :db do
   # Needed for Msf::DbManager
   gem 'activerecord', '>= 3.0.0', '< 4.0.0'
