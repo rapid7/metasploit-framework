@@ -356,15 +356,6 @@ public
   }
   end
 
-  def rpc_add_host(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    host = self.framework.db.add_host(opts)
-    return { 'result' => 'success' } if(host)
-    { 'result' => 'failed' }
-  }
-  end
-
   def rpc_get_host(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
