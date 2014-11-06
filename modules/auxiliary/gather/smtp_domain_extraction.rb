@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
         Extract the name of the internal Windows domain by
         parsing the NTLM challenge sent by the SMTP server.
       },
-      'Author'         => [ 'rwhitcroft' ],
+      'Author'         => [ 'Rich Whitcroft <rwhitcroft@digitalboundary.net>' ],
       'References'     => [ [ 'URL', 'http://msdn.microsoft.com/en-us/library/cc246870.aspx' ] ]
     ))
 
