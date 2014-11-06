@@ -34,6 +34,8 @@ module Metasploit
                     # LOG_PATHNAME may not exist if suite run without `rake spec`
                     if LOG_PATHNAME.exist?
                       log = LOG_PATHNAME.read()
+                    else
+                      log "Run `rake spec` to log where Thread.new is called."
                     end
 
                     raise RuntimeError,
