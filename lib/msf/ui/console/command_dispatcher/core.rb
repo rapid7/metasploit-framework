@@ -1677,7 +1677,6 @@ class Core
 
           if session.type == 'meterpreter'
             # If session.sys is nil, dont even try..
-            print_good "Checking if session.sys"
             unless session.sys
               print_error("Session #{s} does not have stdapi loaded, skipping...")
               next
