@@ -31,7 +31,10 @@ module Metasploit
 
                   # check with if first so that error message can be constructed lazily
                   if thread_count > EXPECTED_THREAD_COUNT_BEFORE_SUITE
-                    log = LOG_PATHNAME.read()
+                    # LOG_PATHNAME may not exist if suite run without `rake spec`
+                    if LOG_PATHNAME.exist?
+                      log = LOG_PATHNAME.read()
+                    end
 
                     raise RuntimeError,
                           "#{thread_count} #{'thread'.pluralize(thread_count)} exist(s) when " \
