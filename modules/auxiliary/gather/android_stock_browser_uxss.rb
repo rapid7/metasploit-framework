@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Android Open Source Platform (AOSP) Browser UXSS',
       'Description'    => %q{
         This module exploits a Universal Cross-Site Scripting (UXSS) vulnerability present in
-        all versions of Android's open source stock browser before Android 4.4. If successful,
-        an attacker can leverage this bug to scrape both cookie data and page contents from a
-        vulnerable browser window.
+        all versions of Android's open source stock browser before 4.4, and Android apps running
+        on < 4.4 that embed the WebView component. If successful, an attacker can leverage this bug
+        to scrape both cookie data and page contents from a vulnerable browser window.
 
         If your target URLs use X-Frame-Options, you can enable the "BYPASS_XFO" option,
         which will cause a popup window to be used. This requires a click from the user
