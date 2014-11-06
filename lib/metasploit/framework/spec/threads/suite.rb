@@ -67,8 +67,6 @@ module Metasploit
             end
 
             Rake::Task.define_task(spec: 'metasploit:framework:spec:threads:suite')
-
-            Rake::Task.define_task()
           end
         end
       end
