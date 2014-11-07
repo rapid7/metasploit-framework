@@ -112,7 +112,13 @@ Because Metasploit now ships with `.ruby-gemset` and `.ruby-version`
 files, you do not need to do anything special to ensure your gems get
 stashed in the right place. When you cd to your Metasploit framework
 checkout, your environment will automatically switch contexts to
-`ruby-1.9.3@metasploit-framework`.
+`ruby-2.1.4@metasploit-framework`.
+
+If you prefer to use another version of ruby, just run `rvm --create --versions-conf use rubyversion@metasploit-framework`, replacing `rubyversion` with whatever version of Ruby you like (see [PR #4136](https://github.com/rapid7/metasploit-framework/pull/4136))
+
+Note that until
+January, 2015, only Ruby 1.9.3 and Ruby 2.1.4 are actually supported; after
+that, only 2.1.x will be supported as 1.9.3 will be [completely retired](https://www.ruby-lang.org/en/news/2014/01/10/ruby-1-9-3-will-end-on-2015/).
 
 ## Your Editor
 
