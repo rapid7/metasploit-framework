@@ -54,10 +54,14 @@ nor does it include the Ruby interpreter. We'll get to that in a second.
 ## Getting Ruby
 
 Many standard distributions of Ruby are lacking in one regard or
-another. Lucky for all of us, Wayne Seguin's RVM has become quite
-excellent at providing several proven Ruby interpreters. Visit
-[https://rvm.io/](https://rvm.io/) to read up on it or just trust that
-it'll all work out with a simple:
+another. Lucky for all of us, there are several ways to easily install
+and maintain ruby versions. ```rvm``` is popular among many Metasploit
+developers and recommended, however ```rbenv``` is a good choice too.  So, pick one of the following:
+
+### rvm
+
+Wayne Seguin's RVM has become quite excellent at providing several proven Ruby interpreters. Visit
+[https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
 ````bash
 \curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.4
@@ -114,12 +118,24 @@ stashed in the right place. When you cd to your Metasploit framework
 checkout, your environment will automatically switch contexts to
 `ruby-2.1.4@metasploit-framework`.
 
+### rbenv
+
+Simply follow [this](https://github.com/sstephenson/rbenv#installation)
+
 ### Moving to Ruby 2.1.x
 
 As a Metasploit developer, you are encouraged to use the non-default
 2.1.4, and you should see some significant performance increases as a result.
-Metasploit is currently cross-compatible with 1.9.3 and 2.1.4. So, if you'd
-like to use another version of ruby, just run `rvm --create --versions-conf use rubyversion@metasploit-framework`, replacing `rubyversion` with whatever version of Ruby you like (see [PR #4136](https://github.com/rapid7/metasploit-framework/pull/4136)).
+Metasploit is currently cross-compatible with 1.9.3 and 2.1.4. 
+Until January 6, 2015, both Ruby 1.9.3 and Ruby 2.1.4 are supported; after that,
+only 2.1.x will be supported, as 1.9.3 will be [completely end of life'd](https://www.ruby-lang.org/en/news/2014/01/10/ruby-1-9-3-will-end-on-2015/).
+
+If you'd like to use another version of ruby, ```rvm``` and ```rbenv``` can help you easily switch:
+
+
+#### Using 2.1.x with ```rvm```
+
+Just run `rvm --create --versions-conf use rubyversion@metasploit-framework`, replacing `rubyversion` with whatever version of Ruby you like (see [PR #4136](https://github.com/rapid7/metasploit-framework/pull/4136)).
 
 Running the following will cause your checkout to use Ruby 2.1.4 by default:
 
@@ -130,8 +146,13 @@ pushd ..; popd
 bundle install
 ````
 
-Until January 6, 2015, both Ruby 1.9.3 and Ruby 2.1.4 are supported; after that,
-only 2.1.x will be supported, as 1.9.3 will be [completely end of life'd](https://www.ruby-lang.org/en/news/2014/01/10/ruby-1-9-3-will-end-on-2015/).
+#### Using 2.1.x with ```rbenv```
+
+Just run:
+
+```
+rbenv shell 2.1.4
+````
 
 ## Your Editor
 
