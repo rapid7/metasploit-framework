@@ -34,7 +34,7 @@ class Core
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
-    "-c" => [ true,  "Run a command on the session given with -i, or all"],
+    "-c" => [ true,  "Run a shell command on the session (use with -i)"],
     "-h" => [ false, "Help banner"                                    ],
     "-i" => [ true,  "Interact with the supplied session ID"          ],
     "-l" => [ false, "List all active sessions"                       ],
@@ -1655,11 +1655,7 @@ class Core
 
     # Now, perform the actual method
     case method
-    when 'cmd'
-      if cmds.length < 1
-        print_error("No command specified!")
-        return false
-      end
+<<<<<<< HEAD
       cmds.each do |cmd|
         if sid
           sessions = session_list
@@ -1688,9 +1684,16 @@ class Core
                   'Channelized' => true,
                   'Hidden'      => true
                 })
-            rescue ::Rex::Post::Meterpreter::RequestError
-              print_error("Failed: #{$!.class} #{$!}")
+
+            rescue ::Rex::Post::Meterpreter::RequestError => e
+              if e.method == 'stdapi_sys_process_execute' &&
+                 e.result =~ /system cannot find the file specified/i
+                print_error("#{cmd} is not a valid shell command or binary path")
+              else
+                print_error("Failed: #{e.class} #{e.to_s}")
+              end
             end
+
             if process && process.channel
               data = process.channel.read
               print_line(data) if data
