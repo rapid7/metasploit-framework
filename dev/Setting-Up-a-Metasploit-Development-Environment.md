@@ -60,7 +60,7 @@ excellent at providing several proven Ruby interpreters. Visit
 it'll all work out with a simple:
 
 ````bash
-\curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=1.9.3
+\curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.4
 ````
 
 Note the *lack* of sudo; you will nearly always want to install this as
@@ -70,7 +70,7 @@ Sometimes, depending on your particular platform, this incantation may
 not be reliable. This is nearly identical, but more typing:
 
 ````bash
-\curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
+\curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.4
 ````
 
 Also, if you're sketchy about piping a web site directly to bash, you
@@ -79,7 +79,7 @@ can perform each step individually, without the &&:
 ````bash
 \curl -o rvm.sh -L get.rvm.io 
 less rvm.sh
-cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
+cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.4
 ````
 
 Next, load the RVM scripts by either opening a new terminal window, or
