@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', 'TODO' ],
           [ 'OSVDB', 'TODO' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_eventlog_info_disc.txt' ],
-          [ 'URL', 'TODO_FULLDISC_URL' ]
+          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/12' ]
         ],
       'DisclosureDate' => 'Nov 5 2014'))
 
