@@ -1,0 +1,680 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::ElfParsey::ElfBase
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/ElfParsey/ElfBase.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../ElfParsey.html" title="Rex::ElfParsey (module)">ElfParsey</a></span></span>
+     &raquo; 
+    <span class="title">ElfBase</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::ElfParsey::ElfBase
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::ElfParsey::ElfBase</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/elfparsey/elfbase.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Elf.html" title="Rex::ElfParsey::Elf (class)">Elf</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="ElfBase/ElfHeader.html" title="Rex::ElfParsey::ElfBase::ElfHeader (class)">ElfHeader</a></span>, <span class='object_link'><a href="ElfBase/GenericHeader.html" title="Rex::ElfParsey::ElfBase::GenericHeader (class)">GenericHeader</a></span>, <span class='object_link'><a href="ElfBase/GenericStruct.html" title="Rex::ElfParsey::ElfBase::GenericStruct (class)">GenericStruct</a></span>, <span class='object_link'><a href="ElfBase/ProgramHeader.html" title="Rex::ElfParsey::ElfBase::ProgramHeader (class)">ProgramHeader</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="ELF_HEADER_SIZE-constant" class="">ELF_HEADER_SIZE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>ELF Header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>52</span></pre></dd>
+      
+        <dt id="EI_NIDENT-constant" class="">EI_NIDENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="ELF32_EHDR_LSB-constant" class="">ELF32_EHDR_LSB =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Struct2</span><span class='op'>::</span><span class='const'>CStructTemplate</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>string</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_ident</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='const'>EI_NIDENT</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_type</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_machine</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_version</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_entry</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_phoff</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_shoff</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_flags</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_ehsize</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_phentsize</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_phnum</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_shentsize</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_shnum</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_shstrndx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="ELF32_EHDR_MSB-constant" class="">ELF32_EHDR_MSB =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Struct2</span><span class='op'>::</span><span class='const'>CStructTemplate</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>string</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_ident</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='const'>EI_NIDENT</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_type</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>      <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_machine</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_version</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_entry</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_phoff</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_shoff</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_flags</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_ehsize</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_phentsize</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_phnum</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_shentsize</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_shnum</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint16n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>e_shstrndx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="ET_NONE-constant" class="">ET_NONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>e_type  This member identifies the object file type</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="ET_REL-constant" class="">ET_REL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="ET_EXEC-constant" class="">ET_EXEC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="ET_DYN-constant" class="">ET_DYN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="ET_CORE-constant" class="">ET_CORE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="ET_LOPROC-constant" class="">ET_LOPROC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xff00</span></pre></dd>
+      
+        <dt id="ET_HIPROC-constant" class="">ET_HIPROC =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>No file type Relocatable file Executable file Shared object file Core file
+Processor-specific Processor-specific</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0xffff</span></pre></dd>
+      
+        <dt id="EM_M32-constant" class="">EM_M32 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>ET_NONE        = 0   # No machine</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="EM_SPARC-constant" class="">EM_SPARC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="EM_386-constant" class="">EM_386 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="EM_68K-constant" class="">EM_68K =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="EM_88K-constant" class="">EM_88K =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="EM_860-constant" class="">EM_860 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="EM_MIPS-constant" class="">EM_MIPS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="EM_MIPS_RS4_BE-constant" class="">EM_MIPS_RS4_BE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>AT&amp;T WE 32100 SPARC Intel Architecture Motorola 68000 Motorola 88000
+Intel 80860 MIPS RS3000 Big-Endian MIPS RS4000 Big-Endian</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="EV_NONE-constant" class="">EV_NONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>e_version  This member identifies the object file version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="EV_CURRENT-constant" class="">EV_CURRENT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Invalid version Current version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="EI_MAG0-constant" class="">EI_MAG0 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>e_ident[]  Identification indexes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="EI_MAG1-constant" class="">EI_MAG1 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="EI_MAG2-constant" class="">EI_MAG2 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="EI_MAG3-constant" class="">EI_MAG3 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="EI_CLASS-constant" class="">EI_CLASS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="EI_DATA-constant" class="">EI_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="EI_VERSION-constant" class="">EI_VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="EI_PAD-constant" class="">EI_PAD =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>File identification File identification File identification File
+identification File class Data encoding File version Start of padding bytes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="ELFMAG0-constant" class="">ELFMAG0 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>EI_MAG0 to EI_MAG3  A file&#39;s first 4 bytes hold a “magic number”,
+identifying the file as an ELF object file.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x7f</span></pre></dd>
+      
+        <dt id="ELFMAG1-constant" class="">ELFMAG1 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p><a href="http://EI_MAG0">e_ident</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='CHAR'>?E</span></pre></dd>
+      
+        <dt id="ELFMAG2-constant" class="">ELFMAG2 =
+          
+        </dt>
+        <dd><pre class="code"><span class='CHAR'>?L</span></pre></dd>
+      
+        <dt id="ELFMAG3-constant" class="">ELFMAG3 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p><a href="http://EI_MAG1">e_ident</a> <a href="http://EI_MAG2">e_ident</a>
+<a href="http://EI_MAG3">e_ident</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='CHAR'>?F</span></pre></dd>
+      
+        <dt id="ELFMAG-constant" class="">ELFMAG =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>ELFMAG0</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='op'>+</span> <span class='const'>ELFMAG1</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='op'>+</span> <span class='const'>ELFMAG2</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='op'>+</span> <span class='const'>ELFMAG3</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span></pre></dd>
+      
+        <dt id="ELFCLASSNONE-constant" class="">ELFCLASSNONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>EI_CLASS  Identifies the file&#39;s class, or capacity</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="ELFCLASS32-constant" class="">ELFCLASS32 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="ELFCLASS64-constant" class="">ELFCLASS64 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Invalid class 32-bit objects 64-bit objects</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="ELFDATANONE-constant" class="">ELFDATANONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>EI_DATA  Specifies the data encoding of the processor-specific data in the
+object file. The following encodings are currently defined.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="ELFDATA2LSB-constant" class="">ELFDATA2LSB =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="ELFDATA2MSB-constant" class="">ELFDATA2MSB =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Invalid data encoding Least significant byte first Most significant byte
+first</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="PROGRAM_HEADER_SIZE-constant" class="">PROGRAM_HEADER_SIZE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Program Header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>32</span></pre></dd>
+      
+        <dt id="ELF32_PHDR_LSB-constant" class="">ELF32_PHDR_LSB =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Struct2</span><span class='op'>::</span><span class='const'>CStructTemplate</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_type</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_offset</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_vaddr</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_paddr</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_filesz</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_memsz</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_flags</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_align</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="ELF32_PHDR_MSB-constant" class="">ELF32_PHDR_MSB =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Struct2</span><span class='op'>::</span><span class='const'>CStructTemplate</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_type</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_offset</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_vaddr</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_paddr</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_filesz</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_memsz</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_flags</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uint32n</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>p_align</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>  <span class='int'>0</span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="PF_EXEC-constant" class="">PF_EXEC =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Flags</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="PF_WRITE-constant" class="">PF_WRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="PF_READ-constant" class="">PF_READ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="PT_NULL-constant" class="">PT_NULL =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Segment Types</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="PT_LOAD-constant" class="">PT_LOAD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="PT_DYNAMIC-constant" class="">PT_DYNAMIC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="PT_INTERP-constant" class="">PT_INTERP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="PT_NOTE-constant" class="">PT_NOTE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="PT_SHLIB-constant" class="">PT_SHLIB =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="PT_PHDR-constant" class="">PT_PHDR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="PT_LOPROC-constant" class="">PT_LOPROC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x70000000</span></pre></dd>
+      
+        <dt id="PT_HIPROC-constant" class="">PT_HIPROC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x7fffffff</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:21 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

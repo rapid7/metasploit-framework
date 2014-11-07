@@ -1,0 +1,1136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Post::Windows::ShadowCopy
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Post/Windows/ShadowCopy.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">ShadowCopy</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Post::Windows::ShadowCopy
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="Services.html" title="Msf::Post::Windows::Services (module)">Services</a></span>, <span class='object_link'><a href="WMIC.html" title="Msf::Post::Windows::WMIC (module)">WMIC</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/post/windows/shadowcopy.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Based on the research from Tim Tomes and Mark Baggett, at <a
+href="http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html">pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_shadowcopy-instance_method" title="#create_shadowcopy (instance method)">- (Object) <strong>create_shadowcopy</strong>(volume) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a new shadow copy of the volume specified by <code>volume</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_sc_details-instance_method" title="#get_sc_details (instance method)">- (Object) <strong>get_sc_details</strong>(id) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get detailed information about the volume shadow copy specified by
+<code>id</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_sc_param-instance_method" title="#get_sc_param (instance method)">- (Object) <strong>get_sc_param</strong>(id, param_name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the value of the <code>param_name</code> for the volume shadow copy
+specified by <code>id</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_vss_device-instance_method" title="#get_vss_device (instance method)">- (Object) <strong>get_vss_device</strong>(id) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the device name for the shadow copy, which is used when accessing files
+on the volume.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_vss-instance_method" title="#start_vss (instance method)">- (Object) <strong>start_vss</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start the Volume Shadow Service.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vss_get_ids-instance_method" title="#vss_get_ids (instance method)">- (Object) <strong>vss_get_ids</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use WMIC to get a list of volume shadow copy IDs.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vss_get_storage-instance_method" title="#vss_get_storage (instance method)">- (Object) <strong>vss_get_storage</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get volume shadow storage parameters.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vss_get_storage_param-instance_method" title="#vss_get_storage_param (instance method)">- (Object) <strong>vss_get_storage_param</strong>(param_name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the value of the shadowstorage parameter specified by
+<code>param_name</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vss_list-instance_method" title="#vss_list (instance method)">- (Object) <strong>vss_list</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a list of volume shadow copies.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vss_set_storage-instance_method" title="#vss_set_storage (instance method)">- (Object) <strong>vss_set_storage</strong>(bytes) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set the shadowstorage MaxSpace parameter to <code>bytes</code> size.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="WMIC.html" title="Msf::Post::Windows::WMIC (module)">WMIC</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="WMIC.html#parse_wmic_result-instance_method" title="Msf::Post::Windows::WMIC#parse_wmic_result (method)">#parse_wmic_result</a></span>, <span class='object_link'><a href="WMIC.html#wmic_command-instance_method" title="Msf::Post::Windows::WMIC#wmic_command (method)">#wmic_command</a></span>, <span class='object_link'><a href="WMIC.html#wmic_query-instance_method" title="Msf::Post::Windows::WMIC#wmic_query (method)">#wmic_query</a></span>, <span class='object_link'><a href="WMIC.html#wmic_user_pass_string-instance_method" title="Msf::Post::Windows::WMIC#wmic_user_pass_string (method)">#wmic_user_pass_string</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="ExtAPI.html" title="Msf::Post::Windows::ExtAPI (module)">ExtAPI</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ExtAPI.html#load_extapi-instance_method" title="Msf::Post::Windows::ExtAPI#load_extapi (method)">#load_extapi</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../File.html" title="Msf::Post::File (module)">File</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../File.html#_read_file_meterpreter-instance_method" title="Msf::Post::File#_read_file_meterpreter (method)">#_read_file_meterpreter</a></span>, <span class='object_link'><a href="../File.html#_unix_max_line_length-instance_method" title="Msf::Post::File#_unix_max_line_length (method)">#_unix_max_line_length</a></span>, <span class='object_link'><a href="../File.html#_write_file_unix_shell-instance_method" title="Msf::Post::File#_write_file_unix_shell (method)">#_write_file_unix_shell</a></span>, <span class='object_link'><a href="../File.html#append_file-instance_method" title="Msf::Post::File#append_file (method)">#append_file</a></span>, <span class='object_link'><a href="../File.html#cd-instance_method" title="Msf::Post::File#cd (method)">#cd</a></span>, <span class='object_link'><a href="../File.html#directory%3F-instance_method" title="Msf::Post::File#directory? (method)">#directory?</a></span>, <span class='object_link'><a href="../File.html#exist%3F-instance_method" title="Msf::Post::File#exist? (method)">#exist?</a></span>, <span class='object_link'><a href="../File.html#expand_path-instance_method" title="Msf::Post::File#expand_path (method)">#expand_path</a></span>, <span class='object_link'><a href="../File.html#file%3F-instance_method" title="Msf::Post::File#file? (method)">#file?</a></span>, <span class='object_link'><a href="../File.html#file_local_digestmd5-instance_method" title="Msf::Post::File#file_local_digestmd5 (method)">#file_local_digestmd5</a></span>, <span class='object_link'><a href="../File.html#file_local_digestsha1-instance_method" title="Msf::Post::File#file_local_digestsha1 (method)">#file_local_digestsha1</a></span>, <span class='object_link'><a href="../File.html#file_local_digestsha2-instance_method" title="Msf::Post::File#file_local_digestsha2 (method)">#file_local_digestsha2</a></span>, <span class='object_link'><a href="../File.html#file_local_write-instance_method" title="Msf::Post::File#file_local_write (method)">#file_local_write</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestmd5-instance_method" title="Msf::Post::File#file_remote_digestmd5 (method)">#file_remote_digestmd5</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestsha1-instance_method" title="Msf::Post::File#file_remote_digestsha1 (method)">#file_remote_digestsha1</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestsha2-instance_method" title="Msf::Post::File#file_remote_digestsha2 (method)">#file_remote_digestsha2</a></span>, <span class='object_link'><a href="../File.html#file_rm-instance_method" title="Msf::Post::File#file_rm (method)">#file_rm</a></span>, <span class='object_link'><a href="../File.html#pwd-instance_method" title="Msf::Post::File#pwd (method)">#pwd</a></span>, <span class='object_link'><a href="../File.html#read_file-instance_method" title="Msf::Post::File#read_file (method)">#read_file</a></span>, <span class='object_link'><a href="../File.html#rename_file-instance_method" title="Msf::Post::File#rename_file (method)">#rename_file</a></span>, <span class='object_link'><a href="../File.html#rm_f-instance_method" title="Msf::Post::File#rm_f (method)">#rm_f</a></span>, <span class='object_link'><a href="../File.html#upload_file-instance_method" title="Msf::Post::File#upload_file (method)">#upload_file</a></span>, <span class='object_link'><a href="../File.html#write_file-instance_method" title="Msf::Post::File#write_file (method)">#write_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Services.html" title="Msf::Post::Windows::Services (module)">Services</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Services.html#close_sc_manager-instance_method" title="Msf::Post::Windows::Services#close_sc_manager (method)">#close_sc_manager</a></span>, <span class='object_link'><a href="Services.html#open_sc_manager-instance_method" title="Msf::Post::Windows::Services#open_sc_manager (method)">#open_sc_manager</a></span>, <span class='object_link'><a href="Services.html#service_change_startup-instance_method" title="Msf::Post::Windows::Services#service_change_startup (method)">#service_change_startup</a></span>, <span class='object_link'><a href="Services.html#service_create-instance_method" title="Msf::Post::Windows::Services#service_create (method)">#service_create</a></span>, <span class='object_link'><a href="Services.html#service_delete-instance_method" title="Msf::Post::Windows::Services#service_delete (method)">#service_delete</a></span>, <span class='object_link'><a href="Services.html#service_info-instance_method" title="Msf::Post::Windows::Services#service_info (method)">#service_info</a></span>, <span class='object_link'><a href="Services.html#service_list-instance_method" title="Msf::Post::Windows::Services#service_list (method)">#service_list</a></span>, <span class='object_link'><a href="Services.html#service_start-instance_method" title="Msf::Post::Windows::Services#service_start (method)">#service_start</a></span>, <span class='object_link'><a href="Services.html#service_status-instance_method" title="Msf::Post::Windows::Services#service_status (method)">#service_status</a></span>, <span class='object_link'><a href="Services.html#service_stop-instance_method" title="Msf::Post::Windows::Services#service_stop (method)">#service_stop</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Registry.html#meterpreter_registry_createkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_createkey (method)">#meterpreter_registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_deletekey (method)">#meterpreter_registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_deleteval (method)">#meterpreter_registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_enumkeys (method)">#meterpreter_registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_enumvals (method)">#meterpreter_registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_getvaldata (method)">#meterpreter_registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_getvalinfo (method)">#meterpreter_registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_loadkey (method)">#meterpreter_registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_setvaldata (method)">#meterpreter_registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_unloadkey (method)">#meterpreter_registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#normalize_key-instance_method" title="Msf::Post::Windows::Registry#normalize_key (method)">#normalize_key</a></span>, <span class='object_link'><a href="Registry.html#registry_createkey-instance_method" title="Msf::Post::Windows::Registry#registry_createkey (method)">#registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#registry_deletekey (method)">#registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#registry_deleteval (method)">#registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#registry_enumkeys (method)">#registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#registry_enumvals (method)">#registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#registry_getvaldata (method)">#registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#registry_getvalinfo (method)">#registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#registry_loadkey (method)">#registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#registry_setvaldata (method)">#registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#registry_unloadkey (method)">#registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#session_has_registry_ext-instance_method" title="Msf::Post::Windows::Registry#session_has_registry_ext (method)">#session_has_registry_ext</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_createkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_createkey (method)">#shell_registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_deletekey (method)">#shell_registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#shell_registry_deleteval (method)">#shell_registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#shell_registry_enumkeys (method)">#shell_registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#shell_registry_enumvals (method)">#shell_registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#shell_registry_getvaldata (method)">#shell_registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#shell_registry_getvalinfo (method)">#shell_registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_loadkey (method)">#shell_registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#shell_registry_setvaldata (method)">#shell_registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_unloadkey (method)">#shell_registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#split_key-instance_method" title="Msf::Post::Windows::Registry#split_key (method)">#split_key</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="CliParse.html" title="Msf::Post::Windows::CliParse (module)">CliParse</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CliParse.html#win_parse_error-instance_method" title="Msf::Post::Windows::CliParse#win_parse_error (method)">#win_parse_error</a></span>, <span class='object_link'><a href="CliParse.html#win_parse_results-instance_method" title="Msf::Post::Windows::CliParse#win_parse_results (method)">#win_parse_results</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_shadowcopy-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_shadowcopy</strong>(volume) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a new shadow copy of the volume specified by <code>volume</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 130</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_shadowcopy'>create_shadowcopy</span><span class='lparen'>(</span><span class='id identifier rubyid_volume'>volume</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_wmic_query'>wmic_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shadowcopy call create \&quot;ClientAccessible\&quot;, \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_volume'>volume</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_retval'>retval</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>ReturnValue = (\d)</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_retval'>retval</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='kw'>when</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ShadowCopy created successfully</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sc_id'>sc_id</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>ShadowID = (&quot;\{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\}&quot;)</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_sc_id'>sc_id</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Access Denied</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>2</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid Argument</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>3</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Specified volume not found</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>4</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Specified volume not supported</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>5</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unsupported shadow copy context</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>6</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Insufficient Storage</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>7</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Volume is in use</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>8</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Maximum number of shadow copies reached</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>9</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Another shadow copy operation is already in progress</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>10</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Shadow copy provider vetoed the operation</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>11</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Shadow copy provider not registered</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='int'>12</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Shadow copy provider failure</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown error</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_sc_details-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_sc_details</strong>(id) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get detailed information about the volume shadow copy specified by
+<code>id</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_sc_details'>get_sc_details</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_id'>id</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ClientAccessible</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ClientAccessible</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Count</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Count</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DeviceObject</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DeviceObject</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Differential</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Differential</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExposedLocally</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExposedLocally</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExposedName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExposedName</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExposedRemotely</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExposedRemotely</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HardwareAssisted</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HardwareAssisted</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Imported</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Imported</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NoAutoRelease</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NoAutoRelease</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NotSurfaced</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Notsurfaced</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NoWriters</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NoWriters</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OriginiatingMachine</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OriginatingMachine</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Persistent</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Persistent</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Plex</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Plex</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ProviderID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ProviderID</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ServiceMachine</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ServiceMachine</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SetID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SetID</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>State</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>State</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Transportable</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Transportable</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shadowcopy'>shadowcopy</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VolumeName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VolumeName</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_shadowcopy'>shadowcopy</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_sc_param-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_sc_param</strong>(id, param_name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the value of the <code>param_name</code> for the volume shadow copy
+specified by <code>id</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101
+102
+103</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_wmic_query'>wmic_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shadowcopy where(id=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'>) get </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_param_name'>param_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='id identifier rubyid_param_name'>param_name</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\s</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_vss_device-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_vss_device</strong>(id) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the device name for the shadow copy, which is used when accessing files
+on the volume.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_vss_device'>get_vss_device</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_get_sc_param'>get_sc_param</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DeviceObject</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+    <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TIMEOUT</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Timeout for WMI command in seconds</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>60</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_vss-instance_method">
+  
+    - (<tt>Object</tt>) <strong>start_vss</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start the Volume Shadow Service</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_vss'>start_vss</span>
+  <span class='id identifier rubyid_vss_state'>vss_state</span> <span class='op'>=</span> <span class='id identifier rubyid_wmic_query'>wmic_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Service where(name=&quot;VSS&quot;) get state</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_vss_state'>vss_state</span><span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Running</span><span class='regexp_end'>/</span></span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Volume Shadow Copy service is running.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Volume Shadow Copy service not running. Starting it now...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_ss_result'>ss_result</span> <span class='op'>=</span> <span class='id identifier rubyid_service_start'>service_start</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VSS</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_ss_result'>ss_result</span>
+      <span class='kw'>when</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Volume Shadow Copy started successfully.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>1</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Volume Shadow Copy already running.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='int'>2</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Volume Shadow Copy is disabled.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Attempting to re-enable...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_service_change_startup'>service_change_startup</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VSS</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>manual</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_ss_result'>ss_result</span> <span class='op'>=</span> <span class='id identifier rubyid_service_start'>service_start</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VSS</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_ss_result'>ss_result</span> <span class='op'>==</span> <span class='int'>0</span>
+          <span class='kw'>return</span> <span class='kw'>true</span>
+        <span class='kw'>else</span>
+          <span class='kw'>return</span> <span class='kw'>false</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>rescue</span>
+      <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Insufficient Privs to start service!</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vss_get_ids-instance_method">
+  
+    - (<tt>Object</tt>) <strong>vss_get_ids</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use WMIC to get a list of volume shadow copy IDs.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vss_get_ids'>vss_get_ids</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_wmic_query'>wmic_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shadowcopy get id</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ids'>ids</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\{\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\}</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_ids'>ids</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vss_get_storage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>vss_get_storage</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get volume shadow storage parameters.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59
+60
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vss_get_storage'>vss_get_storage</span>
+  <span class='id identifier rubyid_storage'>storage</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_storage'>storage</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AllocatedSpace</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_vss_get_storage_param'>vss_get_storage_param</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AllocatedSpace</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_storage'>storage</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MaxSpace</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_vss_get_storage_param'>vss_get_storage_param</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MaxSpace</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_storage'>storage</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UsedSpace</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_vss_get_storage_param'>vss_get_storage_param</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UsedSpace</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_storage'>storage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vss_get_storage_param-instance_method">
+  
+    - (<tt>Object</tt>) <strong>vss_get_storage_param</strong>(param_name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the value of the shadowstorage parameter specified by
+<code>param_name</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vss_get_storage_param'>vss_get_storage_param</span><span class='lparen'>(</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_wmic_query'>wmic_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shadowstorage get </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_param_name'>param_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='id identifier rubyid_param_name'>param_name</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\s</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vss_list-instance_method">
+  
+    - (<tt>Object</tt>) <strong>vss_list</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a list of volume shadow copies.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vss_list'>vss_list</span>
+  <span class='id identifier rubyid_ids'>ids</span> <span class='op'>=</span> <span class='id identifier rubyid_vss_get_ids'>vss_get_ids</span>
+  <span class='id identifier rubyid_shadow_copies'>shadow_copies</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_ids'>ids</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_id'>id</span><span class='op'>|</span>
+    <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Getting data for Shadow Copy </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'> (This may take a minute)</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_shadow_copies'>shadow_copies</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_get_sc_details'>get_sc_details</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_shadow_copies'>shadow_copies</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vss_set_storage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>vss_set_storage</strong>(bytes) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set the shadowstorage MaxSpace parameter to <code>bytes</code> size</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118
+119
+120
+121
+122
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/shadowcopy.rb', line 118</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vss_set_storage'>vss_set_storage</span><span class='lparen'>(</span><span class='id identifier rubyid_bytes'>bytes</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_wmic_query'>wmic_query</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shadowstorage set MaxSpace=\&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bytes'>bytes</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:25 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

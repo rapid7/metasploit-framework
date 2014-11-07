@@ -1,0 +1,774 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::OLE
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Rex/OLE.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (O)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Rex.html" title="Rex (module)">Rex</a></span></span>
+     &raquo; 
+    <span class="title">OLE</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::OLE
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/ole.rb<span class="defines">,<br />
+  lib/rex/ole/fat.rb,<br /> lib/rex/ole/util.rb,<br /> lib/rex/ole/difat.rb,<br /> lib/rex/ole/clsid.rb,<br /> lib/rex/ole/stream.rb,<br /> lib/rex/ole/header.rb,<br /> lib/rex/ole/minifat.rb,<br /> lib/rex/ole/storage.rb,<br /> lib/rex/ole/propset.rb,<br /> lib/rex/ole/direntry.rb,<br /> lib/rex/ole/directory.rb,<br /> lib/rex/ole/substorage.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="OLE/CLSID.html" title="Rex::OLE::CLSID (class)">CLSID</a></span>, <span class='object_link'><a href="OLE/DIFAT.html" title="Rex::OLE::DIFAT (class)">DIFAT</a></span>, <span class='object_link'><a href="OLE/DirEntry.html" title="Rex::OLE::DirEntry (class)">DirEntry</a></span>, <span class='object_link'><a href="OLE/Directory.html" title="Rex::OLE::Directory (class)">Directory</a></span>, <span class='object_link'><a href="OLE/FAT.html" title="Rex::OLE::FAT (class)">FAT</a></span>, <span class='object_link'><a href="OLE/Header.html" title="Rex::OLE::Header (class)">Header</a></span>, <span class='object_link'><a href="OLE/MiniFAT.html" title="Rex::OLE::MiniFAT (class)">MiniFAT</a></span>, <span class='object_link'><a href="OLE/Property.html" title="Rex::OLE::Property (class)">Property</a></span>, <span class='object_link'><a href="OLE/PropertySet.html" title="Rex::OLE::PropertySet (class)">PropertySet</a></span>, <span class='object_link'><a href="OLE/PropertySetStream.html" title="Rex::OLE::PropertySetStream (class)">PropertySetStream</a></span>, <span class='object_link'><a href="OLE/Storage.html" title="Rex::OLE::Storage (class)">Storage</a></span>, <span class='object_link'><a href="OLE/Stream.html" title="Rex::OLE::Stream (class)">Stream</a></span>, <span class='object_link'><a href="OLE/SubStorage.html" title="Rex::OLE::SubStorage (class)">SubStorage</a></span>, <span class='object_link'><a href="OLE/Util.html" title="Rex::OLE::Util (class)">Util</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="BIG_ENDIAN-constant" class="">BIG_ENDIAN =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>misc util NOTE: the v1.1 spec says that everything “MUST be stored in
+little-endian byte order”</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0xfeff</span></pre></dd>
+      
+        <dt id="LITTLE_ENDIAN-constant" class="">LITTLE_ENDIAN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xfffe</span></pre></dd>
+      
+        <dt id="HDR_SZ-constant" class="">HDR_SZ =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>constants for dealing with the header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>512</span></pre></dd>
+      
+        <dt id="SIG-constant" class="">SIG =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>signatures</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="SIG_BETA-constant" class="">SIG_BETA =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0e\x11\xfc\x0d\xd0\xcf\x11\xe0</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="SECT_MAX-constant" class="">SECT_MAX =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>sector types</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0xfffffffa</span></pre></dd>
+      
+        <dt id="SECT_DIF-constant" class="">SECT_DIF =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xfffffffc</span></pre></dd>
+      
+        <dt id="SECT_FAT-constant" class="">SECT_FAT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xfffffffd</span></pre></dd>
+      
+        <dt id="SECT_END-constant" class="">SECT_END =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xfffffffe</span></pre></dd>
+      
+        <dt id="SECT_FREE-constant" class="">SECT_FREE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xffffffff</span></pre></dd>
+      
+        <dt id="DIRENTRY_SZ-constant" class="">DIRENTRY_SZ =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>directory entries</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>128</span></pre></dd>
+      
+        <dt id="DIR_NOSTREAM-constant" class="">DIR_NOSTREAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xffffffff</span></pre></dd>
+      
+        <dt id="DIR_MAXREGSID-constant" class="">DIR_MAXREGSID =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xfffffffa</span></pre></dd>
+      
+        <dt id="STGTY_INVALID-constant" class="">STGTY_INVALID =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>types</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="STGTY_STORAGE-constant" class="">STGTY_STORAGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="STGTY_STREAM-constant" class="">STGTY_STREAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="STGTY_LOCKBYTES-constant" class="">STGTY_LOCKBYTES =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="STGTY_PROPERTY-constant" class="">STGTY_PROPERTY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="STGTY_ROOT-constant" class="">STGTY_ROOT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="COLOR_RED-constant" class="">COLOR_RED =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>for red/black tree</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="COLOR_BLACK-constant" class="">COLOR_BLACK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="STGM_READ-constant" class="">STGM_READ =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>constants for storages</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="STGM_WRITE-constant" class="">STGM_WRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="STGM_READWRITE-constant" class="">STGM_READWRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="PID_DICTIONARY-constant" class="">PID_DICTIONARY =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>constants for property sets PropertyIds</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00000000</span></pre></dd>
+      
+        <dt id="PID_CODEPAGE-constant" class="">PID_CODEPAGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00000001</span></pre></dd>
+      
+        <dt id="PID_LOCALE-constant" class="">PID_LOCALE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000000</span></pre></dd>
+      
+        <dt id="PID_BEHAVIOR-constant" class="">PID_BEHAVIOR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000003</span></pre></dd>
+      
+        <dt id="PIDSI_TITLE-constant" class="">PIDSI_TITLE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Well-known PropertyIds</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x02</span></pre></dd>
+      
+        <dt id="PIDSI_SUBJECT-constant" class="">PIDSI_SUBJECT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x03</span></pre></dd>
+      
+        <dt id="PIDSI_AUTHOR-constant" class="">PIDSI_AUTHOR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x04</span></pre></dd>
+      
+        <dt id="PIDSI_KEYWORDS-constant" class="">PIDSI_KEYWORDS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x05</span></pre></dd>
+      
+        <dt id="PIDSI_COMMENTS-constant" class="">PIDSI_COMMENTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x06</span></pre></dd>
+      
+        <dt id="PIDSI_TEMPLATE-constant" class="">PIDSI_TEMPLATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x07</span></pre></dd>
+      
+        <dt id="PIDSI_LASTAUTHOR-constant" class="">PIDSI_LASTAUTHOR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x08</span></pre></dd>
+      
+        <dt id="PIDSI_REVNUMBER-constant" class="">PIDSI_REVNUMBER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x09</span></pre></dd>
+      
+        <dt id="PIDSI_EDITTIME-constant" class="">PIDSI_EDITTIME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0a</span></pre></dd>
+      
+        <dt id="PIDSI_LASTPRINTED-constant" class="">PIDSI_LASTPRINTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0b</span></pre></dd>
+      
+        <dt id="PIDSI_CREATE_DTM-constant" class="">PIDSI_CREATE_DTM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0c</span></pre></dd>
+      
+        <dt id="PIDSI_LASTSAVE_DTM-constant" class="">PIDSI_LASTSAVE_DTM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0d</span></pre></dd>
+      
+        <dt id="PIDSI_PAGECOUNT-constant" class="">PIDSI_PAGECOUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0e</span></pre></dd>
+      
+        <dt id="PIDSI_WORDCOUNT-constant" class="">PIDSI_WORDCOUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0f</span></pre></dd>
+      
+        <dt id="PIDSI_CHARCOUNT-constant" class="">PIDSI_CHARCOUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x10</span></pre></dd>
+      
+        <dt id="PIDSI_THUMBNAIL-constant" class="">PIDSI_THUMBNAIL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x11</span></pre></dd>
+      
+        <dt id="PIDSI_APPNAME-constant" class="">PIDSI_APPNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x12</span></pre></dd>
+      
+        <dt id="PIDSI_DOC_SECURITY-constant" class="">PIDSI_DOC_SECURITY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x13</span></pre></dd>
+      
+        <dt id="VT_EMPTY-constant" class="">VT_EMPTY =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>PropertyTypes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00</span></pre></dd>
+      
+        <dt id="VT_NULL-constant" class="">VT_NULL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x01</span></pre></dd>
+      
+        <dt id="VT_I2-constant" class="">VT_I2 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x02</span></pre></dd>
+      
+        <dt id="VT_I4-constant" class="">VT_I4 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x03</span></pre></dd>
+      
+        <dt id="VT_R4-constant" class="">VT_R4 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x04</span></pre></dd>
+      
+        <dt id="VT_R8-constant" class="">VT_R8 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x05</span></pre></dd>
+      
+        <dt id="VT_CY-constant" class="">VT_CY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x06</span></pre></dd>
+      
+        <dt id="VT_DATE-constant" class="">VT_DATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x07</span></pre></dd>
+      
+        <dt id="VT_BSTR-constant" class="">VT_BSTR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x08</span></pre></dd>
+      
+        <dt id="VT_ERROR-constant" class="">VT_ERROR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0a</span></pre></dd>
+      
+        <dt id="VT_BOOL-constant" class="">VT_BOOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0b</span></pre></dd>
+      
+        <dt id="VT_VARIANT-constant" class="">VT_VARIANT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>used with VT_VECTOR</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0c</span></pre></dd>
+      
+        <dt id="VT_DECIMAL-constant" class="">VT_DECIMAL =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>0xd</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0e</span></pre></dd>
+      
+        <dt id="VT_I1-constant" class="">VT_I1 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>0xf</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x10</span></pre></dd>
+      
+        <dt id="VT_UI1-constant" class="">VT_UI1 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x11</span></pre></dd>
+      
+        <dt id="VT_UI2-constant" class="">VT_UI2 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x12</span></pre></dd>
+      
+        <dt id="VT_UI4-constant" class="">VT_UI4 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x13</span></pre></dd>
+      
+        <dt id="VT_I8-constant" class="">VT_I8 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x14</span></pre></dd>
+      
+        <dt id="VT_UI8-constant" class="">VT_UI8 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x15</span></pre></dd>
+      
+        <dt id="VT_INT-constant" class="">VT_INT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x16</span></pre></dd>
+      
+        <dt id="VT_UINT-constant" class="">VT_UINT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x17</span></pre></dd>
+      
+        <dt id="VT_LPSTR-constant" class="">VT_LPSTR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1e</span></pre></dd>
+      
+        <dt id="VT_LPWSTR-constant" class="">VT_LPWSTR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1f</span></pre></dd>
+      
+        <dt id="VT_FILETIME-constant" class="">VT_FILETIME =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>0x20-0x3f</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x40</span></pre></dd>
+      
+        <dt id="VT_BLOB-constant" class="">VT_BLOB =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x41</span></pre></dd>
+      
+        <dt id="VT_STREAM-constant" class="">VT_STREAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x42</span></pre></dd>
+      
+        <dt id="VT_STORAGE-constant" class="">VT_STORAGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x43</span></pre></dd>
+      
+        <dt id="VT_STREAMED_OBJ-constant" class="">VT_STREAMED_OBJ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x44</span></pre></dd>
+      
+        <dt id="VT_STORED_OBJ-constant" class="">VT_STORED_OBJ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x45</span></pre></dd>
+      
+        <dt id="VT_BLOB_OBJ-constant" class="">VT_BLOB_OBJ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x46</span></pre></dd>
+      
+        <dt id="VT_CF-constant" class="">VT_CF =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Clipboard Format</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x47</span></pre></dd>
+      
+        <dt id="VT_CLSID-constant" class="">VT_CLSID =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x48</span></pre></dd>
+      
+        <dt id="VT_VERSIONED_STREAM-constant" class="">VT_VERSIONED_STREAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x49</span></pre></dd>
+      
+        <dt id="VT_VECTOR-constant" class="">VT_VECTOR =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Flags</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1000</span></pre></dd>
+      
+        <dt id="VT_ARRAY-constant" class="">VT_ARRAY =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Requires OLE version &gt;= 1</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x2000</span></pre></dd>
+      
+        <dt id="FMTID_SummaryInformation-constant" class="">FMTID_SummaryInformation =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Format IDs</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe0\x85\x9f\xf2\xf9\x4f\x68\x10\xab\x91\x08\x00\x2b\x27\xb3\xd9</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="FMTID_DocSummaryInformation-constant" class="">FMTID_DocSummaryInformation =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x02\xd5\xcd\xd5\x9c\x2e\x1b\x10\x93\x97\x08\x00\x2b\x2c\xf9\xae</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="FMTID_UserDefinedProperties-constant" class="">FMTID_UserDefinedProperties =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x05\xd5\xcd\xd5\x9c\x2e\x1b\x10\x93\x97\x08\x00\x2b\x2c\xf9\xae</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="FMTID_GlobalInfo-constant" class="">FMTID_GlobalInfo =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x6f\x61\x56\x54\xc1\xce\x11\x85\x53\x00\xaa\x00\xa1\xf9\x5b</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="FMTID_ImageContents-constant" class="">FMTID_ImageContents =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x64\x61\x56\x54\xc1\xce\x11\x85\x53\x00\xaa\x00\xa1\xf9\x5b</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="FMTID_ImageInfo-constant" class="">FMTID_ImageInfo =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x65\x61\x56\x54\xc1\xce\x11\x85\x53\x00\xaa\x00\xa1\xf9\x5b</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="FMTID_PropertyBag-constant" class="">FMTID_PropertyBag =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x18\x00\x20\xe6\x5d\xd1\x11\x8e\x38\x00\xc0\x4f\xb9\x38\x6d</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:40 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

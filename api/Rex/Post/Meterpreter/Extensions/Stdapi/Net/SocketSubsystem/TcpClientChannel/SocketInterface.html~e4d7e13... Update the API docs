@@ -1,0 +1,408 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpClientChannel::SocketInterface
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../../../../../';
+  framesUrl = "../../../../../../../../frames.html#!Rex/Post/Meterpreter/Extensions/Stdapi/Net/SocketSubsystem/TcpClientChannel/SocketInterface.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../../../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Net.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net (module)">Net</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../SocketSubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem (module)">SocketSubsystem</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../TcpClientChannel.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpClientChannel (class)">TcpClientChannel</a></span></span>
+     &raquo; 
+    <span class="title">SocketInterface</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpClientChannel::SocketInterface
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#channel-instance_method" title="#channel (instance method)">- (Object) <strong>channel</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute channel.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#getpeername-instance_method" title="#getpeername (instance method)">- (Object) <strong>getpeername</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#getsockname-instance_method" title="#getsockname (instance method)">- (Object) <strong>getsockname</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type%3F-instance_method" title="#type? (instance method)">- (Boolean) <strong>type?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="channel=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="channel-instance_method">
+  
+    - (<tt>Object</tt>) <strong>channel</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute channel</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_channel'>channel</span>
+  <span class='ivar'>@channel</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="getpeername-instance_method">
+  
+    - (<tt>Object</tt>) <strong>getpeername</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_getpeername'>getpeername</span>
+  <span class='kw'>return</span> <span class='kw'>super</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_channel'>channel</span>
+  <span class='id identifier rubyid_tmp'>tmp</span><span class='comma'>,</span><span class='id identifier rubyid_caddr'>caddr</span><span class='comma'>,</span><span class='id identifier rubyid_cport'>cport</span> <span class='op'>=</span> <span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_getpeername'>getpeername</span>
+  <span class='id identifier rubyid_maddr'>maddr</span><span class='comma'>,</span><span class='id identifier rubyid_mport'>mport</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_peerhost'>peerhost</span><span class='comma'>,</span> <span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_peerport'>peerport</span> <span class='rbracket'>]</span>
+  <span class='lbracket'>[</span> <span class='id identifier rubyid_tmp'>tmp</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_maddr'>maddr</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mport'>mport</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="getsockname-instance_method">
+  
+    - (<tt>Object</tt>) <strong>getsockname</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_getsockname'>getsockname</span>
+  <span class='kw'>return</span> <span class='kw'>super</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_channel'>channel</span>
+  <span class='comment'># Find the first host in our chain (our address)
+</span>  <span class='id identifier rubyid_hops'>hops</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_csock'>csock</span> <span class='op'>=</span> <span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span>
+  <span class='kw'>while</span><span class='lparen'>(</span><span class='id identifier rubyid_csock'>csock</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>channel</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_csock'>csock</span> <span class='op'>=</span> <span class='id identifier rubyid_csock'>csock</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span>
+    <span class='id identifier rubyid_hops'>hops</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_tmp'>tmp</span><span class='comma'>,</span><span class='id identifier rubyid_caddr'>caddr</span><span class='comma'>,</span><span class='id identifier rubyid_cport'>cport</span> <span class='op'>=</span> <span class='id identifier rubyid_csock'>csock</span><span class='period'>.</span><span class='id identifier rubyid_getsockname'>getsockname</span>
+  <span class='id identifier rubyid_tmp'>tmp</span><span class='comma'>,</span><span class='id identifier rubyid_raddr'>raddr</span><span class='comma'>,</span><span class='id identifier rubyid_rport'>rport</span> <span class='op'>=</span> <span class='id identifier rubyid_csock'>csock</span><span class='period'>.</span><span class='id identifier rubyid_getpeername'>getpeername</span>
+  <span class='id identifier rubyid_maddr'>maddr</span><span class='comma'>,</span><span class='id identifier rubyid_mport'>mport</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_localhost'>localhost</span><span class='comma'>,</span> <span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_localport'>localport</span> <span class='rbracket'>]</span>
+  <span class='lbracket'>[</span> <span class='id identifier rubyid_tmp'>tmp</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_caddr'>caddr</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='lparen'>(</span><span class='id identifier rubyid_hops'>hops</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hops'>hops</span><span class='embexpr_end'>}</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'>-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_raddr'>raddr</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mport'>mport</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>type?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_type?'>type?</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:39 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MultiCaller
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../../../';
+  framesUrl = "../../../../../../frames.html#!Rex/Post/Meterpreter/Extensions/Stdapi/Railgun/MultiCaller.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Railgun.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun (module)">Railgun</a></span></span>
+     &raquo; 
+    <span class="title">MultiCaller</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MultiCaller
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MultiCaller</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+      <dt class="r2">Includes:</dt>
+      <dd class="r2"><span class='object_link'><a href="DLLHelper.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::DLLHelper (module)">DLLHelper</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/post/meterpreter/extensions/stdapi/railgun/multicall.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A easier way to call multiple functions in a single request</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#call-instance_method" title="#call (instance method)">- (Object) <strong>call</strong>(functions) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (MultiCaller) <strong>initialize</strong>(client, parent, win_consts) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of MultiCaller.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DLLHelper.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::DLLHelper (module)">DLLHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DLLHelper.html#asciiz_to_str-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::DLLHelper#asciiz_to_str (method)">#asciiz_to_str</a></span>, <span class='object_link'><a href="DLLHelper.html#assemble_buffer-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::DLLHelper#assemble_buffer (method)">#assemble_buffer</a></span>, <span class='object_link'><a href="DLLHelper.html#param_to_number-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::DLLHelper#param_to_number (method)">#param_to_number</a></span>, <span class='object_link'><a href="DLLHelper.html#str_to_ascii_z-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::DLLHelper#str_to_ascii_z (method)">#str_to_ascii_z</a></span>, <span class='object_link'><a href="DLLHelper.html#str_to_uni_z-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::DLLHelper#str_to_uni_z (method)">#str_to_uni_z</a></span>, <span class='object_link'><a href="DLLHelper.html#uniz_to_str-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::DLLHelper#uniz_to_str (method)">#uniz_to_str</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MultiCaller (class)">MultiCaller</a></span></tt>) <strong>initialize</strong>(client, parent, win_consts) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of MultiCaller</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/multicall.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span> <span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_parent'>parent</span><span class='comma'>,</span> <span class='id identifier rubyid_win_consts'>win_consts</span> <span class='rparen'>)</span>
+  <span class='ivar'>@parent</span> <span class='op'>=</span> <span class='id identifier rubyid_parent'>parent</span>
+  <span class='ivar'>@client</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span>
+
+  <span class='comment'># needed by DLL helper
+</span>  <span class='ivar'>@win_consts</span> <span class='op'>=</span> <span class='id identifier rubyid_win_consts'>win_consts</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>x64</span><span class='regexp_end'>/i</span></span> <span class='rparen'>)</span>
+    <span class='ivar'>@native</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q&lt;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@native</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="call-instance_method">
+  
+    - (<tt>Object</tt>) <strong>call</strong>(functions) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/multicall.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_functions'>functions</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi_railgun_api_multi</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_function_results'>function_results</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_layouts'>layouts</span>          <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_functions'>functions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+    <span class='id identifier rubyid_dll_name'>dll_name</span><span class='comma'>,</span><span class='id identifier rubyid_funcname'>funcname</span><span class='comma'>,</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span>
+    <span class='id identifier rubyid_dll_host'>dll_host</span> <span class='op'>=</span> <span class='ivar'>@parent</span><span class='period'>.</span><span class='id identifier rubyid_get_dll'>get_dll</span><span class='lparen'>(</span> <span class='id identifier rubyid_dll_name'>dll_name</span> <span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_dll_host'>dll_host</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DLL </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dll_name'>dll_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> has not been loaded</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_function'>function</span> <span class='op'>=</span> <span class='id identifier rubyid_dll_host'>dll_host</span><span class='period'>.</span><span class='id identifier rubyid_functions'>functions</span><span class='lbracket'>[</span><span class='id identifier rubyid_funcname'>funcname</span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_function'>function</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DLL </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dll_name'>dll_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> function </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_funcname'>funcname</span><span class='embexpr_end'>}</span><span class='tstring_content'> has not been defined</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'> arguments expected. </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'> arguments provided.</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='comment'>#puts &quot;process_function_call(function.windows_name,#{PP.pp(args, &quot;&quot;)})&quot;
+</span>
+    <span class='comment'># We transmit the immediate stack and three heap-buffers:
+</span>    <span class='comment'># in, inout and out. The reason behind the separation is bandwidth.
+</span>    <span class='comment'># We don&#39;t want to transmit uninitialized data in or no-longer-needed data out.
+</span>
+    <span class='comment'># out-only-buffers that are ONLY transmitted on the way BACK
+</span>    <span class='id identifier rubyid_out_only_layout'>out_only_layout</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='comment'># paramName =&gt; BufferItem
+</span>    <span class='id identifier rubyid_out_only_size_bytes'>out_only_size_bytes</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='comment'>#puts &quot; assembling out-only buffer&quot;
+</span>    <span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='comma'>,</span> <span class='id identifier rubyid_param_idx'>param_idx</span><span class='op'>|</span>
+      <span class='comment'>#puts &quot; processing #{param_desc[1]}&quot;
+</span>
+      <span class='comment'># Special case:
+</span>      <span class='comment'># The user can choose to supply a Null pointer instead of a buffer
+</span>      <span class='comment'># in this case we don&#39;t need space in any heap buffer
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>P</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># type is a pointer
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>nil</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># we care only about out-only buffers
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>error in param </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Out-only buffers must be described by a number indicating their size in bytes </span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>==</span> <span class='const'>Fixnum</span>
+        <span class='id identifier rubyid_buffer_size'>buffer_size</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span>
+        <span class='comment'># bump up the size for an x64 pointer
+</span>        <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@native</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q&lt;</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>and</span> <span class='id identifier rubyid_buffer_size'>buffer_size</span> <span class='op'>==</span> <span class='int'>4</span> <span class='rparen'>)</span>
+          <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>8</span>
+          <span class='id identifier rubyid_buffer_size'>buffer_size</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span>
+        <span class='kw'>end</span>
+
+        <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@native</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q&lt;</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+          <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Please pass 8 for &#39;out&#39; PDWORDS, since they require a buffer of size 8</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_buffer_size'>buffer_size</span> <span class='op'>==</span> <span class='int'>8</span>
+        <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='ivar'>@native</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+          <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Please pass 4 for &#39;out&#39; PDWORDS, since they require a buffer of size 4</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_buffer_size'>buffer_size</span> <span class='op'>==</span> <span class='int'>4</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_out_only_layout'>out_only_layout</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>BufferItem</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='comma'>,</span> <span class='id identifier rubyid_out_only_size_bytes'>out_only_size_bytes</span><span class='comma'>,</span> <span class='id identifier rubyid_buffer_size'>buffer_size</span><span class='comma'>,</span> <span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_out_only_size_bytes'>out_only_size_bytes</span> <span class='op'>+=</span> <span class='id identifier rubyid_buffer_size'>buffer_size</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_tmp'>tmp</span> <span class='op'>=</span> <span class='id identifier rubyid_assemble_buffer'>assemble_buffer</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_function'>function</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_in_only_layout'>in_only_layout</span> <span class='op'>=</span> <span class='id identifier rubyid_tmp'>tmp</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_in_only_buffer'>in_only_buffer</span> <span class='op'>=</span> <span class='id identifier rubyid_tmp'>tmp</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_tmp'>tmp</span> <span class='op'>=</span> <span class='id identifier rubyid_assemble_buffer'>assemble_buffer</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_function'>function</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_inout_layout'>inout_layout</span> <span class='op'>=</span> <span class='id identifier rubyid_tmp'>tmp</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_inout_buffer'>inout_buffer</span> <span class='op'>=</span> <span class='id identifier rubyid_tmp'>tmp</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+
+    <span class='comment'># now we build the stack
+</span>    <span class='comment'># every stack dword will be described by two dwords:
+</span>    <span class='comment'># first dword describes second dword:
+</span>    <span class='comment'>#	0 - literal,
+</span>    <span class='comment'>#	1 = relative to in-only buffer
+</span>    <span class='comment'>#	2 = relative to out-only buffer
+</span>    <span class='comment'>#	3 = relative to inout buffer
+</span>
+    <span class='comment'># (literal numbers and pointers to buffers we have created)
+</span>    <span class='id identifier rubyid_literal_pairs_blob'>literal_pairs_blob</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='comment'>#puts &quot; assembling literal stack&quot;
+</span>    <span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='comma'>,</span> <span class='id identifier rubyid_param_idx'>param_idx</span><span class='op'>|</span>
+      <span class='comment'>#puts &quot;  processing (#{param_desc[0]}, #{param_desc[1]}, #{param_desc[2]})&quot;
+</span>      <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='comment'># is it a pointer to a buffer on our stack
+</span>      <span class='kw'>if</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PBLOB</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='comment'>#puts &quot;   pointer&quot;
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='comment'># null pointer?
+</span>          <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span> <span class='comment'># type: DWORD  (so the dll does not rebase it)
+</span>          <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span> <span class='comment'># value: 0
+</span>        <span class='kw'>elsif</span> <span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>in</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_in_only_layout'>in_only_layout</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_addr'>addr</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+        <span class='kw'>elsif</span> <span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>out</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_out_only_layout'>out_only_layout</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_addr'>addr</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+        <span class='kw'>elsif</span> <span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inout</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_inout_layout'>inout_layout</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_addr'>addr</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unexpected direction</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='comment'>#puts &quot;   not a pointer&quot;
+</span>        <span class='comment'># it&#39;s not a pointer
+</span>        <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+        <span class='kw'>case</span> <span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+          <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HANDLE</span><span class='tstring_end'>&quot;</span></span>
+            <span class='id identifier rubyid_num'>num</span>     <span class='op'>=</span> <span class='id identifier rubyid_param_to_number'>param_to_number</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_num'>num</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+          <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span>
+            <span class='id identifier rubyid_num'>num</span>     <span class='op'>=</span> <span class='id identifier rubyid_param_to_number'>param_to_number</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_num'>num</span> <span class='op'>%</span> <span class='int'>4294967296</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+          <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>WORD</span><span class='tstring_end'>&quot;</span></span>
+            <span class='id identifier rubyid_num'>num</span>     <span class='op'>=</span> <span class='id identifier rubyid_param_to_number'>param_to_number</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_num'>num</span> <span class='op'>%</span> <span class='int'>65536</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+          <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BYTE</span><span class='tstring_end'>&quot;</span></span>
+            <span class='id identifier rubyid_num'>num</span>     <span class='op'>=</span> <span class='id identifier rubyid_param_to_number'>param_to_number</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_num'>num</span> <span class='op'>%</span> <span class='int'>256</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='ivar'>@native</span><span class='rparen'>)</span>
+          <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&quot;</span></span>
+            <span class='kw'>case</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_idx'>param_idx</span><span class='rbracket'>]</span>
+              <span class='kw'>when</span> <span class='kw'>true</span>
+                <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+              <span class='kw'>when</span> <span class='kw'>false</span>
+                <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+              <span class='kw'>else</span>
+                <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>param </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>: true or false expected</span><span class='tstring_end'>&quot;</span></span>
+            <span class='kw'>end</span>
+          <span class='kw'>else</span>
+            <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unexpected type for param </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_param_desc'>param_desc</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'>#puts &quot;   adding pair to blob&quot;
+</span>      <span class='id identifier rubyid_literal_pairs_blob'>literal_pairs_blob</span> <span class='op'>+=</span> <span class='id identifier rubyid_buffer'>buffer</span>
+      <span class='comment'>#puts &quot;   buffer size %X&quot; % buffer.length
+</span>      <span class='comment'>#puts &quot;   blob size so far: %X&quot; % literal_pairs_blob.length
+</span>    <span class='kw'>end</span>
+
+    <span class='comment'>#puts &quot;\n\nsending Stuff to meterpreter&quot;
+</span>
+    <span class='id identifier rubyid_group'>group</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Post</span><span class='op'>::</span><span class='const'>Meterpreter</span><span class='op'>::</span><span class='const'>GroupTlv</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_MULTI_GROUP</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_SIZE_OUT</span><span class='comma'>,</span> <span class='id identifier rubyid_out_only_size_bytes'>out_only_size_bytes</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_STACKBLOB</span><span class='comma'>,</span> <span class='id identifier rubyid_literal_pairs_blob'>literal_pairs_blob</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_IN</span><span class='comma'>,</span> <span class='id identifier rubyid_in_only_buffer'>in_only_buffer</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT</span><span class='comma'>,</span> <span class='id identifier rubyid_inout_buffer'>inout_buffer</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_DLLNAME</span><span class='comma'>,</span> <span class='id identifier rubyid_dll_name'>dll_name</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_FUNCNAME</span><span class='comma'>,</span> <span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_windows_name'>windows_name</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_tlvs'>tlvs</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_group'>group</span>
+
+    <span class='id identifier rubyid_layouts'>layouts</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_inout_layout'>inout_layout</span><span class='comma'>,</span> <span class='id identifier rubyid_out_only_layout'>out_only_layout</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_call_results'>call_results</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='ivar'>@client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_MULTI_GROUP</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='id identifier rubyid_call_results'>call_results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_val'>val</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_functions'>functions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+    <span class='id identifier rubyid_dll_name'>dll_name</span><span class='comma'>,</span><span class='id identifier rubyid_funcname'>funcname</span><span class='comma'>,</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span>
+    <span class='id identifier rubyid_dll_host'>dll_host</span> <span class='op'>=</span> <span class='ivar'>@parent</span><span class='period'>.</span><span class='id identifier rubyid_get_dll'>get_dll</span><span class='lparen'>(</span> <span class='id identifier rubyid_dll_name'>dll_name</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_function'>function</span> <span class='op'>=</span> <span class='id identifier rubyid_dll_host'>dll_host</span><span class='period'>.</span><span class='id identifier rubyid_functions'>functions</span><span class='lbracket'>[</span><span class='id identifier rubyid_funcname'>funcname</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_call_results'>call_results</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+    <span class='id identifier rubyid_inout_layout'>inout_layout</span><span class='comma'>,</span> <span class='id identifier rubyid_out_only_layout'>out_only_layout</span> <span class='op'>=</span> <span class='id identifier rubyid_layouts'>layouts</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+
+    <span class='id identifier rubyid_rec_inout_buffers'>rec_inout_buffers</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rec_out_only_buffers'>rec_out_only_buffers</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rec_return_value'>rec_return_value</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_BACK_RET</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rec_last_error'>rec_last_error</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_BACK_ERR</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rec_err_msg'>rec_err_msg</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_RAILGUN_BACK_MSG</span><span class='rparen'>)</span>
+
+    <span class='comment'># Error messages come back with trailing CRLF, so strip it out
+</span>    <span class='comment'># if we do get a message.
+</span>    <span class='id identifier rubyid_rec_err_msg'>rec_err_msg</span><span class='period'>.</span><span class='id identifier rubyid_strip!'>strip!</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_rec_err_msg'>rec_err_msg</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+    <span class='comment'># The hash the function returns
+</span>    <span class='id identifier rubyid_return_hash'>return_hash</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_rec_last_error'>rec_last_error</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ErrorMessage</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_rec_err_msg'>rec_err_msg</span>
+    <span class='rbrace'>}</span>
+
+    <span class='comment'>#process return value
+</span>    <span class='kw'>case</span> <span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_return_type'>return_type</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPVOID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HANDLE</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@native</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q&lt;</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rec_return_value'>rec_return_value</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rec_return_value'>rec_return_value</span> <span class='op'>%</span> <span class='int'>4294967296</span>
+        <span class='kw'>end</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DWORD</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rec_return_value'>rec_return_value</span> <span class='op'>%</span> <span class='int'>4294967296</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>WORD</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rec_return_value'>rec_return_value</span> <span class='op'>%</span> <span class='int'>65536</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BYTE</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rec_return_value'>rec_return_value</span> <span class='op'>%</span> <span class='int'>256</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BOOL</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_rec_return_value'>rec_return_value</span> <span class='op'>!=</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VOID</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>return</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unexpected return type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_return_type'>return_type</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='comment'>#puts return_hash
+</span>    <span class='comment'>#puts &quot;out_only_layout:&quot;
+</span>    <span class='comment'>#puts out_only_layout
+</span>
+
+    <span class='comment'># process out-only buffers
+</span>    <span class='comment'>#puts &quot;processing out-only buffers:&quot;
+</span>    <span class='id identifier rubyid_out_only_layout'>out_only_layout</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_param_name'>param_name</span><span class='comma'>,</span> <span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='op'>|</span>
+      <span class='comment'>#puts &quot;   #{param_name}&quot;
+</span>      <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='id identifier rubyid_rec_out_only_buffers'>rec_out_only_buffers</span><span class='lbracket'>[</span><span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='period'>.</span><span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='period'>.</span><span class='id identifier rubyid_length_in_bytes'>length_in_bytes</span><span class='rbracket'>]</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='period'>.</span><span class='id identifier rubyid_datatype'>datatype</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_buffer'>buffer</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_asciiz_to_str'>asciiz_to_str</span><span class='lparen'>(</span><span class='id identifier rubyid_buffer'>buffer</span><span class='rparen'>)</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_uniz_to_str'>uniz_to_str</span><span class='lparen'>(</span><span class='id identifier rubyid_buffer'>buffer</span><span class='rparen'>)</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PBLOB</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_buffer'>buffer</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unexpected type in out-only buffer of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_param_name'>param_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='period'>.</span><span class='id identifier rubyid_datatype'>datatype</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='comment'>#puts return_hash
+</span>
+    <span class='comment'># process in-out buffers
+</span>    <span class='comment'>#puts &quot;processing in-out buffers:&quot;
+</span>    <span class='id identifier rubyid_inout_layout'>inout_layout</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_param_name'>param_name</span><span class='comma'>,</span> <span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='op'>|</span>
+      <span class='comment'>#puts &quot;   #{param_name}&quot;
+</span>      <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='id identifier rubyid_rec_inout_buffers'>rec_inout_buffers</span><span class='lbracket'>[</span><span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='period'>.</span><span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='period'>.</span><span class='id identifier rubyid_length_in_bytes'>length_in_bytes</span><span class='rbracket'>]</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='period'>.</span><span class='id identifier rubyid_datatype'>datatype</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PDWORD</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_buffer'>buffer</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PCHAR</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_asciiz_to_str'>asciiz_to_str</span><span class='lparen'>(</span><span class='id identifier rubyid_buffer'>buffer</span><span class='rparen'>)</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PWCHAR</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_uniz_to_str'>uniz_to_str</span><span class='lparen'>(</span><span class='id identifier rubyid_buffer'>buffer</span><span class='rparen'>)</span>
+        <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PBLOB</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_return_hash'>return_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_buffer'>buffer</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unexpected type in in-out-buffer of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_param_name'>param_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buffer_item'>buffer_item</span><span class='period'>.</span><span class='id identifier rubyid_datatype'>datatype</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='comment'>#puts return_hash
+</span>    <span class='comment'>#puts &quot;finished&quot;
+</span>
+    <span class='id identifier rubyid_function_results'>function_results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_return_hash'>return_hash</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_function_results'>function_results</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:34 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Socket::TcpServer
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Socket/TcpServer.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (T)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Socket.html" title="Rex::Socket (module)">Socket</a></span></span>
+     &raquo; 
+    <span class="title">TcpServer</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Socket::TcpServer
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="../IO/StreamServer.html" title="Rex::IO::StreamServer (module)">IO::StreamServer</a></span>, <span class='object_link'><a href="../Socket.html" title="Rex::Socket (module)">Rex::Socket</a></span></dd>
+      
+    
+  
+  
+    <dt class="r2">Included in:</dt>
+    <dd class="r2"><span class='object_link'><a href="SslTcpServer.html" title="Rex::Socket::SslTcpServer (module)">SslTcpServer</a></span></dd>
+    
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/socket/tcp_server.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class provides methods for interacting with a TCP server.  It
+implements the Rex::IO::StreamServer interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Socket.html" title="Rex::Socket (module)">Rex::Socket</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Socket.html#MATCH_IPV4-constant" title="Rex::Socket::MATCH_IPV4 (constant)">MATCH_IPV4</a></span>, <span class='object_link'><a href="../Socket.html#MATCH_IPV4_PRIVATE-constant" title="Rex::Socket::MATCH_IPV4_PRIVATE (constant)">MATCH_IPV4_PRIVATE</a></span>, <span class='object_link'><a href="../Socket.html#MATCH_IPV6-constant" title="Rex::Socket::MATCH_IPV6 (constant)">MATCH_IPV6</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../IO/StreamServer.html" title="Rex::IO::StreamServer (module)">IO::StreamServer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../IO/StreamServer.html#client_waiter-instance_method" title="Rex::IO::StreamServer#client_waiter (method)">#client_waiter</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#clients-instance_method" title="Rex::IO::StreamServer#clients (method)">#clients</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#clients_thread-instance_method" title="Rex::IO::StreamServer#clients_thread (method)">#clients_thread</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#listener_thread-instance_method" title="Rex::IO::StreamServer#listener_thread (method)">#listener_thread</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#on_client_close_proc-instance_method" title="Rex::IO::StreamServer#on_client_close_proc (method)">#on_client_close_proc</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#on_client_connect_proc-instance_method" title="Rex::IO::StreamServer#on_client_connect_proc (method)">#on_client_connect_proc</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#on_client_data_proc-instance_method" title="Rex::IO::StreamServer#on_client_data_proc (method)">#on_client_data_proc</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Socket.html" title="Rex::Socket (module)">Rex::Socket</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Socket.html#context-instance_method" title="Rex::Socket#context (method)">#context</a></span>, <span class='object_link'><a href="../Socket.html#ipv-instance_method" title="Rex::Socket#ipv (method)">#ipv</a></span>, <span class='object_link'><a href="../Socket.html#localhost-instance_method" title="Rex::Socket#localhost (method)">#localhost</a></span>, <span class='object_link'><a href="../Socket.html#localport-instance_method" title="Rex::Socket#localport (method)">#localport</a></span>, <span class='object_link'><a href="../Socket.html#peerhost-instance_method" title="Rex::Socket#peerhost (method)">#peerhost</a></span>, <span class='object_link'><a href="../Socket.html#peerport-instance_method" title="Rex::Socket#peerport (method)">#peerport</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-class_method" title="create (class method)">+ (Object) <strong>create</strong>(hash = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates the server using the supplied hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_param-class_method" title="create_param (class method)">+ (Object) <strong>create_param</strong>(param) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wrapper around the base class&#39; creation method that automatically sets
+the parameter&#39;s protocol to TCP and sets the server flag to true.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#accept-instance_method" title="#accept (instance method)">- (Object) <strong>accept</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Accepts a child connection.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../IO/StreamServer.html" title="Rex::IO::StreamServer (module)">IO::StreamServer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../IO/StreamServer.html#close_client-instance_method" title="Rex::IO::StreamServer#close_client (method)">#close_client</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#monitor_clients-instance_method" title="Rex::IO::StreamServer#monitor_clients (method)">#monitor_clients</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#monitor_listener-instance_method" title="Rex::IO::StreamServer#monitor_listener (method)">#monitor_listener</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#on_client_close-instance_method" title="Rex::IO::StreamServer#on_client_close (method)">#on_client_close</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#on_client_connect-instance_method" title="Rex::IO::StreamServer#on_client_connect (method)">#on_client_connect</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#on_client_data-instance_method" title="Rex::IO::StreamServer#on_client_data (method)">#on_client_data</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#start-instance_method" title="Rex::IO::StreamServer#start (method)">#start</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#stop-instance_method" title="Rex::IO::StreamServer#stop (method)">#stop</a></span>, <span class='object_link'><a href="../IO/StreamServer.html#wait-instance_method" title="Rex::IO::StreamServer#wait (method)">#wait</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Socket.html" title="Rex::Socket (module)">Rex::Socket</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Socket.html#addr_atoc-class_method" title="Rex::Socket.addr_atoc (method)">addr_atoc</a></span>, <span class='object_link'><a href="../Socket.html#addr_atoi-class_method" title="Rex::Socket.addr_atoi (method)">addr_atoi</a></span>, <span class='object_link'><a href="../Socket.html#addr_atoi_list-class_method" title="Rex::Socket.addr_atoi_list (method)">addr_atoi_list</a></span>, <span class='object_link'><a href="../Socket.html#addr_aton-class_method" title="Rex::Socket.addr_aton (method)">addr_aton</a></span>, <span class='object_link'><a href="../Socket.html#addr_ctoa-class_method" title="Rex::Socket.addr_ctoa (method)">addr_ctoa</a></span>, <span class='object_link'><a href="../Socket.html#addr_itoa-class_method" title="Rex::Socket.addr_itoa (method)">addr_itoa</a></span>, <span class='object_link'><a href="../Socket.html#addr_iton-class_method" title="Rex::Socket.addr_iton (method)">addr_iton</a></span>, <span class='object_link'><a href="../Socket.html#addr_ntoa-class_method" title="Rex::Socket.addr_ntoa (method)">addr_ntoa</a></span>, <span class='object_link'><a href="../Socket.html#addr_ntoi-class_method" title="Rex::Socket.addr_ntoi (method)">addr_ntoi</a></span>, <span class='object_link'><a href="../Socket.html#bit2netmask-class_method" title="Rex::Socket.bit2netmask (method)">bit2netmask</a></span>, <span class='object_link'><a href="../Socket.html#cidr_crack-class_method" title="Rex::Socket.cidr_crack (method)">cidr_crack</a></span>, <span class='object_link'><a href="../Socket.html#compress_address-class_method" title="Rex::Socket.compress_address (method)">compress_address</a></span>, <span class='object_link'><a href="../Socket.html#create_ip-class_method" title="Rex::Socket.create_ip (method)">create_ip</a></span>, <span class='object_link'><a href="../Socket.html#create_tcp-class_method" title="Rex::Socket.create_tcp (method)">create_tcp</a></span>, <span class='object_link'><a href="../Socket.html#create_tcp_server-class_method" title="Rex::Socket.create_tcp_server (method)">create_tcp_server</a></span>, <span class='object_link'><a href="../Socket.html#create_udp-class_method" title="Rex::Socket.create_udp (method)">create_udp</a></span>, <span class='object_link'><a href="../Socket.html#dotted_ip%3F-class_method" title="Rex::Socket.dotted_ip? (method)">dotted_ip?</a></span>, <span class='object_link'><a href="../Socket.html#eth_aton-class_method" title="Rex::Socket.eth_aton (method)">eth_aton</a></span>, <span class='object_link'><a href="../Socket.html#eth_ntoa-class_method" title="Rex::Socket.eth_ntoa (method)">eth_ntoa</a></span>, <span class='object_link'><a href="../Socket.html#fd-instance_method" title="Rex::Socket#fd (method)">#fd</a></span>, <span class='object_link'><a href="../Socket.html#from_sockaddr-class_method" title="Rex::Socket.from_sockaddr (method)">from_sockaddr</a></span>, <span class='object_link'><a href="../Socket.html#getaddress-class_method" title="Rex::Socket.getaddress (method)">getaddress</a></span>, <span class='object_link'><a href="../Socket.html#getaddresses-class_method" title="Rex::Socket.getaddresses (method)">getaddresses</a></span>, <span class='object_link'><a href="../Socket.html#gethostbyname-class_method" title="Rex::Socket.gethostbyname (method)">gethostbyname</a></span>, <span class='object_link'><a href="../Socket.html#getlocalname-instance_method" title="Rex::Socket#getlocalname (method)">#getlocalname</a></span>, <span class='object_link'><a href="../Socket.html#getpeername-instance_method" title="Rex::Socket#getpeername (method)">#getpeername</a></span>, <span class='object_link'><a href="../Socket.html#getsockname-instance_method" title="Rex::Socket#getsockname (method)">#getsockname</a></span>, <span class='object_link'><a href="../Socket.html#initsock-instance_method" title="Rex::Socket#initsock (method)">#initsock</a></span>, <span class='object_link'><a href="../Socket.html#ipv6_link_address-class_method" title="Rex::Socket.ipv6_link_address (method)">ipv6_link_address</a></span>, <span class='object_link'><a href="../Socket.html#ipv6_mac-class_method" title="Rex::Socket.ipv6_mac (method)">ipv6_mac</a></span>, <span class='object_link'><a href="../Socket.html#is_internal%3F-class_method" title="Rex::Socket.is_internal? (method)">is_internal?</a></span>, <span class='object_link'><a href="../Socket.html#is_ipv4%3F-class_method" title="Rex::Socket.is_ipv4? (method)">is_ipv4?</a></span>, <span class='object_link'><a href="../Socket.html#is_ipv6%3F-class_method" title="Rex::Socket.is_ipv6? (method)">is_ipv6?</a></span>, <span class='object_link'><a href="../Socket.html#net2bitmask-class_method" title="Rex::Socket.net2bitmask (method)">net2bitmask</a></span>, <span class='object_link'><a href="../Socket.html#portlist_to_portspec-class_method" title="Rex::Socket.portlist_to_portspec (method)">portlist_to_portspec</a></span>, <span class='object_link'><a href="../Socket.html#portspec_crack-class_method" title="Rex::Socket.portspec_crack (method)">portspec_crack</a></span>, <span class='object_link'><a href="../Socket.html#portspec_to_portlist-class_method" title="Rex::Socket.portspec_to_portlist (method)">portspec_to_portlist</a></span>, <span class='object_link'><a href="../Socket.html#resolv_nbo-class_method" title="Rex::Socket.resolv_nbo (method)">resolv_nbo</a></span>, <span class='object_link'><a href="../Socket.html#resolv_nbo_i-class_method" title="Rex::Socket.resolv_nbo_i (method)">resolv_nbo_i</a></span>, <span class='object_link'><a href="../Socket.html#resolv_nbo_i_list-class_method" title="Rex::Socket.resolv_nbo_i_list (method)">resolv_nbo_i_list</a></span>, <span class='object_link'><a href="../Socket.html#resolv_nbo_list-class_method" title="Rex::Socket.resolv_nbo_list (method)">resolv_nbo_list</a></span>, <span class='object_link'><a href="../Socket.html#resolv_to_dotted-class_method" title="Rex::Socket.resolv_to_dotted (method)">resolv_to_dotted</a></span>, <span class='object_link'><a href="../Socket.html#source_address-class_method" title="Rex::Socket.source_address (method)">source_address</a></span>, <span class='object_link'><a href="../Socket.html#support_ipv6%3F-class_method" title="Rex::Socket.support_ipv6? (method)">support_ipv6?</a></span>, <span class='object_link'><a href="../Socket.html#tcp_socket_pair-class_method" title="Rex::Socket.tcp_socket_pair (method)">tcp_socket_pair</a></span>, <span class='object_link'><a href="../Socket.html#to_sockaddr-class_method" title="Rex::Socket.to_sockaddr (method)">to_sockaddr</a></span>, <span class='object_link'><a href="../Socket.html#type%3F-instance_method" title="Rex::Socket#type? (method)">#type?</a></span>, <span class='object_link'><a href="../Socket.html#udp_socket_pair-class_method" title="Rex::Socket.udp_socket_pair (method)">udp_socket_pair</a></span></p>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create-class_method">
+  
+    + (<tt>Object</tt>) <strong>create</strong>(hash = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates the server using the supplied hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/socket/tcp_server.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Proto</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Server</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_param'>create_param</span><span class='lparen'>(</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Parameters</span><span class='period'>.</span><span class='id identifier rubyid_from_hash'>from_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_param-class_method">
+  
+    + (<tt>Object</tt>) <strong>create_param</strong>(param) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wrapper around the base class&#39; creation method that automatically sets
+the parameter&#39;s protocol to TCP and sets the server flag to true.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/socket/tcp_server.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_param'>create_param</span><span class='lparen'>(</span><span class='id identifier rubyid_param'>param</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_param'>param</span><span class='period'>.</span><span class='id identifier rubyid_proto'>proto</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_param'>param</span><span class='period'>.</span><span class='id identifier rubyid_server'>server</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_create_param'>create_param</span><span class='lparen'>(</span><span class='id identifier rubyid_param'>param</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="accept-instance_method">
+  
+    - (<tt>Object</tt>) <strong>accept</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Accepts a child connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/socket/tcp_server.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_accept'>accept</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='kw'>super</span><span class='lparen'>(</span><span class='rparen'>)</span>
+
+  <span class='comment'># jRuby compatibility
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[]</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Tcp</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span>
+
+    <span class='id identifier rubyid_pn'>pn</span> <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_getpeername'>getpeername</span>
+
+    <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_peerhost'>peerhost</span> <span class='op'>=</span> <span class='id identifier rubyid_pn'>pn</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_peerport'>peerport</span> <span class='op'>=</span> <span class='id identifier rubyid_pn'>pn</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_t'>t</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:37 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

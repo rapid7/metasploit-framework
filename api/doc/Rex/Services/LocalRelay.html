@@ -1,0 +1,1799 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Services::LocalRelay
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Services/LocalRelay.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Services.html" title="Rex::Services (module)">Services</a></span></span>
+     &raquo; 
+    <span class="title">LocalRelay</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Services::LocalRelay
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Services::LocalRelay</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+      <dt class="r2">Includes:</dt>
+      <dd class="r2"><span class='object_link'><a href="../Service.html" title="Rex::Service (module)">Rex::Service</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/services/local_relay.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This service acts as a local TCP relay whereby clients can connect to a
+local listener that forwards to an arbitrary remote endpoint.  Interaction
+with the remote endpoint socket requires that it implement the
+Rex::IO::Stream interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="LocalRelay/Stream.html" title="Rex::Services::LocalRelay::Stream (module)">Stream</a></span>, <span class='object_link'><a href="LocalRelay/StreamServer.html" title="Rex::Services::LocalRelay::StreamServer (module)">StreamServer</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="LocalRelay/Relay.html" title="Rex::Services::LocalRelay::Relay (class)">Relay</a></span>
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#relay_mutex-instance_method" title="#relay_mutex (instance method)">- (Object) <strong>relay_mutex</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute relay_mutex.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#relay_thread-instance_method" title="#relay_thread (instance method)">- (Object) <strong>relay_thread</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute relay_thread.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#relays-instance_method" title="#relays (instance method)">- (Object) <strong>relays</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute relays.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#rfds-instance_method" title="#rfds (instance method)">- (Object) <strong>rfds</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute rfds.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hardcore_alias-class_method" title="hardcore_alias (class method)">+ (Object) <strong>hardcore_alias</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the hardcore alias for the local relay service.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#accept_relay_conn-instance_method" title="#accept_relay_conn (instance method)">- (Object) <strong>accept_relay_conn</strong>(srvfd) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Accepts a client connection on a local relay.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#alias-instance_method" title="#alias (instance method)">- (Object) <strong>alias</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the alias for this service.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#close_relay-instance_method" title="#close_relay (instance method)">- (Object) <strong>close_relay</strong>(relay) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Closes an cleans up a specific relay.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#close_relay_conn-instance_method" title="#close_relay_conn (instance method)">- (Object) <strong>close_relay_conn</strong>(fd) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Closes a specific relay connection without tearing down the actual relay
+itself.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_tcp_relay-instance_method" title="#each_tcp_relay (instance method)">- (Object) <strong>each_tcp_relay</strong>(&amp;block) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate each TCP relay.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (LocalRelay) <strong>initialize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the local tcp relay monitor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#monitor_relays-instance_method" title="#monitor_relays (instance method)">- (Object) <strong>monitor_relays</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Monitors the relays for data and passes it in both directions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start-instance_method" title="#start (instance method)">- (Object) <strong>start</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Starts the thread that monitors the local relays.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_relay-instance_method" title="#start_relay (instance method)">- (Object) <strong>start_relay</strong>(stream_server, name, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Starts a local relay on the supplied local port.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_tcp_relay-instance_method" title="#start_tcp_relay (instance method)">- (Object) <strong>start_tcp_relay</strong>(lport, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Starts a local TCP relay.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop-instance_method" title="#stop (instance method)">- (Object) <strong>stop</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stops the thread that monitors the local relays and destroys all local
+listeners.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop_relay-instance_method" title="#stop_relay (instance method)">- (Object) <strong>stop_relay</strong>(name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stops a relay with a given name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop_tcp_relay-instance_method" title="#stop_tcp_relay (instance method)">- (Object) <strong>stop_tcp_relay</strong>(lport, lhost = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stops relaying on a given local port.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Service.html" title="Rex::Service (module)">Rex::Service</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Service.html#cleanup-instance_method" title="Rex::Service#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Service.html#deref-instance_method" title="Rex::Service#deref (method)">#deref</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Ref.html" title="Rex::Ref (module)">Ref</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Ref.html#cleanup-instance_method" title="Rex::Ref#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Ref.html#deref-instance_method" title="Rex::Ref#deref (method)">#deref</a></span>, <span class='object_link'><a href="../Ref.html#ref-instance_method" title="Rex::Ref#ref (method)">#ref</a></span>, <span class='object_link'><a href="../Ref.html#refinit-instance_method" title="Rex::Ref#refinit (method)">#refinit</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Services::LocalRelay (class)">LocalRelay</a></span></tt>) <strong>initialize</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the local tcp relay monitor.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+113
+114
+115
+116
+117
+118</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 113</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relays'>relays</span>       <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rfds'>rfds</span>         <span class='op'>=</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_thread'>relay_thread</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_mutex'>relay_mutex</span>  <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="relay_mutex=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="relay_mutex-instance_method">
+  
+    - (<tt>Object</tt>) <strong>relay_mutex</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute relay_mutex</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+266
+267
+268</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 266</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_relay_mutex'>relay_mutex</span>
+  <span class='ivar'>@relay_mutex</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="relay_thread=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="relay_thread-instance_method">
+  
+    - (<tt>Object</tt>) <strong>relay_thread</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute relay_thread</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+266
+267
+268</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 266</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_relay_thread'>relay_thread</span>
+  <span class='ivar'>@relay_thread</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="relays=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="relays-instance_method">
+  
+    - (<tt>Object</tt>) <strong>relays</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute relays</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+266
+267
+268</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 266</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_relays'>relays</span>
+  <span class='ivar'>@relays</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="rfds=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="rfds-instance_method">
+  
+    - (<tt>Object</tt>) <strong>rfds</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute rfds</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+267
+268
+269</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 267</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rfds'>rfds</span>
+  <span class='ivar'>@rfds</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="hardcore_alias-class_method">
+  
+    + (<tt>Object</tt>) <strong>hardcore_alias</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the hardcore alias for the local relay service.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+129
+130
+131</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 129</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_hardcore_alias'>hardcore_alias</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>__</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_args'>args</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="accept_relay_conn-instance_method">
+  
+    - (<tt>Object</tt>) <strong>accept_relay_conn</strong>(srvfd)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Accepts a client connection on a local relay.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 321</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_accept_relay_conn'>accept_relay_conn</span><span class='lparen'>(</span><span class='id identifier rubyid_srvfd'>srvfd</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_relay'>relay</span> <span class='op'>=</span> <span class='id identifier rubyid_srvfd'>srvfd</span><span class='period'>.</span><span class='id identifier rubyid_relay'>relay</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Accepting relay client connection...</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+
+    <span class='comment'># Accept the child connection
+</span>    <span class='id identifier rubyid_lfd'>lfd</span> <span class='op'>=</span> <span class='id identifier rubyid_srvfd'>srvfd</span><span class='period'>.</span><span class='id identifier rubyid_accept'>accept</span>
+    <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Got left side of relay: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lfd'>lfd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+
+    <span class='comment'># Call the relay&#39;s on_local_connection method which should return a
+</span>    <span class='comment'># remote connection on success
+</span>    <span class='id identifier rubyid_rfd'>rfd</span> <span class='op'>=</span> <span class='id identifier rubyid_srvfd'>srvfd</span><span class='period'>.</span><span class='id identifier rubyid_on_local_connection'>on_local_connection</span><span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='comma'>,</span> <span class='id identifier rubyid_lfd'>lfd</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Got right side of relay: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rfd'>rfd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_wlog'>wlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to get remote half of local connection on relay </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lfd'>lfd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we have both sides, then we rock.  Extend the instances, associate
+</span>  <span class='comment'># them with the relay, associate them with each other, and add them to
+</span>  <span class='comment'># the list of polling file descriptors
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_lfd'>lfd</span> <span class='kw'>and</span> <span class='id identifier rubyid_rfd'>rfd</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lfd'>lfd</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'>Stream</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'>Stream</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_lfd'>lfd</span><span class='period'>.</span><span class='id identifier rubyid_relay'>relay</span> <span class='op'>=</span> <span class='id identifier rubyid_relay'>relay</span>
+    <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_relay'>relay</span> <span class='op'>=</span> <span class='id identifier rubyid_relay'>relay</span>
+
+    <span class='id identifier rubyid_lfd'>lfd</span><span class='period'>.</span><span class='id identifier rubyid_other_stream'>other_stream</span> <span class='op'>=</span> <span class='id identifier rubyid_rfd'>rfd</span>
+    <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_other_stream'>other_stream</span> <span class='op'>=</span> <span class='id identifier rubyid_lfd'>lfd</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rfds'>rfds</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_lfd'>lfd</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rfds'>rfds</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_rfd'>rfd</span>
+
+  <span class='comment'># Otherwise, we don&#39;t have both sides, we&#39;ll close them.
+</span>  <span class='kw'>else</span>
+    <span class='id identifier rubyid_close_relay_conn'>close_relay_conn</span><span class='lparen'>(</span><span class='id identifier rubyid_lfd'>lfd</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="alias-instance_method">
+  
+    - (<tt>Object</tt>) <strong>alias</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the alias for this service.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 136</span>
+
+<span class='kw'>def</span> <span class='kw'>alias</span>
+  <span class='kw'>super</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Local Relay</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close_relay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>close_relay</strong>(relay)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Closes an cleans up a specific relay</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 272</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close_relay'>close_relay</span><span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rfds'>rfds</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_listener'>listener</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relays'>relays</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span>
+    <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>rescue</span> <span class='const'>IOError</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close_relay_conn-instance_method">
+  
+    - (<tt>Object</tt>) <strong>close_relay_conn</strong>(fd)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Closes a specific relay connection without tearing down the actual relay
+itself.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 287</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close_relay_conn'>close_relay_conn</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_relay'>relay</span> <span class='op'>=</span> <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_relay'>relay</span>
+  <span class='id identifier rubyid_ofd'>ofd</span>   <span class='op'>=</span> <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_other_stream'>other_stream</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rfds'>rfds</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_on_conn_close_proc'>on_conn_close_proc</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_on_conn_close_proc'>on_conn_close_proc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span>
+    <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>rescue</span> <span class='const'>IOError</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_ofd'>ofd</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rfds'>rfds</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_ofd'>ofd</span><span class='rparen'>)</span>
+
+    <span class='kw'>begin</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_on_conn_close_proc'>on_conn_close_proc</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_on_conn_close_proc'>on_conn_close_proc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_ofd'>ofd</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_ofd'>ofd</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span>
+      <span class='id identifier rubyid_ofd'>ofd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>rescue</span> <span class='const'>IOError</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_tcp_relay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>each_tcp_relay</strong>(&amp;block) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate each TCP relay</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 251</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_tcp_relay'>each_tcp_relay</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relays'>relays</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_relay'>relay</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>__RelayType</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='kw'>yield</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalHost</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0.0.0.0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalPort</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerHost</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerPort</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_relay'>relay</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="monitor_relays-instance_method">
+  
+    - (<tt>Object</tt>) <strong>monitor_relays</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Monitors the relays for data and passes it in both directions.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 367</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_monitor_relays'>monitor_relays</span>
+  <span class='kw'>begin</span>
+    <span class='comment'># Helps with latency
+</span>    <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='period'>.</span><span class='id identifier rubyid_priority'>priority</span> <span class='op'>=</span> <span class='int'>2</span>
+
+    <span class='comment'># Poll all the streams...
+</span>    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_socks'>socks</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='id identifier rubyid_rfds'>rfds</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.25</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='const'>StreamClosedError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>monitor_relays: closing stream </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_stream'>stream</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+
+      <span class='comment'># Close the relay connection that is associated with the stream
+</span>      <span class='comment'># closed error
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Stream</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_close_relay_conn'>close_relay_conn</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_stream'>stream</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>monitor_relays: closed stream </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_stream'>stream</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+
+      <span class='kw'>next</span>
+    <span class='kw'>rescue</span>
+      <span class='id identifier rubyid_elog'>elog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error in </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='embexpr_end'>}</span><span class='tstring_content'> monitor_relays select: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># If socks is nil, go again.
+</span>    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_socks'>socks</span>
+
+    <span class='comment'># Process read-ready file descriptors, if any.
+</span>    <span class='id identifier rubyid_socks'>socks</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_rfd'>rfd</span><span class='op'>|</span>
+
+      <span class='comment'># If this file descriptor is a server, accept the connection
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>StreamServer</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_accept_relay_conn'>accept_relay_conn</span><span class='lparen'>(</span><span class='id identifier rubyid_rfd'>rfd</span><span class='rparen'>)</span>
+      <span class='comment'># Otherwise, it&#39;s a relay connection, read data from one side
+</span>      <span class='comment'># and write it to the other
+</span>      <span class='kw'>else</span>
+        <span class='kw'>begin</span>
+          <span class='comment'># Pass the data onto the other fd, most likely writing it.
+</span>          <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_sysread'>sysread</span><span class='lparen'>(</span><span class='int'>65536</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_other_stream'>other_stream</span><span class='period'>.</span><span class='id identifier rubyid_on_other_data'>on_other_data</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+        <span class='comment'># If we catch an error, close the connection
+</span>        <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+          <span class='id identifier rubyid_elog'>elog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error in </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='embexpr_end'>}</span><span class='tstring_content'> monitor_relays read: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_close_relay_conn'>close_relay_conn</span><span class='lparen'>(</span><span class='id identifier rubyid_rfd'>rfd</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+    <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_socks'>socks</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='kw'>end</span> <span class='kw'>while</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start-instance_method">
+  
+    - (<tt>Object</tt>) <strong>start</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Starts the thread that monitors the local relays.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 143</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start'>start</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_thread'>relay_thread</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_thread'>relay_thread</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>ThreadFactory</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LocalRelay</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='lbrace'>{</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_monitor_relays'>monitor_relays</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+        <span class='id identifier rubyid_elog'>elog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error in </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='embexpr_end'>}</span><span class='tstring_content'> monitor_relays: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_relay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>start_relay</strong>(stream_server, name, opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Starts a local relay on the supplied local port.  This listener will call
+the supplied callback procedures when various events occur.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 207</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_relay'>start_relay</span><span class='lparen'>(</span><span class='id identifier rubyid_stream_server'>stream_server</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Create a Relay instance with the local stream and remote stream
+</span>  <span class='id identifier rubyid_relay'>relay</span> <span class='op'>=</span> <span class='const'>Relay</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_stream_server'>stream_server</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='comment'># Extend the stream_server so that we can associate it with this relay
+</span>  <span class='id identifier rubyid_stream_server'>stream_server</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'>StreamServer</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stream_server'>stream_server</span><span class='period'>.</span><span class='id identifier rubyid_relay'>relay</span> <span class='op'>=</span> <span class='id identifier rubyid_relay'>relay</span>
+
+  <span class='comment'># Add the stream associations the appropriate lists and hashes
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_mutex'>relay_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relays'>relays</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_relay'>relay</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rfds'>rfds</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_stream_server'>stream_server</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_tcp_relay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>start_tcp_relay</strong>(lport, opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Starts a local TCP relay.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 187</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_tcp_relay'>start_tcp_relay</span><span class='lparen'>(</span><span class='id identifier rubyid_lport'>lport</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Make sure our options are valid
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerHost</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='kw'>or</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerPort</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Stream</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='kw'>true</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Missing peer host or peer port.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_listener'>listener</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_create_tcp_server'>create_tcp_server</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalHost</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalHost</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalPort</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_lport'>lport</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalPort</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>   <span class='op'>=</span> <span class='id identifier rubyid_lport'>lport</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>__RelayType</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_start_relay'>start_relay</span><span class='lparen'>(</span><span class='id identifier rubyid_listener'>listener</span><span class='comma'>,</span> <span class='id identifier rubyid_lport'>lport</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalHost</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0.0.0.0</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stop</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stops the thread that monitors the local relays and destroys all local
+listeners.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 159</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop'>stop</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_thread'>relay_thread</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_thread'>relay_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_thread'>relay_thread</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_mutex'>relay_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relays'>relays</span><span class='period'>.</span><span class='id identifier rubyid_delete_if'>delete_if</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+      <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span>
+      <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='kw'>true</span>
+    <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Flush the relay list and read fd list
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relays'>relays</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rfds'>rfds</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop_relay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stop_relay</strong>(name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stops a relay with a given name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 233</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop_relay'>stop_relay</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rv'>rv</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relay_mutex'>relay_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span>
+    <span class='id identifier rubyid_relay'>relay</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relays'>relays</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_close_relay'>close_relay</span><span class='lparen'>(</span><span class='id identifier rubyid_relay'>relay</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_rv'>rv</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_rv'>rv</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop_tcp_relay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stop_tcp_relay</strong>(lport, lhost = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stops relaying on a given local port.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+226
+227
+228</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/services/local_relay.rb', line 226</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop_tcp_relay'>stop_tcp_relay</span><span class='lparen'>(</span><span class='id identifier rubyid_lport'>lport</span><span class='comma'>,</span> <span class='id identifier rubyid_lhost'>lhost</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stop_relay'>stop_relay</span><span class='lparen'>(</span><span class='id identifier rubyid_lport'>lport</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_lhost'>lhost</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0.0.0.0</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:25 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

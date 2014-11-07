@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>
+  File: CONTRIBUTING
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '';
+  framesUrl = "frames.html#!file.CONTRIBUTING.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: CONTRIBUTING</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><div id='filecontents'><h1>Hello, World!</h1>
+
+<p>Thanks for your interest in making Metasploit -- and therefore, the
+world -- a better place!</p>
+
+<p>Are you about to report a bug? Sorry to hear it.</p>
+
+<p>Here&#39;s our <a href="https://github.com/rapid7/metasploit-framework/issues">Issue tracker</a>.
+Please try to be as specific as you can about your problem, include steps
+to reproduce (cut and paste from your console output if it&#39;s helpful), and
+what you were expecting to happen.</p>
+
+<p>Are you about to report a security vulnerability in Metasploit itself?
+How ironic! Please take a look at Rapid7&#39;s <a href="https://www.rapid7.com/disclosure.jsp">Vulnerability
+Disclosure Policy</a>, and send
+your report to <a href="mailto:security@rapid7.com">security@rapid7.com</a> using <a href="http://pgp.mit.edu:11371/pks/lookup?op=vindex&amp;search=0x2380F85B8AD4DB8D">our PGP key</a>.</p>
+
+<p>Are you about to contribute some new functionality, a bug fix, or a new
+Metasploit module? If so, read on...</p>
+
+<h1>Contributing to Metasploit</h1>
+
+<p>What you see here in CONTRIBUTING.md is a bullet-point list of the do&#39;s
+and don&#39;ts of how to make sure <em>your</em> valuable contributions actually
+make it into Metasploit&#39;s master branch.</p>
+
+<p>If you care not to follow these rules, your contribution <strong>will</strong> be
+closed (<em>Road House</em> style). Sorry!</p>
+
+<p>This is intended to be a <strong>short</strong> list. The
+<a href="https://github.com/rapid7/metasploit-framework/wiki">wiki</a> is much more
+exhaustive and reveals many mysteries. If you read nothing else, take a
+look at the standard <a href="https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment">development environment setup
+guide</a>
+and Metasploit&#39;s <a href="https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes">Common Coding Mistakes</a>.</p>
+
+<h2>Code Contributions</h2>
+
+<ul>
+<li><strong>Do</strong> stick to the <a href="https://github.com/bbatsov/ruby-style-guide">Ruby style guide</a>.</li>
+<li><em>Do</em> get <a href="https://rubygems.org/search?query=rubocop">Rubocop</a> relatively quiet against the code you are adding or modifying.</li>
+<li><strong>Do</strong> follow the <a href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">50/72 rule</a> for Git commit messages.</li>
+<li><strong>Do</strong> create a <a href="http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches">topic branch</a> to work on instead of working directly on <code>master</code>.</li>
+</ul>
+
+<h3>Pull Requests</h3>
+
+<ul>
+<li><strong>Do</strong> target your pull request to the <strong>master branch</strong>. Not staging, not develop, not release.</li>
+<li><strong>Do</strong> specify a descriptive title to make searching for your pull request easier.</li>
+<li><strong>Do</strong> include <a href="https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks">console output</a>, especially for witnessable effects in <code>msfconsole</code>.</li>
+<li><strong>Do</strong> list <a href="https://help.github.com/articles/writing-on-github#task-lists">verification steps</a> so your code is testable.</li>
+<li><strong>Don&#39;t</strong> leave your pull request description blank.</li>
+<li><strong>Don&#39;t</strong> abandon your pull request. Being responsive helps us land your code faster.</li>
+</ul>
+
+<p>Pull requests <a href="https://github.com/rapid7/metasploit-framework/pull/2940">#2940</a> and <a href="https://github.com/rapid7/metasploit-framework/pull/3043">#3043</a> are a couple good examples to follow.</p>
+
+<h4>New Modules</h4>
+
+<ul>
+<li><strong>Do</strong> run <code>tools/msftidy.rb</code> against your module and fix any errors or warnings that come up. Even better would be to set up <code>msftidy.rb</code> as a <a href="https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb">pre-commit hook</a>.</li>
+<li><strong>Do</strong> use the <a href="https://dev.metasploit.com/api/">many module mixin APIs</a>. Wheel improvements are welcome; wheel reinventions, not so much.</li>
+<li><strong>Don&#39;t</strong> include more than one module per pull request.</li>
+</ul>
+
+<h4>Library Code</h4>
+
+<ul>
+<li><strong>Do</strong> write <a href="http://rspec.info/">RSpec</a> tests - even the smallest change in library land can thoroughly screw things up.</li>
+<li><strong>Do</strong> follow <a href="http://betterspecs.org/">Better Specs</a> - it&#39;s like the style guide for specs.</li>
+<li><strong>Do</strong> write <a href="http://yardoc.org/">YARD</a> documentation - this makes it easier for people to use your code.</li>
+<li><strong>Don&#39;t</strong> fix a lot of things in one pull request. Small fixes are easier to validate.</li>
+</ul>
+
+<h4>Bug Fixes</h4>
+
+<ul>
+<li><strong>Do</strong> include reproduction steps in the form of verification steps.</li>
+<li><strong>Do</strong> include a link to any corresponding <a href="https://github.com/rapid7/metasploit-framework/issues">Issue</a> in the format of <code>See #1234</code> in your commit description.</li>
+</ul>
+
+<h2>Bug Reports</h2>
+
+<ul>
+<li><strong>Do</strong> report vulnerabilities in Rapid7 software directly to <a href="mailto:security@rapid7.com">security@rapid7.com</a>.</li>
+<li><strong>Do</strong> write a detailed description of your bug and use a descriptive title.</li>
+<li><strong>Do</strong> include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.</li>
+<li><strong>Don&#39;t</strong> file duplicate reports - search for your bug before filing a new report.</li>
+</ul>
+
+<p>If you need some more guidance, talk to the main body of open
+source contributors over on the <a href="http://webchat.freenode.net/?channels=%23metasploit&amp;uio=d4">Freenode IRC channel</a>
+or e-mail us at <a href="https://lists.sourceforge.net/lists/listinfo/metasploit-hackers">metasploit-hackers</a>
+mailing list.</p>
+
+<p>Also, <strong>thank you</strong> for taking the few moments to read this far! You&#39;re
+already way ahead of the curve, so keep it up!</p>
+</div></div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:18 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

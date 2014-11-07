@@ -1,0 +1,494 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Zip
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Rex/Zip.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (Z)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Rex.html" title="Rex (module)">Rex</a></span></span>
+     &raquo; 
+    <span class="title">Zip</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Zip
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/zip.rb<span class="defines">,<br />
+  lib/rex/zip/jar.rb,<br /> lib/rex/zip/entry.rb,<br /> lib/rex/zip/blocks.rb,<br /> lib/rex/zip/archive.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Zip/Archive.html" title="Rex::Zip::Archive (class)">Archive</a></span>, <span class='object_link'><a href="Zip/CentralDir.html" title="Rex::Zip::CentralDir (class)">CentralDir</a></span>, <span class='object_link'><a href="Zip/CentralDirEnd.html" title="Rex::Zip::CentralDirEnd (class)">CentralDirEnd</a></span>, <span class='object_link'><a href="Zip/CompFlags.html" title="Rex::Zip::CompFlags (class)">CompFlags</a></span>, <span class='object_link'><a href="Zip/CompInfo.html" title="Rex::Zip::CompInfo (class)">CompInfo</a></span>, <span class='object_link'><a href="Zip/DataDesc.html" title="Rex::Zip::DataDesc (class)">DataDesc</a></span>, <span class='object_link'><a href="Zip/Entry.html" title="Rex::Zip::Entry (class)">Entry</a></span>, <span class='object_link'><a href="Zip/Jar.html" title="Rex::Zip::Jar (class)">Jar</a></span>, <span class='object_link'><a href="Zip/LocalFileHdr.html" title="Rex::Zip::LocalFileHdr (class)">LocalFileHdr</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="ZIP_VERSION-constant" class="">ZIP_VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x14</span></pre></dd>
+      
+        <dt id="GPBF_ENCRYPTED-constant" class="">GPBF_ENCRYPTED =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>general purpose bit flag values</p>
+
+<p>bit 0</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0001</span></pre></dd>
+      
+        <dt id="GPBF_IMP_8KDICT-constant" class="">GPBF_IMP_8KDICT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bits 1 &amp; 2 implode only</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0002</span></pre></dd>
+      
+        <dt id="GPBF_IMP_3SFT-constant" class="">GPBF_IMP_3SFT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0004</span></pre></dd>
+      
+        <dt id="GPBF_DEF_MAX-constant" class="">GPBF_DEF_MAX =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>deflate only</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0002</span></pre></dd>
+      
+        <dt id="GPBF_DEF_FAST-constant" class="">GPBF_DEF_FAST =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0004</span></pre></dd>
+      
+        <dt id="GPBF_DEF_SUPERFAST-constant" class="">GPBF_DEF_SUPERFAST =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0006</span></pre></dd>
+      
+        <dt id="GPBF_LZMA_EOSUSED-constant" class="">GPBF_LZMA_EOSUSED =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>lzma only</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0002</span></pre></dd>
+      
+        <dt id="GPBF_USE_DATADESC-constant" class="">GPBF_USE_DATADESC =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bit 3</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0008</span></pre></dd>
+      
+        <dt id="GPBF_DEF_ENHANCED-constant" class="">GPBF_DEF_ENHANCED =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bit 4</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0010</span></pre></dd>
+      
+        <dt id="GPBF_COMP_PATHCED-constant" class="">GPBF_COMP_PATHCED =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bit 5</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0020</span></pre></dd>
+      
+        <dt id="GPBF_STRONG_ENC-constant" class="">GPBF_STRONG_ENC =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bit 6</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0040</span></pre></dd>
+      
+        <dt id="GPBF_STRS_UTF8-constant" class="">GPBF_STRS_UTF8 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bit 7-10 unused bit 11</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0800</span></pre></dd>
+      
+        <dt id="GPBF_DIR_ENCRYPTED-constant" class="">GPBF_DIR_ENCRYPTED =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bit 12 (reserved) bit 13</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x2000</span></pre></dd>
+      
+        <dt id="CM_STORE-constant" class="">CM_STORE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>compression methods</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="CM_SHRINK-constant" class="">CM_SHRINK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="CM_REDUCE1-constant" class="">CM_REDUCE1 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="CM_REDUCE2-constant" class="">CM_REDUCE2 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="CM_REDUCE3-constant" class="">CM_REDUCE3 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="CM_REDUCE4-constant" class="">CM_REDUCE4 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="CM_IMPLODE-constant" class="">CM_IMPLODE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="CM_TOKENIZE-constant" class="">CM_TOKENIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="CM_DEFLATE-constant" class="">CM_DEFLATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="CM_DEFLATE64-constant" class="">CM_DEFLATE64 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>9</span></pre></dd>
+      
+        <dt id="CM_PKWARE_IMPLODE-constant" class="">CM_PKWARE_IMPLODE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="CM_BZIP2-constant" class="">CM_BZIP2 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>11 - reserved</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>12</span></pre></dd>
+      
+        <dt id="CM_LZMA_EFS-constant" class="">CM_LZMA_EFS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>13 - reserved</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>14</span></pre></dd>
+      
+        <dt id="CM_IBM_TERSE-constant" class="">CM_IBM_TERSE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>15-17 reserved</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>18</span></pre></dd>
+      
+        <dt id="CM_IBM_LZ77-constant" class="">CM_IBM_LZ77 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>19</span></pre></dd>
+      
+        <dt id="CM_WAVPACK-constant" class="">CM_WAVPACK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>20-96 reserved</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>97</span></pre></dd>
+      
+        <dt id="CM_PPMD_V1R1-constant" class="">CM_PPMD_V1R1 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>98</span></pre></dd>
+      
+        <dt id="IFA_ASCII-constant" class="">IFA_ASCII =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>internal file attributes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0001</span></pre></dd>
+      
+        <dt id="IFA_MAINFRAME_MODE-constant" class="">IFA_MAINFRAME_MODE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bits 2 &amp; 3 are reserved</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0002</span></pre></dd>
+      
+        <dt id="EFA_ISDIR-constant" class="">EFA_ISDIR =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>external file attributes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0001</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:30 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,1264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::ElfParsey::Elf
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/ElfParsey/Elf.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../ElfParsey.html" title="Rex::ElfParsey (module)">ElfParsey</a></span></span>
+     &raquo; 
+    <span class="title">Elf</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::ElfParsey::Elf
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="ElfBase.html" title="Rex::ElfParsey::ElfBase (class)">ElfBase</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="ElfBase.html" title="Rex::ElfParsey::ElfBase (class)">ElfBase</a></span></li>
+          
+            <li class="next">Rex::ElfParsey::Elf</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/elfparsey/elf.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="ElfBase.html" title="Rex::ElfParsey::ElfBase (class)">ElfBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ElfBase.html#EI_CLASS-constant" title="Rex::ElfParsey::ElfBase::EI_CLASS (constant)">Rex::ElfParsey::ElfBase::EI_CLASS</a></span>, <span class='object_link'><a href="ElfBase.html#EI_DATA-constant" title="Rex::ElfParsey::ElfBase::EI_DATA (constant)">Rex::ElfParsey::ElfBase::EI_DATA</a></span>, <span class='object_link'><a href="ElfBase.html#EI_MAG0-constant" title="Rex::ElfParsey::ElfBase::EI_MAG0 (constant)">Rex::ElfParsey::ElfBase::EI_MAG0</a></span>, <span class='object_link'><a href="ElfBase.html#EI_MAG1-constant" title="Rex::ElfParsey::ElfBase::EI_MAG1 (constant)">Rex::ElfParsey::ElfBase::EI_MAG1</a></span>, <span class='object_link'><a href="ElfBase.html#EI_MAG2-constant" title="Rex::ElfParsey::ElfBase::EI_MAG2 (constant)">Rex::ElfParsey::ElfBase::EI_MAG2</a></span>, <span class='object_link'><a href="ElfBase.html#EI_MAG3-constant" title="Rex::ElfParsey::ElfBase::EI_MAG3 (constant)">Rex::ElfParsey::ElfBase::EI_MAG3</a></span>, <span class='object_link'><a href="ElfBase.html#EI_NIDENT-constant" title="Rex::ElfParsey::ElfBase::EI_NIDENT (constant)">Rex::ElfParsey::ElfBase::EI_NIDENT</a></span>, <span class='object_link'><a href="ElfBase.html#EI_PAD-constant" title="Rex::ElfParsey::ElfBase::EI_PAD (constant)">Rex::ElfParsey::ElfBase::EI_PAD</a></span>, <span class='object_link'><a href="ElfBase.html#EI_VERSION-constant" title="Rex::ElfParsey::ElfBase::EI_VERSION (constant)">Rex::ElfParsey::ElfBase::EI_VERSION</a></span>, <span class='object_link'><a href="ElfBase.html#ELF32_EHDR_LSB-constant" title="Rex::ElfParsey::ElfBase::ELF32_EHDR_LSB (constant)">Rex::ElfParsey::ElfBase::ELF32_EHDR_LSB</a></span>, <span class='object_link'><a href="ElfBase.html#ELF32_EHDR_MSB-constant" title="Rex::ElfParsey::ElfBase::ELF32_EHDR_MSB (constant)">Rex::ElfParsey::ElfBase::ELF32_EHDR_MSB</a></span>, <span class='object_link'><a href="ElfBase.html#ELF32_PHDR_LSB-constant" title="Rex::ElfParsey::ElfBase::ELF32_PHDR_LSB (constant)">Rex::ElfParsey::ElfBase::ELF32_PHDR_LSB</a></span>, <span class='object_link'><a href="ElfBase.html#ELF32_PHDR_MSB-constant" title="Rex::ElfParsey::ElfBase::ELF32_PHDR_MSB (constant)">Rex::ElfParsey::ElfBase::ELF32_PHDR_MSB</a></span>, <span class='object_link'><a href="ElfBase.html#ELFCLASS32-constant" title="Rex::ElfParsey::ElfBase::ELFCLASS32 (constant)">Rex::ElfParsey::ElfBase::ELFCLASS32</a></span>, <span class='object_link'><a href="ElfBase.html#ELFCLASS64-constant" title="Rex::ElfParsey::ElfBase::ELFCLASS64 (constant)">Rex::ElfParsey::ElfBase::ELFCLASS64</a></span>, <span class='object_link'><a href="ElfBase.html#ELFCLASSNONE-constant" title="Rex::ElfParsey::ElfBase::ELFCLASSNONE (constant)">Rex::ElfParsey::ElfBase::ELFCLASSNONE</a></span>, <span class='object_link'><a href="ElfBase.html#ELFDATA2LSB-constant" title="Rex::ElfParsey::ElfBase::ELFDATA2LSB (constant)">Rex::ElfParsey::ElfBase::ELFDATA2LSB</a></span>, <span class='object_link'><a href="ElfBase.html#ELFDATA2MSB-constant" title="Rex::ElfParsey::ElfBase::ELFDATA2MSB (constant)">Rex::ElfParsey::ElfBase::ELFDATA2MSB</a></span>, <span class='object_link'><a href="ElfBase.html#ELFDATANONE-constant" title="Rex::ElfParsey::ElfBase::ELFDATANONE (constant)">Rex::ElfParsey::ElfBase::ELFDATANONE</a></span>, <span class='object_link'><a href="ElfBase.html#ELFMAG-constant" title="Rex::ElfParsey::ElfBase::ELFMAG (constant)">Rex::ElfParsey::ElfBase::ELFMAG</a></span>, <span class='object_link'><a href="ElfBase.html#ELFMAG0-constant" title="Rex::ElfParsey::ElfBase::ELFMAG0 (constant)">Rex::ElfParsey::ElfBase::ELFMAG0</a></span>, <span class='object_link'><a href="ElfBase.html#ELFMAG1-constant" title="Rex::ElfParsey::ElfBase::ELFMAG1 (constant)">Rex::ElfParsey::ElfBase::ELFMAG1</a></span>, <span class='object_link'><a href="ElfBase.html#ELFMAG2-constant" title="Rex::ElfParsey::ElfBase::ELFMAG2 (constant)">Rex::ElfParsey::ElfBase::ELFMAG2</a></span>, <span class='object_link'><a href="ElfBase.html#ELFMAG3-constant" title="Rex::ElfParsey::ElfBase::ELFMAG3 (constant)">Rex::ElfParsey::ElfBase::ELFMAG3</a></span>, <span class='object_link'><a href="ElfBase.html#ELF_HEADER_SIZE-constant" title="Rex::ElfParsey::ElfBase::ELF_HEADER_SIZE (constant)">Rex::ElfParsey::ElfBase::ELF_HEADER_SIZE</a></span>, <span class='object_link'><a href="ElfBase.html#EM_386-constant" title="Rex::ElfParsey::ElfBase::EM_386 (constant)">Rex::ElfParsey::ElfBase::EM_386</a></span>, <span class='object_link'><a href="ElfBase.html#EM_68K-constant" title="Rex::ElfParsey::ElfBase::EM_68K (constant)">Rex::ElfParsey::ElfBase::EM_68K</a></span>, <span class='object_link'><a href="ElfBase.html#EM_860-constant" title="Rex::ElfParsey::ElfBase::EM_860 (constant)">Rex::ElfParsey::ElfBase::EM_860</a></span>, <span class='object_link'><a href="ElfBase.html#EM_88K-constant" title="Rex::ElfParsey::ElfBase::EM_88K (constant)">Rex::ElfParsey::ElfBase::EM_88K</a></span>, <span class='object_link'><a href="ElfBase.html#EM_M32-constant" title="Rex::ElfParsey::ElfBase::EM_M32 (constant)">Rex::ElfParsey::ElfBase::EM_M32</a></span>, <span class='object_link'><a href="ElfBase.html#EM_MIPS-constant" title="Rex::ElfParsey::ElfBase::EM_MIPS (constant)">Rex::ElfParsey::ElfBase::EM_MIPS</a></span>, <span class='object_link'><a href="ElfBase.html#EM_MIPS_RS4_BE-constant" title="Rex::ElfParsey::ElfBase::EM_MIPS_RS4_BE (constant)">Rex::ElfParsey::ElfBase::EM_MIPS_RS4_BE</a></span>, <span class='object_link'><a href="ElfBase.html#EM_SPARC-constant" title="Rex::ElfParsey::ElfBase::EM_SPARC (constant)">Rex::ElfParsey::ElfBase::EM_SPARC</a></span>, <span class='object_link'><a href="ElfBase.html#ET_CORE-constant" title="Rex::ElfParsey::ElfBase::ET_CORE (constant)">Rex::ElfParsey::ElfBase::ET_CORE</a></span>, <span class='object_link'><a href="ElfBase.html#ET_DYN-constant" title="Rex::ElfParsey::ElfBase::ET_DYN (constant)">Rex::ElfParsey::ElfBase::ET_DYN</a></span>, <span class='object_link'><a href="ElfBase.html#ET_EXEC-constant" title="Rex::ElfParsey::ElfBase::ET_EXEC (constant)">Rex::ElfParsey::ElfBase::ET_EXEC</a></span>, <span class='object_link'><a href="ElfBase.html#ET_HIPROC-constant" title="Rex::ElfParsey::ElfBase::ET_HIPROC (constant)">Rex::ElfParsey::ElfBase::ET_HIPROC</a></span>, <span class='object_link'><a href="ElfBase.html#ET_LOPROC-constant" title="Rex::ElfParsey::ElfBase::ET_LOPROC (constant)">Rex::ElfParsey::ElfBase::ET_LOPROC</a></span>, <span class='object_link'><a href="ElfBase.html#ET_NONE-constant" title="Rex::ElfParsey::ElfBase::ET_NONE (constant)">Rex::ElfParsey::ElfBase::ET_NONE</a></span>, <span class='object_link'><a href="ElfBase.html#ET_REL-constant" title="Rex::ElfParsey::ElfBase::ET_REL (constant)">Rex::ElfParsey::ElfBase::ET_REL</a></span>, <span class='object_link'><a href="ElfBase.html#EV_CURRENT-constant" title="Rex::ElfParsey::ElfBase::EV_CURRENT (constant)">Rex::ElfParsey::ElfBase::EV_CURRENT</a></span>, <span class='object_link'><a href="ElfBase.html#EV_NONE-constant" title="Rex::ElfParsey::ElfBase::EV_NONE (constant)">Rex::ElfParsey::ElfBase::EV_NONE</a></span>, <span class='object_link'><a href="ElfBase.html#PF_EXEC-constant" title="Rex::ElfParsey::ElfBase::PF_EXEC (constant)">Rex::ElfParsey::ElfBase::PF_EXEC</a></span>, <span class='object_link'><a href="ElfBase.html#PF_READ-constant" title="Rex::ElfParsey::ElfBase::PF_READ (constant)">Rex::ElfParsey::ElfBase::PF_READ</a></span>, <span class='object_link'><a href="ElfBase.html#PF_WRITE-constant" title="Rex::ElfParsey::ElfBase::PF_WRITE (constant)">Rex::ElfParsey::ElfBase::PF_WRITE</a></span>, <span class='object_link'><a href="ElfBase.html#PROGRAM_HEADER_SIZE-constant" title="Rex::ElfParsey::ElfBase::PROGRAM_HEADER_SIZE (constant)">Rex::ElfParsey::ElfBase::PROGRAM_HEADER_SIZE</a></span>, <span class='object_link'><a href="ElfBase.html#PT_DYNAMIC-constant" title="Rex::ElfParsey::ElfBase::PT_DYNAMIC (constant)">Rex::ElfParsey::ElfBase::PT_DYNAMIC</a></span>, <span class='object_link'><a href="ElfBase.html#PT_HIPROC-constant" title="Rex::ElfParsey::ElfBase::PT_HIPROC (constant)">Rex::ElfParsey::ElfBase::PT_HIPROC</a></span>, <span class='object_link'><a href="ElfBase.html#PT_INTERP-constant" title="Rex::ElfParsey::ElfBase::PT_INTERP (constant)">Rex::ElfParsey::ElfBase::PT_INTERP</a></span>, <span class='object_link'><a href="ElfBase.html#PT_LOAD-constant" title="Rex::ElfParsey::ElfBase::PT_LOAD (constant)">Rex::ElfParsey::ElfBase::PT_LOAD</a></span>, <span class='object_link'><a href="ElfBase.html#PT_LOPROC-constant" title="Rex::ElfParsey::ElfBase::PT_LOPROC (constant)">Rex::ElfParsey::ElfBase::PT_LOPROC</a></span>, <span class='object_link'><a href="ElfBase.html#PT_NOTE-constant" title="Rex::ElfParsey::ElfBase::PT_NOTE (constant)">Rex::ElfParsey::ElfBase::PT_NOTE</a></span>, <span class='object_link'><a href="ElfBase.html#PT_NULL-constant" title="Rex::ElfParsey::ElfBase::PT_NULL (constant)">Rex::ElfParsey::ElfBase::PT_NULL</a></span>, <span class='object_link'><a href="ElfBase.html#PT_PHDR-constant" title="Rex::ElfParsey::ElfBase::PT_PHDR (constant)">Rex::ElfParsey::ElfBase::PT_PHDR</a></span>, <span class='object_link'><a href="ElfBase.html#PT_SHLIB-constant" title="Rex::ElfParsey::ElfBase::PT_SHLIB (constant)">Rex::ElfParsey::ElfBase::PT_SHLIB</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#base_addr-instance_method" title="#base_addr (instance method)">- (Object) <strong>base_addr</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute base_addr.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#elf_header-instance_method" title="#elf_header (instance method)">- (Object) <strong>elf_header</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute elf_header.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#isource-instance_method" title="#isource (instance method)">- (Object) <strong>isource</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute isource.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#program_header-instance_method" title="#program_header (instance method)">- (Object) <strong>program_header</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute program_header.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_from_file-class_method" title="new_from_file (class method)">+ (Object) <strong>new_from_file</strong>(filename, disk_backed = false) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_from_string-class_method" title="new_from_string (class method)">+ (Object) <strong>new_from_string</strong>(data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">- (Object) <strong>close</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#index-instance_method" title="#index (instance method)">- (Object) <strong>index</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Elf) <strong>initialize</strong>(isource) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Elf.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#offset_to_rva-instance_method" title="#offset_to_rva (instance method)">- (Object) <strong>offset_to_rva</strong>(offset) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ptr_32%3F-instance_method" title="#ptr_32? (instance method)">- (Boolean) <strong>ptr_32?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if this binary is for a 32-bit architecture.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ptr_64%3F-instance_method" title="#ptr_64? (instance method)">- (Boolean) <strong>ptr_64?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if this binary is for a 64-bit architecture.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ptr_s-instance_method" title="#ptr_s (instance method)">- (Object) <strong>ptr_s</strong>(rva) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Converts a virtual address to a string representation based on the
+underlying architecture.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read-instance_method" title="#read (instance method)">- (Object) <strong>read</strong>(offset, len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_rva-instance_method" title="#read_rva (instance method)">- (Object) <strong>read_rva</strong>(rva, len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rva_to_offset-instance_method" title="#rva_to_offset (instance method)">- (Object) <strong>rva_to_offset</strong>(rva) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::ElfParsey::Elf (class)">Elf</a></span></tt>) <strong>initialize</strong>(isource) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Elf</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_base_addr'>base_addr</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># ELF Header
+</span>  <span class='id identifier rubyid_elf_header'>elf_header</span> <span class='op'>=</span> <span class='const'>ElfHeader</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='const'>ELF_HEADER_SIZE</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='comment'># Data encoding
+</span>  <span class='id identifier rubyid_ei_data'>ei_data</span> <span class='op'>=</span> <span class='id identifier rubyid_elf_header'>elf_header</span><span class='period'>.</span><span class='id identifier rubyid_e_ident'>e_ident</span><span class='lbracket'>[</span><span class='const'>EI_DATA</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_e_phoff'>e_phoff</span> <span class='op'>=</span> <span class='id identifier rubyid_elf_header'>elf_header</span><span class='period'>.</span><span class='id identifier rubyid_e_phoff'>e_phoff</span>
+  <span class='id identifier rubyid_e_phentsize'>e_phentsize</span> <span class='op'>=</span> <span class='id identifier rubyid_elf_header'>elf_header</span><span class='period'>.</span><span class='id identifier rubyid_e_phentsize'>e_phentsize</span>
+  <span class='id identifier rubyid_e_phnum'>e_phnum</span> <span class='op'>=</span> <span class='id identifier rubyid_elf_header'>elf_header</span><span class='period'>.</span><span class='id identifier rubyid_e_phnum'>e_phnum</span>
+
+  <span class='comment'># Program Header Table
+</span>  <span class='id identifier rubyid_program_header'>program_header</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_e_phnum'>e_phnum</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_e_phoff'>e_phoff</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_e_phentsize'>e_phentsize</span> <span class='op'>*</span> <span class='id identifier rubyid_i'>i</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_program_header'>program_header</span> <span class='op'>&lt;&lt;</span> <span class='const'>ProgramHeader</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='const'>PROGRAM_HEADER_SIZE</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_ei_data'>ei_data</span>
+    <span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_program_header'>program_header</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_p_type'>p_type</span> <span class='op'>==</span> <span class='const'>PT_LOAD</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_program_header'>program_header</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_p_flags'>p_flags</span> <span class='op'>&amp;</span> <span class='const'>PF_EXEC</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_base_addr'>base_addr</span> <span class='op'>=</span> <span class='id identifier rubyid_program_header'>program_header</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_p_vaddr'>p_vaddr</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_elf_header'>elf_header</span> <span class='op'>=</span> <span class='id identifier rubyid_elf_header'>elf_header</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_program_header'>program_header</span> <span class='op'>=</span> <span class='id identifier rubyid_program_header'>program_header</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_base_addr'>base_addr</span> <span class='op'>=</span> <span class='id identifier rubyid_base_addr'>base_addr</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_isource'>isource</span> <span class='op'>=</span> <span class='id identifier rubyid_isource'>isource</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="base_addr=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="base_addr-instance_method">
+  
+    - (<tt>Object</tt>) <strong>base_addr</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute base_addr</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_base_addr'>base_addr</span>
+  <span class='ivar'>@base_addr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="elf_header=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="elf_header-instance_method">
+  
+    - (<tt>Object</tt>) <strong>elf_header</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute elf_header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_elf_header'>elf_header</span>
+  <span class='ivar'>@elf_header</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="isource=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="isource-instance_method">
+  
+    - (<tt>Object</tt>) <strong>isource</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute isource</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_isource'>isource</span>
+  <span class='ivar'>@isource</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="program_header=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="program_header-instance_method">
+  
+    - (<tt>Object</tt>) <strong>program_header</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute program_header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_program_header'>program_header</span>
+  <span class='ivar'>@program_header</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="new_from_file-class_method">
+  
+    + (<tt>Object</tt>) <strong>new_from_file</strong>(filename, disk_backed = false) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new_from_file'>new_from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='id identifier rubyid_disk_backed'>disk_backed</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='rparen'>)</span>
+  <span class='comment'># file.binmode # windows... :\
+</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_disk_backed'>disk_backed</span>
+    <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>ImageSource</span><span class='op'>::</span><span class='const'>Disk</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_obj'>obj</span> <span class='op'>=</span> <span class='id identifier rubyid_new_from_string'>new_from_string</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_obj'>obj</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="new_from_string-class_method">
+  
+    + (<tt>Object</tt>) <strong>new_from_string</strong>(data) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new_from_string'>new_from_string</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>ImageSource</span><span class='op'>::</span><span class='const'>Memory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="close-instance_method">
+  
+    - (<tt>Object</tt>) <strong>close</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+115
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 115</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="index-instance_method">
+  
+    - (<tt>Object</tt>) <strong>index</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 111</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="offset_to_rva-instance_method">
+  
+    - (<tt>Object</tt>) <strong>offset_to_rva</strong>(offset) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_offset_to_rva'>offset_to_rva</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_base_addr'>base_addr</span> <span class='op'>+</span> <span class='id identifier rubyid_offset'>offset</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ptr_32?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>ptr_32?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if this binary is for a 32-bit architecture. This check does
+not take into account 16-bit binaries at the moment.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ptr_32?'>ptr_32?</span>
+  <span class='id identifier rubyid_ptr_64?'>ptr_64?</span> <span class='op'>==</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ptr_64?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>ptr_64?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if this binary is for a 64-bit architecture.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ptr_64?'>ptr_64?</span>
+  <span class='kw'>unless</span> <span class='lbracket'>[</span> <span class='const'>ELFCLASS32</span><span class='comma'>,</span> <span class='const'>ELFCLASS64</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span>
+  <span class='id identifier rubyid_elf_header'>elf_header</span><span class='period'>.</span><span class='id identifier rubyid_e_ident'>e_ident</span><span class='lbracket'>[</span><span class='const'>EI_CLASS</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ElfHeaderError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid class</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_elf_header'>elf_header</span><span class='period'>.</span><span class='id identifier rubyid_e_ident'>e_ident</span><span class='lbracket'>[</span><span class='const'>EI_CLASS</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='const'>ELFCLASS64</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ptr_s-instance_method">
+  
+    - (<tt>Object</tt>) <strong>ptr_s</strong>(rva) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Converts a virtual address to a string representation based on the
+underlying architecture.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ptr_s'>ptr_s</span><span class='lparen'>(</span><span class='id identifier rubyid_rva'>rva</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_ptr_32?'>ptr_32?</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%.8x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_rva'>rva</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%.16x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_rva'>rva</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read</strong>(offset, len) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_rva-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_rva</strong>(rva, len) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 107</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_rva'>read_rva</span><span class='lparen'>(</span><span class='id identifier rubyid_rva'>rva</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_isource'>isource</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_rva_to_offset'>rva_to_offset</span><span class='lparen'>(</span><span class='id identifier rubyid_rva'>rva</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rva_to_offset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>rva_to_offset</strong>(rva) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/elfparsey/elf.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rva_to_offset'>rva_to_offset</span><span class='lparen'>(</span><span class='id identifier rubyid_rva'>rva</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rva'>rva</span> <span class='op'>-</span> <span class='id identifier rubyid_base_addr'>base_addr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:12 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '';
+  framesUrl = "frames.html#!Msf.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html">Index (M)</a> &raquo;
+    
+    
+    <span class="title">Msf</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/http/jboss.rb<span class="defines">,<br />
+  lib/msf/ui.rb,<br /> lib/msf/util.rb,<br /> lib/msf/core.rb,<br /> lib/msf/ui/web.rb,<br /> lib/msf/events.rb,<br /> lib/msf/util/exe.rb,<br /> lib/msf/core/nop.rb,<br /> lib/msf/util/svn.rb,<br /> lib/msf/ui/common.rb,<br /> lib/msf/ui/driver.rb,<br /> lib/msf/ui/banner.rb,<br /> lib/msf/ui/console.rb,<br /> lib/msf/http/typo3.rb,<br /> lib/msf/core/module.rb,<br /> lib/msf/ui/web/comm.rb,<br /> lib/msf/base/config.rb,<br /> lib/msf/core/plugin.rb,<br /> lib/msf/core/exploit.rb,<br /> lib/msf/core/handler.rb,<br /> lib/msf/core/encoder.rb,<br /> lib/msf/base/logging.rb,<br /> lib/msf/core/session.rb,<br /> lib/msf/core/payload.rb,<br /> lib/msf/windows_error.rb,<br /> lib/msf/ui/web/driver.rb,<br /> lib/msf/core/db_export.rb,<br /> lib/msf/http/wordpress.rb,<br /> lib/msf/core/framework.rb,<br /> lib/msf/ui/web/console.rb,<br /> lib/msf/core/constants.rb,<br /> lib/msf/core/auxiliary.rb,<br /> lib/msf/core/data_store.rb,<br /> lib/msf/core/exceptions.rb,<br /> lib/msf/base/simple/nop.rb,<br /> lib/msf/core/exploit/ip.rb,<br /> lib/msf/core/exploit/pdf.rb,<br /> lib/msf/core/payload_set.rb,<br /> lib/msf/core/exploit/smb.rb,<br /> lib/msf/core/exploit/db2.rb,<br /> lib/msf/core/exploit/afp.rb,<br /> lib/msf/core/exploit/udp.rb,<br /> lib/msf/ui/console/table.rb,<br /> lib/msf/core/exploit/sip.rb,<br /> lib/msf/core/exploit/seh.rb,<br /> lib/msf/core/exploit/web.rb,<br /> lib/msf/core/exploit/ftp.rb,<br /> lib/msf/core/exploit/tns.rb,<br /> lib/msf/core/exploit/exe.rb,<br /> lib/msf/core/exploit/gdb.rb,<br /> lib/msf/core/exploit/tcp.rb,<br /> lib/msf/base/simple/post.rb,<br /> lib/msf/core/exploit/snmp.rb,<br /> lib/msf/core/exploit/smtp.rb,<br /> lib/msf/core/exploit/riff.rb,<br /> lib/msf/core/session/comm.rb,<br /> lib/msf/core/exploit/tftp.rb,<br /> lib/msf/core/encoding/xor.rb,<br /> lib/msf/core/exploit/ndmp.rb,<br /> lib/msf/core/task_manager.rb,<br /> lib/msf/core/exploit/ntlm.rb,<br /> lib/msf/core/exploit/ipv6.rb,<br /> lib/msf/core/handler/none.rb,<br /> lib/msf/core/exploit/imap.rb,<br /> lib/msf/ui/console/driver.rb,<br /> lib/msf/core/exploit/pop2.rb,<br /> lib/msf/core/exploit/dhcp.rb,<br /> lib/msf/core/exploit/java.rb,<br /> lib/msf/base/sessions/tty.rb,<br /> lib/msf/core/exploit/mysql.rb,<br /> lib/msf/core/auxiliary/dos.rb,<br /> lib/msf/core/exploit/winrm.rb,<br /> lib/msf/core/auxiliary/web.rb,<br /> lib/msf/core/exploit/ropdb.rb,<br /> lib/msf/core/auxiliary/jtr.rb,<br /> lib/msf/core/exploit/mssql.rb,<br /> lib/msf/base/simple/buffer.rb,<br /> lib/msf/core/auxiliary/pii.rb,<br /> lib/msf/core/auxiliary/ntp.rb,<br /> lib/msf/base/simple/module.rb,<br /> lib/msf/core/session/basic.rb,<br /> lib/msf/core/exploit/brute.rb,<br /> lib/msf/core/rpc/v10/rpc_db.rb,<br /> lib/msf/base/simple/payload.rb,<br /> lib/msf/core/exploit/jsobfu.rb,<br /> lib/msf/base/simple/encoder.rb,<br /> lib/msf/core/exploit/omelet.rb,<br /> lib/msf/core/exploit/dialup.rb,<br /> lib/msf/core/rpc/v10/client.rb,<br /> lib/msf/core/thread_manager.rb,<br /> lib/msf/core/exploit/oracle.rb,<br /> lib/msf/base/simple/exploit.rb,<br /> lib/msf/core/exploit/sunrpc.rb,<br /> lib/msf/core/exploit/telnet.rb,<br /> lib/msf/core/auxiliary/nmap.rb,<br /> lib/msf/core/exploit/fmtstr.rb,<br /> lib/msf/core/auxiliary/iax2.rb,<br /> lib/msf/core/exploit/wdbrpc.rb,<br /> lib/msf/core/module_manager.rb,<br /> lib/msf/core/exploit/arkeia.rb,<br /> lib/msf/scripts/meterpreter.rb,<br /> lib/msf/core/exploit/dcerpc.rb,<br /> lib/msf/core/exploit_driver.rb,<br /> lib/msf/core/plugin_manager.rb,<br /> lib/msf/core/rpc/v10/service.rb,<br /> lib/msf/core/rpc/v10/rpc_job.rb,<br /> lib/msf/core/auxiliary/timed.rb,<br /> lib/msf/core/auxiliary/drdos.rb,<br /> lib/msf/core/encoded_payload.rb,<br /> lib/msf/core/auxiliary/login.rb,<br /> lib/msf/core/auxiliary/cisco.rb,<br /> lib/msf/core/exploit/android.rb,<br /> lib/msf/core/payload/generic.rb,<br /> lib/msf/core/session_manager.rb,<br /> lib/msf/core/exploit/capture.rb,<br /> lib/msf/core/post/linux/priv.rb,<br /> lib/msf/core/exploit/php_exe.rb,<br /> lib/msf/core/exploit/wbemexec.rb,<br /> lib/msf/core/exploit/realport.rb,<br /> lib/msf/base/simple/auxiliary.rb,<br /> lib/msf/base/simple/framework.rb,<br /> lib/msf/core/post/osx/ruby_dl.rb,<br /> lib/msf/core/exploit/postgres.rb,<br /> lib/msf/core/encoder/alphanum.rb,<br /> lib/msf/core/encoder/nonalpha.rb,<br /> lib/msf/core/exploit/dect_coa.rb,<br /> lib/msf/core/handler/find_tty.rb,<br /> lib/msf/core/event_dispatcher.rb,<br /> lib/msf/core/handler/find_tag.rb,<br /> lib/msf/core/auxiliary/natpmp.rb,<br /> lib/msf/core/auxiliary/report.rb,<br /> lib/msf/core/handler/bind_tcp.rb,<br /> lib/msf/core/rpc/v10/rpc_auth.rb,<br /> lib/msf/core/encoder/nonupper.rb,<br /> lib/msf/core/auxiliary/fuzzer.rb,<br /> lib/msf/core/rpc/v10/rpc_base.rb,<br /> lib/msf/core/option_container.rb,<br /> lib/msf/core/exploit/vim_soap.rb,<br /> lib/msf/core/rpc/v10/rpc_core.rb,<br /> lib/msf/core/rpc/v10/constants.rb,<br /> lib/msf/core/auxiliary/scanner.rb,<br /> lib/msf/core/exploit/pdf_parse.rb,<br /> lib/msf/core/exploit/cmdstager.rb,<br /> lib/msf/core/auxiliary/crawler.rb,<br /> lib/msf/core/post/solaris/priv.rb,<br /> lib/msf/core/post/linux/system.rb,<br /> lib/msf/core/post/windows/wmic.rb,<br /> lib/msf/core/post/windows/ldap.rb,<br /> lib/msf/core/exploit/egghunter.rb,<br /> lib/msf/core/exploit/ftpserver.rb,<br /> lib/msf/base/simple/statistics.rb,<br /> lib/msf/core/payload_generator.rb,<br /> lib/msf/core/handler/find_port.rb,<br /> lib/msf/base/sessions/vncinject.rb,<br /> lib/msf/core/auxiliary/web/path.rb,<br /> lib/msf/core/handler/find_shell.rb,<br /> lib/msf/core/exploit/tcp_server.rb,<br /> lib/msf/core/auxiliary/web/form.rb,<br /> lib/msf/core/exploit/dcerpc_lsa.rb,<br /> lib/msf/core/exploit/mssql_sqli.rb,<br /> lib/msf/core/exploit/smb/psexec.rb,<br /> lib/msf/core/exploit/fileformat.rb,<br /> lib/msf/core/rpc/v10/rpc_plugin.rb,<br /> lib/msf/core/exploit/dcerpc_epm.rb,<br /> lib/msf/base/persistent_storage.rb,<br /> lib/msf/core/exploit/powershell.rb,<br /> lib/msf/core/exploit/smb_server.rb,<br /> lib/msf/core/auxiliary/web/http.rb,<br /> lib/msf/core/rpc/v10/rpc_module.rb,<br /> lib/msf/core/rpc/v10/rpc_console.rb,<br /> lib/msf/core/post/windows/netapi.rb,<br /> lib/msf/core/exploit/local/linux.rb,<br /> lib/msf/core/rpc/v10/rpc_session.rb,<br /> lib/msf/core/post/solaris/system.rb,<br /> lib/msf/core/post/windows/extapi.rb,<br /> lib/msf/scripts/meterpreter/file.rb,<br /> lib/msf/core/exploit/http/client.rb,<br /> lib/msf/core/auxiliary/rservices.rb,<br /> lib/msf/core/exploit/http/server.rb,<br /> lib/msf/core/session/interactive.rb,<br /> lib/msf/core/exploit/dcerpc_mgmt.rb,<br /> lib/msf/core/exploit/kernel_mode.rb,<br /> lib/msf/core/handler/reverse_tcp.rb,<br /> lib/msf/core/auxiliary/web/target.rb,<br /> lib/msf/core/exploit/file_dropper.rb,<br /> lib/msf/core/exploit/brutetargets.rb,<br /> lib/msf/core/handler/reverse_http.rb,<br /> lib/msf/core/exe/segment_injector.rb,<br /> lib/msf/core/auxiliary/auth_brute.rb,<br /> lib/msf/core/auxiliary/wmapmodule.rb,<br /> lib/msf/core/payload/windows/exec.rb,<br /> lib/msf/core/auxiliary/mime_types.rb,<br /> lib/msf/core/post/windows/process.rb,<br /> lib/msf/core/post/windows/railgun.rb,<br /> lib/msf/core/exploit/smtp_deliver.rb,<br /> lib/msf/base/sessions/meterpreter.rb,<br /> lib/msf/core/exploit/wdbrpc_client.rb,<br /> lib/msf/core/post/windows/accounts.rb,<br /> lib/msf/core/post/windows/registry.rb,<br /> lib/msf/core/handler/reverse_https.rb,<br /> lib/msf/core/auxiliary/udp_scanner.rb,<br /> lib/msf/scripts/meterpreter/common.rb,<br /> lib/msf/core/post/windows/services.rb,<br /> lib/msf/core/post/windows/eventlog.rb,<br /> lib/msf/core/post/windows/cli_parse.rb,<br /> lib/msf/core/exploit/mssql_commands.rb,<br /> lib/msf/core/auxiliary/web/fuzzable.rb,<br /> lib/msf/core/auxiliary/commandshell.rb,<br /> lib/msf/base/sessions/command_shell.rb,<br /> lib/msf/core/post/windows/file_info.rb,<br /> lib/msf/core/post/windows/shadowcopy.rb,<br /> lib/msf/core/handler/reverse_tcp_ssl.rb,<br /> lib/msf/scripts/meterpreter/registry.rb,<br /> lib/msf/core/exploit/local/compile_c.rb,<br /> lib/msf/scripts/meterpreter/accounts.rb,<br /> lib/msf/core/exploit/browser_autopwn.rb,<br /> lib/msf/core/post/windows/powershell.rb,<br /> lib/msf/scripts/meterpreter/services.rb,<br /> lib/msf/core/session/netware_console.rb,<br /> lib/msf/core/payload/osx/bundleinject.rb,<br /> lib/msf/core/handler/reverse_hop_http.rb,<br /> lib/msf/ui/console/command_dispatcher.rb,<br /> lib/msf/base/serializer/readable_text.rb,<br /> lib/msf/base/sessions/meterpreter_php.rb,<br /> lib/msf/core/payload/windows/dllinject.rb,<br /> lib/msf/base/sessions/meterpreter_java.rb,<br /> lib/msf/core/exploit/smb/authenticated.rb,<br /> lib/msf/core/post/windows/user_profiles.rb,<br /> lib/msf/core/exploit/local/linux_kernel.rb,<br /> lib/msf/core/handler/reverse_tcp_double.rb,<br /> lib/msf/base/sessions/vncinject_options.rb,<br /> lib/msf/base/sessions/meterpreter_python.rb,<br /> lib/msf/core/handler/reverse_https_proxy.rb,<br /> lib/msf/ui/console/command_dispatcher/db.rb,<br /> lib/msf/base/persistent_storage/flatfile.rb,<br /> lib/msf/core/payload/windows/loadlibrary.rb,<br /> lib/msf/base/sessions/meterpreter_options.rb,<br /> lib/msf/base/sessions/meterpreter_x86_win.rb,<br /> lib/msf/ui/console/command_dispatcher/nop.rb,<br /> lib/msf/base/sessions/meterpreter_android.rb,<br /> lib/msf/base/sessions/meterpreter_x86_bsd.rb,<br /> lib/msf/core/handler/reverse_tcp_allports.rb,<br /> lib/msf/core/auxiliary/web/analysis/taint.rb,<br /> lib/msf/base/sessions/meterpreter_x64_win.rb,<br /> lib/msf/core/exploit/local/windows_kernel.rb,<br /> lib/msf/core/auxiliary/web/analysis/timing.rb,<br /> lib/msf/ui/console/framework_event_manager.rb,<br /> lib/msf/ui/console/command_dispatcher/post.rb,<br /> lib/msf/ui/console/command_dispatcher/core.rb,<br /> lib/msf/base/simple/framework/module_paths.rb,<br /> lib/msf/base/sessions/command_shell_options.rb,<br /> lib/msf/base/sessions/meterpreter_x86_linux.rb,<br /> lib/msf/core/handler/reverse_tcp_double_ssl.rb,<br /> lib/msf/ui/console/module_command_dispatcher.rb,<br /> lib/msf/ui/console/command_dispatcher/payload.rb,<br /> lib/msf/ui/console/command_dispatcher/exploit.rb,<br /> lib/msf/ui/console/command_dispatcher/encoder.rb,<br /> lib/msf/core/handler/reverse_http/uri_checksum.rb,<br /> lib/msf/ui/console/command_dispatcher/auxiliary.rb,<br /> lib/msf/core/payload/windows/reflectivedllinject.rb,<br /> lib/msf/core/auxiliary/web/analysis/differential.rb,<br /> lib/msf/core/session/provider/multi_command_shell.rb,<br /> lib/msf/core/exploit/remote/browser_exploit_server.rb,<br /> lib/msf/core/session/provider/single_command_shell.rb,<br /> lib/msf/core/exploit/remote/firefox_addon_generator.rb,<br /> lib/msf/core/payload/windows/x64/reflectivedllinject.rb,<br /> lib/msf/core/session/provider/multi_command_execution.rb,<br /> lib/msf/core/session/provider/single_command_execution.rb,<br /> lib/msf/core/exploit/remote/firefox_privilege_escalation.rb,<br /> plugins/lab.rb,<br /> plugins/msfd.rb,<br /> plugins/wiki.rb,<br /> plugins/wmap.rb,<br /> plugins/alias.rb,<br /> plugins/msgrpc.rb,<br /> plugins/sqlmap.rb,<br /> plugins/sample.rb,<br /> plugins/sounds.rb,<br /> plugins/thread.rb,<br /> plugins/nessus.rb,<br /> plugins/nexpose.rb,<br /> plugins/openvas.rb,<br /> plugins/pcap_log.rb,<br /> plugins/ips_filter.rb,<br /> plugins/db_tracker.rb,<br /> plugins/ffautoregen.rb,<br /> plugins/token_hunter.rb,<br /> plugins/event_tester.rb,<br /> plugins/socket_logger.rb,<br /> plugins/token_adduser.rb,<br /> plugins/db_credcollect.rb,<br /> plugins/auto_add_route.rb,<br /> plugins/session_tagger.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>$Id$ $Revision$</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Msf/AuxiliaryError.html" title="Msf::AuxiliaryError (module)">AuxiliaryError</a></span>, <span class='object_link'><a href="Msf/DatabaseEvent.html" title="Msf::DatabaseEvent (module)">DatabaseEvent</a></span>, <span class='object_link'><a href="Msf/Encoding.html" title="Msf::Encoding (module)">Encoding</a></span>, <span class='object_link'><a href="Msf/EvasiveTCP.html" title="Msf::EvasiveTCP (module)">EvasiveTCP</a></span>, <span class='object_link'><a href="Msf/Exception.html" title="Msf::Exception (module)">Exception</a></span>, <span class='object_link'><a href="Msf/Exe.html" title="Msf::Exe (module)">Exe</a></span>, <span class='object_link'><a href="Msf/ExploitError.html" title="Msf::ExploitError (module)">ExploitError</a></span>, <span class='object_link'><a href="Msf/ExploitEvent.html" title="Msf::ExploitEvent (module)">ExploitEvent</a></span>, <span class='object_link'><a href="Msf/GeneralEventSubscriber.html" title="Msf::GeneralEventSubscriber (module)">GeneralEventSubscriber</a></span>, <span class='object_link'><a href="Msf/HTTP.html" title="Msf::HTTP (module)">HTTP</a></span>, <span class='object_link'><a href="Msf/Handler.html" title="Msf::Handler (module)">Handler</a></span>, <span class='object_link'><a href="Msf/HostState.html" title="Msf::HostState (module)">HostState</a></span>, <span class='object_link'><a href="Msf/HttpClients.html" title="Msf::HttpClients (module)">HttpClients</a></span>, <span class='object_link'><a href="Msf/Modules.html" title="Msf::Modules (module)">Modules</a></span>, <span class='object_link'><a href="Msf/NopError.html" title="Msf::NopError (module)">NopError</a></span>, <span class='object_link'><a href="Msf/OperatingSystems.html" title="Msf::OperatingSystems (module)">OperatingSystems</a></span>, <span class='object_link'><a href="Msf/Opt.html" title="Msf::Opt (module)">Opt</a></span>, <span class='object_link'><a href="Msf/PostMixin.html" title="Msf::PostMixin (module)">PostMixin</a></span>, <span class='object_link'><a href="Msf/RPC.html" title="Msf::RPC (module)">RPC</a></span>, <span class='object_link'><a href="Msf/ReflectiveDLLLoader.html" title="Msf::ReflectiveDLLLoader (module)">ReflectiveDLLLoader</a></span>, <span class='object_link'><a href="Msf/Scripts.html" title="Msf::Scripts (module)">Scripts</a></span>, <span class='object_link'><a href="Msf/Serializer.html" title="Msf::Serializer (module)">Serializer</a></span>, <span class='object_link'><a href="Msf/ServiceState.html" title="Msf::ServiceState (module)">ServiceState</a></span>, <span class='object_link'><a href="Msf/Session.html" title="Msf::Session (module)">Session</a></span>, <span class='object_link'><a href="Msf/SessionEvent.html" title="Msf::SessionEvent (module)">SessionEvent</a></span>, <span class='object_link'><a href="Msf/Sessions.html" title="Msf::Sessions (module)">Sessions</a></span>, <span class='object_link'><a href="Msf/Simple.html" title="Msf::Simple (module)">Simple</a></span>, <span class='object_link'><a href="Msf/Ui.html" title="Msf::Ui (module)">Ui</a></span>, <span class='object_link'><a href="Msf/UiEventSubscriber.html" title="Msf::UiEventSubscriber (module)">UiEventSubscriber</a></span>, <span class='object_link'><a href="Msf/Util.html" title="Msf::Util (module)">Util</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Msf/Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span>, <span class='object_link'><a href="Msf/BadGenerateError.html" title="Msf::BadGenerateError (class)">BadGenerateError</a></span>, <span class='object_link'><a href="Msf/BadcharError.html" title="Msf::BadcharError (class)">BadcharError</a></span>, <span class='object_link'><a href="Msf/Config.html" title="Msf::Config (class)">Config</a></span>, <span class='object_link'><a href="Msf/DBImportError.html" title="Msf::DBImportError (class)">DBImportError</a></span>, <span class='object_link'><a href="Msf/DBManager.html" title="Msf::DBManager (class)">DBManager</a></span>, <span class='object_link'><a href="Msf/DataStore.html" title="Msf::DataStore (class)">DataStore</a></span>, <span class='object_link'><a href="Msf/EncodedPayload.html" title="Msf::EncodedPayload (class)">EncodedPayload</a></span>, <span class='object_link'><a href="Msf/Encoder.html" title="Msf::Encoder (class)">Encoder</a></span>, <span class='object_link'><a href="Msf/EncoderSpaceViolation.html" title="Msf::EncoderSpaceViolation (class)">EncoderSpaceViolation</a></span>, <span class='object_link'><a href="Msf/EncoderState.html" title="Msf::EncoderState (class)">EncoderState</a></span>, <span class='object_link'><a href="Msf/EncodingError.html" title="Msf::EncodingError (class)">EncodingError</a></span>, <span class='object_link'><a href="Msf/EventDispatcher.html" title="Msf::EventDispatcher (class)">EventDispatcher</a></span>, <span class='object_link'><a href="Msf/Exploit.html" title="Msf::Exploit (class)">Exploit</a></span>, <span class='object_link'><a href="Msf/ExploitDriver.html" title="Msf::ExploitDriver (class)">ExploitDriver</a></span>, <span class='object_link'><a href="Msf/Framework.html" title="Msf::Framework (class)">Framework</a></span>, <span class='object_link'><a href="Msf/FrameworkEventSubscriber.html" title="Msf::FrameworkEventSubscriber (class)">FrameworkEventSubscriber</a></span>, <span class='object_link'><a href="Msf/IncompatibleArch.html" title="Msf::IncompatibleArch (class)">IncompatibleArch</a></span>, <span class='object_link'><a href="Msf/IncompatibleEndianess.html" title="Msf::IncompatibleEndianess (class)">IncompatibleEndianess</a></span>, <span class='object_link'><a href="Msf/IncompatiblePayloadError.html" title="Msf::IncompatiblePayloadError (class)">IncompatiblePayloadError</a></span>, <span class='object_link'><a href="Msf/IncompatiblePlatform.html" title="Msf::IncompatiblePlatform (class)">IncompatiblePlatform</a></span>, <span class='object_link'><a href="Msf/InvalidFormat.html" title="Msf::InvalidFormat (class)">InvalidFormat</a></span>, <span class='object_link'><a href="Msf/Logging.html" title="Msf::Logging (class)">Logging</a></span>, <span class='object_link'><a href="Msf/MissingActionError.html" title="Msf::MissingActionError (class)">MissingActionError</a></span>, <span class='object_link'><a href="Msf/MissingPayloadError.html" title="Msf::MissingPayloadError (class)">MissingPayloadError</a></span>, <span class='object_link'><a href="Msf/MissingTargetError.html" title="Msf::MissingTargetError (class)">MissingTargetError</a></span>, <span class='object_link'><a href="Msf/Module.html" title="Msf::Module (class)">Module</a></span>, <span class='object_link'><a href="Msf/ModuleCacheInvalidated.html" title="Msf::ModuleCacheInvalidated (class)">ModuleCacheInvalidated</a></span>, <span class='object_link'><a href="Msf/ModuleDataStore.html" title="Msf::ModuleDataStore (class)">ModuleDataStore</a></span>, <span class='object_link'><a href="Msf/ModuleManager.html" title="Msf::ModuleManager (class)">ModuleManager</a></span>, <span class='object_link'><a href="Msf/ModuleSet.html" title="Msf::ModuleSet (class)">ModuleSet</a></span>, <span class='object_link'><a href="Msf/NoCompatiblePayloadError.html" title="Msf::NoCompatiblePayloadError (class)">NoCompatiblePayloadError</a></span>, <span class='object_link'><a href="Msf/NoEncodersSucceededError.html" title="Msf::NoEncodersSucceededError (class)">NoEncodersSucceededError</a></span>, <span class='object_link'><a href="Msf/NoKeyError.html" title="Msf::NoKeyError (class)">NoKeyError</a></span>, <span class='object_link'><a href="Msf/NoNopsSucceededError.html" title="Msf::NoNopsSucceededError (class)">NoNopsSucceededError</a></span>, <span class='object_link'><a href="Msf/Nop.html" title="Msf::Nop (class)">Nop</a></span>, <span class='object_link'><a href="Msf/OptAddress.html" title="Msf::OptAddress (class)">OptAddress</a></span>, <span class='object_link'><a href="Msf/OptAddressRange.html" title="Msf::OptAddressRange (class)">OptAddressRange</a></span>, <span class='object_link'><a href="Msf/OptBase.html" title="Msf::OptBase (class)">OptBase</a></span>, <span class='object_link'><a href="Msf/OptBool.html" title="Msf::OptBool (class)">OptBool</a></span>, <span class='object_link'><a href="Msf/OptEnum.html" title="Msf::OptEnum (class)">OptEnum</a></span>, <span class='object_link'><a href="Msf/OptInt.html" title="Msf::OptInt (class)">OptInt</a></span>, <span class='object_link'><a href="Msf/OptPath.html" title="Msf::OptPath (class)">OptPath</a></span>, <span class='object_link'><a href="Msf/OptPort.html" title="Msf::OptPort (class)">OptPort</a></span>, <span class='object_link'><a href="Msf/OptRaw.html" title="Msf::OptRaw (class)">OptRaw</a></span>, <span class='object_link'><a href="Msf/OptRegexp.html" title="Msf::OptRegexp (class)">OptRegexp</a></span>, <span class='object_link'><a href="Msf/OptString.html" title="Msf::OptString (class)">OptString</a></span>, <span class='object_link'><a href="Msf/OptionContainer.html" title="Msf::OptionContainer (class)">OptionContainer</a></span>, <span class='object_link'><a href="Msf/OptionValidateError.html" title="Msf::OptionValidateError (class)">OptionValidateError</a></span>, <span class='object_link'><a href="Msf/Payload.html" title="Msf::Payload (class)">Payload</a></span>, <span class='object_link'><a href="Msf/PayloadGenerator.html" title="Msf::PayloadGenerator (class)">PayloadGenerator</a></span>, <span class='object_link'><a href="Msf/PayloadGeneratorError.html" title="Msf::PayloadGeneratorError (class)">PayloadGeneratorError</a></span>, <span class='object_link'><a href="Msf/PayloadSet.html" title="Msf::PayloadSet (class)">PayloadSet</a></span>, <span class='object_link'><a href="Msf/PersistentStorage.html" title="Msf::PersistentStorage (class)">PersistentStorage</a></span>, <span class='object_link'><a href="Msf/Plugin.html" title="Msf::Plugin (class)">Plugin</a></span>, <span class='object_link'><a href="Msf/PluginLoadError.html" title="Msf::PluginLoadError (class)">PluginLoadError</a></span>, <span class='object_link'><a href="Msf/PluginManager.html" title="Msf::PluginManager (class)">PluginManager</a></span>, <span class='object_link'><a href="Msf/Post.html" title="Msf::Post (class)">Post</a></span>, <span class='object_link'><a href="Msf/SessionManager.html" title="Msf::SessionManager (class)">SessionManager</a></span>, <span class='object_link'><a href="Msf/TaskManager.html" title="Msf::TaskManager (class)">TaskManager</a></span>, <span class='object_link'><a href="Msf/ThreadManager.html" title="Msf::ThreadManager (class)">ThreadManager</a></span>, <span class='object_link'><a href="Msf/ValidationError.html" title="Msf::ValidationError (class)">ValidationError</a></span>, <span class='object_link'><a href="Msf/WindowsError.html" title="Msf::WindowsError (class)">WindowsError</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="LogSource-constant" class="">LogSource =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>core</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="Author-constant" class="">Author =
+          <div class="docstring">
+  <div class="discussion">
+    <dl class="rdoc-list note-list"><dt>Alias the data types so people can reference them just by Msf
+<dd>
+<p>and not</p>
+</dd><dt>Msf::Module
+<dd></dd></dl>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Author</span></pre></dd>
+      
+        <dt id="Reference-constant" class="">Reference =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Reference</span></pre></dd>
+      
+        <dt id="SiteReference-constant" class="">SiteReference =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>SiteReference</span></pre></dd>
+      
+        <dt id="Platform-constant" class="">Platform =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Platform</span></pre></dd>
+      
+        <dt id="Target-constant" class="">Target =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Target</span></pre></dd>
+      
+        <dt id="MODULE_ANY-constant" class="">MODULE_ANY =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Module types</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_any_</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MODULE_ENCODER-constant" class="">MODULE_ENCODER =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>encoder</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MODULE_EXPLOIT-constant" class="">MODULE_EXPLOIT =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>exploit</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MODULE_NOP-constant" class="">MODULE_NOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nop</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MODULE_AUX-constant" class="">MODULE_AUX =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>auxiliary</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MODULE_PAYLOAD-constant" class="">MODULE_PAYLOAD =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>payload</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MODULE_POST-constant" class="">MODULE_POST =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>post</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MODULE_TYPES-constant" class="">MODULE_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='const'>MODULE_ENCODER</span><span class='comma'>,</span>
+  <span class='const'>MODULE_PAYLOAD</span><span class='comma'>,</span>
+  <span class='const'>MODULE_EXPLOIT</span><span class='comma'>,</span>
+  <span class='const'>MODULE_NOP</span><span class='comma'>,</span>
+  <span class='const'>MODULE_POST</span><span class='comma'>,</span>
+  <span class='const'>MODULE_AUX</span>
+<span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="ManualRanking-constant" class="">ManualRanking =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Module rankings</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="LowRanking-constant" class="">LowRanking =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>100</span></pre></dd>
+      
+        <dt id="AverageRanking-constant" class="">AverageRanking =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>200</span></pre></dd>
+      
+        <dt id="NormalRanking-constant" class="">NormalRanking =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>300</span></pre></dd>
+      
+        <dt id="GoodRanking-constant" class="">GoodRanking =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>400</span></pre></dd>
+      
+        <dt id="GreatRanking-constant" class="">GreatRanking =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>500</span></pre></dd>
+      
+        <dt id="ExcellentRanking-constant" class="">ExcellentRanking =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>600</span></pre></dd>
+      
+        <dt id="RankingName-constant" class="">RankingName =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='const'>ManualRanking</span>    <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>manual</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>LowRanking</span>       <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>low</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>AverageRanking</span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>average</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>NormalRanking</span>    <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>normal</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>GoodRanking</span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>good</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>GreatRanking</span>     <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>great</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='const'>ExcellentRanking</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>excellent</span><span class='tstring_end'>&quot;</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="Nexpose_yaml-constant" class="">Nexpose_yaml =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>location of the nexpose.yml containing saved nexpose creds</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Config</span><span class='period'>.</span><span class='id identifier rubyid_get_config_root'>get_config_root</span><span class='embexpr_end'>}</span><span class='tstring_content'>/nexpose.yaml</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:09 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

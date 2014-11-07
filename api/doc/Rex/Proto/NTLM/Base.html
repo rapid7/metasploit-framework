@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Proto::NTLM::Base
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Proto/NTLM/Base.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../NTLM.html" title="Rex::Proto::NTLM (module)">NTLM</a></span></span>
+     &raquo; 
+    <span class="title">Base</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Proto::NTLM::Base
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::NTLM::Base</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto/ntlm/base.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>The base type needed for other modules like message and crypt</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Base/Field.html" title="Rex::Proto::NTLM::Base::Field (class)">Field</a></span>, <span class='object_link'><a href="Base/FieldSet.html" title="Rex::Proto::NTLM::Base::FieldSet (class)">FieldSet</a></span>, <span class='object_link'><a href="Base/Int16LE.html" title="Rex::Proto::NTLM::Base::Int16LE (class)">Int16LE</a></span>, <span class='object_link'><a href="Base/Int32LE.html" title="Rex::Proto::NTLM::Base::Int32LE (class)">Int32LE</a></span>, <span class='object_link'><a href="Base/Int64LE.html" title="Rex::Proto::NTLM::Base::Int64LE (class)">Int64LE</a></span>, <span class='object_link'><a href="Base/String.html" title="Rex::Proto::NTLM::Base::String (class)">String</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="CONST-constant" class="">CONST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NTLM</span><span class='op'>::</span><span class='const'>Constants</span></pre></dd>
+      
+        <dt id="Blob-constant" class="">Blob =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>FieldSet</span><span class='period'>.</span><span class='id identifier rubyid_define'>define</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_int32LE'>int32LE</span>    <span class='symbol'>:blob_signature</span><span class='comma'>,</span>   <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>BLOB_SIGN</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_int32LE'>int32LE</span>    <span class='symbol'>:reserved</span><span class='comma'>,</span>         <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_int64LE'>int64LE</span>    <span class='symbol'>:timestamp</span><span class='comma'>,</span>      <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_string'>string</span>     <span class='symbol'>:challenge</span><span class='comma'>,</span>      <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:size</span> <span class='op'>=&gt;</span> <span class='int'>8</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_int32LE'>int32LE</span>    <span class='symbol'>:unknown1</span><span class='comma'>,</span>     <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_string'>string</span>     <span class='symbol'>:target_info</span><span class='comma'>,</span>      <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:size</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_int32LE'>int32LE</span>    <span class='symbol'>:unknown2</span><span class='comma'>,</span>         <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="SecurityBuffer-constant" class="">SecurityBuffer =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>FieldSet</span><span class='period'>.</span><span class='id identifier rubyid_define'>define</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_int16LE'>int16LE</span>   <span class='symbol'>:length</span><span class='comma'>,</span>        <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_int16LE'>int16LE</span>   <span class='symbol'>:allocated</span><span class='comma'>,</span>     <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_int32LE'>int32LE</span>   <span class='symbol'>:offset</span><span class='comma'>,</span>        <span class='lbrace'>{</span><span class='symbol'>:value</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:14 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

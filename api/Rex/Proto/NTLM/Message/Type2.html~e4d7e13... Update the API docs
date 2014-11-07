@@ -1,0 +1,465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Proto::NTLM::Message::Type2
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../';
+  framesUrl = "../../../../frames.html#!Rex/Proto/NTLM/Message/Type2.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../_index.html">Index (T)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../NTLM.html" title="Rex::Proto::NTLM (module)">NTLM</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Message.html" title="Rex::Proto::NTLM::Message (class)">Message</a></span></span>
+     &raquo; 
+    <span class="title">Type2</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Proto::NTLM::Message::Type2
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::NTLM::Message::Type2</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto/ntlm/message.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse-class_method" title="parse (class method)">+ (Object) <strong>parse</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse-instance_method" title="#parse (instance method)">- (Object) <strong>parse</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#response-instance_method" title="#response (instance method)">- (Object) <strong>response</strong>(arg, opt = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>create a type 3 response base on a type2 This mehod is not compatible with
+windows 7 / 2008 r2 to make it compatible avpair Time and SPN must be
+handle as in utils.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="parse-class_method">
+  
+    + (<tt>Object</tt>) <strong>parse</strong>(str) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+185
+186
+187
+188
+189</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/message.rb', line 185</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_t'>t</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="parse-instance_method">
+  
+    - (<tt>Object</tt>) <strong>parse</strong>(str) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/message.rb', line 192</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_has_flag?'>has_flag?</span><span class='lparen'>(</span><span class='symbol'>:TARGET_INFO</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_enable'>enable</span><span class='lparen'>(</span><span class='symbol'>:context</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_enable'>enable</span><span class='lparen'>(</span><span class='symbol'>:target_info</span><span class='rparen'>)</span>
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_data_edge'>data_edge</span> <span class='op'>-</span> <span class='id identifier rubyid_head_size'>head_size</span><span class='rparen'>)</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_padding'>padding</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_len'>len</span>
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="response-instance_method">
+  
+    - (<tt>Object</tt>) <strong>response</strong>(arg, opt = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>create a type 3 response base on a type2 This mehod is not compatible with
+windows 7 / 2008 r2 to make it compatible avpair Time and SPN must be
+handle as in utils</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/message.rb', line 207</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_response'>response</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='comma'>,</span> <span class='id identifier rubyid_opt'>opt</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_usr'>usr</span> <span class='op'>=</span> <span class='id identifier rubyid_arg'>arg</span><span class='lbracket'>[</span><span class='symbol'>:user</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_pwd'>pwd</span> <span class='op'>=</span> <span class='id identifier rubyid_arg'>arg</span><span class='lbracket'>[</span><span class='symbol'>:password</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_usr'>usr</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span> <span class='id identifier rubyid_pwd'>pwd</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>user and password have to be supplied</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:workstation</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_ws'>ws</span> <span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:workstation</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_ws'>ws</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:client_challenge</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_cc'>cc</span>  <span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:client_challenge</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_cc'>cc</span> <span class='op'>=</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='const'>CONST</span><span class='op'>::</span><span class='const'>MAX64</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_cc'>cc</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_pack_int64le'>pack_int64le</span><span class='lparen'>(</span><span class='id identifier rubyid_cc'>cc</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_cc'>cc</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:client_challenge</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_cc'>cc</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_has_flag?'>has_flag?</span><span class='lparen'>(</span><span class='symbol'>:OEM</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:unicode</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_usr'>usr</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_to_ascii'>to_ascii</span><span class='lparen'>(</span><span class='id identifier rubyid_usr'>usr</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utf-16le</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_pwd'>pwd</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_to_ascii'>to_ascii</span><span class='lparen'>(</span><span class='id identifier rubyid_pwd'>pwd</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utf-16le</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ws'>ws</span>  <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_to_ascii'>to_ascii</span><span class='lparen'>(</span><span class='id identifier rubyid_ws'>ws</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utf-16le</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:unicode</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_has_flag?'>has_flag?</span><span class='lparen'>(</span><span class='symbol'>:UNICODE</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='op'>!</span><span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:unicode</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_usr'>usr</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_usr'>usr</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utf-16le</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_pwd'>pwd</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_pwd'>pwd</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utf-16le</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ws'>ws</span>  <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_ws'>ws</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>utf-16le</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:unicode</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_tgt'>tgt</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_target_name'>target_name</span>
+  <span class='id identifier rubyid_ti'>ti</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_target_info'>target_info</span>
+
+  <span class='id identifier rubyid_chal'>chal</span> <span class='op'>=</span> <span class='kw'>self</span><span class='lbracket'>[</span><span class='symbol'>:challenge</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_serialize'>serialize</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:ntlmv2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_ar'>ar</span> <span class='op'>=</span> <span class='lbrace'>{</span>	<span class='symbol'>:ntlmv2_hash</span> <span class='op'>=&gt;</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_hash'>ntlmv2_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_usr'>usr</span><span class='comma'>,</span> <span class='id identifier rubyid_pwd'>pwd</span><span class='comma'>,</span> <span class='id identifier rubyid_tgt'>tgt</span><span class='comma'>,</span> <span class='id identifier rubyid_opt'>opt</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_chal'>chal</span><span class='comma'>,</span> <span class='symbol'>:target_info</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ti'>ti</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_lm_res'>lm_res</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lmv2_response'>lmv2_response</span><span class='lparen'>(</span><span class='id identifier rubyid_ar'>ar</span><span class='comma'>,</span> <span class='id identifier rubyid_opt'>opt</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ntlm_res'>ntlm_res</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_response'>ntlmv2_response</span><span class='lparen'>(</span><span class='id identifier rubyid_ar'>ar</span><span class='comma'>,</span> <span class='id identifier rubyid_opt'>opt</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_has_flag?'>has_flag?</span><span class='lparen'>(</span><span class='symbol'>:NTLM2_KEY</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ar'>ar</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='symbol'>:ntlm_hash</span> <span class='op'>=&gt;</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm_hash'>ntlm_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_pwd'>pwd</span><span class='comma'>,</span> <span class='id identifier rubyid_opt'>opt</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_chal'>chal</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_lm_res'>lm_res</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm_res'>ntlm_res</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm2_session'>ntlm2_session</span><span class='lparen'>(</span><span class='id identifier rubyid_ar'>ar</span><span class='comma'>,</span> <span class='id identifier rubyid_opt'>opt</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_lm_res'>lm_res</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lm_response'>lm_response</span><span class='lparen'>(</span><span class='id identifier rubyid_pwd'>pwd</span><span class='comma'>,</span> <span class='id identifier rubyid_chal'>chal</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ntlm_res'>ntlm_res</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm_response'>ntlm_response</span><span class='lparen'>(</span><span class='id identifier rubyid_pwd'>pwd</span><span class='comma'>,</span> <span class='id identifier rubyid_chal'>chal</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='const'>Type3</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='symbol'>:lm_response</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_lm_res'>lm_res</span><span class='comma'>,</span>
+    <span class='symbol'>:ntlm_response</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ntlm_res'>ntlm_res</span><span class='comma'>,</span>
+    <span class='symbol'>:domain</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_tgt'>tgt</span><span class='comma'>,</span>
+    <span class='symbol'>:user</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_usr'>usr</span><span class='comma'>,</span>
+    <span class='symbol'>:workstation</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ws'>ws</span><span class='comma'>,</span>
+    <span class='symbol'>:flag</span> <span class='op'>=&gt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_flag'>flag</span>
+    <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:10 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

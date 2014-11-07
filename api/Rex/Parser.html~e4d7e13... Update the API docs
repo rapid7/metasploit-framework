@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Parser
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Rex/Parser.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Rex.html" title="Rex (module)">Rex</a></span></span>
+     &raquo; 
+    <span class="title">Parser</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Parser
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Exploitation/Powershell/Script.html" title="Rex::Exploitation::Powershell::Script (class)">Exploitation::Powershell::Script</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/parser/ini.rb<span class="defines">,<br />
+  lib/rex/parser/unattend.rb,<br /> lib/rex/parser/nmap_xml.rb,<br /> lib/rex/parser/arguments.rb,<br /> lib/rex/parser/ip360_xml.rb,<br /> lib/rex/parser/nessus_xml.rb,<br /> lib/rex/parser/retina_xml.rb,<br /> lib/rex/parser/ci_nokogiri.rb,<br /> lib/rex/parser/nexpose_xml.rb,<br /> lib/rex/parser/nmap_nokogiri.rb,<br /> lib/rex/parser/mbsa_nokogiri.rb,<br /> lib/rex/parser/netsparker_xml.rb,<br /> lib/rex/parser/ip360_aspl_xml.rb,<br /> lib/rex/parser/wapiti_nokogiri.rb,<br /> lib/rex/parser/appscan_nokogiri.rb,<br /> lib/rex/parser/openvas_nokogiri.rb,<br /> lib/rex/parser/fusionvm_nokogiri.rb,<br /> lib/rex/parser/acunetix_nokogiri.rb,<br /> lib/rex/parser/outpost24_nokogiri.rb,<br /> lib/rex/parser/nokogiri_doc_mixin.rb,<br /> lib/rex/parser/nokogiri_doc_mixin.rb,<br /> lib/rex/parser/foundstone_nokogiri.rb,<br /> lib/rex/parser/nexpose_raw_nokogiri.rb,<br /> lib/rex/parser/burp_session_nokogiri.rb,<br /> lib/rex/parser/nexpose_simple_nokogiri.rb,<br /> lib/rex/parser/apple_backup_manifestdb.rb,<br /> lib/rex/parser/group_policy_preferences.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Parser/AppleBackupManifestDB.html" title="Rex::Parser::AppleBackupManifestDB (class)">AppleBackupManifestDB</a></span>, <span class='object_link'><a href="Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span>, <span class='object_link'><a href="Parser/GPP.html" title="Rex::Parser::GPP (class)">GPP</a></span>, <span class='object_link'><a href="Parser/IP360ASPLXMLStreamParser.html" title="Rex::Parser::IP360ASPLXMLStreamParser (class)">IP360ASPLXMLStreamParser</a></span>, <span class='object_link'><a href="Parser/IP360XMLStreamParser.html" title="Rex::Parser::IP360XMLStreamParser (class)">IP360XMLStreamParser</a></span>, <span class='object_link'><a href="Parser/Ini.html" title="Rex::Parser::Ini (class)">Ini</a></span>, <span class='object_link'><a href="Parser/NessusXMLStreamParser.html" title="Rex::Parser::NessusXMLStreamParser (class)">NessusXMLStreamParser</a></span>, <span class='object_link'><a href="Parser/NetSparkerXMLStreamParser.html" title="Rex::Parser::NetSparkerXMLStreamParser (class)">NetSparkerXMLStreamParser</a></span>, <span class='object_link'><a href="Parser/NexposeXMLStreamParser.html" title="Rex::Parser::NexposeXMLStreamParser (class)">NexposeXMLStreamParser</a></span>, <span class='object_link'><a href="Parser/NmapXMLStreamParser.html" title="Rex::Parser::NmapXMLStreamParser (class)">NmapXMLStreamParser</a></span>, <span class='object_link'><a href="Parser/RetinaXMLStreamParser.html" title="Rex::Parser::RetinaXMLStreamParser (class)">RetinaXMLStreamParser</a></span>, <span class='object_link'><a href="Parser/Unattend.html" title="Rex::Parser::Unattend (class)">Unattend</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_nokogiri-class_method" title="load_nokogiri (class method)">+ (Object) <strong>load_nokogiri</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determines if Nokogiri is available and if it&#39;s a minimum acceptable
+version.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nokogiri_loaded-class_method" title="nokogiri_loaded (class method)">+ (Object) <strong>nokogiri_loaded</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reload-class_method" title="reload (class method)">+ (Object) <strong>reload</strong>(fname) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Useful during development, shouldn&#39;t be used in normal operation.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="load_nokogiri-class_method">
+  
+    + (<tt>Object</tt>) <strong>load_nokogiri</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determines if Nokogiri is available and if it&#39;s a minimum acceptable
+version.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/parser/nokogiri_doc_mixin.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_load_nokogiri'>load_nokogiri</span>
+  <span class='ivar'>@nokogiri_loaded</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nokogiri</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_major'>major</span><span class='comma'>,</span><span class='id identifier rubyid_minor'>minor</span> <span class='op'>=</span> <span class='const'>Nokogiri</span><span class='op'>::</span><span class='const'>VERSION</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_major'>major</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&gt;=</span> <span class='int'>1</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_minor'>minor</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&gt;=</span> <span class='int'>4</span>
+        <span class='ivar'>@nokogiri_loaded</span> <span class='op'>=</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>LoadError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='ivar'>@nokogiri_loaded</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='ivar'>@nokogiri_error</span>  <span class='op'>=</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@nokogiri_loaded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="nokogiri_loaded-class_method">
+  
+    + (<tt>Object</tt>) <strong>nokogiri_loaded</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/parser/nokogiri_doc_mixin.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nokogiri_loaded'>nokogiri_loaded</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@nokogiri_loaded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reload-class_method">
+  
+    + (<tt>Object</tt>) <strong>reload</strong>(fname) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Useful during development, shouldn&#39;t be used in normal operation.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/parser/nokogiri_doc_mixin.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_reload'>reload</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='rparen'>)</span>
+  <span class='gvar'>$stdout</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reloading </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fname'>fname</span><span class='embexpr_end'>}</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_load'>load</span> <span class='kw'>__FILE__</span>
+  <span class='id identifier rubyid_load'>load</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_dirname'>dirname</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span><span class='id identifier rubyid_fname'>fname</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:36 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

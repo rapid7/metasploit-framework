@@ -1,0 +1,2620 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Poly::Machine
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Poly/Machine.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Poly.html" title="Rex::Poly (module)">Poly</a></span></span>
+     &raquo; 
+    <span class="title">Machine</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Poly::Machine
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Poly::Machine</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/poly/machine/machine.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A machine capable of creating a small blob of code in a metamorphic kind of
+way. Note: this is designed to perform an exhaustive search for a solution
+and can be slow. If you need a speedier option, the origional
+Rex::Polly::Block stuff is a better choice.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="MachineX86.html" title="Rex::Poly::MachineX86 (class)">MachineX86</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Machine/Block.html" title="Rex::Poly::Machine::Block (class)">Block</a></span>, <span class='object_link'><a href="Machine/InvalidPermutation.html" title="Rex::Poly::Machine::InvalidPermutation (class)">InvalidPermutation</a></span>, <span class='object_link'><a href="Machine/Permutation.html" title="Rex::Poly::Machine::Permutation (class)">Permutation</a></span>, <span class='object_link'><a href="Machine/Primitive.html" title="Rex::Poly::Machine::Primitive (class)">Primitive</a></span>, <span class='object_link'><a href="Machine/Solution.html" title="Rex::Poly::Machine::Solution (class)">Solution</a></span>, <span class='object_link'><a href="Machine/SymbolicPermutation.html" title="Rex::Poly::Machine::SymbolicPermutation (class)">SymbolicPermutation</a></span>, <span class='object_link'><a href="Machine/UnallowedPermutation.html" title="Rex::Poly::Machine::UnallowedPermutation (class)">UnallowedPermutation</a></span>, <span class='object_link'><a href="Machine/UndefinedPermutation.html" title="Rex::Poly::Machine::UndefinedPermutation (class)">UndefinedPermutation</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="QWORD-constant" class="">QWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="DWORD-constant" class="">DWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="WORD-constant" class="">WORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="BYTE-constant" class="">BYTE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_create_block_primitive-instance_method" title="#_create_block_primitive (instance method)">- (Object) <strong>_create_block_primitive</strong>(block_name, primitive_name, *args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a block which is based on a primitive defined by this machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_create_primitive-instance_method" title="#_create_primitive (instance method)">- (Object) <strong>_create_primitive</strong>(name, *permutations) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Rex::Poly::Machine::Primitive.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_create_primitives-instance_method" title="#_create_primitives (instance method)">- (Object) <strong>_create_primitives</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Overloaded by a subclass to create any primitives available in this
+machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_create_variable-instance_method" title="#_create_variable (instance method)">- (Object) <strong>_create_variable</strong>(name, reg = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Perform the actual variable creation.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_make_safe_number-instance_method" title="#_make_safe_number (instance method)">- (Object) <strong>_make_safe_number</strong>(bytes, number = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Helper function to generate a number whoes byte representation is valid in
+this machine (does not contain any badchars for example).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_register_value-instance_method" title="#_register_value (instance method)">- (Object) <strong>_register_value</strong>(regnum, size = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Overloaded by a subclass to resolve a register number into a suitable
+register name for the target architecture.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#assemble-instance_method" title="#assemble (instance method)">- (Object) <strong>assemble</strong>(asm) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use METASM to assemble a line of asm using this machines current cpu.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#block_exist%3F-instance_method" title="#block_exist? (instance method)">- (Boolean) <strong>block_exist?</strong>(name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Does a given block exist?.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#block_next-instance_method" title="#block_next (instance method)">- (Object) <strong>block_next</strong>(target_block) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the block next to the target block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#block_offset-instance_method" title="#block_offset (instance method)">- (Object) <strong>block_offset</strong>(name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the offset for a blocks active permutation.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#block_previous-instance_method" title="#block_previous (instance method)">- (Object) <strong>block_previous</strong>(target_block) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the block previous to the target block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_block-instance_method" title="#create_block (instance method)">- (Object) <strong>create_block</strong>(name, *permutation_sources) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a block by name and add in its list of permutations.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_block_primitive-instance_method" title="#create_block_primitive (instance method)">- (Object) <strong>create_block_primitive</strong>(block_name, primitive_name, *args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a block which is based on a primitive defined by this machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_variable-instance_method" title="#create_variable (instance method)">- (Object) <strong>create_variable</strong>(name, reg = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a variable by name which will be assigned a register during
+generation.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">- (Object) <strong>generate</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Try to generate a solution.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Machine) <strong>initialize</strong>(badchars, cpu) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a new machine instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_valid%3F-instance_method" title="#is_valid? (instance method)">- (Boolean) <strong>is_valid?</strong>(data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Check if a data blob is valid against the badchar list (or perform any
+other validation here).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_safe_byte-instance_method" title="#make_safe_byte (instance method)">- (Object) <strong>make_safe_byte</strong>(number = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a 8 bit number whoes bytes are valid in this machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_safe_dword-instance_method" title="#make_safe_dword (instance method)">- (Object) <strong>make_safe_dword</strong>(number = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a 32 bit number whoes bytes are valid in this machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_safe_qword-instance_method" title="#make_safe_qword (instance method)">- (Object) <strong>make_safe_qword</strong>(number = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a 64 bit number whoes bytes are valid in this machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_safe_word-instance_method" title="#make_safe_word (instance method)">- (Object) <strong>make_safe_word</strong>(number = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a 16 bit number whoes bytes are valid in this machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#native_size-instance_method" title="#native_size (instance method)">- (Object) <strong>native_size</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Overloaded by a subclass to return the maximum native general register size
+supported.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#release_temp_variable-instance_method" title="#release_temp_variable (instance method)">- (Object) <strong>release_temp_variable</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>If the temp variable was assigned we release it.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resolve_value-instance_method" title="#resolve_value (instance method)">- (Object) <strong>resolve_value</strong>(value, size = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Resolve a given value into either a number literal, a block offset or a
+variables assigned register.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#solution_is_valid%3F-instance_method" title="#solution_is_valid? (instance method)">- (Boolean) <strong>solution_is_valid?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Check this solution is still currently valid (as offsets change it may not
+be).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#solution_pop-instance_method" title="#solution_pop (instance method)">- (Object) <strong>solution_pop</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Backtrack one step in the solution and restore the register/variable state.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#solution_push-instance_method" title="#solution_push (instance method)">- (Object) <strong>solution_push</strong>(permutation) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>As the solution advances we save state for each permutation step in the
+solution.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#variable_exist%3F-instance_method" title="#variable_exist? (instance method)">- (Boolean) <strong>variable_exist?</strong>(name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Does a given block exist?.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#variable_value-instance_method" title="#variable_value (instance method)">- (Object) <strong>variable_value</strong>(name, size = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Resolve a variable name into its currently assigned register value.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Poly::Machine (class)">Machine</a></span></tt>) <strong>initialize</strong>(badchars, cpu) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a new machine instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 352</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_cpu'>cpu</span> <span class='rparen'>)</span>
+  <span class='ivar'>@badchars</span>      <span class='op'>=</span> <span class='id identifier rubyid_badchars'>badchars</span>
+  <span class='ivar'>@cpu</span>           <span class='op'>=</span> <span class='id identifier rubyid_cpu'>cpu</span>
+
+  <span class='ivar'>@reg_available</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@reg_consumed</span>  <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@variables</span>     <span class='op'>=</span> <span class='op'>::</span><span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@blocks</span>        <span class='op'>=</span> <span class='op'>::</span><span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@primitives</span>    <span class='op'>=</span> <span class='op'>::</span><span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@solution</span>      <span class='op'>=</span> <span class='const'>Solution</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='id identifier rubyid__create_primitives'>_create_primitives</span>
+
+  <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>begin</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Block</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>begin</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>begin</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='const'>SymbolicPermutation</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>begin</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>self</span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid__create_variable'>_create_variable</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>temp</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_create_block_primitive-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_create_block_primitive</strong>(block_name, primitive_name, *args)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a block which is based on a primitive defined by this machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 743</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__create_block_primitive'>_create_block_primitive</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_name'>block_name</span><span class='comma'>,</span> <span class='id identifier rubyid_primitive_name'>primitive_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span> <span class='rparen'>)</span>
+  <span class='comment'># If this is the first time this block is being created, create the array to hold the permutation list
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='id identifier rubyid_block_name'>block_name</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='id identifier rubyid_block_name'>block_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Block</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_name'>block_name</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Now create a new permutation object for every one supplied.
+</span>  <span class='ivar'>@primitives</span><span class='lbracket'>[</span><span class='id identifier rubyid_primitive_name'>primitive_name</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_source'>source</span> <span class='op'>|</span>
+    <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='id identifier rubyid_block_name'>block_name</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='const'>Permutation</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_name'>block_name</span><span class='comma'>,</span> <span class='id identifier rubyid_primitive_name'>primitive_name</span><span class='comma'>,</span> <span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_source'>source</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_block_name'>block_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_create_primitive-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_create_primitive</strong>(name, *permutations)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Rex::Poly::Machine::Primitive</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+765
+766
+767
+768
+769
+770
+771
+772
+773
+774</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 765</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__create_primitive'>_create_primitive</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_permutations'>permutations</span> <span class='rparen'>)</span>
+  <span class='comment'># If this is the first time this primitive is being created, create the array to hold the permutation list
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='ivar'>@primitives</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='ivar'>@primitives</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Add in the permutation object (Rex::Poly::Machine::Primitive) for every one supplied.
+</span>  <span class='id identifier rubyid_permutations'>permutations</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='op'>|</span>
+    <span class='ivar'>@primitives</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='const'>Primitive</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_create_primitives-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_create_primitives</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Overloaded by a subclass to create any primitives available in this
+machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+758
+759
+760</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 758</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__create_primitives'>_create_primitives</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_create_variable-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_create_variable</strong>(name, reg = nil)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Perform the actual variable creation.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 709</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__create_variable'>_create_variable</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_regnum'>regnum</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='comment'># Sanity check this variable has not already been created.
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@variables</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Variable &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; is already created.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='comment'># If a fixed register is being assigned to this variable then resolve it
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_reg'>reg</span> <span class='rparen'>)</span>
+    <span class='comment'># Resolve the register name into a register number
+</span>    <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_num'>num</span> <span class='op'>|</span>
+      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid__register_value'>_register_value</span><span class='lparen'>(</span> <span class='id identifier rubyid_num'>num</span> <span class='rparen'>)</span> <span class='op'>==</span> <span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='rparen'>)</span>
+        <span class='id identifier rubyid_regnum'>regnum</span> <span class='op'>=</span> <span class='id identifier rubyid_num'>num</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='comment'># If an invalid register name was given or the chosen register is not available we must fail.
+</span>    <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_regnum'>regnum</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Register &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reg'>reg</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; is unknown or unavailable.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='comment'># Sanity check another variable isnt assigned this register
+</span>    <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@variables</span><span class='period'>.</span><span class='id identifier rubyid_has_value?'>has_value?</span><span class='lparen'>(</span> <span class='id identifier rubyid_regnum'>regnum</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Register number &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_regnum'>regnum</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; is already consumed by variable &#39;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@variables</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='comment'># Finally we consume the register chosen so we dont select it again later.
+</span>    <span class='ivar'>@reg_consumed</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span> <span class='id identifier rubyid_regnum'>regnum</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Create the variable and assign it a register number (or nil if not yet assigned)
+</span>  <span class='ivar'>@variables</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_regnum'>regnum</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_name'>name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_make_safe_number-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_make_safe_number</strong>(bytes, number = nil)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Helper function to generate a number whoes byte representation is valid in
+this machine (does not contain any badchars for example). Optionally we can
+supply a number and the resulting addition/subtraction of this number
+against the newly generated value is also tested for validity. This helps
+in the assembly primitives which can use these values.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+783
+784
+785
+786
+787
+788
+789
+790
+791
+792
+793
+794
+795
+796
+797
+798
+799
+800
+801
+802
+803
+804
+805
+806
+807
+808
+809
+810
+811
+812
+813
+814
+815
+816
+817
+818
+819
+820
+821
+822
+823
+824</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 783</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__make_safe_number'>_make_safe_number</span><span class='lparen'>(</span> <span class='id identifier rubyid_bytes'>bytes</span><span class='comma'>,</span> <span class='id identifier rubyid_number'>number</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_bytes'>bytes</span> <span class='op'>==</span> <span class='const'>BYTE</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='id identifier rubyid_bytes'>bytes</span> <span class='op'>==</span> <span class='const'>WORD</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='id identifier rubyid_bytes'>bytes</span> <span class='op'>==</span> <span class='const'>DWORD</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='id identifier rubyid_bytes'>bytes</span> <span class='op'>==</span> <span class='const'>QWORD</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid size &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bytes'>bytes</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; used in _make_safe_number.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_goodchars'>goodchars</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>255</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+
+  <span class='ivar'>@badchars</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_b'>b</span> <span class='op'>|</span>
+    <span class='id identifier rubyid_goodchars'>goodchars</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span> <span class='id identifier rubyid_b'>b</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>while</span><span class='lparen'>(</span> <span class='kw'>true</span> <span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='int'>0</span>
+
+    <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span> <span class='id identifier rubyid_bytes'>bytes</span><span class='op'>-</span><span class='int'>1</span> <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>|</span>
+      <span class='id identifier rubyid_value'>value</span> <span class='op'>|=</span> <span class='lparen'>(</span> <span class='lparen'>(</span><span class='id identifier rubyid_goodchars'>goodchars</span><span class='lbracket'>[</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='id identifier rubyid_goodchars'>goodchars</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span> <span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_i'>i</span><span class='op'>*</span><span class='int'>8</span><span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='lparen'>(</span><span class='int'>0xFF</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_i'>i</span><span class='op'>*</span><span class='int'>8</span><span class='rparen'>)</span> <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_is_valid?'>is_valid?</span><span class='lparen'>(</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_value'>value</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='id identifier rubyid_format'>format</span><span class='rparen'>)</span> <span class='rparen'>)</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_is_valid?'>is_valid?</span><span class='lparen'>(</span> <span class='lbracket'>[</span> <span class='op'>~</span><span class='id identifier rubyid_value'>value</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='id identifier rubyid_format'>format</span><span class='rparen'>)</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+      <span class='kw'>redo</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_number'>number</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='rparen'>)</span>
+      <span class='kw'>if</span><span class='lparen'>(</span>	<span class='kw'>not</span> <span class='id identifier rubyid_is_valid?'>is_valid?</span><span class='lparen'>(</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_value'>value</span> <span class='op'>+</span> <span class='id identifier rubyid_number'>number</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='id identifier rubyid_format'>format</span><span class='rparen'>)</span> <span class='rparen'>)</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_is_valid?'>is_valid?</span><span class='lparen'>(</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_value'>value</span> <span class='op'>-</span> <span class='id identifier rubyid_number'>number</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='id identifier rubyid_format'>format</span><span class='rparen'>)</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+        <span class='kw'>redo</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>break</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_register_value-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_register_value</strong>(regnum, size = nil)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Overloaded by a subclass to resolve a register number into a suitable
+register name for the target architecture. E.g on x64 the register number 0
+with size 64 would resolve to RCX. Size is nil by default to indicate we
+want the default machine size, e.g. 32bit DWORD on x86 or 64bit QWORD on
+x64.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+702
+703
+704</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 702</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__register_value'>_register_value</span><span class='lparen'>(</span> <span class='id identifier rubyid_regnum'>regnum</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="assemble-instance_method">
+  
+    - (<tt>Object</tt>) <strong>assemble</strong>(asm) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use METASM to assemble a line of asm using this machines current cpu.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+381
+382
+383</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 381</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span> <span class='id identifier rubyid_asm'>asm</span> <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span> <span class='ivar'>@cpu</span><span class='comma'>,</span> <span class='id identifier rubyid_asm'>asm</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="block_exist?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>block_exist?</strong>(name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Does a given block exist?</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+559
+560
+561</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 559</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_block_exist?'>block_exist?</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@blocks</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="block_next-instance_method">
+  
+    - (<tt>Object</tt>) <strong>block_next</strong>(target_block) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the block next to the target block.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+602
+603
+604
+605
+606
+607
+608
+609</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 602</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_block_next'>block_next</span><span class='lparen'>(</span> <span class='id identifier rubyid_target_block'>target_block</span> <span class='rparen'>)</span>
+  <span class='ivar'>@blocks</span><span class='period'>.</span><span class='id identifier rubyid_each_key'>each_key</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_current_block'>current_block</span> <span class='op'>|</span>
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_previous'>block_previous</span><span class='lparen'>(</span> <span class='id identifier rubyid_current_block'>current_block</span> <span class='rparen'>)</span> <span class='op'>==</span> <span class='id identifier rubyid_target_block'>target_block</span> <span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_current_block'>current_block</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="block_offset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>block_offset</strong>(name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the offset for a blocks active permutation. This is easy for backward
+references as they will already have been rendered and their sizes known.
+For forward references we can&#39;t know in advance but the correct value
+can be known later once the final solution is available and a final pass to
+generate the raw buffer is made.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 542</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_block_offset'>block_offset</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='ivar'>@solution</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span>
+  <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='op'>|</span>
+      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span> <span class='rparen'>)</span>
+        <span class='kw'>return</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='comment'># If we are forward referencing a block it will be at least the current solutions offset +1
+</span>  <span class='kw'>return</span> <span class='ivar'>@solution</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>+</span> <span class='int'>1</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="block_previous-instance_method">
+  
+    - (<tt>Object</tt>) <strong>block_previous</strong>(target_block) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the block previous to the target block.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 588</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_block_previous'>block_previous</span><span class='lparen'>(</span> <span class='id identifier rubyid_target_block'>target_block</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_previous_block'>previous_block</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@blocks</span><span class='period'>.</span><span class='id identifier rubyid_each_key'>each_key</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_current_block'>current_block</span> <span class='op'>|</span>
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_current_block'>current_block</span> <span class='op'>==</span> <span class='id identifier rubyid_target_block'>target_block</span> <span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_previous_block'>previous_block</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_previous_block'>previous_block</span> <span class='op'>=</span> <span class='id identifier rubyid_current_block'>current_block</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_block-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_block</strong>(name, *permutation_sources) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a block by name and add in its list of permutations.</p>
+
+<p>XXX: this doesnt support the fuzzy order of block dependencies ala the
+origional rex::poly</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 505</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_block'>create_block</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_permutation_sources'>permutation_sources</span> <span class='rparen'>)</span>
+  <span class='comment'># Sanity check we aren&#39;t trying to create one of the reserved symbolic blocks.
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>begin</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to add block, &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; is a reserved block name.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='comment'># If this is the first time this block is being created, create the block object to hold the permutation list
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Block</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Now create a new permutation object for every one supplied.
+</span>  <span class='id identifier rubyid_permutation_sources'>permutation_sources</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_source'>source</span> <span class='op'>|</span>
+    <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='const'>Permutation</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_source'>source</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_name'>name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_block_primitive-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_block_primitive</strong>(block_name, primitive_name, *args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a block which is based on a primitive defined by this machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 524</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_name'>block_name</span><span class='comma'>,</span> <span class='id identifier rubyid_primitive_name'>primitive_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span> <span class='rparen'>)</span>
+  <span class='comment'># Santiy check this primitive is actually available and is not an internal primitive (begins with an _).
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='ivar'>@primitives</span><span class='lbracket'>[</span><span class='id identifier rubyid_primitive_name'>primitive_name</span><span class='rbracket'>]</span> <span class='kw'>or</span> <span class='id identifier rubyid_primitive_name'>primitive_name</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to add block, Primitive &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_primitive_name'>primitive_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; is not available.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='comment'># Sanity check we aren&#39;t trying to create one of the reserved symbolic blocks.
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_name'>block_name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>begin</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_block_name'>block_name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to add block, &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_name'>block_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; is a reserved block name.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid__create_block_primitive'>_create_block_primitive</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_name'>block_name</span><span class='comma'>,</span> <span class='id identifier rubyid_primitive_name'>primitive_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_variable-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_variable</strong>(name, reg = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a variable by name which will be assigned a register during
+generation. We can optionally assign a static register value to a variable
+if needed.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+427
+428
+429
+430
+431
+432
+433</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 427</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_variable'>create_variable</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='comment'># Sanity check we aren&#39;t trying to create one of the reserved variables.
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>temp</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to create variable, &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; is a reserved variable name.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid__create_variable'>_create_variable</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generate</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Try to generate a solution.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 614</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@blocks</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+    <span class='ivar'>@blocks</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Block</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='const'>SymbolicPermutation</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>self</span><span class='comma'>,</span> <span class='int'>1</span> <span class='rparen'>)</span>
+
+  <span class='comment'># Mix up the permutation orders for each block and create the tree structure.
+</span>  <span class='id identifier rubyid_previous'>previous</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@blocks</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>|</span>
+    <span class='comment'># Shuffle the order of the blocks permutations.
+</span>    <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_shuffle'>shuffle</span>
+    <span class='comment'># create the tree by adding the current blocks permutations as children of the previous block.
+</span>    <span class='id identifier rubyid_current'>current</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+    <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='op'>|</span>
+      <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_remove_children'>remove_children</span>
+      <span class='id identifier rubyid_previous'>previous</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_prev'>prev</span> <span class='op'>|</span>
+        <span class='id identifier rubyid_prev'>prev</span><span class='period'>.</span><span class='id identifier rubyid_add_child'>add_child</span><span class='lparen'>(</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_current'>current</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_permutation'>permutation</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_previous'>previous</span> <span class='op'>=</span> <span class='id identifier rubyid_current'>current</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Shuffle the order of the available registers
+</span>  <span class='ivar'>@reg_available</span> <span class='op'>=</span> <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_shuffle'>shuffle</span>
+
+  <span class='comment'># We must try every permutation of the register orders, so if we fail to
+</span>  <span class='comment'># generate a solution we rotate the available registers to try again with
+</span>  <span class='comment'># a different order. This ensures we perform and exhaustive search.
+</span>  <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span> <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span> <span class='rparen'>)</span> <span class='kw'>do</span>
+
+    <span class='ivar'>@solution</span><span class='period'>.</span><span class='id identifier rubyid_reset'>reset</span>
+
+    <span class='comment'># Start from the root node in the solution space and generate a
+</span>    <span class='comment'># solution by traversing the solution space&#39;s tree structure.
+</span>    <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@blocks</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>begin</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_solve'>solve</span> <span class='rparen'>)</span>
+      <span class='comment'># Return the solutions buffer (perform a last pass to fixup all offsets)...
+</span>      <span class='kw'>return</span> <span class='ivar'>@solution</span><span class='period'>.</span><span class='id identifier rubyid_buffer'>buffer</span>
+    <span class='kw'>end</span>
+
+    <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span> <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># :(
+</span>  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_valid?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>is_valid?</strong>(data) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Check if a data blob is valid against the badchar list (or perform any
+other validation here)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+388
+389
+390
+391
+392
+393</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 388</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_valid?'>is_valid?</span><span class='lparen'>(</span> <span class='id identifier rubyid_data'>data</span> <span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_badchar_index'>badchar_index</span><span class='lparen'>(</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='ivar'>@badchars</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_safe_byte-instance_method">
+  
+    - (<tt>Object</tt>) <strong>make_safe_byte</strong>(number = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a 8 bit number whoes bytes are valid in this machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+419
+420
+421</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 419</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_make_safe_byte'>make_safe_byte</span><span class='lparen'>(</span> <span class='id identifier rubyid_number'>number</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid__make_safe_number'>_make_safe_number</span><span class='lparen'>(</span> <span class='const'>BYTE</span><span class='comma'>,</span> <span class='id identifier rubyid_number'>number</span> <span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='int'>0xFF</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_safe_dword-instance_method">
+  
+    - (<tt>Object</tt>) <strong>make_safe_dword</strong>(number = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a 32 bit number whoes bytes are valid in this machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+405
+406
+407</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 405</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_make_safe_dword'>make_safe_dword</span><span class='lparen'>(</span> <span class='id identifier rubyid_number'>number</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid__make_safe_number'>_make_safe_number</span><span class='lparen'>(</span> <span class='const'>DWORD</span><span class='comma'>,</span> <span class='id identifier rubyid_number'>number</span> <span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='int'>0xFFFFFFFF</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_safe_qword-instance_method">
+  
+    - (<tt>Object</tt>) <strong>make_safe_qword</strong>(number = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a 64 bit number whoes bytes are valid in this machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+398
+399
+400</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 398</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_make_safe_qword'>make_safe_qword</span><span class='lparen'>(</span> <span class='id identifier rubyid_number'>number</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid__make_safe_number'>_make_safe_number</span><span class='lparen'>(</span> <span class='const'>QWORD</span><span class='comma'>,</span> <span class='id identifier rubyid_number'>number</span> <span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='int'>0xFFFFFFFFFFFFFFFF</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_safe_word-instance_method">
+  
+    - (<tt>Object</tt>) <strong>make_safe_word</strong>(number = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a 16 bit number whoes bytes are valid in this machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+412
+413
+414</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 412</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_make_safe_word'>make_safe_word</span><span class='lparen'>(</span> <span class='id identifier rubyid_number'>number</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid__make_safe_number'>_make_safe_number</span><span class='lparen'>(</span> <span class='const'>WORD</span><span class='comma'>,</span> <span class='id identifier rubyid_number'>number</span> <span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='int'>0xFFFF</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="native_size-instance_method">
+  
+    - (<tt>Object</tt>) <strong>native_size</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Overloaded by a subclass to return the maximum native general register size
+supported.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+374
+375
+376</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 374</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_native_size'>native_size</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="release_temp_variable-instance_method">
+  
+    - (<tt>Object</tt>) <strong>release_temp_variable</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>If the temp variable was assigned we release it.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 438</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_release_temp_variable'>release_temp_variable</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@variables</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>temp</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_regnum'>regnum</span> <span class='op'>=</span> <span class='ivar'>@variables</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>temp</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='comment'># Sanity check the temp variable was actually assigned (it may not have been if the last permutation didnot use it)
+</span>    <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_regnum'>regnum</span> <span class='rparen'>)</span>
+      <span class='comment'># place the assigned register back in the available list for consumption later.
+</span>      <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span> <span class='ivar'>@reg_consumed</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span> <span class='id identifier rubyid_regnum'>regnum</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+      <span class='comment'># unasign the temp vars register
+</span>      <span class='ivar'>@variables</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>temp</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resolve_value-instance_method">
+  
+    - (<tt>Object</tt>) <strong>resolve_value</strong>(value, size = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Resolve a given value into either a number literal, a block offset or a
+variables assigned register.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+576
+577
+578
+579
+580
+581
+582
+583</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 576</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resolve_value'>resolve_value</span><span class='lparen'>(</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_exist?'>block_exist?</span><span class='lparen'>(</span> <span class='id identifier rubyid_value'>value</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_block_offset'>block_offset</span><span class='lparen'>(</span> <span class='id identifier rubyid_value'>value</span> <span class='rparen'>)</span>
+  <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='id identifier rubyid_variable_exist?'>variable_exist?</span><span class='lparen'>(</span> <span class='id identifier rubyid_value'>value</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_variable_value'>variable_value</span><span class='lparen'>(</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="solution_is_valid?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>solution_is_valid?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Check this solution is still currently valid (as offsets change it may not
+be).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+480
+481
+482</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 480</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_solution_is_valid?'>solution_is_valid?</span>
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_valid?'>is_valid?</span><span class='lparen'>(</span> <span class='ivar'>@solution</span><span class='period'>.</span><span class='id identifier rubyid_buffer'>buffer</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="solution_pop-instance_method">
+  
+    - (<tt>Object</tt>) <strong>solution_pop</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Backtrack one step in the solution and restore the register/variable state.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+495
+496
+497
+498
+499</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 495</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_solution_pop'>solution_pop</span>
+  <span class='id identifier rubyid_permutation'>permutation</span><span class='comma'>,</span> <span class='ivar'>@reg_available</span><span class='comma'>,</span> <span class='ivar'>@reg_consumed</span><span class='comma'>,</span> <span class='ivar'>@variables</span> <span class='op'>=</span> <span class='ivar'>@solution</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+
+  <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span> <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="solution_push-instance_method">
+  
+    - (<tt>Object</tt>) <strong>solution_push</strong>(permutation) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>As the solution advances we save state for each permutation step in the
+solution. This lets use rewind at a later stage if the solving algorithm
+wishes to perform some backtracking.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+488
+489
+490</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 488</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_solution_push'>solution_push</span><span class='lparen'>(</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='rparen'>)</span>
+  <span class='ivar'>@solution</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='comma'>,</span> <span class='ivar'>@reg_available</span><span class='comma'>,</span> <span class='ivar'>@reg_consumed</span><span class='comma'>,</span> <span class='ivar'>@variables</span>  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="variable_exist?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>variable_exist?</strong>(name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Does a given block exist?</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+566
+567
+568</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 566</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_variable_exist?'>variable_exist?</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@variables</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="variable_value-instance_method">
+  
+    - (<tt>Object</tt>) <strong>variable_value</strong>(name, size = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Resolve a variable name into its currently assigned register value.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 456</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_variable_value'>variable_value</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span><span class='op'>=</span><span class='kw'>nil</span> <span class='rparen'>)</span>
+  <span class='comment'># Sanity check we this variable has been created
+</span>  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='ivar'>@variables</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown register &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='comment'># Pull out its current register value if it has been assigned one
+</span>  <span class='id identifier rubyid_regnum'>regnum</span> <span class='op'>=</span> <span class='ivar'>@variables</span><span class='lbracket'>[</span> <span class='id identifier rubyid_name'>name</span> <span class='rbracket'>]</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_regnum'>regnum</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_regnum'>regnum</span> <span class='op'>=</span> <span class='ivar'>@reg_available</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_regnum'>regnum</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to assign variable &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; a register value, none available.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='comment'># and add it to the consumed list so we can track it later
+</span>    <span class='ivar'>@reg_consumed</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_regnum'>regnum</span>
+    <span class='comment'># and now assign the variable the register
+</span>    <span class='ivar'>@variables</span><span class='lbracket'>[</span> <span class='id identifier rubyid_name'>name</span> <span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_regnum'>regnum</span>
+  <span class='kw'>end</span>
+  <span class='comment'># resolve the register number int a string representation (e.g. 0 in x86 is EAX if size is 32)
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid__register_value'>_register_value</span><span class='lparen'>(</span> <span class='id identifier rubyid_regnum'>regnum</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:24 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

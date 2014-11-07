@@ -1,0 +1,403 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Metasploit::Framework::LoginScanner::WinRM
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Metasploit/Framework/LoginScanner/WinRM.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (W)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span>
+     &raquo; 
+    <span class="title">WinRM</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Metasploit::Framework::LoginScanner::WinRM
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></li>
+          
+            <li class="next">Metasploit::Framework::LoginScanner::WinRM</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/metasploit/framework/login_scanner/winrm.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Windows Remote Management login scanner</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="DEFAULT_PORT-constant" class="">DEFAULT_PORT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The default port where WinRM listens. This is what you get on v1.1+ with
+`winrm quickconfig`. Note that before v1.1, the default was 80</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>5985</span></pre></dd>
+      
+        <dt id="DEFAULT_REALM-constant" class="">DEFAULT_REALM =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The default realm is WORKSTATION which tells Windows authentication that it
+is a Local Account.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WORKSTATION</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="DEFAULT_SSL_PORT-constant" class="">DEFAULT_SSL_PORT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The default port where WinRM listens when SSL is enabled. Note that before
+v1.1, the default was 443</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>5986</span></pre></dd>
+      
+        <dt id="PRIVATE_TYPES-constant" class="">PRIVATE_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='symbol'>:password</span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="LIKELY_PORTS-constant" class="">LIKELY_PORTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='int'>80</span><span class='comma'>,</span> <span class='int'>443</span><span class='comma'>,</span> <span class='int'>5985</span><span class='comma'>,</span> <span class='int'>5986</span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="REALM_KEY-constant" class="">REALM_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Realm</span><span class='op'>::</span><span class='const'>Key</span><span class='op'>::</span><span class='const'>ACTIVE_DIRECTORY_DOMAIN</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="HTTP.html#LIKELY_SERVICE_NAMES-constant" title="Metasploit::Framework::LoginScanner::HTTP::LIKELY_SERVICE_NAMES (constant)">HTTP::LIKELY_SERVICE_NAMES</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="HTTP.html#method-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#method (method)">#method</a></span>, <span class='object_link'><a href="HTTP.html#uri-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#uri (method)">#uri</a></span>, <span class='object_link'><a href="HTTP.html#user_agent-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#user_agent (method)">#user_agent</a></span>, <span class='object_link'><a href="HTTP.html#vhost-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#vhost (method)">#vhost</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#method%3D-instance_method" title="#method= (instance method)">- (Object) <strong>method=</strong>(_) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The method <strong>must</strong> be “POST”, so don&#39;t let the user
+change it.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_sane_defaults-instance_method" title="#set_sane_defaults (instance method)">- (Object) <strong>set_sane_defaults</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="HTTP.html#attempt_login-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#attempt_login (method)">#attempt_login</a></span>, <span class='object_link'><a href="HTTP.html#check_setup-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#check_setup (method)">#check_setup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="method=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>method=</strong>(_) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The method <strong>must</strong> be “POST”, so don&#39;t let the user
+change it</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RuntimeError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Unconditionally</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/winrm.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_method='>method=</span><span class='lparen'>(</span><span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Method must be POST for WinRM</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_sane_defaults-instance_method">
+  
+    - (<tt>Object</tt>) <strong>set_sane_defaults</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/winrm.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_sane_defaults'>set_sane_defaults</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/wsman</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'>uri</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='ivar'>@method</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>POST</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:07 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

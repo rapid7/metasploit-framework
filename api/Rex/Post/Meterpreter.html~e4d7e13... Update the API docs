@@ -1,0 +1,535 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Post::Meterpreter
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Post/Meterpreter.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Post.html" title="Rex::Post (module)">Post</a></span></span>
+     &raquo; 
+    <span class="title">Meterpreter</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Post::Meterpreter
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/post/meterpreter/packet.rb<span class="defines">,<br />
+  lib/rex/post/meterpreter/client.rb,<br /> lib/rex/post/meterpreter/channel.rb,<br /> lib/rex/post/meterpreter/extension.rb,<br /> lib/rex/post/meterpreter/ui/console.rb,<br /> lib/rex/post/meterpreter/client_core.rb,<br /> lib/rex/post/meterpreter/channels/pool.rb,<br /> lib/rex/post/meterpreter/packet_parser.rb,<br /> lib/rex/post/meterpreter/object_aliases.rb,<br /> lib/rex/post/meterpreter/channels/stream.rb,<br /> lib/rex/post/meterpreter/channel_container.rb,<br /> lib/rex/post/meterpreter/packet_dispatcher.rb,<br /> lib/rex/post/meterpreter/extensions/priv/fs.rb,<br /> lib/rex/post/meterpreter/extensions/priv/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/kiwi/tlv.rb,<br /> lib/rex/post/meterpreter/channels/pools/file.rb,<br /> lib/rex/post/meterpreter/extensions/kiwi/kiwi.rb,<br /> lib/rex/post/meterpreter/extensions/priv/priv.rb,<br /> lib/rex/post/meterpreter/extensions/espia/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/ui.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/tlv.rb,<br /> lib/rex/post/meterpreter/inbound_packet_handler.rb,<br /> lib/rex/post/meterpreter/packet_response_waiter.rb,<br /> lib/rex/post/meterpreter/extensions/priv/passwd.rb,<br /> lib/rex/post/meterpreter/extensions/sniffer/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/android/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/espia/espia.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/io.rb,<br /> lib/rex/post/meterpreter/extensions/mimikatz/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/incognito/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/extapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/stdapi.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/wmi/wmi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/arp.rb,<br /> lib/rex/post/meterpreter/extensions/networkpug/tlv.rb,<br /> lib/rex/post/meterpreter/channels/pools/stream_pool.rb,<br /> lib/rex/post/meterpreter/extensions/android/android.rb,<br /> lib/rex/post/meterpreter/extensions/sniffer/sniffer.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/adsi/adsi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/power.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/route.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/thread.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/config.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/config.rb,<br /> lib/rex/post/meterpreter/extensions/mimikatz/mimikatz.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/dll.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/resolve.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/netstat.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/util.rb,<br /> lib/rex/post/meterpreter/ui/console/interactive_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb,<br /> lib/rex/post/meterpreter/extensions/incognito/incognito.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/interface.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/dhcp/dhcp.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/tftp/tftp.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/event_log.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/window/window.rb,<br /> lib/rex/post/meterpreter/extensions/lanattacks/lanattacks.rb,<br /> lib/rex/post/meterpreter/extensions/networkpug/networkpug.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/service/service.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/core.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/kiwi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/priv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/multicall.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/espia.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/mock_magic.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/dll_helper.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/buffer_item.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/android.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/clipboard/clipboard.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/sniffer.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/dll_wrapper.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/dll_function.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/mimikatz.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_ntdll.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_psapi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/incognito.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/platform_util.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/api_constants.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_ws2_32.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/lanattacks.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/networkpug.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/wmi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_user32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_wldap32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_version.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_shell32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_crypt32.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/adsi.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/priv/passwd.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_wlanapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_advapi32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_iphlpapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_netapi32.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/priv/elevate.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/def_kernel32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/io.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/type/pointer_util.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/window.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/stdapi/webcam.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/service.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/priv/timestomp.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/lanattacks/dhcp.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/lanattacks/tftp.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/image.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb,<br /> lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/clipboard.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/memory.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/udp_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_key.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/event_log_subsystem/event_record.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_value.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_server_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/remote_registry_key.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Meterpreter/ChannelContainer.html" title="Rex::Post::Meterpreter::ChannelContainer (module)">ChannelContainer</a></span>, <span class='object_link'><a href="Meterpreter/Channels.html" title="Rex::Post::Meterpreter::Channels (module)">Channels</a></span>, <span class='object_link'><a href="Meterpreter/Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span>, <span class='object_link'><a href="Meterpreter/InboundPacketHandler.html" title="Rex::Post::Meterpreter::InboundPacketHandler (module)">InboundPacketHandler</a></span>, <span class='object_link'><a href="Meterpreter/ObjectAliasesContainer.html" title="Rex::Post::Meterpreter::ObjectAliasesContainer (module)">ObjectAliasesContainer</a></span>, <span class='object_link'><a href="Meterpreter/PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">PacketDispatcher</a></span>, <span class='object_link'><a href="Meterpreter/Ui.html" title="Rex::Post::Meterpreter::Ui (module)">Ui</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Meterpreter/Channel.html" title="Rex::Post::Meterpreter::Channel (class)">Channel</a></span>, <span class='object_link'><a href="Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Client</a></span>, <span class='object_link'><a href="Meterpreter/ClientCore.html" title="Rex::Post::Meterpreter::ClientCore (class)">ClientCore</a></span>, <span class='object_link'><a href="Meterpreter/Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Extension</a></span>, <span class='object_link'><a href="Meterpreter/GroupTlv.html" title="Rex::Post::Meterpreter::GroupTlv (class)">GroupTlv</a></span>, <span class='object_link'><a href="Meterpreter/ObjectAliases.html" title="Rex::Post::Meterpreter::ObjectAliases (class)">ObjectAliases</a></span>, <span class='object_link'><a href="Meterpreter/Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span>, <span class='object_link'><a href="Meterpreter/PacketParser.html" title="Rex::Post::Meterpreter::PacketParser (class)">PacketParser</a></span>, <span class='object_link'><a href="Meterpreter/PacketResponseWaiter.html" title="Rex::Post::Meterpreter::PacketResponseWaiter (class)">PacketResponseWaiter</a></span>, <span class='object_link'><a href="Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span>, <span class='object_link'><a href="Meterpreter/Stream.html" title="Rex::Post::Meterpreter::Stream (class)">Stream</a></span>, <span class='object_link'><a href="Meterpreter/Tlv.html" title="Rex::Post::Meterpreter::Tlv (class)">Tlv</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="PACKET_TYPE_REQUEST-constant" class="">PACKET_TYPE_REQUEST =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Constants</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="PACKET_TYPE_RESPONSE-constant" class="">PACKET_TYPE_RESPONSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="PACKET_TYPE_PLAIN_REQUEST-constant" class="">PACKET_TYPE_PLAIN_REQUEST =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="PACKET_TYPE_PLAIN_RESPONSE-constant" class="">PACKET_TYPE_PLAIN_RESPONSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_NONE-constant" class="">TLV_META_TYPE_NONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TLV Meta Types</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_STRING-constant" class="">TLV_META_TYPE_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>16</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_UINT-constant" class="">TLV_META_TYPE_UINT =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>17</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_RAW-constant" class="">TLV_META_TYPE_RAW =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>18</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_BOOL-constant" class="">TLV_META_TYPE_BOOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>19</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_QWORD-constant" class="">TLV_META_TYPE_QWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>20</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_COMPRESSED-constant" class="">TLV_META_TYPE_COMPRESSED =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>29</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_GROUP-constant" class="">TLV_META_TYPE_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>30</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_TYPE_COMPLEX-constant" class="">TLV_META_TYPE_COMPLEX =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>31</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_META_MASK-constant" class="">TLV_META_MASK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Exclude compressed from the mask since other meta types (e.g. RAW) can also
+be compressed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span>
+  <span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span>
+  <span class='const'>TLV_META_TYPE_UINT</span> <span class='op'>|</span>
+  <span class='const'>TLV_META_TYPE_RAW</span> <span class='op'>|</span>
+  <span class='const'>TLV_META_TYPE_BOOL</span> <span class='op'>|</span>
+  <span class='const'>TLV_META_TYPE_QWORD</span> <span class='op'>|</span>
+  <span class='const'>TLV_META_TYPE_GROUP</span> <span class='op'>|</span>
+  <span class='const'>TLV_META_TYPE_COMPLEX</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_RESERVED-constant" class="">TLV_RESERVED =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TLV base starting points</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="TLV_EXTENSIONS-constant" class="">TLV_EXTENSIONS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>20000</span></pre></dd>
+      
+        <dt id="TLV_USER-constant" class="">TLV_USER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>40000</span></pre></dd>
+      
+        <dt id="TLV_TEMP-constant" class="">TLV_TEMP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>60000</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ANY-constant" class="">TLV_TYPE_ANY =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>TLV Specific Types</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_NONE</span>   <span class='op'>|</span>   <span class='int'>0</span></pre></dd>
+      
+        <dt id="TLV_TYPE_METHOD-constant" class="">TLV_TYPE_METHOD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span>   <span class='int'>1</span></pre></dd>
+      
+        <dt id="TLV_TYPE_REQUEST_ID-constant" class="">TLV_TYPE_REQUEST_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span>   <span class='int'>2</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXCEPTION-constant" class="">TLV_TYPE_EXCEPTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span>   <span class='int'>3</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RESULT-constant" class="">TLV_TYPE_RESULT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>   <span class='int'>4</span></pre></dd>
+      
+        <dt id="TLV_TYPE_STRING-constant" class="">TLV_TYPE_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span>  <span class='int'>10</span></pre></dd>
+      
+        <dt id="TLV_TYPE_UINT-constant" class="">TLV_TYPE_UINT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>11</span></pre></dd>
+      
+        <dt id="TLV_TYPE_BOOL-constant" class="">TLV_TYPE_BOOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_BOOL</span>   <span class='op'>|</span>  <span class='int'>12</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LENGTH-constant" class="">TLV_TYPE_LENGTH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>25</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DATA-constant" class="">TLV_TYPE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_RAW</span>    <span class='op'>|</span>  <span class='int'>26</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FLAGS-constant" class="">TLV_TYPE_FLAGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>27</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_ID-constant" class="">TLV_TYPE_CHANNEL_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>50</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_TYPE-constant" class="">TLV_TYPE_CHANNEL_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span>  <span class='int'>51</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_DATA-constant" class="">TLV_TYPE_CHANNEL_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_RAW</span>    <span class='op'>|</span>  <span class='int'>52</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_DATA_GROUP-constant" class="">TLV_TYPE_CHANNEL_DATA_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span>  <span class='int'>53</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_CLASS-constant" class="">TLV_TYPE_CHANNEL_CLASS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>54</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CHANNEL_PARENTID-constant" class="">TLV_TYPE_CHANNEL_PARENTID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>55</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEEK_WHENCE-constant" class="">TLV_TYPE_SEEK_WHENCE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>70</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEEK_OFFSET-constant" class="">TLV_TYPE_SEEK_OFFSET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>71</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEEK_POS-constant" class="">TLV_TYPE_SEEK_POS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span>  <span class='int'>72</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXCEPTION_CODE-constant" class="">TLV_TYPE_EXCEPTION_CODE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='int'>300</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXCEPTION_STRING-constant" class="">TLV_TYPE_EXCEPTION_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='int'>301</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LIBRARY_PATH-constant" class="">TLV_TYPE_LIBRARY_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='int'>400</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TARGET_PATH-constant" class="">TLV_TYPE_TARGET_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='int'>401</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_PID-constant" class="">TLV_TYPE_MIGRATE_PID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='int'>402</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_LEN-constant" class="">TLV_TYPE_MIGRATE_LEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='int'>403</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_PAYLOAD-constant" class="">TLV_TYPE_MIGRATE_PAYLOAD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='int'>404</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MIGRATE_ARCH-constant" class="">TLV_TYPE_MIGRATE_ARCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='int'>405</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CIPHER_NAME-constant" class="">TLV_TYPE_CIPHER_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='int'>500</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CIPHER_PARAMETERS-constant" class="">TLV_TYPE_CIPHER_PARAMETERS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='int'>501</span></pre></dd>
+      
+        <dt id="LOAD_LIBRARY_FLAG_ON_DISK-constant" class="">LOAD_LIBRARY_FLAG_ON_DISK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Core flags</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>0</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="LOAD_LIBRARY_FLAG_EXTENSION-constant" class="">LOAD_LIBRARY_FLAG_EXTENSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>1</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="LOAD_LIBRARY_FLAG_LOCAL-constant" class="">LOAD_LIBRARY_FLAG_LOCAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>2</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="CHANNEL_CLASS_STREAM-constant" class="">CHANNEL_CLASS_STREAM =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The various types of channels</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="CHANNEL_CLASS_DATAGRAM-constant" class="">CHANNEL_CLASS_DATAGRAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="CHANNEL_CLASS_POOL-constant" class="">CHANNEL_CLASS_POOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="CHANNEL_FLAG_SYNCHRONOUS-constant" class="">CHANNEL_FLAG_SYNCHRONOUS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The various flags that can affect how the channel operates</p>
+
+<pre class="code ruby"><code class="ruby">CHANNEL_FLAG_SYNCHRONOUS
+   Specifies that I/O requests on the channel are blocking.
+
+CHANNEL_FLAG_COMPRESS
+   Specifies that I/O requests on the channel have their data zlib compressed.</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>0</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="CHANNEL_FLAG_COMPRESS-constant" class="">CHANNEL_FLAG_COMPRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>1</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="CHANNEL_DIO_READ-constant" class="">CHANNEL_DIO_READ =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The core types of direct I/O requests</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="CHANNEL_DIO_WRITE-constant" class="">CHANNEL_DIO_WRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="CHANNEL_DIO_CLOSE-constant" class="">CHANNEL_DIO_CLOSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>close</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:38 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

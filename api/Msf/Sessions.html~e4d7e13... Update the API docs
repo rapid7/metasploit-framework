@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Sessions
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Msf/Sessions.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">Sessions</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Sessions
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/base/sessions/tty.rb<span class="defines">,<br />
+  lib/msf/base/sessions/vncinject.rb,<br /> lib/msf/base/sessions/meterpreter.rb,<br /> lib/msf/base/sessions/command_shell.rb,<br /> lib/msf/core/session/netware_console.rb,<br /> lib/msf/base/sessions/meterpreter_php.rb,<br /> lib/msf/base/sessions/meterpreter_java.rb,<br /> lib/msf/base/sessions/vncinject_options.rb,<br /> lib/msf/base/sessions/meterpreter_python.rb,<br /> lib/msf/base/sessions/meterpreter_options.rb,<br /> lib/msf/base/sessions/meterpreter_x86_win.rb,<br /> lib/msf/base/sessions/meterpreter_android.rb,<br /> lib/msf/base/sessions/meterpreter_x86_bsd.rb,<br /> lib/msf/base/sessions/meterpreter_x64_win.rb,<br /> lib/msf/base/sessions/command_shell_options.rb,<br /> lib/msf/base/sessions/meterpreter_x86_linux.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Sessions/CommandShellOptions.html" title="Msf::Sessions::CommandShellOptions (module)">CommandShellOptions</a></span>, <span class='object_link'><a href="Sessions/MeterpreterOptions.html" title="Msf::Sessions::MeterpreterOptions (module)">MeterpreterOptions</a></span>, <span class='object_link'><a href="Sessions/VncInjectOptions.html" title="Msf::Sessions::VncInjectOptions (module)">VncInjectOptions</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Sessions/CommandShell.html" title="Msf::Sessions::CommandShell (class)">CommandShell</a></span>, <span class='object_link'><a href="Sessions/CommandShellUnix.html" title="Msf::Sessions::CommandShellUnix (class)">CommandShellUnix</a></span>, <span class='object_link'><a href="Sessions/CommandShellWindows.html" title="Msf::Sessions::CommandShellWindows (class)">CommandShellWindows</a></span>, <span class='object_link'><a href="Sessions/Meterpreter.html" title="Msf::Sessions::Meterpreter (class)">Meterpreter</a></span>, <span class='object_link'><a href="Sessions/Meterpreter_Java_Android.html" title="Msf::Sessions::Meterpreter_Java_Android (class)">Meterpreter_Java_Android</a></span>, <span class='object_link'><a href="Sessions/Meterpreter_Java_Java.html" title="Msf::Sessions::Meterpreter_Java_Java (class)">Meterpreter_Java_Java</a></span>, <span class='object_link'><a href="Sessions/Meterpreter_Php_Php.html" title="Msf::Sessions::Meterpreter_Php_Php (class)">Meterpreter_Php_Php</a></span>, <span class='object_link'><a href="Sessions/Meterpreter_Python_Python.html" title="Msf::Sessions::Meterpreter_Python_Python (class)">Meterpreter_Python_Python</a></span>, <span class='object_link'><a href="Sessions/Meterpreter_x64_Win.html" title="Msf::Sessions::Meterpreter_x64_Win (class)">Meterpreter_x64_Win</a></span>, <span class='object_link'><a href="Sessions/Meterpreter_x86_BSD.html" title="Msf::Sessions::Meterpreter_x86_BSD (class)">Meterpreter_x86_BSD</a></span>, <span class='object_link'><a href="Sessions/Meterpreter_x86_Linux.html" title="Msf::Sessions::Meterpreter_x86_Linux (class)">Meterpreter_x86_Linux</a></span>, <span class='object_link'><a href="Sessions/Meterpreter_x86_Win.html" title="Msf::Sessions::Meterpreter_x86_Win (class)">Meterpreter_x86_Win</a></span>, <span class='object_link'><a href="Sessions/NetwareConsole.html" title="Msf::Sessions::NetwareConsole (class)">NetwareConsole</a></span>, <span class='object_link'><a href="Sessions/TTY.html" title="Msf::Sessions::TTY (class)">TTY</a></span>, <span class='object_link'><a href="Sessions/VncInject.html" title="Msf::Sessions::VncInject (class)">VncInject</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:12 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

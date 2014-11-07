@@ -1,0 +1,665 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Poly::Machine::Solution
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Poly/Machine/Solution.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Poly.html" title="Rex::Poly (module)">Poly</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Machine.html" title="Rex::Poly::Machine (class)">Machine</a></span></span>
+     &raquo; 
+    <span class="title">Solution</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Poly::Machine::Solution
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Poly::Machine::Solution</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/poly/machine/machine.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A class to hold a solution for a Rex::Poly::Machine problem.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#offset-instance_method" title="#offset (instance method)">- (Object) <strong>offset</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute offset.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#buffer-instance_method" title="#buffer (instance method)">- (Object) <strong>buffer</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Render the final buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Solution) <strong>initialize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Solution.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pop-instance_method" title="#pop (instance method)">- (Object) <strong>pop</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Pop off the last permutaion and register/variables state from this
+solution.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#push-instance_method" title="#push (instance method)">- (Object) <strong>push</strong>(permutation, reg_available, reg_consumed, variables) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Push a new permutation onto this solutions permutations list and save the
+associated register/variables state.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reset-instance_method" title="#reset (instance method)">- (Object) <strong>reset</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reset this solution to an empty state.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Poly::Machine::Solution (class)">Solution</a></span></tt>) <strong>initialize</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Solution</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+265
+266
+267
+268
+269</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 265</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='ivar'>@permutations</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@reg_state</span>    <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@offset</span>       <span class='op'>=</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="offset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>offset</strong>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute offset</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+263
+264
+265</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 263</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_offset'>offset</span>
+  <span class='ivar'>@offset</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="buffer-instance_method">
+  
+    - (<tt>Object</tt>) <strong>buffer</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Render the final buffer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 310</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_buffer'>buffer</span>
+  <span class='id identifier rubyid_previous_offset'>previous_offset</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_count'>count</span>           <span class='op'>=</span> <span class='int'>0</span>
+  <span class='comment'># perform an N-pass fixup for offsets...
+</span>  <span class='kw'>while</span><span class='lparen'>(</span> <span class='kw'>true</span> <span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='comment'># If we cant get the offsets fixed within a fixed ammount of tries we return
+</span>    <span class='comment'># nil to indicate failure and keep searching for a solution that will work.
+</span>    <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_count'>count</span> <span class='op'>&gt;</span> <span class='int'>64</span> <span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+    <span class='comment'># Reset the solution offset so as to update it for this pass
+</span>    <span class='ivar'>@offset</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='comment'># perform a single pass to ensure we are using the correct offset values
+</span>    <span class='ivar'>@permutations</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='op'>|</span>
+      <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='ivar'>@offset</span>
+      <span class='comment'># Note: calling render() can throw both UndefinedPermutation and UnallowedPermutation exceptions,
+</span>      <span class='comment'># however as we assume we only ever return the buffer once a final solution has been generated
+</span>      <span class='comment'># we should never have either of those exceptions thrown.
+</span>      <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_render'>render</span>
+      <span class='ivar'>@offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>end</span>
+    <span class='comment'># If we have generated two consecutive passes which are the same length we can stop fixing up the offsets.
+</span>    <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_previous_offset'>previous_offset</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>and</span> <span class='ivar'>@offset</span> <span class='op'>==</span> <span class='id identifier rubyid_previous_offset'>previous_offset</span> <span class='rparen'>)</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_count'>count</span> <span class='op'>+=</span><span class='int'>1</span>
+    <span class='id identifier rubyid_previous_offset'>previous_offset</span> <span class='op'>=</span> <span class='ivar'>@offset</span>
+  <span class='kw'>end</span>
+  <span class='comment'># now a final pass to render the solution into the raw buffer
+</span>  <span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='ivar'>@permutations</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='op'>|</span>
+    <span class='comment'>#$stderr.puts &quot;#{permutation.name} - #{ &quot;0x%08X (%d)&quot; % [ permutation.offset, permutation.length] } &quot;
+</span>    <span class='id identifier rubyid_raw'>raw</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_render'>render</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_raw'>raw</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pop-instance_method">
+  
+    - (<tt>Object</tt>) <strong>pop</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Pop off the last permutaion and register/variables state from this
+solution.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+298
+299
+300
+301
+302
+303
+304
+305</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 298</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pop'>pop</span>
+  <span class='id identifier rubyid_reg_available'>reg_available</span><span class='comma'>,</span> <span class='id identifier rubyid_reg_consumed'>reg_consumed</span><span class='comma'>,</span> <span class='id identifier rubyid_variables'>variables</span> <span class='op'>=</span> <span class='ivar'>@reg_state</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+  <span class='id identifier rubyid_permutation'>permutation</span> <span class='op'>=</span> <span class='ivar'>@permutations</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+  <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@offset</span> <span class='op'>-=</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='comma'>,</span> <span class='id identifier rubyid_reg_available'>reg_available</span><span class='comma'>,</span> <span class='id identifier rubyid_reg_consumed'>reg_consumed</span><span class='comma'>,</span> <span class='id identifier rubyid_variables'>variables</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="push-instance_method">
+  
+    - (<tt>Object</tt>) <strong>push</strong>(permutation, reg_available, reg_consumed, variables) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Push a new permutation onto this solutions permutations list and save the
+associated register/variables state</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+287
+288
+289
+290
+291
+292
+293</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 287</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='comma'>,</span> <span class='id identifier rubyid_reg_available'>reg_available</span><span class='comma'>,</span> <span class='id identifier rubyid_reg_consumed'>reg_consumed</span><span class='comma'>,</span> <span class='id identifier rubyid_variables'>variables</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='ivar'>@offset</span>
+  <span class='ivar'>@offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='ivar'>@permutations</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='rparen'>)</span>
+  <span class='ivar'>@reg_state</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span> <span class='lbracket'>[</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_reg_available'>reg_available</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_reg_consumed'>reg_consumed</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_variables'>variables</span><span class='rparen'>)</span> <span class='rbracket'>]</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>reset</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reset this solution to an empty state.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+274
+275
+276
+277
+278
+279
+280
+281
+282</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/machine/machine.rb', line 274</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reset'>reset</span>
+  <span class='ivar'>@offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@permutations</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_permutation'>permutation</span> <span class='op'>|</span>
+    <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_permutation'>permutation</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@permutations</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+  <span class='ivar'>@reg_state</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:25 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,830 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../../../';
+  framesUrl = "../../../../../../frames.html#!Rex/Post/Meterpreter/Extensions/Stdapi/Webcam/Webcam.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (W)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Webcam.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Webcam (module)">Webcam</a></span></span>
+     &raquo; 
+    <span class="title">Webcam</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+      <dt class="r2">Includes:</dt>
+      <dd class="r2"><span class='object_link'><a href="../../../../../../Msf/Post/Common.html" title="Msf::Post::Common (module)">Msf::Post::Common</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html" title="Msf::Post::File (module)">Msf::Post::File</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/WebRTC.html" title="Msf::Post::WebRTC (module)">Msf::Post::WebRTC</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This meterpreter extension can list and capture from webcams and/or
+microphone</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">- (Object) <strong>client</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute client.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Webcam) <strong>initialize</strong>(client) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Webcam.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#record_mic-instance_method" title="#record_mic (instance method)">- (Object) <strong>record_mic</strong>(duration) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Record from default audio source for <code>duration</code> seconds; returns
+a low-quality wav file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#session-instance_method" title="#session (instance method)">- (Object) <strong>session</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#webcam_chat-instance_method" title="#webcam_chat (instance method)">- (Object) <strong>webcam_chat</strong>(server) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Starts a webcam session with a remote user via WebRTC.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#webcam_get_frame-instance_method" title="#webcam_get_frame (instance method)">- (Object) <strong>webcam_get_frame</strong>(quality) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#webcam_list-instance_method" title="#webcam_list (instance method)">- (Object) <strong>webcam_list</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#webcam_start-instance_method" title="#webcam_start (instance method)">- (Object) <strong>webcam_start</strong>(cam) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Starts recording video from video source of index <code>cam</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#webcam_stop-instance_method" title="#webcam_stop (instance method)">- (Object) <strong>webcam_stop</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../../../Msf/Post/WebRTC.html" title="Msf::Post::WebRTC (module)">Msf::Post::WebRTC</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../../../Msf/Post/WebRTC.html#connect_video_chat-instance_method" title="Msf::Post::WebRTC#connect_video_chat (method)">#connect_video_chat</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/WebRTC.html#load_api_code-instance_method" title="Msf::Post::WebRTC#load_api_code (method)">#load_api_code</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/WebRTC.html#load_interface-instance_method" title="Msf::Post::WebRTC#load_interface (method)">#load_interface</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../../../Msf/Post/File.html" title="Msf::Post::File (module)">Msf::Post::File</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../../../Msf/Post/File.html#_read_file_meterpreter-instance_method" title="Msf::Post::File#_read_file_meterpreter (method)">#_read_file_meterpreter</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#_unix_max_line_length-instance_method" title="Msf::Post::File#_unix_max_line_length (method)">#_unix_max_line_length</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#_write_file_unix_shell-instance_method" title="Msf::Post::File#_write_file_unix_shell (method)">#_write_file_unix_shell</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#append_file-instance_method" title="Msf::Post::File#append_file (method)">#append_file</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#cd-instance_method" title="Msf::Post::File#cd (method)">#cd</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#directory%3F-instance_method" title="Msf::Post::File#directory? (method)">#directory?</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#exist%3F-instance_method" title="Msf::Post::File#exist? (method)">#exist?</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#expand_path-instance_method" title="Msf::Post::File#expand_path (method)">#expand_path</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file%3F-instance_method" title="Msf::Post::File#file? (method)">#file?</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file_local_digestmd5-instance_method" title="Msf::Post::File#file_local_digestmd5 (method)">#file_local_digestmd5</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file_local_digestsha1-instance_method" title="Msf::Post::File#file_local_digestsha1 (method)">#file_local_digestsha1</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file_local_digestsha2-instance_method" title="Msf::Post::File#file_local_digestsha2 (method)">#file_local_digestsha2</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file_local_write-instance_method" title="Msf::Post::File#file_local_write (method)">#file_local_write</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file_remote_digestmd5-instance_method" title="Msf::Post::File#file_remote_digestmd5 (method)">#file_remote_digestmd5</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file_remote_digestsha1-instance_method" title="Msf::Post::File#file_remote_digestsha1 (method)">#file_remote_digestsha1</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file_remote_digestsha2-instance_method" title="Msf::Post::File#file_remote_digestsha2 (method)">#file_remote_digestsha2</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#file_rm-instance_method" title="Msf::Post::File#file_rm (method)">#file_rm</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#pwd-instance_method" title="Msf::Post::File#pwd (method)">#pwd</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#read_file-instance_method" title="Msf::Post::File#read_file (method)">#read_file</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#rename_file-instance_method" title="Msf::Post::File#rename_file (method)">#rename_file</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#rm_f-instance_method" title="Msf::Post::File#rm_f (method)">#rm_f</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#upload_file-instance_method" title="Msf::Post::File#upload_file (method)">#upload_file</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/File.html#write_file-instance_method" title="Msf::Post::File#write_file (method)">#write_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../../../Msf/Post/Common.html" title="Msf::Post::Common (module)">Msf::Post::Common</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../../../Msf/Post/Common.html#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/Common.html#cmd_exec_get_pid-instance_method" title="Msf::Post::Common#cmd_exec_get_pid (method)">#cmd_exec_get_pid</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/Common.html#get_env-instance_method" title="Msf::Post::Common#get_env (method)">#get_env</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/Common.html#get_envs-instance_method" title="Msf::Post::Common#get_envs (method)">#get_envs</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/Common.html#has_pid%3F-instance_method" title="Msf::Post::Common#has_pid? (method)">#has_pid?</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/Common.html#peer-instance_method" title="Msf::Post::Common#peer (method)">#peer</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/Common.html#report_vm-instance_method" title="Msf::Post::Common#report_vm (method)">#report_vm</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/Common.html#rhost-instance_method" title="Msf::Post::Common#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../../../../../../Msf/Post/Common.html#rport-instance_method" title="Msf::Post::Common#rport (method)">#rport</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam (class)">Webcam</a></span></tt>) <strong>initialize</strong>(client) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Webcam</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='ivar'>@client</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    - (<tt>Object</tt>) <strong>client</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute client</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="record_mic-instance_method">
+  
+    - (<tt>Object</tt>) <strong>record_mic</strong>(duration) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Record from default audio source for <code>duration</code> seconds; returns
+a low-quality wav file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_record_mic'>record_mic</span><span class='lparen'>(</span><span class='id identifier rubyid_duration'>duration</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>webcam_audio_record</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_AUDIO_DURATION</span><span class='comma'>,</span> <span class='id identifier rubyid_duration'>duration</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span> <span class='const'>TLV_TYPE_AUDIO_DATA</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>session</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session'>session</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="webcam_chat-instance_method">
+  
+    - (<tt>Object</tt>) <strong>webcam_chat</strong>(server) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Starts a webcam session with a remote user via WebRTC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>server</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A server to use for the channel.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>void</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 66</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_webcam_chat'>webcam_chat</span><span class='lparen'>(</span><span class='id identifier rubyid_server'>server</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_offerer_id'>offerer_id</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alphanumeric'>rand_text_alphanumeric</span><span class='lparen'>(</span><span class='int'>10</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_channel'>channel</span>    <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alphanumeric'>rand_text_alphanumeric</span><span class='lparen'>(</span><span class='int'>20</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_remote_browser_path'>remote_browser_path</span> <span class='op'>=</span> <span class='id identifier rubyid_get_webrtc_browser_path'>get_webrtc_browser_path</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_remote_browser_path'>remote_browser_path</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to find a suitable browser on the target machine</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ready_status'>ready_status</span> <span class='op'>=</span> <span class='id identifier rubyid_init_video_chat'>init_video_chat</span><span class='lparen'>(</span><span class='id identifier rubyid_remote_browser_path'>remote_browser_path</span><span class='comma'>,</span> <span class='id identifier rubyid_server'>server</span><span class='comma'>,</span> <span class='id identifier rubyid_channel'>channel</span><span class='comma'>,</span> <span class='id identifier rubyid_offerer_id'>offerer_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_connect_video_chat'>connect_video_chat</span><span class='lparen'>(</span><span class='id identifier rubyid_server'>server</span><span class='comma'>,</span> <span class='id identifier rubyid_channel'>channel</span><span class='comma'>,</span> <span class='id identifier rubyid_offerer_id'>offerer_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="webcam_get_frame-instance_method">
+  
+    - (<tt>Object</tt>) <strong>webcam_get_frame</strong>(quality) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_webcam_get_frame'>webcam_get_frame</span><span class='lparen'>(</span><span class='id identifier rubyid_quality'>quality</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>webcam_get_frame</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_WEBCAM_QUALITY</span><span class='comma'>,</span> <span class='id identifier rubyid_quality'>quality</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span> <span class='const'>TLV_TYPE_WEBCAM_IMAGE</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="webcam_list-instance_method">
+  
+    - (<tt>Object</tt>) <strong>webcam_list</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_webcam_list'>webcam_list</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>webcam_list</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_names'>names</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlvs'>get_tlvs</span><span class='lparen'>(</span> <span class='const'>TLV_TYPE_WEBCAM_NAME</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_tlv'>tlv</span><span class='op'>|</span>
+    <span class='id identifier rubyid_names'>names</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_tlv'>tlv</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_names'>names</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="webcam_start-instance_method">
+  
+    - (<tt>Object</tt>) <strong>webcam_start</strong>(cam) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Starts recording video from video source of index <code>cam</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_webcam_start'>webcam_start</span><span class='lparen'>(</span><span class='id identifier rubyid_cam'>cam</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>webcam_start</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_WEBCAM_INTERFACE_ID</span><span class='comma'>,</span> <span class='id identifier rubyid_cam'>cam</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="webcam_stop-instance_method">
+  
+    - (<tt>Object</tt>) <strong>webcam_stop</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_webcam_stop'>webcam_stop</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>webcam_stop</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>  <span class='rparen'>)</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:21 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

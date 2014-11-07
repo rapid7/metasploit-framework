@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Proto
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Rex/Proto.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Rex.html" title="Rex (module)">Rex</a></span></span>
+     &raquo; 
+    <span class="title">Proto</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Proto
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Proto/Http/Server.html" title="Rex::Proto::Http::Server (class)">Http::Server</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto.rb<span class="defines">,<br />
+  lib/rex/proto/addp.rb,<br /> lib/rex/proto/ipmi.rb,<br /> lib/rex/proto/ntlm/base.rb,<br /> lib/rex/proto/smb/crypt.rb,<br /> lib/rex/proto/ntp/modes.rb,<br /> lib/rex/proto/smb/utils.rb,<br /> lib/rex/proto/iax2/call.rb,<br /> lib/rex/proto/dcerpc/ndr.rb,<br /> lib/rex/proto/drda/utils.rb,<br /> lib/rex/proto/smb/client.rb,<br /> lib/rex/proto/ipmi/utils.rb,<br /> lib/rex/proto/ipmi/rakp2.rb,<br /> lib/rex/proto/rfb/client.rb,<br /> lib/rex/proto/rfb/cipher.rb,<br /> lib/rex/proto/ntlm/utils.rb,<br /> lib/rex/proto/ntlm/crypt.rb,<br /> lib/rex/proto/http/server.rb,<br /> lib/rex/proto/http/client.rb,<br /> lib/rex/proto/iax2/client.rb,<br /> lib/rex/proto/drda/packet.rb,<br /> lib/rex/proto/dcerpc/uuid.rb,<br /> lib/rex/proto/tftp/server.rb,<br /> lib/rex/proto/tftp/client.rb,<br /> lib/rex/proto/dhcp/server.rb,<br /> lib/rex/proto/http/packet.rb,<br /> lib/rex/proto/http/request.rb,<br /> lib/rex/proto/http/handler.rb,<br /> lib/rex/proto/smb/evasions.rb,<br /> lib/rex/proto/ntlm/message.rb,<br /> lib/rex/proto/sip/response.rb,<br /> lib/rex/proto/proxy/socks4a.rb,<br /> lib/rex/proto/http/response.rb,<br /> lib/rex/proto/dcerpc/client.rb,<br /> lib/rex/proto/sunrpc/client.rb,<br /> lib/rex/proto/ntp/constants.rb,<br /> lib/rex/proto/smb/constants.rb,<br /> lib/rex/proto/rfb/constants.rb,<br /> lib/rex/proto/dcerpc/packet.rb,<br /> lib/rex/proto/dcerpc/handle.rb,<br /> lib/rex/proto/natpmp/packet.rb,<br /> lib/rex/proto/smb/exceptions.rb,<br /> lib/rex/proto/dhcp/constants.rb,<br /> lib/rex/proto/drda/constants.rb,<br /> lib/rex/proto/tftp/constants.rb,<br /> lib/rex/proto/ntlm/constants.rb,<br /> lib/rex/proto/iax2/constants.rb,<br /> lib/rex/proto/ntlm/exceptions.rb,<br /> lib/rex/proto/dcerpc/response.rb,<br /> lib/rex/proto/http/handler/erb.rb,<br /> lib/rex/proto/iax2/codecs/g711.rb,<br /> lib/rex/proto/smb/simpleclient.rb,<br /> lib/rex/proto/iax2/codecs/alaw.rb,<br /> lib/rex/proto/natpmp/constants.rb,<br /> lib/rex/proto/http/handler/proc.rb,<br /> lib/rex/proto/dcerpc/exceptions.rb,<br /> lib/rex/proto/iax2/codecs/mulaw.rb,<br /> lib/rex/proto/http/packet/header.rb,<br /> lib/rex/proto/http/client_request.rb,<br /> lib/rex/proto/dcerpc/wdscp/packet.rb,<br /> lib/rex/proto/dcerpc/wdscp/constants.rb,<br /> lib/rex/proto/ipmi/channel_auth_reply.rb,<br /> lib/rex/proto/ipmi/open_session_reply.rb,<br /> lib/rex/proto/smb/simpleclient/open_file.rb,<br /> lib/rex/proto/smb/simpleclient/open_pipe.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Proto/DCERPC.html" title="Rex::Proto::DCERPC (module)">DCERPC</a></span>, <span class='object_link'><a href="Proto/DHCP.html" title="Rex::Proto::DHCP (module)">DHCP</a></span>, <span class='object_link'><a href="Proto/DRDA.html" title="Rex::Proto::DRDA (module)">DRDA</a></span>, <span class='object_link'><a href="Proto/Http.html" title="Rex::Proto::Http (module)">Http</a></span>, <span class='object_link'><a href="Proto/IAX2.html" title="Rex::Proto::IAX2 (module)">IAX2</a></span>, <span class='object_link'><a href="Proto/IPMI.html" title="Rex::Proto::IPMI (module)">IPMI</a></span>, <span class='object_link'><a href="Proto/NATPMP.html" title="Rex::Proto::NATPMP (module)">NATPMP</a></span>, <span class='object_link'><a href="Proto/NTLM.html" title="Rex::Proto::NTLM (module)">NTLM</a></span>, <span class='object_link'><a href="Proto/NTP.html" title="Rex::Proto::NTP (module)">NTP</a></span>, <span class='object_link'><a href="Proto/PJL.html" title="Rex::Proto::PJL (module)">PJL</a></span>, <span class='object_link'><a href="Proto/Proxy.html" title="Rex::Proto::Proxy (module)">Proxy</a></span>, <span class='object_link'><a href="Proto/RFB.html" title="Rex::Proto::RFB (module)">RFB</a></span>, <span class='object_link'><a href="Proto/SIP.html" title="Rex::Proto::SIP (module)">SIP</a></span>, <span class='object_link'><a href="Proto/SMB.html" title="Rex::Proto::SMB (module)">SMB</a></span>, <span class='object_link'><a href="Proto/SunRPC.html" title="Rex::Proto::SunRPC (module)">SunRPC</a></span>, <span class='object_link'><a href="Proto/TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Proto/ADDP.html" title="Rex::Proto::ADDP (class)">ADDP</a></span>
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#alias-instance_method" title="#alias (instance method)">- (Object) <strong>alias</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute alias.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="alias=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="alias-instance_method">
+  
+    - (<tt>Object</tt>) <strong>alias</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute alias</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='kw'>alias</span>
+  <span class='ivar'>@alias</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:30 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

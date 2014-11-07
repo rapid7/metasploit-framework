@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>
+  File: HACKING
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '';
+  framesUrl = "frames.html#!file.HACKING.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: HACKING</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><div id='filecontents'>
+<p>HACKING</p>
+
+<h6 id="label-"></h6>
+
+<p>(Last updated: 2014-03-04)</p>
+
+<p>This document almost entirely deprecated by:</p>
+
+<p>CONTRIBUTING.md</p>
+
+<p>in the same directory as this file, and to a lesser extent:</p>
+
+<p>The Metasploit Development Environment <a
+href="https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment">github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment</a></p>
+
+<p>Common Coding Mistakes <a
+href="https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes">github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes</a></p>
+
+<p>The Ruby Style Guide <a
+href="https://github.com/bbatsov/ruby-style-guide">github.com/bbatsov/ruby-style-guide</a></p>
+
+<p>Ruby 1.9: What to Expect <a
+href="http://slideshow.rubyforge.org/ruby19.html">slideshow.rubyforge.org/ruby19.html</a></p>
+
+<p>You can use the the “./tools/msftidy.rb” script against your new and
+changed modules to do some rudimentary checking for various style and
+syntax violations.</p>
+
+<p>Licensing for Your New Content</p>
+
+<h6 id="label-"></h6>
+
+<p>By submitting code contributions to the Metasploit Project it is assumed
+that you are offering your code under the Metasploit License or similar
+3-clause BSD-compatible license.  MIT and Ruby Licenses are also fine.  We
+specifically cannot include GPL code. LGPL code is accepted on a case by
+case basis for libraries only and is never accepted for modules.</p>
+</div></div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:08 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,1351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Zip::Jar
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Zip/Jar.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (J)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Zip.html" title="Rex::Zip (module)">Zip</a></span></span>
+     &raquo; 
+    <span class="title">Jar</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Zip::Jar
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="Archive.html" title="Rex::Zip::Archive (class)">Archive</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Archive.html" title="Rex::Zip::Archive (class)">Archive</a></span></li>
+          
+            <li class="next">Rex::Zip::Jar</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/zip/jar.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A Jar is a zip archive containing Java class files and a MANIFEST.MF
+listing those classes.  Several variations exist based on the same idea of
+class files inside a zip, most notably:</p>
+<ul><li>
+<p>WAR files store XML files, Java classes, JSPs and other stuff for
+servlet-based webservers (e.g.: Tomcat and Glassfish)</p>
+</li><li>
+<p>APK files are Android Package files</p>
+</li></ul>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#manifest-instance_method" title="#manifest (instance method)">- (Object) <strong>manifest</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute manifest.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#substitutions-instance_method" title="#substitutions (instance method)">- (Hash) <strong>substitutions</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The substitutions to apply when randomizing.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Archive.html" title="Rex::Zip::Archive (class)">Archive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Archive.html#entries-instance_method" title="Rex::Zip::Archive#entries (method)">#entries</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_file-instance_method" title="#add_file (instance method)">- (Object) <strong>add_file</strong>(fname, fdata = nil, xtra = nil, comment = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a file to the JAR, randomizing the file name and the contents.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_files-instance_method" title="#add_files (instance method)">- (Object) <strong>add_files</strong>(files, path, base_dir = &quot;&quot;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Add multiple files from an array.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_sub-instance_method" title="#add_sub (instance method)">- (String) <strong>add_sub</strong>(str, bad = &#39;&#39;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a substitution to have into account when randomizing.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_manifest-instance_method" title="#build_manifest (instance method)">- (Object) <strong>build_manifest</strong>(opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a MANIFEST.MF file based on the current Archive#entries.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Jar) <strong>initialize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Jar.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#length-instance_method" title="#length (instance method)">- (Object) <strong>length</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Length of the <strong>compressed</strong> blob.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#randomize-instance_method" title="#randomize (instance method)">- (String) <strong>randomize</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Randomizes an input by applying the `substitutions` available.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sign-instance_method" title="#sign (instance method)">- (Object) <strong>sign</strong>(key, cert, ca_certs = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Add a signature to this jar given a <code>key</code> and a
+<code>cert</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">- (Object) <strong>to_s</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Archive.html" title="Rex::Zip::Archive (class)">Archive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Archive.html#add_r-instance_method" title="Rex::Zip::Archive#add_r (method)">#add_r</a></span>, <span class='object_link'><a href="Archive.html#inspect-instance_method" title="Rex::Zip::Archive#inspect (method)">#inspect</a></span>, <span class='object_link'><a href="Archive.html#pack-instance_method" title="Rex::Zip::Archive#pack (method)">#pack</a></span>, <span class='object_link'><a href="Archive.html#save_to-instance_method" title="Rex::Zip::Archive#save_to (method)">#save_to</a></span>, <span class='object_link'><a href="Archive.html#set_comment-instance_method" title="Rex::Zip::Archive#set_comment (method)">#set_comment</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Zip::Jar (class)">Jar</a></span></tt>) <strong>initialize</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Jar</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='ivar'>@substitutions</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="manifest=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="manifest-instance_method">
+  
+    - (<tt>Object</tt>) <strong>manifest</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute manifest</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_manifest'>manifest</span>
+  <span class='ivar'>@manifest</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="substitutions=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="substitutions-instance_method">
+  
+    - (<tt>Hash</tt>) <strong>substitutions</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The substitutions to apply when randomizing. Randomization is designed to
+be used in packages and/or classes names.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_substitutions'>substitutions</span>
+  <span class='ivar'>@substitutions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_file-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_file</strong>(fname, fdata = nil, xtra = nil, comment = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a file to the JAR, randomizing the file name and the contents.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Archive.html#add_file-instance_method" title="Rex::Zip::Archive#add_file (method)">Archive#add_file</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+242
+243
+244</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 242</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='comma'>,</span> <span class='id identifier rubyid_fdata'>fdata</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_xtra'>xtra</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_comment'>comment</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_randomize'>randomize</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_randomize'>randomize</span><span class='lparen'>(</span><span class='id identifier rubyid_fdata'>fdata</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_xtra'>xtra</span><span class='comma'>,</span> <span class='id identifier rubyid_comment'>comment</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_files-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_files</strong>(files, path, base_dir = &quot;&quot;) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Add multiple files from an array</p>
+
+<p><code>files</code> should be structured like so:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lbracket'>[</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>path</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>to</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>file1</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>path</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>to</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>file2</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span>
+<span class='rbracket'>]</span></code></pre>
+
+<p>and <code>path</code> should be the location on the file system to find the
+files to add.  <code>base_dir</code> will be prepended to the path inside
+the jar.</p>
+
+<p>Example:</p>
+
+<pre class="ruby"><span class="ruby-identifier">war</span> = <span class="ruby-constant">Rex</span><span class="ruby-operator">::</span><span class="ruby-constant">Zip</span><span class="ruby-operator">::</span><span class="ruby-constant">Jar</span>.<span class="ruby-identifier">new</span>
+<span class="ruby-identifier">war</span>.<span class="ruby-identifier">add_file</span>(<span class="ruby-string">&quot;WEB-INF/&quot;</span>, <span class="ruby-string">&#39;&#39;</span>)
+<span class="ruby-identifier">war</span>.<span class="ruby-identifier">add_file</span>(<span class="ruby-string">&quot;WEB-INF/web.xml&quot;</span>, <span class="ruby-identifier">web_xml</span>)
+<span class="ruby-identifier">war</span>.<span class="ruby-identifier">add_file</span>(<span class="ruby-string">&quot;WEB-INF/classes/&quot;</span>, <span class="ruby-string">&#39;&#39;</span>)
+<span class="ruby-identifier">files</span> = [
+  [ <span class="ruby-string">&quot;servlet&quot;</span>, <span class="ruby-string">&quot;examples&quot;</span>, <span class="ruby-string">&quot;HelloWorld.class&quot;</span> ],
+  [ <span class="ruby-string">&quot;Foo.class&quot;</span> ],
+  [ <span class="ruby-string">&quot;servlet&quot;</span>, <span class="ruby-string">&quot;Bar.class&quot;</span> ],
+]
+<span class="ruby-identifier">war</span>.<span class="ruby-identifier">add_files</span>(<span class="ruby-identifier">files</span>, <span class="ruby-string">&quot;./class_files/&quot;</span>, <span class="ruby-string">&quot;WEB-INF/classes/&quot;</span>)
+</pre>
+
+<p>The above code would create a jar with the following structure from files
+found in ./class_files/ :</p>
+
+<pre class="ruby"><span class="ruby-operator">+</span><span class="ruby-operator">-</span> <span class="ruby-constant">WEB</span><span class="ruby-operator">-</span><span class="ruby-constant">INF</span><span class="ruby-operator">/</span>
+  <span class="ruby-operator">+</span><span class="ruby-operator">-</span> <span class="ruby-identifier">web</span>.<span class="ruby-identifier">xml</span>
+  <span class="ruby-operator">+</span><span class="ruby-operator">-</span> <span class="ruby-identifier">classes</span><span class="ruby-operator">/</span>
+    <span class="ruby-operator">+</span><span class="ruby-operator">-</span> <span class="ruby-constant">Foo</span>.<span class="ruby-identifier">class</span>
+    <span class="ruby-operator">+</span><span class="ruby-operator">-</span> <span class="ruby-identifier">servlet</span><span class="ruby-operator">/</span>
+      <span class="ruby-operator">+</span><span class="ruby-operator">-</span> <span class="ruby-constant">Bar</span>.<span class="ruby-identifier">class</span>
+      <span class="ruby-operator">+</span><span class="ruby-operator">-</span> <span class="ruby-identifier">examples</span><span class="ruby-operator">/</span>
+        <span class="ruby-operator">+</span><span class="ruby-operator">-</span> <span class="ruby-constant">HelloWorld</span>.<span class="ruby-identifier">class</span>
+</pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 123</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_files'>add_files</span><span class='lparen'>(</span><span class='id identifier rubyid_files'>files</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_base_dir'>base_dir</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span>
+    <span class='comment'># Add all of the subdirectories if they don&#39;t already exist
+</span>    <span class='int'>1</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_idx'>idx</span><span class='op'>|</span>
+      <span class='id identifier rubyid_full'>full</span> <span class='op'>=</span> <span class='id identifier rubyid_base_dir'>base_dir</span> <span class='op'>+</span> <span class='id identifier rubyid_file'>file</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_idx'>idx</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_entries'>entries</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_full'>full</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='id identifier rubyid_full'>full</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='comment'># Now add the actual file, grabbing data from the filesystem
+</span>    <span class='id identifier rubyid_fd'>fd</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span> <span class='rparen'>)</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='id identifier rubyid_base_dir'>base_dir</span> <span class='op'>+</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_sub-instance_method">
+  
+    - (<tt>String</tt>) <strong>add_sub</strong>(str, bad = &#39;&#39;) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a substitution to have into account when randomizing. Substitutions
+must be added immediately after <span class='object_link'><a href="#initialize-instance_method" title="Rex::Zip::Jar#initialize (method)">#initialize</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>str</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>String to substitute. It&#39;s designed to randomize class and/or package
+names.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>bad</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>String containing bad characters to avoid when applying substitutions.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The substitution which will be used when randomizing.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+254
+255
+256
+257
+258
+259
+260</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 254</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_sub'>add_sub</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_bad'>bad</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='ivar'>@substitutions</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='ivar'>@substitutions</span><span class='lbracket'>[</span><span class='id identifier rubyid_str'>str</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@substitutions</span><span class='lbracket'>[</span><span class='id identifier rubyid_str'>str</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_bad'>bad</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_manifest-instance_method">
+  
+    - (<tt>Object</tt>) <strong>build_manifest</strong>(opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a MANIFEST.MF file based on the current Archive#entries.</p>
+
+<p>See <a
+href="http://download.oracle.com/javase/1.4.2/docs/guide/jar/jar.html">download.oracle.com/javase/1.4.2/docs/guide/jar/jar.html</a>
+for some explanation of the format.</p>
+
+<p>Example MANIFEST.MF</p>
+
+<pre class="ruby"><span class="ruby-constant">Manifest</span><span class="ruby-operator">-</span><span class="ruby-constant">Version</span><span class="ruby-operator">:</span> <span class="ruby-value">1.0</span>
+<span class="ruby-constant">Main</span><span class="ruby-operator">-</span><span class="ruby-constant">Class</span><span class="ruby-operator">:</span> <span class="ruby-identifier">metasploit</span>.<span class="ruby-constant">Payload</span>
+
+<span class="ruby-constant">Name</span><span class="ruby-operator">:</span> <span class="ruby-identifier">metasploit</span>.<span class="ruby-identifier">dat</span>
+<span class="ruby-constant">SHA1</span><span class="ruby-operator">-</span><span class="ruby-constant">Digest</span><span class="ruby-operator">:</span> <span class="ruby-constant">WJ7cUVYUryLKfQFmH80</span><span class="ruby-operator">/</span><span class="ruby-constant">ADfKmwM</span>=
+
+<span class="ruby-constant">Name</span><span class="ruby-operator">:</span> <span class="ruby-identifier">metasploit</span><span class="ruby-operator">/</span><span class="ruby-constant">Payload</span>.<span class="ruby-identifier">class</span>
+<span class="ruby-constant">SHA1</span><span class="ruby-operator">-</span><span class="ruby-constant">Digest</span><span class="ruby-operator">:</span> <span class="ruby-constant">KbAIMttBcLp1zCewA2ERYkcnRU8</span>=
+</pre>
+
+<p>The SHA1-Digest lines are optional unless the jar is signed (see #sign).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_manifest'>build_manifest</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_main_class'>main_class</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:main_class</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='id identifier rubyid_randomize'>randomize</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:main_class</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_app_name'>app_name</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:app_name</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='id identifier rubyid_randomize'>randomize</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:main_class</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_existing_manifest'>existing_manifest</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='ivar'>@manifest</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Manifest-Version: 1.0\r\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='ivar'>@manifest</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Main-Class: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_main_class'>main_class</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_main_class'>main_class</span>
+  <span class='ivar'>@manifest</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Application-Name: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_app_name'>app_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_app_name'>app_name</span>
+  <span class='ivar'>@manifest</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Permissions: all-permissions\r\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='ivar'>@manifest</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='ivar'>@entries</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>%r|</span><span class='tstring_content'>/$</span><span class='regexp_end'>|</span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>META-INF/MANIFEST.MF</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_existing_manifest'>existing_manifest</span> <span class='op'>=</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+    <span class='comment'>#next unless e.name =~ /\.class$/
+</span>    <span class='ivar'>@manifest</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='comment'>#@manifest &lt;&lt; &quot;SHA1-Digest: #{Digest::SHA1.base64digest(e.data)}\r\n&quot;
+</span>    <span class='ivar'>@manifest</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_existing_manifest'>existing_manifest</span>
+    <span class='id identifier rubyid_existing_manifest'>existing_manifest</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='ivar'>@manifest</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>META-INF/</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>META-INF/MANIFEST.MF</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@manifest</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="length-instance_method">
+  
+    - (<tt>Object</tt>) <strong>length</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Length of the <strong>compressed</strong> blob</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_pack'>pack</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="randomize-instance_method">
+  
+    - (<tt>String</tt>) <strong>randomize</strong>(str) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Randomizes an input by applying the `substitutions` available.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>str</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>String to randomize.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The input `str` with all the possible `substitutions` applied.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 267</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_randomize'>randomize</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_str'>str</span> <span class='kw'>if</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_random'>random</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span>
+
+  <span class='ivar'>@substitutions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_orig'>orig</span><span class='comma'>,</span> <span class='id identifier rubyid_subs'>subs</span><span class='op'>|</span>
+    <span class='id identifier rubyid_random'>random</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_orig'>orig</span><span class='comma'>,</span> <span class='id identifier rubyid_subs'>subs</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_random'>random</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sign-instance_method">
+  
+    - (<tt>Object</tt>) <strong>sign</strong>(key, cert, ca_certs = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Add a signature to this jar given a <code>key</code> and a
+<code>cert</code>.  <code>cert</code> should be an instance of
+OpenSSL::X509::Certificate and <code>key</code> is expected to be an
+instance of one of OpenSSL::PKey::DSA or OpenSSL::PKey::RSA.</p>
+
+<p>This method aims to create signature files compatible with the jarsigner
+tool destributed with the JDK and any JVM should accept the resulting jar.</p>
+
+<h3 id="label-Signature+contents">Signature contents</h3>
+
+<p>Modifies the META-INF/MANIFEST.MF entry adding SHA1-Digest attributes in
+each Name section.  The signature consists of two files, a .SF and a .DSA
+(or .RSA if signing with an RSA key).  The .SF file is similar to the
+manifest with Name sections but the SHA1-Digest is not optional.  The
+difference is in what gets hashed for the SHA1-Digest line – in the
+manifest, it is the file&#39;s contents, in the .SF, it is the file&#39;s
+section in the manifest (including trailing newline!).  The .DSA/.RSA file
+is a PKCS7 signature of the .SF file contents.</p>
+
+<h3 id="label-Links">Links</h3>
+
+<p>A short description of the format: <a
+href="http://download.oracle.com/javase/1.4.2/docs/guide/jar/jar.html#Signed%20JAR%20File">download.oracle.com/javase/1.4.2/docs/guide/jar/jar.html#Signed%20JAR%20File</a></p>
+
+<p>Some info on importing a private key into a keystore which is not directly
+supported by keytool for some unfathomable reason <a
+href="http://www.agentbob.info/agentbob/79-AB.html">www.agentbob.info/agentbob/79-AB.html</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../RuntimeError.html" title="Rex::RuntimeError (class)">RuntimeError</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sign'>sign</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_cert'>cert</span><span class='comma'>,</span> <span class='id identifier rubyid_ca_certs'>ca_certs</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_m'>m</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_entries'>entries</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>META-INF/MANIFEST.MF</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Jar has no manifest</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_m'>m</span>
+
+  <span class='id identifier rubyid_ca_certs'>ca_certs</span> <span class='op'>||=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_cert'>cert</span> <span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_new_manifest'>new_manifest</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_sigdata'>sigdata</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Signature-Version: 1.0\r\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_sigdata'>sigdata</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Created-By: 1.6.0_18 (Sun Microsystems Inc.)\r\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_sigdata'>sigdata</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='comment'># Grab the sections of the manifest
+</span>  <span class='id identifier rubyid_files'>files</span> <span class='op'>=</span> <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\r?\n\r?\n</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_files'>files</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Manifest-Version</span><span class='regexp_end'>/</span></span>
+    <span class='comment'># keep the header as is
+</span>    <span class='id identifier rubyid_new_manifest'>new_manifest</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_files'>files</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_new_manifest'>new_manifest</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r\n\r\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_files'>files</span> <span class='op'>=</span> <span class='id identifier rubyid_files'>files</span><span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># The file sections should now look like this:
+</span>  <span class='comment'>#  &quot;Name: metasploit/Payload.class\r\nSHA1-Digest: KbAIMttBcLp1zCewA2ERYkcnRU8=\r\n\r\n&quot;
+</span>  <span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_f'>f</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Name: (.*)</span><span class='regexp_end'>/</span></span>
+    <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='backref'>$1</span>
+    <span class='id identifier rubyid_e'>e</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_entries'>entries</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='id identifier rubyid_name'>name</span> <span class='rbrace'>}</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_digest'>digest</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA1</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_manifest_section'>manifest_section</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_manifest_section'>manifest_section</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SHA1-Digest: </span><span class='embexpr_beg'>#{</span><span class='lbracket'>[</span><span class='id identifier rubyid_digest'>digest</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>m</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_manifest_section'>manifest_section</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+
+      <span class='id identifier rubyid_manifest_digest'>manifest_digest</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA1</span><span class='period'>.</span><span class='id identifier rubyid_digest'>digest</span><span class='lparen'>(</span><span class='id identifier rubyid_manifest_section'>manifest_section</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_sigdata'>sigdata</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_sigdata'>sigdata</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SHA1-Digest: </span><span class='embexpr_beg'>#{</span><span class='lbracket'>[</span><span class='id identifier rubyid_manifest_digest'>manifest_digest</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>m</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_new_manifest'>new_manifest</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_manifest_section'>manifest_section</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Now overwrite with the new manifest
+</span>  <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_new_manifest'>new_manifest</span>
+
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKCS7</span><span class='op'>::</span><span class='const'>BINARY</span>
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKCS7</span><span class='op'>::</span><span class='const'>DETACHED</span>
+  <span class='comment'># SMIME and ATTRs are technically valid in the signature but they
+</span>  <span class='comment'># both screw up the java verifier, so don&#39;t include them.
+</span>  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKCS7</span><span class='op'>::</span><span class='const'>NOSMIMECAP</span>
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKCS7</span><span class='op'>::</span><span class='const'>NOATTR</span>
+
+  <span class='id identifier rubyid_signature'>signature</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKCS7</span><span class='period'>.</span><span class='id identifier rubyid_sign'>sign</span><span class='lparen'>(</span><span class='id identifier rubyid_cert'>cert</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_sigdata'>sigdata</span><span class='comma'>,</span> <span class='id identifier rubyid_ca_certs'>ca_certs</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sigalg'>sigalg</span> <span class='op'>=</span> <span class='kw'>case</span> <span class='id identifier rubyid_key'>key</span>
+    <span class='kw'>when</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>RSA</span><span class='semicolon'>;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RSA</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>DSA</span><span class='semicolon'>;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DSA</span><span class='tstring_end'>&quot;</span></span>
+    <span class='comment'># Don&#39;t really know what to do if it&#39;s not DSA or RSA.  Can
+</span>    <span class='comment'># OpenSSL::PKCS7 actually sign stuff with it in that case?
+</span>    <span class='comment'># Regardless, the java spec says signatures can only be RSA,
+</span>    <span class='comment'># DSA, or PGP, so just assume it&#39;s PGP and hope for the best
+</span>    <span class='kw'>else</span><span class='semicolon'>;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PGP</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+  <span class='comment'># SIGNFILE is the default name in documentation.  MYKEY is probably
+</span>  <span class='comment'># more common, though because that&#39;s what keytool defaults to.  We
+</span>  <span class='comment'># can probably randomize this with no ill effects.
+</span>  <span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>META-INF/SIGNFILE.SF</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_sigdata'>sigdata</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>META-INF/SIGNFILE.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_sigalg'>sigalg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_signature'>signature</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    - (<tt>Object</tt>) <strong>to_s</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/zip/jar.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_pack'>pack</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:09 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

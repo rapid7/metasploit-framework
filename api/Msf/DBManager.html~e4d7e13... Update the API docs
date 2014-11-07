@@ -1,0 +1,1463 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Msf::DBManager
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Msf/DBManager.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">DBManager</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Msf::DBManager
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::DBManager</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+      <dt class="r2">Extended by:</dt>
+      <dd class="r2"><span class='object_link'><a href="../Metasploit/Framework/Require.html" title="Metasploit::Framework::Require (module)">Metasploit::Framework::Require</a></span></dd>
+      
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="DBManager/Adapter.html" title="Msf::DBManager::Adapter (module)">Adapter</a></span>, <span class='object_link'><a href="DBManager/Client.html" title="Msf::DBManager::Client (module)">Client</a></span>, <span class='object_link'><a href="DBManager/Connection.html" title="Msf::DBManager::Connection (module)">Connection</a></span>, <span class='object_link'><a href="DBManager/Cred.html" title="Msf::DBManager::Cred (module)">Cred</a></span>, <span class='object_link'><a href="DBManager/Event.html" title="Msf::DBManager::Event (module)">Event</a></span>, <span class='object_link'><a href="DBManager/ExploitAttempt.html" title="Msf::DBManager::ExploitAttempt (module)">ExploitAttempt</a></span>, <span class='object_link'><a href="DBManager/ExploitedHost.html" title="Msf::DBManager::ExploitedHost (module)">ExploitedHost</a></span>, <span class='object_link'><a href="DBManager/Host.html" title="Msf::DBManager::Host (module)">Host</a></span>, <span class='object_link'><a href="DBManager/HostDetail.html" title="Msf::DBManager::HostDetail (module)">HostDetail</a></span>, <span class='object_link'><a href="DBManager/HostTag.html" title="Msf::DBManager::HostTag (module)">HostTag</a></span>, <span class='object_link'><a href="DBManager/IPAddress.html" title="Msf::DBManager::IPAddress (module)">IPAddress</a></span>, <span class='object_link'><a href="DBManager/Import.html" title="Msf::DBManager::Import (module)">Import</a></span>, <span class='object_link'><a href="DBManager/Loot.html" title="Msf::DBManager::Loot (module)">Loot</a></span>, <span class='object_link'><a href="DBManager/Migration.html" title="Msf::DBManager::Migration (module)">Migration</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html" title="Msf::DBManager::ModuleCache (module)">ModuleCache</a></span>, <span class='object_link'><a href="DBManager/Note.html" title="Msf::DBManager::Note (module)">Note</a></span>, <span class='object_link'><a href="DBManager/Ref.html" title="Msf::DBManager::Ref (module)">Ref</a></span>, <span class='object_link'><a href="DBManager/Report.html" title="Msf::DBManager::Report (module)">Report</a></span>, <span class='object_link'><a href="DBManager/Route.html" title="Msf::DBManager::Route (module)">Route</a></span>, <span class='object_link'><a href="DBManager/Service.html" title="Msf::DBManager::Service (module)">Service</a></span>, <span class='object_link'><a href="DBManager/Session.html" title="Msf::DBManager::Session (module)">Session</a></span>, <span class='object_link'><a href="DBManager/SessionEvent.html" title="Msf::DBManager::SessionEvent (module)">SessionEvent</a></span>, <span class='object_link'><a href="DBManager/Sink.html" title="Msf::DBManager::Sink (module)">Sink</a></span>, <span class='object_link'><a href="DBManager/Task.html" title="Msf::DBManager::Task (module)">Task</a></span>, <span class='object_link'><a href="DBManager/Vuln.html" title="Msf::DBManager::Vuln (module)">Vuln</a></span>, <span class='object_link'><a href="DBManager/VulnAttempt.html" title="Msf::DBManager::VulnAttempt (module)">VulnAttempt</a></span>, <span class='object_link'><a href="DBManager/VulnDetail.html" title="Msf::DBManager::VulnDetail (module)">VulnDetail</a></span>, <span class='object_link'><a href="DBManager/WMAP.html" title="Msf::DBManager::WMAP (module)">WMAP</a></span>, <span class='object_link'><a href="DBManager/Web.html" title="Msf::DBManager::Web (module)">Web</a></span>, <span class='object_link'><a href="DBManager/Workspace.html" title="Msf::DBManager::Workspace (module)">Workspace</a></span>, <span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/db_export.rb<span class="defines">,<br />
+  lib/msf/core/db_manager.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>The db module provides persistent storage and events. This class should be
+instantiated LAST as the active_suppport library overrides Kernel.require,
+slowing down all future code loads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="DBManager/Adapter.html" title="Msf::DBManager::Adapter (module)">Adapter</a></span>, <span class='object_link'><a href="DBManager/Client.html" title="Msf::DBManager::Client (module)">Client</a></span>, <span class='object_link'><a href="DBManager/Connection.html" title="Msf::DBManager::Connection (module)">Connection</a></span>, <span class='object_link'><a href="DBManager/Cred.html" title="Msf::DBManager::Cred (module)">Cred</a></span>, <span class='object_link'><a href="DBManager/Event.html" title="Msf::DBManager::Event (module)">Event</a></span>, <span class='object_link'><a href="DBManager/ExploitAttempt.html" title="Msf::DBManager::ExploitAttempt (module)">ExploitAttempt</a></span>, <span class='object_link'><a href="DBManager/ExploitedHost.html" title="Msf::DBManager::ExploitedHost (module)">ExploitedHost</a></span>, <span class='object_link'><a href="DBManager/Host.html" title="Msf::DBManager::Host (module)">Host</a></span>, <span class='object_link'><a href="DBManager/HostDetail.html" title="Msf::DBManager::HostDetail (module)">HostDetail</a></span>, <span class='object_link'><a href="DBManager/HostTag.html" title="Msf::DBManager::HostTag (module)">HostTag</a></span>, <span class='object_link'><a href="DBManager/IPAddress.html" title="Msf::DBManager::IPAddress (module)">IPAddress</a></span>, <span class='object_link'><a href="DBManager/Import.html" title="Msf::DBManager::Import (module)">Import</a></span>, <span class='object_link'><a href="DBManager/Loot.html" title="Msf::DBManager::Loot (module)">Loot</a></span>, <span class='object_link'><a href="DBManager/Migration.html" title="Msf::DBManager::Migration (module)">Migration</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html" title="Msf::DBManager::ModuleCache (module)">ModuleCache</a></span>, <span class='object_link'><a href="DBManager/Note.html" title="Msf::DBManager::Note (module)">Note</a></span>, <span class='object_link'><a href="DBManager/Ref.html" title="Msf::DBManager::Ref (module)">Ref</a></span>, <span class='object_link'><a href="DBManager/Report.html" title="Msf::DBManager::Report (module)">Report</a></span>, <span class='object_link'><a href="DBManager/Route.html" title="Msf::DBManager::Route (module)">Route</a></span>, <span class='object_link'><a href="DBManager/Service.html" title="Msf::DBManager::Service (module)">Service</a></span>, <span class='object_link'><a href="DBManager/Session.html" title="Msf::DBManager::Session (module)">Session</a></span>, <span class='object_link'><a href="DBManager/SessionEvent.html" title="Msf::DBManager::SessionEvent (module)">SessionEvent</a></span>, <span class='object_link'><a href="DBManager/Sink.html" title="Msf::DBManager::Sink (module)">Sink</a></span>, <span class='object_link'><a href="DBManager/Task.html" title="Msf::DBManager::Task (module)">Task</a></span>, <span class='object_link'><a href="DBManager/Vuln.html" title="Msf::DBManager::Vuln (module)">Vuln</a></span>, <span class='object_link'><a href="DBManager/VulnAttempt.html" title="Msf::DBManager::VulnAttempt (module)">VulnAttempt</a></span>, <span class='object_link'><a href="DBManager/VulnDetail.html" title="Msf::DBManager::VulnDetail (module)">VulnDetail</a></span>, <span class='object_link'><a href="DBManager/WMAP.html" title="Msf::DBManager::WMAP (module)">WMAP</a></span>, <span class='object_link'><a href="DBManager/Web.html" title="Msf::DBManager::Web (module)">Web</a></span>, <span class='object_link'><a href="DBManager/Workspace.html" title="Msf::DBManager::Workspace (module)">Workspace</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="DBManager/Export.html" title="Msf::DBManager::Export (class)">Export</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html" title="Msf::DBManager::Import::MetasploitFramework::XML (module)">Import::MetasploitFramework::XML</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html#MSF_WEB_PAGE_TEXT_ELEMENT_NAMES-constant" title="Msf::DBManager::Import::MetasploitFramework::XML::MSF_WEB_PAGE_TEXT_ELEMENT_NAMES (constant)">Import::MetasploitFramework::XML::MSF_WEB_PAGE_TEXT_ELEMENT_NAMES</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html#MSF_WEB_TEXT_ELEMENT_NAMES-constant" title="Msf::DBManager::Import::MetasploitFramework::XML::MSF_WEB_TEXT_ELEMENT_NAMES (constant)">Import::MetasploitFramework::XML::MSF_WEB_TEXT_ELEMENT_NAMES</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html#MSF_WEB_VULN_TEXT_ELEMENT_NAMES-constant" title="Msf::DBManager::Import::MetasploitFramework::XML::MSF_WEB_VULN_TEXT_ELEMENT_NAMES (constant)">Import::MetasploitFramework::XML::MSF_WEB_VULN_TEXT_ELEMENT_NAMES</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="DBManager/Adapter.html" title="Msf::DBManager::Adapter (module)">Adapter</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Adapter.html#ADAPTER-constant" title="Msf::DBManager::Adapter::ADAPTER (constant)">Adapter::ADAPTER</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#error-instance_method" title="#error (instance method)">- (Object) <strong>error</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stores the error message for why the db was not loaded.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usable-instance_method" title="#usable (instance method)">- (Object) <strong>usable</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if the prerequisites have been installed.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="DBManager/Sink.html" title="Msf::DBManager::Sink (module)">Sink</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Sink.html#sink-instance_method" title="Msf::DBManager::Sink#sink (method)">#sink</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="DBManager/ModuleCache.html" title="Msf::DBManager::ModuleCache (module)">ModuleCache</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/ModuleCache.html#modules_cached-instance_method" title="Msf::DBManager::ModuleCache#modules_cached (method)">#modules_cached</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html#modules_caching-instance_method" title="Msf::DBManager::ModuleCache#modules_caching (method)">#modules_caching</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="DBManager/Migration.html" title="Msf::DBManager::Migration (module)">Migration</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Migration.html#migrated-instance_method" title="Msf::DBManager::Migration#migrated (method)">#migrated</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="DBManager/Adapter.html" title="Msf::DBManager::Adapter (module)">Adapter</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Adapter.html#driver-instance_method" title="Msf::DBManager::Adapter#driver (method)">#driver</a></span>, <span class='object_link'><a href="DBManager/Adapter.html#drivers-instance_method" title="Msf::DBManager::Adapter#drivers (method)">#drivers</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check-instance_method" title="#check (instance method)">- (Object) <strong>check</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determines if the database is functional.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (DBManager) <strong>initialize</strong>(framework, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>iniitialize.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_database_support-instance_method" title="#initialize_database_support (instance method)">- (Object) <strong>initialize_database_support</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Do what is necessary to load our database support.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#warn_about_rubies-instance_method" title="#warn_about_rubies (instance method)">- (Object) <strong>warn_about_rubies</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Mainly, it&#39;s Ruby 1.9.1 that cause a lot of problems now, along with
+Ruby 1.8.6.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Metasploit/Framework/Require.html" title="Metasploit::Framework::Require (module)">Metasploit::Framework::Require</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally-class_method" title="Metasploit::Framework::Require.optionally (method)">optionally</a></span>, <span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally_active_record_railtie-class_method" title="Metasploit::Framework::Require.optionally_active_record_railtie (method)">optionally_active_record_railtie</a></span>, <span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-class_method" title="Metasploit::Framework::Require.optionally_include_metasploit_credential_creation (method)">optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-instance_method" title="Metasploit::Framework::Require#optionally_include_metasploit_credential_creation (method)">optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../Metasploit/Framework/Require.html#optionally_require_metasploit_db_gem_engines-class_method" title="Metasploit::Framework::Require.optionally_require_metasploit_db_gem_engines (method)">optionally_require_metasploit_db_gem_engines</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Workspace.html" title="Msf::DBManager::Workspace (module)">Workspace</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Workspace.html#add_workspace-instance_method" title="Msf::DBManager::Workspace#add_workspace (method)">#add_workspace</a></span>, <span class='object_link'><a href="DBManager/Workspace.html#default_workspace-instance_method" title="Msf::DBManager::Workspace#default_workspace (method)">#default_workspace</a></span>, <span class='object_link'><a href="DBManager/Workspace.html#find_workspace-instance_method" title="Msf::DBManager::Workspace#find_workspace (method)">#find_workspace</a></span>, <span class='object_link'><a href="DBManager/Workspace.html#workspace-instance_method" title="Msf::DBManager::Workspace#workspace (method)">#workspace</a></span>, <span class='object_link'><a href="DBManager/Workspace.html#workspace%3D-instance_method" title="Msf::DBManager::Workspace#workspace= (method)">#workspace=</a></span>, <span class='object_link'><a href="DBManager/Workspace.html#workspaces-instance_method" title="Msf::DBManager::Workspace#workspaces (method)">#workspaces</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Web.html" title="Msf::DBManager::Web (module)">Web</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Web.html#report_web_form-instance_method" title="Msf::DBManager::Web#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="DBManager/Web.html#report_web_page-instance_method" title="Msf::DBManager::Web#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="DBManager/Web.html#report_web_site-instance_method" title="Msf::DBManager::Web#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="DBManager/Web.html#report_web_vuln-instance_method" title="Msf::DBManager::Web#report_web_vuln (method)">#report_web_vuln</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/WMAP.html" title="Msf::DBManager::WMAP (module)">WMAP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/WMAP.html#create_request-instance_method" title="Msf::DBManager::WMAP#create_request (method)">#create_request</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#create_target-instance_method" title="Msf::DBManager::WMAP#create_target (method)">#create_target</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#delete_all_targets-instance_method" title="Msf::DBManager::WMAP#delete_all_targets (method)">#delete_all_targets</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#each_distinct_target-instance_method" title="Msf::DBManager::WMAP#each_distinct_target (method)">#each_distinct_target</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#each_request-instance_method" title="Msf::DBManager::WMAP#each_request (method)">#each_request</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#each_request_target-instance_method" title="Msf::DBManager::WMAP#each_request_target (method)">#each_request_target</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#each_request_target_with_body-instance_method" title="Msf::DBManager::WMAP#each_request_target_with_body (method)">#each_request_target_with_body</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#each_request_target_with_headers-instance_method" title="Msf::DBManager::WMAP#each_request_target_with_headers (method)">#each_request_target_with_headers</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#each_request_target_with_path-instance_method" title="Msf::DBManager::WMAP#each_request_target_with_path (method)">#each_request_target_with_path</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#each_request_target_with_query-instance_method" title="Msf::DBManager::WMAP#each_request_target_with_query (method)">#each_request_target_with_query</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#each_target-instance_method" title="Msf::DBManager::WMAP#each_target (method)">#each_target</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#get_target-instance_method" title="Msf::DBManager::WMAP#get_target (method)">#get_target</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#request_distinct_targets-instance_method" title="Msf::DBManager::WMAP#request_distinct_targets (method)">#request_distinct_targets</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#request_sql-instance_method" title="Msf::DBManager::WMAP#request_sql (method)">#request_sql</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#requests-instance_method" title="Msf::DBManager::WMAP#requests (method)">#requests</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#selected_host-instance_method" title="Msf::DBManager::WMAP#selected_host (method)">#selected_host</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#selected_id-instance_method" title="Msf::DBManager::WMAP#selected_id (method)">#selected_id</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#selected_port-instance_method" title="Msf::DBManager::WMAP#selected_port (method)">#selected_port</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#selected_ssl-instance_method" title="Msf::DBManager::WMAP#selected_ssl (method)">#selected_ssl</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#selected_wmap_target-instance_method" title="Msf::DBManager::WMAP#selected_wmap_target (method)">#selected_wmap_target</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#sql_query-instance_method" title="Msf::DBManager::WMAP#sql_query (method)">#sql_query</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#target_requests-instance_method" title="Msf::DBManager::WMAP#target_requests (method)">#target_requests</a></span>, <span class='object_link'><a href="DBManager/WMAP.html#targets-instance_method" title="Msf::DBManager::WMAP#targets (method)">#targets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/VulnDetail.html" title="Msf::DBManager::VulnDetail (module)">VulnDetail</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/VulnDetail.html#report_vuln_details-instance_method" title="Msf::DBManager::VulnDetail#report_vuln_details (method)">#report_vuln_details</a></span>, <span class='object_link'><a href="DBManager/VulnDetail.html#update_vuln_details-instance_method" title="Msf::DBManager::VulnDetail#update_vuln_details (method)">#update_vuln_details</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/VulnAttempt.html" title="Msf::DBManager::VulnAttempt (module)">VulnAttempt</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/VulnAttempt.html#report_vuln_attempt-instance_method" title="Msf::DBManager::VulnAttempt#report_vuln_attempt (method)">#report_vuln_attempt</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Vuln.html" title="Msf::DBManager::Vuln (module)">Vuln</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Vuln.html#each_vuln-instance_method" title="Msf::DBManager::Vuln#each_vuln (method)">#each_vuln</a></span>, <span class='object_link'><a href="DBManager/Vuln.html#find_or_create_vuln-instance_method" title="Msf::DBManager::Vuln#find_or_create_vuln (method)">#find_or_create_vuln</a></span>, <span class='object_link'><a href="DBManager/Vuln.html#find_vuln_by_details-instance_method" title="Msf::DBManager::Vuln#find_vuln_by_details (method)">#find_vuln_by_details</a></span>, <span class='object_link'><a href="DBManager/Vuln.html#find_vuln_by_refs-instance_method" title="Msf::DBManager::Vuln#find_vuln_by_refs (method)">#find_vuln_by_refs</a></span>, <span class='object_link'><a href="DBManager/Vuln.html#get_vuln-instance_method" title="Msf::DBManager::Vuln#get_vuln (method)">#get_vuln</a></span>, <span class='object_link'><a href="DBManager/Vuln.html#has_vuln%3F-instance_method" title="Msf::DBManager::Vuln#has_vuln? (method)">#has_vuln?</a></span>, <span class='object_link'><a href="DBManager/Vuln.html#report_vuln-instance_method" title="Msf::DBManager::Vuln#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="DBManager/Vuln.html#vulns-instance_method" title="Msf::DBManager::Vuln#vulns (method)">#vulns</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Task.html" title="Msf::DBManager::Task (module)">Task</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Task.html#find_or_create_task-instance_method" title="Msf::DBManager::Task#find_or_create_task (method)">#find_or_create_task</a></span>, <span class='object_link'><a href="DBManager/Task.html#report_task-instance_method" title="Msf::DBManager::Task#report_task (method)">#report_task</a></span>, <span class='object_link'><a href="DBManager/Task.html#tasks-instance_method" title="Msf::DBManager::Task#tasks (method)">#tasks</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Sink.html" title="Msf::DBManager::Sink (module)">Sink</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Sink.html#initialize_sink-instance_method" title="Msf::DBManager::Sink#initialize_sink (method)">#initialize_sink</a></span>, <span class='object_link'><a href="DBManager/Sink.html#queue-instance_method" title="Msf::DBManager::Sink#queue (method)">#queue</a></span>, <span class='object_link'><a href="DBManager/Sink.html#sync-instance_method" title="Msf::DBManager::Sink#sync (method)">#sync</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/SessionEvent.html" title="Msf::DBManager::SessionEvent (module)">SessionEvent</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/SessionEvent.html#report_session_event-instance_method" title="Msf::DBManager::SessionEvent#report_session_event (method)">#report_session_event</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Session.html" title="Msf::DBManager::Session (module)">Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Session.html#get_session-instance_method" title="Msf::DBManager::Session#get_session (method)">#get_session</a></span>, <span class='object_link'><a href="DBManager/Session.html#report_session-instance_method" title="Msf::DBManager::Session#report_session (method)">#report_session</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Service.html" title="Msf::DBManager::Service (module)">Service</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Service.html#del_service-instance_method" title="Msf::DBManager::Service#del_service (method)">#del_service</a></span>, <span class='object_link'><a href="DBManager/Service.html#each_service-instance_method" title="Msf::DBManager::Service#each_service (method)">#each_service</a></span>, <span class='object_link'><a href="DBManager/Service.html#find_or_create_service-instance_method" title="Msf::DBManager::Service#find_or_create_service (method)">#find_or_create_service</a></span>, <span class='object_link'><a href="DBManager/Service.html#get_service-instance_method" title="Msf::DBManager::Service#get_service (method)">#get_service</a></span>, <span class='object_link'><a href="DBManager/Service.html#report_service-instance_method" title="Msf::DBManager::Service#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="DBManager/Service.html#services-instance_method" title="Msf::DBManager::Service#services (method)">#services</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Route.html" title="Msf::DBManager::Route (module)">Route</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Route.html#report_session_route-instance_method" title="Msf::DBManager::Route#report_session_route (method)">#report_session_route</a></span>, <span class='object_link'><a href="DBManager/Route.html#report_session_route_remove-instance_method" title="Msf::DBManager::Route#report_session_route_remove (method)">#report_session_route_remove</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Report.html" title="Msf::DBManager::Report (module)">Report</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Report.html#find_or_create_report-instance_method" title="Msf::DBManager::Report#find_or_create_report (method)">#find_or_create_report</a></span>, <span class='object_link'><a href="DBManager/Report.html#report_artifact-instance_method" title="Msf::DBManager::Report#report_artifact (method)">#report_artifact</a></span>, <span class='object_link'><a href="DBManager/Report.html#report_report-instance_method" title="Msf::DBManager::Report#report_report (method)">#report_report</a></span>, <span class='object_link'><a href="DBManager/Report.html#reports-instance_method" title="Msf::DBManager::Report#reports (method)">#reports</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Ref.html" title="Msf::DBManager::Ref (module)">Ref</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Ref.html#find_or_create_ref-instance_method" title="Msf::DBManager::Ref#find_or_create_ref (method)">#find_or_create_ref</a></span>, <span class='object_link'><a href="DBManager/Ref.html#get_ref-instance_method" title="Msf::DBManager::Ref#get_ref (method)">#get_ref</a></span>, <span class='object_link'><a href="DBManager/Ref.html#has_ref%3F-instance_method" title="Msf::DBManager::Ref#has_ref? (method)">#has_ref?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Note.html" title="Msf::DBManager::Note (module)">Note</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Note.html#each_note-instance_method" title="Msf::DBManager::Note#each_note (method)">#each_note</a></span>, <span class='object_link'><a href="DBManager/Note.html#find_or_create_note-instance_method" title="Msf::DBManager::Note#find_or_create_note (method)">#find_or_create_note</a></span>, <span class='object_link'><a href="DBManager/Note.html#notes-instance_method" title="Msf::DBManager::Note#notes (method)">#notes</a></span>, <span class='object_link'><a href="DBManager/Note.html#report_note-instance_method" title="Msf::DBManager::Note#report_note (method)">#report_note</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/ModuleCache.html" title="Msf::DBManager::ModuleCache (module)">ModuleCache</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/ModuleCache.html#match_values-instance_method" title="Msf::DBManager::ModuleCache#match_values (method)">#match_values</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html#module_to_details_hash-instance_method" title="Msf::DBManager::ModuleCache#module_to_details_hash (method)">#module_to_details_hash</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html#purge_all_module_details-instance_method" title="Msf::DBManager::ModuleCache#purge_all_module_details (method)">#purge_all_module_details</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html#remove_module_details-instance_method" title="Msf::DBManager::ModuleCache#remove_module_details (method)">#remove_module_details</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html#search_modules-instance_method" title="Msf::DBManager::ModuleCache#search_modules (method)">#search_modules</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html#update_all_module_details-instance_method" title="Msf::DBManager::ModuleCache#update_all_module_details (method)">#update_all_module_details</a></span>, <span class='object_link'><a href="DBManager/ModuleCache.html#update_module_details-instance_method" title="Msf::DBManager::ModuleCache#update_module_details (method)">#update_module_details</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Migration.html" title="Msf::DBManager::Migration (module)">Migration</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Migration.html#add_rails_engine_migration_paths-instance_method" title="Msf::DBManager::Migration#add_rails_engine_migration_paths (method)">#add_rails_engine_migration_paths</a></span>, <span class='object_link'><a href="DBManager/Migration.html#migrate-instance_method" title="Msf::DBManager::Migration#migrate (method)">#migrate</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Loot.html" title="Msf::DBManager::Loot (module)">Loot</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Loot.html#each_loot-instance_method" title="Msf::DBManager::Loot#each_loot (method)">#each_loot</a></span>, <span class='object_link'><a href="DBManager/Loot.html#find_or_create_loot-instance_method" title="Msf::DBManager::Loot#find_or_create_loot (method)">#find_or_create_loot</a></span>, <span class='object_link'><a href="DBManager/Loot.html#loots-instance_method" title="Msf::DBManager::Loot#loots (method)">#loots</a></span>, <span class='object_link'><a href="DBManager/Loot.html#report_loot-instance_method" title="Msf::DBManager::Loot#report_loot (method)">#report_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/IPAddress.html" title="Msf::DBManager::IPAddress (module)">IPAddress</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/IPAddress.html#ipv46_validator-instance_method" title="Msf::DBManager::IPAddress#ipv46_validator (method)">#ipv46_validator</a></span>, <span class='object_link'><a href="DBManager/IPAddress.html#ipv4_validator-instance_method" title="Msf::DBManager::IPAddress#ipv4_validator (method)">#ipv4_validator</a></span>, <span class='object_link'><a href="DBManager/IPAddress.html#ipv6_validator-instance_method" title="Msf::DBManager::IPAddress#ipv6_validator (method)">#ipv6_validator</a></span>, <span class='object_link'><a href="DBManager/IPAddress.html#rfc3330_reserved-instance_method" title="Msf::DBManager::IPAddress#rfc3330_reserved (method)">#rfc3330_reserved</a></span>, <span class='object_link'><a href="DBManager/IPAddress.html#validate_ips-instance_method" title="Msf::DBManager::IPAddress#validate_ips (method)">#validate_ips</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import.html" title="Msf::DBManager::Import (module)">Import</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import.html#dehex-instance_method" title="Msf::DBManager::Import#dehex (method)">#dehex</a></span>, <span class='object_link'><a href="DBManager/Import.html#emit-instance_method" title="Msf::DBManager::Import#emit (method)">#emit</a></span>, <span class='object_link'><a href="DBManager/Import.html#import-instance_method" title="Msf::DBManager::Import#import (method)">#import</a></span>, <span class='object_link'><a href="DBManager/Import.html#import_file-instance_method" title="Msf::DBManager::Import#import_file (method)">#import_file</a></span>, <span class='object_link'><a href="DBManager/Import.html#import_filetype_detect-instance_method" title="Msf::DBManager::Import#import_filetype_detect (method)">#import_filetype_detect</a></span>, <span class='object_link'><a href="DBManager/Import.html#msf_import_timestamps-instance_method" title="Msf::DBManager::Import#msf_import_timestamps (method)">#msf_import_timestamps</a></span>, <span class='object_link'><a href="DBManager/Import.html#report_import_note-instance_method" title="Msf::DBManager::Import#report_import_note (method)">#report_import_note</a></span>, <span class='object_link'><a href="DBManager/Import.html#rexmlify-instance_method" title="Msf::DBManager::Import#rexmlify (method)">#rexmlify</a></span>, <span class='object_link'><a href="DBManager/Import.html#service_name_map-instance_method" title="Msf::DBManager::Import#service_name_map (method)">#service_name_map</a></span>, <span class='object_link'><a href="DBManager/Import.html#validate_import_file-instance_method" title="Msf::DBManager::Import#validate_import_file (method)">#validate_import_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Wapiti.html" title="Msf::DBManager::Import::Wapiti (module)">Import::Wapiti</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Wapiti.html#import_wapiti_xml-instance_method" title="Msf::DBManager::Import::Wapiti#import_wapiti_xml (method)">#import_wapiti_xml</a></span>, <span class='object_link'><a href="DBManager/Import/Wapiti.html#import_wapiti_xml_file-instance_method" title="Msf::DBManager::Import::Wapiti#import_wapiti_xml_file (method)">#import_wapiti_xml_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Spiceworks.html" title="Msf::DBManager::Import::Spiceworks (module)">Import::Spiceworks</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Spiceworks.html#import_spiceworks_csv-instance_method" title="Msf::DBManager::Import::Spiceworks#import_spiceworks_csv (method)">#import_spiceworks_csv</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Retina.html" title="Msf::DBManager::Import::Retina (module)">Import::Retina</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Retina.html#import_retina_xml-instance_method" title="Msf::DBManager::Import::Retina#import_retina_xml (method)">#import_retina_xml</a></span>, <span class='object_link'><a href="DBManager/Import/Retina.html#import_retina_xml_file-instance_method" title="Msf::DBManager::Import::Retina#import_retina_xml_file (method)">#import_retina_xml_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Report.html" title="Msf::DBManager::Import::Report (module)">Import::Report</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Report.html#import_report-instance_method" title="Msf::DBManager::Import::Report#import_report (method)">#import_report</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Qualys.html" title="Msf::DBManager::Import::Qualys (module)">Import::Qualys</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Qualys.html#handle_qualys-instance_method" title="Msf::DBManager::Import::Qualys#handle_qualys (method)">#handle_qualys</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Qualys/Scan.html" title="Msf::DBManager::Import::Qualys::Scan (module)">Import::Qualys::Scan</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Qualys/Scan.html#import_qualys_scan_xml-instance_method" title="Msf::DBManager::Import::Qualys::Scan#import_qualys_scan_xml (method)">#import_qualys_scan_xml</a></span>, <span class='object_link'><a href="DBManager/Import/Qualys/Scan.html#import_qualys_scan_xml_file-instance_method" title="Msf::DBManager::Import::Qualys::Scan#import_qualys_scan_xml_file (method)">#import_qualys_scan_xml_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Qualys/Asset.html" title="Msf::DBManager::Import::Qualys::Asset (module)">Import::Qualys::Asset</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Qualys/Asset.html#find_qualys_asset_ports-instance_method" title="Msf::DBManager::Import::Qualys::Asset#find_qualys_asset_ports (method)">#find_qualys_asset_ports</a></span>, <span class='object_link'><a href="DBManager/Import/Qualys/Asset.html#find_qualys_asset_vuln_refs-instance_method" title="Msf::DBManager::Import::Qualys::Asset#find_qualys_asset_vuln_refs (method)">#find_qualys_asset_vuln_refs</a></span>, <span class='object_link'><a href="DBManager/Import/Qualys/Asset.html#find_qualys_asset_vulns-instance_method" title="Msf::DBManager::Import::Qualys::Asset#find_qualys_asset_vulns (method)">#find_qualys_asset_vulns</a></span>, <span class='object_link'><a href="DBManager/Import/Qualys/Asset.html#import_qualys_asset_xml-instance_method" title="Msf::DBManager::Import::Qualys::Asset#import_qualys_asset_xml (method)">#import_qualys_asset_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Outpost24.html" title="Msf::DBManager::Import::Outpost24 (module)">Import::Outpost24</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Outpost24.html#import_outpost24_noko_stream-instance_method" title="Msf::DBManager::Import::Outpost24#import_outpost24_noko_stream (method)">#import_outpost24_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/Outpost24.html#import_outpost24_xml-instance_method" title="Msf::DBManager::Import::Outpost24#import_outpost24_xml (method)">#import_outpost24_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/OpenVAS.html" title="Msf::DBManager::Import::OpenVAS (module)">Import::OpenVAS</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/OpenVAS.html#import_openvas_new_xml-instance_method" title="Msf::DBManager::Import::OpenVAS#import_openvas_new_xml (method)">#import_openvas_new_xml</a></span>, <span class='object_link'><a href="DBManager/Import/OpenVAS.html#import_openvas_new_xml_file-instance_method" title="Msf::DBManager::Import::OpenVAS#import_openvas_new_xml_file (method)">#import_openvas_new_xml_file</a></span>, <span class='object_link'><a href="DBManager/Import/OpenVAS.html#import_openvas_xml-instance_method" title="Msf::DBManager::Import::OpenVAS#import_openvas_xml (method)">#import_openvas_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nmap.html" title="Msf::DBManager::Import::Nmap (module)">Import::Nmap</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nmap.html#import_nmap_noko_stream-instance_method" title="Msf::DBManager::Import::Nmap#import_nmap_noko_stream (method)">#import_nmap_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/Nmap.html#import_nmap_xml-instance_method" title="Msf::DBManager::Import::Nmap#import_nmap_xml (method)">#import_nmap_xml</a></span>, <span class='object_link'><a href="DBManager/Import/Nmap.html#import_nmap_xml_file-instance_method" title="Msf::DBManager::Import::Nmap#import_nmap_xml_file (method)">#import_nmap_xml_file</a></span>, <span class='object_link'><a href="DBManager/Import/Nmap.html#nmap_msf_service_map-instance_method" title="Msf::DBManager::Import::Nmap#nmap_msf_service_map (method)">#nmap_msf_service_map</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nikto.html" title="Msf::DBManager::Import::Nikto (module)">Import::Nikto</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nikto.html#import_nikto_xml-instance_method" title="Msf::DBManager::Import::Nikto#import_nikto_xml (method)">#import_nikto_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nexpose/Simple.html" title="Msf::DBManager::Import::Nexpose::Simple (module)">Import::Nexpose::Simple</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nexpose/Simple.html#import_nexpose_noko_stream-instance_method" title="Msf::DBManager::Import::Nexpose::Simple#import_nexpose_noko_stream (method)">#import_nexpose_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/Nexpose/Simple.html#import_nexpose_simplexml-instance_method" title="Msf::DBManager::Import::Nexpose::Simple#import_nexpose_simplexml (method)">#import_nexpose_simplexml</a></span>, <span class='object_link'><a href="DBManager/Import/Nexpose/Simple.html#import_nexpose_simplexml_file-instance_method" title="Msf::DBManager::Import::Nexpose::Simple#import_nexpose_simplexml_file (method)">#import_nexpose_simplexml_file</a></span>, <span class='object_link'><a href="DBManager/Import/Nexpose/Simple.html#process_nexpose_data_sxml_refs-instance_method" title="Msf::DBManager::Import::Nexpose::Simple#process_nexpose_data_sxml_refs (method)">#process_nexpose_data_sxml_refs</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nexpose/Raw.html" title="Msf::DBManager::Import::Nexpose::Raw (module)">Import::Nexpose::Raw</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nexpose/Raw.html#import_nexpose_raw_noko_stream-instance_method" title="Msf::DBManager::Import::Nexpose::Raw#import_nexpose_raw_noko_stream (method)">#import_nexpose_raw_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/Nexpose/Raw.html#import_nexpose_rawxml-instance_method" title="Msf::DBManager::Import::Nexpose::Raw#import_nexpose_rawxml (method)">#import_nexpose_rawxml</a></span>, <span class='object_link'><a href="DBManager/Import/Nexpose/Raw.html#import_nexpose_rawxml_file-instance_method" title="Msf::DBManager::Import::Nexpose::Raw#import_nexpose_rawxml_file (method)">#import_nexpose_rawxml_file</a></span>, <span class='object_link'><a href="DBManager/Import/Nexpose/Raw.html#nexpose_host_from_rawxml-instance_method" title="Msf::DBManager::Import::Nexpose::Raw#nexpose_host_from_rawxml (method)">#nexpose_host_from_rawxml</a></span>, <span class='object_link'><a href="DBManager/Import/Nexpose/Raw.html#nexpose_refs_to_struct-instance_method" title="Msf::DBManager::Import::Nexpose::Raw#nexpose_refs_to_struct (method)">#nexpose_refs_to_struct</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Netsparker.html" title="Msf::DBManager::Import::Netsparker (module)">Import::Netsparker</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Netsparker.html#import_netsparker_xml-instance_method" title="Msf::DBManager::Import::Netsparker#import_netsparker_xml (method)">#import_netsparker_xml</a></span>, <span class='object_link'><a href="DBManager/Import/Netsparker.html#import_netsparker_xml_file-instance_method" title="Msf::DBManager::Import::Netsparker#import_netsparker_xml_file (method)">#import_netsparker_xml_file</a></span>, <span class='object_link'><a href="DBManager/Import/Netsparker.html#netsparker_method_map-instance_method" title="Msf::DBManager::Import::Netsparker#netsparker_method_map (method)">#netsparker_method_map</a></span>, <span class='object_link'><a href="DBManager/Import/Netsparker.html#netsparker_params_map-instance_method" title="Msf::DBManager::Import::Netsparker#netsparker_params_map (method)">#netsparker_params_map</a></span>, <span class='object_link'><a href="DBManager/Import/Netsparker.html#netsparker_pname_map-instance_method" title="Msf::DBManager::Import::Netsparker#netsparker_pname_map (method)">#netsparker_pname_map</a></span>, <span class='object_link'><a href="DBManager/Import/Netsparker.html#netsparker_vulnerability_map-instance_method" title="Msf::DBManager::Import::Netsparker#netsparker_vulnerability_map (method)">#netsparker_vulnerability_map</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nessus.html" title="Msf::DBManager::Import::Nessus (module)">Import::Nessus</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nessus.html#handle_nessus-instance_method" title="Msf::DBManager::Import::Nessus#handle_nessus (method)">#handle_nessus</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nessus/XML.html" title="Msf::DBManager::Import::Nessus::XML (module)">Import::Nessus::XML</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nessus/XML.html#import_nessus_xml_file-instance_method" title="Msf::DBManager::Import::Nessus::XML#import_nessus_xml_file (method)">#import_nessus_xml_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nessus/XML/V2.html" title="Msf::DBManager::Import::Nessus::XML::V2 (module)">Import::Nessus::XML::V2</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nessus/XML/V2.html#handle_nessus_v2-instance_method" title="Msf::DBManager::Import::Nessus::XML::V2#handle_nessus_v2 (method)">#handle_nessus_v2</a></span>, <span class='object_link'><a href="DBManager/Import/Nessus/XML/V2.html#import_nessus_xml_v2-instance_method" title="Msf::DBManager::Import::Nessus::XML::V2#import_nessus_xml_v2 (method)">#import_nessus_xml_v2</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nessus/XML/V1.html" title="Msf::DBManager::Import::Nessus::XML::V1 (module)">Import::Nessus::XML::V1</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nessus/XML/V1.html#import_nessus_xml-instance_method" title="Msf::DBManager::Import::Nessus::XML::V1#import_nessus_xml (method)">#import_nessus_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Nessus/NBE.html" title="Msf::DBManager::Import::Nessus::NBE (module)">Import::Nessus::NBE</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Nessus/NBE.html#import_nessus_nbe-instance_method" title="Msf::DBManager::Import::Nessus::NBE#import_nessus_nbe (method)">#import_nessus_nbe</a></span>, <span class='object_link'><a href="DBManager/Import/Nessus/NBE.html#import_nessus_nbe_file-instance_method" title="Msf::DBManager::Import::Nessus::NBE#import_nessus_nbe_file (method)">#import_nessus_nbe_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/MetasploitFramework.html" title="Msf::DBManager::Import::MetasploitFramework (module)">Import::MetasploitFramework</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/MetasploitFramework.html#nils_for_nulls-instance_method" title="Msf::DBManager::Import::MetasploitFramework#nils_for_nulls (method)">#nils_for_nulls</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework.html#unserialize_object-instance_method" title="Msf::DBManager::Import::MetasploitFramework#unserialize_object (method)">#unserialize_object</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/MetasploitFramework/Zip.html" title="Msf::DBManager::Import::MetasploitFramework::Zip (module)">Import::MetasploitFramework::Zip</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/MetasploitFramework/Zip.html#import_msf_collateral-instance_method" title="Msf::DBManager::Import::MetasploitFramework::Zip#import_msf_collateral (method)">#import_msf_collateral</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/Zip.html#import_msf_zip-instance_method" title="Msf::DBManager::Import::MetasploitFramework::Zip#import_msf_zip (method)">#import_msf_zip</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html" title="Msf::DBManager::Import::MetasploitFramework::XML (module)">Import::MetasploitFramework::XML</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html#import_msf_file-instance_method" title="Msf::DBManager::Import::MetasploitFramework::XML#import_msf_file (method)">#import_msf_file</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html#import_msf_web_form_element-instance_method" title="Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_form_element (method)">#import_msf_web_form_element</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html#import_msf_web_page_element-instance_method" title="Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_page_element (method)">#import_msf_web_page_element</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html#import_msf_web_vuln_element-instance_method" title="Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_vuln_element (method)">#import_msf_web_vuln_element</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/XML.html#import_msf_xml-instance_method" title="Msf::DBManager::Import::MetasploitFramework::XML#import_msf_xml (method)">#import_msf_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/MetasploitFramework/Credential.html" title="Msf::DBManager::Import::MetasploitFramework::Credential (module)">Import::MetasploitFramework::Credential</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/MetasploitFramework/Credential.html#import_msf_cred_dump-instance_method" title="Msf::DBManager::Import::MetasploitFramework::Credential#import_msf_cred_dump (method)">#import_msf_cred_dump</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/Credential.html#import_msf_cred_dump_zip-instance_method" title="Msf::DBManager::Import::MetasploitFramework::Credential#import_msf_cred_dump_zip (method)">#import_msf_cred_dump_zip</a></span>, <span class='object_link'><a href="DBManager/Import/MetasploitFramework/Credential.html#import_msf_pwdump-instance_method" title="Msf::DBManager::Import::MetasploitFramework::Credential#import_msf_pwdump (method)">#import_msf_pwdump</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/MBSA.html" title="Msf::DBManager::Import::MBSA (module)">Import::MBSA</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/MBSA.html#import_mbsa_noko_stream-instance_method" title="Msf::DBManager::Import::MBSA#import_mbsa_noko_stream (method)">#import_mbsa_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/MBSA.html#import_mbsa_xml-instance_method" title="Msf::DBManager::Import::MBSA#import_mbsa_xml (method)">#import_mbsa_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Libpcap.html" title="Msf::DBManager::Import::Libpcap (module)">Import::Libpcap</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Libpcap.html#import_libpcap-instance_method" title="Msf::DBManager::Import::Libpcap#import_libpcap (method)">#import_libpcap</a></span>, <span class='object_link'><a href="DBManager/Import/Libpcap.html#import_libpcap_file-instance_method" title="Msf::DBManager::Import::Libpcap#import_libpcap_file (method)">#import_libpcap_file</a></span>, <span class='object_link'><a href="DBManager/Import/Libpcap.html#inspect_single_packet-instance_method" title="Msf::DBManager::Import::Libpcap#inspect_single_packet (method)">#inspect_single_packet</a></span>, <span class='object_link'><a href="DBManager/Import/Libpcap.html#inspect_single_packet_http-instance_method" title="Msf::DBManager::Import::Libpcap#inspect_single_packet_http (method)">#inspect_single_packet_http</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/IPList.html" title="Msf::DBManager::Import::IPList (module)">Import::IPList</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/IPList.html#import_ip_list-instance_method" title="Msf::DBManager::Import::IPList#import_ip_list (method)">#import_ip_list</a></span>, <span class='object_link'><a href="DBManager/Import/IPList.html#import_ip_list_file-instance_method" title="Msf::DBManager::Import::IPList#import_ip_list_file (method)">#import_ip_list_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/IP360/V3.html" title="Msf::DBManager::Import::IP360::V3 (module)">Import::IP360::V3</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/IP360/V3.html#handle_ip360_v3_svc-instance_method" title="Msf::DBManager::Import::IP360::V3#handle_ip360_v3_svc (method)">#handle_ip360_v3_svc</a></span>, <span class='object_link'><a href="DBManager/Import/IP360/V3.html#handle_ip360_v3_vuln-instance_method" title="Msf::DBManager::Import::IP360::V3#handle_ip360_v3_vuln (method)">#handle_ip360_v3_vuln</a></span>, <span class='object_link'><a href="DBManager/Import/IP360/V3.html#import_ip360_xml_file-instance_method" title="Msf::DBManager::Import::IP360::V3#import_ip360_xml_file (method)">#import_ip360_xml_file</a></span>, <span class='object_link'><a href="DBManager/Import/IP360/V3.html#import_ip360_xml_v3-instance_method" title="Msf::DBManager::Import::IP360::V3#import_ip360_xml_v3 (method)">#import_ip360_xml_v3</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/IP360/ASPL.html" title="Msf::DBManager::Import::IP360::ASPL (module)">Import::IP360::ASPL</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/IP360/ASPL.html#import_ip360_aspl_xml-instance_method" title="Msf::DBManager::Import::IP360::ASPL#import_ip360_aspl_xml (method)">#import_ip360_aspl_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/FusionVM.html" title="Msf::DBManager::Import::FusionVM (module)">Import::FusionVM</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/FusionVM.html#import_fusionvm_xml-instance_method" title="Msf::DBManager::Import::FusionVM#import_fusionvm_xml (method)">#import_fusionvm_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Foundstone.html" title="Msf::DBManager::Import::Foundstone (module)">Import::Foundstone</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Foundstone.html#import_foundstone_noko_stream-instance_method" title="Msf::DBManager::Import::Foundstone#import_foundstone_noko_stream (method)">#import_foundstone_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/Foundstone.html#import_foundstone_xml-instance_method" title="Msf::DBManager::Import::Foundstone#import_foundstone_xml (method)">#import_foundstone_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/CI.html" title="Msf::DBManager::Import::CI (module)">Import::CI</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/CI.html#import_ci_noko_stream-instance_method" title="Msf::DBManager::Import::CI#import_ci_noko_stream (method)">#import_ci_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/CI.html#import_ci_xml-instance_method" title="Msf::DBManager::Import::CI#import_ci_xml (method)">#import_ci_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Burp.html" title="Msf::DBManager::Import::Burp (module)">Import::Burp</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Burp.html#import_burp_session_noko_stream-instance_method" title="Msf::DBManager::Import::Burp#import_burp_session_noko_stream (method)">#import_burp_session_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/Burp.html#import_burp_session_xml-instance_method" title="Msf::DBManager::Import::Burp#import_burp_session_xml (method)">#import_burp_session_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Appscan.html" title="Msf::DBManager::Import::Appscan (module)">Import::Appscan</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Appscan.html#import_appscan_noko_stream-instance_method" title="Msf::DBManager::Import::Appscan#import_appscan_noko_stream (method)">#import_appscan_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/Appscan.html#import_appscan_xml-instance_method" title="Msf::DBManager::Import::Appscan#import_appscan_xml (method)">#import_appscan_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Amap.html" title="Msf::DBManager::Import::Amap (module)">Import::Amap</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Amap.html#import_amap_log-instance_method" title="Msf::DBManager::Import::Amap#import_amap_log (method)">#import_amap_log</a></span>, <span class='object_link'><a href="DBManager/Import/Amap.html#import_amap_log_file-instance_method" title="Msf::DBManager::Import::Amap#import_amap_log_file (method)">#import_amap_log_file</a></span>, <span class='object_link'><a href="DBManager/Import/Amap.html#import_amap_mlog-instance_method" title="Msf::DBManager::Import::Amap#import_amap_mlog (method)">#import_amap_mlog</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Import/Acunetix.html" title="Msf::DBManager::Import::Acunetix (module)">Import::Acunetix</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Import/Acunetix.html#import_acunetix_noko_stream-instance_method" title="Msf::DBManager::Import::Acunetix#import_acunetix_noko_stream (method)">#import_acunetix_noko_stream</a></span>, <span class='object_link'><a href="DBManager/Import/Acunetix.html#import_acunetix_xml-instance_method" title="Msf::DBManager::Import::Acunetix#import_acunetix_xml (method)">#import_acunetix_xml</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/HostTag.html" title="Msf::DBManager::HostTag (module)">HostTag</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/HostTag.html#report_host_tag-instance_method" title="Msf::DBManager::HostTag#report_host_tag (method)">#report_host_tag</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/HostDetail.html" title="Msf::DBManager::HostDetail (module)">HostDetail</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/HostDetail.html#report_host_details-instance_method" title="Msf::DBManager::HostDetail#report_host_details (method)">#report_host_details</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Host.html" title="Msf::DBManager::Host (module)">Host</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Host.html#del_host-instance_method" title="Msf::DBManager::Host#del_host (method)">#del_host</a></span>, <span class='object_link'><a href="DBManager/Host.html#each_host-instance_method" title="Msf::DBManager::Host#each_host (method)">#each_host</a></span>, <span class='object_link'><a href="DBManager/Host.html#find_or_create_host-instance_method" title="Msf::DBManager::Host#find_or_create_host (method)">#find_or_create_host</a></span>, <span class='object_link'><a href="DBManager/Host.html#get_host-instance_method" title="Msf::DBManager::Host#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="DBManager/Host.html#has_host%3F-instance_method" title="Msf::DBManager::Host#has_host? (method)">#has_host?</a></span>, <span class='object_link'><a href="DBManager/Host.html#hosts-instance_method" title="Msf::DBManager::Host#hosts (method)">#hosts</a></span>, <span class='object_link'><a href="DBManager/Host.html#normalize_host-instance_method" title="Msf::DBManager::Host#normalize_host (method)">#normalize_host</a></span>, <span class='object_link'><a href="DBManager/Host.html#report_host-instance_method" title="Msf::DBManager::Host#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="DBManager/Host.html#update_host_via_sysinfo-instance_method" title="Msf::DBManager::Host#update_host_via_sysinfo (method)">#update_host_via_sysinfo</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/ExploitedHost.html" title="Msf::DBManager::ExploitedHost (module)">ExploitedHost</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/ExploitedHost.html#each_exploited_host-instance_method" title="Msf::DBManager::ExploitedHost#each_exploited_host (method)">#each_exploited_host</a></span>, <span class='object_link'><a href="DBManager/ExploitedHost.html#exploited_hosts-instance_method" title="Msf::DBManager::ExploitedHost#exploited_hosts (method)">#exploited_hosts</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/ExploitAttempt.html" title="Msf::DBManager::ExploitAttempt (module)">ExploitAttempt</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/ExploitAttempt.html#report_exploit-instance_method" title="Msf::DBManager::ExploitAttempt#report_exploit (method)">#report_exploit</a></span>, <span class='object_link'><a href="DBManager/ExploitAttempt.html#report_exploit_attempt-instance_method" title="Msf::DBManager::ExploitAttempt#report_exploit_attempt (method)">#report_exploit_attempt</a></span>, <span class='object_link'><a href="DBManager/ExploitAttempt.html#report_exploit_failure-instance_method" title="Msf::DBManager::ExploitAttempt#report_exploit_failure (method)">#report_exploit_failure</a></span>, <span class='object_link'><a href="DBManager/ExploitAttempt.html#report_exploit_success-instance_method" title="Msf::DBManager::ExploitAttempt#report_exploit_success (method)">#report_exploit_success</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Event.html" title="Msf::DBManager::Event (module)">Event</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Event.html#events-instance_method" title="Msf::DBManager::Event#events (method)">#events</a></span>, <span class='object_link'><a href="DBManager/Event.html#report_event-instance_method" title="Msf::DBManager::Event#report_event (method)">#report_event</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Cred.html" title="Msf::DBManager::Cred (module)">Cred</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Cred.html#creds-instance_method" title="Msf::DBManager::Cred#creds (method)">#creds</a></span>, <span class='object_link'><a href="DBManager/Cred.html#each_cred-instance_method" title="Msf::DBManager::Cred#each_cred (method)">#each_cred</a></span>, <span class='object_link'><a href="DBManager/Cred.html#find_or_create_cred-instance_method" title="Msf::DBManager::Cred#find_or_create_cred (method)">#find_or_create_cred</a></span>, <span class='object_link'><a href="DBManager/Cred.html#report_auth_info-instance_method" title="Msf::DBManager::Cred#report_auth_info (method)">#report_auth_info</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Connection.html" title="Msf::DBManager::Connection (module)">Connection</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Connection.html#active-instance_method" title="Msf::DBManager::Connection#active (method)">#active</a></span>, <span class='object_link'><a href="DBManager/Connection.html#after_establish_connection-instance_method" title="Msf::DBManager::Connection#after_establish_connection (method)">#after_establish_connection</a></span>, <span class='object_link'><a href="DBManager/Connection.html#connect-instance_method" title="Msf::DBManager::Connection#connect (method)">#connect</a></span>, <span class='object_link'><a href="DBManager/Connection.html#connection_established%3F-instance_method" title="Msf::DBManager::Connection#connection_established? (method)">#connection_established?</a></span>, <span class='object_link'><a href="DBManager/Connection.html#create_db-instance_method" title="Msf::DBManager::Connection#create_db (method)">#create_db</a></span>, <span class='object_link'><a href="DBManager/Connection.html#disconnect-instance_method" title="Msf::DBManager::Connection#disconnect (method)">#disconnect</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Client.html" title="Msf::DBManager::Client (module)">Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Client.html#find_or_create_client-instance_method" title="Msf::DBManager::Client#find_or_create_client (method)">#find_or_create_client</a></span>, <span class='object_link'><a href="DBManager/Client.html#get_client-instance_method" title="Msf::DBManager::Client#get_client (method)">#get_client</a></span>, <span class='object_link'><a href="DBManager/Client.html#report_client-instance_method" title="Msf::DBManager::Client#report_client (method)">#report_client</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="DBManager/Adapter.html" title="Msf::DBManager::Adapter (module)">Adapter</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DBManager/Adapter.html#initialize_adapter-instance_method" title="Msf::DBManager::Adapter#initialize_adapter (method)">#initialize_adapter</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Msf::DBManager (class)">DBManager</a></span></tt>) <strong>initialize</strong>(framework, opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>iniitialize</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_migrated'>migrated</span>  <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_modules_cached'>modules_cached</span>  <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_modules_caching'>modules_caching</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='ivar'>@usable</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='comment'># Don&#39;t load the database if the user said they didn&#39;t need it.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DisableDatabase</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_initialize_database_support'>initialize_database_support</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="error=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="error-instance_method">
+  
+    - (<tt>Object</tt>) <strong>error</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stores the error message for why the db was not loaded</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_error'>error</span>
+  <span class='ivar'>@error</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="usable=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="usable-instance_method">
+  
+    - (<tt>Object</tt>) <strong>usable</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if the prerequisites have been installed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usable'>usable</span>
+  <span class='ivar'>@usable</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="check-instance_method">
+  
+    - (<tt>Object</tt>) <strong>check</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determines if the database is functional</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager.rb', line 134</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_check'>check</span>
+<span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Host</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='symbol'>:first</span><span class='rparen'>)</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize_database_support-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize_database_support</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Do what is necessary to load our database support</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager.rb', line 143</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_database_support'>initialize_database_support</span>
+  <span class='kw'>begin</span>
+    <span class='comment'># Database drivers can reset our KCODE, do not let them
+</span>    <span class='gvar'>$KCODE</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>NONE</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='const'>RUBY_VERSION</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^1\.8\.</span><span class='regexp_end'>/</span></span>
+
+    <span class='id identifier rubyid_add_rails_engine_migration_paths'>add_rails_engine_migration_paths</span>
+
+    <span class='ivar'>@usable</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span> <span class='op'>=</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_elog'>elog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DB is not enabled due to load error: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Determine what drivers are available
+</span>  <span class='comment'>#
+</span>  <span class='id identifier rubyid_initialize_adapter'>initialize_adapter</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Instantiate the database sink
+</span>  <span class='comment'>#
+</span>  <span class='id identifier rubyid_initialize_sink'>initialize_sink</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="warn_about_rubies-instance_method">
+  
+    - (<tt>Object</tt>) <strong>warn_about_rubies</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Mainly, it&#39;s Ruby 1.9.1 that cause a lot of problems now, along with
+Ruby 1.8.6. Ruby 1.8.7 actually seems okay, but why tempt fate? Let&#39;s
+say 1.9.3 and beyond.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175
+176
+177
+178
+179</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_warn_about_rubies'>warn_about_rubies</span>
+  <span class='kw'>if</span> <span class='op'>::</span><span class='const'>RUBY_VERSION</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^1\.9\.[012]($|[^\d])</span><span class='regexp_end'>/</span></span>
+    <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>**************************************************************************************</span><span class='tstring_end'>&quot;</span></span>
+    <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Metasploit requires at least Ruby 1.9.3. For an easy upgrade path, see https://rvm.io/</span><span class='tstring_end'>&quot;</span></span>
+    <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>**************************************************************************************</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:42 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

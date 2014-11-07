@@ -1,0 +1,2943 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Arch::X86
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Arch/X86.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (X)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Arch.html" title="Rex::Arch (module)">Arch</a></span></span>
+     &raquo; 
+    <span class="title">X86</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Arch::X86
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/arch/x86.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>everything here is mostly stole from vlad&#39;s perl x86 stuff</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="EAX-constant" class="">EAX =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Register number constants</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>AL</span> <span class='op'>=</span> <span class='const'>AX</span> <span class='op'>=</span> <span class='const'>ES</span> <span class='op'>=</span> <span class='int'>0</span></pre></dd>
+      
+        <dt id="ECX-constant" class="">ECX =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>CL</span> <span class='op'>=</span> <span class='const'>CX</span> <span class='op'>=</span> <span class='const'>CS</span> <span class='op'>=</span> <span class='int'>1</span></pre></dd>
+      
+        <dt id="EDX-constant" class="">EDX =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>DL</span> <span class='op'>=</span> <span class='const'>DX</span> <span class='op'>=</span> <span class='const'>SS</span> <span class='op'>=</span> <span class='int'>2</span></pre></dd>
+      
+        <dt id="EBX-constant" class="">EBX =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>BL</span> <span class='op'>=</span> <span class='const'>BX</span> <span class='op'>=</span> <span class='const'>DS</span> <span class='op'>=</span> <span class='int'>3</span></pre></dd>
+      
+        <dt id="ESP-constant" class="">ESP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>AH</span> <span class='op'>=</span> <span class='const'>SP</span> <span class='op'>=</span> <span class='const'>FS</span> <span class='op'>=</span> <span class='int'>4</span></pre></dd>
+      
+        <dt id="EBP-constant" class="">EBP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>CH</span> <span class='op'>=</span> <span class='const'>BP</span> <span class='op'>=</span> <span class='const'>GS</span> <span class='op'>=</span> <span class='int'>5</span></pre></dd>
+      
+        <dt id="ESI-constant" class="">ESI =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>DH</span> <span class='op'>=</span> <span class='const'>SI</span> <span class='op'>=</span>      <span class='int'>6</span></pre></dd>
+      
+        <dt id="EDI-constant" class="">EDI =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>BH</span> <span class='op'>=</span> <span class='const'>DI</span> <span class='op'>=</span>      <span class='int'>7</span></pre></dd>
+      
+        <dt id="REG_NAMES32-constant" class="">REG_NAMES32 =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>eax</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ecx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>edx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ebx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>esp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ebp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>esi</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>edi</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="REG_NAMES16-constant" class="">REG_NAMES16 =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ax</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>si</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>di</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="REG_NAMES8L-constant" class="">REG_NAMES8L =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>al</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cl</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dl</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bl</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span> <span class='rbracket'>]</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_check_badchars-class_method" title="_check_badchars (class method)">+ (Object) <strong>_check_badchars</strong>(data, badchars) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_check_reg-class_method" title="_check_reg (class method)">+ (Object) <strong>_check_reg</strong>(*regs) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add-class_method" title="add (class method)">+ (Object) <strong>add</strong>(val, reg, badchars = &#39;&#39;, adjust = false, bits = 0) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates the opcodes equivalent to subtracting with a negative
+value from a given register.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#adjust_reg-class_method" title="adjust_reg (class method)">+ (Object) <strong>adjust_reg</strong>(reg, adjustment) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method adjusts the value of the ESP register by a given amount.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#call-class_method" title="call (class method)">+ (Object) <strong>call</strong>(addr) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the opcodes that compose a relative call instruction to
+the address specified.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clear-class_method" title="clear (class method)">+ (Object) <strong>clear</strong>(reg, badchars = &#39;&#39;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates an instruction that clears the supplied register in a
+manner that attempts to avoid bad characters, if supplied.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#copy_to_stack-class_method" title="copy_to_stack (class method)">+ (Object) <strong>copy_to_stack</strong>(len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generates a buffer that will copy memory immediately following the stub
+that is generated to be copied to the stack.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dword_adjust-class_method" title="dword_adjust (class method)">+ (Object) <strong>dword_adjust</strong>(dword, amount = 0) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method adds/subs a packed long integer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_effective-class_method" title="encode_effective (class method)">+ (Object) <strong>encode_effective</strong>(shift, dst) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates the encoded effective value for a register.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_modrm-class_method" title="encode_modrm (class method)">+ (Object) <strong>encode_modrm</strong>(dst, src) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates the mod r/m character for a source and destination
+register.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fpu_instructions-class_method" title="fpu_instructions (class method)">+ (Object) <strong>fpu_instructions</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns an array of &#39;safe&#39; FPU instructions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#geteip_fpu-class_method" title="geteip_fpu (class method)">+ (Object) <strong>geteip_fpu</strong>(badchars) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns an array containing a geteip stub, a register, and an
+offset This method will return nil if the getip generation fails.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#jmp-class_method" title="jmp (class method)">+ (Object) <strong>jmp</strong>(addr) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the opcodes that compose a jump instruction to the
+supplied relative offset.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#jmp_reg-class_method" title="jmp_reg (class method)">+ (Object) <strong>jmp_reg</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Jump tp a specific register.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#jmp_short-class_method" title="jmp_short (class method)">+ (Object) <strong>jmp_short</strong>(addr) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the opcodes that compose a short jump instruction to
+the supplied relative offset.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#loop-class_method" title="loop (class method)">+ (Object) <strong>loop</strong>(offset) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a LOOP instruction (Decrement ECX and jump short if ECX == 0).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mov_byte-class_method" title="mov_byte (class method)">+ (Object) <strong>mov_byte</strong>(reg, val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates the opcodes that set the low byte of a given register
+to the supplied value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mov_dword-class_method" title="mov_dword (class method)">+ (Object) <strong>mov_dword</strong>(reg, val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates the opcodes that set the a register to the supplied
+value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mov_word-class_method" title="mov_word (class method)">+ (Object) <strong>mov_word</strong>(reg, val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates the opcodes that set the low word of a given register
+to the supplied value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pack_dword-class_method" title="pack_dword (class method)">+ (Object) <strong>pack_dword</strong>(num) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method wrappers packing an integer as a little-endian buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pack_lsb-class_method" title="pack_lsb (class method)">+ (Object) <strong>pack_lsb</strong>(num) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the least significant byte of a packed dword.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pack_word-class_method" title="pack_word (class method)">+ (Object) <strong>pack_word</strong>(num) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method wrappers packing a short integer as a little-endian buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pop_dword-class_method" title="pop_dword (class method)">+ (Object) <strong>pop_dword</strong>(dst) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates a pop dword instruction into a register.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#push_byte-class_method" title="push_byte (class method)">+ (Object) <strong>push_byte</strong>(byte) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates a push byte instruction.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#push_dword-class_method" title="push_dword (class method)">+ (Object) <strong>push_dword</strong>(val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates a push dword instruction.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#push_word-class_method" title="push_word (class method)">+ (Object) <strong>push_word</strong>(val) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates a push word instruction.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reg_name32-class_method" title="reg_name32 (class method)">+ (Object) <strong>reg_name32</strong>(num) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the register named associated with a given register
+number.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reg_number-class_method" title="reg_number (class method)">+ (Object) <strong>reg_number</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the number associated with a named register.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_names_to_ids-class_method" title="register_names_to_ids (class method)">+ (Object) <strong>register_names_to_ids</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a list of registers as a space or command delimited string and return
+the internal register IDs as an array.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rel_number-class_method" title="rel_number (class method)">+ (Object) <strong>rel_number</strong>(num, delta = 0) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns a number offset to the supplied string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#searcher-class_method" title="searcher (class method)">+ (Object) <strong>searcher</strong>(tag) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the opcodes that compose a tag-based search routine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set-class_method" title="set (class method)">+ (Object) <strong>set</strong>(dst, val, badchars = &#39;&#39;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>(ie. xor eax, eax + mov al, 4 + xchg ah, al).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sub-class_method" title="sub (class method)">+ (Object) <strong>sub</strong>(val, reg, badchars = &#39;&#39;, add = false, adjust = false, bits = 0) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds a subtraction instruction using the supplied operand and register.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_check_badchars-class_method">
+  
+    + (<tt>Object</tt>) <strong>_check_badchars</strong>(data, badchars) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+388
+389
+390
+391
+392
+393
+394</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 388</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__check_badchars'>_check_badchars</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span> <span class='comment'># :nodoc:
+</span>  <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_badchar_index'>badchar_index</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_idx'>idx</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Bad character at </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_idx'>idx</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_check_reg-class_method">
+  
+    + (<tt>Object</tt>) <strong>_check_reg</strong>(*regs) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+379
+380
+381
+382
+383
+384
+385
+386</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 379</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_regs'>regs</span><span class='rparen'>)</span> <span class='comment'># :nodoc:
+</span>  <span class='id identifier rubyid_regs'>regs</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_reg'>reg</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_reg'>reg</span> <span class='op'>&gt;</span> <span class='int'>7</span> <span class='op'>||</span> <span class='id identifier rubyid_reg'>reg</span> <span class='op'>&lt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid register </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reg'>reg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add-class_method">
+  
+    + (<tt>Object</tt>) <strong>add</strong>(val, reg, badchars = &#39;&#39;, adjust = false, bits = 0) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates the opcodes equivalent to subtracting with a negative
+value from a given register.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+343
+344
+345</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 343</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_add'>add</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_adjust'>adjust</span> <span class='op'>=</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_bits'>bits</span> <span class='op'>=</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_adjust'>adjust</span><span class='comma'>,</span> <span class='id identifier rubyid_bits'>bits</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="adjust_reg-class_method">
+  
+    + (<tt>Object</tt>) <strong>adjust_reg</strong>(reg, adjustment) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method adjusts the value of the ESP register by a given amount.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+371
+372
+373
+374
+375
+376
+377</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 371</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_adjust_reg'>adjust_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_adjustment'>adjustment</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_adjustment'>adjustment</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='id identifier rubyid_adjustment'>adjustment</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='int'>32</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_add'>add</span><span class='lparen'>(</span><span class='id identifier rubyid_adjustment'>adjustment</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='int'>32</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="call-class_method">
+  
+    + (<tt>Object</tt>) <strong>call</strong>(addr) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the opcodes that compose a relative call instruction to
+the address specified.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe8</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_pack_dword'>pack_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_rel_number'>rel_number</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>5</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clear-class_method">
+  
+    + (<tt>Object</tt>) <strong>clear</strong>(reg, badchars = &#39;&#39;) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates an instruction that clears the supplied register in a
+manner that attempts to avoid bad characters, if supplied.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+201
+202
+203
+204</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 201</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_set'>set</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="copy_to_stack-class_method">
+  
+    + (<tt>Object</tt>) <strong>copy_to_stack</strong>(len) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generates a buffer that will copy memory immediately following the stub
+that is generated to be copied to the stack</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_copy_to_stack'>copy_to_stack</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='comment'># four byte align
+</span>  <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>+</span> <span class='int'>3</span><span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='op'>~</span><span class='int'>0x3</span>
+
+  <span class='id identifier rubyid_stub'>stub</span> <span class='op'>=</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xeb\x0f</span><span class='tstring_end'>&quot;</span></span><span class='op'>+</span>                <span class='comment'># jmp _end
+</span>    <span class='id identifier rubyid_push_dword'>push_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span><span class='op'>+</span>           <span class='comment'># push n
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x59</span><span class='tstring_end'>&quot;</span></span><span class='op'>+</span>                    <span class='comment'># pop ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5e</span><span class='tstring_end'>&quot;</span></span><span class='op'>+</span>                    <span class='comment'># pop esi
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x29\xcc</span><span class='tstring_end'>&quot;</span></span><span class='op'>+</span>                <span class='comment'># sub esp, ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89\xe7</span><span class='tstring_end'>&quot;</span></span><span class='op'>+</span>                <span class='comment'># mov edi, esp
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xf3\xa4</span><span class='tstring_end'>&quot;</span></span><span class='op'>+</span>                <span class='comment'># rep movsb
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\xe4</span><span class='tstring_end'>&quot;</span></span><span class='op'>+</span>                <span class='comment'># jmp esp
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe8\xec\xff\xff\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'># call _start
+</span>
+  <span class='id identifier rubyid_stub'>stub</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dword_adjust-class_method">
+  
+    + (<tt>Object</tt>) <strong>dword_adjust</strong>(dword, amount = 0) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method adds/subs a packed long integer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_dword_adjust'>dword_adjust</span><span class='lparen'>(</span><span class='id identifier rubyid_dword'>dword</span><span class='comma'>,</span> <span class='id identifier rubyid_amount'>amount</span><span class='op'>=</span><span class='int'>0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pack_dword'>pack_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_dword'>dword</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='id identifier rubyid_amount'>amount</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_effective-class_method">
+  
+    + (<tt>Object</tt>) <strong>encode_effective</strong>(shift, dst) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates the encoded effective value for a register.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_effective'>encode_effective</span><span class='lparen'>(</span><span class='id identifier rubyid_shift'>shift</span><span class='comma'>,</span> <span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lparen'>(</span><span class='int'>0xc0</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='id identifier rubyid_shift'>shift</span> <span class='op'>&lt;&lt;</span> <span class='int'>3</span><span class='rparen'>)</span> <span class='op'>|</span> <span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_modrm-class_method">
+  
+    + (<tt>Object</tt>) <strong>encode_modrm</strong>(dst, src) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates the mod r/m character for a source and destination
+register.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+159
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 159</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_modrm'>encode_modrm</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lparen'>(</span><span class='int'>0xc0</span> <span class='op'>|</span> <span class='id identifier rubyid_src'>src</span> <span class='op'>|</span> <span class='id identifier rubyid_dst'>dst</span> <span class='op'>&lt;&lt;</span> <span class='int'>3</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fpu_instructions-class_method">
+  
+    + (<tt>Object</tt>) <strong>fpu_instructions</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns an array of &#39;safe&#39; FPU instructions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 399</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_fpu_instructions'>fpu_instructions</span>
+  <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='int'>0xe8</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>0xee</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rbrace'>}</span>
+  <span class='int'>0xc0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>0xcf</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rbrace'>}</span>
+  <span class='int'>0xc0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>0xdf</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xda</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rbrace'>}</span>
+  <span class='int'>0xc0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>0xdf</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xdb</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rbrace'>}</span>
+  <span class='int'>0xc0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>0xc7</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xdd</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9\xd0</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9\xe1</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9\xf6</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9\xf7</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9\xe5</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='comment'># This FPU instruction seems to fail consistently on Linux
+</span>  <span class='comment'>#fpus &lt;&lt; &quot;\xdb\xe1&quot;
+</span>
+  <span class='id identifier rubyid_fpus'>fpus</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="geteip_fpu-class_method">
+  
+    + (<tt>Object</tt>) <strong>geteip_fpu</strong>(badchars) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns an array containing a geteip stub, a register, and an
+offset This method will return nil if the getip generation fails</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 424</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_geteip_fpu'>geteip_fpu</span><span class='lparen'>(</span><span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Default badchars to an empty string
+</span>  <span class='comment'>#
+</span>  <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Bail out early if D9 is restricted
+</span>  <span class='comment'>#
+</span>  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Create a list of FPU instructions
+</span>  <span class='comment'>#
+</span>  <span class='id identifier rubyid_fpus'>fpus</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_fpu_instructions'>fpu_instructions</span>
+  <span class='id identifier rubyid_bads'>bads</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_each_byte'>each_byte</span>  <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fpus'>fpus</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span>
+      <span class='id identifier rubyid_bads'>bads</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_str'>str</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_bads'>bads</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_str'>str</span><span class='op'>|</span> <span class='id identifier rubyid_fpus'>fpus</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_fpus'>fpus</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Create a list of registers to use for fnstenv
+</span>  <span class='comment'>#
+</span>  <span class='id identifier rubyid_dsts'>dsts</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='int'>7</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+    <span class='id identifier rubyid_dsts'>dsts</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span> <span class='lparen'>(</span><span class='int'>0x70</span><span class='op'>+</span><span class='id identifier rubyid_c'>c</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dsts'>dsts</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'>ESP</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x24</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dsts'>dsts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='const'>ESP</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_dsts'>dsts</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Grab a random FPU instruction
+</span>  <span class='comment'>#
+</span>  <span class='id identifier rubyid_fpu'>fpu</span> <span class='op'>=</span> <span class='id identifier rubyid_fpus'>fpus</span><span class='lbracket'>[</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='id identifier rubyid_fpus'>fpus</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Grab a random register from dst
+</span>  <span class='comment'>#
+</span>  <span class='kw'>while</span><span class='lparen'>(</span><span class='id identifier rubyid_dsts'>dsts</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_dst'>dst</span> <span class='op'>=</span> <span class='id identifier rubyid_dsts'>dsts</span><span class='lbracket'>[</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='id identifier rubyid_dsts'>dsts</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+    <span class='id identifier rubyid_dsts'>dsts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span>
+
+    <span class='comment'># If the register is not ESP, copy ESP
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span> <span class='op'>!=</span> <span class='const'>ESP</span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span> <span class='lparen'>(</span><span class='int'>0x70</span> <span class='op'>+</span> <span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>or</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span> <span class='lparen'>(</span><span class='int'>0xE0</span><span class='op'>+</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='lparen'>(</span><span class='int'>0xE0</span> <span class='op'>+</span> <span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+      <span class='kw'>else</span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x54</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span> <span class='lparen'>(</span><span class='int'>0x58</span><span class='op'>+</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rparen'>)</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x54</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='lparen'>(</span><span class='int'>0x58</span> <span class='op'>+</span> <span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_pad'>pad</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_pad'>pad</span> <span class='op'>&lt;</span> <span class='lparen'>(</span><span class='int'>128</span><span class='op'>-</span><span class='int'>12</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span> <span class='lparen'>(</span><span class='int'>256</span><span class='op'>-</span><span class='int'>12</span><span class='op'>-</span><span class='id identifier rubyid_pad'>pad</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_pad'>pad</span> <span class='op'>+=</span> <span class='int'>4</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Give up on finding a value to use here
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_pad'>pad</span> <span class='op'>==</span> <span class='lparen'>(</span><span class='int'>128</span><span class='op'>-</span><span class='int'>12</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span> <span class='op'>+</span> <span class='id identifier rubyid_fpu'>fpu</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd9</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='lparen'>(</span><span class='int'>0x70</span> <span class='op'>+</span> <span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+    <span class='id identifier rubyid_out'>out</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x24</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_dst'>dst</span> <span class='op'>==</span> <span class='const'>ESP</span>
+    <span class='id identifier rubyid_out'>out</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='int'>256</span><span class='op'>-</span><span class='int'>12</span><span class='op'>-</span><span class='id identifier rubyid_pad'>pad</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+
+    <span class='id identifier rubyid_regs'>regs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='op'>*</span><span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>7</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_regs'>regs</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_reg'>reg</span> <span class='op'>=</span> <span class='id identifier rubyid_regs'>regs</span><span class='lbracket'>[</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='id identifier rubyid_regs'>regs</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+      <span class='id identifier rubyid_regs'>regs</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_reg'>reg</span> <span class='op'>==</span> <span class='const'>ESP</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span> <span class='lparen'>(</span><span class='int'>0x58</span> <span class='op'>+</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rparen'>)</span>
+
+      <span class='comment'># Pop the value back out
+</span>      <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='id identifier rubyid_pad'>pad</span> <span class='op'>/</span> <span class='int'>4</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='id identifier rubyid_out'>out</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='int'>0x58</span> <span class='op'>+</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rbrace'>}</span>
+
+      <span class='comment'># Fix the value to point to self
+</span>      <span class='id identifier rubyid_gap'>gap</span> <span class='op'>=</span> <span class='id identifier rubyid_out'>out</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+      <span class='kw'>return</span> <span class='lbracket'>[</span><span class='id identifier rubyid_out'>out</span><span class='comma'>,</span> <span class='const'>REG_NAMES32</span><span class='lbracket'>[</span><span class='id identifier rubyid_reg'>reg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='comma'>,</span> <span class='id identifier rubyid_gap'>gap</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="jmp-class_method">
+  
+    + (<tt>Object</tt>) <strong>jmp</strong>(addr) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the opcodes that compose a jump instruction to the
+supplied relative offset.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_jmp'>jmp</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe9</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_pack_dword'>pack_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_rel_number'>rel_number</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="jmp_reg-class_method">
+  
+    + (<tt>Object</tt>) <strong>jmp_reg</strong>(str) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Jump tp a specific register</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_jmp_reg'>jmp_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_reg'>reg</span> <span class='op'>=</span> <span class='id identifier rubyid_reg_number'>reg_number</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='lbracket'>[</span><span class='int'>224</span> <span class='op'>+</span> <span class='id identifier rubyid_reg'>reg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="jmp_short-class_method">
+  
+    + (<tt>Object</tt>) <strong>jmp_short</strong>(addr) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the opcodes that compose a short jump instruction to
+the supplied relative offset.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_jmp_short'>jmp_short</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xeb</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_pack_lsb'>pack_lsb</span><span class='lparen'>(</span><span class='id identifier rubyid_rel_number'>rel_number</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>2</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="loop-class_method">
+  
+    + (<tt>Object</tt>) <strong>loop</strong>(offset) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a LOOP instruction (Decrement ECX and jump short if ECX == 0)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_loop'>loop</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xE2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_pack_lsb'>pack_lsb</span><span class='lparen'>(</span><span class='id identifier rubyid_rel_number'>rel_number</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>2</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mov_byte-class_method">
+  
+    + (<tt>Object</tt>) <strong>mov_byte</strong>(reg, val) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates the opcodes that set the low byte of a given register
+to the supplied value.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+210
+211
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 210</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mov_byte'>mov_byte</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+  <span class='comment'># chr will raise RangeError if val not between 0 .. 255
+</span>  <span class='kw'>return</span> <span class='lparen'>(</span><span class='int'>0xb0</span> <span class='op'>|</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='op'>+</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mov_dword-class_method">
+  
+    + (<tt>Object</tt>) <strong>mov_dword</strong>(reg, val) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates the opcodes that set the a register to the supplied
+value.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+232
+233
+234
+235</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 232</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mov_dword'>mov_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lparen'>(</span><span class='int'>0xb8</span> <span class='op'>|</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='op'>+</span> <span class='id identifier rubyid_pack_dword'>pack_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mov_word-class_method">
+  
+    + (<tt>Object</tt>) <strong>mov_word</strong>(reg, val) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates the opcodes that set the low word of a given register
+to the supplied value.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+220
+221
+222
+223
+224
+225
+226</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 220</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mov_word'>mov_word</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&lt;</span> <span class='int'>0</span> <span class='op'>||</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&gt;</span> <span class='int'>0xffff</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RangeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Can only take unsigned word values!</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x66</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='lparen'>(</span><span class='int'>0xb8</span> <span class='op'>|</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='op'>+</span> <span class='id identifier rubyid_pack_word'>pack_word</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pack_dword-class_method">
+  
+    + (<tt>Object</tt>) <strong>pack_dword</strong>(num) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method wrappers packing an integer as a little-endian buffer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+357
+358
+359</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 357</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pack_dword'>pack_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span><span class='id identifier rubyid_num'>num</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pack_lsb-class_method">
+  
+    + (<tt>Object</tt>) <strong>pack_lsb</strong>(num) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the least significant byte of a packed dword.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+364
+365
+366</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 364</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pack_lsb'>pack_lsb</span><span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pack_dword'>pack_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pack_word-class_method">
+  
+    + (<tt>Object</tt>) <strong>pack_word</strong>(num) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method wrappers packing a short integer as a little-endian buffer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+350
+351
+352</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 350</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pack_word'>pack_word</span><span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span><span class='id identifier rubyid_num'>num</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pop_dword-class_method">
+  
+    + (<tt>Object</tt>) <strong>pop_dword</strong>(dst) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates a pop dword instruction into a register.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+192
+193
+194
+195</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 192</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pop_dword'>pop_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lparen'>(</span><span class='int'>0x58</span> <span class='op'>|</span> <span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="push_byte-class_method">
+  
+    + (<tt>Object</tt>) <strong>push_byte</strong>(byte) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates a push byte instruction.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>::ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169
+170
+171
+172
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_push_byte'>push_byte</span><span class='lparen'>(</span><span class='id identifier rubyid_byte'>byte</span><span class='rparen'>)</span>
+  <span class='comment'># push byte will sign extend...
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_byte'>byte</span> <span class='op'>&lt;</span> <span class='int'>128</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_byte'>byte</span> <span class='op'>&gt;=</span> <span class='op'>-</span><span class='int'>128</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_byte'>byte</span> <span class='op'>&amp;</span> <span class='int'>0xff</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Can only take signed byte values!</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span><span class='lparen'>(</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="push_dword-class_method">
+  
+    + (<tt>Object</tt>) <strong>push_dword</strong>(val) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates a push dword instruction.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+185
+186
+187</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 185</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_push_dword'>push_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x68</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_pack_dword'>pack_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="push_word-class_method">
+  
+    + (<tt>Object</tt>) <strong>push_word</strong>(val) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates a push word instruction.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+178
+179
+180</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 178</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_push_word'>push_word</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x66\x68</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_pack_word'>pack_word</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reg_name32-class_method">
+  
+    + (<tt>Object</tt>) <strong>reg_name32</strong>(num) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the register named associated with a given register
+number.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+143
+144
+145
+146</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 143</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_reg_name32'>reg_name32</span><span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>REG_NAMES32</span><span class='lbracket'>[</span><span class='id identifier rubyid_num'>num</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reg_number-class_method">
+  
+    + (<tt>Object</tt>) <strong>reg_number</strong>(str) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the number associated with a named register.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+135
+136
+137</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 135</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_reg_number'>reg_number</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_names_to_ids-class_method">
+  
+    + (<tt>Object</tt>) <strong>register_names_to_ids</strong>(str) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a list of registers as a space or command delimited string and return
+the internal register IDs as an array</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 527</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_register_names_to_ids'>register_names_to_ids</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_register_ids'>register_ids</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[,\s]</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span>
+    <span class='id identifier rubyid_map'>map</span>    <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_reg'>reg</span><span class='op'>|</span> <span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span> <span class='rbrace'>}</span><span class='period'>.</span>
+    <span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_reg'>reg</span><span class='op'>|</span> <span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>        <span class='rbrace'>}</span><span class='period'>.</span>
+    <span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_reg'>reg</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_intern'>intern</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_register_ids'>register_ids</span> <span class='op'>&lt;&lt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_intern'>intern</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='id identifier rubyid_register_ids'>register_ids</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rel_number-class_method">
+  
+    + (<tt>Object</tt>) <strong>rel_number</strong>(num, delta = 0) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns a number offset to the supplied string.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 115</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_rel_number'>rel_number</span><span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span><span class='comma'>,</span> <span class='id identifier rubyid_delta'>delta</span> <span class='op'>=</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid_num'>num</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$+</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_num'>num</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='int'>2</span> <span class='op'>..</span> <span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$-</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_num'>num</span> <span class='op'>=</span> <span class='op'>-</span><span class='int'>1</span> <span class='op'>*</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='int'>2</span> <span class='op'>..</span> <span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0x</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_num'>num</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_hex'>hex</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_delta'>delta</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_num'>num</span> <span class='op'>+</span> <span class='id identifier rubyid_delta'>delta</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="searcher-class_method">
+  
+    + (<tt>Object</tt>) <strong>searcher</strong>(tag) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the opcodes that compose a tag-based search routine</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_searcher'>searcher</span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xbe</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_dword_adjust'>dword_adjust</span><span class='lparen'>(</span><span class='id identifier rubyid_tag'>tag</span><span class='comma'>,</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span><span class='op'>+</span>  <span class='comment'># mov esi, Tag - 1
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x46</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                        <span class='comment'># inc esi
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x47</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                        <span class='comment'># inc edi (end_search:)
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x39\x37</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                    <span class='comment'># cmp [edi],esi
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\xfb</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                    <span class='comment'># jnz 0xa (end_search)
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x46</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                        <span class='comment'># inc esi
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x4f</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                        <span class='comment'># dec edi (start_search:)
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x39\x77\xfc</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                <span class='comment'># cmp [edi-0x4],esi
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\xfa</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                    <span class='comment'># jnz 0x10 (start_search)
+</span>  <span class='id identifier rubyid_jmp_reg'>jmp_reg</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>edi</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>                  <span class='comment'># jmp edi
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set-class_method">
+  
+    + (<tt>Object</tt>) <strong>set</strong>(dst, val, badchars = &#39;&#39;) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>(ie. xor eax, eax + mov al, 4 + xchg ah, al)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../RuntimeError.html" title="Rex::RuntimeError (class)">RuntimeError</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 243</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__check_reg'>_check_reg</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span>
+
+  <span class='comment'># If the value is 0 try xor/sub dst, dst (2 bytes)
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>==</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_opcodes'>opcodes</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_remove_badchars'>remove_badchars</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x29\x2b\x31\x33</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_opcodes'>opcodes</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_opcodes'>opcodes</span><span class='lbracket'>[</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='id identifier rubyid_opcodes'>opcodes</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='op'>+</span> <span class='id identifier rubyid_encode_modrm'>encode_modrm</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+<span class='comment'># TODO: SHL/SHR
+</span><span class='comment'># TODO: AND
+</span>  <span class='kw'>end</span>
+
+  <span class='comment'># try push BYTE val; pop dst (3 bytes)
+</span>  <span class='kw'>begin</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid__check_badchars'>_check_badchars</span><span class='lparen'>(</span><span class='id identifier rubyid_push_byte'>push_byte</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_pop_dword'>pop_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RangeError</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># try clear dst, mov BYTE dst (4 bytes)
+</span>  <span class='kw'>begin</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>==</span> <span class='int'>0</span> <span class='comment'># clear tries to set(dst, 0, badchars), entering an infinite recursion
+</span>      <span class='kw'>return</span> <span class='id identifier rubyid__check_badchars'>_check_badchars</span><span class='lparen'>(</span><span class='id identifier rubyid_clear'>clear</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_mov_byte'>mov_byte</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RangeError</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># try mov DWORD dst (5 bytes)
+</span>  <span class='kw'>begin</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid__check_badchars'>_check_badchars</span><span class='lparen'>(</span><span class='id identifier rubyid_mov_dword'>mov_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RangeError</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># try push DWORD, pop dst (6 bytes)
+</span>  <span class='kw'>begin</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid__check_badchars'>_check_badchars</span><span class='lparen'>(</span><span class='id identifier rubyid_push_dword'>push_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_pop_dword'>pop_dword</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RangeError</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># try clear dst, mov WORD dst (6 bytes)
+</span>  <span class='kw'>begin</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>==</span> <span class='int'>0</span> <span class='comment'># clear tries to set(dst, 0, badchars), entering an infinite recursion
+</span>      <span class='kw'>return</span> <span class='id identifier rubyid__check_badchars'>_check_badchars</span><span class='lparen'>(</span><span class='id identifier rubyid_clear'>clear</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_mov_word'>mov_word</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>RangeError</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No valid set instruction could be created!</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span><span class='lparen'>(</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sub-class_method">
+  
+    + (<tt>Object</tt>) <strong>sub</strong>(val, reg, badchars = &#39;&#39;, add = false, adjust = false, bits = 0) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds a subtraction instruction using the supplied operand and register.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/arch/x86.rb', line 297</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_add'>add</span> <span class='op'>=</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_adjust'>adjust</span> <span class='op'>=</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_bits'>bits</span> <span class='op'>=</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opcodes'>opcodes</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_shift'>shift</span>   <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_add'>add</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='int'>0</span> <span class='op'>:</span> <span class='int'>5</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_bits'>bits</span> <span class='op'>&lt;=</span> <span class='int'>8</span> <span class='kw'>and</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&gt;=</span> <span class='op'>-</span><span class='int'>0x7f</span> <span class='kw'>and</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&lt;=</span> <span class='int'>0x7f</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opcodes'>opcodes</span> <span class='op'>&lt;&lt;</span>
+      <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_adjust'>adjust</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='id identifier rubyid_clear'>clear</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>+</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x83</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+      <span class='lbracket'>[</span> <span class='id identifier rubyid_encode_effective'>encode_effective</span><span class='lparen'>(</span><span class='id identifier rubyid_shift'>shift</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+      <span class='lbracket'>[</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_bits'>bits</span> <span class='op'>&lt;=</span> <span class='int'>16</span> <span class='kw'>and</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&gt;=</span> <span class='op'>-</span><span class='int'>0xffff</span> <span class='kw'>and</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&lt;=</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opcodes'>opcodes</span> <span class='op'>&lt;&lt;</span>
+      <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_adjust'>adjust</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='id identifier rubyid_clear'>clear</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>+</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x66\x81</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+      <span class='lbracket'>[</span> <span class='id identifier rubyid_encode_effective'>encode_effective</span><span class='lparen'>(</span><span class='id identifier rubyid_shift'>shift</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+      <span class='lbracket'>[</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_opcodes'>opcodes</span> <span class='op'>&lt;&lt;</span>
+    <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_adjust'>adjust</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='id identifier rubyid_clear'>clear</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x81</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+    <span class='lbracket'>[</span> <span class='id identifier rubyid_encode_effective'>encode_effective</span><span class='lparen'>(</span><span class='id identifier rubyid_shift'>shift</span><span class='comma'>,</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='lbracket'>[</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Search for a compatible opcode
+</span>  <span class='id identifier rubyid_opcodes'>opcodes</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_op'>op</span><span class='op'>|</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid__check_badchars'>_check_badchars</span><span class='lparen'>(</span><span class='id identifier rubyid_op'>op</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_op'>op</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opcodes'>opcodes</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Could not find a usable opcode</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:36 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

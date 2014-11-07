@@ -1,0 +1,625 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Post::Windows::Accounts
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Post/Windows/Accounts.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">Accounts</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Post::Windows::Accounts
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="LDAP.html" title="Msf::Post::Windows::LDAP (module)">LDAP</a></span>, <span class='object_link'><a href="Priv.html" title="Msf::Post::Windows::Priv (module)">Priv</a></span>, <span class='object_link'><a href="UserProfiles.html" title="Msf::Post::Windows::UserProfiles (module)">UserProfiles</a></span>, <span class='object_link'><a href="../../Scripts/Meterpreter/Common.html" title="Msf::Scripts::Meterpreter::Common (module)">Scripts::Meterpreter::Common</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/post/windows/accounts.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="GUID-constant" class="">GUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Data1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:DWORD</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Data2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:WORD</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Data3</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:WORD</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Data4</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BYTE[8]</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="DOMAIN_CONTROLLER_INFO-constant" class="">DOMAIN_CONTROLLER_INFO =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DomainControllerName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:LPSTR</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DomainControllerAddress</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:LPSTR</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DomainControllerAddressType</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:ULONG</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DomainGuid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='const'>GUID</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DomainName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:LPSTR</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DnsForestName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:LPSTR</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Flags</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:ULONG</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DcSiteName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:LPSTR</span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ClientSiteName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='symbol'>:LPSTR</span><span class='rbracket'>]</span>
+<span class='rbracket'>]</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete_user-instance_method" title="#delete_user (instance method)">- (Object) <strong>delete_user</strong>(username, server_name = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>delete_user(username, server_name = nil).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_domain-instance_method" title="#get_domain (instance method)">- (Object) <strong>get_domain</strong>(server_name = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>get_domain(server_name=nil).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resolve_sid-instance_method" title="#resolve_sid (instance method)">- (Object) <strong>resolve_sid</strong>(sid, system_name = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>resolve_sid(sid, system_name = nil).</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="delete_user-instance_method">
+  
+    - (<tt>Object</tt>) <strong>delete_user</strong>(username, server_name = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>delete_user(username, server_name = nil)</p>
+
+<p>Summary:</p>
+
+<pre class="code ruby"><code class="ruby">Deletes a user account from the given server (or local if none given)</code></pre>
+
+<p>Parameters</p>
+
+<pre class="code ruby"><code class="ruby">username    - The username of the user to delete (not-qualified, e.g. BOB)
+server_name - DNS or NetBIOS name of remote server on which to delete user</code></pre>
+
+<p>Returns:</p>
+
+<pre class="code ruby"><code class="ruby">One of the following:
+   :success          - Everything went as planned
+   :invalid_server   - The server name provided was invalid
+   :not_on_primary   - Operation allowed only on domain controller
+   :user_not_found   - User specified does not exist on the given server
+   :access_denied    - You do not have permission to delete the given user
+
+OR nil if there was an exceptional windows error (example: ran out of memory)</code></pre>
+
+<p>Caveats:</p>
+
+<pre class="code ruby"><code class="ruby">nil is returned if there is an *exceptional* windows error. That error is printed.
+Everything other than &#39;:success&#39; signifies failure</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/accounts.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_delete_user'>delete_user</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_server_name'>server_name</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_deletion'>deletion</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_netapi32'>netapi32</span><span class='period'>.</span><span class='const'>NetUserDel</span><span class='lparen'>(</span><span class='id identifier rubyid_server_name'>server_name</span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+
+  <span class='comment'>#http://msdn.microsoft.com/en-us/library/aa370674.aspx
+</span>  <span class='kw'>case</span> <span class='id identifier rubyid_deletion'>deletion</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='int'>2221</span> <span class='comment'># NERR_UserNotFound
+</span>    <span class='kw'>return</span> <span class='symbol'>:user_not_found</span>
+  <span class='kw'>when</span> <span class='int'>2351</span> <span class='comment'># NERR_InvalidComputer
+</span>    <span class='kw'>return</span> <span class='symbol'>:invalid_server</span>
+  <span class='kw'>when</span> <span class='int'>2226</span> <span class='comment'># NERR_NotPrimary
+</span>    <span class='kw'>return</span> <span class='symbol'>:not_on_primary</span>
+  <span class='kw'>when</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_const'>const</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ERROR_ACCESS_DENIED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='symbol'>:access_denied</span>
+  <span class='kw'>when</span> <span class='int'>0</span>
+    <span class='kw'>return</span> <span class='symbol'>:success</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_error'>error</span> <span class='op'>=</span> <span class='id identifier rubyid_deletion'>deletion</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_error'>error</span> <span class='op'>!=</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_print_error'>print_error</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unexpected Windows System Error </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>else</span>
+      <span class='comment'># Uh... we shouldn&#39;t be here
+</span>      <span class='id identifier rubyid_print_error'>print_error</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DeleteUser unexpectedly returned </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_deletion'>deletion</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we got here, then something above failed
+</span>  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_domain-instance_method">
+  
+    - (<tt>Object</tt>) <strong>get_domain</strong>(server_name = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>get_domain(server_name=nil)</p>
+
+<p>Summary:</p>
+
+<pre class="code ruby"><code class="ruby">Retrieves the current DomainName the given server is
+a member of.</code></pre>
+
+<p>Parameters</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_server_name'>server_name</span> <span class='op'>-</span> <span class='const'>DNS</span> <span class='kw'>or</span> <span class='const'>NetBIOS</span> <span class='id identifier rubyid_name'>name</span> <span class='id identifier rubyid_of'>of</span> <span class='id identifier rubyid_the'>the</span> <span class='id identifier rubyid_remote'>remote</span> <span class='id identifier rubyid_server'>server</span></code></pre>
+
+<p>Returns:</p>
+
+<pre class="code ruby"><code class="ruby">The DomainName of the remote server or nil if windows
+could not retrieve the DomainControllerInfo or encountered
+an exception.</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/accounts.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_domain'>get_domain</span><span class='lparen'>(</span><span class='id identifier rubyid_server_name'>server_name</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_domain'>domain</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_netapi32'>netapi32</span><span class='period'>.</span><span class='const'>DsGetDcNameA</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_server_name'>server_name</span><span class='comma'>,</span>
+    <span class='kw'>nil</span><span class='comma'>,</span>
+    <span class='kw'>nil</span><span class='comma'>,</span>
+    <span class='kw'>nil</span><span class='comma'>,</span>
+    <span class='int'>0</span><span class='comma'>,</span>
+    <span class='int'>4</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_dc_info_addr'>dc_info_addr</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DomainControllerInfo</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_dc_info_addr'>dc_info_addr</span> <span class='op'>==</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_dc_info'>dc_info</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_util'>util</span><span class='period'>.</span><span class='id identifier rubyid_read_data'>read_data</span><span class='lparen'>(</span><span class='const'>DOMAIN_CONTROLLER_INFO</span><span class='comma'>,</span> <span class='id identifier rubyid_dc_info_addr'>dc_info_addr</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_pointer'>pointer</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_util'>util</span><span class='period'>.</span><span class='id identifier rubyid_unpack_pointer'>unpack_pointer</span><span class='lparen'>(</span><span class='id identifier rubyid_dc_info'>dc_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DomainName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_domain'>domain</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_util'>util</span><span class='period'>.</span><span class='id identifier rubyid_read_string'>read_string</span><span class='lparen'>(</span><span class='id identifier rubyid_pointer'>pointer</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>ensure</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_netapi32'>netapi32</span><span class='period'>.</span><span class='const'>NetApiBufferFree</span><span class='lparen'>(</span><span class='id identifier rubyid_dc_info_addr'>dc_info_addr</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_domain'>domain</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resolve_sid-instance_method">
+  
+    - (<tt>Object</tt>) <strong>resolve_sid</strong>(sid, system_name = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>resolve_sid(sid, system_name = nil)</p>
+
+<p>Summary:</p>
+
+<pre class="code ruby"><code class="ruby">Retrieves the name, domain, and type of account for the given sid</code></pre>
+
+<p>Parameters:</p>
+
+<pre class="code ruby"><code class="ruby">sid         - A SID string (e.g. S-1-5-32-544)
+system_name - Where to search. If nil, first local system then trusted DCs</code></pre>
+
+<p>Returns:</p>
+
+<pre class="ruby">{
+  :<span class="ruby-identifier">name</span>   =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">account</span> <span class="ruby-identifier">name</span> (<span class="ruby-identifier">e</span>.<span class="ruby-identifier">g</span>. <span class="ruby-string">&quot;SYSTEM&quot;</span>)
+  :<span class="ruby-identifier">domain</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">domain</span> <span class="ruby-identifier">where</span> <span class="ruby-identifier">the</span> <span class="ruby-identifier">account</span> <span class="ruby-identifier">name</span> <span class="ruby-identifier">was</span> <span class="ruby-identifier">found</span>. <span class="ruby-constant">May</span> <span class="ruby-identifier">have</span> <span class="ruby-identifier">values</span> <span class="ruby-identifier">such</span> <span class="ruby-identifier">as</span>
+             <span class="ruby-identifier">the</span> <span class="ruby-identifier">work</span> <span class="ruby-identifier">station</span><span class="ruby-string">&#39;s name, BUILTIN, NT AUTHORITY, or an empty string
+  :type   =&gt; one of :user, :group, :domain, :alias, :well_known_group,
+             :deleted_account, :invalid, :unknown, :computer
+  :mapped =&gt; There was a mapping found for the SID
+}
+
+OR nil if there was an exceptional windows error (example: ran out of memory)
+</span></pre>
+
+<p>Caveats:</p>
+
+<pre class="ruby"><span class="ruby-constant">If</span> <span class="ruby-identifier">a</span> <span class="ruby-identifier">valid</span> <span class="ruby-identifier">mapping</span> <span class="ruby-identifier">is</span> <span class="ruby-keyword">not</span> <span class="ruby-identifier">found</span>, <span class="ruby-identifier">only</span> { :<span class="ruby-identifier">mapped</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword">false</span> } <span class="ruby-identifier">will</span> <span class="ruby-identifier">be</span> <span class="ruby-identifier">returned</span>
+<span class="ruby-keyword">nil</span> <span class="ruby-identifier">is</span> <span class="ruby-identifier">returned</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">there</span> <span class="ruby-identifier">is</span> <span class="ruby-identifier">an</span> *<span class="ruby-identifier">exceptional</span>* <span class="ruby-identifier">windows</span> <span class="ruby-identifier">error</span>. <span class="ruby-constant">That</span> <span class="ruby-identifier">error</span> <span class="ruby-identifier">is</span> <span class="ruby-identifier">printed</span>.
+<span class="ruby-constant">If</span> <span class="ruby-identifier">an</span> <span class="ruby-identifier">invalid</span> <span class="ruby-identifier">system_name</span> <span class="ruby-identifier">is</span> <span class="ruby-identifier">provided</span>, <span class="ruby-identifier">there</span> <span class="ruby-identifier">will</span> <span class="ruby-identifier">be</span> <span class="ruby-identifier">a</span> <span class="ruby-identifier">windows</span> <span class="ruby-identifier">error</span> <span class="ruby-keyword">and</span> <span class="ruby-keyword">nil</span> <span class="ruby-identifier">returned</span>
+</pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/accounts.rb', line 147</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resolve_sid'>resolve_sid</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_system_name'>system_name</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_adv'>adv</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_advapi32'>advapi32</span><span class='semicolon'>;</span>
+
+  <span class='comment'># Second param is the size of the buffer where the pointer will be written
+</span>  <span class='comment'># In railgun, if you specify 4 bytes for a PDWORD it will grow to 8, as needed.
+</span>  <span class='id identifier rubyid_conversion'>conversion</span> <span class='op'>=</span> <span class='id identifier rubyid_adv'>adv</span><span class='period'>.</span><span class='const'>ConvertStringSidToSidA</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='int'>4</span><span class='rparen'>)</span>
+
+  <span class='comment'># If the call failed, handle errors accordingly.
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_conversion'>conversion</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_error'>error</span> <span class='op'>=</span> <span class='id identifier rubyid_conversion'>conversion</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+    <span class='kw'>case</span> <span class='id identifier rubyid_error'>error</span>
+    <span class='kw'>when</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_const'>const</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ERROR_INVALID_SID</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='comment'># An invalid SID was supplied
+</span>      <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='symbol'>:invalid</span><span class='comma'>,</span> <span class='symbol'>:mapped</span> <span class='op'>=&gt;</span> <span class='kw'>false</span> <span class='rbrace'>}</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_error'>print_error</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unexpected windows error </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>return</span> <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># A reference to the SID data structure. Generally needed when working with sids
+</span>  <span class='id identifier rubyid_psid'>psid</span> <span class='op'>=</span> <span class='id identifier rubyid_conversion'>conversion</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pSid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='comment'># http://msdn.microsoft.com/en-us/library/aa379166(v=vs.85).aspx
+</span>  <span class='comment'># TODO: The buffer sizes here need to be reviewed/adjusted/optimized
+</span>  <span class='id identifier rubyid_lookup'>lookup</span> <span class='op'>=</span> <span class='id identifier rubyid_adv'>adv</span><span class='period'>.</span><span class='const'>LookupAccountSidA</span><span class='lparen'>(</span><span class='id identifier rubyid_system_name'>system_name</span><span class='comma'>,</span> <span class='id identifier rubyid_psid'>psid</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>100</span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span>
+
+  <span class='comment'># We no longer need the sid so free it.
+</span>  <span class='comment'># NOTE: We do not check to see if this call succeeded. Do we care?
+</span>  <span class='id identifier rubyid_adv'>adv</span><span class='period'>.</span><span class='const'>FreeSid</span><span class='lparen'>(</span><span class='id identifier rubyid_psid'>psid</span><span class='rparen'>)</span>
+
+  <span class='comment'># If the call failed, handle errors accordingly.
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_error'>error</span> <span class='op'>=</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GetLastError</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+    <span class='kw'>case</span> <span class='id identifier rubyid_error'>error</span>
+    <span class='kw'>when</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_const'>const</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ERROR_INVALID_PARAMETER</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='comment'># Unless the railgun call is broken, this means revesion is wrong
+</span>      <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='symbol'>:invalid</span> <span class='rbrace'>}</span>
+    <span class='kw'>when</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_const'>const</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ERROR_NONE_MAPPED</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='comment'># There were no accounts associated with this SID
+</span>      <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='symbol'>:mapped</span> <span class='op'>=&gt;</span> <span class='kw'>false</span> <span class='rbrace'>}</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_error'>print_error</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unexpected windows error </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>return</span> <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># peUse is the enum &quot;SID_NAME_USE&quot;
+</span>  <span class='id identifier rubyid_sid_type'>sid_type</span> <span class='op'>=</span> <span class='id identifier rubyid_lookup_SID_NAME_USE'>lookup_SID_NAME_USE</span><span class='lparen'>(</span><span class='id identifier rubyid_lookup'>lookup</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>peUse</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:name</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='symbol'>:domain</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReferencedDomainName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='symbol'>:type</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_sid_type'>sid_type</span><span class='comma'>,</span>
+    <span class='symbol'>:mapped</span> <span class='op'>=&gt;</span> <span class='kw'>true</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:33 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

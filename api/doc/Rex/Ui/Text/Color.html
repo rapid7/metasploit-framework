@@ -1,0 +1,538 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Ui::Text::Color
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Ui/Text/Color.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Ui.html" title="Rex::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Text.html" title="Rex::Ui::Text (module)">Text</a></span></span>
+     &raquo; 
+    <span class="title">Color</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Ui::Text::Color
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Input.html" title="Rex::Ui::Text::Input (class)">Input</a></span>, <span class='object_link'><a href="Output.html" title="Rex::Ui::Text::Output (class)">Output</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/ui/text/color.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides an interface to getting ANSI color codes. It&#39;s
+taken mostly from perl&#39;s Term::ANSIColor by Russ Allbery
+&lt;rra@stanford.edu&gt; and Zenin &lt;zenin@best.com&gt;.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="AnsiAttributes-constant" class="">AnsiAttributes =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>clear</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reset</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bold</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dark</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='int'>2</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>underline</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='int'>4</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>underscore</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='int'>4</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>blink</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='int'>5</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reverse</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='int'>7</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>concealed</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='int'>8</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>black</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='int'>30</span><span class='comma'>,</span>   <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>on_black</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='int'>40</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>red</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='int'>31</span><span class='comma'>,</span>   <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>on_red</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='int'>41</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>green</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='int'>32</span><span class='comma'>,</span>   <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>on_green</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='int'>42</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>yellow</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='int'>33</span><span class='comma'>,</span>   <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>on_yellow</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='int'>43</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>blue</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='int'>34</span><span class='comma'>,</span>   <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>on_blue</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='int'>44</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>magenta</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='int'>35</span><span class='comma'>,</span>   <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>on_magenta</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='int'>45</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cyan</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='int'>36</span><span class='comma'>,</span>   <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>on_cyan</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='int'>46</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>white</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='int'>37</span><span class='comma'>,</span>   <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>on_white</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='int'>47</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ansi-instance_method" title="#ansi (instance method)">- (Object) <strong>ansi</strong>(*attrs) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a string with ANSI codes substituted.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#colorize-instance_method" title="#colorize (instance method)">- (Object) <strong>colorize</strong>(*color) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Colorize if this shell supports it.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#do_colorize-instance_method" title="#do_colorize (instance method)">- (Object) <strong>do_colorize</strong>(*color) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Colorize if this shell supports it.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reset_color-instance_method" title="#reset_color (instance method)">- (Object) <strong>reset_color</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Resets coloring so that it&#39;s back to normal.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#substitute_colors-instance_method" title="#substitute_colors (instance method)">- (Object) <strong>substitute_colors</strong>(msg, in_prompt = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="ansi-instance_method">
+  
+    - (<tt>Object</tt>) <strong>ansi</strong>(*attrs) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a string with ANSI codes substituted.  Derived from code written by
+The FaerieMUD Consortium.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/color.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ansi'>ansi</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_attrs'>attrs</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_attr'>attr</span> <span class='op'>=</span> <span class='id identifier rubyid_attrs'>attrs</span><span class='period'>.</span><span class='id identifier rubyid_collect'>collect</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='op'>|</span> <span class='const'>AnsiAttributes</span><span class='lbracket'>[</span><span class='id identifier rubyid_a'>a</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='const'>AnsiAttributes</span><span class='lbracket'>[</span><span class='id identifier rubyid_a'>a</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>nil</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_attr'>attr</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\e[%sm</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_attr'>attr</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_attr'>attr</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_attr'>attr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="colorize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>colorize</strong>(*color) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Colorize if this shell supports it</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/color.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_supports_color?'>supports_color?</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_ansi'>ansi</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="do_colorize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>do_colorize</strong>(*color) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Colorize if this shell supports it</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/color.rb', line 93</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_do_colorize'>do_colorize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_supports_color?'>supports_color?</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_ansi'>ansi</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_color'>color</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reset_color-instance_method">
+  
+    - (<tt>Object</tt>) <strong>reset_color</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Resets coloring so that it&#39;s back to normal.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/color.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reset_color'>reset_color</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_supports_color?'>supports_color?</span>
+  <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>clear</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="substitute_colors-instance_method">
+  
+    - (<tt>Object</tt>) <strong>substitute_colors</strong>(msg, in_prompt = nil) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/color.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_substitute_colors'>substitute_colors</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_in_prompt'>in_prompt</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_msg'>msg</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+  <span class='id identifier rubyid_pre_color'>pre_color</span> <span class='op'>=</span> <span class='id identifier rubyid_post_color'>post_color</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_in_prompt'>in_prompt</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_pre_color'>pre_color</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01</span><span class='tstring_end'>&quot;</span></span>  <span class='comment'># RL_PROMPT_START_IGNORE
+</span>    <span class='id identifier rubyid_post_color'>post_color</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x02</span><span class='tstring_end'>&quot;</span></span> <span class='comment'># RL_PROMPT_END_IGNORE
+</span>  <span class='kw'>end</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%cya</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cyan</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%red</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>red</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%grn</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>green</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%blu</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>blue</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%yel</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>yellow</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%whi</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>white</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%mag</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>magenta</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%blk</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>black</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%dred</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dark</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>red</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%dgrn</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dark</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>green</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%dblu</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dark</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>blue</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%dyel</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dark</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>yellow</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%dcya</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dark</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cyan</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%dwhi</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dark</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>white</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%dmag</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dark</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>magenta</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%und</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>underline</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%bld</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bold</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>%clr</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_pre_color'>pre_color</span><span class='op'>+</span><span class='id identifier rubyid_colorize'>colorize</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>clear</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='id identifier rubyid_post_color'>post_color</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_str'>str</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:47 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

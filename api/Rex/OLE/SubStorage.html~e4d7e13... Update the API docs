@@ -1,0 +1,514 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::OLE::SubStorage
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/OLE/SubStorage.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../OLE.html" title="Rex::OLE (module)">OLE</a></span></span>
+     &raquo; 
+    <span class="title">SubStorage</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::OLE::SubStorage
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="DirEntry.html" title="Rex::OLE::DirEntry (class)">DirEntry</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="DirEntry.html" title="Rex::OLE::DirEntry (class)">DirEntry</a></span></li>
+          
+            <li class="next">Rex::OLE::SubStorage</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/ole/substorage.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="DirEntry.html" title="Rex::OLE::DirEntry (class)">DirEntry</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DirEntry.html#_sidChild-instance_method" title="Rex::OLE::DirEntry#_sidChild (method)">#_sidChild</a></span>, <span class='object_link'><a href="DirEntry.html#_sidLeftSib-instance_method" title="Rex::OLE::DirEntry#_sidLeftSib (method)">#_sidLeftSib</a></span>, <span class='object_link'><a href="DirEntry.html#_sidRightSib-instance_method" title="Rex::OLE::DirEntry#_sidRightSib (method)">#_sidRightSib</a></span>, <span class='object_link'><a href="DirEntry.html#sid-instance_method" title="Rex::OLE::DirEntry#sid (method)">#sid</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">- (Object) <strong>close</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_storage-instance_method" title="#create_storage (instance method)">- (Object) <strong>create_storage</strong>(name, mode = STGM_WRITE) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>storage handling stuff.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_stream-instance_method" title="#create_stream (instance method)">- (Object) <strong>create_stream</strong>(name, mode = STGM_WRITE) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>stream handling stuff.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (SubStorage) <strong>initialize</strong>(stg) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of SubStorage.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_storage-instance_method" title="#open_storage (instance method)">- (Object) <strong>open_storage</strong>(name, mode = STGM_WRITE) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_stream-instance_method" title="#open_stream (instance method)">- (Object) <strong>open_stream</strong>(name, mode = STGM_READ) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="DirEntry.html" title="Rex::OLE::DirEntry (class)">DirEntry</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="DirEntry.html#%3C%3C-instance_method" title="Rex::OLE::DirEntry#&lt;&lt; (method)">#<<</a></span>, <span class='object_link'><a href="DirEntry.html#each-instance_method" title="Rex::OLE::DirEntry#each (method)">#each</a></span>, <span class='object_link'><a href="DirEntry.html#find_by_sid-instance_method" title="Rex::OLE::DirEntry#find_by_sid (method)">#find_by_sid</a></span>, <span class='object_link'><a href="DirEntry.html#find_stream_by_name_and_type-instance_method" title="Rex::OLE::DirEntry#find_stream_by_name_and_type (method)">#find_stream_by_name_and_type</a></span>, <span class='object_link'><a href="DirEntry.html#from_s-instance_method" title="Rex::OLE::DirEntry#from_s (method)">#from_s</a></span>, <span class='object_link'><a href="DirEntry.html#length-instance_method" title="Rex::OLE::DirEntry#length (method)">#length</a></span>, <span class='object_link'><a href="DirEntry.html#name-instance_method" title="Rex::OLE::DirEntry#name (method)">#name</a></span>, <span class='object_link'><a href="DirEntry.html#name%3D-instance_method" title="Rex::OLE::DirEntry#name= (method)">#name=</a></span>, <span class='object_link'><a href="DirEntry.html#pack-instance_method" title="Rex::OLE::DirEntry#pack (method)">#pack</a></span>, <span class='object_link'><a href="DirEntry.html#start_sector-instance_method" title="Rex::OLE::DirEntry#start_sector (method)">#start_sector</a></span>, <span class='object_link'><a href="DirEntry.html#start_sector%3D-instance_method" title="Rex::OLE::DirEntry#start_sector= (method)">#start_sector=</a></span>, <span class='object_link'><a href="DirEntry.html#to_s-instance_method" title="Rex::OLE::DirEntry#to_s (method)">#to_s</a></span>, <span class='object_link'><a href="DirEntry.html#type-instance_method" title="Rex::OLE::DirEntry#type (method)">#type</a></span>, <span class='object_link'><a href="DirEntry.html#type%3D-instance_method" title="Rex::OLE::DirEntry#type= (method)">#type=</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::OLE::SubStorage (class)">SubStorage</a></span></tt>) <strong>initialize</strong>(stg) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of SubStorage</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/substorage.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_stg'>stg</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='ivar'>@_mse</span> <span class='op'>=</span> <span class='const'>STGTY_STORAGE</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="close-instance_method">
+  
+    - (<tt>Object</tt>) <strong>close</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/substorage.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_storage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_storage</strong>(name, mode = STGM_WRITE) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>storage handling stuff</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/substorage.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_storage'>create_storage</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_WRITE</span><span class='rparen'>)</span>
+  <span class='ivar'>@stg</span><span class='period'>.</span><span class='id identifier rubyid_create_storage'>create_storage</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_stream-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_stream</strong>(name, mode = STGM_WRITE) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>stream handling stuff</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/substorage.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_stream'>create_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_WRITE</span><span class='rparen'>)</span>
+  <span class='ivar'>@stg</span><span class='period'>.</span><span class='id identifier rubyid_create_stream'>create_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_storage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>open_storage</strong>(name, mode = STGM_WRITE) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/substorage.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_storage'>open_storage</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_WRITE</span><span class='rparen'>)</span>
+  <span class='ivar'>@stg</span><span class='period'>.</span><span class='id identifier rubyid_open_storage'>open_storage</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_stream-instance_method">
+  
+    - (<tt>Object</tt>) <strong>open_stream</strong>(name, mode = STGM_READ) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/substorage.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_stream'>open_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_READ</span><span class='rparen'>)</span>
+  <span class='ivar'>@stg</span><span class='period'>.</span><span class='id identifier rubyid_open_stream'>open_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:02 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

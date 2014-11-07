@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Msf::Ui::Console::Table
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Ui/Console/Table.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (T)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Ui.html" title="Msf::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Console.html" title="Msf::Ui::Console (module)">Console</a></span></span>
+     &raquo; 
+    <span class="title">Table</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Msf::Ui::Console::Table
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../../../Rex/Ui/Text/Table.html" title="Rex::Ui::Text::Table (class)">Rex::Ui::Text::Table</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../../Rex/Ui/Text/Table.html" title="Rex::Ui::Text::Table (class)">Rex::Ui::Text::Table</a></span></li>
+          
+            <li class="next">Msf::Ui::Console::Table</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/ui/console/table.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Console table display wrapper that allows for stylized tables</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Table/Style.html" title="Msf::Ui::Console::Table::Style (module)">Style</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#style-instance_method" title="#style (instance method)">- (Object) <strong>style</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html" title="Rex::Ui::Text::Table (class)">Rex::Ui::Text::Table</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#cellpad-instance_method" title="Rex::Ui::Text::Table#cellpad (method)">#cellpad</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#colprops-instance_method" title="Rex::Ui::Text::Table#colprops (method)">#colprops</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#columns-instance_method" title="Rex::Ui::Text::Table#columns (method)">#columns</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#header-instance_method" title="Rex::Ui::Text::Table#header (method)">#header</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#headeri-instance_method" title="Rex::Ui::Text::Table#headeri (method)">#headeri</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#indent-instance_method" title="Rex::Ui::Text::Table#indent (method)">#indent</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#postfix-instance_method" title="Rex::Ui::Text::Table#postfix (method)">#postfix</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#prefix-instance_method" title="Rex::Ui::Text::Table#prefix (method)">#prefix</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#rows-instance_method" title="Rex::Ui::Text::Table#rows (method)">#rows</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#sort_index-instance_method" title="Rex::Ui::Text::Table#sort_index (method)">#sort_index</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#width-instance_method" title="Rex::Ui::Text::Table#width (method)">#width</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Table) <strong>initialize</strong>(style, opts = {}) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes a wrappered table with the supplied style and options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">- (Object) <strong>to_s</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Print nothing if there are no rows if the style is default.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html" title="Rex::Ui::Text::Table (class)">Rex::Ui::Text::Table</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#%3C%3C-instance_method" title="Rex::Ui::Text::Table#&lt;&lt; (method)">#<<</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#%5B%5D-instance_method" title="Rex::Ui::Text::Table#[] (method)">#[]</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#add_hr-instance_method" title="Rex::Ui::Text::Table#add_hr (method)">#add_hr</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#add_row-instance_method" title="Rex::Ui::Text::Table#add_row (method)">#add_row</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#columns_to_s-instance_method" title="Rex::Ui::Text::Table#columns_to_s (method)">#columns_to_s</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#defaults-instance_method" title="Rex::Ui::Text::Table#defaults (method)">#defaults</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#header_to_s-instance_method" title="Rex::Ui::Text::Table#header_to_s (method)">#header_to_s</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#hr_to_s-instance_method" title="Rex::Ui::Text::Table#hr_to_s (method)">#hr_to_s</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#is_hr-instance_method" title="Rex::Ui::Text::Table#is_hr (method)">#is_hr</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#pad-instance_method" title="Rex::Ui::Text::Table#pad (method)">#pad</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#print-instance_method" title="Rex::Ui::Text::Table#print (method)">#print</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#row_to_s-instance_method" title="Rex::Ui::Text::Table#row_to_s (method)">#row_to_s</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#sort_rows-instance_method" title="Rex::Ui::Text::Table#sort_rows (method)">#sort_rows</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/Table.html#to_csv-instance_method" title="Rex::Ui::Text::Table#to_csv (method)">#to_csv</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Msf::Ui::Console::Table (class)">Table</a></span></tt>) <strong>initialize</strong>(style, opts = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes a wrappered table with the supplied style and options.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/table.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_style'>style</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_style'>style</span> <span class='op'>=</span> <span class='id identifier rubyid_style'>style</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_style'>style</span> <span class='op'>==</span> <span class='const'>Style</span><span class='op'>::</span><span class='const'>Default</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indent</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='int'>3</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Prefix</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Prefix</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Postfix</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Postfix</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="style=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="style-instance_method">
+  
+    - (<tt>Object</tt>) <strong>style</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/table.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_style'>style</span>
+  <span class='ivar'>@style</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="to_s-instance_method">
+  
+    - (<tt>Object</tt>) <strong>to_s</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Print nothing if there are no rows if the style is default.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/table.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_style'>style</span> <span class='op'>==</span> <span class='const'>Style</span><span class='op'>::</span><span class='const'>Default</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_rows'>rows</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:44 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

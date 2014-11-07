@@ -1,0 +1,629 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Post::Meterpreter::Ui::Console::CommandDispatcher
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../../';
+  framesUrl = "../../../../../frames.html#!Rex/Post/Meterpreter/Ui/Console/CommandDispatcher.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Ui.html" title="Rex::Post::Meterpreter::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Console.html" title="Rex::Post::Meterpreter::Ui::Console (class)">Console</a></span></span>
+     &raquo; 
+    <span class="title">CommandDispatcher</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Post::Meterpreter::Ui::Console::CommandDispatcher
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Ui::Text::DispatcherShell::CommandDispatcher</a></span></dd>
+      
+    
+  
+  
+    <dt class="r2">Included in:</dt>
+    <dd class="r2"><span class='object_link'><a href="CommandDispatcher/Android.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Android (class)">Android</a></span>, <span class='object_link'><a href="CommandDispatcher/Core.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Core (class)">Core</a></span>, <span class='object_link'><a href="CommandDispatcher/Espia.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Espia (class)">Espia</a></span>, <span class='object_link'><a href="CommandDispatcher/Extapi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi (class)">Extapi</a></span>, <span class='object_link'><a href="CommandDispatcher/Extapi/Adsi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Adsi (class)">Extapi::Adsi</a></span>, <span class='object_link'><a href="CommandDispatcher/Extapi/Clipboard.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Clipboard (class)">Extapi::Clipboard</a></span>, <span class='object_link'><a href="CommandDispatcher/Extapi/Service.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Service (class)">Extapi::Service</a></span>, <span class='object_link'><a href="CommandDispatcher/Extapi/Window.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Window (class)">Extapi::Window</a></span>, <span class='object_link'><a href="CommandDispatcher/Extapi/Wmi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Wmi (class)">Extapi::Wmi</a></span>, <span class='object_link'><a href="CommandDispatcher/Incognito.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Incognito (class)">Incognito</a></span>, <span class='object_link'><a href="CommandDispatcher/Kiwi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Kiwi (class)">Kiwi</a></span>, <span class='object_link'><a href="CommandDispatcher/Lanattacks.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Lanattacks (class)">Lanattacks</a></span>, <span class='object_link'><a href="CommandDispatcher/Lanattacks/Dhcp.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Lanattacks::Dhcp (class)">Lanattacks::Dhcp</a></span>, <span class='object_link'><a href="CommandDispatcher/Lanattacks/Tftp.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Lanattacks::Tftp (class)">Lanattacks::Tftp</a></span>, <span class='object_link'><a href="CommandDispatcher/Mimikatz.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Mimikatz (class)">Mimikatz</a></span>, <span class='object_link'><a href="CommandDispatcher/NetworkPug.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::NetworkPug (class)">NetworkPug</a></span>, <span class='object_link'><a href="CommandDispatcher/Priv.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Priv (class)">Priv</a></span>, <span class='object_link'><a href="CommandDispatcher/Priv/Elevate.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Priv::Elevate (class)">Priv::Elevate</a></span>, <span class='object_link'><a href="CommandDispatcher/Priv/Passwd.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Priv::Passwd (class)">Priv::Passwd</a></span>, <span class='object_link'><a href="CommandDispatcher/Priv/Timestomp.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Priv::Timestomp (class)">Priv::Timestomp</a></span>, <span class='object_link'><a href="CommandDispatcher/Sniffer.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Sniffer (class)">Sniffer</a></span>, <span class='object_link'><a href="CommandDispatcher/Stdapi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi (class)">Stdapi</a></span>, <span class='object_link'><a href="CommandDispatcher/Stdapi/Fs.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Fs (class)">Stdapi::Fs</a></span>, <span class='object_link'><a href="CommandDispatcher/Stdapi/Net.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Net (class)">Stdapi::Net</a></span>, <span class='object_link'><a href="CommandDispatcher/Stdapi/Sys.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Sys (class)">Stdapi::Sys</a></span>, <span class='object_link'><a href="CommandDispatcher/Stdapi/Ui.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Ui (class)">Stdapi::Ui</a></span>, <span class='object_link'><a href="CommandDispatcher/Stdapi/Webcam.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Webcam (class)">Stdapi::Webcam</a></span></dd>
+    
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/post/meterpreter/ui/console/command_dispatcher.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Base class for all command dispatchers within the meterpreter console user
+interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="CommandDispatcher/Android.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Android (class)">Android</a></span>, <span class='object_link'><a href="CommandDispatcher/Core.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Core (class)">Core</a></span>, <span class='object_link'><a href="CommandDispatcher/Espia.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Espia (class)">Espia</a></span>, <span class='object_link'><a href="CommandDispatcher/Extapi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi (class)">Extapi</a></span>, <span class='object_link'><a href="CommandDispatcher/Incognito.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Incognito (class)">Incognito</a></span>, <span class='object_link'><a href="CommandDispatcher/Kiwi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Kiwi (class)">Kiwi</a></span>, <span class='object_link'><a href="CommandDispatcher/Lanattacks.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Lanattacks (class)">Lanattacks</a></span>, <span class='object_link'><a href="CommandDispatcher/Mimikatz.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Mimikatz (class)">Mimikatz</a></span>, <span class='object_link'><a href="CommandDispatcher/NetworkPug.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::NetworkPug (class)">NetworkPug</a></span>, <span class='object_link'><a href="CommandDispatcher/Priv.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Priv (class)">Priv</a></span>, <span class='object_link'><a href="CommandDispatcher/Sniffer.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Sniffer (class)">Sniffer</a></span>, <span class='object_link'><a href="CommandDispatcher/Stdapi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi (class)">Stdapi</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="file_hash-classvariable" class="">@@file_hash =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The hash of file names to class names after a module has already been
+loaded once on the client side.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span><span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#shell-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#shell (method)">#shell</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_items-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_items (method)">#tab_complete_items</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_hash-class_method" title="check_hash (class method)">+ (Object) <strong>check_hash</strong>(name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks the file name to hash association to see if the module being
+requested has already been loaded once.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_hash-class_method" title="set_hash (class method)">+ (Object) <strong>set_hash</strong>(name, klass) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the file path to class name association for future reference.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">- (Object) <strong>client</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the meterpreter client context.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(shell) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#log_error-instance_method" title="#log_error (instance method)">- (Object) <strong>log_error</strong>(msg) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Log that an error occurred.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#msf_loaded%3F-instance_method" title="#msf_loaded? (instance method)">- (Boolean) <strong>msf_loaded?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if the client has a framework object.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help (method)">#cmd_help</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_help (method)">#cmd_help_help</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_tabs-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_tabs (method)">#cmd_help_tabs</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#commands-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#commands (method)">#commands</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_cmd-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_cmd (method)">#deprecated_cmd</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_commands-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_commands (method)">#deprecated_commands</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_help (method)">#deprecated_help</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#help_to_s-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#help_to_s (method)">#help_to_s</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print (method)">#print</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_error-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_good-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_line-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_status-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_warning-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_filenames-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_filenames (method)">#tab_complete_filenames</a></span>, <span class='object_link'><a href="../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#update_prompt-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#update_prompt (method)">#update_prompt</a></span></p>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="check_hash-class_method">
+  
+    + (<tt>Object</tt>) <strong>check_hash</strong>(name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks the file name to hash association to see if the module being
+requested has already been loaded once.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_check_hash'>check_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='cvar'>@@file_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_hash-class_method">
+  
+    + (<tt>Object</tt>) <strong>set_hash</strong>(name, klass) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the file path to class name association for future reference.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_set_hash'>set_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_klass'>klass</span><span class='rparen'>)</span>
+  <span class='cvar'>@@file_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_klass'>klass</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    - (<tt>Object</tt>) <strong>client</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the meterpreter client context.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(shell) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='rparen'>)</span>
+  <span class='ivar'>@msf_loaded</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="log_error-instance_method">
+  
+    - (<tt>Object</tt>) <strong>log_error</strong>(msg) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Log that an error occurred.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_log_error'>log_error</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_elog'>elog</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Call stack:\n</span><span class='embexpr_beg'>#{</span><span class='gvar'>$@</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="msf_loaded?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>msf_loaded?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if the client has a framework object.</p>
+
+<p>Used for firing framework session events</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_msf_loaded?'>msf_loaded?</span>
+  <span class='kw'>return</span> <span class='ivar'>@msf_loaded</span> <span class='kw'>unless</span> <span class='ivar'>@msf_loaded</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='comment'># if we get here we must not have initialized yet
+</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span>
+    <span class='comment'># We have a framework instance so the msf libraries should be
+</span>    <span class='comment'># available.  Load up the ones we&#39;re going to use
+</span>    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>msf/base/serializer/readable_text</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@msf_loaded</span> <span class='op'>=</span> <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+  <span class='ivar'>@msf_loaded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:49 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

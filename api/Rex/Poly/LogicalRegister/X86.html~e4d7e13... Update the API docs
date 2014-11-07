@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Poly::LogicalRegister::X86
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Poly/LogicalRegister/X86.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (X)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Poly.html" title="Rex::Poly (module)">Poly</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../LogicalRegister.html" title="Rex::Poly::LogicalRegister (class)">LogicalRegister</a></span></span>
+     &raquo; 
+    <span class="title">X86</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Poly::LogicalRegister::X86
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../LogicalRegister.html" title="Rex::Poly::LogicalRegister (class)">Rex::Poly::LogicalRegister</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../LogicalRegister.html" title="Rex::Poly::LogicalRegister (class)">Rex::Poly::LogicalRegister</a></span></li>
+          
+            <li class="next">Rex::Poly::LogicalRegister::X86</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/poly/register/x86.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class encapsulates logical registers for the X86 architecture.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../LogicalRegister.html" title="Rex::Poly::LogicalRegister (class)">Rex::Poly::LogicalRegister</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../LogicalRegister.html#name-instance_method" title="Rex::Poly::LogicalRegister#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#regnum_set-class_method" title="regnum_set (class method)">+ (Object) <strong>regnum_set</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The default set of register numbers that can be used on x86.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (X86) <strong>initialize</strong>(name, register = nil) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calls the base class constructor after translating the register name to
+number.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../LogicalRegister.html" title="Rex::Poly::LogicalRegister (class)">Rex::Poly::LogicalRegister</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../LogicalRegister.html#regnum-instance_method" title="Rex::Poly::LogicalRegister#regnum (method)">#regnum</a></span>, <span class='object_link'><a href="../LogicalRegister.html#regnum%3D-instance_method" title="Rex::Poly::LogicalRegister#regnum= (method)">#regnum=</a></span>, <span class='object_link'><a href="../LogicalRegister.html#static%3F-instance_method" title="Rex::Poly::LogicalRegister#static? (method)">#static?</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Poly::LogicalRegister::X86 (class)">X86</a></span></tt>) <strong>initialize</strong>(name, register = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calls the base class constructor after translating the register name to
+number.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/register/x86.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_register'>register</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_register'>register</span> <span class='op'>?</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='period'>.</span><span class='id identifier rubyid_reg_number'>reg_number</span><span class='lparen'>(</span><span class='id identifier rubyid_register'>register</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="regnum_set-class_method">
+  
+    + (<tt>Object</tt>) <strong>regnum_set</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The default set of register numbers that can be used on x86.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/register/x86.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_regnum_set'>regnum_set</span>
+  <span class='lbracket'>[</span>
+    <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>EAX</span><span class='comma'>,</span>
+    <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>EBX</span><span class='comma'>,</span>
+    <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>ECX</span><span class='comma'>,</span>
+    <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>EDX</span><span class='comma'>,</span>
+    <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>ESI</span><span class='comma'>,</span>
+    <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>EDI</span><span class='comma'>,</span>
+    <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>EBP</span><span class='comma'>,</span>
+    <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Arch</span><span class='op'>::</span><span class='const'>X86</span><span class='op'>::</span><span class='const'>ESP</span>
+  <span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:08 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

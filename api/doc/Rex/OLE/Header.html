@@ -1,0 +1,1641 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::OLE::Header
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/OLE/Header.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (H)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../OLE.html" title="Rex::OLE (module)">OLE</a></span></span>
+     &raquo; 
+    <span class="title">Header</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::OLE::Header
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::OLE::Header</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/ole/header.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_csectDif-instance_method" title="#_csectDif (instance method)">- (Object) <strong>_csectDif</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _csectDif.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_csectFat-instance_method" title="#_csectFat (instance method)">- (Object) <strong>_csectFat</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _csectFat.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_csectMiniFat-instance_method" title="#_csectMiniFat (instance method)">- (Object) <strong>_csectMiniFat</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _csectMiniFat.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_sectDifStart-instance_method" title="#_sectDifStart (instance method)">- (Object) <strong>_sectDifStart</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _sectDifStart.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_sectDirStart-instance_method" title="#_sectDirStart (instance method)">- (Object) <strong>_sectDirStart</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _sectDirStart.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_sectFat-instance_method" title="#_sectFat (instance method)">- (Object) <strong>_sectFat</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _sectFat.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_sectMiniFatStart-instance_method" title="#_sectMiniFatStart (instance method)">- (Object) <strong>_sectMiniFatStart</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _sectMiniFatStart.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_ulMiniSectorCutoff-instance_method" title="#_ulMiniSectorCutoff (instance method)">- (Object) <strong>_ulMiniSectorCutoff</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _ulMiniSectorCutoff.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_uMajorVersion-instance_method" title="#_uMajorVersion (instance method)">- (Object) <strong>_uMajorVersion</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _uMajorVersion.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_uMiniSectorShift-instance_method" title="#_uMiniSectorShift (instance method)">- (Object) <strong>_uMiniSectorShift</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute _uMiniSectorShift.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#idx_per_sect-instance_method" title="#idx_per_sect (instance method)">- (Object) <strong>idx_per_sect</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute idx_per_sect.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mini_sector_size-instance_method" title="#mini_sector_size (instance method)">- (Object) <strong>mini_sector_size</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute mini_sector_size.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sector_size-instance_method" title="#sector_size (instance method)">- (Object) <strong>sector_size</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute sector_size.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Header) <strong>initialize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Header.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read-instance_method" title="#read (instance method)">- (Object) <strong>read</strong>(fd) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>low-level functions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_defaults-instance_method" title="#set_defaults (instance method)">- (Object) <strong>set_defaults</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">- (Object) <strong>to_s</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write-instance_method" title="#write (instance method)">- (Object) <strong>write</strong>(fd) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::OLE::Header (class)">Header</a></span></tt>) <strong>initialize</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='id identifier rubyid_set_defaults'>set_defaults</span>
+
+  <span class='comment'># calculate some numbers (save a little math)
+</span>  <span class='ivar'>@sector_size</span> <span class='op'>=</span> <span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@_uSectorShift</span>
+  <span class='ivar'>@mini_sector_size</span> <span class='op'>=</span> <span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@_uMiniSectorShift</span>
+  <span class='ivar'>@idx_per_sect</span> <span class='op'>=</span> <span class='ivar'>@sector_size</span> <span class='op'>/</span> <span class='int'>4</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="_csectDif=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="_csectDif-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_csectDif</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _csectDif</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__csectDif'>_csectDif</span>
+  <span class='ivar'>@_csectDif</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_csectFat=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_csectFat-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_csectFat</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _csectFat</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__csectFat'>_csectFat</span>
+  <span class='ivar'>@_csectFat</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_csectMiniFat=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_csectMiniFat-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_csectMiniFat</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _csectMiniFat</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__csectMiniFat'>_csectMiniFat</span>
+  <span class='ivar'>@_csectMiniFat</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_sectDifStart=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_sectDifStart-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_sectDifStart</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _sectDifStart</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__sectDifStart'>_sectDifStart</span>
+  <span class='ivar'>@_sectDifStart</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_sectDirStart=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_sectDirStart-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_sectDirStart</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _sectDirStart</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__sectDirStart'>_sectDirStart</span>
+  <span class='ivar'>@_sectDirStart</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_sectFat=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_sectFat-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_sectFat</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _sectFat</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__sectFat'>_sectFat</span>
+  <span class='ivar'>@_sectFat</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_sectMiniFatStart=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_sectMiniFatStart-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_sectMiniFatStart</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _sectMiniFatStart</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__sectMiniFatStart'>_sectMiniFatStart</span>
+  <span class='ivar'>@_sectMiniFatStart</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_ulMiniSectorCutoff=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_ulMiniSectorCutoff-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_ulMiniSectorCutoff</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _ulMiniSectorCutoff</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__ulMiniSectorCutoff'>_ulMiniSectorCutoff</span>
+  <span class='ivar'>@_ulMiniSectorCutoff</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_uMajorVersion=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_uMajorVersion-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_uMajorVersion</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _uMajorVersion</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__uMajorVersion'>_uMajorVersion</span>
+  <span class='ivar'>@_uMajorVersion</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="_uMiniSectorShift=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="_uMiniSectorShift-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_uMiniSectorShift</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute _uMiniSectorShift</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__uMiniSectorShift'>_uMiniSectorShift</span>
+  <span class='ivar'>@_uMiniSectorShift</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="idx_per_sect=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="idx_per_sect-instance_method">
+  
+    - (<tt>Object</tt>) <strong>idx_per_sect</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute idx_per_sect</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_idx_per_sect'>idx_per_sect</span>
+  <span class='ivar'>@idx_per_sect</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="mini_sector_size=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="mini_sector_size-instance_method">
+  
+    - (<tt>Object</tt>) <strong>mini_sector_size</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute mini_sector_size</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mini_sector_size'>mini_sector_size</span>
+  <span class='ivar'>@mini_sector_size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sector_size=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sector_size-instance_method">
+  
+    - (<tt>Object</tt>) <strong>sector_size</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute sector_size</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sector_size'>sector_size</span>
+  <span class='ivar'>@sector_size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="read-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read</strong>(fd) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>low-level functions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 125</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='const'>HDR_SZ</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@_abSig</span>        <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='int'>0x00</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@_abSig</span> <span class='op'>!=</span> <span class='const'>SIG</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='ivar'>@_abSig</span> <span class='op'>!=</span> <span class='const'>SIG_BETA</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid signature for OLE file</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@_clid</span> <span class='op'>=</span> <span class='const'>CLSID</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='int'>0x08</span><span class='comma'>,</span><span class='int'>16</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@_uByteOrder</span>   <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get16'>get16</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x1c</span><span class='rparen'>)</span>
+  <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_set_endian'>set_endian</span><span class='lparen'>(</span><span class='ivar'>@_uByteOrder</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@_uMinorVersion</span>       <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get16'>get16</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x18</span><span class='rparen'>)</span>
+  <span class='ivar'>@_uMajorVersion</span>       <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get16'>get16</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x1a</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@_uSectorShift</span>        <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get16'>get16</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x1e</span><span class='rparen'>)</span>
+  <span class='ivar'>@_uMiniSectorShift</span>    <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get16'>get16</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x20</span><span class='rparen'>)</span>
+
+  <span class='comment'># ignore reserved bytes
+</span>
+  <span class='ivar'>@_csectDir</span>            <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x28</span><span class='rparen'>)</span> <span class='comment'># NOTE: only for v4 files
+</span>
+  <span class='ivar'>@_csectFat</span>            <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x2c</span><span class='rparen'>)</span>
+  <span class='ivar'>@_sectDirStart</span>        <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x30</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@_signature</span>           <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x34</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@_ulMiniSectorCutoff</span>  <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x38</span><span class='rparen'>)</span>
+  <span class='ivar'>@_sectMiniFatStart</span>    <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x3c</span><span class='rparen'>)</span>
+  <span class='ivar'>@_csectMiniFat</span>        <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x40</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@_sectDifStart</span>        <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x44</span><span class='rparen'>)</span>
+  <span class='ivar'>@_csectDif</span>            <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32'>get32</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='int'>0x48</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@_sectFat</span> <span class='op'>=</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_get32array'>get32array</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='int'>0x4c</span><span class='comma'>,</span> <span class='lparen'>(</span><span class='int'>109</span> <span class='op'>*</span> <span class='int'>4</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_defaults-instance_method">
+  
+    - (<tt>Object</tt>) <strong>set_defaults</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_defaults'>set_defaults</span>
+  <span class='ivar'>@_abSig</span>               <span class='op'>=</span> <span class='const'>SIG</span>
+  <span class='ivar'>@_clid</span> <span class='op'>=</span> <span class='const'>CLSID</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@_uByteOrder</span>          <span class='op'>=</span> <span class='const'>LITTLE_ENDIAN</span>
+
+  <span class='ivar'>@_uMinorVersion</span>       <span class='op'>=</span> <span class='int'>0x3e</span>
+  <span class='ivar'>@_uMajorVersion</span>       <span class='op'>=</span> <span class='int'>0x03</span>
+
+  <span class='ivar'>@_uSectorShift</span>        <span class='op'>=</span> <span class='int'>9</span>         <span class='comment'># 512 byte sectors
+</span>  <span class='ivar'>@_uMiniSectorShift</span>    <span class='op'>=</span> <span class='int'>6</span>         <span class='comment'># 64 byte mini-sectors
+</span>
+  <span class='ivar'>@_csectDir</span>            <span class='op'>=</span> <span class='kw'>nil</span>             <span class='comment'># TBD (v4 only, 1 required)
+</span>
+  <span class='ivar'>@_csectFat</span>            <span class='op'>=</span> <span class='kw'>nil</span>             <span class='comment'># TBD (one required)
+</span>  <span class='ivar'>@_sectDirStart</span>        <span class='op'>=</span> <span class='kw'>nil</span>             <span class='comment'># TBD (one required)
+</span>
+  <span class='ivar'>@_signature</span>           <span class='op'>=</span> <span class='int'>0</span>               <span class='comment'># no transactions support
+</span>
+  <span class='ivar'>@_ulMiniSectorCutoff</span>  <span class='op'>=</span> <span class='int'>0x1000</span>    <span class='comment'># 4k
+</span>  <span class='ivar'>@_sectMiniFatStart</span>    <span class='op'>=</span> <span class='const'>SECT_END</span>   <span class='comment'># TBD
+</span>  <span class='ivar'>@_csectMiniFat</span>        <span class='op'>=</span> <span class='int'>0</span>               <span class='comment'># TBD
+</span>
+  <span class='ivar'>@_sectDifStart</span>        <span class='op'>=</span> <span class='const'>SECT_END</span>   <span class='comment'># TBD (default to none)
+</span>  <span class='ivar'>@_csectDif</span>            <span class='op'>=</span> <span class='int'>0</span>               <span class='comment'># TBD (default to none)
+</span>
+  <span class='ivar'>@_sectFat</span>             <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>              <span class='comment'># TBD
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    - (<tt>Object</tt>) <strong>to_s</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 66</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>{\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _abSig =&gt; \&quot;%s\&quot;</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='const'>Util</span><span class='period'>.</span><span class='const'>Printable</span><span class='lparen'>(</span><span class='ivar'>@_abSig</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _clid =&gt; %s</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_clid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _uMinorVersion =&gt; 0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_uMinorVersion</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _uMajorVersion =&gt; 0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_uMajorVersion</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _uByteOrder =&gt; 0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_uByteOrder</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _uSectorShift =&gt; 0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_uSectorShift</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _uMiniSectorShift =&gt; 0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_uMiniSectorShift</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@_csectDir</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _csectDir =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_csectDir</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _csectDir =&gt; UNALLOCATED</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_csectDir</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@_csectFat</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _csectFat =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_csectFat</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _csectFat =&gt; UNALLOCATED</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@_sectDirStart</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _sectDirStart =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_sectDirStart</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _sectDirStart =&gt; UNALLOCATED</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _signature =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_signature</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _uMiniSectorCutoff =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_ulMiniSectorCutoff</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _sectMiniFatStart =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_sectMiniFatStart</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _csectMiniFat =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_csectMiniFat</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _sectDifStart =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_sectDifStart</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  _csectDif =&gt; 0x%08x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@_csectDif</span>
+  <span class='comment'>#ret &lt;&lt; &quot;,\n&quot;
+</span>  <span class='comment'>#ret &lt;&lt; &quot;  _sectFat =&gt; &quot;
+</span>  <span class='comment'>#ret &lt;&lt; Rex::Text.to_hex_dump32array(@_sectFat)
+</span>  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write</strong>(fd) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/header.rb', line 162</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@_abSig</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@_clid</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack16'>pack16</span><span class='lparen'>(</span><span class='ivar'>@_uMinorVersion</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack16'>pack16</span><span class='lparen'>(</span><span class='ivar'>@_uMajorVersion</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack16'>pack16</span><span class='lparen'>(</span><span class='ivar'>@_uByteOrder</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack16'>pack16</span><span class='lparen'>(</span><span class='ivar'>@_uSectorShift</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack16'>pack16</span><span class='lparen'>(</span><span class='ivar'>@_uMiniSectorShift</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@_uMajorVersion</span> <span class='op'>==</span> <span class='int'>0x04</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>6</span> <span class='comment'># reserved bytes
+</span>    <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='ivar'>@_csectDir</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>10</span> <span class='comment'># reserved bytes
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_fs_count'>fs_count</span> <span class='op'>=</span> <span class='ivar'>@_csectFat</span>
+  <span class='id identifier rubyid_fs_count'>fs_count</span> <span class='op'>||=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='id identifier rubyid_fs_count'>fs_count</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_dir_start'>dir_start</span> <span class='op'>=</span> <span class='ivar'>@_sectDirStart</span>
+  <span class='id identifier rubyid_dir_start'>dir_start</span> <span class='op'>||=</span> <span class='const'>SECT_END</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='id identifier rubyid_dir_start'>dir_start</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='ivar'>@_signature</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='ivar'>@_ulMiniSectorCutoff</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='ivar'>@_sectMiniFatStart</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='ivar'>@_csectMiniFat</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='ivar'>@_sectDifStart</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32'>pack32</span><span class='lparen'>(</span><span class='ivar'>@_csectDif</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hdr'>hdr</span> <span class='op'>&lt;&lt;</span> <span class='const'>Util</span><span class='period'>.</span><span class='id identifier rubyid_pack32array'>pack32array</span><span class='lparen'>(</span><span class='ivar'>@_sectFat</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_SET</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_hdr'>hdr</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:11 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

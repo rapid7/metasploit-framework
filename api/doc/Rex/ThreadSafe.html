@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::ThreadSafe
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../';
+  framesUrl = "../frames.html#!Rex/ThreadSafe.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../_index.html">Index (T)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Rex.html" title="Rex (module)">Rex</a></span></span>
+     &raquo; 
+    <span class="title">ThreadSafe</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::ThreadSafe
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/sync/thread_safe.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides a set of methods for performing various blocking
+operations in a manner that is compatible with ruby style threads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="DefaultCycle-constant" class="">DefaultCycle =
+          
+        </dt>
+        <dd><pre class="code"><span class='float'>0.2</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#select-class_method" title="select (class method)">+ (Object) <strong>select</strong>(rfd = nil, wfd = nil, efd = nil, t = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps calls to select with a lower timeout period and does the calculations
+to walk down to zero timeout.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sleep-class_method" title="sleep (class method)">+ (Object) <strong>sleep</strong>(seconds = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Simulates a sleep operation by selecting on nil until a timeout period
+expires.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="select-class_method">
+  
+    + (<tt>Object</tt>) <strong>select</strong>(rfd = nil, wfd = nil, efd = nil, t = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps calls to select with a lower timeout period and does the calculations
+to walk down to zero timeout.  This has a little room for improvement in
+that it should probably check how much time actually elapsed during the
+select call considering ruby threading wont be exactly accurate perhaps.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sync/thread_safe.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='id identifier rubyid_rfd'>rfd</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_wfd'>wfd</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_efd'>efd</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_left'>left</span> <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span>
+
+  <span class='comment'># Immediately raise a StreamClosedError if the socket was closed. This
+</span>  <span class='comment'># prevents a bad fd from being passed downstream and solves an issue
+</span>  <span class='comment'># with Ruby on Windows.
+</span>  <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fd'>fd</span><span class='op'>|</span> <span class='id identifier rubyid_raise'>raise</span> <span class='const'>StreamClosedError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_closed?'>closed?</span><span class='rparen'>)</span>	<span class='rbrace'>}</span> <span class='kw'>if</span> <span class='id identifier rubyid_rfd'>rfd</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_orig_size'>orig_size</span> <span class='op'>=</span> <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_rfd'>rfd</span><span class='rparen'>)</span>
+
+    <span class='comment'># Poll the set supplied to us at least once.
+</span>    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_rv'>rv</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='id identifier rubyid_rfd'>rfd</span><span class='comma'>,</span> <span class='id identifier rubyid_wfd'>wfd</span><span class='comma'>,</span> <span class='id identifier rubyid_efd'>efd</span><span class='comma'>,</span> <span class='const'>DefaultCycle</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>IOError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>EBADF</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOTSOCK</span>
+      <span class='comment'># If a stream was detected as being closed, re-raise the error as
+</span>      <span class='comment'># a StreamClosedError with the specific file descriptor that was
+</span>      <span class='comment'># detected as being closed.  This is to better handle the case of
+</span>      <span class='comment'># a closed socket being detected so that it can be cleaned up and
+</span>      <span class='comment'># removed.
+</span>      <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fd'>fd</span><span class='op'>|</span> <span class='id identifier rubyid_raise'>raise</span> <span class='const'>StreamClosedError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_closed?'>closed?</span><span class='rparen'>)</span>	<span class='rbrace'>}</span> <span class='kw'>if</span> <span class='id identifier rubyid_rfd'>rfd</span>
+
+      <span class='comment'># If the original rfd length is not the same as the current
+</span>      <span class='comment'># length, then the list may have been altered and as such may not
+</span>      <span class='comment'># contain the socket that caused the IOError.  This is a bad way
+</span>      <span class='comment'># to do this since it&#39;s possible that the array length could be
+</span>      <span class='comment'># back to the size that it was originally and yet have had the
+</span>      <span class='comment'># socket that caused the IOError to be removed.
+</span>      <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_rfd'>rfd</span> <span class='kw'>and</span> <span class='id identifier rubyid_rfd'>rfd</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='id identifier rubyid_orig_size'>orig_size</span><span class='rparen'>)</span>
+
+      <span class='comment'># Re-raise the exception since we didn&#39;t handle it here.
+</span>      <span class='id identifier rubyid_raise'>raise</span> <span class='gvar'>$!</span>
+<span class='comment'>#			rescue ::Exception =&gt; e
+</span><span class='comment'>#			$stderr.puts &quot;SELECT(#{t}) #{[rfd,wfd,efd].inspect} #{e.class} #{e} #{e.backtrace}&quot;
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_rv'>rv</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_rv'>rv</span><span class='rparen'>)</span>
+
+    <span class='comment'># Decrement the amount of time left by the polling cycle
+</span>    <span class='id identifier rubyid_left'>left</span> <span class='op'>-=</span> <span class='const'>DefaultCycle</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_left'>left</span><span class='rparen'>)</span>
+
+    <span class='comment'># Keep chugging until we run out of time, if time was supplied.
+</span>  <span class='kw'>end</span> <span class='kw'>while</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_left'>left</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span> <span class='kw'>or</span> <span class='lparen'>(</span><span class='id identifier rubyid_left'>left</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='comment'># Nothin.
+</span>  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sleep-class_method">
+  
+    + (<tt>Object</tt>) <strong>sleep</strong>(seconds = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Simulates a sleep operation by selecting on nil until a timeout period
+expires.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/sync/thread_safe.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='id identifier rubyid_seconds'>seconds</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_seconds'>seconds</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_seconds'>seconds</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:47 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

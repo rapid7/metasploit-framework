@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Encoders::XorDwordAdditive::Backend
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Encoders/XorDwordAdditive/Backend.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Encoders.html" title="Rex::Encoders (module)">Encoders</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../XorDwordAdditive.html" title="Rex::Encoders::XorDwordAdditive (class)">XorDwordAdditive</a></span></span>
+     &raquo; 
+    <span class="title">Backend</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Encoders::XorDwordAdditive::Backend
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../XorDwordAdditive.html" title="Rex::Encoders::XorDwordAdditive (class)">Rex::Encoders::XorDwordAdditive</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/encoders/xor_dword_additive.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_prepend-instance_method" title="#_prepend (instance method)">- (Object) <strong>_prepend</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_unencoded_transform-instance_method" title="#_unencoded_transform (instance method)">- (Object) <strong>_unencoded_transform</strong>(data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_prepend-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_prepend</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoders/xor_dword_additive.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__prepend'>_prepend</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xfc</span><span class='tstring_end'>&quot;</span></span>                <span class='op'>+</span> <span class='comment'># cld
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xbb</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_key'>key</span>          <span class='op'>+</span> <span class='comment'># mov ebx, key
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xeb\x0c</span><span class='tstring_end'>&quot;</span></span>            <span class='op'>+</span> <span class='comment'># jmp short 0x14
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5e</span><span class='tstring_end'>&quot;</span></span>                <span class='op'>+</span> <span class='comment'># pop esi
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x56</span><span class='tstring_end'>&quot;</span></span>                <span class='op'>+</span> <span class='comment'># push esi
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\x1e</span><span class='tstring_end'>&quot;</span></span>            <span class='op'>+</span> <span class='comment'># xor [esi], ebx
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xad</span><span class='tstring_end'>&quot;</span></span>                <span class='op'>+</span> <span class='comment'># lodsd
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\xc3</span><span class='tstring_end'>&quot;</span></span>            <span class='op'>+</span> <span class='comment'># add ebx, eax
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x85\xc0</span><span class='tstring_end'>&quot;</span></span>            <span class='op'>+</span> <span class='comment'># test eax, eax
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\xf7</span><span class='tstring_end'>&quot;</span></span>            <span class='op'>+</span> <span class='comment'># jnz 0xa
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc3</span><span class='tstring_end'>&quot;</span></span>                <span class='op'>+</span> <span class='comment'># ret
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe8\xef\xff\xff\xff</span><span class='tstring_end'>&quot;</span></span>  <span class='comment'># call 0x8
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_unencoded_transform-instance_method">
+  
+    - (<tt>Object</tt>) <strong>_unencoded_transform</strong>(data) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoders/xor_dword_additive.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__unencoded_transform'>_unencoded_transform</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='comment'># check for any dword aligned zeros that would falsely terminate the decoder
+</span>  <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>while</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='rparen'>)</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_idx'>idx</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_idx'>idx</span> <span class='op'>&amp;</span> <span class='int'>3</span> <span class='op'>==</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unencoded data cannot have a dword aligned 0 dword!</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># pad to a dword boundary and append null dword for termination
+</span>  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='int'>4</span> <span class='op'>-</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&amp;</span> <span class='int'>3</span><span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='int'>3</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:48 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

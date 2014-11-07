@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Proto::Proxy::Socks4a::Client::Relay
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../../';
+  framesUrl = "../../../../../frames.html#!Rex/Proto/Proxy/Socks4a/Client/Relay.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proxy.html" title="Rex::Proto::Proxy (module)">Proxy</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Socks4a.html" title="Rex::Proto::Proxy::Socks4a (class)">Socks4a</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Client.html" title="Rex::Proto::Proxy::Socks4a::Client (class)">Client</a></span></span>
+     &raquo; 
+    <span class="title">Relay</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Proto::Proxy::Socks4a::Client::Relay
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/proto/proxy/socks4a.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A mixin for a socket to perform a relay to another socket.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#relay-instance_method" title="#relay (instance method)">- (Object) <strong>relay</strong>(relay_client, relay_sock) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Relay data coming in from relay_sock to this socket.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="relay-instance_method">
+  
+    - (<tt>Object</tt>) <strong>relay</strong>(relay_client, relay_sock) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Relay data coming in from relay_sock to this socket.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/proxy/socks4a.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_relay'>relay</span><span class='lparen'>(</span> <span class='id identifier rubyid_relay_client'>relay_client</span><span class='comma'>,</span> <span class='id identifier rubyid_relay_sock'>relay_sock</span> <span class='rparen'>)</span>
+  <span class='ivar'>@relay_client</span> <span class='op'>=</span> <span class='id identifier rubyid_relay_client'>relay_client</span>
+  <span class='ivar'>@relay_sock</span>   <span class='op'>=</span> <span class='id identifier rubyid_relay_sock'>relay_sock</span>
+  <span class='comment'># start the relay thread (modified from Rex::IO::StreamAbstraction)
+</span>  <span class='ivar'>@relay_thread</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>ThreadFactory</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SOCKS4AProxyServerRelay</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_closed'>closed</span> <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='id identifier rubyid_buf'>buf</span>    <span class='op'>=</span> <span class='kw'>nil</span>
+
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span> <span class='lbracket'>[</span> <span class='ivar'>@relay_sock</span> <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.2</span> <span class='rparen'>)</span>
+        <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_s'>s</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='op'>||</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='rparen'>)</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+      <span class='kw'>rescue</span>
+        <span class='id identifier rubyid_closed'>closed</span> <span class='op'>=</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_closed'>closed</span> <span class='op'>==</span> <span class='kw'>false</span> <span class='rparen'>)</span>
+        <span class='kw'>begin</span>
+          <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='ivar'>@relay_sock</span><span class='period'>.</span><span class='id identifier rubyid_sysread'>sysread</span><span class='lparen'>(</span> <span class='int'>32768</span> <span class='rparen'>)</span>
+          <span class='id identifier rubyid_closed'>closed</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_buf'>buf</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='rparen'>)</span>
+        <span class='kw'>rescue</span>
+          <span class='id identifier rubyid_closed'>closed</span> <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_closed'>closed</span> <span class='op'>==</span> <span class='kw'>false</span> <span class='rparen'>)</span>
+        <span class='id identifier rubyid_total_sent'>total_sent</span>   <span class='op'>=</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_total_length'>total_length</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+        <span class='kw'>while</span><span class='lparen'>(</span> <span class='id identifier rubyid_total_sent'>total_sent</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_total_length'>total_length</span> <span class='rparen'>)</span>
+          <span class='kw'>begin</span>
+            <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_total_sent'>total_sent</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span>
+            <span class='id identifier rubyid_sent'>sent</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span> <span class='id identifier rubyid_data'>data</span> <span class='rparen'>)</span>
+            <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_sent'>sent</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='rparen'>)</span>
+              <span class='id identifier rubyid_total_sent'>total_sent</span> <span class='op'>+=</span> <span class='id identifier rubyid_sent'>sent</span>
+            <span class='kw'>end</span>
+          <span class='kw'>rescue</span>
+            <span class='id identifier rubyid_closed'>closed</span> <span class='op'>=</span> <span class='kw'>true</span>
+            <span class='kw'>break</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_closed'>closed</span> <span class='rparen'>)</span>
+        <span class='ivar'>@relay_client</span><span class='period'>.</span><span class='id identifier rubyid_stop'>stop</span>
+        <span class='op'>::</span><span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_exit'>exit</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:48 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

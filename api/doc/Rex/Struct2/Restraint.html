@@ -1,0 +1,913 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Struct2::Restraint
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Struct2/Restraint.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Struct2.html" title="Rex::Struct2 (module)">Struct2</a></span></span>
+     &raquo; 
+    <span class="title">Restraint</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Struct2::Restraint
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Struct2::Restraint</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/struct2/restraint.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_inv_transform-instance_method" title="#max_inv_transform (instance method)">- (Object) <strong>max_inv_transform</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute max_inv_transform.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_object-instance_method" title="#max_object (instance method)">- (Object) <strong>max_object</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute max_object.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_transform-instance_method" title="#max_transform (instance method)">- (Object) <strong>max_transform</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute max_transform.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#min_inv_transform-instance_method" title="#min_inv_transform (instance method)">- (Object) <strong>min_inv_transform</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute min_inv_transform.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#min_object-instance_method" title="#min_object (instance method)">- (Object) <strong>min_object</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute min_object.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#min_transform-instance_method" title="#min_transform (instance method)">- (Object) <strong>min_transform</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute min_transform.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#should_update-instance_method" title="#should_update (instance method)">- (Object) <strong>should_update</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute should_update.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Restraint) <strong>initialize</strong>(max_object = nil, min_object = nil, should_update = false, max_transform = nil, min_transform = nil, max_inv_transform = nil, min_inv_transform = nil) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Restraint.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max-instance_method" title="#max (instance method)">- (Object) <strong>max</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#min-instance_method" title="#min (instance method)">- (Object) <strong>min</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update-instance_method" title="#update (instance method)">- (Object) <strong>update</strong>(value) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>update values if request (ie string set field to its length).</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Struct2::Restraint (class)">Restraint</a></span></tt>) <strong>initialize</strong>(max_object = nil, min_object = nil, should_update = false, max_transform = nil, min_transform = nil, max_inv_transform = nil, min_inv_transform = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Restraint</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span>
+  <span class='id identifier rubyid_max_object'>max_object</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_min_object'>min_object</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_should_update'>should_update</span><span class='op'>=</span><span class='kw'>false</span><span class='comma'>,</span>
+  <span class='id identifier rubyid_max_transform'>max_transform</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_min_transform'>min_transform</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span>
+  <span class='id identifier rubyid_max_inv_transform'>max_inv_transform</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_min_inv_transform'>min_inv_transform</span><span class='op'>=</span><span class='kw'>nil</span>
+<span class='rparen'>)</span>
+  <span class='ivar'>@max_object</span>    <span class='op'>=</span> <span class='id identifier rubyid_max_object'>max_object</span>
+  <span class='ivar'>@min_object</span>    <span class='op'>=</span> <span class='id identifier rubyid_min_object'>min_object</span>
+  <span class='ivar'>@should_update</span> <span class='op'>=</span> <span class='id identifier rubyid_should_update'>should_update</span>
+
+  <span class='id identifier rubyid_def_trans'>def_trans</span> <span class='op'>=</span> <span class='id identifier rubyid_proc'>proc</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span> <span class='id identifier rubyid_i'>i</span><span class='rbrace'>}</span>
+
+  <span class='ivar'>@max_transform</span>       <span class='op'>=</span> <span class='id identifier rubyid_max_transform'>max_transform</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_def_trans'>def_trans</span> <span class='op'>:</span> <span class='id identifier rubyid_max_transform'>max_transform</span>
+  <span class='ivar'>@min_transform</span>       <span class='op'>=</span> <span class='id identifier rubyid_min_transform'>min_transform</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_def_trans'>def_trans</span> <span class='op'>:</span> <span class='id identifier rubyid_min_transform'>min_transform</span>
+  <span class='ivar'>@max_inv_transform</span>   <span class='op'>=</span> <span class='id identifier rubyid_max_inv_transform'>max_inv_transform</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_def_trans'>def_trans</span> <span class='op'>:</span> <span class='id identifier rubyid_max_inv_transform'>max_inv_transform</span>
+  <span class='ivar'>@min_inv_transform</span>   <span class='op'>=</span> <span class='id identifier rubyid_min_inv_transform'>min_inv_transform</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_def_trans'>def_trans</span> <span class='op'>:</span> <span class='id identifier rubyid_min_inv_transform'>min_inv_transform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="max_inv_transform=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="max_inv_transform-instance_method">
+  
+    - (<tt>Object</tt>) <strong>max_inv_transform</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute max_inv_transform</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_inv_transform'>max_inv_transform</span>
+  <span class='ivar'>@max_inv_transform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="max_object=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_object-instance_method">
+  
+    - (<tt>Object</tt>) <strong>max_object</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute max_object</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_object'>max_object</span>
+  <span class='ivar'>@max_object</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="max_transform=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_transform-instance_method">
+  
+    - (<tt>Object</tt>) <strong>max_transform</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute max_transform</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_transform'>max_transform</span>
+  <span class='ivar'>@max_transform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="min_inv_transform=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="min_inv_transform-instance_method">
+  
+    - (<tt>Object</tt>) <strong>min_inv_transform</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute min_inv_transform</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_min_inv_transform'>min_inv_transform</span>
+  <span class='ivar'>@min_inv_transform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="min_object=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="min_object-instance_method">
+  
+    - (<tt>Object</tt>) <strong>min_object</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute min_object</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_min_object'>min_object</span>
+  <span class='ivar'>@min_object</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="min_transform=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="min_transform-instance_method">
+  
+    - (<tt>Object</tt>) <strong>min_transform</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute min_transform</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_min_transform'>min_transform</span>
+  <span class='ivar'>@min_transform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="should_update=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="should_update-instance_method">
+  
+    - (<tt>Object</tt>) <strong>should_update</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute should_update</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_should_update'>should_update</span>
+  <span class='ivar'>@should_update</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="max-instance_method">
+  
+    - (<tt>Object</tt>) <strong>max</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max'>max</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_max_object'>max_object</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_max_object'>max_object</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="min-instance_method">
+  
+    - (<tt>Object</tt>) <strong>min</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_min'>min</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_min_object'>min_object</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_min_object'>min_object</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update-instance_method">
+  
+    - (<tt>Object</tt>) <strong>update</strong>(value) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>update values if request (ie string set field to its length)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/struct2/restraint.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='ivar'>@should_update</span>
+
+  <span class='id identifier rubyid_max_object'>max_object</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_max_inv_transform'>max_inv_transform</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_max_object'>max_object</span>
+  <span class='id identifier rubyid_min_object'>min_object</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_min_inv_transform'>min_inv_transform</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_min_object'>min_object</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:20 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

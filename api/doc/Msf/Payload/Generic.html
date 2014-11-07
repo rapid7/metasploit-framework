@@ -1,0 +1,2108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Payload::Generic
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Payload/Generic.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (G)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span>
+     &raquo; 
+    <span class="title">Generic</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Payload::Generic
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/payload/generic.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>The generic payloads are used to define a generalized payload type that is
+both architecture and platform independent.  Under the hood, generic
+payloads seek out the correct payload for the appropriate architecture and
+platform that is being targeted.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#actual_payload-instance_method" title="#actual_payload (instance method)">- (Object) <strong>actual_payload</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The actual underlying platform/arch-specific payload instance that should
+be used.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#explicit_arch-instance_method" title="#explicit_arch (instance method)">- (Object) <strong>explicit_arch</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Accessor that makes it possible to define an explicit architecture.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#explicit_platform-instance_method" title="#explicit_platform (instance method)">- (Object) <strong>explicit_platform</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Accessor that makes it possible to define an explicit platform.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#actual_arch-instance_method" title="#actual_arch (instance method)">- (Object) <strong>actual_arch</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the actual architecture that should be used for the payload.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#actual_platform-instance_method" title="#actual_platform (instance method)">- (Object) <strong>actual_platform</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the actual platform that should be used for the payload.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#compatible_encoders-instance_method" title="#compatible_encoders (instance method)">- (Object) <strong>compatible_encoders</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#compatible_nops-instance_method" title="#compatible_nops (instance method)">- (Object) <strong>compatible_nops</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#find_actual_payload-instance_method" title="#find_actual_payload (instance method)">- (Object) <strong>find_actual_payload</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">- (Object) <strong>generate</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate is different from other methods – it will try to re-detect the
+actual payload in case settings have changed.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_stage-instance_method" title="#generate_stage (instance method)">- (Object) <strong>generate_stage</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_connection-instance_method" title="#handle_connection (instance method)">- (Object) <strong>handle_connection</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_connection_stage-instance_method" title="#handle_connection_stage (instance method)">- (Object) <strong>handle_connection_stage</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_intermediate_stage-instance_method" title="#handle_intermediate_stage (instance method)">- (Object) <strong>handle_intermediate_stage</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Registers options that are common to all generic payloads, such as platform
+and arch.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#offsets-instance_method" title="#offsets (instance method)">- (Object) <strong>offsets</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_session-instance_method" title="#on_session (instance method)">- (Object) <strong>on_session</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#payload-instance_method" title="#payload (instance method)">- (Object) <strong>payload</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Overrides – we have to redirect all potential payload methods to the actual
+payload so that they get handled appropriately, cuz we&#39;re like a proxy
+and stuff.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#redirect_to_actual-instance_method" title="#redirect_to_actual (instance method)">- (Object) <strong>redirect_to_actual</strong>(name, *args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>First, find the underlying payload and then pass all methods onto it.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#replace_var-instance_method" title="#replace_var (instance method)">- (Object) <strong>replace_var</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reset-instance_method" title="#reset (instance method)">- (Object) <strong>reset</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reset&#39;s the generic payload&#39;s internal state so that it can find a
+new actual payload.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_offsets-instance_method" title="#stage_offsets (instance method)">- (Object) <strong>stage_offsets</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_over_connection%3F-instance_method" title="#stage_over_connection? (instance method)">- (Boolean) <strong>stage_over_connection?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_payload-instance_method" title="#stage_payload (instance method)">- (Object) <strong>stage_payload</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stager overrides.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_prefix-instance_method" title="#stage_prefix (instance method)">- (Object) <strong>stage_prefix</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_prefix%3D-instance_method" title="#stage_prefix= (instance method)">- (Object) <strong>stage_prefix=</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stager_offsets-instance_method" title="#stager_offsets (instance method)">- (Object) <strong>stager_offsets</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stager_payload-instance_method" title="#stager_payload (instance method)">- (Object) <strong>stager_payload</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#substitute_vars-instance_method" title="#substitute_vars (instance method)">- (Object) <strong>substitute_vars</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#user_input%3D-instance_method" title="#user_input= (instance method)">- (Object) <strong>user_input=</strong>(h) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#user_output%3D-instance_method" title="#user_output= (instance method)">- (Object) <strong>user_output=</strong>(h) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="actual_payload=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="actual_payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>actual_payload</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The actual underlying platform/arch-specific payload instance that should
+be used.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+181
+182
+183</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 181</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_actual_payload'>actual_payload</span>
+  <span class='ivar'>@actual_payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="explicit_arch=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="explicit_arch-instance_method">
+  
+    - (<tt>Object</tt>) <strong>explicit_arch</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Accessor that makes it possible to define an explicit architecture.  This
+is used for things like payload regeneration.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_explicit_arch'>explicit_arch</span>
+  <span class='ivar'>@explicit_arch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="explicit_platform=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="explicit_platform-instance_method">
+  
+    - (<tt>Object</tt>) <strong>explicit_platform</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Accessor that makes it possible to define an explicit platform.  This is
+used for things like payload regeneration.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+168
+169
+170</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 168</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_explicit_platform'>explicit_platform</span>
+  <span class='ivar'>@explicit_platform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="actual_arch-instance_method">
+  
+    - (<tt>Object</tt>) <strong>actual_arch</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the actual architecture that should be used for the payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 210</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_actual_arch'>actual_arch</span>
+  <span class='id identifier rubyid_arch'>arch</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_explicit_arch'>explicit_arch</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>==</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_arch'>arch</span> <span class='op'>=</span> <span class='id identifier rubyid_explicit_arch'>explicit_arch</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_arch'>arch</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span>
+    <span class='id identifier rubyid_arch'>arch</span> <span class='op'>=</span> <span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span><span class='period'>.</span><span class='id identifier rubyid_target_arch'>target_arch</span> <span class='op'>||</span> <span class='const'>ARCH_X86</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we still have an invalid architecture, then we suck.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_arch'>arch</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NoCompatiblePayloadError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An architecture could not be determined by the generic payload</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_arch'>arch</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>String</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_arch'>arch</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_arch'>arch</span> <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_arch'>arch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="actual_platform-instance_method">
+  
+    - (<tt>Object</tt>) <strong>actual_platform</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the actual platform that should be used for the payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 186</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_actual_platform'>actual_platform</span>
+  <span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_explicit_platform'>explicit_platform</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>==</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='id identifier rubyid_explicit_platform'>explicit_platform</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PLATFORM</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PLATFORM</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span>
+    <span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span><span class='period'>.</span><span class='id identifier rubyid_target_platform'>target_platform</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we still have an invalid platform, then we suck.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NoCompatiblePayloadError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A platform could not be determined by the generic payload</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>String</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>PlatformList</span><span class='period'>.</span><span class='id identifier rubyid_transform'>transform</span><span class='lparen'>(</span><span class='id identifier rubyid_platform'>platform</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_platform'>platform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="compatible_encoders-instance_method">
+  
+    - (<tt>Object</tt>) <strong>compatible_encoders</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_compatible_encoders'>compatible_encoders</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:compatible_encoders</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="compatible_nops-instance_method">
+  
+    - (<tt>Object</tt>) <strong>compatible_nops</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_compatible_nops'>compatible_nops</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:compatible_nops</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_actual_payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>find_actual_payload</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 231</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_actual_payload'>find_actual_payload</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='comment'># Look for one based on the exploit&#39;s compatible set
+</span>  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_actual_payload'>actual_payload</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_payloads'>payloads</span><span class='period'>.</span><span class='id identifier rubyid_find_payload_from_set'>find_payload_from_set</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span><span class='period'>.</span><span class='id identifier rubyid_compatible_payloads'>compatible_payloads</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_actual_platform'>actual_platform</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_actual_arch'>actual_arch</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_handler_klass'>handler_klass</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_session'>session</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_payload_type'>payload_type</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Fall back to the generic match (ignores size, compat flags, etc)
+</span>  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_actual_payload'>actual_payload</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_payloads'>payloads</span><span class='period'>.</span><span class='id identifier rubyid_find_payload'>find_payload</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_actual_platform'>actual_platform</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_actual_arch'>actual_arch</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_handler_klass'>handler_klass</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_session'>session</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_payload_type'>payload_type</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NoCompatiblePayloadError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Could not locate a compatible payload for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_actual_platform'>actual_platform</span><span class='period'>.</span><span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_actual_arch'>actual_arch</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Selected payload </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> from generic payload </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+    <span class='comment'># Share our datastore with the actual payload so that it has the
+</span>    <span class='comment'># appropriate values to substitute ad so on.
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_share_datastore'>share_datastore</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+
+    <span class='comment'># Set the associated exploit for the payload.
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span>  <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span>
+
+    <span class='comment'># Set the parent payload to this payload so that we can handle
+</span>    <span class='comment'># things like session creation (so that event notifications will
+</span>    <span class='comment'># work properly)
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_parent_payload'>parent_payload</span> <span class='op'>=</span> <span class='kw'>self</span>
+
+    <span class='comment'># Set the cached user_input/user_output
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_user_input'>user_input</span>  <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_user_input'>user_input</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span>
+  <span class='kw'>end</span>
+
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generate</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate is different from other methods – it will try to re-detect the
+actual payload in case settings have changed.  Other methods will use the
+cached version if possible.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span>
+  <span class='id identifier rubyid_reset'>reset</span>
+
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:generate</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_stage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generate_stage</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 126</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_stage'>generate_stage</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:generate_stage</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_connection-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_connection</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_connection'>handle_connection</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:handle_connection</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_connection_stage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_connection_stage</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+130
+131
+132</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 130</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_connection_stage'>handle_connection_stage</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:handle_connection_stage</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_intermediate_stage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>handle_intermediate_stage</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 134</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_intermediate_stage'>handle_intermediate_stage</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:handle_intermediate_stage</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Registers options that are common to all generic payloads, such as platform
+and arch.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_merge_info'>merge_info</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Arch</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='const'>ARCH_ALL</span> <span class='op'>-</span> <span class='lbracket'>[</span><span class='const'>ARCH_TTY</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Platform</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PLATFORM</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The platform that is being targeted</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='kw'>nil</span>
+        <span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ARCH</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The architecture that is being targeted</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='kw'>nil</span>
+        <span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Payload</span><span class='op'>::</span><span class='const'>Generic</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="offsets-instance_method">
+  
+    - (<tt>Object</tt>) <strong>offsets</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_offsets'>offsets</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:offsets</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_session-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_session</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+98
+99
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 98</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_session'>on_session</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:on_session</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>payload</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Overrides – we have to redirect all potential payload methods to the actual
+payload so that they get handled appropriately, cuz we&#39;re like a proxy
+and stuff.  We can&#39;t use method_undefined because all of these methods
+are actually defined.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_payload'>payload</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:payload</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="redirect_to_actual-instance_method">
+  
+    - (<tt>Object</tt>) <strong>redirect_to_actual</strong>(name, *args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>First, find the underlying payload and then pass all methods onto it.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+159
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 159</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_find_actual_payload'>find_actual_payload</span>
+  <span class='id identifier rubyid_actual_payload'>actual_payload</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="replace_var-instance_method">
+  
+    - (<tt>Object</tt>) <strong>replace_var</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_replace_var'>replace_var</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:replace_var</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>reset</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reset&#39;s the generic payload&#39;s internal state so that it can find a
+new actual payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reset'>reset</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_explicit_arch'>explicit_arch</span>     <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_explicit_platform'>explicit_platform</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_actual_payload'>actual_payload</span>    <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_offsets-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stage_offsets</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+110
+111
+112</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 110</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_offsets'>stage_offsets</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:stage_offsets</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_over_connection?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>stage_over_connection?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+122
+123
+124</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 122</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_over_connection?'>stage_over_connection?</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:stage_over_connection?</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stage_payload</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stager overrides</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_payload'>stage_payload</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:stage_payload</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_prefix-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stage_prefix</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138
+139
+140</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_prefix'>stage_prefix</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:stage_prefix</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_prefix=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stage_prefix=</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+142
+143
+144</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 142</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_prefix='>stage_prefix=</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:stage_prefix=</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stager_offsets-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stager_offsets</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 118</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stager_offsets'>stager_offsets</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:stager_offsets</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stager_payload-instance_method">
+  
+    - (<tt>Object</tt>) <strong>stager_payload</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stager_payload'>stager_payload</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:stager_payload</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="substitute_vars-instance_method">
+  
+    - (<tt>Object</tt>) <strong>substitute_vars</strong>(*args) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_substitute_vars'>substitute_vars</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:substitute_vars</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="user_input=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>user_input=</strong>(h) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+146
+147
+148
+149</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 146</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_user_input='>user_input=</span><span class='lparen'>(</span><span class='id identifier rubyid_h'>h</span><span class='rparen'>)</span>
+  <span class='ivar'>@user_input</span> <span class='op'>=</span> <span class='id identifier rubyid_h'>h</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:user_input</span><span class='comma'>,</span> <span class='id identifier rubyid_h'>h</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_actual_payload'>actual_payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="user_output=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>user_output=</strong>(h) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153
+154</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/generic.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_user_output='>user_output=</span><span class='lparen'>(</span><span class='id identifier rubyid_h'>h</span><span class='rparen'>)</span>
+  <span class='ivar'>@user_output</span> <span class='op'>=</span> <span class='id identifier rubyid_h'>h</span>
+  <span class='id identifier rubyid_redirect_to_actual'>redirect_to_actual</span><span class='lparen'>(</span><span class='symbol'>:user_output</span><span class='comma'>,</span> <span class='id identifier rubyid_h'>h</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_actual_payload'>actual_payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:24 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

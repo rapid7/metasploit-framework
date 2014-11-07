@@ -1,0 +1,2141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Poly::LogicalBlock
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Poly/LogicalBlock.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Poly.html" title="Rex::Poly (module)">Poly</a></span></span>
+     &raquo; 
+    <span class="title">LogicalBlock</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Poly::LogicalBlock
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Poly::LogicalBlock</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/poly/block.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class represents a logical block which is defined as a concise portion
+of code that may have one or more functionally equivalent implementations.
+A logical block should serve a very specific purpose, and any permutations
+beyond the first should result in exactly the same functionality without
+any adverse side effects to other blocks.</p>
+
+<p>Like blocks of code, LogicalBlock&#39;s can depend on one another in terms
+of ordering and precedence.  By marking blocks as dependent on another, a
+hierarchy begins to form.  This is a block dependency graph.</p>
+
+<p>To add permutations to a LogicalBlock, they can either be passed in as a
+list of arguments to the constructor following the blocks name or can be
+added on the fly by calling the add_perm method.  To get a random
+permutation, the rand_perm method can be called.</p>
+
+<p>To mark one block as depending on another, the depends_on method can be
+called with zero or more LogicalBlock instances as parameters.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="SymbolicBlock/End.html" title="Rex::Poly::SymbolicBlock::End (class)">SymbolicBlock::End</a></span></p>
+</div>
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generated-instance_method" title="#generated (instance method)">- (Object) <strong>generated</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether or not this block has currently been generated for a given
+iteration.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#offset-instance_method" title="#offset (instance method)">- (Object) <strong>offset</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This attributes contains the currently assigned offset of the permutation
+associated with this block into the polymorphic buffer that is being
+generated.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_perm-instance_method" title="#add_perm (instance method)">- (Object) <strong>add_perm</strong>(*perms) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds zero or more specific permutations that may be represented either as
+strings or as Proc&#39;s to be called at evaluation time.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clobbers-instance_method" title="#clobbers (instance method)">- (Object) <strong>clobbers</strong>(*registers) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Defines the list of zero or more LogicalRegister&#39;s that this block
+clobbers.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#depends_on-instance_method" title="#depends_on (instance method)">- (Object) <strong>depends_on</strong>(*depends) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the blocks that this block instance depends on.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deref-instance_method" title="#deref (instance method)">- (Object) <strong>deref</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Increments the number of blocks that have completed their dependency pass
+on this block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#do_generate-instance_method" title="#do_generate (instance method)">- (Object) <strong>do_generate</strong>(save_registers, state, badchars) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs the actual polymorphic buffer generation.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_clobbers-instance_method" title="#each_clobbers (instance method)">- (Object) <strong>each_clobbers</strong>(&amp;block) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerates each register instance that is clobbered by this block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">- (Object) <strong>generate</strong>(save_registers = nil, state = nil, badchars = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generates the polymorphic buffer that results from this block and any of
+the blocks that it either directly or indirectly depends on.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#generate_block_list-instance_method" title="#generate_block_list (instance method)">- (Object) <strong>generate_block_list</strong>(state, level = 0) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generates the linear list of block permutations which is stored in the
+supplied state instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (LogicalBlock) <strong>initialize</strong>(name, *perms) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the logical block&#39;s name along with zero or more specific
+blocks.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#last_reference%3F-instance_method" title="#last_reference? (instance method)">- (Boolean) <strong>last_reference?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if there is only one block reference remaining.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">- (Object) <strong>name</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the block&#39;s name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#next_blocks-instance_method" title="#next_blocks (instance method)">- (Object) <strong>next_blocks</strong>(*blocks) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Defines the next blocks, but not in a dependency fashion but rather in a
+linking of separate block contexts.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#offset_of-instance_method" title="#offset_of (instance method)">- (Object) <strong>offset_of</strong>(lblock) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the offset of a block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#once-instance_method" title="#once (instance method)">- (Object) <strong>once</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if this block is a &#39;once&#39; block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#once%3D-instance_method" title="#once= (instance method)">- (Object) <strong>once=</strong>(tf) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Flags whether or not the block should only be generated once.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rand_perm-instance_method" title="#rand_perm (instance method)">- (Object) <strong>rand_perm</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a random permutation that is encapsulated in a Permutation class
+instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rand_perm_badchars-instance_method" title="#rand_perm_badchars (instance method)">- (Object) <strong>rand_perm_badchars</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a random permutation that passes any necessary bad character
+checks.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ref-instance_method" title="#ref (instance method)">- (Object) <strong>ref</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Increments the number of blocks that depend on this block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#regnum_of-instance_method" title="#regnum_of (instance method)">- (Object) <strong>regnum_of</strong>(reg) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the register number associated with the supplied LogicalRegister
+instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reset-instance_method" title="#reset (instance method)">- (Object) <strong>reset</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Resets the block back to its starting point.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#size_of-instance_method" title="#size_of (instance method)">- (Object) <strong>size_of</strong>(lblock) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Poly::LogicalBlock (class)">LogicalBlock</a></span></tt>) <strong>initialize</strong>(name, *perms) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the logical block&#39;s name along with zero or more specific
+blocks.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78
+79
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+  <span class='ivar'>@name</span>  <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
+
+  <span class='id identifier rubyid_reset'>reset</span>
+
+  <span class='id identifier rubyid_add_perm'>add_perm</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="generated=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="generated-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generated</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether or not this block has currently been generated for a given
+iteration.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+315
+316
+317</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 315</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generated'>generated</span>
+  <span class='ivar'>@generated</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="offset=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="offset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>offset</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This attributes contains the currently assigned offset of the permutation
+associated with this block into the polymorphic buffer that is being
+generated.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+309
+310
+311</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 309</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_offset'>offset</span>
+  <span class='ivar'>@offset</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_perm-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_perm</strong>(*perms) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds zero or more specific permutations that may be represented either as
+strings or as Proc&#39;s to be called at evaluation time.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 153</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_perm'>add_perm</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+  <span class='ivar'>@perms</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clobbers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>clobbers</strong>(*registers) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Defines the list of zero or more LogicalRegister&#39;s that this block
+clobbers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+220
+221
+222</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 220</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clobbers'>clobbers</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_registers'>registers</span><span class='rparen'>)</span>
+  <span class='ivar'>@clobbers</span> <span class='op'>=</span> <span class='id identifier rubyid_registers'>registers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="depends_on-instance_method">
+  
+    - (<tt>Object</tt>) <strong>depends_on</strong>(*depends) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the blocks that this block instance depends on.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+201
+202
+203
+204
+205
+206</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 201</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_depends_on'>depends_on</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_depends'>depends</span><span class='rparen'>)</span>
+  <span class='ivar'>@depends</span> <span class='op'>=</span> <span class='id identifier rubyid_depends'>depends</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+
+  <span class='comment'># Increment dependent references
+</span>  <span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span> <span class='id identifier rubyid_b'>b</span><span class='period'>.</span><span class='id identifier rubyid_ref'>ref</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deref-instance_method">
+  
+    - (<tt>Object</tt>) <strong>deref</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Increments the number of blocks that have completed their dependency pass
+on this block.  This number should never become higher than the
+`@references` attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#ref-instance_method" title="Rex::Poly::LogicalBlock#ref (method)">#ref</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138
+139
+140</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deref'>deref</span>
+  <span class='ivar'>@used_references</span> <span class='op'>+=</span> <span class='int'>1</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="do_generate-instance_method">
+  
+    - (<tt>Object</tt>) <strong>do_generate</strong>(save_registers, state, badchars)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs the actual polymorphic buffer generation.  Called from generate</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 322</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_do_generate'>do_generate</span><span class='lparen'>(</span><span class='id identifier rubyid_save_registers'>save_registers</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='comment'># Reset the state in case it was passed in.
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_reset'>reset</span>
+
+  <span class='comment'># Set the bad character list
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+
+  <span class='comment'># Consume any registers that should be saved.
+</span>  <span class='id identifier rubyid_save_registers'>save_registers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_reg'>reg</span><span class='op'>|</span>
+    <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_consume_regnum'>consume_regnum</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_save_registers'>save_registers</span><span class='rparen'>)</span>
+
+  <span class='comment'># Build the linear list of blocks that will be processed.  This
+</span>  <span class='comment'># list is built in a dynamic fashion based on block dependencies.
+</span>  <span class='comment'># The list that is returned is an Array of which each element is a two
+</span>  <span class='comment'># member array, the first element being the LogicalBlock instance that
+</span>  <span class='comment'># the permutation came from and the second being an instance of the
+</span>  <span class='comment'># Permutation class associated with the selected permutation.
+</span>  <span class='id identifier rubyid_block_list'>block_list</span> <span class='op'>=</span> <span class='id identifier rubyid_generate_block_list'>generate_block_list</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+
+  <span class='comment'># Transition into the second phase which enables offset_of and regnum_of
+</span>  <span class='comment'># calls to return real values.
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_first_phase'>first_phase</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='comment'># Now that every block has been assigned an offset, generate the
+</span>  <span class='comment'># buffer block by block, assigning registers as necessary.
+</span>  <span class='id identifier rubyid_block_list'>block_list</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span>
+
+    <span class='comment'># Generate the next permutation and append it to the buffer.
+</span>    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>+=</span> <span class='id identifier rubyid_b'>b</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='comment'># If an invalid register exception is raised, try to consume a random
+</span>    <span class='comment'># register from the register&#39;s associated architecture register
+</span>    <span class='comment'># number set.
+</span>    <span class='kw'>rescue</span> <span class='const'>InvalidRegisterError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_regnum'>regnum</span> <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_consume_regnum_from_set'>consume_regnum_from_set</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_regnum_set'>regnum_set</span><span class='rparen'>)</span>
+      <span class='kw'>retry</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Remove any of the registers that have been clobbered by this block
+</span>    <span class='comment'># from the list of consumed register numbers so that they can be used
+</span>    <span class='comment'># in the future.
+</span>    <span class='id identifier rubyid_b'>b</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each_clobbers'>each_clobbers</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_reg'>reg</span><span class='op'>|</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_defecate_regnum'>defecate_regnum</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_regnum'>regnum</span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_regnum'>regnum</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='kw'>rescue</span> <span class='const'>InvalidRegisterError</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Finally, return the buffer that has been created.
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buffer'>buffer</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_clobbers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>each_clobbers</strong>(&amp;block) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerates each register instance that is clobbered by this block.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+227
+228
+229</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 227</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_clobbers'>each_clobbers</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='ivar'>@clobbers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generate</strong>(save_registers = nil, state = nil, badchars = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generates the polymorphic buffer that results from this block and any of
+the blocks that it either directly or indirectly depends on.  A list of
+register numbers to be saved can be passed in as an argument.</p>
+
+<p>This method is not thread safe.  To call this method on a single block
+instance from within multiple threads, be sure to encapsulate the calls
+inside a locked context.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 240</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_save_registers'>save_registers</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='comment'># Create a localized state instance if one was not supplied.
+</span>  <span class='id identifier rubyid_state'>state</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>State</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_buf'>buf</span>   <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_cnt'>cnt</span>   <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># This is a lame way of doing this.  We just try to generate at most 128
+</span>  <span class='comment'># times until we don&#39;t have badchars.  The reason we have to do it this
+</span>  <span class='comment'># way is because of the fact that badchars can be introduced through
+</span>  <span class='comment'># block offsetting and register number selection which can&#39;t be readily
+</span>  <span class='comment'># predicted or detected during the generation phase.  In the future we
+</span>  <span class='comment'># can make this better, but for now this will have to do.
+</span>  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_do_generate'>do_generate</span><span class='lparen'>(</span><span class='id identifier rubyid_save_registers'>save_registers</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span> <span class='kw'>and</span>
+        <span class='lparen'>(</span><span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_badchar_index'>badchar_index</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span> <span class='kw'>while</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_cnt'>cnt</span> <span class='op'>+=</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>&lt;</span> <span class='int'>128</span><span class='rparen'>)</span>
+
+  <span class='comment'># If we passed 128 tries, then we can&#39;t succeed.
+</span>  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_cnt'>cnt</span> <span class='op'>&gt;=</span> <span class='int'>128</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_buf'>buf</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_block_list-instance_method">
+  
+    - (<tt>Object</tt>) <strong>generate_block_list</strong>(state, level = 0)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generates the linear list of block permutations which is stored in the
+supplied state instance.  This is done prior to assigning blocks offsets</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 383</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_block_list'>generate_block_list</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span><span class='op'>=</span><span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+    <span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span>
+      <span class='id identifier rubyid_f'>f</span> <span class='op'>=</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+      <span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_delete_at'>delete_at</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_cidx'>cidx</span><span class='op'>|</span>
+
+    <span class='id identifier rubyid_pass'>pass</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@depends</span><span class='lbracket'>[</span><span class='id identifier rubyid_cidx'>cidx</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_generated'>generated</span><span class='rparen'>)</span>
+        <span class='kw'>break</span>
+
+      <span class='comment'># If this dependent block is a once block and the magic 8 ball turns
+</span>      <span class='comment'># up zero, skip it and let a later block pick it up.  We only do this
+</span>      <span class='comment'># if we are not the last block to have a dependency on this block.
+</span>      <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='ivar'>@depends</span><span class='lbracket'>[</span><span class='id identifier rubyid_cidx'>cidx</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_once'>once</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='ivar'>@depends</span><span class='lbracket'>[</span><span class='id identifier rubyid_cidx'>cidx</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_last_reference?'>last_reference?</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Generate this block
+</span>      <span class='ivar'>@depends</span><span class='lbracket'>[</span><span class='id identifier rubyid_cidx'>cidx</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_generate_block_list'>generate_block_list</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span><span class='op'>+</span><span class='int'>1</span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_level'>level</span> <span class='op'>!=</span> <span class='int'>0</span>
+        <span class='kw'>return</span>
+      <span class='kw'>else</span>
+        <span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span>
+          <span class='id identifier rubyid_f'>f</span> <span class='op'>=</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+          <span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='ivar'>@depends</span><span class='period'>.</span><span class='id identifier rubyid_delete_at'>delete_at</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='rbrace'>}</span>
+
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>next</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_deref'>deref</span>
+
+  <span class='comment'># Assign the instance local state for the duration of this generation
+</span>  <span class='ivar'>@state</span> <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span>
+
+  <span class='comment'># Select a random permutation
+</span>  <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='id identifier rubyid_rand_perm'>rand_perm</span>
+
+  <span class='comment'># Set our block offset to the current state offset
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_curr_offset'>curr_offset</span>
+
+  <span class='comment'># Flag ourselves as having been generated for this iteration.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generated'>generated</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='comment'># Adjust the current offset based on the permutations length
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_curr_offset'>curr_offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_perm'>perm</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='comment'># Add it to the linear list of blocks
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_block_list'>block_list</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span> <span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='rbracket'>]</span>
+
+  <span class='comment'># Generate all the blocks that follow this one.
+</span>  <span class='ivar'>@next_blocks</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span>
+    <span class='id identifier rubyid_b'>b</span><span class='period'>.</span><span class='id identifier rubyid_generate_block_list'>generate_block_list</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Return the state&#39;s block list
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_block_list'>block_list</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="last_reference?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>last_reference?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if there is only one block reference remaining.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+145
+146
+147</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 145</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_last_reference?'>last_reference?</span>
+  <span class='lparen'>(</span><span class='ivar'>@references</span> <span class='op'>-</span> <span class='ivar'>@used_references</span> <span class='op'>&lt;=</span> <span class='int'>0</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    - (<tt>Object</tt>) <strong>name</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the block&#39;s name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='ivar'>@name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="next_blocks-instance_method">
+  
+    - (<tt>Object</tt>) <strong>next_blocks</strong>(*blocks) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Defines the next blocks, but not in a dependency fashion but rather in a
+linking of separate block contexts.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 212</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_next_blocks'>next_blocks</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_blocks'>blocks</span><span class='rparen'>)</span>
+  <span class='ivar'>@next_blocks</span> <span class='op'>=</span> <span class='id identifier rubyid_blocks'>blocks</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="offset_of-instance_method">
+  
+    - (<tt>Object</tt>) <strong>offset_of</strong>(lblock) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the offset of a block.  If the active state for this instance is
+operating in the first phase, then zero is always returned.  Otherwise, the
+correct offset for the supplied block is returned.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 272</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_offset_of'>offset_of</span><span class='lparen'>(</span><span class='id identifier rubyid_lblock'>lblock</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@state</span><span class='period'>.</span><span class='id identifier rubyid_first_phase'>first_phase</span><span class='rparen'>)</span>
+    <span class='int'>0</span>
+  <span class='kw'>else</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_lblock'>lblock</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>SymbolicBlock</span><span class='op'>::</span><span class='const'>End</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='ivar'>@state</span><span class='period'>.</span><span class='id identifier rubyid_curr_offset'>curr_offset</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_lblock'>lblock</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="once-instance_method">
+  
+    - (<tt>Object</tt>) <strong>once</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if this block is a &#39;once&#39; block.  That is, this block
+is dependend upon by multiple blocks but should only be generated once.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 120</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_once'>once</span>
+  <span class='ivar'>@once</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="once=-instance_method">
+  
+    - (<tt>Object</tt>) <strong>once=</strong>(tf) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Flags whether or not the block should only be generated once.  This can be
+used to mark a blog as being depended upon by multiple blocks, but making
+it such that it is only generated once.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 112</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_once='>once=</span><span class='lparen'>(</span><span class='id identifier rubyid_tf'>tf</span><span class='rparen'>)</span>
+  <span class='ivar'>@once</span> <span class='op'>=</span> <span class='id identifier rubyid_tf'>tf</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rand_perm-instance_method">
+  
+    - (<tt>Object</tt>) <strong>rand_perm</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a random permutation that is encapsulated in a Permutation class
+instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 161</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rand_perm'>rand_perm</span>
+  <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@state</span><span class='period'>.</span><span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='id identifier rubyid_rand_perm_badchars'>rand_perm_badchars</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'>Permutation</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='ivar'>@perms</span><span class='lbracket'>[</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='ivar'>@perms</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_perm'>perm</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to locate a valid permutation.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_perm'>perm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rand_perm_badchars-instance_method">
+  
+    - (<tt>Object</tt>) <strong>rand_perm_badchars</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a random permutation that passes any necessary bad character
+checks.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 181</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rand_perm_badchars'>rand_perm_badchars</span>
+  <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='ivar'>@perms</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_off'>off</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_off'>off</span> <span class='op'>&lt;</span> <span class='ivar'>@perms</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='ivar'>@perms</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_idx'>idx</span> <span class='op'>+</span> <span class='id identifier rubyid_off'>off</span><span class='rparen'>)</span> <span class='op'>%</span> <span class='ivar'>@perms</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Proc</span><span class='rparen'>)</span> <span class='kw'>or</span>
+        <span class='ivar'>@state</span><span class='period'>.</span><span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span>
+        <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_badchar_index'>badchar_index</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='ivar'>@state</span><span class='period'>.</span><span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='const'>Permutation</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_off'>off</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ref-instance_method">
+  
+    - (<tt>Object</tt>) <strong>ref</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Increments the number of blocks that depend on this block.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#deref-instance_method" title="Rex::Poly::LogicalBlock#deref (method)">#deref</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ref'>ref</span>
+  <span class='ivar'>@references</span> <span class='op'>+=</span> <span class='int'>1</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="regnum_of-instance_method">
+  
+    - (<tt>Object</tt>) <strong>regnum_of</strong>(reg) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the register number associated with the supplied LogicalRegister
+instance.  If the active state for this instance is operating in the first
+phase, then zero is always returned.  Otherwise, the correct register
+number is returned based on what is currently assigned to the supplied
+LogicalRegister instance, if anything.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+291
+292
+293</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 291</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_regnum_of'>regnum_of</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='ivar'>@state</span><span class='period'>.</span><span class='id identifier rubyid_first_phase'>first_phase</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='int'>0</span> <span class='op'>:</span> <span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_regnum'>regnum</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reset-instance_method">
+  
+    - (<tt>Object</tt>) <strong>reset</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Resets the block back to its starting point.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reset'>reset</span>
+  <span class='ivar'>@perms</span>           <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@depends</span>         <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@next_blocks</span>     <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@clobbers</span>        <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@offset</span>          <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@state</span>           <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@once</span>            <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@references</span>      <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@used_references</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@generated</span>       <span class='op'>=</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="size_of-instance_method">
+  
+    - (<tt>Object</tt>) <strong>size_of</strong>(lblock) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+295
+296
+297
+298
+299
+300
+301
+302</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 295</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_size_of'>size_of</span><span class='lparen'>(</span><span class='id identifier rubyid_lblock'>lblock</span><span class='rparen'>)</span>
+  <span class='ivar'>@state</span><span class='period'>.</span><span class='id identifier rubyid_block_list'>block_list</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='comma'>,</span> <span class='id identifier rubyid_p'>p</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_b'>b</span> <span class='op'>==</span> <span class='id identifier rubyid_lblock'>lblock</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+  <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:11 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::HTTP::Wordpress::Base
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/HTTP/Wordpress/Base.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../HTTP.html" title="Msf::HTTP (module)">HTTP</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Wordpress.html" title="Msf::HTTP::Wordpress (module)">Wordpress</a></span></span>
+     &raquo; 
+    <span class="title">Base</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::HTTP::Wordpress::Base
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../Wordpress.html" title="Msf::HTTP::Wordpress (module)">Msf::HTTP::Wordpress</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/http/wordpress/base.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wordpress_and_online%3F-instance_method" title="#wordpress_and_online? (instance method)">- (Rex::Proto::Http::Response<sup>?</sup>) <strong>wordpress_and_online?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks if the site is online and running wordpress.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="wordpress_and_online?-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../../../Rex/Proto/Http/Response.html" title="Rex::Proto::Http::Response (class)">Rex::Proto::Http::Response</a></span></tt><sup>?</sup>) <strong>wordpress_and_online?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks if the site is online and running wordpress</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Proto/Http/Response.html" title="Rex::Proto::Http::Response (class)">Rex::Proto::Http::Response</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Returns the HTTP response if the site is online and running wordpress, nil
+otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/http/wordpress/base.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wordpress_and_online?'>wordpress_and_online?</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_send_request_cgi'>send_request_cgi</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_normalize_uri'>normalize_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_target_uri'>target_uri</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_wordpress_detect_regexes'>wordpress_detect_regexes</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[&quot;&#39;][^&quot;&#39;]*\/</span><span class='embexpr_beg'>#{</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_escape'>escape</span><span class='lparen'>(</span><span class='id identifier rubyid_wp_content_dir'>wp_content_dir</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>\/[^&quot;&#39;]*[&quot;&#39;]</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;link rel=[&quot;&#39;]wlwmanifest[&quot;&#39;].*href=[&quot;&#39;].*\/wp-includes\/wlwmanifest\.xml[&quot;&#39;] \/&gt;</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>&lt;link rel=[&quot;&#39;]pingback[&quot;&#39;].*href=[&quot;&#39;].*\/xmlrpc\.php[&quot;&#39;](?: \/)*&gt;</span><span class='regexp_end'>/i</span></span>
+  <span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_res'>res</span> <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span> <span class='op'>==</span> <span class='int'>200</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_wordpress_detect_regexes'>wordpress_detect_regexes</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=~</span> <span class='id identifier rubyid_r'>r</span> <span class='rbrace'>}</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>ConnectionRefused</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>HostUnreachable</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>ConnectionTimeout</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_peer'>peer</span><span class='embexpr_end'>}</span><span class='tstring_content'> - Error connecting to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_target_uri'>target_uri</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:13 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

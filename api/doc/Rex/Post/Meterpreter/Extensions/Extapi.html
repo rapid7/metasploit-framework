@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Post::Meterpreter::Extensions::Extapi
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../../';
+  framesUrl = "../../../../frames.html#!Rex/Post/Meterpreter/Extensions/Extapi.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span>
+     &raquo; 
+    <span class="title">Extapi</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Post::Meterpreter::Extensions::Extapi
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/post/meterpreter/extensions/extapi/tlv.rb<span class="defines">,<br />
+  lib/rex/post/meterpreter/extensions/extapi/extapi.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/wmi/wmi.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/adsi/adsi.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/window/window.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/service/service.rb,<br /> lib/rex/post/meterpreter/extensions/extapi/clipboard/clipboard.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Extapi/Adsi.html" title="Rex::Post::Meterpreter::Extensions::Extapi::Adsi (module)">Adsi</a></span>, <span class='object_link'><a href="Extapi/Clipboard.html" title="Rex::Post::Meterpreter::Extensions::Extapi::Clipboard (module)">Clipboard</a></span>, <span class='object_link'><a href="Extapi/Service.html" title="Rex::Post::Meterpreter::Extensions::Extapi::Service (module)">Service</a></span>, <span class='object_link'><a href="Extapi/Window.html" title="Rex::Post::Meterpreter::Extensions::Extapi::Window (module)">Window</a></span>, <span class='object_link'><a href="Extapi/Wmi.html" title="Rex::Post::Meterpreter::Extensions::Extapi::Wmi (module)">Wmi</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Extapi/Extapi.html" title="Rex::Post::Meterpreter::Extensions::Extapi::Extapi (class)">Extapi</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="TLV_TYPE_EXTENSION_EXTAPI-constant" class="">TLV_TYPE_EXTENSION_EXTAPI =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WINDOW_ENUM_GROUP-constant" class="">TLV_TYPE_EXT_WINDOW_ENUM_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WINDOW_ENUM_PID-constant" class="">TLV_TYPE_EXT_WINDOW_ENUM_PID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>2</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WINDOW_ENUM_HANDLE-constant" class="">TLV_TYPE_EXT_WINDOW_ENUM_HANDLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_QWORD</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>3</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WINDOW_ENUM_TITLE-constant" class="">TLV_TYPE_EXT_WINDOW_ENUM_TITLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WINDOW_ENUM_INCLUDEUNKNOWN-constant" class="">TLV_TYPE_EXT_WINDOW_ENUM_INCLUDEUNKNOWN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_BOOL</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>5</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_ENUM_GROUP-constant" class="">TLV_TYPE_EXT_SERVICE_ENUM_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>10</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_ENUM_NAME-constant" class="">TLV_TYPE_EXT_SERVICE_ENUM_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>11</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME-constant" class="">TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>12</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_ENUM_PID-constant" class="">TLV_TYPE_EXT_SERVICE_ENUM_PID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>13</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_ENUM_STATUS-constant" class="">TLV_TYPE_EXT_SERVICE_ENUM_STATUS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>14</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE-constant" class="">TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_BOOL</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>15</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_QUERY_STARTTYPE-constant" class="">TLV_TYPE_EXT_SERVICE_QUERY_STARTTYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>20</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_QUERY_DISPLAYNAME-constant" class="">TLV_TYPE_EXT_SERVICE_QUERY_DISPLAYNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>21</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_QUERY_STARTNAME-constant" class="">TLV_TYPE_EXT_SERVICE_QUERY_STARTNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>22</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_QUERY_PATH-constant" class="">TLV_TYPE_EXT_SERVICE_QUERY_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>23</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_QUERY_LOADORDERGROUP-constant" class="">TLV_TYPE_EXT_SERVICE_QUERY_LOADORDERGROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>24</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_QUERY_INTERACTIVE-constant" class="">TLV_TYPE_EXT_SERVICE_QUERY_INTERACTIVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_BOOL</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>25</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_QUERY_DACL-constant" class="">TLV_TYPE_EXT_SERVICE_QUERY_DACL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>26</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_QUERY_STATUS-constant" class="">TLV_TYPE_EXT_SERVICE_QUERY_STATUS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>27</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_CTRL_NAME-constant" class="">TLV_TYPE_EXT_SERVICE_CTRL_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>28</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_SERVICE_CTRL_OP-constant" class="">TLV_TYPE_EXT_SERVICE_CTRL_OP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>29</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_DOWNLOAD-constant" class="">TLV_TYPE_EXT_CLIPBOARD_DOWNLOAD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_BOOL</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>35</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_TIMESTAMP-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_TIMESTAMP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>38</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>39</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>40</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>41</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_NAME-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>42</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_SIZE-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_QWORD</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>43</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_FILES-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_FILES =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>44</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>45</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMX-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMX =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>46</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMY-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>47</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DATA-constant" class="">TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_RAW</span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>48</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA-constant" class="">TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_BOOL</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>50</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_MON_WIN_CLASS-constant" class="">TLV_TYPE_EXT_CLIPBOARD_MON_WIN_CLASS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>51</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_MON_DUMP-constant" class="">TLV_TYPE_EXT_CLIPBOARD_MON_DUMP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_BOOL</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>52</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_CLIPBOARD_MON_PURGE-constant" class="">TLV_TYPE_EXT_CLIPBOARD_MON_PURGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_BOOL</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>53</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_ADSI_DOMAIN-constant" class="">TLV_TYPE_EXT_ADSI_DOMAIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>55</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_ADSI_FILTER-constant" class="">TLV_TYPE_EXT_ADSI_FILTER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>56</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_ADSI_FIELD-constant" class="">TLV_TYPE_EXT_ADSI_FIELD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>57</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_ADSI_VALUE-constant" class="">TLV_TYPE_EXT_ADSI_VALUE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>58</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_ADSI_RESULT-constant" class="">TLV_TYPE_EXT_ADSI_RESULT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>59</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_ADSI_MAXRESULTS-constant" class="">TLV_TYPE_EXT_ADSI_MAXRESULTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>60</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_ADSI_PAGESIZE-constant" class="">TLV_TYPE_EXT_ADSI_PAGESIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_UINT</span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>61</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WMI_DOMAIN-constant" class="">TLV_TYPE_EXT_WMI_DOMAIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>65</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WMI_QUERY-constant" class="">TLV_TYPE_EXT_WMI_QUERY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>66</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WMI_FIELD-constant" class="">TLV_TYPE_EXT_WMI_FIELD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>67</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WMI_VALUE-constant" class="">TLV_TYPE_EXT_WMI_VALUE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>68</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WMI_FIELDS-constant" class="">TLV_TYPE_EXT_WMI_FIELDS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>69</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WMI_VALUES-constant" class="">TLV_TYPE_EXT_WMI_VALUES =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_GROUP</span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>70</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXT_WMI_ERROR-constant" class="">TLV_TYPE_EXT_WMI_ERROR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>TLV_META_TYPE_STRING</span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'>TLV_TYPE_EXTENSION_EXTAPI</span> <span class='op'>+</span> <span class='const'>TLV_EXTENSIONS</span> <span class='op'>+</span> <span class='int'>71</span><span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:49 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

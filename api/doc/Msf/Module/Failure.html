@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Module::Failure
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Module/Failure.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span>
+     &raquo; 
+    <span class="title">Failure</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Module::Failure
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/module.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Constants indicating the reason for an unsuccessful module attempt</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="None-constant" class="">None =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>No confidence in success or failure</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>none</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="Unknown-constant" class="">Unknown =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>No confidence in success or failure</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unknown</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="Unreachable-constant" class="">Unreachable =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The network service was unreachable (connection refused, etc)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unreachable</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="BadConfig-constant" class="">BadConfig =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The exploit settings were incorrect</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bad-config</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="Disconnected-constant" class="">Disconnected =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The network service disconnected us mid-attempt</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disconnected</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="NotFound-constant" class="">NotFound =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The application endpoint or specific service was not found</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not-found</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="UnexpectedReply-constant" class="">UnexpectedReply =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The application replied in an unexpected fashion</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unexpected-reply</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="TimeoutExpired-constant" class="">TimeoutExpired =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The exploit triggered some form of timeout</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>timeout-expired</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="UserInterrupt-constant" class="">UserInterrupt =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The exploit was interrupted by the user</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user-interrupt</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="NoAccess-constant" class="">NoAccess =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The application replied indication we do not have access</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>no-access</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="NoTarget-constant" class="">NoTarget =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The target is not compatible with this exploit or settings</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>no-target</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="NotVulnerable-constant" class="">NotVulnerable =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The application response indicated it was not vulnerable</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not-vulnerable</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="PayloadFailed-constant" class="">PayloadFailed =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The payload was delivered but no session was opened (AV, network, etc)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>payload-failed</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:18 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

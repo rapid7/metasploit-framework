@@ -1,0 +1,2081 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::OLE::Storage
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/OLE/Storage.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../OLE.html" title="Rex::OLE (module)">OLE</a></span></span>
+     &raquo; 
+    <span class="title">Storage</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::OLE::Storage
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::OLE::Storage</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/ole/storage.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#header-instance_method" title="#header (instance method)">- (Object) <strong>header</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute header.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">- (Object) <strong>close</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_storage-instance_method" title="#create_storage (instance method)">- (Object) <strong>create_storage</strong>(name, mode = STGM_READ, parent_stg = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>storage manipulation functions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_stream-instance_method" title="#create_stream (instance method)">- (Object) <strong>create_stream</strong>(name, mode = STGM_WRITE, parent_stg = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>stream manipulation functions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each-instance_method" title="#each (instance method)">- (Object) <strong>each</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Storage) <strong>initialize</strong>(filename = nil, mode = STGM_READ) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Storage.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#inspect-instance_method" title="#inspect (instance method)">- (Object) <strong>inspect</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">- (Object) <strong>name</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#next_mini_sector-instance_method" title="#next_mini_sector (instance method)">- (Object) <strong>next_mini_sector</strong>(sect) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#next_sector-instance_method" title="#next_sector (instance method)">- (Object) <strong>next_sector</strong>(sect) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open-instance_method" title="#open (instance method)">- (Object) <strong>open</strong>(filename, mode) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_storage-instance_method" title="#open_storage (instance method)">- (Object) <strong>open_storage</strong>(name, mode = STGM_READ, parent_stg = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_stream-instance_method" title="#open_stream (instance method)">- (Object) <strong>open_stream</strong>(name, mode = STGM_READ, parent_stg = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_data-instance_method" title="#read_data (instance method)">- (Object) <strong>read_data</strong>(direntry) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_data_mini-instance_method" title="#read_data_mini (instance method)">- (Object) <strong>read_data_mini</strong>(direntry) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_mini_sector-instance_method" title="#read_mini_sector (instance method)">- (Object) <strong>read_mini_sector</strong>(sect, len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_sector-instance_method" title="#read_sector (instance method)">- (Object) <strong>read_sector</strong>(sect, len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_stream_data-instance_method" title="#read_stream_data (instance method)">- (Object) <strong>read_stream_data</strong>(direntry) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_mini_sector-instance_method" title="#write_mini_sector (instance method)">- (Object) <strong>write_mini_sector</strong>(sbuf, prev_sect = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_mini_sector_raw-instance_method" title="#write_mini_sector_raw (instance method)">- (Object) <strong>write_mini_sector_raw</strong>(sect, sbuf) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_mini_stream-instance_method" title="#write_mini_stream (instance method)">- (Object) <strong>write_mini_stream</strong>(stm) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_sector-instance_method" title="#write_sector (instance method)">- (Object) <strong>write_sector</strong>(sbuf, type = nil, prev_sect = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_sector_raw-instance_method" title="#write_sector_raw (instance method)">- (Object) <strong>write_sector_raw</strong>(sect, sbuf) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_stream-instance_method" title="#write_stream (instance method)">- (Object) <strong>write_stream</strong>(stm) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_to_disk-instance_method" title="#write_to_disk (instance method)">- (Object) <strong>write_to_disk</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>low-level functions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_user_data-instance_method" title="#write_user_data (instance method)">- (Object) <strong>write_user_data</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::OLE::Storage (class)">Storage</a></span></tt>) <strong>initialize</strong>(filename = nil, mode = STGM_READ) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Storage</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_READ</span><span class='rparen'>)</span>
+  <span class='ivar'>@mode</span> <span class='op'>=</span> <span class='id identifier rubyid_mode'>mode</span>
+  <span class='ivar'>@modified</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='ivar'>@fd</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@filename</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@header</span> <span class='op'>=</span> <span class='const'>Header</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='ivar'>@difat</span> <span class='op'>=</span> <span class='const'>DIFAT</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+  <span class='ivar'>@fat</span> <span class='op'>=</span> <span class='const'>FAT</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+  <span class='ivar'>@minifat</span> <span class='op'>=</span> <span class='const'>MiniFAT</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+  <span class='ivar'>@directory</span> <span class='op'>=</span> <span class='const'>Directory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+  <span class='ivar'>@ministream</span> <span class='op'>=</span> <span class='const'>Stream</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='rparen'>)</span>
+    <span class='ivar'>@filename</span> <span class='op'>=</span> <span class='id identifier rubyid_filename'>filename</span>
+    <span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="header=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="header-instance_method">
+  
+    - (<tt>Object</tt>) <strong>header</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute header</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_header'>header</span>
+  <span class='ivar'>@header</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="close-instance_method">
+  
+    - (<tt>Object</tt>) <strong>close</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@modified</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='ivar'>@mode</span> <span class='op'>!=</span> <span class='const'>STGM_READ</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_write_to_disk'>write_to_disk</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_storage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_storage</strong>(name, mode = STGM_READ, parent_stg = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>storage manipulation functions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+149
+150
+151
+152
+153
+154
+155
+156</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 149</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_storage'>create_storage</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_READ</span><span class='comma'>,</span> <span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stg'>stg</span> <span class='op'>=</span> <span class='const'>SubStorage</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+  <span class='id identifier rubyid_stg'>stg</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='id identifier rubyid_parent_stg'>parent_stg</span> <span class='op'>||=</span> <span class='ivar'>@directory</span>
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Adding storage </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> to storage </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_link_item'>link_item</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='comma'>,</span> <span class='id identifier rubyid_stg'>stg</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stg'>stg</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_stream-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create_stream</strong>(name, mode = STGM_WRITE, parent_stg = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>stream manipulation functions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 112</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_stream'>create_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_WRITE</span><span class='comma'>,</span> <span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span> <span class='op'>=</span> <span class='id identifier rubyid_open_stream'>open_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='comma'>,</span> <span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># eek, don&#39;t check the name for now
+</span>  <span class='comment'># if we do, we cant create alot of streams (summary info for example)
+</span><span class='embdoc_beg'>=begin
+</span><span class='embdoc'>  if (not Util.name_is_valid(name))
+</span><span class='embdoc'>    return nil
+</span><span class='embdoc'>  end
+</span><span class='embdoc_end'>=end
+</span>
+  <span class='id identifier rubyid_stm'>stm</span> <span class='op'>=</span> <span class='const'>Stream</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+  <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='id identifier rubyid_parent_stg'>parent_stg</span> <span class='op'>||=</span> <span class='ivar'>@directory</span>
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Adding stream </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> to storage </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_link_item'>link_item</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='comma'>,</span> <span class='id identifier rubyid_stm'>stm</span><span class='rparen'>)</span>
+  <span class='ivar'>@modified</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_stm'>stm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each-instance_method">
+  
+    - (<tt>Object</tt>) <strong>each</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each'>each</span>
+  <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_el'>el</span><span class='op'>|</span>
+    <span class='kw'>yield</span> <span class='id identifier rubyid_el'>el</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="inspect-instance_method">
+  
+    - (<tt>Object</tt>) <strong>inspect</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_inspect'>inspect</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>header = %s\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*** %u DIFAT sectors\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@difat</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@difat</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*** %u FAT sectors\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@fat</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@fat</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*** %u MiniFAT sectors:\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@minifat</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@minifat</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@minifat</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*** ministream (%u bytes):\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@ministream</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@ministream</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@ministream</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*** %u directory entries\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_num_entries'>num_entries</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    - (<tt>Object</tt>) <strong>name</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='ivar'>@filename</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="next_mini_sector-instance_method">
+  
+    - (<tt>Object</tt>) <strong>next_mini_sector</strong>(sect) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+384
+385
+386
+387</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 384</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_next_mini_sector'>next_mini_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>SECT_END</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span> <span class='op'>&gt;=</span> <span class='ivar'>@minifat</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+  <span class='ivar'>@minifat</span><span class='lbracket'>[</span><span class='id identifier rubyid_sect'>sect</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="next_sector-instance_method">
+  
+    - (<tt>Object</tt>) <strong>next_sector</strong>(sect) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+369
+370
+371
+372</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 369</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_next_sector'>next_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>SECT_END</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span> <span class='op'>&gt;=</span> <span class='ivar'>@fat</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+  <span class='ivar'>@fat</span><span class='lbracket'>[</span><span class='id identifier rubyid_sect'>sect</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open-instance_method">
+  
+    - (<tt>Object</tt>) <strong>open</strong>(filename, mode) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_mode'>mode</span> <span class='op'>==</span> <span class='const'>STGM_READWRITE</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_fmode'>fmode</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>r+b</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_mode'>mode</span> <span class='op'>==</span> <span class='const'>STGM_WRITE</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_fmode'>fmode</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>w+b</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_fmode'>fmode</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@fd</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='id identifier rubyid_fmode'>fmode</span><span class='rparen'>)</span>
+
+  <span class='comment'># don&#39;t read for new files
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_mode'>mode</span> <span class='op'>==</span> <span class='const'>STGM_WRITE</span><span class='rparen'>)</span>
+    <span class='comment'># ensure there is a root
+</span>    <span class='id identifier rubyid_write_to_disk'>write_to_disk</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># parse the header
+</span>  <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span> <span class='ivar'>@fd</span>
+  <span class='ivar'>@difat</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+  <span class='ivar'>@fat</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span> <span class='ivar'>@difat</span>
+  <span class='ivar'>@minifat</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+  <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+  <span class='comment'># NOTE: we can&#39;t use read_stream_data here (must read using regular FAT, regardless of size)
+</span>  <span class='comment'># read data using the root node&#39;s start/length
+</span>  <span class='ivar'>@ministream</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_read_data'>read_data</span><span class='lparen'>(</span><span class='ivar'>@directory</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_storage-instance_method">
+  
+    - (<tt>Object</tt>) <strong>open_storage</strong>(name, mode = STGM_READ, parent_stg = nil) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+158
+159
+160</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 158</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_storage'>open_storage</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_READ</span><span class='comma'>,</span> <span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_find_stream_by_name_and_type'>find_stream_by_name_and_type</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='const'>STGTY_STORAGE</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_stream-instance_method">
+  
+    - (<tt>Object</tt>) <strong>open_stream</strong>(name, mode = STGM_READ, parent_stg = nil) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+135
+136
+137
+138
+139
+140
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 135</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open_stream'>open_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='const'>STGM_READ</span><span class='comma'>,</span> <span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_parent_stg'>parent_stg</span> <span class='op'>||=</span> <span class='ivar'>@directory</span>
+  <span class='id identifier rubyid_stm'>stm</span> <span class='op'>=</span> <span class='id identifier rubyid_parent_stg'>parent_stg</span><span class='period'>.</span><span class='id identifier rubyid_find_stream_by_name_and_type'>find_stream_by_name_and_type</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='const'>STGTY_STREAM</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span><span class='rparen'>)</span>
+    <span class='comment'># TODO: optimize out the need to read all of the data up-front
+</span>    <span class='id identifier rubyid_stm'>stm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_read_stream_data'>read_stream_data</span><span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_stm'>stm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_data-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_data</strong>(direntry) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 293</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_data'>read_data</span><span class='lparen'>(</span><span class='id identifier rubyid_direntry'>direntry</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_visited'>visited</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_left'>left</span> <span class='op'>=</span> <span class='id identifier rubyid_direntry'>direntry</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_sect'>sect</span> <span class='op'>=</span> <span class='id identifier rubyid_direntry'>direntry</span><span class='period'>.</span><span class='id identifier rubyid_start_sector'>start_sector</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span> <span class='op'>!=</span> <span class='const'>SECT_END</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_visited'>visited</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Sector chain loop detected (0x%08x)</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_sect'>sect</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_visited'>visited</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sect'>sect</span>
+
+    <span class='comment'># how much to read?
+</span>    <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_sector_size'>sector_size</span>
+    <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='id identifier rubyid_left'>left</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_block'>block</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_left'>left</span><span class='rparen'>)</span>
+
+    <span class='comment'># read it.
+</span>    <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>read_data - reading 0x%x bytes</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_block'>block</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_read_sector'>read_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span>
+    <span class='id identifier rubyid_left'>left</span> <span class='op'>-=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='comment'># done?
+</span>    <span class='kw'>break</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_left'>left</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_sect'>sect</span> <span class='op'>=</span> <span class='id identifier rubyid_next_sector'>next_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_ret'>ret</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_data_mini-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_data_mini</strong>(direntry) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 322</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_data_mini'>read_data_mini</span><span class='lparen'>(</span><span class='id identifier rubyid_direntry'>direntry</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_visited'>visited</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_left'>left</span> <span class='op'>=</span> <span class='id identifier rubyid_direntry'>direntry</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_sect'>sect</span> <span class='op'>=</span> <span class='id identifier rubyid_direntry'>direntry</span><span class='period'>.</span><span class='id identifier rubyid_start_sector'>start_sector</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span> <span class='op'>!=</span> <span class='const'>SECT_END</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_visited'>visited</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Sector chain loop detected (0x%08x mini)</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_sect'>sect</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_visited'>visited</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sect'>sect</span>
+
+    <span class='comment'># how much to read?
+</span>    <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_mini_sector_size'>mini_sector_size</span>
+    <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='id identifier rubyid_left'>left</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_block'>block</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_left'>left</span><span class='rparen'>)</span>
+
+    <span class='comment'># read it.
+</span>    <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>read_data_mini - reading 0x%x bytes</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_block'>block</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_read_mini_sector'>read_mini_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buf'>buf</span>
+    <span class='id identifier rubyid_left'>left</span> <span class='op'>-=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+    <span class='comment'># done?
+</span>    <span class='kw'>break</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_left'>left</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_sect'>sect</span> <span class='op'>=</span> <span class='id identifier rubyid_next_mini_sector'>next_mini_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_ret'>ret</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_mini_sector-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_mini_sector</strong>(sect, len) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+375
+376
+377
+378
+379
+380
+381
+382</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 375</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_mini_sector'>read_mini_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reading mini sector 0x%x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_off'>off</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_mini_sector_size'>mini_sector_size</span> <span class='op'>*</span> <span class='id identifier rubyid_sect'>sect</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reading from offset 0x%x of ministream</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_off'>off</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='ivar'>@ministream</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='id identifier rubyid_off'>off</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='ivar'>@ministream</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_sector-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_sector</strong>(sect, len) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 352</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_sector'>read_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_off'>off</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>*</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_sector_size'>sector_size</span><span class='rparen'>)</span>
+  <span class='ivar'>@fd</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='id identifier rubyid_off'>off</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_SET</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='ivar'>@fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@fd</span><span class='period'>.</span><span class='id identifier rubyid_eof?'>eof?</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EOF while reading sector data (0x%08x)</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_sect'>sect</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unknown error while reading sector data (0x%08x)</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_sect'>sect</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Insufficient data for sector (0x%08x): got %u of %u</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='lbracket'>[</span><span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_buf'>buf</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_stream_data-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_stream_data</strong>(direntry) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+285
+286
+287
+288
+289
+290
+291</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 285</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_stream_data'>read_stream_data</span><span class='lparen'>(</span><span class='id identifier rubyid_direntry'>direntry</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_direntry'>direntry</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid__ulMiniSectorCutoff'>_ulMiniSectorCutoff</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_read_data_mini'>read_data_mini</span><span class='lparen'>(</span><span class='id identifier rubyid_direntry'>direntry</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_read_data'>read_data</span><span class='lparen'>(</span><span class='id identifier rubyid_direntry'>direntry</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_mini_sector-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write_mini_sector</strong>(sbuf, prev_sect = nil) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 218</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_mini_sector'>write_mini_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sbuf'>sbuf</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_sect'>prev_sect</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_sbuf'>sbuf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>!=</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_mini_sector_size'>mini_sector_size</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>&lt;</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_mini_sector_size'>mini_sector_size</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sbuf'>sbuf</span> <span class='op'>=</span> <span class='id identifier rubyid_sbuf'>sbuf</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_sbuf'>sbuf</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_mini_sector_size'>mini_sector_size</span> <span class='op'>-</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not mini sector sized!</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='ivar'>@minifat</span><span class='period'>.</span><span class='id identifier rubyid_allocate_sector'>allocate_sector</span>
+  <span class='comment'># point the previous mini sector to here
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_prev_sect'>prev_sect</span><span class='rparen'>)</span>
+    <span class='ivar'>@minifat</span><span class='lbracket'>[</span><span class='id identifier rubyid_prev_sect'>prev_sect</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_idx'>idx</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_write_mini_sector_raw'>write_mini_sector_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_sbuf'>sbuf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_idx'>idx</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_mini_sector_raw-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write_mini_sector_raw</strong>(sect, sbuf) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+238
+239
+240
+241</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 238</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_mini_sector_raw'>write_mini_sector_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='id identifier rubyid_sbuf'>sbuf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Writing mini sector 0x%02x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='ivar'>@ministream</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sbuf'>sbuf</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_mini_stream-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write_mini_stream</strong>(stm) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 272</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_mini_stream'>write_mini_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Writing \&quot;%s\&quot; to mini stream</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_prev_sect'>prev_sect</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_sbuf'>sbuf</span> <span class='op'>=</span> <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_mini_sector_size'>mini_sector_size</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sect'>sect</span> <span class='op'>=</span> <span class='id identifier rubyid_write_mini_sector'>write_mini_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sbuf'>sbuf</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_sect'>prev_sect</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_stm_start'>stm_start</span> <span class='op'>||=</span> <span class='id identifier rubyid_sect'>sect</span>
+    <span class='id identifier rubyid_prev_sect'>prev_sect</span> <span class='op'>=</span> <span class='id identifier rubyid_sect'>sect</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_stm_start'>stm_start</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_sector-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write_sector</strong>(sbuf, type = nil, prev_sect = nil) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 189</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_sector'>write_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sbuf'>sbuf</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_sect'>prev_sect</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_sbuf'>sbuf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>!=</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_sector_size'>sector_size</span><span class='rparen'>)</span>
+    <span class='comment'># pad it if less
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_len'>len</span> <span class='op'>&lt;</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_sector_size'>sector_size</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sbuf'>sbuf</span> <span class='op'>=</span> <span class='id identifier rubyid_sbuf'>sbuf</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_sbuf'>sbuf</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_sector_size'>sector_size</span> <span class='op'>-</span> <span class='id identifier rubyid_len'>len</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>not sector sized!</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># write the data
+</span>  <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='ivar'>@fat</span><span class='period'>.</span><span class='id identifier rubyid_allocate_sector'>allocate_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+  <span class='comment'># point previous sector to here
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_prev_sect'>prev_sect</span><span class='rparen'>)</span>
+    <span class='ivar'>@fat</span><span class='lbracket'>[</span><span class='id identifier rubyid_prev_sect'>prev_sect</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_idx'>idx</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_write_sector_raw'>write_sector_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_sbuf'>sbuf</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_idx'>idx</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_sector_raw-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write_sector_raw</strong>(sect, sbuf) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+211
+212
+213
+214
+215</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 211</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_sector_raw'>write_sector_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='id identifier rubyid_sbuf'>sbuf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Writing sector 0x%02x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_sect'>sect</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='ivar'>@fd</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_sect'>sect</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>*</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_sector_size'>sector_size</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_SET</span><span class='rparen'>)</span>
+  <span class='ivar'>@fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_sbuf'>sbuf</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_stream-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write_stream</strong>(stm) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 259</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_stream'>write_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Writing \&quot;%s\&quot; to regular stream</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rex</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stm_start'>stm_start</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_prev_sect'>prev_sect</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_sbuf'>sbuf</span> <span class='op'>=</span> <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_sector_size'>sector_size</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sect'>sect</span> <span class='op'>=</span> <span class='id identifier rubyid_write_sector'>write_sector</span><span class='lparen'>(</span><span class='id identifier rubyid_sbuf'>sbuf</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_prev_sect'>prev_sect</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_stm_start'>stm_start</span> <span class='op'>||=</span> <span class='id identifier rubyid_sect'>sect</span>
+    <span class='id identifier rubyid_prev_sect'>prev_sect</span> <span class='op'>=</span> <span class='id identifier rubyid_sect'>sect</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_stm_start'>stm_start</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_to_disk-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write_to_disk</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>low-level functions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 166</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_to_disk'>write_to_disk</span>
+  <span class='comment'># reset  FAT/DIFAT
+</span>  <span class='ivar'>@difat</span> <span class='op'>=</span> <span class='const'>DIFAT</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+  <span class='ivar'>@fat</span> <span class='op'>=</span> <span class='const'>FAT</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>self</span>
+
+  <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span> <span class='ivar'>@fd</span>
+  <span class='id identifier rubyid_write_user_data'>write_user_data</span>
+
+  <span class='comment'># NOTE: we call write_stream here since we MUST write this to
+</span>  <span class='comment'># the regular stream (regardless of size)
+</span>  <span class='id identifier rubyid_ms_start'>ms_start</span> <span class='op'>=</span> <span class='id identifier rubyid_write_stream'>write_stream</span><span class='lparen'>(</span><span class='ivar'>@ministream</span><span class='rparen'>)</span>
+  <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_set_ministream_params'>set_ministream_params</span><span class='lparen'>(</span><span class='id identifier rubyid_ms_start'>ms_start</span><span class='comma'>,</span> <span class='ivar'>@ministream</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@minifat</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span>
+  <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span>
+  <span class='ivar'>@fat</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='ivar'>@difat</span><span class='rparen'>)</span>
+  <span class='ivar'>@difat</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span>
+
+  <span class='comment'># write it again, now that its complete
+</span>  <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span> <span class='ivar'>@fd</span>
+  <span class='ivar'>@fd</span><span class='period'>.</span><span class='id identifier rubyid_flush'>flush</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_user_data-instance_method">
+  
+    - (<tt>Object</tt>) <strong>write_user_data</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ole/storage.rb', line 245</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_user_data'>write_user_data</span>
+  <span class='ivar'>@directory</span><span class='period'>.</span><span class='id identifier rubyid_each_entry'>each_entry</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_stm'>stm</span><span class='op'>|</span>
+    <span class='comment'># only regular streams this pass
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>!=</span> <span class='const'>STGTY_STREAM</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;=</span> <span class='ivar'>@header</span><span class='period'>.</span><span class='id identifier rubyid__ulMiniSectorCutoff'>_ulMiniSectorCutoff</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_start_sector'>start_sector</span> <span class='op'>=</span> <span class='id identifier rubyid_write_stream'>write_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='comment'># NOTE: stm_start is a minifat value
+</span>      <span class='id identifier rubyid_stm'>stm</span><span class='period'>.</span><span class='id identifier rubyid_start_sector'>start_sector</span> <span class='op'>=</span> <span class='id identifier rubyid_write_mini_stream'>write_mini_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_stm'>stm</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:00 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Encoder::Alpha2::AlphaMixed
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Encoder/Alpha2/AlphaMixed.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Encoder.html" title="Rex::Encoder (module)">Encoder</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Alpha2.html" title="Rex::Encoder::Alpha2 (module)">Alpha2</a></span></span>
+     &raquo; 
+    <span class="title">AlphaMixed</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Encoder::Alpha2::AlphaMixed
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="Generic.html" title="Rex::Encoder::Alpha2::Generic (class)">Generic</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Generic.html" title="Rex::Encoder::Alpha2::Generic (class)">Generic</a></span></li>
+          
+            <li class="next">Rex::Encoder::Alpha2::AlphaMixed</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/encoder/alpha2/alpha_mixed.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#gen_decoder-class_method" title="gen_decoder (class method)">+ (Object) <strong>gen_decoder</strong>(reg, offset) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#gen_decoder_prefix-class_method" title="gen_decoder_prefix (class method)">+ (Object) <strong>gen_decoder_prefix</strong>(reg, offset) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Generic.html" title="Rex::Encoder::Alpha2::Generic (class)">Generic</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Generic.html#add_terminator-class_method" title="Rex::Encoder::Alpha2::Generic.add_terminator (method)">add_terminator</a></span>, <span class='object_link'><a href="Generic.html#default_accepted_chars-class_method" title="Rex::Encoder::Alpha2::Generic.default_accepted_chars (method)">default_accepted_chars</a></span>, <span class='object_link'><a href="Generic.html#encode-class_method" title="Rex::Encoder::Alpha2::Generic.encode (method)">encode</a></span>, <span class='object_link'><a href="Generic.html#encode_byte-class_method" title="Rex::Encoder::Alpha2::Generic.encode_byte (method)">encode_byte</a></span>, <span class='object_link'><a href="Generic.html#gen_second-class_method" title="Rex::Encoder::Alpha2::Generic.gen_second (method)">gen_second</a></span></p>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="gen_decoder-class_method">
+  
+    + (<tt>Object</tt>) <strong>gen_decoder</strong>(reg, offset) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/alpha2/alpha_mixed.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_gen_decoder'>gen_decoder</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_decoder'>decoder</span> <span class='op'>=</span>
+     <span class='id identifier rubyid_gen_decoder_prefix'>gen_decoder_prefix</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span> <span class='op'>+</span>
+     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>jA</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>          <span class='comment'># push 0x41
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>X</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># pop eax
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>P</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># push eax
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0A0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>         <span class='comment'># xor byte [ecx+30], al
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># inc ecx                        &lt;---
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>kAAQ</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>        <span class='comment'># imul eax, [ecx+42], 51 -&gt; 10       |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2AB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>         <span class='comment'># xor al, [ecx + 42]                 |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2BB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>         <span class='comment'># xor al, [edx + 42]                 |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0BB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>         <span class='comment'># xor [edx + 42], al                 |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># inc ecx                            |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>B</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># inc edx                            |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>X</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># pop eax                            |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>P</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>           <span class='comment'># push eax                           |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>8AB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>         <span class='comment'># cmp [ecx + 42], al                 |
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>uJ</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>          <span class='comment'># jnz short -------------------------
+</span>     <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>I</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'># first encoded char, fixes the above J
+</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_decoder'>decoder</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="gen_decoder_prefix-class_method">
+  
+    + (<tt>Object</tt>) <strong>gen_decoder_prefix</strong>(reg, offset) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/alpha2/alpha_mixed.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_gen_decoder_prefix'>gen_decoder_prefix</span><span class='lparen'>(</span><span class='id identifier rubyid_reg'>reg</span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>&gt;</span> <span class='int'>32</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Critical: Offset is greater than 32</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># use inc ebx as a nop here so we still pad correctly
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>&lt;=</span> <span class='int'>16</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_nop'>nop</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_offset'>offset</span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>I</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>16</span> <span class='op'>-</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_nop'>nop</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>7QZ</span><span class='tstring_end'>&#39;</span></span>    <span class='comment'># dec ecx,,, push ecx, pop edx
+</span>    <span class='id identifier rubyid_edxmod'>edxmod</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>J</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>17</span> <span class='op'>-</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>A</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>-</span> <span class='int'>16</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_nop'>nop</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>16</span> <span class='op'>-</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_mod'>mod</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_nop'>nop</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>7QZ</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_edxmod'>edxmod</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>B</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>17</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>-</span> <span class='int'>16</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_regprefix'>regprefix</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EAX</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PY</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                         <span class='comment'># push eax, pop ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ECX</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>I</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                          <span class='comment'># dec ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EDX</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span>  <span class='id identifier rubyid_edxmod'>edxmod</span> <span class='op'>+</span> <span class='id identifier rubyid_nop'>nop</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>7RY</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>			   <span class='comment'># dec edx,,, push edx, pop ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EBX</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SY</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                         <span class='comment'># push ebx, pop ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ESP</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TY</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                         <span class='comment'># push esp, pop ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EBP</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UY</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                         <span class='comment'># push ebp, pop ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ESI</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VY</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                         <span class='comment'># push esi, pop ecx
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EDI</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WY</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span>                         <span class='comment'># push edi, pop ecx
+</span>  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_reg'>reg</span><span class='period'>.</span><span class='id identifier rubyid_upcase!'>upcase!</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_regprefix'>regprefix</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_reg'>reg</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid register name</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_regprefix'>regprefix</span><span class='lbracket'>[</span><span class='id identifier rubyid_reg'>reg</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:17 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

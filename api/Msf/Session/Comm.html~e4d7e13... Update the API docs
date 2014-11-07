@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Session::Comm
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Session/Comm.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Session</a></span></span>
+     &raquo; 
+    <span class="title">Comm</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Session::Comm
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="../../Rex/Socket/Comm.html" title="Rex::Socket::Comm (module)">Rex::Socket::Comm</a></span></dd>
+      
+    
+  
+  
+    <dt class="r2">Included in:</dt>
+    <dd class="r2"><span class='object_link'><a href="../Sessions/Meterpreter.html" title="Msf::Sessions::Meterpreter (class)">Msf::Sessions::Meterpreter</a></span></dd>
+    
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/session/comm.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class implements the Rex::Socket::Comm module interface and is capable
+of creating network-based connections that are pivoted from the session in
+question.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Socket/Comm.html" title="Rex::Socket::Comm (module)">Rex::Socket::Comm</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Socket/Comm.html#handlers-instance_method" title="Rex::Socket::Comm#handlers (method)">#handlers</a></span>, <span class='object_link'><a href="../../Rex/Socket/Comm.html#handlers_rwlock-instance_method" title="Rex::Socket::Comm#handlers_rwlock (method)">#handlers_rwlock</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-instance_method" title="#create (instance method)">- (Object) <strong>create</strong>(param) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Session-based comm classes implement an instance specific method for
+creating network-based connections rather than the typicall class specific
+methods.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Socket/Comm.html" title="Rex::Socket::Comm (module)">Rex::Socket::Comm</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Socket/Comm.html#chainable%3F-instance_method" title="Rex::Socket::Comm#chainable? (method)">#chainable?</a></span>, <span class='object_link'><a href="../../Rex/Socket/Comm.html#create-class_method" title="Rex::Socket::Comm.create (method)">create</a></span>, <span class='object_link'><a href="../../Rex/Socket/Comm.html#deregister_event_handler-instance_method" title="Rex::Socket::Comm#deregister_event_handler (method)">#deregister_event_handler</a></span>, <span class='object_link'><a href="../../Rex/Socket/Comm.html#each_event_handler-instance_method" title="Rex::Socket::Comm#each_event_handler (method)">#each_event_handler</a></span>, <span class='object_link'><a href="../../Rex/Socket/Comm.html#notify_before_socket_create-instance_method" title="Rex::Socket::Comm#notify_before_socket_create (method)">#notify_before_socket_create</a></span>, <span class='object_link'><a href="../../Rex/Socket/Comm.html#notify_socket_created-instance_method" title="Rex::Socket::Comm#notify_socket_created (method)">#notify_socket_created</a></span>, <span class='object_link'><a href="../../Rex/Socket/Comm.html#register_event_handler-instance_method" title="Rex::Socket::Comm#register_event_handler (method)">#register_event_handler</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create-instance_method">
+  
+    - (<tt>Object</tt>) <strong>create</strong>(param) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Session-based comm classes implement an instance specific method for
+creating network-based connections rather than the typicall class specific
+methods.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/session/comm.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_param'>param</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:11 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

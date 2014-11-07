@@ -1,0 +1,2336 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Post::Meterpreter::PacketDispatcher
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Post/Meterpreter/PacketDispatcher.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span>
+     &raquo; 
+    <span class="title">PacketDispatcher</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Post::Meterpreter::PacketDispatcher
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="Client.html" title="Rex::Post::Meterpreter::Client (class)">Client</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/post/meterpreter/packet_dispatcher.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Handles packet transmission, reception, and correlation, and processing</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="PacketTimeout-constant" class="">PacketTimeout =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>600</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small>(<a href="#" class="summary_toggle">collapse</a>)</small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#comm_mutex-instance_method" title="#comm_mutex (instance method)">- (Object) <strong>comm_mutex</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Synchronization.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#dispatcher_thread-instance_method" title="#dispatcher_thread (instance method)">- (Object) <strong>dispatcher_thread</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#passive_service-instance_method" title="#passive_service (instance method)">- (Object) <strong>passive_service</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Passive Dispatching.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#receiver_thread-instance_method" title="#receiver_thread (instance method)">- (Object) <strong>receiver_thread</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv_queue-instance_method" title="#recv_queue (instance method)">- (Object) <strong>recv_queue</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Passive Dispatching.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_queue-instance_method" title="#send_queue (instance method)">- (Object) <strong>send_queue</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Passive Dispatching.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#waiters-instance_method" title="#waiters (instance method)">- (Object) <strong>waiters</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_response_waiter-instance_method" title="#add_response_waiter (instance method)">- (Object) <strong>add_response_waiter</strong>(request, completion_routine = nil, completion_param = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a waiter association with the supplied request packet.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deregister_inbound_handler-instance_method" title="#deregister_inbound_handler (instance method)">- (Object) <strong>deregister_inbound_handler</strong>(handler) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deregisters a previously registered inbound packet handler.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dispatch_inbound_packet-instance_method" title="#dispatch_inbound_packet (instance method)">- (Object) <strong>dispatch_inbound_packet</strong>(packet, client = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Dispatches and processes an inbound packet.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_inbound_handlers-instance_method" title="#initialize_inbound_handlers (instance method)">- (Object) <strong>initialize_inbound_handlers</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the inbound handlers.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_passive_dispatcher-instance_method" title="#initialize_passive_dispatcher (instance method)">- (Object) <strong>initialize_passive_dispatcher</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#monitor_socket-instance_method" title="#monitor_socket (instance method)">- (Object) <strong>monitor_socket</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reception.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#monitor_stop-instance_method" title="#monitor_stop (instance method)">- (Object) <strong>monitor_stop</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stop the monitor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#notify_response_waiter-instance_method" title="#notify_response_waiter (instance method)">- (Object) <strong>notify_response_waiter</strong>(response) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Notifies a whomever is waiting for a the supplied response, if anyone.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_passive_request-instance_method" title="#on_passive_request (instance method)">- (Object) <strong>on_passive_request</strong>(cli, req) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#receive_packet-instance_method" title="#receive_packet (instance method)">- (Object) <strong>receive_packet</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parses data from the dispatcher&#39;s sock and returns a Packet context
+once a full packet has been received.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_inbound_handler-instance_method" title="#register_inbound_handler (instance method)">- (Object) <strong>register_inbound_handler</strong>(handler) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Registers an inbound packet handler that implements the
+InboundPacketHandler interface.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove_response_waiter-instance_method" title="#remove_response_waiter (instance method)">- (Object) <strong>remove_response_waiter</strong>(waiter) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Removes a waiter from the list of waiters.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_packet-instance_method" title="#send_packet (instance method)">- (Object) <strong>send_packet</strong>(packet, completion_routine = nil, completion_param = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends a packet without waiting for a response.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_packet_wait_response-instance_method" title="#send_packet_wait_response (instance method)">- (Object) <strong>send_packet_wait_response</strong>(packet, t) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Transmits a packet and waits for a response.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_request-instance_method" title="#send_request (instance method)">- (Object) <strong>send_request</strong>(packet, t = self.response_timeout) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends a packet and waits for a timeout for the given time interval.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shutdown_passive_dispatcher-instance_method" title="#shutdown_passive_dispatcher (instance method)">- (Object) <strong>shutdown_passive_dispatcher</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="comm_mutex=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="comm_mutex-instance_method">
+  
+    - (<tt>Object</tt>) <strong>comm_mutex</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Synchronization</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_comm_mutex'>comm_mutex</span>
+  <span class='ivar'>@comm_mutex</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="dispatcher_thread=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="dispatcher_thread-instance_method">
+  
+    - (<tt>Object</tt>) <strong>dispatcher_thread</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+538
+539
+540</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 538</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dispatcher_thread'>dispatcher_thread</span>
+  <span class='ivar'>@dispatcher_thread</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="passive_service=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="passive_service-instance_method">
+  
+    - (<tt>Object</tt>) <strong>passive_service</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Passive Dispatching</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_passive_service'>passive_service</span>
+  <span class='ivar'>@passive_service</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="receiver_thread=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="receiver_thread-instance_method">
+  
+    - (<tt>Object</tt>) <strong>receiver_thread</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+537
+538
+539</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 537</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_receiver_thread'>receiver_thread</span>
+  <span class='ivar'>@receiver_thread</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="recv_queue=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="recv_queue-instance_method">
+  
+    - (<tt>Object</tt>) <strong>recv_queue</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Passive Dispatching</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv_queue'>recv_queue</span>
+  <span class='ivar'>@recv_queue</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="send_queue=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="send_queue-instance_method">
+  
+    - (<tt>Object</tt>) <strong>send_queue</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Passive Dispatching</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_queue'>send_queue</span>
+  <span class='ivar'>@send_queue</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="waiters=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="waiters-instance_method">
+  
+    - (<tt>Object</tt>) <strong>waiters</strong>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+539
+540
+541</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 539</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_waiters'>waiters</span>
+  <span class='ivar'>@waiters</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_response_waiter-instance_method">
+  
+    - (<tt>Object</tt>) <strong>add_response_waiter</strong>(request, completion_routine = nil, completion_param = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a waiter association with the supplied request packet.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+428
+429
+430
+431
+432
+433
+434</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 428</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_response_waiter'>add_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='id identifier rubyid_completion_routine'>completion_routine</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_completion_param'>completion_param</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_waiter'>waiter</span> <span class='op'>=</span> <span class='const'>PacketResponseWaiter</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_rid'>rid</span><span class='comma'>,</span> <span class='id identifier rubyid_completion_routine'>completion_routine</span><span class='comma'>,</span> <span class='id identifier rubyid_completion_param'>completion_param</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_waiters'>waiters</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_waiter'>waiter</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_waiter'>waiter</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deregister_inbound_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>deregister_inbound_handler</strong>(handler) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deregisters a previously registered inbound packet handler.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+531
+532
+533</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 531</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deregister_inbound_handler'>deregister_inbound_handler</span><span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span>
+  <span class='ivar'>@inbound_handlers</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dispatch_inbound_packet-instance_method">
+  
+    - (<tt>Object</tt>) <strong>dispatch_inbound_packet</strong>(packet, client = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Dispatches and processes an inbound packet.  If the packet is a response
+that has an associated waiter, the waiter is notified. Otherwise, the
+packet is passed onto any registered dispatch handlers until one returns
+success.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 478</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dispatch_inbound_packet'>dispatch_inbound_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_handled'>handled</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='comment'># If no client context was provided, return self as PacketDispatcher
+</span>  <span class='comment'># is a mixin for the Client instance
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='kw'>self</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If the packet is a response, try to notify any potential
+</span>  <span class='comment'># waiters
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_response?'>response?</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_notify_response_waiter'>notify_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Enumerate all of the inbound packet handlers until one handles
+</span>  <span class='comment'># the packet
+</span>  <span class='ivar'>@inbound_handlers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_handler'>handler</span><span class='op'>|</span>
+
+    <span class='id identifier rubyid_handled'>handled</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>begin</span>
+
+    <span class='kw'>if</span> <span class='op'>!</span> <span class='id identifier rubyid_resp'>resp</span>
+      <span class='id identifier rubyid_handled'>handled</span> <span class='op'>=</span> <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_request_handler'>request_handler</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_handled'>handled</span> <span class='op'>=</span> <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_response_handler'>response_handler</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Exception caught in dispatch_inbound_packet: handler=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_handler'>handler</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_handled'>handled</span><span class='rparen'>)</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_handled'>handled</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize_inbound_handlers-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize_inbound_handlers</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the inbound handlers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+468
+469
+470</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 468</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_inbound_handlers'>initialize_inbound_handlers</span>
+  <span class='ivar'>@inbound_handlers</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize_passive_dispatcher-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize_passive_dispatcher</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_passive_dispatcher'>initialize_passive_dispatcher</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send_queue'>send_queue</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_recv_queue'>recv_queue</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_waiters'>waiters</span>    <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span>      <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_dispatcher'>passive_dispatcher</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span><span class='period'>.</span><span class='id identifier rubyid_remove_resource'>remove_resource</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_conn_id'>conn_id</span>  <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span><span class='period'>.</span><span class='id identifier rubyid_add_resource'>add_resource</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_conn_id'>conn_id</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Proc</span><span class='tstring_end'>&#39;</span></span>             <span class='op'>=&gt;</span> <span class='const'>Proc</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_cli'>cli</span><span class='comma'>,</span> <span class='id identifier rubyid_req'>req</span><span class='op'>|</span> <span class='id identifier rubyid_on_passive_request'>on_passive_request</span><span class='lparen'>(</span><span class='id identifier rubyid_cli'>cli</span><span class='comma'>,</span> <span class='id identifier rubyid_req'>req</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualDirectory</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="monitor_socket-instance_method">
+  
+    - (<tt>Object</tt>) <strong>monitor_socket</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reception</p>
+
+<p>Monitors the PacketDispatcher&#39;s sock for data in its own thread context
+and parsers all inbound packets.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 237</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_monitor_socket'>monitor_socket</span>
+
+  <span class='comment'># Skip if we are using a passive dispatcher
+</span>  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_comm_mutex'>comm_mutex</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_waiters'>waiters</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='ivar'>@pqueue</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@finish</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@last_recvd</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+  <span class='ivar'>@ping_sent</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='comment'># Spawn a thread for receiving packets
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_receiver_thread'>receiver_thread</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>ThreadFactory</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MeterpreterReceiver</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span><span class='rparen'>)</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_rv'>rv</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span> <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.25</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_ping_time'>ping_time</span> <span class='op'>=</span> <span class='int'>60</span>
+        <span class='comment'># If there&#39;s nothing to read, and it&#39;s been awhile since we
+</span>        <span class='comment'># saw a packet, we need to send a ping.  We wait
+</span>        <span class='comment'># ping_time*2 seconds before deciding a session is dead.
+</span>        <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_rv'>rv</span> <span class='kw'>and</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send_keepalives'>send_keepalives</span> <span class='kw'>and</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='ivar'>@last_recvd</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_ping_time'>ping_time</span><span class='rparen'>)</span>
+          <span class='comment'># If the queue is empty and we&#39;ve already sent a
+</span>          <span class='comment'># keepalive without getting a reply, then this
+</span>          <span class='comment'># session is hosed, and we should give up on it.
+</span>          <span class='kw'>if</span> <span class='ivar'>@ping_sent</span> <span class='kw'>and</span> <span class='ivar'>@pqueue</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='ivar'>@last_recvd</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_ping_time'>ping_time</span> <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No response to ping, session </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'> is dead</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+            <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span> <span class='op'>=</span> <span class='kw'>false</span>
+            <span class='ivar'>@finish</span> <span class='op'>=</span> <span class='kw'>true</span>
+            <span class='kw'>break</span>
+          <span class='kw'>end</span>
+          <span class='comment'># Let the packet queue processor finish up before
+</span>          <span class='comment'># we send a ping.
+</span>          <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@ping_sent</span> <span class='kw'>and</span> <span class='ivar'>@pqueue</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+            <span class='comment'># Our &#39;ping&#39; is actually just a check for eof on
+</span>            <span class='comment'># channel id 0.  This method has no side effects
+</span>            <span class='comment'># and always returns an answer (regardless of the
+</span>            <span class='comment'># existence of chan 0), which is all that&#39;s
+</span>            <span class='comment'># needed for a liveness check.  The answer itself
+</span>            <span class='comment'># is unimportant and is ignored.
+</span>            <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_create_request'>create_request</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core_channel_eof</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_CHANNEL_ID</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_waiter'>waiter</span> <span class='op'>=</span> <span class='const'>Proc</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='id identifier rubyid_param'>param</span><span class='op'>|</span>
+                <span class='ivar'>@ping_sent</span> <span class='op'>=</span> <span class='kw'>false</span>
+                <span class='ivar'>@last_recvd</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+              <span class='rbrace'>}</span>
+            <span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='comma'>,</span> <span class='id identifier rubyid_waiter'>waiter</span><span class='rparen'>)</span>
+            <span class='ivar'>@ping_sent</span> <span class='op'>=</span> <span class='kw'>true</span>
+          <span class='kw'>end</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_rv'>rv</span>
+        <span class='id identifier rubyid_packet'>packet</span> <span class='op'>=</span> <span class='id identifier rubyid_receive_packet'>receive_packet</span>
+        <span class='ivar'>@pqueue</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_packet'>packet</span> <span class='kw'>if</span> <span class='id identifier rubyid_packet'>packet</span>
+        <span class='ivar'>@last_recvd</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+        <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Exception caught in monitor_socket: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='ivar'>@finish</span> <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span> <span class='op'>=</span> <span class='kw'>false</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Spawn a new thread that monitors the socket
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_dispatcher_thread'>dispatcher_thread</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>ThreadFactory</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MeterpreterDispatcher</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='kw'>begin</span>
+    <span class='comment'># Whether we&#39;re finished or not is determined by the receiver
+</span>    <span class='comment'># thread above.
+</span>    <span class='kw'>while</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='ivar'>@finish</span><span class='rparen'>)</span>
+      <span class='kw'>if</span><span class='lparen'>(</span><span class='ivar'>@pqueue</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span>
+        <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.10</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_incomplete'>incomplete</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_backlog'>backlog</span>    <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+      <span class='kw'>while</span><span class='lparen'>(</span><span class='ivar'>@pqueue</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_backlog'>backlog</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@pqueue</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'>#
+</span>      <span class='comment'># Prioritize message processing here
+</span>      <span class='comment'># 1. Close should always be processed at the end
+</span>      <span class='comment'># 2. Command responses always before channel data
+</span>      <span class='comment'>#
+</span>
+      <span class='id identifier rubyid_tmp_command'>tmp_command</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_tmp_channel'>tmp_channel</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_tmp_close'>tmp_close</span>   <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_backlog'>backlog</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pkt'>pkt</span><span class='op'>|</span>
+        <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_response?'>response?</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_tmp_command'>tmp_command</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_pkt'>pkt</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+        <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>core_channel_close</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_tmp_close'>tmp_close</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_pkt'>pkt</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_tmp_channel'>tmp_channel</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_pkt'>pkt</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_backlog'>backlog</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_backlog'>backlog</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_tmp_command'>tmp_command</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_backlog'>backlog</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_tmp_channel'>tmp_channel</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_backlog'>backlog</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_tmp_close'>tmp_close</span><span class='rparen'>)</span>
+
+
+      <span class='comment'>#
+</span>      <span class='comment'># Process the message queue
+</span>      <span class='comment'>#
+</span>
+      <span class='id identifier rubyid_backlog'>backlog</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pkt'>pkt</span><span class='op'>|</span>
+
+        <span class='kw'>begin</span>
+        <span class='kw'>if</span> <span class='op'>!</span> <span class='id identifier rubyid_dispatch_inbound_packet'>dispatch_inbound_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+          <span class='comment'># Only requeue packets newer than the timeout
+</span>          <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>-</span> <span class='id identifier rubyid_pkt'>pkt</span><span class='period'>.</span><span class='id identifier rubyid_created_at'>created_at</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&lt;</span> <span class='const'>PacketTimeout</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_incomplete'>incomplete</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_pkt'>pkt</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+
+        <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+          <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Dispatching exception with packet </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pkt'>pkt</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># If the backlog and incomplete arrays are the same, it means
+</span>      <span class='comment'># dispatch_inbound_packet wasn&#39;t able to handle any of the
+</span>      <span class='comment'># packets. When that&#39;s the case, we can get into a situation
+</span>      <span class='comment'># where @pqueue is not empty and, since nothing else bounds this
+</span>      <span class='comment'># loop, we spin CPU trying to handle packets that can&#39;t be
+</span>      <span class='comment'># handled. Sleep here to treat that situation as though the
+</span>      <span class='comment'># queue is empty.
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_backlog'>backlog</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_backlog'>backlog</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_incomplete'>incomplete</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+        <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.10</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='ivar'>@pqueue</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_incomplete'>incomplete</span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span><span class='lparen'>(</span><span class='ivar'>@pqueue</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>100</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Backlog has grown to over 100 in monitor_socket, dropping older packets: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@pqueue</span><span class='lbracket'>[</span><span class='int'>0</span> <span class='op'>..</span> <span class='int'>25</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> - </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='ivar'>@pqueue</span> <span class='op'>=</span> <span class='ivar'>@pqueue</span><span class='lbracket'>[</span><span class='int'>25</span> <span class='op'>..</span> <span class='int'>100</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_dlog'>dlog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Exception caught in monitor_socket dispatcher: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+    <span class='kw'>ensure</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_receiver_thread'>receiver_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_receiver_thread'>receiver_thread</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="monitor_stop-instance_method">
+  
+    - (<tt>Object</tt>) <strong>monitor_stop</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stop the monitor</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 407</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_monitor_stop'>monitor_stop</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_receiver_thread'>receiver_thread</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_receiver_thread'>receiver_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_receiver_thread'>receiver_thread</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_dispatcher_thread'>dispatcher_thread</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_dispatcher_thread'>dispatcher_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_dispatcher_thread'>dispatcher_thread</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="notify_response_waiter-instance_method">
+  
+    - (<tt>Object</tt>) <strong>notify_response_waiter</strong>(response) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Notifies a whomever is waiting for a the supplied response, if anyone.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 440</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_notify_response_waiter'>notify_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_waiters'>waiters</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_waiter'>waiter</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_waiting_for?'>waiting_for?</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_notify'>notify</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_remove_response_waiter'>remove_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_waiter'>waiter</span><span class='rparen'>)</span>
+
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_passive_request-instance_method">
+  
+    - (<tt>Object</tt>) <strong>on_passive_request</strong>(cli, req) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_passive_request'>on_passive_request</span><span class='lparen'>(</span><span class='id identifier rubyid_cli'>cli</span><span class='comma'>,</span> <span class='id identifier rubyid_req'>req</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>Http</span><span class='op'>::</span><span class='const'>Response</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='int'>200</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>OK</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resp'>resp</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Content-Type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>application/octet-stream</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_resp'>resp</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Connection</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>   <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>close</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># If the first 4 bytes are &quot;RECV&quot;, return the oldest packet from the outbound queue
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_req'>req</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RECV</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_rpkt'>rpkt</span> <span class='op'>=</span> <span class='id identifier rubyid_send_queue'>send_queue</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+    <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='id identifier rubyid_rpkt'>rpkt</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_cli'>cli</span><span class='period'>.</span><span class='id identifier rubyid_send_response'>send_response</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_send_queue'>send_queue</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='id identifier rubyid_rpkt'>rpkt</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_rpkt'>rpkt</span>
+      <span class='id identifier rubyid_elog'>elog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Exception sending a reply to the reader request: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cli'>cli</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_req'>req</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='kw'>and</span> <span class='id identifier rubyid_req'>req</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_packet'>packet</span> <span class='op'>=</span> <span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_from_r'>from_r</span><span class='lparen'>(</span><span class='id identifier rubyid_req'>req</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_dispatch_inbound_packet'>dispatch_inbound_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_cli'>cli</span><span class='period'>.</span><span class='id identifier rubyid_send_response'>send_response</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Force a closure for older WinInet implementations
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span><span class='period'>.</span><span class='id identifier rubyid_close_client'>close_client</span><span class='lparen'>(</span> <span class='id identifier rubyid_cli'>cli</span> <span class='rparen'>)</span>
+
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_elog'>elog</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Exception handling request: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cli'>cli</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_req'>req</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="receive_packet-instance_method">
+  
+    - (<tt>Object</tt>) <strong>receive_packet</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parses data from the dispatcher&#39;s sock and returns a Packet context
+once a full packet has been received.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+400
+401
+402</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 400</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_receive_packet'>receive_packet</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_parser'>parser</span><span class='period'>.</span><span class='id identifier rubyid_recv'>recv</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_inbound_handler-instance_method">
+  
+    - (<tt>Object</tt>) <strong>register_inbound_handler</strong>(handler) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Registers an inbound packet handler that implements the
+InboundPacketHandler interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+524
+525
+526</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 524</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_inbound_handler'>register_inbound_handler</span><span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span>
+  <span class='ivar'>@inbound_handlers</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_handler'>handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove_response_waiter-instance_method">
+  
+    - (<tt>Object</tt>) <strong>remove_response_waiter</strong>(waiter) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Removes a waiter from the list of waiters.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+455
+456
+457</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 455</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove_response_waiter'>remove_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_waiter'>waiter</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_waiters'>waiters</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_waiter'>waiter</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_packet-instance_method">
+  
+    - (<tt>Object</tt>) <strong>send_packet</strong>(packet, completion_routine = nil, completion_param = nil) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sends a packet without waiting for a response.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 134</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='comma'>,</span> <span class='id identifier rubyid_completion_routine'>completion_routine</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_completion_param'>completion_param</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_completion_routine'>completion_routine</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_add_response_waiter'>add_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='comma'>,</span> <span class='id identifier rubyid_completion_routine'>completion_routine</span><span class='comma'>,</span> <span class='id identifier rubyid_completion_param'>completion_param</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_bytes'>bytes</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_raw'>raw</span>   <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_to_r'>to_r</span>
+  <span class='id identifier rubyid_err'>err</span>   <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Short-circuit send when using a passive dispatcher
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span>
+    <span class='id identifier rubyid_send_queue'>send_queue</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='id identifier rubyid_raw'>raw</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='comment'># Lie!
+</span>  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_raw'>raw</span><span class='rparen'>)</span>
+
+    <span class='comment'># This mutex is used to lock out new commands during an
+</span>    <span class='comment'># active migration.
+</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_comm_mutex'>comm_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_bytes'>bytes</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_raw'>raw</span><span class='rparen'>)</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+        <span class='id identifier rubyid_err'>err</span> <span class='op'>=</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_bytes'>bytes</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='int'>0</span>
+      <span class='comment'># Mark the session itself as dead
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+      <span class='comment'># Indicate that the dispatcher should shut down too
+</span>      <span class='ivar'>@finish</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+      <span class='comment'># Reraise the error to the top-level caller
+</span>      <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_err'>err</span> <span class='kw'>if</span> <span class='id identifier rubyid_err'>err</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_bytes'>bytes</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_packet_wait_response-instance_method">
+  
+    - (<tt>Object</tt>) <strong>send_packet_wait_response</strong>(packet, t) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Transmits a packet and waits for a response.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 206</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_packet_wait_response'>send_packet_wait_response</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='comma'>,</span> <span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+  <span class='comment'># First, add the waiter association for the supplied packet
+</span>  <span class='id identifier rubyid_waiter'>waiter</span> <span class='op'>=</span> <span class='id identifier rubyid_add_response_waiter'>add_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+
+  <span class='comment'># Transmit the packet
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&lt;=</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='comment'># Remove the waiter if we failed to send the packet.
+</span>    <span class='id identifier rubyid_remove_response_waiter'>remove_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_waiter'>waiter</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Wait for the supplied time interval
+</span>  <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+
+  <span class='comment'># Remove the waiter from the list of waiters in case it wasn&#39;t
+</span>  <span class='comment'># removed
+</span>  <span class='id identifier rubyid_remove_response_waiter'>remove_response_waiter</span><span class='lparen'>(</span><span class='id identifier rubyid_waiter'>waiter</span><span class='rparen'>)</span>
+
+  <span class='comment'># Return the response packet, if any
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_waiter'>waiter</span><span class='period'>.</span><span class='id identifier rubyid_response'>response</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_request-instance_method">
+  
+    - (<tt>Object</tt>) <strong>send_request</strong>(packet, t = self.response_timeout) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sends a packet and waits for a timeout for the given time interval.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 180</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='comma'>,</span> <span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_response_timeout'>response_timeout</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_t'>t</span>
+    <span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_send_packet_wait_response'>send_packet_wait_response</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='comma'>,</span> <span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TimeoutError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Send timed out</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>!=</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_einfo'>einfo</span> <span class='op'>=</span> <span class='id identifier rubyid_lookup_error'>lookup_error</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_e'>e</span> <span class='op'>=</span> <span class='const'>RequestError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='id identifier rubyid_einfo'>einfo</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_set_backtrace'>set_backtrace</span><span class='lparen'>(</span><span class='id identifier rubyid_caller'>caller</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shutdown_passive_dispatcher-instance_method">
+  
+    - (<tt>Object</tt>) <strong>shutdown_passive_dispatcher</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/packet_dispatcher.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shutdown_passive_dispatcher'>shutdown_passive_dispatcher</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span><span class='period'>.</span><span class='id identifier rubyid_remove_resource'>remove_resource</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_conn_id'>conn_id</span>  <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span>      <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send_queue'>send_queue</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_recv_queue'>recv_queue</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_waiters'>waiters</span>    <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:38 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

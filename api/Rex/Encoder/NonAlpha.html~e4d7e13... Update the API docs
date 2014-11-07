@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Encoder::NonAlpha
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Encoder/NonAlpha.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Encoder.html" title="Rex::Encoder (module)">Encoder</a></span></span>
+     &raquo; 
+    <span class="title">NonAlpha</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Encoder::NonAlpha
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Encoder::NonAlpha</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/encoder/nonalpha.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode-class_method" title="encode (class method)">+ (Object) <strong>encode</strong>(buf) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_byte-class_method" title="encode_byte (class method)">+ (Object) <strong>encode_byte</strong>(block, table, tablelen) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#gen_decoder-class_method" title="gen_decoder (class method)">+ (Object) <strong>gen_decoder</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="encode-class_method">
+  
+    + (<tt>Object</tt>) <strong>encode</strong>(buf) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/nonalpha.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='const'>NonAlpha</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_table'>table</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_tablelen'>tablelen</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_nonascii'>nonascii</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_gen_decoder'>gen_decoder</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_each_byte'>each_byte</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_block'>block</span><span class='op'>|</span>
+    <span class='id identifier rubyid_newchar'>newchar</span><span class='comma'>,</span> <span class='id identifier rubyid_table'>table</span><span class='comma'>,</span> <span class='id identifier rubyid_tablelen'>tablelen</span> <span class='op'>=</span> <span class='id identifier rubyid_encode_byte'>encode_byte</span><span class='lparen'>(</span><span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_table'>table</span><span class='comma'>,</span> <span class='id identifier rubyid_tablelen'>tablelen</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_nonascii'>nonascii</span> <span class='op'>+=</span> <span class='id identifier rubyid_newchar'>newchar</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>A</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_tablelen'>tablelen</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>B</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_tablelen'>tablelen</span><span class='op'>+</span><span class='int'>5</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>+=</span> <span class='id identifier rubyid_table'>table</span>
+  <span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>+=</span> <span class='id identifier rubyid_nonascii'>nonascii</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_byte-class_method">
+  
+    + (<tt>Object</tt>) <strong>encode_byte</strong>(block, table, tablelen) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/nonalpha.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='const'>NonAlpha</span><span class='period'>.</span><span class='id identifier rubyid_encode_byte'>encode_byte</span><span class='lparen'>(</span><span class='id identifier rubyid_block'>block</span><span class='comma'>,</span> <span class='id identifier rubyid_table'>table</span><span class='comma'>,</span> <span class='id identifier rubyid_tablelen'>tablelen</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_tablelen'>tablelen</span> <span class='op'>&gt;</span> <span class='int'>255</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>==</span> <span class='int'>0x7B</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BadChar</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_block'>block</span> <span class='op'>&gt;=</span> <span class='int'>0x41</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>&lt;=</span> <span class='int'>0x5A</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lparen'>(</span><span class='id identifier rubyid_block'>block</span> <span class='op'>&gt;=</span> <span class='int'>0x61</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>&lt;=</span> <span class='int'>0x7A</span><span class='rparen'>)</span>
+    <span class='comment'># gen offset, return magic
+</span>    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0x7b</span> <span class='op'>-</span> <span class='id identifier rubyid_block'>block</span>
+    <span class='id identifier rubyid_table'>table</span> <span class='op'>+=</span> <span class='id identifier rubyid_offset'>offset</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+    <span class='id identifier rubyid_tablelen'>tablelen</span> <span class='op'>=</span> <span class='id identifier rubyid_tablelen'>tablelen</span> <span class='op'>+</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='int'>0x7B</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='comma'>,</span> <span class='id identifier rubyid_table'>table</span><span class='comma'>,</span> <span class='id identifier rubyid_tablelen'>tablelen</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="gen_decoder-class_method">
+  
+    + (<tt>Object</tt>) <strong>gen_decoder</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/nonalpha.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='const'>NonAlpha</span><span class='period'>.</span><span class='id identifier rubyid_gen_decoder'>gen_decoder</span>
+  <span class='id identifier rubyid_decoder'>decoder</span> <span class='op'>=</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x66\xB9\xFF\xFF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xEB\x19</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># Jmp to table
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5E</span><span class='tstring_end'>&quot;</span></span>      <span class='op'>+</span>               <span class='comment'># pop esi
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8B\xFE</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># mov edi, esi      - Get table addr
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x83\xC7</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>         <span class='comment'># add edi, tablelen - Get shellcode addr
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8B\xD7</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># mov edx, edi      - Hold end of table ptr
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3B\xF2</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># cmp esi, edx
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7D\x0B</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># jle to end
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xB0\x7B</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># mov eax, 0x7B     - Set up eax with magic
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xF2\xAE</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># repne scasb       - Find magic!
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF\xCF</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># dec edi           - scasb purs us one ahead
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xAC</span><span class='tstring_end'>&quot;</span></span>      <span class='op'>+</span>               <span class='comment'># lodsb
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x28\x07</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># subb [edi], al
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xEB\xF1</span><span class='tstring_end'>&quot;</span></span>  <span class='op'>+</span>               <span class='comment'># jmp BACK!
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xEB</span><span class='tstring_end'>&quot;</span></span>      <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>B</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>         <span class='comment'># jmp [shellcode]
+</span>    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xE8\xE2\xFF\xFF\xFF</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:04 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

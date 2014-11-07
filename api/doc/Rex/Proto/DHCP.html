@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Proto::DHCP
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Proto/DHCP.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Proto.html" title="Rex::Proto (module)">Proto</a></span></span>
+     &raquo; 
+    <span class="title">DHCP</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Proto::DHCP
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/proto/dhcp/server.rb<span class="defines">,<br />
+  lib/rex/proto/dhcp/constants.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="DHCP/Server.html" title="Rex::Proto::DHCP::Server (class)">Server</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="Request-constant" class="">Request =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="Response-constant" class="">Response =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="DHCPDiscover-constant" class="">DHCPDiscover =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="DHCPOffer-constant" class="">DHCPOffer =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="DHCPRequest-constant" class="">DHCPRequest =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="DHCPAck-constant" class="">DHCPAck =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="DHCPMagic-constant" class="">DHCPMagic =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x63\x82\x53\x63</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="OpDHCPServer-constant" class="">OpDHCPServer =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x36</span></pre></dd>
+      
+        <dt id="OpLeaseTime-constant" class="">OpLeaseTime =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x33</span></pre></dd>
+      
+        <dt id="OpSubnetMask-constant" class="">OpSubnetMask =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="OpRouter-constant" class="">OpRouter =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="OpDomainName-constant" class="">OpDomainName =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>15</span></pre></dd>
+      
+        <dt id="OpDns-constant" class="">OpDns =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="OpHostname-constant" class="">OpHostname =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0c</span></pre></dd>
+      
+        <dt id="OpURL-constant" class="">OpURL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x72</span></pre></dd>
+      
+        <dt id="OpEnd-constant" class="">OpEnd =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xff</span></pre></dd>
+      
+        <dt id="PXEMagic-constant" class="">PXEMagic =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xF1\x00\x74\x7E</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="OpPXEMagic-constant" class="">OpPXEMagic =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xD0</span></pre></dd>
+      
+        <dt id="OpPXEConfigFile-constant" class="">OpPXEConfigFile =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xD1</span></pre></dd>
+      
+        <dt id="OpPXEPathPrefix-constant" class="">OpPXEPathPrefix =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xD2</span></pre></dd>
+      
+        <dt id="OpPXERebootTime-constant" class="">OpPXERebootTime =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xD3</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:48 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

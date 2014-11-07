@@ -1,0 +1,750 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Post::Windows::UserProfiles
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Post/Windows/UserProfiles.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">UserProfiles</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Post::Windows::UserProfiles
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="Accounts.html" title="Msf::Post::Windows::Accounts (module)">Accounts</a></span>, <span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/post/windows/user_profiles.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="Accounts.html" title="Msf::Post::Windows::Accounts (module)">Accounts</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Accounts.html#DOMAIN_CONTROLLER_INFO-constant" title="Msf::Post::Windows::Accounts::DOMAIN_CONTROLLER_INFO (constant)">Accounts::DOMAIN_CONTROLLER_INFO</a></span>, <span class='object_link'><a href="Accounts.html#GUID-constant" title="Msf::Post::Windows::Accounts::GUID (constant)">Accounts::GUID</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#grab_user_profiles-instance_method" title="#grab_user_profiles (instance method)">- (Object) <strong>grab_user_profiles</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Load the registry hive for each user on the machine and parse out the user
+profile information.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_missing_hives-instance_method" title="#load_missing_hives (instance method)">- (Object) <strong>load_missing_hives</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Load any user hives that are not already loaded.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#loaded_hives-instance_method" title="#loaded_hives (instance method)">- (Object) <strong>loaded_hives</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a list of loaded registry hives.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_profile-instance_method" title="#parse_profile (instance method)">- (Object) <strong>parse_profile</strong>(hive) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the user profile information from the hive specified by
+<code>hive</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_profiles-instance_method" title="#parse_profiles (instance method)">- (Object) <strong>parse_profiles</strong>(hives) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a list of user profiles parsed each of the hives in
+<code>hives</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_profile_list-instance_method" title="#read_profile_list (instance method)">- (Object) <strong>read_profile_list</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Read HKLMSOFTWAREMicrosoftWindows NTCurrentVersionProfileList to get a list
+of user profiles on the machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unload_our_hives-instance_method" title="#unload_our_hives (instance method)">- (Object) <strong>unload_our_hives</strong>(hives) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Unload any hives we loaded.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Accounts.html" title="Msf::Post::Windows::Accounts (module)">Accounts</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Accounts.html#delete_user-instance_method" title="Msf::Post::Windows::Accounts#delete_user (method)">#delete_user</a></span>, <span class='object_link'><a href="Accounts.html#get_domain-instance_method" title="Msf::Post::Windows::Accounts#get_domain (method)">#get_domain</a></span>, <span class='object_link'><a href="Accounts.html#resolve_sid-instance_method" title="Msf::Post::Windows::Accounts#resolve_sid (method)">#resolve_sid</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Registry.html#meterpreter_registry_createkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_createkey (method)">#meterpreter_registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_deletekey (method)">#meterpreter_registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_deleteval (method)">#meterpreter_registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_enumkeys (method)">#meterpreter_registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_enumvals (method)">#meterpreter_registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_getvaldata (method)">#meterpreter_registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_getvalinfo (method)">#meterpreter_registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_loadkey (method)">#meterpreter_registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_setvaldata (method)">#meterpreter_registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_unloadkey (method)">#meterpreter_registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#normalize_key-instance_method" title="Msf::Post::Windows::Registry#normalize_key (method)">#normalize_key</a></span>, <span class='object_link'><a href="Registry.html#registry_createkey-instance_method" title="Msf::Post::Windows::Registry#registry_createkey (method)">#registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#registry_deletekey (method)">#registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#registry_deleteval (method)">#registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#registry_enumkeys (method)">#registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#registry_enumvals (method)">#registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#registry_getvaldata (method)">#registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#registry_getvalinfo (method)">#registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#registry_loadkey (method)">#registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#registry_setvaldata (method)">#registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#registry_unloadkey (method)">#registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#session_has_registry_ext-instance_method" title="Msf::Post::Windows::Registry#session_has_registry_ext (method)">#session_has_registry_ext</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_createkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_createkey (method)">#shell_registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_deletekey (method)">#shell_registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#shell_registry_deleteval (method)">#shell_registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#shell_registry_enumkeys (method)">#shell_registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#shell_registry_enumvals (method)">#shell_registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#shell_registry_getvaldata (method)">#shell_registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#shell_registry_getvalinfo (method)">#shell_registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_loadkey (method)">#shell_registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#shell_registry_setvaldata (method)">#shell_registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_unloadkey (method)">#shell_registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#split_key-instance_method" title="Msf::Post::Windows::Registry#split_key (method)">#split_key</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="CliParse.html" title="Msf::Post::Windows::CliParse (module)">CliParse</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CliParse.html#win_parse_error-instance_method" title="Msf::Post::Windows::CliParse#win_parse_error (method)">#win_parse_error</a></span>, <span class='object_link'><a href="CliParse.html#win_parse_results-instance_method" title="Msf::Post::Windows::CliParse#win_parse_results (method)">#win_parse_results</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="grab_user_profiles-instance_method">
+  
+    - (<tt>Object</tt>) <strong>grab_user_profiles</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Load the registry hive for each user on the machine and parse out the user
+profile information. Next, unload the hives we loaded and return the user
+profiles.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/user_profiles.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_grab_user_profiles'>grab_user_profiles</span>
+  <span class='id identifier rubyid_hives'>hives</span> <span class='op'>=</span> <span class='id identifier rubyid_load_missing_hives'>load_missing_hives</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profiles'>profiles</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_profiles'>parse_profiles</span><span class='lparen'>(</span><span class='id identifier rubyid_hives'>hives</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_unload_our_hives'>unload_our_hives</span><span class='lparen'>(</span><span class='id identifier rubyid_hives'>hives</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_profiles'>profiles</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_missing_hives-instance_method">
+  
+    - (<tt>Object</tt>) <strong>load_missing_hives</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Load any user hives that are not already loaded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/user_profiles.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_missing_hives'>load_missing_hives</span>
+  <span class='id identifier rubyid_hives'>hives</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_read_profile_list'>read_profile_list</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hive'>hive</span><span class='op'>|</span>
+    <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OURS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>=</span><span class='kw'>false</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LOADED</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>==</span> <span class='kw'>false</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DAT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OURS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_loadkey'>registry_loadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DAT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error loading USER </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Hive could not be loaded, are you Admin?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OURS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error loading USER </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Profile doesn&#39;t exist or cannot be accessed</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_hives'>hives</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_hive'>hive</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_hives'>hives</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="loaded_hives-instance_method">
+  
+    - (<tt>Object</tt>) <strong>loaded_hives</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a list of loaded registry hives.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116
+117
+118
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/user_profiles.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_loaded_hives'>loaded_hives</span>
+  <span class='id identifier rubyid_hives'>hives</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_registry_enumkeys'>registry_enumkeys</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>S-1-5-21</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_Classes</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_hives'>hives</span><span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_k'>k</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_hives'>hives</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_profile-instance_method">
+  
+    - (<tt>Object</tt>) <strong>parse_profile</strong>(hive) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the user profile information from the hive specified by
+<code>hive</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/user_profiles.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_profile'>parse_profile</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_sidinf'>sidinf</span> <span class='op'>=</span> <span class='id identifier rubyid_resolve_sid'>resolve_sid</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UserName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_sidinf'>sidinf</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Domain</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_sidinf'>sidinf</span><span class='lbracket'>[</span><span class='symbol'>:domain</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ProfileDir</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PROF</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppData</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppData</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalAppData</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Local AppData</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalSettings</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Local Settings</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Desktop</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Desktop</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MyDocs</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Personal</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Favorites</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Favorites</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>History</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>History</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cookies</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cookies</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Temp</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Environment</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TEMP</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%USERPROFILE%</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ProfileDir</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profile'>profile</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Path</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\Environment</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PATH</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_profile'>profile</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_profiles-instance_method">
+  
+    - (<tt>Object</tt>) <strong>parse_profiles</strong>(hives) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a list of user profiles parsed each of the hives in
+<code>hives</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/user_profiles.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_profiles'>parse_profiles</span><span class='lparen'>(</span><span class='id identifier rubyid_hives'>hives</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_profiles'>profiles</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_hives'>hives</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hive'>hive</span><span class='op'>|</span>
+    <span class='id identifier rubyid_profile'>profile</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_profile'>parse_profile</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_profiles'>profiles</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_profile'>profile</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_profiles'>profiles</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_profile_list-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_profile_list</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Read HKLMSOFTWAREMicrosoftWindows NTCurrentVersionProfileList to get a list
+of user profiles on the machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/user_profiles.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_profile_list'>read_profile_list</span>
+  <span class='id identifier rubyid_hives'>hives</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_registry_enumkeys'>registry_enumkeys</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_profkey'>profkey</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_profkey'>profkey</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>S-1-5-21</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_hive'>hive</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>=</span><span class='id identifier rubyid_profkey'>profkey</span>
+    <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HKU\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_profkey'>profkey</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PROF</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_profkey'>profkey</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ProfileImagePath</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PROF</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PROF</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PROF</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DAT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PROF</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\NTUSER.DAT</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LOADED</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_loaded_hives'>loaded_hives</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_profkey'>profkey</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hives'>hives</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_hive'>hive</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_hives'>hives</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unload_our_hives-instance_method">
+  
+    - (<tt>Object</tt>) <strong>unload_our_hives</strong>(hives) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Unload any hives we loaded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/user_profiles.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unload_our_hives'>unload_our_hives</span><span class='lparen'>(</span><span class='id identifier rubyid_hives'>hives</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hives'>hives</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hive'>hive</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OURS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>==</span><span class='kw'>true</span>
+    <span class='id identifier rubyid_registry_unloadkey'>registry_unloadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:36 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

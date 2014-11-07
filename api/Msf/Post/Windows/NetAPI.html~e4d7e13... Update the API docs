@@ -1,0 +1,743 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Post::Windows::NetAPI
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Msf/Post/Windows/NetAPI.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">NetAPI</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Post::Windows::NetAPI
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/post/windows/netapi.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="MAX_PREFERRED_LENGTH-constant" class="">MAX_PREFERRED_LENGTH =
+          
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>1</span></pre></dd>
+      
+        <dt id="SV_TYPE_ALL-constant" class="">SV_TYPE_ALL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xFFFFFFFF</span></pre></dd>
+      
+        <dt id="SV_TYPE_DOMAIN_ENUM-constant" class="">SV_TYPE_DOMAIN_ENUM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000000</span></pre></dd>
+      
+        <dt id="SV_TYPE_DOMAIN_BAKCTRL-constant" class="">SV_TYPE_DOMAIN_BAKCTRL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="SV_TYPE_DOMAIN_CTRL-constant" class="">SV_TYPE_DOMAIN_CTRL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="ERROR_ACCESS_DENIED-constant" class="">ERROR_ACCESS_DENIED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="ERROR_NOT_ENOUGH_MEMORY-constant" class="">ERROR_NOT_ENOUGH_MEMORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="ERROR_INVALID_PARAMETER-constant" class="">ERROR_INVALID_PARAMETER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>87</span></pre></dd>
+      
+        <dt id="ERROR_INVALID_LEVEL-constant" class="">ERROR_INVALID_LEVEL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>124</span></pre></dd>
+      
+        <dt id="ERROR_MORE_DATA-constant" class="">ERROR_MORE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>234</span></pre></dd>
+      
+        <dt id="ERROR_NO_BROWSER_SERVERS_FOUND-constant" class="">ERROR_NO_BROWSER_SERVERS_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6118</span></pre></dd>
+      
+        <dt id="NERR_ClientNameNotFound-constant" class="">NERR_ClientNameNotFound =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2312</span></pre></dd>
+      
+        <dt id="NERR_InvalidComputer-constant" class="">NERR_InvalidComputer =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2351</span></pre></dd>
+      
+        <dt id="NERR_UserNotFound-constant" class="">NERR_UserNotFound =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2221</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#net_server_enum-instance_method" title="#net_server_enum (instance method)">- (Object) <strong>net_server_enum</strong>(server_type = SV_TYPE_ALL, domain = nil) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#net_session_enum-instance_method" title="#net_session_enum (instance method)">- (Object) <strong>net_session_enum</strong>(hostname, username) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#netapi_buffer_free-instance_method" title="#netapi_buffer_free (instance method)">- (Object) <strong>netapi_buffer_free</strong>(ptr) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_server_structs-instance_method" title="#read_server_structs (instance method)">- (Object) <strong>read_server_structs</strong>(start_ptr, count, domain, server_type) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_session_structs-instance_method" title="#read_session_structs (instance method)">- (Object) <strong>read_session_structs</strong>(start_ptr, count, hostname) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#UnicodeByteStringToAscii-instance_method" title="#UnicodeByteStringToAscii (instance method)">- (Object) <strong>UnicodeByteStringToAscii</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="net_server_enum-instance_method">
+  
+    - (<tt>Object</tt>) <strong>net_server_enum</strong>(server_type = SV_TYPE_ALL, domain = nil) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/netapi.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_net_server_enum'>net_server_enum</span><span class='lparen'>(</span><span class='id identifier rubyid_server_type'>server_type</span><span class='op'>=</span><span class='const'>SV_TYPE_ALL</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hosts'>hosts</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_netapi32'>netapi32</span><span class='period'>.</span><span class='const'>NetServerEnum</span><span class='lparen'>(</span>
+      <span class='kw'>nil</span><span class='comma'>,</span>    <span class='comment'># servername
+</span>      <span class='int'>100</span><span class='comma'>,</span>    <span class='comment'># level (100/101)
+</span>      <span class='int'>4</span><span class='comma'>,</span>      <span class='comment'># bufptr
+</span>      <span class='const'>MAX_PREFERRED_LENGTH</span><span class='comma'>,</span> <span class='comment'># prefmaxlen
+</span>      <span class='int'>4</span><span class='comma'>,</span>      <span class='comment'># entries read
+</span>      <span class='int'>4</span><span class='comma'>,</span>      <span class='comment'># total entries
+</span>      <span class='id identifier rubyid_server_type'>server_type</span><span class='comma'>,</span> <span class='comment'># server_type
+</span>      <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span>    <span class='comment'># domain
+</span>      <span class='kw'>nil</span>     <span class='comment'># resume handle
+</span>  <span class='rparen'>)</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='int'>0</span>
+    <span class='comment'># Railgun assumes PDWORDS are pointers and returns 8 bytes for x64 architectures.
+</span>    <span class='comment'># Therefore we need to truncate the result value to an actual
+</span>    <span class='comment'># DWORD for entriesread or totalentries.
+</span>    <span class='id identifier rubyid_hosts'>hosts</span> <span class='op'>=</span> <span class='id identifier rubyid_read_server_structs'>read_server_structs</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bufptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>entriesread</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>%</span> <span class='int'>4294967296</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span> <span class='id identifier rubyid_server_type'>server_type</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='const'>ERROR_NO_BROWSER_SERVERS_FOUND</span>
+    <span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ERROR_NO_BROWSER_SERVERS_FOUND</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>when</span> <span class='const'>ERROR_MORE_DATA</span>
+    <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ERROR_MORE_DATA</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_netapi_buffer_free'>netapi_buffer_free</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bufptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_hosts'>hosts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="net_session_enum-instance_method">
+  
+    - (<tt>Object</tt>) <strong>net_session_enum</strong>(hostname, username) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/netapi.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_net_session_enum'>net_session_enum</span><span class='lparen'>(</span><span class='id identifier rubyid_hostname'>hostname</span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_netapi32'>netapi32</span><span class='period'>.</span><span class='const'>NetSessionEnum</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_hostname'>hostname</span><span class='comma'>,</span>   <span class='comment'># servername
+</span>      <span class='kw'>nil</span><span class='comma'>,</span>        <span class='comment'># UncClientName
+</span>      <span class='id identifier rubyid_username'>username</span><span class='comma'>,</span>   <span class='comment'># username
+</span>      <span class='int'>10</span><span class='comma'>,</span>         <span class='comment'># level
+</span>      <span class='int'>4</span><span class='comma'>,</span>          <span class='comment'># bufptr
+</span>      <span class='const'>MAX_PREFERRED_LENGTH</span><span class='comma'>,</span> <span class='comment'># prefmaxlen
+</span>      <span class='int'>4</span><span class='comma'>,</span>          <span class='comment'># entriesread
+</span>      <span class='int'>4</span><span class='comma'>,</span>          <span class='comment'># totalentries
+</span>      <span class='kw'>nil</span>         <span class='comment'># resume_handle
+</span>  <span class='rparen'>)</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> Session identified</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>=</span> <span class='id identifier rubyid_read_session_structs'>read_session_structs</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bufptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>entriesread</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>%</span> <span class='int'>4294967296</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_hostname'>hostname</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='const'>ERROR_ACCESS_DENIED</span>
+    <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> Access denied...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>when</span> <span class='int'>53</span>
+    <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Host not found or did not respond: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>when</span> <span class='int'>123</span>
+    <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid host: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>when</span> <span class='const'>NERR_UserNotFound</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>when</span> <span class='const'>ERROR_MORE_DATA</span>
+    <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> ERROR_MORE_DATA</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unaccounted for error code: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_netapi_buffer_free'>netapi_buffer_free</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bufptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_sessions'>sessions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="netapi_buffer_free-instance_method">
+  
+    - (<tt>Object</tt>) <strong>netapi_buffer_free</strong>(ptr) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/netapi.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_netapi_buffer_free'>netapi_buffer_free</span><span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span><span class='rparen'>)</span>
+  <span class='comment'># Free the buffer
+</span>  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_netapi32'>netapi32</span><span class='period'>.</span><span class='const'>NetApiBufferFree</span><span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to free buffer, Error Code: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ret'>ret</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_ret'>ret</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_server_structs-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_server_structs</strong>(start_ptr, count, domain, server_type) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/netapi.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_server_structs'>read_server_structs</span><span class='lparen'>(</span><span class='id identifier rubyid_start_ptr'>start_ptr</span><span class='comma'>,</span> <span class='id identifier rubyid_count'>count</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span> <span class='id identifier rubyid_server_type'>server_type</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hosts'>hosts</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_hosts'>hosts</span> <span class='kw'>if</span> <span class='id identifier rubyid_count'>count</span> <span class='op'>&lt;=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_ptr_size'>ptr_size</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_util'>util</span><span class='period'>.</span><span class='id identifier rubyid_pointer_size'>pointer_size</span>
+  <span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_ptr_size'>ptr_size</span> <span class='op'>==</span> <span class='int'>8</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q&lt;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='comment'># Struct -&gt; Ptr, Ptr
+</span>  <span class='id identifier rubyid_struct_size'>struct_size</span> <span class='op'>=</span> <span class='id identifier rubyid_ptr_size'>ptr_size</span> <span class='op'>*</span> <span class='int'>2</span>
+
+  <span class='id identifier rubyid_mem'>mem</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_memread'>memread</span><span class='lparen'>(</span><span class='id identifier rubyid_start_ptr'>start_ptr</span><span class='comma'>,</span> <span class='id identifier rubyid_struct_size'>struct_size</span><span class='op'>*</span><span class='id identifier rubyid_count'>count</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_count'>count</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_x'>x</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_x'>x</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span><span class='op'>=</span> <span class='id identifier rubyid_mem'>mem</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span> <span class='op'>+</span> <span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span><span class='id identifier rubyid_ptr_size'>ptr_size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+    <span class='id identifier rubyid_nameptr'>nameptr</span> <span class='op'>=</span> <span class='id identifier rubyid_mem'>mem</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span> <span class='op'>+</span> <span class='id identifier rubyid_ptr_size'>ptr_size</span><span class='rparen'>)</span><span class='comma'>,</span><span class='id identifier rubyid_ptr_size'>ptr_size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+    <span class='id identifier rubyid_x'>x</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>UnicodeByteStringToAscii</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_memread'>memread</span><span class='lparen'>(</span><span class='id identifier rubyid_nameptr'>nameptr</span><span class='comma'>,</span> <span class='int'>255</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hosts'>hosts</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_x'>x</span>
+    <span class='id identifier rubyid_base'>base</span> <span class='op'>+=</span> <span class='id identifier rubyid_struct_size'>struct_size</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_hosts'>hosts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_session_structs-instance_method">
+  
+    - (<tt>Object</tt>) <strong>read_session_structs</strong>(start_ptr, count, hostname) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/netapi.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_session_structs'>read_session_structs</span><span class='lparen'>(</span><span class='id identifier rubyid_start_ptr'>start_ptr</span><span class='comma'>,</span> <span class='id identifier rubyid_count'>count</span><span class='comma'>,</span> <span class='id identifier rubyid_hostname'>hostname</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_sessions'>sessions</span> <span class='kw'>if</span> <span class='id identifier rubyid_count'>count</span> <span class='op'>&lt;=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_ptr_size'>ptr_size</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_util'>util</span><span class='period'>.</span><span class='id identifier rubyid_pointer_size'>pointer_size</span>
+  <span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_ptr_size'>ptr_size</span> <span class='op'>==</span> <span class='int'>8</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q&lt;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='comment'># Struct -&gt; Ptr, Ptr, Dword Dword
+</span>  <span class='id identifier rubyid_struct_size'>struct_size</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_ptr_size'>ptr_size</span> <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>8</span>
+  <span class='id identifier rubyid_mem'>mem</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_memread'>memread</span><span class='lparen'>(</span><span class='id identifier rubyid_start_ptr'>start_ptr</span><span class='comma'>,</span> <span class='id identifier rubyid_struct_size'>struct_size</span><span class='op'>*</span><span class='id identifier rubyid_count'>count</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_count'>count</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_sess'>sess</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_cnameptr'>cnameptr</span> <span class='op'>=</span> <span class='id identifier rubyid_mem'>mem</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span> <span class='op'>+</span> <span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span><span class='id identifier rubyid_ptr_size'>ptr_size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+    <span class='id identifier rubyid_usernameptr'>usernameptr</span> <span class='op'>=</span> <span class='id identifier rubyid_mem'>mem</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span> <span class='op'>+</span> <span class='id identifier rubyid_ptr_size'>ptr_size</span><span class='rparen'>)</span><span class='comma'>,</span><span class='id identifier rubyid_ptr_size'>ptr_size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+    <span class='id identifier rubyid_sess'>sess</span><span class='lbracket'>[</span><span class='symbol'>:usetime</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_mem'>mem</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_ptr_size'>ptr_size</span> <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span><span class='int'>4</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+    <span class='id identifier rubyid_sess'>sess</span><span class='lbracket'>[</span><span class='symbol'>:idletime</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_mem'>mem</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_ptr_size'>ptr_size</span> <span class='op'>*</span> <span class='int'>2</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span><span class='comma'>,</span><span class='int'>4</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+    <span class='id identifier rubyid_sess'>sess</span><span class='lbracket'>[</span><span class='symbol'>:cname</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>UnicodeByteStringToAscii</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_memread'>memread</span><span class='lparen'>(</span><span class='id identifier rubyid_cnameptr'>cnameptr</span><span class='comma'>,</span><span class='int'>255</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sess'>sess</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>UnicodeByteStringToAscii</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_railgun'>railgun</span><span class='period'>.</span><span class='id identifier rubyid_memread'>memread</span><span class='lparen'>(</span><span class='id identifier rubyid_usernameptr'>usernameptr</span><span class='comma'>,</span><span class='int'>255</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sess'>sess</span><span class='lbracket'>[</span><span class='symbol'>:hostname</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hostname'>hostname</span>
+    <span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sess'>sess</span>
+    <span class='id identifier rubyid_base'>base</span> <span class='op'>=</span> <span class='id identifier rubyid_base'>base</span> <span class='op'>+</span> <span class='id identifier rubyid_struct_size'>struct_size</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_sessions'>sessions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="UnicodeByteStringToAscii-instance_method">
+  
+    - (<tt>Object</tt>) <strong>UnicodeByteStringToAscii</strong>(str) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/netapi.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='const'>UnicodeByteStringToAscii</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\0\0\0</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>1</span>
+  <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_ascii'>to_ascii</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:21 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

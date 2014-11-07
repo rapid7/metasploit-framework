@@ -1,0 +1,561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::PeParsey::PeMemDump
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/PeParsey/PeMemDump.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../PeParsey.html" title="Rex::PeParsey (module)">PeParsey</a></span></span>
+     &raquo; 
+    <span class="title">PeMemDump</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::PeParsey::PeMemDump
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="Pe.html" title="Rex::PeParsey::Pe (class)">Pe</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="PeBase.html" title="Rex::PeParsey::PeBase (class)">PeBase</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="Pe.html" title="Rex::PeParsey::Pe (class)">Pe</a></span></li>
+          
+            <li class="next">Rex::PeParsey::PeMemDump</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/peparsey/pe_memdump.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="PeBase.html" title="Rex::PeParsey::PeBase (class)">PeBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PeBase.html#IMAGE_BASE_RELOCATION-constant" title="Rex::PeParsey::PeBase::IMAGE_BASE_RELOCATION (constant)">Rex::PeParsey::PeBase::IMAGE_BASE_RELOCATION</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_BASE_RELOCATION_TYPE_OFFSET-constant" title="Rex::PeParsey::PeBase::IMAGE_BASE_RELOCATION_TYPE_OFFSET (constant)">Rex::PeParsey::PeBase::IMAGE_BASE_RELOCATION_TYPE_OFFSET</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DATA_DIRECTORY-constant" title="Rex::PeParsey::PeBase::IMAGE_DATA_DIRECTORY (constant)">Rex::PeParsey::PeBase::IMAGE_DATA_DIRECTORY</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DATA_DIRECTORY_SIZE-constant" title="Rex::PeParsey::PeBase::IMAGE_DATA_DIRECTORY_SIZE (constant)">Rex::PeParsey::PeBase::IMAGE_DATA_DIRECTORY_SIZE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_ARCHITECTURE-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_ARCHITECTURE (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_ARCHITECTURE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_BASERELOC-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_BASERELOC (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_BASERELOC</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_COPYRIGHT-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_COPYRIGHT (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_COPYRIGHT</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_DEBUG-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_DEBUG (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_DEBUG</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_EXCEPTION-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_EXCEPTION (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_EXCEPTION</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_EXPORT-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_EXPORT (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_EXPORT</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_GLOBALPTR-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_GLOBALPTR (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_GLOBALPTR</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_IAT-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_IAT (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_IAT</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_IMPORT-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_IMPORT (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_IMPORT</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_RESOURCE-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_RESOURCE (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_RESOURCE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_SECURITY-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_SECURITY (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_SECURITY</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DIRECTORY_ENTRY_TLS-constant" title="Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_TLS (constant)">Rex::PeParsey::PeBase::IMAGE_DIRECTORY_ENTRY_TLS</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DOS_HEADER-constant" title="Rex::PeParsey::PeBase::IMAGE_DOS_HEADER (constant)">Rex::PeParsey::PeBase::IMAGE_DOS_HEADER</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DOS_HEADER_SIZE-constant" title="Rex::PeParsey::PeBase::IMAGE_DOS_HEADER_SIZE (constant)">Rex::PeParsey::PeBase::IMAGE_DOS_HEADER_SIZE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_DOS_SIGNATURE-constant" title="Rex::PeParsey::PeBase::IMAGE_DOS_SIGNATURE (constant)">Rex::PeParsey::PeBase::IMAGE_DOS_SIGNATURE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_EXPORT_DESCRIPTOR-constant" title="Rex::PeParsey::PeBase::IMAGE_EXPORT_DESCRIPTOR (constant)">Rex::PeParsey::PeBase::IMAGE_EXPORT_DESCRIPTOR</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_EXPORT_DESCRIPTOR_SIZE-constant" title="Rex::PeParsey::PeBase::IMAGE_EXPORT_DESCRIPTOR_SIZE (constant)">Rex::PeParsey::PeBase::IMAGE_EXPORT_DESCRIPTOR_SIZE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_FILE_HEADER-constant" title="Rex::PeParsey::PeBase::IMAGE_FILE_HEADER (constant)">Rex::PeParsey::PeBase::IMAGE_FILE_HEADER</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_FILE_HEADER_SIZE-constant" title="Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE (constant)">Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_FILE_MACHINE_ALPHA64-constant" title="Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_ALPHA64 (constant)">Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_ALPHA64</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_FILE_MACHINE_AMD64-constant" title="Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_AMD64 (constant)">Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_AMD64</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_FILE_MACHINE_I386-constant" title="Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_I386 (constant)">Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_I386</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_FILE_MACHINE_IA64-constant" title="Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_IA64 (constant)">Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_IA64</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_IMPORT_DESCRIPTOR-constant" title="Rex::PeParsey::PeBase::IMAGE_IMPORT_DESCRIPTOR (constant)">Rex::PeParsey::PeBase::IMAGE_IMPORT_DESCRIPTOR</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_IMPORT_DESCRIPTOR_SIZE-constant" title="Rex::PeParsey::PeBase::IMAGE_IMPORT_DESCRIPTOR_SIZE (constant)">Rex::PeParsey::PeBase::IMAGE_IMPORT_DESCRIPTOR_SIZE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_LOAD_CONFIG_DIRECTORY32-constant" title="Rex::PeParsey::PeBase::IMAGE_LOAD_CONFIG_DIRECTORY32 (constant)">Rex::PeParsey::PeBase::IMAGE_LOAD_CONFIG_DIRECTORY32</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_LOAD_CONFIG_DIRECTORY64-constant" title="Rex::PeParsey::PeBase::IMAGE_LOAD_CONFIG_DIRECTORY64 (constant)">Rex::PeParsey::PeBase::IMAGE_LOAD_CONFIG_DIRECTORY64</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_LOAD_TLS_DIRECTORY32-constant" title="Rex::PeParsey::PeBase::IMAGE_LOAD_TLS_DIRECTORY32 (constant)">Rex::PeParsey::PeBase::IMAGE_LOAD_TLS_DIRECTORY32</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_LOAD_TLS_DIRECTORY64-constant" title="Rex::PeParsey::PeBase::IMAGE_LOAD_TLS_DIRECTORY64 (constant)">Rex::PeParsey::PeBase::IMAGE_LOAD_TLS_DIRECTORY64</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_NT_OPTIONAL_HDR32_MAGIC-constant" title="Rex::PeParsey::PeBase::IMAGE_NT_OPTIONAL_HDR32_MAGIC (constant)">Rex::PeParsey::PeBase::IMAGE_NT_OPTIONAL_HDR32_MAGIC</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_NT_OPTIONAL_HDR64_MAGIC-constant" title="Rex::PeParsey::PeBase::IMAGE_NT_OPTIONAL_HDR64_MAGIC (constant)">Rex::PeParsey::PeBase::IMAGE_NT_OPTIONAL_HDR64_MAGIC</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_NT_SIGNATURE-constant" title="Rex::PeParsey::PeBase::IMAGE_NT_SIGNATURE (constant)">Rex::PeParsey::PeBase::IMAGE_NT_SIGNATURE</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_NUMBEROF_DIRECTORY_ENTRIES-constant" title="Rex::PeParsey::PeBase::IMAGE_NUMBEROF_DIRECTORY_ENTRIES (constant)">Rex::PeParsey::PeBase::IMAGE_NUMBEROF_DIRECTORY_ENTRIES</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_OPTIONAL_HEADER32-constant" title="Rex::PeParsey::PeBase::IMAGE_OPTIONAL_HEADER32 (constant)">Rex::PeParsey::PeBase::IMAGE_OPTIONAL_HEADER32</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_OPTIONAL_HEADER64-constant" title="Rex::PeParsey::PeBase::IMAGE_OPTIONAL_HEADER64 (constant)">Rex::PeParsey::PeBase::IMAGE_OPTIONAL_HEADER64</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_ORDINAL_FLAG32-constant" title="Rex::PeParsey::PeBase::IMAGE_ORDINAL_FLAG32 (constant)">Rex::PeParsey::PeBase::IMAGE_ORDINAL_FLAG32</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_RUNTIME_FUNCTION_ENTRY-constant" title="Rex::PeParsey::PeBase::IMAGE_RUNTIME_FUNCTION_ENTRY (constant)">Rex::PeParsey::PeBase::IMAGE_RUNTIME_FUNCTION_ENTRY</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_RUNTIME_FUNCTION_ENTRY_SZ-constant" title="Rex::PeParsey::PeBase::IMAGE_RUNTIME_FUNCTION_ENTRY_SZ (constant)">Rex::PeParsey::PeBase::IMAGE_RUNTIME_FUNCTION_ENTRY_SZ</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_SECTION_HEADER-constant" title="Rex::PeParsey::PeBase::IMAGE_SECTION_HEADER (constant)">Rex::PeParsey::PeBase::IMAGE_SECTION_HEADER</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_SIZEOF_BASE_RELOCATION-constant" title="Rex::PeParsey::PeBase::IMAGE_SIZEOF_BASE_RELOCATION (constant)">Rex::PeParsey::PeBase::IMAGE_SIZEOF_BASE_RELOCATION</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_SIZEOF_NT_OPTIONAL32_HEADER-constant" title="Rex::PeParsey::PeBase::IMAGE_SIZEOF_NT_OPTIONAL32_HEADER (constant)">Rex::PeParsey::PeBase::IMAGE_SIZEOF_NT_OPTIONAL32_HEADER</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_SIZEOF_NT_OPTIONAL64_HEADER-constant" title="Rex::PeParsey::PeBase::IMAGE_SIZEOF_NT_OPTIONAL64_HEADER (constant)">Rex::PeParsey::PeBase::IMAGE_SIZEOF_NT_OPTIONAL64_HEADER</a></span>, <span class='object_link'><a href="PeBase.html#IMAGE_SIZEOF_SECTION_HEADER-constant" title="Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER (constant)">Rex::PeParsey::PeBase::IMAGE_SIZEOF_SECTION_HEADER</a></span>, <span class='object_link'><a href="PeBase.html#SUPPORTED_MACHINES-constant" title="Rex::PeParsey::PeBase::SUPPORTED_MACHINES (constant)">Rex::PeParsey::PeBase::SUPPORTED_MACHINES</a></span>, <span class='object_link'><a href="PeBase.html#UNWIND_INFO_HEADER-constant" title="Rex::PeParsey::PeBase::UNWIND_INFO_HEADER (constant)">Rex::PeParsey::PeBase::UNWIND_INFO_HEADER</a></span>, <span class='object_link'><a href="PeBase.html#UNWIND_INFO_HEADER_SZ-constant" title="Rex::PeParsey::PeBase::UNWIND_INFO_HEADER_SZ (constant)">Rex::PeParsey::PeBase::UNWIND_INFO_HEADER_SZ</a></span>, <span class='object_link'><a href="PeBase.html#UNW_FLAG_CHAININFO-constant" title="Rex::PeParsey::PeBase::UNW_FLAG_CHAININFO (constant)">Rex::PeParsey::PeBase::UNW_FLAG_CHAININFO</a></span>, <span class='object_link'><a href="PeBase.html#UNW_FLAG_EHANDLER-constant" title="Rex::PeParsey::PeBase::UNW_FLAG_EHANDLER (constant)">Rex::PeParsey::PeBase::UNW_FLAG_EHANDLER</a></span>, <span class='object_link'><a href="PeBase.html#UNW_FLAG_UHANDLER-constant" title="Rex::PeParsey::PeBase::UNW_FLAG_UHANDLER (constant)">Rex::PeParsey::PeBase::UNW_FLAG_UHANDLER</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_ALLOC_LARGE-constant" title="Rex::PeParsey::PeBase::UWOP_ALLOC_LARGE (constant)">Rex::PeParsey::PeBase::UWOP_ALLOC_LARGE</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_ALLOC_SMALL-constant" title="Rex::PeParsey::PeBase::UWOP_ALLOC_SMALL (constant)">Rex::PeParsey::PeBase::UWOP_ALLOC_SMALL</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_PUSH_MACHFRAME-constant" title="Rex::PeParsey::PeBase::UWOP_PUSH_MACHFRAME (constant)">Rex::PeParsey::PeBase::UWOP_PUSH_MACHFRAME</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_PUSH_NONVOL-constant" title="Rex::PeParsey::PeBase::UWOP_PUSH_NONVOL (constant)">Rex::PeParsey::PeBase::UWOP_PUSH_NONVOL</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_SAVE_NONVOL-constant" title="Rex::PeParsey::PeBase::UWOP_SAVE_NONVOL (constant)">Rex::PeParsey::PeBase::UWOP_SAVE_NONVOL</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_SAVE_NONVOL_FAR-constant" title="Rex::PeParsey::PeBase::UWOP_SAVE_NONVOL_FAR (constant)">Rex::PeParsey::PeBase::UWOP_SAVE_NONVOL_FAR</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_SAVE_XMM128-constant" title="Rex::PeParsey::PeBase::UWOP_SAVE_XMM128 (constant)">Rex::PeParsey::PeBase::UWOP_SAVE_XMM128</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_SAVE_XMM128_FAR-constant" title="Rex::PeParsey::PeBase::UWOP_SAVE_XMM128_FAR (constant)">Rex::PeParsey::PeBase::UWOP_SAVE_XMM128_FAR</a></span>, <span class='object_link'><a href="PeBase.html#UWOP_SET_FPREG-constant" title="Rex::PeParsey::PeBase::UWOP_SET_FPREG (constant)">Rex::PeParsey::PeBase::UWOP_SET_FPREG</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="PeBase.html" title="Rex::PeParsey::PeBase (class)">PeBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PeBase.html#_config_header-instance_method" title="Rex::PeParsey::PeBase#_config_header (method)">#_config_header</a></span>, <span class='object_link'><a href="PeBase.html#_dos_header-instance_method" title="Rex::PeParsey::PeBase#_dos_header (method)">#_dos_header</a></span>, <span class='object_link'><a href="PeBase.html#_exception_header-instance_method" title="Rex::PeParsey::PeBase#_exception_header (method)">#_exception_header</a></span>, <span class='object_link'><a href="PeBase.html#_exports_cache-instance_method" title="Rex::PeParsey::PeBase#_exports_cache (method)">#_exports_cache</a></span>, <span class='object_link'><a href="PeBase.html#_exports_cached-instance_method" title="Rex::PeParsey::PeBase#_exports_cached (method)">#_exports_cached</a></span>, <span class='object_link'><a href="PeBase.html#_file_header-instance_method" title="Rex::PeParsey::PeBase#_file_header (method)">#_file_header</a></span>, <span class='object_link'><a href="PeBase.html#_imports_cache-instance_method" title="Rex::PeParsey::PeBase#_imports_cache (method)">#_imports_cache</a></span>, <span class='object_link'><a href="PeBase.html#_imports_cached-instance_method" title="Rex::PeParsey::PeBase#_imports_cached (method)">#_imports_cached</a></span>, <span class='object_link'><a href="PeBase.html#_isource-instance_method" title="Rex::PeParsey::PeBase#_isource (method)">#_isource</a></span>, <span class='object_link'><a href="PeBase.html#_optional_header-instance_method" title="Rex::PeParsey::PeBase#_optional_header (method)">#_optional_header</a></span>, <span class='object_link'><a href="PeBase.html#_relocations_cache-instance_method" title="Rex::PeParsey::PeBase#_relocations_cache (method)">#_relocations_cache</a></span>, <span class='object_link'><a href="PeBase.html#_relocations_cached-instance_method" title="Rex::PeParsey::PeBase#_relocations_cached (method)">#_relocations_cached</a></span>, <span class='object_link'><a href="PeBase.html#_resources_cache-instance_method" title="Rex::PeParsey::PeBase#_resources_cache (method)">#_resources_cache</a></span>, <span class='object_link'><a href="PeBase.html#_resources_cached-instance_method" title="Rex::PeParsey::PeBase#_resources_cached (method)">#_resources_cached</a></span>, <span class='object_link'><a href="PeBase.html#_section_headers-instance_method" title="Rex::PeParsey::PeBase#_section_headers (method)">#_section_headers</a></span>, <span class='object_link'><a href="PeBase.html#_tls_header-instance_method" title="Rex::PeParsey::PeBase#_tls_header (method)">#_tls_header</a></span>, <span class='object_link'><a href="PeBase.html#hdr-instance_method" title="Rex::PeParsey::PeBase#hdr (method)">#hdr</a></span>, <span class='object_link'><a href="PeBase.html#header_section-instance_method" title="Rex::PeParsey::PeBase#header_section (method)">#header_section</a></span>, <span class='object_link'><a href="PeBase.html#image_base-instance_method" title="Rex::PeParsey::PeBase#image_base (method)">#image_base</a></span>, <span class='object_link'><a href="PeBase.html#sections-instance_method" title="Rex::PeParsey::PeBase#sections (method)">#sections</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_from_file-class_method" title="new_from_file (class method)">+ (Object) <strong>new_from_file</strong>(filename, disk_backed = false) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#new_from_string-class_method" title="new_from_string (class method)">+ (Object) <strong>new_from_string</strong>(data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#all_sections-instance_method" title="#all_sections (instance method)">- (Object) <strong>all_sections</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (PeMemDump) <strong>initialize</strong>(isource, base) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of PeMemDump.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ptr_64%3F-instance_method" title="#ptr_64? (instance method)">- (Boolean) <strong>ptr_64?</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>No 64-bit support.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Pe.html" title="Rex::PeParsey::Pe (class)">Pe</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Pe.html#file_offset_to_va-instance_method" title="Rex::PeParsey::Pe#file_offset_to_va (method)">#file_offset_to_va</a></span>, <span class='object_link'><a href="Pe.html#length-instance_method" title="Rex::PeParsey::Pe#length (method)">#length</a></span>, <span class='object_link'><a href="Pe.html#ptr_32%3F-instance_method" title="Rex::PeParsey::Pe#ptr_32? (method)">#ptr_32?</a></span>, <span class='object_link'><a href="Pe.html#ptr_s-instance_method" title="Rex::PeParsey::Pe#ptr_s (method)">#ptr_s</a></span>, <span class='object_link'><a href="Pe.html#read-instance_method" title="Rex::PeParsey::Pe#read (method)">#read</a></span>, <span class='object_link'><a href="Pe.html#size-instance_method" title="Rex::PeParsey::Pe#size (method)">#size</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="PeBase.html" title="Rex::PeParsey::PeBase (class)">PeBase</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PeBase.html#_align_offset-class_method" title="Rex::PeParsey::PeBase._align_offset (method)">_align_offset</a></span>, <span class='object_link'><a href="PeBase.html#_find_section_by_rva-instance_method" title="Rex::PeParsey::PeBase#_find_section_by_rva (method)">#_find_section_by_rva</a></span>, <span class='object_link'><a href="PeBase.html#_load_exception_directory-instance_method" title="Rex::PeParsey::PeBase#_load_exception_directory (method)">#_load_exception_directory</a></span>, <span class='object_link'><a href="PeBase.html#_load_exports-instance_method" title="Rex::PeParsey::PeBase#_load_exports (method)">#_load_exports</a></span>, <span class='object_link'><a href="PeBase.html#_load_imports-instance_method" title="Rex::PeParsey::PeBase#_load_imports (method)">#_load_imports</a></span>, <span class='object_link'><a href="PeBase.html#_load_relocations-instance_method" title="Rex::PeParsey::PeBase#_load_relocations (method)">#_load_relocations</a></span>, <span class='object_link'><a href="PeBase.html#_load_resources-instance_method" title="Rex::PeParsey::PeBase#_load_resources (method)">#_load_resources</a></span>, <span class='object_link'><a href="PeBase.html#_parse_config_header-instance_method" title="Rex::PeParsey::PeBase#_parse_config_header (method)">#_parse_config_header</a></span>, <span class='object_link'><a href="PeBase.html#_parse_dos_header-class_method" title="Rex::PeParsey::PeBase._parse_dos_header (method)">_parse_dos_header</a></span>, <span class='object_link'><a href="PeBase.html#_parse_file_header-class_method" title="Rex::PeParsey::PeBase._parse_file_header (method)">_parse_file_header</a></span>, <span class='object_link'><a href="PeBase.html#_parse_optional_header-class_method" title="Rex::PeParsey::PeBase._parse_optional_header (method)">_parse_optional_header</a></span>, <span class='object_link'><a href="PeBase.html#_parse_resource_directory-instance_method" title="Rex::PeParsey::PeBase#_parse_resource_directory (method)">#_parse_resource_directory</a></span>, <span class='object_link'><a href="PeBase.html#_parse_resource_entry-instance_method" title="Rex::PeParsey::PeBase#_parse_resource_entry (method)">#_parse_resource_entry</a></span>, <span class='object_link'><a href="PeBase.html#_parse_resource_name-instance_method" title="Rex::PeParsey::PeBase#_parse_resource_name (method)">#_parse_resource_name</a></span>, <span class='object_link'><a href="PeBase.html#_parse_section_headers-class_method" title="Rex::PeParsey::PeBase._parse_section_headers (method)">_parse_section_headers</a></span>, <span class='object_link'><a href="PeBase.html#_parse_tls_header-instance_method" title="Rex::PeParsey::PeBase#_parse_tls_header (method)">#_parse_tls_header</a></span>, <span class='object_link'><a href="PeBase.html#_resource_lookup-instance_method" title="Rex::PeParsey::PeBase#_resource_lookup (method)">#_resource_lookup</a></span>, <span class='object_link'><a href="PeBase.html#close-instance_method" title="Rex::PeParsey::PeBase#close (method)">#close</a></span>, <span class='object_link'><a href="PeBase.html#config-instance_method" title="Rex::PeParsey::PeBase#config (method)">#config</a></span>, <span class='object_link'><a href="PeBase.html#exception-instance_method" title="Rex::PeParsey::PeBase#exception (method)">#exception</a></span>, <span class='object_link'><a href="PeBase.html#exports-instance_method" title="Rex::PeParsey::PeBase#exports (method)">#exports</a></span>, <span class='object_link'><a href="PeBase.html#file_offset_to_rva-instance_method" title="Rex::PeParsey::PeBase#file_offset_to_rva (method)">#file_offset_to_rva</a></span>, <span class='object_link'><a href="PeBase.html#file_offset_to_vma-instance_method" title="Rex::PeParsey::PeBase#file_offset_to_vma (method)">#file_offset_to_vma</a></span>, <span class='object_link'><a href="PeBase.html#find_section_by_rva-instance_method" title="Rex::PeParsey::PeBase#find_section_by_rva (method)">#find_section_by_rva</a></span>, <span class='object_link'><a href="PeBase.html#find_section_by_vma-instance_method" title="Rex::PeParsey::PeBase#find_section_by_vma (method)">#find_section_by_vma</a></span>, <span class='object_link'><a href="PeBase.html#imports-instance_method" title="Rex::PeParsey::PeBase#imports (method)">#imports</a></span>, <span class='object_link'><a href="PeBase.html#read_asciiz_rva-instance_method" title="Rex::PeParsey::PeBase#read_asciiz_rva (method)">#read_asciiz_rva</a></span>, <span class='object_link'><a href="PeBase.html#read_asciiz_vma-instance_method" title="Rex::PeParsey::PeBase#read_asciiz_vma (method)">#read_asciiz_vma</a></span>, <span class='object_link'><a href="PeBase.html#read_rva-instance_method" title="Rex::PeParsey::PeBase#read_rva (method)">#read_rva</a></span>, <span class='object_link'><a href="PeBase.html#read_vma-instance_method" title="Rex::PeParsey::PeBase#read_vma (method)">#read_vma</a></span>, <span class='object_link'><a href="PeBase.html#relocations-instance_method" title="Rex::PeParsey::PeBase#relocations (method)">#relocations</a></span>, <span class='object_link'><a href="PeBase.html#resources-instance_method" title="Rex::PeParsey::PeBase#resources (method)">#resources</a></span>, <span class='object_link'><a href="PeBase.html#rva_to_file_offset-instance_method" title="Rex::PeParsey::PeBase#rva_to_file_offset (method)">#rva_to_file_offset</a></span>, <span class='object_link'><a href="PeBase.html#rva_to_vma-instance_method" title="Rex::PeParsey::PeBase#rva_to_vma (method)">#rva_to_vma</a></span>, <span class='object_link'><a href="PeBase.html#tls-instance_method" title="Rex::PeParsey::PeBase#tls (method)">#tls</a></span>, <span class='object_link'><a href="PeBase.html#update_checksum-instance_method" title="Rex::PeParsey::PeBase#update_checksum (method)">#update_checksum</a></span>, <span class='object_link'><a href="PeBase.html#valid_rva%3F-instance_method" title="Rex::PeParsey::PeBase#valid_rva? (method)">#valid_rva?</a></span>, <span class='object_link'><a href="PeBase.html#valid_vma%3F-instance_method" title="Rex::PeParsey::PeBase#valid_vma? (method)">#valid_vma?</a></span>, <span class='object_link'><a href="PeBase.html#vma_to_file_offset-instance_method" title="Rex::PeParsey::PeBase#vma_to_file_offset (method)">#vma_to_file_offset</a></span>, <span class='object_link'><a href="PeBase.html#vma_to_rva-instance_method" title="Rex::PeParsey::PeBase#vma_to_rva (method)">#vma_to_rva</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::PeParsey::PeMemDump (class)">PeMemDump</a></span></tt>) <strong>initialize</strong>(isource, base) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of PeMemDump</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pe_memdump.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='comma'>,</span> <span class='id identifier rubyid_base'>base</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid__isource'>_isource</span> <span class='op'>=</span> <span class='id identifier rubyid_isource'>isource</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_header_section'>header_section</span> <span class='op'>=</span> <span class='const'>Section</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_isource'>isource</span><span class='comma'>,</span> <span class='id identifier rubyid_base'>base</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sections'>sections</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_header_section'>header_section</span> <span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_image_base'>image_base</span> <span class='op'>=</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="new_from_file-class_method">
+  
+    + (<tt>Object</tt>) <strong>new_from_file</strong>(filename, disk_backed = false) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pe_memdump.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new_from_file'>new_from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='id identifier rubyid_disk_backed'>disk_backed</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_filename'>filename</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>4</span><span class='comma'>,</span> <span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.rng</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not a .rng file: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_filename'>filename</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_filename'>filename</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>9</span><span class='comma'>,</span> <span class='int'>9</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>index.rng</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>SkipError</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_filename'>filename</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_disk_backed'>disk_backed</span>
+    <span class='id identifier rubyid_obj'>obj</span> <span class='op'>=</span> <span class='const'>ImageSource</span><span class='op'>::</span><span class='const'>Disk</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_obj'>obj</span> <span class='op'>=</span> <span class='const'>ImageSource</span><span class='op'>::</span><span class='const'>Memory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_obj'>obj</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_obj'>obj</span><span class='comma'>,</span> <span class='id identifier rubyid_filename'>filename</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>.*[\/\\]</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_hex'>hex</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="new_from_string-class_method">
+  
+    + (<tt>Object</tt>) <strong>new_from_string</strong>(data) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pe_memdump.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new_from_string'>new_from_string</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="all_sections-instance_method">
+  
+    - (<tt>Object</tt>) <strong>all_sections</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pe_memdump.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_all_sections'>all_sections</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sections'>sections</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ptr_64?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>ptr_64?</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>No 64-bit support</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/peparsey/pe_memdump.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ptr_64?'>ptr_64?</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:12 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

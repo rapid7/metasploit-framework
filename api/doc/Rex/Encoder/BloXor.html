@@ -1,0 +1,1292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Encoder::BloXor
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Encoder/BloXor.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Encoder.html" title="Rex::Encoder (module)">Encoder</a></span></span>
+     &raquo; 
+    <span class="title">BloXor</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Encoder::BloXor
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../../Msf/Encoder.html" title="Msf::Encoder (class)">Msf::Encoder</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../Msf/Module.html" title="Msf::Module (class)">Msf::Module</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="../../Msf/Encoder.html" title="Msf::Encoder (class)">Msf::Encoder</a></span></li>
+          
+            <li class="next">Rex::Encoder::BloXor</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/encoder/bloxor/bloxor.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="../../Msf/Module.html" title="Msf::Module (class)">Msf::Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Msf/Module.html#UpdateableOptions-constant" title="Msf::Module::UpdateableOptions (constant)">Msf::Module::UpdateableOptions</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../Msf/Module.html" title="Msf::Module (class)">Msf::Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Msf/Module.html#arch-instance_method" title="Msf::Module#arch (method)">#arch</a></span>, <span class='object_link'><a href="../../Msf/Module.html#author-instance_method" title="Msf::Module#author (method)">#author</a></span>, <span class='object_link'><a href="../../Msf/Module.html#datastore-instance_method" title="Msf::Module#datastore (method)">#datastore</a></span>, <span class='object_link'><a href="../../Msf/Module.html#error-instance_method" title="Msf::Module#error (method)">#error</a></span>, <span class='object_link'><a href="../../Msf/Module.html#job_id-instance_method" title="Msf::Module#job_id (method)">#job_id</a></span>, <span class='object_link'><a href="../../Msf/Module.html#license-instance_method" title="Msf::Module#license (method)">#license</a></span>, <span class='object_link'><a href="../../Msf/Module.html#module_info-instance_method" title="Msf::Module#module_info (method)">#module_info</a></span>, <span class='object_link'><a href="../../Msf/Module.html#module_store-instance_method" title="Msf::Module#module_store (method)">#module_store</a></span>, <span class='object_link'><a href="../../Msf/Module.html#options-instance_method" title="Msf::Module#options (method)">#options</a></span>, <span class='object_link'><a href="../../Msf/Module.html#platform-instance_method" title="Msf::Module#platform (method)">#platform</a></span>, <span class='object_link'><a href="../../Msf/Module.html#privileged-instance_method" title="Msf::Module#privileged (method)">#privileged</a></span>, <span class='object_link'><a href="../../Msf/Module.html#references-instance_method" title="Msf::Module#references (method)">#references</a></span>, <span class='object_link'><a href="../../Msf/Module.html#uuid-instance_method" title="Msf::Module#uuid (method)">#uuid</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Msf/Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Msf::Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Msf/Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#compute_block-instance_method" title="#compute_block (instance method)">- (Object) <strong>compute_block</strong>(encoded, decoded) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Compute the next encoded block by xoring the previous encoded block with
+the next decoded block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#compute_decoder-instance_method" title="#compute_decoder (instance method)">- (Object) <strong>compute_decoder</strong>(state) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate the decoder stub which is functionally equivalent to the
+following:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#compute_encoded-instance_method" title="#compute_encoded (instance method)">- (Object) <strong>compute_encoded</strong>(state, len) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Compute the encoded blocks (and associated seed).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#compute_seed-instance_method" title="#compute_seed (instance method)">- (Object) <strong>compute_seed</strong>(blocks_in, block_size, block_padding, badchars) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Compute the seed block which will successfully decode all proceeding
+encoded blocks while ensuring the encoded blocks do not contain any
+badchars.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decoder_stub-instance_method" title="#decoder_stub (instance method)">- (Object) <strong>decoder_stub</strong>(state) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_block-instance_method" title="#encode_block (instance method)">- (Object) <strong>encode_block</strong>(state, data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#entropy-instance_method" title="#entropy (instance method)">- (Object) <strong>entropy</strong>(data) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calculate Shannon&#39;s entropy.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (BloXor) <strong>initialize</strong>(*args) </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of BloXor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#number_is_valid%3F-instance_method" title="#number_is_valid? (instance method)">- (Boolean) <strong>number_is_valid?</strong>(state, number) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Is a number in its byte form valid against the badchars?.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../Msf/Encoder.html" title="Msf::Encoder (class)">Msf::Encoder</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Msf/Encoder.html#decoder_block_size-instance_method" title="Msf::Encoder#decoder_block_size (method)">#decoder_block_size</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#decoder_hash-instance_method" title="Msf::Encoder#decoder_hash (method)">#decoder_hash</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#decoder_key_offset-instance_method" title="Msf::Encoder#decoder_key_offset (method)">#decoder_key_offset</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#decoder_key_pack-instance_method" title="Msf::Encoder#decoder_key_pack (method)">#decoder_key_pack</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#decoder_key_size-instance_method" title="Msf::Encoder#decoder_key_size (method)">#decoder_key_size</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#do_encode-instance_method" title="Msf::Encoder#do_encode (method)">#do_encode</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#encode-instance_method" title="Msf::Encoder#encode (method)">#encode</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#encode_begin-instance_method" title="Msf::Encoder#encode_begin (method)">#encode_begin</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#encode_end-instance_method" title="Msf::Encoder#encode_end (method)">#encode_end</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#encode_finalize_stub-instance_method" title="Msf::Encoder#encode_finalize_stub (method)">#encode_finalize_stub</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#encoder_type-instance_method" title="Msf::Encoder#encoder_type (method)">#encoder_type</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#find_bad_keys-instance_method" title="Msf::Encoder#find_bad_keys (method)">#find_bad_keys</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#find_context_key-instance_method" title="Msf::Encoder#find_context_key (method)">#find_context_key</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#find_key-instance_method" title="Msf::Encoder#find_key (method)">#find_key</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#find_key_verify-instance_method" title="Msf::Encoder#find_key_verify (method)">#find_key_verify</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#has_badchars%3F-instance_method" title="Msf::Encoder#has_badchars? (method)">#has_badchars?</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#init_platform-instance_method" title="Msf::Encoder#init_platform (method)">#init_platform</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#init_state-instance_method" title="Msf::Encoder#init_state (method)">#init_state</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#integer_to_key_bytes-instance_method" title="Msf::Encoder#integer_to_key_bytes (method)">#integer_to_key_bytes</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#key_bytes_to_buffer-instance_method" title="Msf::Encoder#key_bytes_to_buffer (method)">#key_bytes_to_buffer</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#key_bytes_to_integer-instance_method" title="Msf::Encoder#key_bytes_to_integer (method)">#key_bytes_to_integer</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#modified_registers-instance_method" title="Msf::Encoder#modified_registers (method)">#modified_registers</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#obtain_key-instance_method" title="Msf::Encoder#obtain_key (method)">#obtain_key</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#prepend_buf-instance_method" title="Msf::Encoder#prepend_buf (method)">#prepend_buf</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#preserves_registers%3F-instance_method" title="Msf::Encoder#preserves_registers? (method)">#preserves_registers?</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#preserves_stack%3F-instance_method" title="Msf::Encoder#preserves_stack? (method)">#preserves_stack?</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#to_native-instance_method" title="Msf::Encoder#to_native (method)">#to_native</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#type-instance_method" title="Msf::Encoder#type (method)">#type</a></span>, <span class='object_link'><a href="../../Msf/Encoder.html#type-class_method" title="Msf::Encoder.type (method)">type</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../Msf/Module.html" title="Msf::Module (class)">Msf::Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Msf/Module.html#%5B%5D-instance_method" title="Msf::Module#[] (method)">#[]</a></span>, <span class='object_link'><a href="../../Msf/Module.html#%5B%5D%3D-instance_method" title="Msf::Module#[]= (method)">#[]=</a></span>, <span class='object_link'><a href="../../Msf/Module.html#alias-instance_method" title="Msf::Module#alias (method)">#alias</a></span>, <span class='object_link'><a href="../../Msf/Module.html#arch%3F-instance_method" title="Msf::Module#arch? (method)">#arch?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#arch_to_s-instance_method" title="Msf::Module#arch_to_s (method)">#arch_to_s</a></span>, <span class='object_link'><a href="../../Msf/Module.html#author_to_s-instance_method" title="Msf::Module#author_to_s (method)">#author_to_s</a></span>, <span class='object_link'><a href="../../Msf/Module.html#auxiliary%3F-instance_method" title="Msf::Module#auxiliary? (method)">#auxiliary?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#cached%3F-class_method" title="Msf::Module.cached? (method)">cached?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#check-instance_method" title="Msf::Module#check (method)">#check</a></span>, <span class='object_link'><a href="../../Msf/Module.html#comm-instance_method" title="Msf::Module#comm (method)">#comm</a></span>, <span class='object_link'><a href="../../Msf/Module.html#compat-instance_method" title="Msf::Module#compat (method)">#compat</a></span>, <span class='object_link'><a href="../../Msf/Module.html#compatible%3F-instance_method" title="Msf::Module#compatible? (method)">#compatible?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#debugging%3F-instance_method" title="Msf::Module#debugging? (method)">#debugging?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#deregister_options-instance_method" title="Msf::Module#deregister_options (method)">#deregister_options</a></span>, <span class='object_link'><a href="../../Msf/Module.html#derived_implementor%3F-instance_method" title="Msf::Module#derived_implementor? (method)">#derived_implementor?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#description-instance_method" title="Msf::Module#description (method)">#description</a></span>, <span class='object_link'><a href="../../Msf/Module.html#disclosure_date-instance_method" title="Msf::Module#disclosure_date (method)">#disclosure_date</a></span>, <span class='object_link'><a href="../../Msf/Module.html#each_arch-instance_method" title="Msf::Module#each_arch (method)">#each_arch</a></span>, <span class='object_link'><a href="../../Msf/Module.html#each_author-instance_method" title="Msf::Module#each_author (method)">#each_author</a></span>, <span class='object_link'><a href="../../Msf/Module.html#encoder%3F-instance_method" title="Msf::Module#encoder? (method)">#encoder?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#exploit%3F-instance_method" title="Msf::Module#exploit? (method)">#exploit?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#fail_with-instance_method" title="Msf::Module#fail_with (method)">#fail_with</a></span>, <span class='object_link'><a href="../../Msf/Module.html#file_path-instance_method" title="Msf::Module#file_path (method)">#file_path</a></span>, <span class='object_link'><a href="../../Msf/Module.html#framework-instance_method" title="Msf::Module#framework (method)">#framework</a></span>, <span class='object_link'><a href="../../Msf/Module.html#fullname-instance_method" title="Msf::Module#fullname (method)">#fullname</a></span>, <span class='object_link'><a href="../../Msf/Module.html#fullname-class_method" title="Msf::Module.fullname (method)">fullname</a></span>, <span class='object_link'><a href="../../Msf/Module.html#generate_uuid-instance_method" title="Msf::Module#generate_uuid (method)">#generate_uuid</a></span>, <span class='object_link'><a href="../../Msf/Module.html#import_defaults-instance_method" title="Msf::Module#import_defaults (method)">#import_defaults</a></span>, <span class='object_link'><a href="../../Msf/Module.html#info_fixups-instance_method" title="Msf::Module#info_fixups (method)">#info_fixups</a></span>, <span class='object_link'><a href="../../Msf/Module.html#init_compat-instance_method" title="Msf::Module#init_compat (method)">#init_compat</a></span>, <span class='object_link'><a href="../../Msf/Module.html#is_usable-class_method" title="Msf::Module.is_usable (method)">is_usable</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_check_key-instance_method" title="Msf::Module#merge_check_key (method)">#merge_check_key</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info-instance_method" title="Msf::Module#merge_info (method)">#merge_info</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info_advanced_options-instance_method" title="Msf::Module#merge_info_advanced_options (method)">#merge_info_advanced_options</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info_alias-instance_method" title="Msf::Module#merge_info_alias (method)">#merge_info_alias</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info_description-instance_method" title="Msf::Module#merge_info_description (method)">#merge_info_description</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info_evasion_options-instance_method" title="Msf::Module#merge_info_evasion_options (method)">#merge_info_evasion_options</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info_name-instance_method" title="Msf::Module#merge_info_name (method)">#merge_info_name</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info_options-instance_method" title="Msf::Module#merge_info_options (method)">#merge_info_options</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info_string-instance_method" title="Msf::Module#merge_info_string (method)">#merge_info_string</a></span>, <span class='object_link'><a href="../../Msf/Module.html#merge_info_version-instance_method" title="Msf::Module#merge_info_version (method)">#merge_info_version</a></span>, <span class='object_link'><a href="../../Msf/Module.html#name-instance_method" title="Msf::Module#name (method)">#name</a></span>, <span class='object_link'><a href="../../Msf/Module.html#nop%3F-instance_method" title="Msf::Module#nop? (method)">#nop?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#orig_cls-instance_method" title="Msf::Module#orig_cls (method)">#orig_cls</a></span>, <span class='object_link'><a href="../../Msf/Module.html#owner-instance_method" title="Msf::Module#owner (method)">#owner</a></span>, <span class='object_link'><a href="../../Msf/Module.html#payload%3F-instance_method" title="Msf::Module#payload? (method)">#payload?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#platform%3F-instance_method" title="Msf::Module#platform? (method)">#platform?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#platform_to_s-instance_method" title="Msf::Module#platform_to_s (method)">#platform_to_s</a></span>, <span class='object_link'><a href="../../Msf/Module.html#post%3F-instance_method" title="Msf::Module#post? (method)">#post?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#print_error-instance_method" title="Msf::Module#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../Msf/Module.html#print_good-instance_method" title="Msf::Module#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../Msf/Module.html#print_line-instance_method" title="Msf::Module#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../Msf/Module.html#print_line_prefix-instance_method" title="Msf::Module#print_line_prefix (method)">#print_line_prefix</a></span>, <span class='object_link'><a href="../../Msf/Module.html#print_prefix-instance_method" title="Msf::Module#print_prefix (method)">#print_prefix</a></span>, <span class='object_link'><a href="../../Msf/Module.html#print_status-instance_method" title="Msf::Module#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../Msf/Module.html#print_warning-instance_method" title="Msf::Module#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../Msf/Module.html#privileged%3F-instance_method" title="Msf::Module#privileged? (method)">#privileged?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#rank-instance_method" title="Msf::Module#rank (method)">#rank</a></span>, <span class='object_link'><a href="../../Msf/Module.html#rank-class_method" title="Msf::Module.rank (method)">rank</a></span>, <span class='object_link'><a href="../../Msf/Module.html#rank_to_h-instance_method" title="Msf::Module#rank_to_h (method)">#rank_to_h</a></span>, <span class='object_link'><a href="../../Msf/Module.html#rank_to_h-class_method" title="Msf::Module.rank_to_h (method)">rank_to_h</a></span>, <span class='object_link'><a href="../../Msf/Module.html#rank_to_s-class_method" title="Msf::Module.rank_to_s (method)">rank_to_s</a></span>, <span class='object_link'><a href="../../Msf/Module.html#rank_to_s-instance_method" title="Msf::Module#rank_to_s (method)">#rank_to_s</a></span>, <span class='object_link'><a href="../../Msf/Module.html#refname-instance_method" title="Msf::Module#refname (method)">#refname</a></span>, <span class='object_link'><a href="../../Msf/Module.html#register_advanced_options-instance_method" title="Msf::Module#register_advanced_options (method)">#register_advanced_options</a></span>, <span class='object_link'><a href="../../Msf/Module.html#register_evasion_options-instance_method" title="Msf::Module#register_evasion_options (method)">#register_evasion_options</a></span>, <span class='object_link'><a href="../../Msf/Module.html#register_options-instance_method" title="Msf::Module#register_options (method)">#register_options</a></span>, <span class='object_link'><a href="../../Msf/Module.html#register_parent-instance_method" title="Msf::Module#register_parent (method)">#register_parent</a></span>, <span class='object_link'><a href="../../Msf/Module.html#replicant-instance_method" title="Msf::Module#replicant (method)">#replicant</a></span>, <span class='object_link'><a href="../../Msf/Module.html#search_filter-instance_method" title="Msf::Module#search_filter (method)">#search_filter</a></span>, <span class='object_link'><a href="../../Msf/Module.html#set_defaults-instance_method" title="Msf::Module#set_defaults (method)">#set_defaults</a></span>, <span class='object_link'><a href="../../Msf/Module.html#share_datastore-instance_method" title="Msf::Module#share_datastore (method)">#share_datastore</a></span>, <span class='object_link'><a href="../../Msf/Module.html#shortname-class_method" title="Msf::Module.shortname (method)">shortname</a></span>, <span class='object_link'><a href="../../Msf/Module.html#shortname-instance_method" title="Msf::Module#shortname (method)">#shortname</a></span>, <span class='object_link'><a href="../../Msf/Module.html#support_ipv6%3F-instance_method" title="Msf::Module#support_ipv6? (method)">#support_ipv6?</a></span>, <span class='object_link'><a href="../../Msf/Module.html#target_host-instance_method" title="Msf::Module#target_host (method)">#target_host</a></span>, <span class='object_link'><a href="../../Msf/Module.html#target_port-instance_method" title="Msf::Module#target_port (method)">#target_port</a></span>, <span class='object_link'><a href="../../Msf/Module.html#type-class_method" title="Msf::Module.type (method)">type</a></span>, <span class='object_link'><a href="../../Msf/Module.html#type-instance_method" title="Msf::Module#type (method)">#type</a></span>, <span class='object_link'><a href="../../Msf/Module.html#update_info-instance_method" title="Msf::Module#update_info (method)">#update_info</a></span>, <span class='object_link'><a href="../../Msf/Module.html#validate-instance_method" title="Msf::Module#validate (method)">#validate</a></span>, <span class='object_link'><a href="../../Msf/Module.html#vprint_debug-instance_method" title="Msf::Module#vprint_debug (method)">#vprint_debug</a></span>, <span class='object_link'><a href="../../Msf/Module.html#vprint_error-instance_method" title="Msf::Module#vprint_error (method)">#vprint_error</a></span>, <span class='object_link'><a href="../../Msf/Module.html#vprint_good-instance_method" title="Msf::Module#vprint_good (method)">#vprint_good</a></span>, <span class='object_link'><a href="../../Msf/Module.html#vprint_line-instance_method" title="Msf::Module#vprint_line (method)">#vprint_line</a></span>, <span class='object_link'><a href="../../Msf/Module.html#vprint_status-instance_method" title="Msf::Module#vprint_status (method)">#vprint_status</a></span>, <span class='object_link'><a href="../../Msf/Module.html#vprint_warning-instance_method" title="Msf::Module#vprint_warning (method)">#vprint_warning</a></span>, <span class='object_link'><a href="../../Msf/Module.html#workspace-instance_method" title="Msf::Module#workspace (method)">#workspace</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../Ui/Subscriber/Output.html#print_debug-instance_method" title="Rex::Ui::Subscriber::Output#print_debug (method)">#print_debug</a></span>, <span class='object_link'><a href="../Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Encoder::BloXor (class)">BloXor</a></span></tt>) <strong>initialize</strong>(*args) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of BloXor</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span> <span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='ivar'>@machine</span>    <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@blocks_out</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@block_size</span> <span class='op'>=</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="compute_block-instance_method">
+  
+    - (<tt>Object</tt>) <strong>compute_block</strong>(encoded, decoded)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Compute the next encoded block by xoring the previous encoded block with
+the next decoded block.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+315
+316
+317
+318
+319
+320
+321</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 315</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_compute_block'>compute_block</span><span class='lparen'>(</span> <span class='id identifier rubyid_encoded'>encoded</span><span class='comma'>,</span> <span class='id identifier rubyid_decoded'>decoded</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span> <span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='op'>-</span><span class='int'>1</span> <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_index'>index</span> <span class='op'>|</span>
+    <span class='id identifier rubyid_block'>block</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span> <span class='id identifier rubyid_encoded'>encoded</span><span class='lbracket'>[</span> <span class='id identifier rubyid_index'>index</span> <span class='rbracket'>]</span> <span class='op'>^</span> <span class='id identifier rubyid_decoded'>decoded</span><span class='lbracket'>[</span> <span class='id identifier rubyid_index'>index</span> <span class='rbracket'>]</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_block'>block</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="compute_decoder-instance_method">
+  
+    - (<tt>Object</tt>) <strong>compute_decoder</strong>(state)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate the decoder stub which is functionally equivalent to the
+following:</p>
+
+<p>source  = &amp;end; dest    = source + BLOCK_SIZE; counter = BLOCK_COUNT *
+( BLOCK_SIZE / chunk_size ); do { 	encoded = *(CHUNK_SIZE *)dest; 	dest +=
+chunk_size; 	decoded = *(CHUNK_SIZE *)source; 	*(CHUNK_SIZE *)source =
+decoded ^ encoded; 	source += chunk_size; } while( –counter );</p>
+
+<p>end:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_compute_decoder'>compute_decoder</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span> <span class='rparen'>)</span>
+
+  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_variable'>create_variable</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>source</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_variable'>create_variable</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dest</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_variable'>create_variable</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>counter</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_variable'>create_variable</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>encoded</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_variable'>create_variable</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>decoded</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>BYTE</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_native_size'>native_size</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>QWORD</span> <span class='rparen'>)</span>
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@block_size</span> <span class='op'>%</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>QWORD</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>QWORD</span>
+    <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='ivar'>@block_size</span> <span class='op'>%</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>DWORD</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>DWORD</span>
+    <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='ivar'>@block_size</span> <span class='op'>%</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>WORD</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>WORD</span>
+    <span class='kw'>end</span>
+  <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_native_size'>native_size</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>DWORD</span> <span class='rparen'>)</span>
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@block_size</span> <span class='op'>%</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>DWORD</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>DWORD</span>
+    <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='ivar'>@block_size</span> <span class='op'>%</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>WORD</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>WORD</span>
+    <span class='kw'>end</span>
+  <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_native_size'>native_size</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>WORD</span> <span class='rparen'>)</span>
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@block_size</span> <span class='op'>%</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>WORD</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Poly</span><span class='op'>::</span><span class='const'>Machine</span><span class='op'>::</span><span class='const'>WORD</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Block 1 - Set the source variable to the address of the start block
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>set</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>source</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>location</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 2 - Set the source variable to the address of the 1st encoded block
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>source</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 3 - Set the destingation variable to the value of the source variable
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block3</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>set</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dest</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>source</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 4 - Set the destingation variable to the address of the 2nd encoded block
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block4</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dest</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='ivar'>@block_size</span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 5 - Sets the loop counter to the number of blocks to process
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block5</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>set</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>counter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lparen'>(</span> <span class='lparen'>(</span> <span class='ivar'>@block_size</span> <span class='op'>/</span> <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='rparen'>)</span> <span class='op'>*</span> <span class='lparen'>(</span><span class='ivar'>@blocks_out</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 6 - Set the encoded variable to the byte pointed to by the dest variable
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block6</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>load</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>encoded</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dest</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 7 - Increment the destination variable by one
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block7</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dest</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 8 - Set the decoded variable to the byte pointed to by the source variable
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block8</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>load</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>decoded</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>source</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 9 - Xor the decoded variable with the encoded variable
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block9</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>xor</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>decoded</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>encoded</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 10 - store the newly decoded byte
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block10</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>store</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>source</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>decoded</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 11 - Increment the source variable by one
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block11</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>source</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='rparen'>)</span>
+
+  <span class='comment'># Block 12 - Jump back up to the outer_loop block while the counter variable &gt; 0
+</span>  <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_create_block_primitive'>create_block_primitive</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block12</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>loop</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>counter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>block6</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+
+  <span class='comment'># Try to generate the decoder stub...
+</span>  <span class='id identifier rubyid_decoder'>decoder</span> <span class='op'>=</span> <span class='ivar'>@machine</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_decoder'>decoder</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to generate decoder stub.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_decoder'>decoder</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="compute_encoded-instance_method">
+  
+    - (<tt>Object</tt>) <strong>compute_encoded</strong>(state, len)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Compute the encoded blocks (and associated seed)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 118</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_compute_encoded'>compute_encoded</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_blocks_in'>blocks_in</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span>
+
+  <span class='id identifier rubyid_block_padding'>block_padding</span> <span class='op'>=</span> <span class='lparen'>(</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>%</span> <span class='id identifier rubyid_len'>len</span> <span class='rparen'>)</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='op'>?</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>-</span> <span class='lparen'>(</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>%</span> <span class='id identifier rubyid_len'>len</span> <span class='rparen'>)</span> <span class='op'>:</span> <span class='int'>0</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_padding'>block_padding</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='rparen'>)</span>
+    <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_padding'>block_padding</span><span class='op'>-</span><span class='int'>1</span> <span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_input'>input</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span> <span class='int'>255</span> <span class='rparen'>)</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>while</span><span class='lparen'>(</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_blocks_in'>blocks_in</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_input'>input</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='id identifier rubyid_len'>len</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span><span class='lbracket'>[</span><span class='id identifier rubyid_len'>len</span><span class='op'>..</span><span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_seed'>seed</span> <span class='op'>=</span> <span class='id identifier rubyid_compute_seed'>compute_seed</span><span class='lparen'>(</span> <span class='id identifier rubyid_blocks_in'>blocks_in</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='comma'>,</span> <span class='id identifier rubyid_block_padding'>block_padding</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_seed'>seed</span> <span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span> <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_blocks_out'>blocks_out</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_seed'>seed</span> <span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_blocks_in'>blocks_in</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>|</span>
+    <span class='id identifier rubyid_blocks_out'>blocks_out</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_compute_block'>compute_block</span><span class='lparen'>(</span> <span class='id identifier rubyid_blocks_out'>blocks_out</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='comma'>,</span> <span class='id identifier rubyid_block'>block</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_blocks_out'>blocks_out</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span> <span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="compute_seed-instance_method">
+  
+    - (<tt>Object</tt>) <strong>compute_seed</strong>(blocks_in, block_size, block_padding, badchars)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Compute the seed block which will successfully decode all proceeding
+encoded blocks while ensuring the encoded blocks do not contain any
+badchars.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 248</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_compute_seed'>compute_seed</span><span class='lparen'>(</span> <span class='id identifier rubyid_blocks_in'>blocks_in</span><span class='comma'>,</span> <span class='id identifier rubyid_block_size'>block_size</span><span class='comma'>,</span> <span class='id identifier rubyid_block_padding'>block_padding</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_seed'>seed</span>       <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_redo_bytes'>redo_bytes</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span> <span class='id identifier rubyid_block_size'>block_size</span><span class='op'>-</span><span class='int'>1</span> <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_index'>index</span> <span class='op'>|</span>
+
+    <span class='id identifier rubyid_seed_bytes'>seed_bytes</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>255</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_sort_by'>sort_by</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_seed_bytes'>seed_bytes</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_seed_byte'>seed_byte</span> <span class='op'>|</span>
+
+      <span class='kw'>next</span> <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span> <span class='id identifier rubyid_seed_byte'>seed_byte</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_success'>success</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+      <span class='id identifier rubyid_previous_byte'>previous_byte</span> <span class='op'>=</span> <span class='id identifier rubyid_seed_byte'>seed_byte</span>
+
+      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_redo_bytes'>redo_bytes</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>256</span> <span class='rparen'>)</span>
+        <span class='id identifier rubyid_redo_bytes'>redo_bytes</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>255</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_sort_by'>sort_by</span> <span class='kw'>do</span>
+          <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_blocks_in'>blocks_in</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>|</span>
+
+        <span class='id identifier rubyid_decoded_byte'>decoded_byte</span> <span class='op'>=</span> <span class='id identifier rubyid_block'>block</span><span class='lbracket'>[</span> <span class='id identifier rubyid_index'>index</span> <span class='rbracket'>]</span>
+
+        <span class='id identifier rubyid_encoded_byte'>encoded_byte</span> <span class='op'>=</span> <span class='id identifier rubyid_previous_byte'>previous_byte</span> <span class='op'>^</span> <span class='id identifier rubyid_decoded_byte'>decoded_byte</span>
+
+        <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span> <span class='id identifier rubyid_encoded_byte'>encoded_byte</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+          <span class='comment'># the padding bytes we added earlier can be changed if they are causing us to fail.
+</span>          <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>==</span> <span class='id identifier rubyid_blocks_in'>blocks_in</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span> <span class='kw'>and</span> <span class='id identifier rubyid_index'>index</span> <span class='op'>&gt;=</span> <span class='lparen'>(</span><span class='id identifier rubyid_block_size'>block_size</span><span class='op'>-</span><span class='id identifier rubyid_block_padding'>block_padding</span><span class='rparen'>)</span> <span class='rparen'>)</span>
+            <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_redo_bytes'>redo_bytes</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='rparen'>)</span>
+              <span class='id identifier rubyid_success'>success</span> <span class='op'>=</span> <span class='kw'>false</span>
+              <span class='kw'>break</span>
+            <span class='kw'>end</span>
+            <span class='id identifier rubyid_block'>block</span><span class='lbracket'>[</span> <span class='id identifier rubyid_index'>index</span> <span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_redo_bytes'>redo_bytes</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+            <span class='kw'>redo</span>
+          <span class='kw'>end</span>
+
+          <span class='id identifier rubyid_success'>success</span> <span class='op'>=</span> <span class='kw'>false</span>
+          <span class='kw'>break</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_previous_byte'>previous_byte</span> <span class='op'>=</span> <span class='id identifier rubyid_encoded_byte'>encoded_byte</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_success'>success</span> <span class='rparen'>)</span>
+        <span class='id identifier rubyid_seed'>seed</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_seed_byte'>seed_byte</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_seed'>seed</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_block_size'>block_size</span> <span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_seed'>seed</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decoder_stub-instance_method">
+  
+    - (<tt>Object</tt>) <strong>decoder_stub</strong>(state) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decoder_stub'>decoder_stub</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span> <span class='rparen'>)</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_stub'>decoder_stub</span> <span class='rparen'>)</span>
+    <span class='ivar'>@blocks_out</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='ivar'>@block_size</span> <span class='op'>=</span> <span class='int'>0</span>
+
+    <span class='comment'># XXX: It would be ideal to use a random block size but unless we know the maximum size our final encoded
+</span>    <span class='comment'># blob can be we should instead start with the smallest block size and go up to avoid generating
+</span>    <span class='comment'># anything too big (if we knew the max size we could try something smaller if we generated a blob too big)
+</span>    <span class='comment'>#block_sizes = (1..state.buf.length).to_a.shuffle
+</span>    <span class='comment'>#block_sizes.each do | len |
+</span>
+    <span class='int'>1</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>|</span>
+
+      <span class='comment'># For now we ignore all odd sizes to help with performance (The rex poly machine
+</span>      <span class='comment'># doesnt have many load/store primitives that can handle byte sizes efficiently)
+</span>      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_len'>len</span> <span class='op'>%</span> <span class='int'>2</span> <span class='op'>!=</span> <span class='int'>0</span> <span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_blocks'>blocks</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='id identifier rubyid_compute_encoded'>compute_encoded</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span> <span class='rparen'>)</span>
+      <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_blocks'>blocks</span> <span class='kw'>and</span> <span class='id identifier rubyid_size'>size</span> <span class='rparen'>)</span>
+
+        <span class='comment'># We sanity check that the newly generated block ammount and the block size
+</span>        <span class='comment'># are not in the badchar list when converted into a hex form. Helps speed
+</span>        <span class='comment'># things up a great deal when generating a decoder stub later as these
+</span>        <span class='comment'># values may be used throughout.
+</span>
+        <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_number_is_valid?'>number_is_valid?</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_blocks'>blocks</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span> <span class='rparen'>)</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_number_is_valid?'>number_is_valid?</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='op'>~</span><span class='lparen'>(</span> <span class='id identifier rubyid_blocks'>blocks</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span> <span class='rparen'>)</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+
+        <span class='kw'>if</span><span class='lparen'>(</span> <span class='kw'>not</span> <span class='id identifier rubyid_number_is_valid?'>number_is_valid?</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span> <span class='rparen'>)</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_number_is_valid?'>number_is_valid?</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='op'>~</span><span class='id identifier rubyid_size'>size</span> <span class='rparen'>)</span> <span class='rparen'>)</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+
+        <span class='ivar'>@blocks_out</span> <span class='op'>=</span> <span class='id identifier rubyid_blocks'>blocks</span>
+        <span class='ivar'>@block_size</span> <span class='op'>=</span> <span class='id identifier rubyid_size'>size</span>
+
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to generate seed block.</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span><span class='lparen'>(</span> <span class='ivar'>@blocks_out</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_stub'>decoder_stub</span> <span class='op'>=</span> <span class='id identifier rubyid_compute_decoder'>compute_decoder</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_stub'>decoder_stub</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_block-instance_method">
+  
+    - (<tt>Object</tt>) <strong>encode_block</strong>(state, data) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode_block'>encode_block</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='ivar'>@blocks_out</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>|</span>
+    <span class='id identifier rubyid_buffer'>buffer</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_buffer'>buffer</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="entropy-instance_method">
+  
+    - (<tt>Object</tt>) <strong>entropy</strong>(data)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calculate Shannon&#39;s entropy.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_entropy'>entropy</span><span class='lparen'>(</span> <span class='id identifier rubyid_data'>data</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_entropy'>entropy</span> <span class='op'>=</span> <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span>
+  <span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>255</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_byte'>byte</span> <span class='op'>|</span>
+    <span class='id identifier rubyid_freq'>freq</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='lparen'>(</span> <span class='id identifier rubyid_byte'>byte</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>/</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_freq'>freq</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_entropy'>entropy</span> <span class='op'>-=</span> <span class='id identifier rubyid_freq'>freq</span> <span class='op'>*</span> <span class='const'>Math</span><span class='period'>.</span><span class='id identifier rubyid_log2'>log2</span><span class='lparen'>(</span> <span class='id identifier rubyid_freq'>freq</span> <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_entropy'>entropy</span> <span class='op'>/</span> <span class='int'>8</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="number_is_valid?-instance_method">
+  
+    - (<tt>Boolean</tt>) <strong>number_is_valid?</strong>(state, number)  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Is a number in its byte form valid against the badchars?</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/encoder/bloxor/bloxor.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_number_is_valid?'>number_is_valid?</span><span class='lparen'>(</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_number'>number</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_number'>number</span> <span class='op'>&gt;</span> <span class='int'>0xFFFF</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span><span class='lparen'>(</span> <span class='id identifier rubyid_number'>number</span> <span class='op'>&gt;</span> <span class='int'>0xFF</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_badchar_index'>badchar_index</span><span class='lparen'>(</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_number'>number</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span> <span class='id identifier rubyid_size'>size</span> <span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_badchars'>badchars</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:27 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

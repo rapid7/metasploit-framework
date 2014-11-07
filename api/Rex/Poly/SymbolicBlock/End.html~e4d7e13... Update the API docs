@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Poly::SymbolicBlock::End
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Poly/SymbolicBlock/End.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Poly.html" title="Rex::Poly (module)">Poly</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../SymbolicBlock.html" title="Rex::Poly::SymbolicBlock (module)">SymbolicBlock</a></span></span>
+     &raquo; 
+    <span class="title">End</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Poly::SymbolicBlock::End
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName"><span class='object_link'><a href="../LogicalBlock.html" title="Rex::Poly::LogicalBlock (class)">LogicalBlock</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../LogicalBlock.html" title="Rex::Poly::LogicalBlock (class)">LogicalBlock</a></span></li>
+          
+            <li class="next">Rex::Poly::SymbolicBlock::End</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/poly/block.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>The symbolic end of a polymorphic buffer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../LogicalBlock.html" title="Rex::Poly::LogicalBlock (class)">LogicalBlock</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../LogicalBlock.html#generated-instance_method" title="Rex::Poly::LogicalBlock#generated (method)">#generated</a></span>, <span class='object_link'><a href="../LogicalBlock.html#offset-instance_method" title="Rex::Poly::LogicalBlock#offset (method)">#offset</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (End) <strong>initialize</strong> </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of End.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../LogicalBlock.html" title="Rex::Poly::LogicalBlock (class)">LogicalBlock</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../LogicalBlock.html#add_perm-instance_method" title="Rex::Poly::LogicalBlock#add_perm (method)">#add_perm</a></span>, <span class='object_link'><a href="../LogicalBlock.html#clobbers-instance_method" title="Rex::Poly::LogicalBlock#clobbers (method)">#clobbers</a></span>, <span class='object_link'><a href="../LogicalBlock.html#depends_on-instance_method" title="Rex::Poly::LogicalBlock#depends_on (method)">#depends_on</a></span>, <span class='object_link'><a href="../LogicalBlock.html#deref-instance_method" title="Rex::Poly::LogicalBlock#deref (method)">#deref</a></span>, <span class='object_link'><a href="../LogicalBlock.html#do_generate-instance_method" title="Rex::Poly::LogicalBlock#do_generate (method)">#do_generate</a></span>, <span class='object_link'><a href="../LogicalBlock.html#each_clobbers-instance_method" title="Rex::Poly::LogicalBlock#each_clobbers (method)">#each_clobbers</a></span>, <span class='object_link'><a href="../LogicalBlock.html#generate-instance_method" title="Rex::Poly::LogicalBlock#generate (method)">#generate</a></span>, <span class='object_link'><a href="../LogicalBlock.html#generate_block_list-instance_method" title="Rex::Poly::LogicalBlock#generate_block_list (method)">#generate_block_list</a></span>, <span class='object_link'><a href="../LogicalBlock.html#last_reference%3F-instance_method" title="Rex::Poly::LogicalBlock#last_reference? (method)">#last_reference?</a></span>, <span class='object_link'><a href="../LogicalBlock.html#name-instance_method" title="Rex::Poly::LogicalBlock#name (method)">#name</a></span>, <span class='object_link'><a href="../LogicalBlock.html#next_blocks-instance_method" title="Rex::Poly::LogicalBlock#next_blocks (method)">#next_blocks</a></span>, <span class='object_link'><a href="../LogicalBlock.html#offset_of-instance_method" title="Rex::Poly::LogicalBlock#offset_of (method)">#offset_of</a></span>, <span class='object_link'><a href="../LogicalBlock.html#once-instance_method" title="Rex::Poly::LogicalBlock#once (method)">#once</a></span>, <span class='object_link'><a href="../LogicalBlock.html#once%3D-instance_method" title="Rex::Poly::LogicalBlock#once= (method)">#once=</a></span>, <span class='object_link'><a href="../LogicalBlock.html#rand_perm-instance_method" title="Rex::Poly::LogicalBlock#rand_perm (method)">#rand_perm</a></span>, <span class='object_link'><a href="../LogicalBlock.html#rand_perm_badchars-instance_method" title="Rex::Poly::LogicalBlock#rand_perm_badchars (method)">#rand_perm_badchars</a></span>, <span class='object_link'><a href="../LogicalBlock.html#ref-instance_method" title="Rex::Poly::LogicalBlock#ref (method)">#ref</a></span>, <span class='object_link'><a href="../LogicalBlock.html#regnum_of-instance_method" title="Rex::Poly::LogicalBlock#regnum_of (method)">#regnum_of</a></span>, <span class='object_link'><a href="../LogicalBlock.html#reset-instance_method" title="Rex::Poly::LogicalBlock#reset (method)">#reset</a></span>, <span class='object_link'><a href="../LogicalBlock.html#size_of-instance_method" title="Rex::Poly::LogicalBlock#size_of (method)">#size_of</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt><span class='object_link'><a href="" title="Rex::Poly::SymbolicBlock::End (class)">End</a></span></tt>) <strong>initialize</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of End</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+473
+474
+475</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/poly/block.rb', line 473</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>__SYMBLK_END__</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:59 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

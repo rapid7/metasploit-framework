@@ -1,0 +1,503 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Modules::Namespace
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Modules/Namespace.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Modules.html" title="Msf::Modules (module)">Modules</a></span></span>
+     &raquo; 
+    <span class="title">Namespace</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Modules::Namespace
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/msf/core/modules/namespace.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Concern for behavior that all namespace modules that wrap Msf::Modules must
+support like version checking and grabbing the version specific-Metasploit*
+class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#metasploit_class-instance_method" title="#metasploit_class (instance method)">- (Msf::Module<sup>?</sup>) <strong>metasploit_class</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the Metasploit(3|2|1) class from the module_evalled content.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#metasploit_class%21-instance_method" title="#metasploit_class! (instance method)">- (Object) <strong>metasploit_class!</strong>(module_path, module_reference_name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#version_compatible%21-instance_method" title="#version_compatible! (instance method)">- (void) <strong>version_compatible!</strong>(module_path, module_reference_name) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Raises an error unless Framework::VersionCore and
+Framework::VersionAPI meet the minimum required versions defined in
+RequiredVersions in the module content.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="metasploit_class-instance_method">
+  
+    - (<tt><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt><sup>?</sup>) <strong>metasploit_class</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>The module content must be module_evalled into this namespace module before
+the return of <span class='object_link'><a href="#metasploit_class-instance_method" title="Msf::Modules::Namespace#metasploit_class (method)">#metasploit_class</a></span> is valid.</p>
+</div>
+  </div>
+
+
+<p>Returns the Metasploit(3|2|1) class from the module_evalled content.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if a Metasploit(3|2|1) class exists in this module</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if such as class is not defined.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/namespace.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_metasploit_class'>metasploit_class</span>
+  <span class='id identifier rubyid_metasploit_class'>metasploit_class</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='op'>::</span><span class='const'>Msf</span><span class='op'>::</span><span class='const'>Framework</span><span class='op'>::</span><span class='const'>Major</span><span class='period'>.</span><span class='id identifier rubyid_downto'>downto</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_major'>major</span><span class='op'>|</span>
+    <span class='comment'># Since we really only care about the deepest namespace, we don&#39;t
+</span>    <span class='comment'># need to look for parents&#39; constants. However, the &quot;inherit&quot;
+</span>    <span class='comment'># parameter for const_defined? only exists after 1.9. If we ever
+</span>    <span class='comment'># drop 1.8 support, we can save a few cycles here by passing false
+</span>    <span class='comment'># here.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Metasploit</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_major'>major</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_metasploit_class'>metasploit_class</span> <span class='op'>=</span> <span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Metasploit</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_major'>major</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_metasploit_class'>metasploit_class</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="metasploit_class!-instance_method">
+  
+    - (<tt>Object</tt>) <strong>metasploit_class!</strong>(module_path, module_reference_name) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/namespace.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_metasploit_class!'>metasploit_class!</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_metasploit_class'>metasploit_class</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_metasploit_class'>metasploit_class</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_metasploit_class'>metasploit_class</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Modules</span><span class='op'>::</span><span class='const'>MetasploitClassCompatibilityError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+              <span class='symbol'>:module_path</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span>
+              <span class='symbol'>:module_reference_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span>
+          <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_metasploit_class'>metasploit_class</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="version_compatible!-instance_method">
+  
+    - (<tt>void</tt>) <strong>version_compatible!</strong>(module_path, module_reference_name) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>The module content must be module_evalled into this namespace module using
+module_eval_with_lexical_scope before calling <span class='object_link'><a href="#version_compatible%21-instance_method" title="Msf::Modules::Namespace#version_compatible! (method)">#version_compatible!</a></span> is
+valid.</p>
+</div>
+  </div>
+
+<p class="note returns_void">This method returns an undefined value.</p>
+<p>Raises an error unless Framework::VersionCore and
+Framework::VersionAPI meet the minimum required versions defined in
+RequiredVersions in the module content.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>module_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path from where the module was read.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>module_reference_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The canonical name for the module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="VersionCompatibilityError.html" title="Msf::Modules::VersionCompatibilityError (class)">Msf::Modules::VersionCompatibilityError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if <a href="http://0">RequiredVersion</a> &gt; Msf::Framework::VersionCore
+or <a href="http://1">RequiredVersion</a> &gt; Msf::Framework::VersionApi</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/namespace.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_version_compatible!'>version_compatible!</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='symbol'>:RequiredVersions</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_required_versions'>required_versions</span> <span class='op'>=</span> <span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='symbol'>:RequiredVersions</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_minimum_core_version'>minimum_core_version</span> <span class='op'>=</span> <span class='const'>Gem</span><span class='op'>::</span><span class='const'>Version</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_required_versions'>required_versions</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_minimum_api_version'>minimum_api_version</span> <span class='op'>=</span> <span class='const'>Gem</span><span class='op'>::</span><span class='const'>Version</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_required_versions'>required_versions</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_minimum_core_version'>minimum_core_version</span> <span class='op'>&gt;</span> <span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Framework</span><span class='op'>::</span><span class='const'>Core</span><span class='op'>::</span><span class='const'>GEM_VERSION</span> <span class='op'>||</span>
+        <span class='id identifier rubyid_minimum_api_version'>minimum_api_version</span> <span class='op'>&gt;</span> <span class='const'>Metasploit</span><span class='op'>::</span><span class='const'>Framework</span><span class='op'>::</span><span class='const'>API</span><span class='op'>::</span><span class='const'>GEM_VERSION</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Msf</span><span class='op'>::</span><span class='const'>Modules</span><span class='op'>::</span><span class='const'>VersionCompatibilityError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+                <span class='symbol'>:module_path</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span>
+                <span class='symbol'>:module_reference_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='comma'>,</span>
+                <span class='symbol'>:minimum_api_version</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_minimum_api_version'>minimum_api_version</span><span class='comma'>,</span>
+                <span class='symbol'>:minimum_core_version</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_minimum_core_version'>minimum_core_version</span>
+            <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:27 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

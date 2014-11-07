@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Proto::DRDA::Constants
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Proto/DRDA/Constants.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DRDA.html" title="Rex::Proto::DRDA (module)">DRDA</a></span></span>
+     &raquo; 
+    <span class="title">Constants</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Proto::DRDA::Constants
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::DRDA::Constants</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto/drda/constants.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="EXCSAT-constant" class="">EXCSAT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>DRDA Code Points</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1041</span></pre></dd>
+      
+        <dt id="EXTNAM-constant" class="">EXTNAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x115e</span></pre></dd>
+      
+        <dt id="MGRLVLLS-constant" class="">MGRLVLLS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1404</span></pre></dd>
+      
+        <dt id="SRVCLSNM-constant" class="">SRVCLSNM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1147</span></pre></dd>
+      
+        <dt id="SRVNAM-constant" class="">SRVNAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x116d</span></pre></dd>
+      
+        <dt id="SRVRLSLV-constant" class="">SRVRLSLV =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x115a</span></pre></dd>
+      
+        <dt id="ACCSEC-constant" class="">ACCSEC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x106d</span></pre></dd>
+      
+        <dt id="SECMEC-constant" class="">SECMEC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x11a2</span></pre></dd>
+      
+        <dt id="RDBNAM-constant" class="">RDBNAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x2110</span></pre></dd>
+      
+        <dt id="SECTKN-constant" class="">SECTKN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x11dc</span></pre></dd>
+      
+        <dt id="EXCSATRD-constant" class="">EXCSATRD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1443</span></pre></dd>
+      
+        <dt id="ACCSECRD-constant" class="">ACCSECRD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x14ac</span></pre></dd>
+      
+        <dt id="SRVDGN-constant" class="">SRVDGN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1153</span></pre></dd>
+      
+        <dt id="RDBNFNRM-constant" class="">RDBNFNRM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x2211</span></pre></dd>
+      
+        <dt id="SECCHK-constant" class="">SECCHK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x106e</span></pre></dd>
+      
+        <dt id="USERID-constant" class="">USERID =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x11a0</span></pre></dd>
+      
+        <dt id="PASSWORD-constant" class="">PASSWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x11a1</span></pre></dd>
+      
+        <dt id="RDBACCCL-constant" class="">RDBACCCL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x210f</span></pre></dd>
+      
+        <dt id="PRDID-constant" class="">PRDID =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x112e</span></pre></dd>
+      
+        <dt id="PRDDTA-constant" class="">PRDDTA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x2104</span></pre></dd>
+      
+        <dt id="TYPEDEFNAM-constant" class="">TYPEDEFNAM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x002f</span></pre></dd>
+      
+        <dt id="TTPEDEFOVR-constant" class="">TTPEDEFOVR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0035</span></pre></dd>
+      
+        <dt id="CRRTKN-constant" class="">CRRTKN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x2135</span></pre></dd>
+      
+        <dt id="TRGDFTRT-constant" class="">TRGDFTRT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x213b</span></pre></dd>
+      
+        <dt id="SQLCARD-constant" class="">SQLCARD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x2408</span></pre></dd>
+      
+        <dt id="SECCHKRM-constant" class="">SECCHKRM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1219</span></pre></dd>
+      
+        <dt id="SRVCOD-constant" class="">SRVCOD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x1149</span></pre></dd>
+      
+        <dt id="SECCHKCD-constant" class="">SECCHKCD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x11a4</span></pre></dd>
+      
+        <dt id="ACCRDBRM-constant" class="">ACCRDBRM =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Exchange Server Attributes External Name Manager-Level List Server Class
+Name Server Name Server Product Release Level Access Security Security
+Mechanism Relational Database Name Security Token Server Attributes Reply
+Data Access Security Reply Data Server Diagnostic Information Relational
+Database Not Found Security Check Remote User ID Remote Password RDB Access
+Manager Class Product-Specific Identifier Product-Specific Data Data Type
+Definition Name TYPEDEF Overrides Correlation Token Target Default Value
+Return SQL Communications Area Reply Data Security Check Response Message
+Severity Code Security Check Code Access to RDB Completed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x2201</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#const_values-class_method" title="const_values (class method)">+ (Object) <strong>const_values</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="const_values-class_method">
+  
+    + (<tt>Object</tt>) <strong>const_values</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/drda/constants.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_const_values'>const_values</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span> <span class='id identifier rubyid_x'>x</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:38:13 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

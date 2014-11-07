@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::Auxiliary::NATPMP
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/Auxiliary/NATPMP.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span>
+     &raquo; 
+    <span class="title">NATPMP</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::Auxiliary::NATPMP
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="Scanner.html" title="Msf::Auxiliary::Scanner (module)">Scanner</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html" title="Rex::Proto::NATPMP (module)">Rex::Proto::NATPMP</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/auxiliary/natpmp.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides methods for working with NAT-PMP</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../Rex/Proto/NATPMP.html" title="Rex::Proto::NATPMP (module)">Rex::Proto::NATPMP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Proto/NATPMP.html#DefaultPort-constant" title="Rex::Proto::NATPMP::DefaultPort (constant)">Rex::Proto::NATPMP::DefaultPort</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html#TCP-constant" title="Rex::Proto::NATPMP::TCP (constant)">Rex::Proto::NATPMP::TCP</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html#UDP-constant" title="Rex::Proto::NATPMP::UDP (constant)">Rex::Proto::NATPMP::UDP</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html#Version-constant" title="Rex::Proto::NATPMP::Version (constant)">Rex::Proto::NATPMP::Version</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lifetime-instance_method" title="#lifetime (instance method)">- (Object) <strong>lifetime</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#protocol-instance_method" title="#protocol (instance method)">- (Object) <strong>protocol</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Proto/NATPMP.html" title="Rex::Proto::NATPMP (module)">Rex::Proto::NATPMP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Proto/NATPMP.html#external_address_request-instance_method" title="Rex::Proto::NATPMP#external_address_request (method)">#external_address_request</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html#get_external_address-instance_method" title="Rex::Proto::NATPMP#get_external_address (method)">#get_external_address</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html#map_port-instance_method" title="Rex::Proto::NATPMP#map_port (method)">#map_port</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html#map_port_request-instance_method" title="Rex::Proto::NATPMP#map_port_request (method)">#map_port_request</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html#parse_external_address_response-instance_method" title="Rex::Proto::NATPMP#parse_external_address_response (method)">#parse_external_address_response</a></span>, <span class='object_link'><a href="../../Rex/Proto/NATPMP.html#parse_map_port_response-instance_method" title="Rex::Proto::NATPMP#parse_map_port_response (method)">#parse_map_port_response</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Scanner.html" title="Msf::Auxiliary::Scanner (module)">Scanner</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Scanner.html#check-instance_method" title="Msf::Auxiliary::Scanner#check (method)">#check</a></span>, <span class='object_link'><a href="Scanner.html#run-instance_method" title="Msf::Auxiliary::Scanner#run (method)">#run</a></span>, <span class='object_link'><a href="Scanner.html#scanner_progress-instance_method" title="Msf::Auxiliary::Scanner#scanner_progress (method)">#scanner_progress</a></span>, <span class='object_link'><a href="Scanner.html#scanner_show_progress-instance_method" title="Msf::Auxiliary::Scanner#scanner_show_progress (method)">#scanner_show_progress</a></span>, <span class='object_link'><a href="Scanner.html#seppuko%21-instance_method" title="Msf::Auxiliary::Scanner#seppuko! (method)">#seppuko!</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/natpmp.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'>Opt</span><span class='op'>::</span><span class='const'>RPORT</span><span class='lparen'>(</span><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NATPMP</span><span class='op'>::</span><span class='const'>DefaultPort</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>Opt</span><span class='op'>::</span><span class='const'>CHOST</span><span class='comma'>,</span>
+      <span class='const'>OptInt</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LIFETIME</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Time in ms to keep this port forwarded (set to 0 to destroy a mapping)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>3600000</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>OptEnum</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PROTOCOL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Protocol to forward</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TCP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='qwords_beg'>%w(</span><span class='tstring_content'>TCP</span><span class='words_sep'> </span><span class='tstring_content'>UDP</span><span class='words_sep'>)</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lifetime-instance_method">
+  
+    - (<tt>Object</tt>) <strong>lifetime</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/natpmp.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lifetime'>lifetime</span>
+  <span class='ivar'>@lifetime</span> <span class='op'>||=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LIFETIME</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="protocol-instance_method">
+  
+    - (<tt>Object</tt>) <strong>protocol</strong> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/natpmp.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_protocol'>protocol</span>
+  <span class='ivar'>@protocol</span> <span class='op'>||=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PROTOCOL</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:26 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

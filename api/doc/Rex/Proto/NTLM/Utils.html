@@ -1,0 +1,2575 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Class: Rex::Proto::NTLM::Utils
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../../';
+  framesUrl = "../../../frames.html#!Rex/Proto/NTLM/Utils.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../NTLM.html" title="Rex::Proto::NTLM (module)">NTLM</a></span></span>
+     &raquo; 
+    <span class="title">Utils</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Class: Rex::Proto::NTLM::Utils
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+    <dt class="r1">Inherits:</dt>
+    <dd class="r1">
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::NTLM::Utils</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+      </dd>
+    
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/rex/proto/ntlm/utils.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="CONST-constant" class="">CONST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NTLM</span><span class='op'>::</span><span class='const'>Constants</span></pre></dd>
+      
+        <dt id="CRYPT-constant" class="">CRYPT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NTLM</span><span class='op'>::</span><span class='const'>Crypt</span></pre></dd>
+      
+        <dt id="XCEPT-constant" class="">XCEPT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'>Rex</span><span class='op'>::</span><span class='const'>Proto</span><span class='op'>::</span><span class='const'>NTLM</span><span class='op'>::</span><span class='const'>Exceptions</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#asn1encode-class_method" title="asn1encode (class method)">+ (Object) <strong>asn1encode</strong>(str = &#39;&#39;) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Prepends an ASN1 formatted length field to a piece of data.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_lm_ntlm_responses-class_method" title="create_lm_ntlm_responses (class method)">+ (Object) <strong>create_lm_ntlm_responses</strong>(user, pass, challenge_key, domain = &#39;&#39;, default_name = &#39;&#39;, default_domain = &#39;&#39;, dns_host_name = &#39;&#39;, dns_domain_name = &#39;&#39;, chall_MsvAvTimestamp = nil, spnopt = {}, opt = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>create lm/ntlm responses.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_session_key-class_method" title="create_session_key (class method)">+ (Object) <strong>create_session_key</strong>(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain, challenge_key, client_challenge = &#39;&#39;, ntlm_cli_challenge = &#39;&#39;, opt = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>create the session key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_pass_ntlm_hash%3F-class_method" title="is_pass_ntlm_hash? (class method)">+ (Boolean) <strong>is_pass_ntlm_hash?</strong>(str) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determine whether the password is a known hash format.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_negotiate_secblob_resp-class_method" title="make_negotiate_secblob_resp (class method)">+ (Object) <strong>make_negotiate_secblob_resp</strong>(account, domain) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message mechTypes: 4 items :
+	MechType: 1.2.840.48018.1.2.2 (MS KRB5 - Microsoft Kerberos 5) 	MechType:
+1.2.840.113554.1.2.2 (KRB5 - Kerberos 5) 	MechType: 1.2.840.113554.1.2.2.3
+(KRB5 - Kerberos 5 - User to User) 	MechType: 1.3.6.1.4.1.311.2.2.10
+(NTLMSSP - Microsoft NTLM Security Support Provider) mechListMIC:
+	principal: account@domain.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlm_flags-class_method" title="make_ntlm_flags (class method)">+ (Object) <strong>make_ntlm_flags</strong>(opt = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the correct ntlmflags upon the configuration.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlmssp_blob_auth-class_method" title="make_ntlmssp_blob_auth (class method)">+ (Object) <strong>make_ntlmssp_blob_auth</strong>(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>BLOB without GSS Usefull for ntlmssp type 3 message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlmssp_blob_chall-class_method" title="make_ntlmssp_blob_chall (class method)">+ (Object) <strong>make_ntlmssp_blob_chall</strong>(win_domain, win_name, dns_domain, dns_name, chall, flags) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>BLOB without GSS usefull for ntlm type 2 message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlmssp_blob_init-class_method" title="make_ntlmssp_blob_init (class method)">+ (Object) <strong>make_ntlmssp_blob_init</strong>(domain = &#39;WORKGROUP&#39;, name = &#39;WORKSTATION&#39;, flags = 0x80201) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>BLOB without GSS usefull for ntlmssp type 1 message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlmssp_secblob_auth-class_method" title="make_ntlmssp_secblob_auth (class method)">+ (Object) <strong>make_ntlmssp_secblob_auth</strong>(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>GSS BLOB Usefull for ntlmssp type 3 message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlmssp_secblob_chall-class_method" title="make_ntlmssp_secblob_chall (class method)">+ (Object) <strong>make_ntlmssp_secblob_chall</strong>(win_domain, win_name, dns_domain, dns_name, chall, flags) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>GSS BLOB usefull for ntlmssp type 2 message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlmssp_secblob_init-class_method" title="make_ntlmssp_secblob_init (class method)">+ (Object) <strong>make_ntlmssp_secblob_init</strong>(domain = &#39;WORKGROUP&#39;, name = &#39;WORKSTATION&#39;, flags = 0x80201) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>GSS BLOB usefull for ntlmssp type 1 message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlmv2_clientchallenge-class_method" title="make_ntlmv2_clientchallenge (class method)">+ (Object) <strong>make_ntlmv2_clientchallenge</strong>(win_domain, win_name, dns_domain, dns_name, client_challenge = nil, chall_MsvAvTimestamp = nil, spnopt = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This function return an ntlmv2 client challenge This is a partial
+implementation, full description is in [MS-NLMP].pdf around 3.1.5.2.1 :-/.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_ntlmv2_secblob_success-class_method" title="make_ntlmv2_secblob_success (class method)">+ (Object) <strong>make_ntlmv2_secblob_success</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>GSS BLOB Usefull for SMB Success.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_simple_negotiate_secblob_resp-class_method" title="make_simple_negotiate_secblob_resp (class method)">+ (Object) <strong>make_simple_negotiate_secblob_resp</strong> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message mechTypes: 2 items :
+	-MechType: 1.3.6.1.4.1.311.2.2.30 (SNMPv2-SMI::enterprises.311.2.2.30)
+	-MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security
+Support Provider).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_ntlm_type_2_blob-class_method" title="parse_ntlm_type_2_blob (class method)">+ (Object) <strong>parse_ntlm_type_2_blob</strong>(blob) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse an ntlm type 2 challenge blob and return usefull data.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#time_unix_to_smb-class_method" title="time_unix_to_smb (class method)">+ (Object) <strong>time_unix_to_smb</strong>(unix_time) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Convert a unix timestamp to a 64-bit signed server time.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="asn1encode-class_method">
+  
+    + (<tt>Object</tt>) <strong>asn1encode</strong>(str = &#39;&#39;) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Prepends an ASN1 formatted length field to a piece of data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># If the high bit of the first byte is 1, it contains the number of
+</span>  <span class='comment'># length bytes that follow
+</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>when</span> <span class='int'>0</span> <span class='op'>..</span> <span class='int'>0x7F</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+    <span class='kw'>when</span> <span class='int'>0x80</span> <span class='op'>..</span> <span class='int'>0xFF</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0x81</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CC</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+    <span class='kw'>when</span> <span class='int'>0x100</span> <span class='op'>..</span> <span class='int'>0xFFFF</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0x82</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cn</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+    <span class='kw'>when</span>  <span class='int'>0x10000</span> <span class='op'>..</span> <span class='int'>0xffffff</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0x83</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;&gt;</span> <span class='int'>16</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&amp;</span> <span class='int'>0xFFFF</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CCn</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+    <span class='kw'>when</span>  <span class='int'>0x1000000</span> <span class='op'>..</span> <span class='int'>0xffffffff</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0x84</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CN</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ASN1 str too long</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_lm_ntlm_responses-class_method">
+  
+    + (<tt>Object</tt>) <strong>create_lm_ntlm_responses</strong>(user, pass, challenge_key, domain = &#39;&#39;, default_name = &#39;&#39;, default_domain = &#39;&#39;, dns_host_name = &#39;&#39;, dns_domain_name = &#39;&#39;, chall_MsvAvTimestamp = nil, spnopt = {}, opt = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>create lm/ntlm responses</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 479</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_lm_ntlm_responses'>create_lm_ntlm_responses</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_default_name'>default_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_default_domain'>default_domain</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='id identifier rubyid_dns_host_name'>dns_host_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain_name'>dns_domain_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_chall_MsvAvTimestamp'>chall_MsvAvTimestamp</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_spnopt'>spnopt</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='id identifier rubyid_opt'>opt</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span> 	<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:usentlm2_session</span><span class='rbracket'>]</span>	<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:usentlm2_session</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_ntlmv2</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_ntlmv2</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_send_lm'>send_lm</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_lm</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_lm</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_send_ntlm'>send_ntlm</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_ntlm</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_ntlm</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+
+  <span class='comment'>#calculate the lm/ntlm response
+</span>  <span class='id identifier rubyid_resp_lm'>resp_lm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>24</span>
+  <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>24</span>
+
+  <span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text'>rand_text</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ntlm_cli_challenge'>ntlm_cli_challenge</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_send_ntlm'>send_ntlm</span>  <span class='comment'>#should be default
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span>
+        <span class='id identifier rubyid_ntlm_cli_challenge'>ntlm_cli_challenge</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmv2_clientchallenge'>make_ntlmv2_clientchallenge</span><span class='lparen'>(</span><span class='id identifier rubyid_default_domain'>default_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_default_name'>default_name</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain_name'>dns_domain_name</span><span class='comma'>,</span>
+                      <span class='id identifier rubyid_dns_host_name'>dns_host_name</span><span class='comma'>,</span><span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='comma'>,</span>
+                      <span class='id identifier rubyid_chall_MsvAvTimestamp'>chall_MsvAvTimestamp</span><span class='comma'>,</span> <span class='id identifier rubyid_spnopt'>spnopt</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_argntlm'>argntlm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+            <span class='symbol'>:ntlmv2_hash</span> <span class='op'>=&gt;</span>  <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_hash'>ntlmv2_hash</span><span class='lparen'>(</span>
+                      <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span>
+                      <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                      <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span><span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span>
+                    <span class='rparen'>)</span><span class='comma'>,</span>
+            <span class='symbol'>:challenge</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+          <span class='rbrace'>}</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_argntlm'>argntlm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+            <span class='symbol'>:ntlmv2_hash</span> <span class='op'>=&gt;</span>  <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_hash'>ntlmv2_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='rparen'>)</span><span class='comma'>,</span>
+            <span class='symbol'>:challenge</span>   <span class='op'>=&gt;</span>  <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+          <span class='rbrace'>}</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_optntlm'>optntlm</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='symbol'>:nt_client_challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ntlm_cli_challenge'>ntlm_cli_challenge</span><span class='rbrace'>}</span>
+        <span class='id identifier rubyid_ntlmv2_response'>ntlmv2_response</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_response'>ntlmv2_response</span><span class='lparen'>(</span><span class='id identifier rubyid_argntlm'>argntlm</span><span class='comma'>,</span><span class='id identifier rubyid_optntlm'>optntlm</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span> <span class='op'>=</span> <span class='id identifier rubyid_ntlmv2_response'>ntlmv2_response</span>
+
+        <span class='kw'>if</span> <span class='id identifier rubyid_send_lm'>send_lm</span>
+          <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_arglm'>arglm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+              <span class='symbol'>:ntlmv2_hash</span> <span class='op'>=&gt;</span>  <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_hash'>ntlmv2_hash</span><span class='lparen'>(</span>
+                        <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span>
+                        <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                        <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span><span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span>
+                      <span class='rparen'>)</span><span class='comma'>,</span>
+              <span class='symbol'>:challenge</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+            <span class='rbrace'>}</span>
+          <span class='kw'>else</span>
+            <span class='id identifier rubyid_arglm'>arglm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+              <span class='symbol'>:ntlmv2_hash</span> <span class='op'>=&gt;</span>  <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_hash'>ntlmv2_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span><span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='rparen'>)</span><span class='comma'>,</span>
+              <span class='symbol'>:challenge</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+            <span class='rbrace'>}</span>
+          <span class='kw'>end</span>
+
+          <span class='id identifier rubyid_optlm'>optlm</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='symbol'>:client_challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='rbrace'>}</span>
+          <span class='id identifier rubyid_resp_lm'>resp_lm</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lmv2_response'>lmv2_response</span><span class='lparen'>(</span><span class='id identifier rubyid_arglm'>arglm</span><span class='comma'>,</span> <span class='id identifier rubyid_optlm'>optlm</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_resp_lm'>resp_lm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>24</span>
+        <span class='kw'>end</span>
+
+      <span class='kw'>else</span> <span class='comment'># ntlm2_session
+</span>        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_argntlm'>argntlm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+            <span class='symbol'>:ntlm_hash</span> <span class='op'>=&gt;</span>  <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+            <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+          <span class='rbrace'>}</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_argntlm'>argntlm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+            <span class='symbol'>:ntlm_hash</span> <span class='op'>=&gt;</span>  <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm_hash'>ntlm_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span><span class='comma'>,</span>
+            <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+          <span class='rbrace'>}</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_optntlm'>optntlm</span> <span class='op'>=</span> <span class='lbrace'>{</span>	<span class='symbol'>:client_challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client_challenge'>client_challenge</span><span class='rbrace'>}</span>
+        <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm2_session'>ntlm2_session</span><span class='lparen'>(</span><span class='id identifier rubyid_argntlm'>argntlm</span><span class='comma'>,</span><span class='id identifier rubyid_optntlm'>optntlm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lbracket'>[</span><span class='int'>24</span><span class='comma'>,</span><span class='int'>24</span><span class='rbracket'>]</span>
+
+        <span class='comment'># Generate the fake LANMAN hash
+</span>        <span class='id identifier rubyid_resp_lm'>resp_lm</span> <span class='op'>=</span> <span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>16</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+    <span class='kw'>else</span> <span class='comment'># we use lmv1/ntlmv1
+</span>      <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_argntlm'>argntlm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+          <span class='symbol'>:ntlm_hash</span> <span class='op'>=&gt;</span>  <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+          <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span>  <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+        <span class='rbrace'>}</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_argntlm'>argntlm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+          <span class='symbol'>:ntlm_hash</span> <span class='op'>=&gt;</span>  <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm_hash'>ntlm_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span><span class='comma'>,</span>
+          <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span>  <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+        <span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm_response'>ntlm_response</span><span class='lparen'>(</span><span class='id identifier rubyid_argntlm'>argntlm</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_send_lm'>send_lm</span>
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_arglm'>arglm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+            <span class='symbol'>:lm_hash</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>32</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+            <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span>  <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+          <span class='rbrace'>}</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_arglm'>arglm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+            <span class='symbol'>:lm_hash</span> <span class='op'>=&gt;</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lm_hash'>lm_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span><span class='comma'>,</span>
+            <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span>  <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+          <span class='rbrace'>}</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_resp_lm'>resp_lm</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lm_response'>lm_response</span><span class='lparen'>(</span><span class='id identifier rubyid_arglm'>arglm</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='comment'>#when windows does not send lm in ntlmv1 type response,
+</span>        <span class='comment'># it gives lm response the same value as ntlm response
+</span>        <span class='id identifier rubyid_resp_lm'>resp_lm</span>  <span class='op'>=</span> <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span> <span class='comment'>#send_ntlm = false
+</span>    <span class='comment'>#lmv2
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span>
+      <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_arglm'>arglm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+          <span class='symbol'>:ntlmv2_hash</span> <span class='op'>=&gt;</span>  <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_hash'>ntlmv2_hash</span><span class='lparen'>(</span>
+                    <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span>
+                    <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                    <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span><span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span>
+                  <span class='rparen'>)</span><span class='comma'>,</span>
+          <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+        <span class='rbrace'>}</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_arglm'>arglm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+          <span class='symbol'>:ntlmv2_hash</span> <span class='op'>=&gt;</span>  <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_hash'>ntlmv2_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span><span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='rparen'>)</span><span class='comma'>,</span>
+          <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+        <span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_optlm'>optlm</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='symbol'>:client_challenge</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_resp_lm'>resp_lm</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lmv2_response'>lmv2_response</span><span class='lparen'>(</span><span class='id identifier rubyid_arglm'>arglm</span><span class='comma'>,</span> <span class='id identifier rubyid_optlm'>optlm</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_arglm'>arglm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+          <span class='symbol'>:lm_hash</span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>32</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+          <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span>  <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+        <span class='rbrace'>}</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_arglm'>arglm</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+          <span class='symbol'>:lm_hash</span> <span class='op'>=&gt;</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lm_hash'>lm_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span><span class='comma'>,</span>
+          <span class='symbol'>:challenge</span> <span class='op'>=&gt;</span>  <span class='id identifier rubyid_challenge_key'>challenge_key</span>
+        <span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_resp_lm'>resp_lm</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lm_response'>lm_response</span><span class='lparen'>(</span><span class='id identifier rubyid_arglm'>arglm</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_resp_lm'>resp_lm</span><span class='comma'>,</span> <span class='id identifier rubyid_resp_ntlm'>resp_ntlm</span><span class='comma'>,</span> <span class='id identifier rubyid_client_challenge'>client_challenge</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm_cli_challenge'>ntlm_cli_challenge</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_session_key-class_method">
+  
+    + (<tt>Object</tt>) <strong>create_session_key</strong>(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain, challenge_key, client_challenge = &#39;&#39;, ntlm_cli_challenge = &#39;&#39;, opt = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>create the session key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 635</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_session_key'>create_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span><span class='comma'>,</span> <span class='id identifier rubyid_server_ntlmssp_flags'>server_ntlmssp_flags</span><span class='comma'>,</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm_cli_challenge'>ntlm_cli_challenge</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='comma'>,</span> <span class='id identifier rubyid_opt'>opt</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span> 	<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:usentlm2_session</span><span class='rbracket'>]</span>	<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:usentlm2_session</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_ntlmv2</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_ntlmv2</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_send_lm'>send_lm</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_lm</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_lm</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_send_ntlm'>send_ntlm</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_ntlm</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_ntlm</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_use_lanman_key'>use_lanman_key</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_lanman_key</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_lanman_key</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>false</span>
+
+  <span class='comment'># Create the sessionkey (aka signing key, aka mackey) and encrypted session key
+</span>  <span class='comment'># Server will decide for key_size and key_exchange
+</span>  <span class='id identifier rubyid_enc_session_key'>enc_session_key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_signing_key'>signing_key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Set default key size and key exchange values
+</span>  <span class='id identifier rubyid_key_size'>key_size</span> <span class='op'>=</span> <span class='int'>40</span>
+  <span class='id identifier rubyid_key_exchange'>key_exchange</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='comment'># Remove ntlmssp.negotiate56
+</span>  <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>&amp;=</span> <span class='int'>0x7fffffff</span>
+  <span class='comment'># Remove ntlmssp.negotiatekeyexch
+</span>  <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>&amp;=</span> <span class='int'>0xbfffffff</span>
+  <span class='comment'># Remove ntlmssp.negotiate128
+</span>  <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>&amp;=</span> <span class='int'>0xdfffffff</span>
+  <span class='comment'># Check the keyexchange
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_server_ntlmssp_flags'>server_ntlmssp_flags</span> <span class='op'>&amp;</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_KEY_EXCH</span> <span class='op'>!=</span> <span class='int'>0</span> <span class='kw'>then</span>
+    <span class='id identifier rubyid_key_exchange'>key_exchange</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>|=</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_KEY_EXCH</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Check 128bits
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_server_ntlmssp_flags'>server_ntlmssp_flags</span> <span class='op'>&amp;</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_128</span> <span class='op'>!=</span> <span class='int'>0</span> <span class='kw'>then</span>
+    <span class='id identifier rubyid_key_size'>key_size</span> <span class='op'>=</span> <span class='int'>128</span>
+    <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>|=</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_128</span>
+    <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>|=</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_56</span>
+  <span class='comment'># Check 56bits
+</span>  <span class='kw'>else</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_server_ntlmssp_flags'>server_ntlmssp_flags</span> <span class='op'>&amp;</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_56</span> <span class='op'>!=</span> <span class='int'>0</span> <span class='kw'>then</span>
+      <span class='id identifier rubyid_key_size'>key_size</span> <span class='op'>=</span> <span class='int'>56</span>
+      <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>|=</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_56</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Generate the user session key
+</span>  <span class='id identifier rubyid_lanman_weak'>lanman_weak</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_send_ntlm'>send_ntlm</span>  <span class='comment'># Should be default
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span>
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_user_session_key'>ntlmv2_user_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span>
+                      <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                      <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span>
+                      <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm_cli_challenge'>ntlm_cli_challenge</span><span class='comma'>,</span>
+                      <span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv2_user_session_key'>ntlmv2_user_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span>
+                    <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm_cli_challenge'>ntlm_cli_challenge</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm2_session_user_session_key'>ntlm2_session_user_session_key</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                          <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span>
+                          <span class='id identifier rubyid_client_challenge'>client_challenge</span><span class='comma'>,</span>
+                          <span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlm2_session_user_session_key'>ntlm2_session_user_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span>
+                          <span class='id identifier rubyid_client_challenge'>client_challenge</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span> <span class='comment'># lmv1/ntlmv1
+</span>      <span class='comment'># lanman_key may also be used without ntlm response but it is not so much used
+</span>      <span class='comment'># so we don&#39;t care about this feature
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_send_lm'>send_lm</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_use_lanman_key'>use_lanman_key</span>
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lanman_session_key'>lanman_session_key</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>32</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                      <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span>
+                      <span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lanman_session_key'>lanman_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_lanman_weak'>lanman_weak</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+
+      <span class='kw'>else</span>
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv1_user_session_key'>ntlmv1_user_session_key</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                        <span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_ntlmv1_user_session_key'>ntlmv1_user_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span>
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lmv2_user_session_key'>lmv2_user_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>33</span><span class='comma'>,</span><span class='int'>65</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                      <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span>
+                      <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span> <span class='id identifier rubyid_client_challenge'>client_challenge</span><span class='comma'>,</span>
+                      <span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lmv2_user_session_key'>lmv2_user_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span>
+                      <span class='id identifier rubyid_challenge_key'>challenge_key</span><span class='comma'>,</span> <span class='id identifier rubyid_client_challenge'>client_challenge</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lmv1_user_session_key'>lmv1_user_session_key</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='id identifier rubyid_pass'>pass</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>32</span><span class='rbracket'>]</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H32</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+                        <span class='lbrace'>{</span><span class='symbol'>:pass_is_hash</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_lmv1_user_session_key'>lmv1_user_session_key</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_user_session_key'>user_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_make_weak_sessionkey'>make_weak_sessionkey</span><span class='lparen'>(</span><span class='id identifier rubyid_user_session_key'>user_session_key</span><span class='comma'>,</span><span class='id identifier rubyid_key_size'>key_size</span><span class='comma'>,</span> <span class='id identifier rubyid_lanman_weak'>lanman_weak</span><span class='rparen'>)</span>
+
+  <span class='comment'># Sessionkey and encrypted session key
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_key_exchange'>key_exchange</span>
+    <span class='id identifier rubyid_signing_key'>signing_key</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text'>rand_text</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_enc_session_key'>enc_session_key</span> <span class='op'>=</span> <span class='const'>CRYPT</span><span class='op'>::</span><span class='id identifier rubyid_encrypt_sessionkey'>encrypt_sessionkey</span><span class='lparen'>(</span><span class='id identifier rubyid_signing_key'>signing_key</span><span class='comma'>,</span> <span class='id identifier rubyid_user_session_key'>user_session_key</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_signing_key'>signing_key</span> <span class='op'>=</span> <span class='id identifier rubyid_user_session_key'>user_session_key</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_signing_key'>signing_key</span><span class='comma'>,</span> <span class='id identifier rubyid_enc_session_key'>enc_session_key</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span>
+
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_pass_ntlm_hash?-class_method">
+  
+    + (<tt>Boolean</tt>) <strong>is_pass_ntlm_hash?</strong>(str) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determine whether the password is a known hash format</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_is_pass_ntlm_hash?'>is_pass_ntlm_hash?</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[0-9a-f]{32}:[0-9a-f]{32}$</span><span class='regexp_end'>/</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_negotiate_secblob_resp-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_negotiate_secblob_resp</strong>(account, domain) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message mechTypes: 4 items :
+	MechType: 1.2.840.48018.1.2.2 (MS KRB5 - Microsoft Kerberos 5) 	MechType:
+1.2.840.113554.1.2.2 (KRB5 - Kerberos 5) 	MechType: 1.2.840.113554.1.2.2.3
+(KRB5 - Kerberos 5 - User to User) 	MechType: 1.3.6.1.4.1.311.2.2.10
+(NTLMSSP - Microsoft NTLM Security Support Provider) mechListMIC:
+	principal: account@domain</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 93</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_negotiate_secblob_resp'>make_negotiate_secblob_resp</span><span class='lparen'>(</span><span class='id identifier rubyid_account'>account</span><span class='comma'>,</span> <span class='id identifier rubyid_domain'>domain</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x60</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2b\x06\x01\x05\x05\x02</span><span class='tstring_end'>&quot;</span></span>
+    <span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2a\x86\x48\x82\xf7\x12\x01\x02\x02</span><span class='tstring_end'>&quot;</span></span>
+            <span class='rparen'>)</span> <span class='op'>+</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2a\x86\x48\x86\xf7\x12\x01\x02\x02</span><span class='tstring_end'>&quot;</span></span>
+            <span class='rparen'>)</span> <span class='op'>+</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2a\x86\x48\x86\xf7\x12\x01\x02\x02\x03</span><span class='tstring_end'>&quot;</span></span>
+            <span class='rparen'>)</span> <span class='op'>+</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a</span><span class='tstring_end'>&quot;</span></span>
+            <span class='rparen'>)</span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span> <span class='op'>+</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa3</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x1b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+                <span class='id identifier rubyid_account'>account</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>@</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_domain'>domain</span>
+              <span class='rparen'>)</span>
+            <span class='rparen'>)</span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span>
+      <span class='rparen'>)</span>
+    <span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlm_flags-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlm_flags</strong>(opt = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the correct ntlmflags upon the configuration</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 337</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlm_flags'>make_ntlm_flags</span><span class='lparen'>(</span><span class='id identifier rubyid_opt'>opt</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_signing'>signing</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:signing</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:signing</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span> 	<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:usentlm2_session</span><span class='rbracket'>]</span>	<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:usentlm2_session</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_ntlmv2</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_ntlmv2</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_send_lm'>send_lm</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_lm</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_lm</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_send_ntlm'>send_ntlm</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_ntlm</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:send_ntlm</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_use_lanman_key'>use_lanman_key</span> 		<span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_lanman_key</span><span class='rbracket'>]</span> 		<span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>?</span> <span class='id identifier rubyid_opt'>opt</span><span class='lbracket'>[</span><span class='symbol'>:use_lanman_key</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='kw'>false</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_signing'>signing</span>
+    <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>=</span> <span class='int'>0xe2088215</span>
+  <span class='kw'>else</span>
+
+    <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>=</span> <span class='int'>0xa2080205</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span>
+      <span class='comment'>#set Negotiate Target Info
+</span>      <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>|=</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_TARGET_INFO</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>else</span>
+    <span class='comment'>#remove the ntlm2_session flag
+</span>    <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>&amp;=</span> <span class='int'>0xfff7ffff</span>
+    <span class='comment'>#set lanmanflag only when lm and ntlm are sent
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_send_lm'>send_lm</span>
+      <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>|=</span> <span class='const'>CONST</span><span class='op'>::</span><span class='const'>NEGOTIATE_LMKEY</span> <span class='kw'>if</span> <span class='id identifier rubyid_use_lanman_key'>use_lanman_key</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>#we can also downgrade ntlm2_session when we send only lmv1
+</span>  <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span> <span class='op'>&amp;=</span> <span class='int'>0xfff7ffff</span> <span class='kw'>if</span> <span class='id identifier rubyid_usentlm2_session'>usentlm2_session</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_use_ntlmv2'>use_ntlmv2</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_send_ntlm'>send_ntlm</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_ntlmssp_flags'>ntlmssp_flags</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlmssp_blob_auth-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlmssp_blob_auth</strong>(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>BLOB without GSS Usefull for ntlmssp type 3 message</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 242</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmssp_blob_auth'>make_ntlmssp_blob_auth</span><span class='lparen'>(</span><span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_lm'>lm</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm'>ntlm</span><span class='comma'>,</span> <span class='id identifier rubyid_enc_session_key'>enc_session_key</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span> <span class='op'>=</span> <span class='int'>0x080201</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lm'>lm</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>24</span>
+  <span class='id identifier rubyid_ntlm'>ntlm</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>24</span>
+
+  <span class='id identifier rubyid_domain_uni'>domain_uni</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_domain'>domain</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_user_uni'>user_uni</span>   <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_name_uni'>name_uni</span>   <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span>    <span class='op'>=</span> <span class='id identifier rubyid_enc_session_key'>enc_session_key</span>
+
+  <span class='id identifier rubyid_ptr'>ptr</span>  <span class='op'>=</span> <span class='int'>64</span>
+
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NTLMSSP\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+    <span class='lbracket'>[</span> <span class='int'>3</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span>	<span class='comment'># Lan Manager Response
+</span>      <span class='id identifier rubyid_lm'>lm</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_lm'>lm</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span>	<span class='comment'># NTLM Manager Response
+</span>      <span class='id identifier rubyid_ntlm'>ntlm</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_ntlm'>ntlm</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>+=</span> <span class='id identifier rubyid_lm'>lm</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span>	<span class='comment'># Domain Name
+</span>      <span class='id identifier rubyid_domain_uni'>domain_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_domain_uni'>domain_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>+=</span> <span class='id identifier rubyid_ntlm'>ntlm</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span>	<span class='comment'># Username
+</span>      <span class='id identifier rubyid_user_uni'>user_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_user_uni'>user_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>+=</span> <span class='id identifier rubyid_domain_uni'>domain_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span>	<span class='comment'># Hostname
+</span>      <span class='id identifier rubyid_name_uni'>name_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_name_uni'>name_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>+=</span> <span class='id identifier rubyid_user_uni'>user_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span>	<span class='comment'># Session Key (none)
+</span>      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>+=</span> <span class='id identifier rubyid_name_uni'>name_uni</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span> <span class='id identifier rubyid_flags'>flags</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='id identifier rubyid_lm'>lm</span> <span class='op'>+</span>
+    <span class='id identifier rubyid_ntlm'>ntlm</span> <span class='op'>+</span>
+    <span class='id identifier rubyid_domain_uni'>domain_uni</span> <span class='op'>+</span>
+    <span class='id identifier rubyid_user_uni'>user_uni</span> <span class='op'>+</span>
+    <span class='id identifier rubyid_name_uni'>name_uni</span> <span class='op'>+</span>
+    <span class='id identifier rubyid_session'>session</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlmssp_blob_chall-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlmssp_blob_chall</strong>(win_domain, win_name, dns_domain, dns_name, chall, flags) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>BLOB without GSS usefull for ntlm type 2 message</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 184</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmssp_blob_chall'>make_ntlmssp_blob_chall</span><span class='lparen'>(</span><span class='id identifier rubyid_win_domain'>win_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_win_name'>win_name</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain'>dns_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_name'>dns_name</span><span class='comma'>,</span> <span class='id identifier rubyid_chall'>chall</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>2</span><span class='comma'>,</span> <span class='id identifier rubyid_win_domain'>win_domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_win_domain'>win_domain</span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_win_name'>win_name</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_win_name'>win_name</span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>4</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain'>dns_domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_dns_domain'>dns_domain</span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>3</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_name'>dns_name</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_dns_name'>dns_name</span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_ptr'>ptr</span>  <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span>	<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NTLMSSP\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+      <span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+      <span class='lbracket'>[</span>
+        <span class='id identifier rubyid_win_domain'>win_domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>  <span class='comment'># length
+</span>        <span class='id identifier rubyid_win_domain'>win_domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>  <span class='comment'># max length
+</span>        <span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>+=</span> <span class='int'>48</span><span class='rparen'>)</span> <span class='comment'># offset
+</span>      <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+      <span class='lbracket'>[</span> <span class='id identifier rubyid_flags'>flags</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+      <span class='id identifier rubyid_chall'>chall</span> <span class='op'>+</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x00\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+      <span class='lbracket'>[</span>
+        <span class='id identifier rubyid_addr_list'>addr_list</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>  <span class='comment'># length
+</span>        <span class='id identifier rubyid_addr_list'>addr_list</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>  <span class='comment'># max length
+</span>        <span class='lparen'>(</span><span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>+=</span> <span class='id identifier rubyid_win_domain'>win_domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+      <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+      <span class='id identifier rubyid_win_domain'>win_domain</span> <span class='op'>+</span>
+      <span class='id identifier rubyid_addr_list'>addr_list</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlmssp_blob_init-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlmssp_blob_init</strong>(domain = &#39;WORKGROUP&#39;, name = &#39;WORKSTATION&#39;, flags = 0x80201) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>BLOB without GSS usefull for ntlmssp type 1 message</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 134</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmssp_blob_init'>make_ntlmssp_blob_init</span><span class='lparen'>(</span><span class='id identifier rubyid_domain'>domain</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WORKGROUP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WORKSTATION</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='op'>=</span><span class='int'>0x80201</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span>	<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NTLMSSP\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+    <span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span>
+      <span class='id identifier rubyid_domain'>domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>  <span class='comment'>#length
+</span>      <span class='id identifier rubyid_domain'>domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>  <span class='comment'>#max length
+</span>      <span class='int'>32</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='lbracket'>[</span>
+      <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>	<span class='comment'>#length
+</span>      <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> 	<span class='comment'>#max length
+</span>      <span class='id identifier rubyid_domain'>domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='int'>32</span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span>
+
+    <span class='id identifier rubyid_domain'>domain</span> <span class='op'>+</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlmssp_secblob_auth-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlmssp_secblob_auth</strong>(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>GSS BLOB Usefull for ntlmssp type 3 message</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 305</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmssp_secblob_auth'>make_ntlmssp_secblob_auth</span><span class='lparen'>(</span><span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_lm'>lm</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm'>ntlm</span><span class='comma'>,</span> <span class='id identifier rubyid_enc_session_key'>enc_session_key</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span> <span class='op'>=</span> <span class='int'>0x080201</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x04</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='id identifier rubyid_make_ntlmssp_blob_auth'>make_ntlmssp_blob_auth</span><span class='lparen'>(</span><span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_lm'>lm</span><span class='comma'>,</span> <span class='id identifier rubyid_ntlm'>ntlm</span><span class='comma'>,</span> <span class='id identifier rubyid_enc_session_key'>enc_session_key</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span> <span class='rparen'>)</span>
+        <span class='rparen'>)</span>
+      <span class='rparen'>)</span>
+    <span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlmssp_secblob_chall-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlmssp_secblob_chall</strong>(win_domain, win_name, dns_domain, dns_name, chall, flags) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>GSS BLOB usefull for ntlmssp type 2 message</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 215</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmssp_secblob_chall'>make_ntlmssp_secblob_chall</span><span class='lparen'>(</span><span class='id identifier rubyid_win_domain'>win_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_win_name'>win_name</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain'>dns_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_name'>dns_name</span><span class='comma'>,</span> <span class='id identifier rubyid_chall'>chall</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0a</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01</span><span class='tstring_end'>&quot;</span></span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span> <span class='op'>+</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a</span><span class='tstring_end'>&quot;</span></span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span> <span class='op'>+</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x04</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='id identifier rubyid_make_ntlmssp_blob_chall'>make_ntlmssp_blob_chall</span><span class='lparen'>(</span><span class='id identifier rubyid_win_domain'>win_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_win_name'>win_name</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain'>dns_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_name'>dns_name</span><span class='comma'>,</span> <span class='id identifier rubyid_chall'>chall</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span>
+      <span class='rparen'>)</span>
+    <span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlmssp_secblob_init-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlmssp_secblob_init</strong>(domain = &#39;WORKGROUP&#39;, name = &#39;WORKSTATION&#39;, flags = 0x80201) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>GSS BLOB usefull for ntlmssp type 1 message</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmssp_secblob_init'>make_ntlmssp_secblob_init</span><span class='lparen'>(</span><span class='id identifier rubyid_domain'>domain</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WORKGROUP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WORKSTATION</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='op'>=</span><span class='int'>0x80201</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x60</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2b\x06\x01\x05\x05\x02</span><span class='tstring_end'>&quot;</span></span>
+    <span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a</span><span class='tstring_end'>&quot;</span></span>
+            <span class='rparen'>)</span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span> <span class='op'>+</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x04</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='id identifier rubyid_make_ntlmssp_blob_init'>make_ntlmssp_blob_init</span><span class='lparen'>(</span><span class='id identifier rubyid_domain'>domain</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span>
+      <span class='rparen'>)</span>
+    <span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlmv2_clientchallenge-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlmv2_clientchallenge</strong>(win_domain, win_name, dns_domain, dns_name, client_challenge = nil, chall_MsvAvTimestamp = nil, spnopt = {}) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This function return an ntlmv2 client challenge This is a partial
+implementation, full description is in [MS-NLMP].pdf around 3.1.5.2.1 :-/</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 430</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmv2_clientchallenge'>make_ntlmv2_clientchallenge</span><span class='lparen'>(</span><span class='id identifier rubyid_win_domain'>win_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_win_name'>win_name</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain'>dns_domain</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_name'>dns_name</span><span class='comma'>,</span>
+          <span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_chall_MsvAvTimestamp'>chall_MsvAvTimestamp</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_spnopt'>spnopt</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='op'>||=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text'>rand_text</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>
+  <span class='comment'># We have to set the timestamps here to the one in the challenge message from server if present
+</span>  <span class='comment'># If we don&#39;t do that, recent server like Seven/2008 will send a STATUS_INVALID_PARAMETER error packet
+</span>  <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>=</span> <span class='id identifier rubyid_chall_MsvAvTimestamp'>chall_MsvAvTimestamp</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>?</span> <span class='id identifier rubyid_chall_MsvAvTimestamp'>chall_MsvAvTimestamp</span> <span class='op'>:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_time_unix_to_smb'>time_unix_to_smb</span><span class='lparen'>(</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VV</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='comment'># Make those values unicode as requested
+</span>  <span class='id identifier rubyid_win_domain'>win_domain</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_win_domain'>win_domain</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_win_name'>win_name</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_win_name'>win_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dns_domain'>dns_domain</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_dns_domain'>dns_domain</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dns_name'>dns_name</span> <span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='id identifier rubyid_dns_name'>dns_name</span><span class='rparen'>)</span>
+  <span class='comment'># Make the AV_PAIRs
+</span>  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>2</span><span class='comma'>,</span> <span class='id identifier rubyid_win_domain'>win_domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_win_domain'>win_domain</span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_win_name'>win_name</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_win_name'>win_name</span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>4</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_domain'>dns_domain</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_dns_domain'>dns_domain</span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>3</span><span class='comma'>,</span> <span class='id identifier rubyid_dns_name'>dns_name</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_dns_name'>dns_name</span>
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>7</span><span class='comma'>,</span> <span class='int'>8</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_timestamp'>timestamp</span>
+
+  <span class='comment'># Windows Seven / 2008r2 Request this type if in local security policies,
+</span>  <span class='comment'># Microsoft network server : Server SPN target name validation level is set to &lt;Required from client&gt;
+</span>  <span class='comment'># otherwise it send an STATUS_ACCESS_DENIED packet
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_spnopt'>spnopt</span><span class='lbracket'>[</span><span class='symbol'>:use_spn</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_spn'>spn</span><span class='op'>=</span> <span class='const'>Rex</span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_unicode'>to_unicode</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cifs/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_spnopt'>spnopt</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unknow</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>9</span><span class='comma'>,</span> <span class='id identifier rubyid_spn'>spn</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_spn'>spn</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># MAY BE USEFUL FOR FUTURE
+</span>  <span class='comment'># Seven (client) add at least one more av that is of type MsAvRestrictions (8)
+</span>  <span class='comment'># maybe this will be usefull with future windows OSs but has no use at all for the moment afaik
+</span>  <span class='comment'># restriction_encoding = 	[48,0,0,0].pack(&quot;VVV&quot;) + # Size, Z4, IntegrityLevel, SubjectIntegrityLevel
+</span>  <span class='comment'># 			Rex::Text.rand_text(32)	 # MachineId generated on startup on win7 and above
+</span>  <span class='comment'># addr_list  &lt;&lt; [8, restriction_encoding.length].pack(&#39;vv&#39;) + restriction_encoding
+</span>
+  <span class='comment'># Seven (client) and maybe others versions also add an av of type MsvChannelBindings (10) but the hash is &quot;\x00&quot; * 16
+</span>  <span class='comment'># addr_list  &lt;&lt; [10, 16].pack(&#39;vv&#39;) + &quot;\x00&quot; * 16
+</span>
+
+  <span class='id identifier rubyid_addr_list'>addr_list</span>  <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ntlm_clientchallenge'>ntlm_clientchallenge</span> <span class='op'>=</span> 	<span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span><span class='int'>1</span><span class='comma'>,</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CCvV</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='comment'>#RespType, HiRespType, Reserved1, Reserved2
+</span>        <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>+</span> <span class='comment'>#Timestamp
+</span>        <span class='id identifier rubyid_client_challenge'>client_challenge</span> <span class='op'>+</span> 	<span class='comment'>#clientchallenge
+</span>        <span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>  <span class='op'>+</span>	<span class='comment'>#Reserved3
+</span>        <span class='id identifier rubyid_addr_list'>addr_list</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>4</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_ntlmv2_secblob_success-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_ntlmv2_secblob_success</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>GSS BLOB Usefull for SMB Success</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 322</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_ntlmv2_secblob_success'>make_ntlmv2_secblob_success</span>
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0a</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span>
+      <span class='rparen'>)</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_simple_negotiate_secblob_resp-class_method">
+  
+    + (<tt>Object</tt>) <strong>make_simple_negotiate_secblob_resp</strong> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message mechTypes: 2 items :
+	-MechType: 1.3.6.1.4.1.311.2.2.30 (SNMPv2-SMI::enterprises.311.2.2.30)
+	-MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security
+Support Provider)</p>
+
+<p>this is the default on Win7</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_make_simple_negotiate_secblob_resp'>make_simple_negotiate_secblob_resp</span>
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x60</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2b\x06\x01\x05\x05\x02</span><span class='tstring_end'>&quot;</span></span>
+    <span class='rparen'>)</span> <span class='op'>+</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x30</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+            <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_asn1encode'>asn1encode</span><span class='lparen'>(</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a</span><span class='tstring_end'>&quot;</span></span>
+            <span class='rparen'>)</span>
+          <span class='rparen'>)</span>
+        <span class='rparen'>)</span>
+      <span class='rparen'>)</span>
+    <span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_blob'>blob</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_ntlm_type_2_blob-class_method">
+  
+    + (<tt>Object</tt>) <strong>parse_ntlm_type_2_blob</strong>(blob) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse an ntlm type 2 challenge blob and return usefull data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 376</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_parse_ntlm_type_2_blob'>parse_ntlm_type_2_blob</span><span class='lparen'>(</span><span class='id identifier rubyid_blob'>blob</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='comment'># Extract the NTLM challenge key the lazy way
+</span>  <span class='id identifier rubyid_cidx'>cidx</span> <span class='op'>=</span> <span class='id identifier rubyid_blob'>blob</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NTLMSSP\x00\x02\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_cidx'>cidx</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>XCEPT</span><span class='op'>::</span><span class='const'>NTLMMissingChallenge</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='symbol'>:challenge_key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_blob'>blob</span><span class='lbracket'>[</span><span class='id identifier rubyid_cidx'>cidx</span> <span class='op'>+</span> <span class='int'>24</span><span class='comma'>,</span> <span class='int'>8</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='symbol'>:server_ntlmssp_flags</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_blob'>blob</span><span class='lbracket'>[</span><span class='id identifier rubyid_cidx'>cidx</span> <span class='op'>+</span> <span class='int'>20</span><span class='comma'>,</span> <span class='int'>4</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Extract the address list from the blob
+</span>  <span class='id identifier rubyid_alist_len'>alist_len</span><span class='comma'>,</span><span class='id identifier rubyid_alist_mlen'>alist_mlen</span><span class='comma'>,</span><span class='id identifier rubyid_alist_off'>alist_off</span> <span class='op'>=</span> <span class='id identifier rubyid_blob'>blob</span><span class='lbracket'>[</span><span class='id identifier rubyid_cidx'>cidx</span> <span class='op'>+</span> <span class='int'>40</span><span class='comma'>,</span> <span class='int'>8</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vvV</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_alist_buf'>alist_buf</span> <span class='op'>=</span> <span class='id identifier rubyid_blob'>blob</span><span class='lbracket'>[</span><span class='id identifier rubyid_cidx'>cidx</span> <span class='op'>+</span> <span class='id identifier rubyid_alist_off'>alist_off</span><span class='comma'>,</span> <span class='id identifier rubyid_alist_len'>alist_len</span><span class='rbracket'>]</span>
+
+  <span class='kw'>while</span><span class='lparen'>(</span><span class='id identifier rubyid_alist_buf'>alist_buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_atype'>atype</span><span class='comma'>,</span> <span class='id identifier rubyid_alen'>alen</span> <span class='op'>=</span> <span class='id identifier rubyid_alist_buf'>alist_buf</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_atype'>atype</span> <span class='op'>==</span> <span class='int'>0x00</span>
+    <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='id identifier rubyid_alist_buf'>alist_buf</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_alen'>alen</span><span class='rparen'>)</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_atype'>atype</span>
+    <span class='kw'>when</span> <span class='int'>1</span>
+      <span class='comment'>#netbios name
+</span>      <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='symbol'>:default_name</span><span class='rbracket'>]</span> <span class='op'>=</span>  <span class='id identifier rubyid_addr'>addr</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>2</span>
+      <span class='comment'>#netbios domain
+</span>      <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='symbol'>:default_domain</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_addr'>addr</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>3</span>
+      <span class='comment'>#dns name
+</span>      <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='symbol'>:dns_host_name</span><span class='rbracket'>]</span> <span class='op'>=</span>  <span class='id identifier rubyid_addr'>addr</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>4</span>
+      <span class='comment'>#dns domain
+</span>      <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='symbol'>:dns_domain_name</span><span class='rbracket'>]</span> <span class='op'>=</span>  <span class='id identifier rubyid_addr'>addr</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>5</span>
+      <span class='comment'>#The FQDN of the forest.
+</span>    <span class='kw'>when</span> <span class='int'>6</span>
+      <span class='comment'>#A 32-bit value indicating server or client configuration
+</span>    <span class='kw'>when</span> <span class='int'>7</span>
+      <span class='comment'>#Client time
+</span>      <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='symbol'>:chall_MsvAvTimestamp</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_addr'>addr</span>
+    <span class='kw'>when</span> <span class='int'>8</span>
+      <span class='comment'>#A Restriction_Encoding structure
+</span>    <span class='kw'>when</span> <span class='int'>9</span>
+      <span class='comment'>#The SPN of the target server.
+</span>    <span class='kw'>when</span> <span class='int'>10</span>
+      <span class='comment'>#A channel bindings hash.
+</span>    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="time_unix_to_smb-class_method">
+  
+    + (<tt>Object</tt>) <strong>time_unix_to_smb</strong>(unix_time) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Convert a unix timestamp to a 64-bit signed server time</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/ntlm/utils.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_time_unix_to_smb'>time_unix_to_smb</span><span class='lparen'>(</span><span class='id identifier rubyid_unix_time'>unix_time</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_t64'>t64</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_unix_time'>unix_time</span> <span class='op'>+</span> <span class='int'>11644473600</span><span class='rparen'>)</span> <span class='op'>*</span> <span class='int'>10000000</span>
+  <span class='id identifier rubyid_thi'>thi</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_t64'>t64</span> <span class='op'>&amp;</span> <span class='int'>0xffffffff00000000</span><span class='rparen'>)</span> <span class='op'>&gt;&gt;</span> <span class='int'>32</span>
+  <span class='id identifier rubyid_tlo'>tlo</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_t64'>t64</span> <span class='op'>&amp;</span> <span class='int'>0x00000000ffffffff</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='id identifier rubyid_thi'>thi</span><span class='comma'>,</span> <span class='id identifier rubyid_tlo'>tlo</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:51:18 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

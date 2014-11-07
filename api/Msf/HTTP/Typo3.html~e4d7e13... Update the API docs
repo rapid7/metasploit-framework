@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::HTTP::Typo3
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/HTTP/Typo3.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (T)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../HTTP.html" title="Msf::HTTP (module)">HTTP</a></span></span>
+     &raquo; 
+    <span class="title">Typo3</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::HTTP::Typo3
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+      <dt class="r1">Includes:</dt>
+      <dd class="r1"><span class='object_link'><a href="../Exploit/Remote/HttpClient.html" title="Msf::Exploit::Remote::HttpClient (module)">Exploit::Remote::HttpClient</a></span>, <span class='object_link'><a href="Typo3/Login.html" title="Msf::HTTP::Typo3::Login (module)">Login</a></span>, <span class='object_link'><a href="Typo3/URIs.html" title="Msf::HTTP::Typo3::URIs (module)">URIs</a></span></dd>
+      
+    
+  
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/http/typo3.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Typo3/Login.html" title="Msf::HTTP::Typo3::Login (module)">Login</a></span>, <span class='object_link'><a href="Typo3/URIs.html" title="Msf::HTTP::Typo3::URIs (module)">URIs</a></span>
+    
+  
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Exploit/Remote/HttpClient.html" title="Msf::Exploit::Remote::HttpClient (module)">Exploit::Remote::HttpClient</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Exploit/Remote/HttpClient.html#NTLM_CONST-constant" title="Msf::Exploit::Remote::HttpClient::NTLM_CONST (constant)">Exploit::Remote::HttpClient::NTLM_CONST</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#NTLM_CRYPT-constant" title="Msf::Exploit::Remote::HttpClient::NTLM_CRYPT (constant)">Exploit::Remote::HttpClient::NTLM_CRYPT</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#NTLM_UTILS-constant" title="Msf::Exploit::Remote::HttpClient::NTLM_UTILS (constant)">Exploit::Remote::HttpClient::NTLM_UTILS</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#NTLM_XCEPT-constant" title="Msf::Exploit::Remote::HttpClient::NTLM_XCEPT (constant)">Exploit::Remote::HttpClient::NTLM_XCEPT</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Exploit/Remote/HttpClient.html" title="Msf::Exploit::Remote::HttpClient (module)">Exploit::Remote::HttpClient</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Exploit/Remote/HttpClient.html#client-instance_method" title="Msf::Exploit::Remote::HttpClient#client (method)">#client</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">- (Object) <strong>initialize</strong>(info = {}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Typo3/URIs.html" title="Msf::HTTP::Typo3::URIs (module)">URIs</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Typo3/URIs.html#typo3_url_backend-instance_method" title="Msf::HTTP::Typo3::URIs#typo3_url_backend (method)">#typo3_url_backend</a></span>, <span class='object_link'><a href="Typo3/URIs.html#typo3_url_login-instance_method" title="Msf::HTTP::Typo3::URIs#typo3_url_login (method)">#typo3_url_login</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Typo3/Login.html" title="Msf::HTTP::Typo3::Login (module)">Login</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Typo3/Login.html#typo3_admin_cookie_valid%3F-instance_method" title="Msf::HTTP::Typo3::Login#typo3_admin_cookie_valid? (method)">#typo3_admin_cookie_valid?</a></span>, <span class='object_link'><a href="Typo3/Login.html#typo3_backend_login-instance_method" title="Msf::HTTP::Typo3::Login#typo3_backend_login (method)">#typo3_backend_login</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Exploit/Remote/HttpClient.html" title="Msf::Exploit::Remote::HttpClient (module)">Exploit::Remote::HttpClient</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Exploit/Remote/HttpClient.html#basic_auth-instance_method" title="Msf::Exploit::Remote::HttpClient#basic_auth (method)">#basic_auth</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#cleanup-instance_method" title="Msf::Exploit::Remote::HttpClient#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#connect-instance_method" title="Msf::Exploit::Remote::HttpClient#connect (method)">#connect</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#disconnect-instance_method" title="Msf::Exploit::Remote::HttpClient#disconnect (method)">#disconnect</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#full_uri-instance_method" title="Msf::Exploit::Remote::HttpClient#full_uri (method)">#full_uri</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#handler-instance_method" title="Msf::Exploit::Remote::HttpClient#handler (method)">#handler</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#http_fingerprint-instance_method" title="Msf::Exploit::Remote::HttpClient#http_fingerprint (method)">#http_fingerprint</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#lookup_http_fingerprints-instance_method" title="Msf::Exploit::Remote::HttpClient#lookup_http_fingerprints (method)">#lookup_http_fingerprints</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#make_cnonce-instance_method" title="Msf::Exploit::Remote::HttpClient#make_cnonce (method)">#make_cnonce</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#normalize_uri-instance_method" title="Msf::Exploit::Remote::HttpClient#normalize_uri (method)">#normalize_uri</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#path_from_uri-instance_method" title="Msf::Exploit::Remote::HttpClient#path_from_uri (method)">#path_from_uri</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#peer-instance_method" title="Msf::Exploit::Remote::HttpClient#peer (method)">#peer</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#proxies-instance_method" title="Msf::Exploit::Remote::HttpClient#proxies (method)">#proxies</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#rhost-instance_method" title="Msf::Exploit::Remote::HttpClient#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#rport-instance_method" title="Msf::Exploit::Remote::HttpClient#rport (method)">#rport</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#send_request_cgi-instance_method" title="Msf::Exploit::Remote::HttpClient#send_request_cgi (method)">#send_request_cgi</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#send_request_cgi%21-instance_method" title="Msf::Exploit::Remote::HttpClient#send_request_cgi! (method)">#send_request_cgi!</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#send_request_raw-instance_method" title="Msf::Exploit::Remote::HttpClient#send_request_raw (method)">#send_request_raw</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#setup-instance_method" title="Msf::Exploit::Remote::HttpClient#setup (method)">#setup</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#ssl-instance_method" title="Msf::Exploit::Remote::HttpClient#ssl (method)">#ssl</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#ssl_version-instance_method" title="Msf::Exploit::Remote::HttpClient#ssl_version (method)">#ssl_version</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#strip_tags-instance_method" title="Msf::Exploit::Remote::HttpClient#strip_tags (method)">#strip_tags</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#target_uri-instance_method" title="Msf::Exploit::Remote::HttpClient#target_uri (method)">#target_uri</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#validate_fingerprint-instance_method" title="Msf::Exploit::Remote::HttpClient#validate_fingerprint (method)">#validate_fingerprint</a></span>, <span class='object_link'><a href="../Exploit/Remote/HttpClient.html#vhost-instance_method" title="Msf::Exploit::Remote::HttpClient#vhost (method)">#vhost</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Auxiliary/Report.html" title="Msf::Auxiliary::Report (module)">Auxiliary::Report</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Auxiliary/Report.html#active_db%3F-instance_method" title="Msf::Auxiliary::Report#active_db? (method)">#active_db?</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#db-instance_method" title="Msf::Auxiliary::Report#db (method)">#db</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#get_client-instance_method" title="Msf::Auxiliary::Report#get_client (method)">#get_client</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#get_host-instance_method" title="Msf::Auxiliary::Report#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#inside_workspace_boundary%3F-instance_method" title="Msf::Auxiliary::Report#inside_workspace_boundary? (method)">#inside_workspace_boundary?</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#mytask-instance_method" title="Msf::Auxiliary::Report#mytask (method)">#mytask</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#myworkspace-instance_method" title="Msf::Auxiliary::Report#myworkspace (method)">#myworkspace</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#myworkspace_id-instance_method" title="Msf::Auxiliary::Report#myworkspace_id (method)">#myworkspace_id</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_auth_info-instance_method" title="Msf::Auxiliary::Report#report_auth_info (method)">#report_auth_info</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_client-instance_method" title="Msf::Auxiliary::Report#report_client (method)">#report_client</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_exploit-instance_method" title="Msf::Auxiliary::Report#report_exploit (method)">#report_exploit</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_host-instance_method" title="Msf::Auxiliary::Report#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_loot-instance_method" title="Msf::Auxiliary::Report#report_loot (method)">#report_loot</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_note-instance_method" title="Msf::Auxiliary::Report#report_note (method)">#report_note</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_service-instance_method" title="Msf::Auxiliary::Report#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_vuln-instance_method" title="Msf::Auxiliary::Report#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_web_form-instance_method" title="Msf::Auxiliary::Report#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_web_page-instance_method" title="Msf::Auxiliary::Report#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_web_site-instance_method" title="Msf::Auxiliary::Report#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#report_web_vuln-instance_method" title="Msf::Auxiliary::Report#report_web_vuln (method)">#report_web_vuln</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#store_cred-instance_method" title="Msf::Auxiliary::Report#store_cred (method)">#store_cred</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#store_local-instance_method" title="Msf::Auxiliary::Report#store_local (method)">#store_local</a></span>, <span class='object_link'><a href="../Auxiliary/Report.html#store_loot-instance_method" title="Msf::Auxiliary::Report#store_loot (method)">#store_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Metasploit/Framework/Require.html" title="Metasploit::Framework::Require (module)">Metasploit::Framework::Require</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally-class_method" title="Metasploit::Framework::Require.optionally (method)">optionally</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_active_record_railtie-class_method" title="Metasploit::Framework::Require.optionally_active_record_railtie (method)">optionally_active_record_railtie</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-class_method" title="Metasploit::Framework::Require.optionally_include_metasploit_credential_creation (method)">optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-instance_method" title="Metasploit::Framework::Require#optionally_include_metasploit_credential_creation (method)">#optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_require_metasploit_db_gem_engines-class_method" title="Metasploit::Framework::Require.optionally_require_metasploit_db_gem_engines (method)">optionally_require_metasploit_db_gem_engines</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    - (<tt>Object</tt>) <strong>initialize</strong>(info = {}) 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/http/typo3.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'>Msf</span><span class='op'>::</span><span class='const'>OptString</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TARGETURI</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The base path to the typo3 application</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'>HTTP</span><span class='op'>::</span><span class='const'>Typo3</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:37:09 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

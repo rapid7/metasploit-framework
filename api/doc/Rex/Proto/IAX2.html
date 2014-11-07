@@ -1,0 +1,507 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Rex::Proto::IAX2
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Rex/Proto/IAX2.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Proto.html" title="Rex::Proto (module)">Proto</a></span></span>
+     &raquo; 
+    <span class="title">IAX2</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Rex::Proto::IAX2
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+  
+    <dt class="r1 last">Defined in:</dt>
+    <dd class="r1 last">lib/rex/proto/iax2/call.rb<span class="defines">,<br />
+  lib/rex/proto/iax2/client.rb,<br /> lib/rex/proto/iax2/constants.rb,<br /> lib/rex/proto/iax2/codecs/g711.rb,<br /> lib/rex/proto/iax2/codecs/alaw.rb,<br /> lib/rex/proto/iax2/codecs/mulaw.rb</span>
+</dd>
+  
+</dl>
+<div class="clear"></div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="IAX2/Codecs.html" title="Rex::Proto::IAX2::Codecs (module)">Codecs</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="IAX2/Call.html" title="Rex::Proto::IAX2::Call (class)">Call</a></span>, <span class='object_link'><a href="IAX2/Client.html" title="Rex::Proto::IAX2::Client (class)">Client</a></span>
+    
+  
+</p>
+
+  <h2>Constant Summary</h2>
+  
+    <dl class="constants">
+      
+        <dt id="IAX2_DEFAULT_PORT-constant" class="">IAX2_DEFAULT_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4569</span></pre></dd>
+      
+        <dt id="IAX_TYPE_VOICE-constant" class="">IAX_TYPE_VOICE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="IAX_TYPE_CONTROL-constant" class="">IAX_TYPE_CONTROL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="IAX_TYPE_IAX-constant" class="">IAX_TYPE_IAX =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="IAX_TYPE_DTMF_BEGIN-constant" class="">IAX_TYPE_DTMF_BEGIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="IAX_TYPE_DTMF_END-constant" class="">IAX_TYPE_DTMF_END =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>12</span></pre></dd>
+      
+        <dt id="IAX_CTRL_HANGUP-constant" class="">IAX_CTRL_HANGUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="IAX_CTRL_RINGING-constant" class="">IAX_CTRL_RINGING =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="IAX_CTRL_ANSWER-constant" class="">IAX_CTRL_ANSWER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="IAX_CTRL_BUSY-constant" class="">IAX_CTRL_BUSY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="IAX_CTRL_PROGRESS-constant" class="">IAX_CTRL_PROGRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>14</span></pre></dd>
+      
+        <dt id="IAX_CTRL_PROCEED-constant" class="">IAX_CTRL_PROCEED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>15</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_NEW-constant" class="">IAX_SUBTYPE_NEW =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_PING-constant" class="">IAX_SUBTYPE_PING =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_PONG-constant" class="">IAX_SUBTYPE_PONG =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_ANSWER-constant" class="">IAX_SUBTYPE_ANSWER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_ACK-constant" class="">IAX_SUBTYPE_ACK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_HANGUP-constant" class="">IAX_SUBTYPE_HANGUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_REJECT-constant" class="">IAX_SUBTYPE_REJECT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_ACCEPT-constant" class="">IAX_SUBTYPE_ACCEPT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_AUTHREQ-constant" class="">IAX_SUBTYPE_AUTHREQ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_AUTHREP-constant" class="">IAX_SUBTYPE_AUTHREP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>9</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_INVAL-constant" class="">IAX_SUBTYPE_INVAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_LAGRQ-constant" class="">IAX_SUBTYPE_LAGRQ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_LAGRP-constant" class="">IAX_SUBTYPE_LAGRP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>12</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_REGREQ-constant" class="">IAX_SUBTYPE_REGREQ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>13</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_REGAUTH-constant" class="">IAX_SUBTYPE_REGAUTH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>14</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_REGACK-constant" class="">IAX_SUBTYPE_REGACK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>15</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_REGREJ-constant" class="">IAX_SUBTYPE_REGREJ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_REGREL-constant" class="">IAX_SUBTYPE_REGREL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>17</span></pre></dd>
+      
+        <dt id="IAX_SUBTYPE_VNAK-constant" class="">IAX_SUBTYPE_VNAK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>18</span></pre></dd>
+      
+        <dt id="IAX_IE_CALLED_NUMBER-constant" class="">IAX_IE_CALLED_NUMBER =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p><code>------</code>———–<code>-----------------------------------------</code></p>
+
+<pre class="code ruby"><code class="ruby">| Hex  | Name      | Description                             |
++------+-----------+-----------------------------------------+
+| 0x01 | NEW       | Initiate a new call                     |
+|      |           |                                         |
+| 0x02 | PING      | Ping request                            |
+|      |           |                                         |
+| 0x03 | PONG      | Ping or poke reply                      |
+|      |           |                                         |
+| 0x04 | ACK       | Explicit acknowledgment                 |
+|      |           |                                         |
+| 0x05 | HANGUP    | Initiate call tear-down                 |
+|      |           |                                         |
+| 0x06 | REJECT    | Reject a call                           |
+|      |           |                                         |
+| 0x07 | ACCEPT    | Accept a call                           |
+|      |           |                                         |
+| 0x08 | AUTHREQ   | Authentication request                  |
+|      |           |                                         |
+| 0x09 | AUTHREP   | Authentication reply                    |
+|      |           |                                         |
+| 0x0a | INVAL     | Invalid message                         |
+|      |           |                                         |
+| 0x0b | LAGRQ     | Lag request                             |
+|      |           |                                         |
+| 0x0c | LAGRP     | Lag reply                               |
+|      |           |                                         |
+| 0x0d | REGREQ    | Registration request                    |
+|      |           |                                         |
+| 0x0e | REGAUTH   | Registration authentication             |
+|      |           |                                         |
+| 0x0f | REGACK    | Registration acknowledgement            |
+|      |           |                                         |
+| 0x10 | REGREJ    | Registration reject                     |
+|      |           |                                         |
+| 0x11 | REGREL    | Registration release                    |
+|      |           |                                         |
+| 0x12 | VNAK      | Video/Voice retransmit request          |
+|      |           |                                         |
+| 0x13 | DPREQ     | Dialplan request                        |
+|      |           |                                         |
+| 0x14 | DPREP     | Dialplan reply                          |
+|      |           |                                         |
+| 0x15 | DIAL      | Dial                                    |
+|      |           |                                         |
+| 0x16 | TXREQ     | Transfer request                        |
+|      |           |                                         |
+| 0x17 | TXCNT     | Transfer connect                        |
+|      |           |                                         |
+| 0x18 | TXACC     | Transfer accept                         |
+|      |           |                                         |
+| 0x19 | TXREADY   | Transfer ready                          |
+|      |           |                                         |
+| 0x1a | TXREL     | Transfer release                        |
+|      |           |                                         |
+| 0x1b | TXREJ     | Transfer reject                         |
+|      |           |                                         |
+| 0x1c | QUELCH    | Halt audio/video [media] transmission   |
+|      |           |                                         |
+| 0x1d | UNQUELCH  | Resume audio/video [media] transmission |
+|      |           |                                         |
+| 0x1e | POKE      | Poke request                            |
+|      |           |                                         |
+| 0x1f | Reserved  | Reserved for future use                 |
+|      |           |                                         |
+| 0x20 | MWI       | Message waiting indication              |
+|      |           |                                         |
+| 0x21 | UNSUPPORT | Unsupported message                     |
+|      |           |                                         |
+| 0x22 | TRANSFER  | Remote transfer request                 |
+|      |           |                                         |
+| 0x23 | Reserved  | Reserved for future use                 |
+|      |           |                                         |
+| 0x24 | Reserved  | Reserved for future use                 |
+|      |           |                                         |
+| 0x25 | Reserved  | Reserved for future use                 |
++------+-----------+-----------------------------------------+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="IAX_IE_CALLING_NUMBER-constant" class="">IAX_IE_CALLING_NUMBER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="IAX_IE_AUTH_METHODS-constant" class="">IAX_IE_AUTH_METHODS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="IAX_IE_CALLING_NAME-constant" class="">IAX_IE_CALLING_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="IAX_IE_USERNAME-constant" class="">IAX_IE_USERNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="IAX_IE_DESIRED_CODEC-constant" class="">IAX_IE_DESIRED_CODEC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>9</span></pre></dd>
+      
+        <dt id="IAX_IE_ORIGINAL_DID-constant" class="">IAX_IE_ORIGINAL_DID =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="IAX_IE_ACTUAL_CODECS-constant" class="">IAX_IE_ACTUAL_CODECS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="IAX_IE_PROTO_VERSION-constant" class="">IAX_IE_PROTO_VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11</span></pre></dd>
+      
+        <dt id="IAX_IE_REG_REFRESH-constant" class="">IAX_IE_REG_REFRESH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>19</span></pre></dd>
+      
+        <dt id="IAX_IE_CHALLENGE_DATA-constant" class="">IAX_IE_CHALLENGE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>15</span></pre></dd>
+      
+        <dt id="IAX_IE_CHALLENGE_RESP-constant" class="">IAX_IE_CHALLENGE_RESP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="IAX_IE_APPARENT_ADDR-constant" class="">IAX_IE_APPARENT_ADDR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>18</span></pre></dd>
+      
+        <dt id="IAX_IE_REGREJ_CAUSE-constant" class="">IAX_IE_REGREJ_CAUSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>22</span></pre></dd>
+      
+        <dt id="IAX_IE_HANGUP_CAUSE-constant" class="">IAX_IE_HANGUP_CAUSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>42</span></pre></dd>
+      
+        <dt id="IAX_CODEC_G711_MULAW-constant" class="">IAX_CODEC_G711_MULAW =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Codecs</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00000004</span></pre></dd>
+      
+        <dt id="IAX_CODEC_G711_ALAW-constant" class="">IAX_CODEC_G711_ALAW =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00000008</span></pre></dd>
+      
+        <dt id="IAX_CODEC_LINEAR_PCM-constant" class="">IAX_CODEC_LINEAR_PCM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00000040</span></pre></dd>
+      
+        <dt id="IAX_SUPPORTED_CODECS-constant" class="">IAX_SUPPORTED_CODECS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Supported</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>IAX_CODEC_G711_MULAW</span> <span class='op'>|</span> <span class='const'>IAX_CODEC_G711_ALAW</span> <span class='op'>|</span> <span class='const'>IAX_CODEC_LINEAR_PCM</span></pre></dd>
+      
+        <dt id="IAX_DEFAULT_REG_REFRESH-constant" class="">IAX_DEFAULT_REG_REFRESH =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Default timings</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>60</span></pre></dd>
+      
+        <dt id="IAX_DEFAULT_TIMEOUT-constant" class="">IAX_DEFAULT_TIMEOUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:47 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>

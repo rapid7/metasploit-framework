@@ -1,0 +1,672 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>
+  Module: Msf::DBManager::Note
+  
+    &mdash; Documentation by YARD 0.8.7.4
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  hasFrames = window.top.frames.main ? true : false;
+  relpath = '../../';
+  framesUrl = "../../frames.html#!Msf/DBManager/Note.html";
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div id="header">
+      <div id="menu">
+  
+    <a href="../../_index.html">Index (N)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">DBManager</a></span></span>
+     &raquo; 
+    <span class="title">Note</span>
+  
+
+  <div class="noframes"><span class="title">(</span><a href="." target="_top">no frames</a><span class="title">)</span></div>
+</div>
+
+      <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+      Class List
+    </a>
+  
+    <a class="full_list_link" id="method_list_link"
+        href="../../method_list.html">
+      Method List
+    </a>
+  
+    <a class="full_list_link" id="file_list_link"
+        href="../../file_list.html">
+      File List
+    </a>
+  
+</div>
+      <div class="clear"></div>
+    </div>
+
+    <iframe id="search_frame"></iframe>
+
+    <div id="content"><h1>Module: Msf::DBManager::Note
+  
+  
+  
+</h1>
+
+<dl class="box">
+  
+  
+    
+  
+    
+  
+  
+    <dt class="r1">Included in:</dt>
+    <dd class="r1"><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">Msf::DBManager</a></span></dd>
+    
+  
+  
+    <dt class="r2 last">Defined in:</dt>
+    <dd class="r2 last">lib/msf/core/db_manager/note.rb</dd>
+  
+</dl>
+<div class="clear"></div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small>(<a href="#" class="summary_toggle">collapse</a>)</small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_note-instance_method" title="#each_note (instance method)">- (Object) <strong>each_note</strong>(wspace = workspace, &amp;block) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method iterates the notes table calling the supplied block with the
+note instance of each entry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_or_create_note-instance_method" title="#find_or_create_note (instance method)">- (Object) <strong>find_or_create_note</strong>(opts) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find or create a note matching this type/data.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#notes-instance_method" title="#notes (instance method)">- (Object) <strong>notes</strong>(wspace = workspace) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This methods returns a list of all notes in the database.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_note-instance_method" title="#report_note (instance method)">- (Object) <strong>report_note</strong>(opts) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Report a Note to the database.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="each_note-instance_method">
+  
+    - (<tt>Object</tt>) <strong>each_note</strong>(wspace = workspace, &amp;block) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method iterates the notes table calling the supplied block with the
+note instance of each entry.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+6
+7
+8
+9
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/note.rb', line 6</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_note'>each_note</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='op'>=</span><span class='id identifier rubyid_workspace'>workspace</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_notes'>notes</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_note'>note</span><span class='op'>|</span>
+    <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_note'>note</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_or_create_note-instance_method">
+  
+    - (<tt>Object</tt>) <strong>find_or_create_note</strong>(opts) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find or create a note matching this type/data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/note.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_or_create_note'>find_or_create_note</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_report_note'>report_note</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="notes-instance_method">
+  
+    - (<tt>Object</tt>) <strong>notes</strong>(wspace = workspace) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This methods returns a list of all notes in the database</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/note.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_notes'>notes</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='op'>=</span><span class='id identifier rubyid_workspace'>workspace</span><span class='rparen'>)</span>
+<span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_notes'>notes</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_note-instance_method">
+  
+    - (<tt>Object</tt>) <strong>report_note</strong>(opts) 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Report a Note to the database.  Notes can be tied to a ::Mdm::Workspace,
+Host, or Service.</p>
+
+<p>opts MUST contain</p>
+<dl class="rdoc-list note-list"><dt><code>:type</code>
+<dd>
+<p>The type of note, e.g. smb_peer_os</p>
+</dd></dl>
+
+<p>opts can contain</p>
+<dl class="rdoc-list note-list"><dt><code>:workspace</code>
+<dd>
+<p>the workspace to associate with this Note</p>
+</dd><dt><code>:host</code>
+<dd>
+<p>an IP address or a Host object to associate with this Note</p>
+</dd><dt><code>:service</code>
+<dd>
+<p>a Service object to associate with this Note</p>
+</dd><dt><code>:data</code>
+<dd>
+<p>whatever it is you&#39;re making a note of</p>
+</dd><dt><code>:port</code>
+<dd>
+<p>along with <code>:host</code> and <code>:proto</code>, a service to
+associate with this Note</p>
+</dd><dt><code>:proto</code>
+<dd>
+<p>along with <code>:host</code> and <code>:port</code>, a service to
+associate with this Note</p>
+</dd><dt><code>:update</code>
+<dd>
+<p>what to do in case a similar Note exists, see below</p>
+</dd></dl>
+
+<p>The <code>:update</code> option can have the following values:</p>
+<dl class="rdoc-list note-list"><dt><code>:unique</code>
+<dd>
+<p>allow only a single Note per <code>:host</code>/<code>:type</code> pair</p>
+</dd><dt><code>:unique_data</code>
+<dd>
+<p>like <code>:uniqe</code>, but also compare <code>:data</code></p>
+</dd><dt><code>:insert</code>
+<dd>
+<p>always insert a new Note even if one with identical values exists</p>
+</dd></dl>
+
+<p>If the provided <code>:host</code> is an IP address and does not exist in
+the database, it will be created.  If <code>:workspace</code>,
+<code>:host</code> and <code>:service</code> are all omitted, the new Note
+will be associated with the current workspace.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/note.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_note'>report_note</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_active'>active</span>
+<span class='op'>::</span><span class='const'>ActiveRecord</span><span class='op'>::</span><span class='const'>Base</span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:workspace</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_workspace'>workspace</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='const'>String</span>
+    <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='id identifier rubyid_find_workspace'>find_workspace</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_seen'>seen</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:seen</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_crit'>crit</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:critical</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='comment'># Report the host so it&#39;s there for the Proc to use below
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Host</span>
+      <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_host'>normalize_host</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span> <span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_addr'>addr</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='comment'># Do the same for a service if that&#39;s also included.
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='comment'># Catch incorrect usages
+</span>      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sname</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sname</span><span class='rbracket'>]</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dns</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dhcp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_sopts'>sopts</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span>
+        <span class='symbol'>:host</span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+        <span class='symbol'>:port</span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='symbol'>:proto</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_proto'>proto</span>
+      <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_sopts'>sopts</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_sname'>sname</span> <span class='kw'>if</span> <span class='id identifier rubyid_sname'>sname</span>
+      <span class='id identifier rubyid_report_service'>report_service</span><span class='lparen'>(</span><span class='id identifier rubyid_sopts'>sopts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Update Modes can be :unique, :unique_data, :insert
+</span>  <span class='id identifier rubyid_mode'>mode</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:update</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='symbol'>:unique</span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_addr'>addr</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_host'>host</span>
+    <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='id identifier rubyid_get_host'>get_host</span><span class='lparen'>(</span><span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span> <span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='id identifier rubyid_get_service'>get_service</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Service</span>
+    <span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='embdoc_beg'>=begin
+</span><span class='embdoc'>  if host
+</span><span class='embdoc'>    host.updated_at = host.created_at
+</span><span class='embdoc'>    host.state      = HostState::Alive
+</span><span class='embdoc'>    host.save!
+</span><span class='embdoc'>  end
+</span><span class='embdoc_end'>=end
+</span>  <span class='id identifier rubyid_ntype'>ntype</span>  <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:type</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:ntype</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lparen'>(</span><span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A note :type or :ntype is required</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span>   <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_note'>note</span>   <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='id identifier rubyid_conditions'>conditions</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='symbol'>:ntype</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ntype'>ntype</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_conditions'>conditions</span><span class='lbracket'>[</span><span class='symbol'>:host_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span>
+  <span class='id identifier rubyid_conditions'>conditions</span><span class='lbracket'>[</span><span class='symbol'>:service_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_service'>service</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_mode'>mode</span>
+  <span class='kw'>when</span> <span class='symbol'>:unique</span>
+    <span class='id identifier rubyid_note'>note</span>      <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_notes'>notes</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_conditions'>conditions</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_initialize'>first_or_initialize</span>
+    <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
+  <span class='kw'>when</span> <span class='symbol'>:unique_data</span>
+    <span class='id identifier rubyid_notes'>notes</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_notes'>notes</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_conditions'>conditions</span><span class='rparen'>)</span>
+
+    <span class='comment'># Don&#39;t make a new Note with the same data as one that already
+</span>    <span class='comment'># exists for the given: type and (host or service)
+</span>    <span class='id identifier rubyid_notes'>notes</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span>
+      <span class='comment'># Compare the deserialized data from the table to the raw
+</span>      <span class='comment'># data we&#39;re looking for.  Because of the serialization we
+</span>      <span class='comment'># can&#39;t do this easily or reliably in SQL.
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_n'>n</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span> <span class='op'>==</span> <span class='id identifier rubyid_data'>data</span>
+        <span class='id identifier rubyid_note'>note</span> <span class='op'>=</span> <span class='id identifier rubyid_n'>n</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_note'>note</span>
+      <span class='comment'># We didn&#39;t find one with the data we&#39;re looking for, make
+</span>      <span class='comment'># a new one.
+</span>      <span class='id identifier rubyid_note'>note</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_notes'>notes</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_conditions'>conditions</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='symbol'>:data</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='comment'># Otherwise, assume :insert, which means always make a new one
+</span>    <span class='id identifier rubyid_note'>note</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_notes'>notes</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span>
+      <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_host_id'>host_id</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Service</span>
+      <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_service_id'>service_id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_seen'>seen</span>     <span class='op'>=</span> <span class='id identifier rubyid_seen'>seen</span>
+    <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_critical'>critical</span> <span class='op'>=</span> <span class='id identifier rubyid_crit'>crit</span>
+    <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_ntype'>ntype</span>    <span class='op'>=</span> <span class='id identifier rubyid_ntype'>ntype</span>
+    <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span>     <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_msf_import_timestamps'>msf_import_timestamps</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span><span class='id identifier rubyid_note'>note</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_note'>note</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+  <span class='id identifier rubyid_ret'>ret</span><span class='lbracket'>[</span><span class='symbol'>:note</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_note'>note</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+    <div id="footer">
+  Generated on Fri Nov  7 14:50:25 2014 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.8.7.4 (ruby-2.1.4).
+</div>
+
+  </body>
+</html>
