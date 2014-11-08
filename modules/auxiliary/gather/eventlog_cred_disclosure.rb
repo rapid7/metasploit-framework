@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
           type = details.attributes["type"] || ""
           subtype = details.attributes["subtype"] || ""
 
-          if not (type =~ /Windows/ or subtype =~ /Windows/)
+          unless type =~ /Windows/ || subtype =~ /Windows/
             # With AS/400 we get some garbage in the domain name even though it doesn't exist
             domain_name = ""
           end
