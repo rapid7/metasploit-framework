@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2014-8499' ],
           [ 'OSVDB', 'TODO' ],
-          [ 'URL', 'TODO_GITHUB_URL' ],
+          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_pmp_privesc.txt' ],
           [ 'URL', 'TODO_FULLDISC_URL' ]
         ],
       'DisclosureDate' => 'Nov 8 2014'))
