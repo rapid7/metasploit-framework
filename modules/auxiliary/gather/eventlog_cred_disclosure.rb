@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     unless res && res.code == 200
-      print_error("#{peer} - Failed to reach agentHandler servlet")
+      fail_with(Failure::NotFound, "#{peer} - Failed to reach agentHandler servlet")
       return
     end
 
@@ -81,6 +81,7 @@ class Metasploit3 < Msf::Auxiliary
     rescue
       fail_with(Failure::Unknown, "#{peer} - Error parsing the XML, dumping output #{xml}")
     end
+
     slid_host_ary = []
     doc.elements.each('Details/HostDetails') do |ele|
       if ele.attributes["password"] != nil
