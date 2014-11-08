@@ -41,8 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('RPORT',
-          [true, 'The target port', 8400]),
+        Opt::RPORT(8400),
         OptString.new('TARGETURI', [ true,  "Eventlog Analyzer application URI (should be /event for version 7)", '/']),
       ], self.class)
   end
