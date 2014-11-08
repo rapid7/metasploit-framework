@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 
     slid_host_ary = []
     doc.elements.each('Details/HostDetails') do |ele|
-      if ele.attributes["password"] != nil
+      if ele.attributes["password"]
         # If an element doesn't have a password, then we don't care about it.
         # Otherwise store the slid and host_id to use later.
         slid_host_ary << [ele.attributes["slid"], ele.attributes["host_id"]]
