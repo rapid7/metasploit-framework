@@ -152,6 +152,16 @@ class Metasploit3 < Msf::Auxiliary
 
           cred_table << [host_ipaddress, type, subtype, domain_name, username, password]
 
+          if type == 'Windows'
+            service_name = 'epmap'
+            port = 135
+          elsif type == 'IBM AS/400'
+            service_name = 'as-servermap'
+            port = 449
+          else
+            next
+          end
+
           credential_core = report_credential_core({
              password: password,
              username: username,
@@ -159,10 +169,10 @@ class Metasploit3 < Msf::Auxiliary
 
           host_login_data = {
             address: host_ipaddress,
-            service_name: type,
+            service_name: service_name,
             workspace_id: myworkspace_id,
             protocol: 'tcp',
-            port: 0, # can be any port, so just set to 0 else the cred api screams
+            port: port,
             core: credential_core,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
