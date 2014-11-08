@@ -128,15 +128,15 @@ class Metasploit3 < Msf::Auxiliary
       doc.elements.each('Details/Hosts') do |ele|
         # Add an empty string if a variable doesn't exist, we have to check it
         # somewhere and it's easier to do it here.
-        host_ipaddress = (ele.attributes["host_ipaddress"] != nil ? ele.attributes["host_ipaddress"] : "")
+        host_ipaddress = ele.attributes["host_ipaddress"] || ""
 
         ele.elements.each('HostDetails') do |details|
-          domain_name = (details.attributes["domain_name"] != nil ? details.attributes["domain_name"] : "")
-          username = (details.attributes["username"] != nil ? details.attributes["username"] : "")
-          password_encoded = (details.attributes["password"] != nil ? details.attributes["password"] : "")
+          domain_name = details.attributes["domain_name"] || ""
+          username = details.attributes["username"] || ""
+          password_encoded = details.attributes["password"] || ""
           password = decode_password(password_encoded)
-          type = (details.attributes["type"] != nil ? details.attributes["type"] : "")
-          subtype = (details.attributes["subtype"] != nil ? details.attributes["subtype"] : "")
+          type = details.attributes["type"] || ""
+          subtype = details.attributes["subtype"] || ""
 
           if not (type =~ /Windows/ or subtype =~ /Windows/)
             # With AS/400 we get some garbage in the domain name even though it doesn't exist
@@ -169,7 +169,6 @@ class Metasploit3 < Msf::Auxiliary
           create_credential_login(host_login_data)
         end
       end
-
     end
 
     print_line
