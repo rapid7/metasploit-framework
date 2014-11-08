@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
           msg = "Got login to #{host_ipaddress} | running "
           msg << type << (subtype != '' ? " | #{subtype}" : '')
           msg << ' | username: '
-          msg << (domain_name != "" ? "#{domain_name}\\#{username}" : username)
+          msg << (domain_name != '' ? "#{domain_name}\\#{username}" : username)
           msg << " | password: #{password}"
           print_good(msg)
 
