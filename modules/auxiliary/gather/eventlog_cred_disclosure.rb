@@ -157,18 +157,16 @@ class Metasploit3 < Msf::Auxiliary
              username: username,
            })
 
-          begin
-            host_login_data = {
-              address: host_ipaddress,
-              service_name: type,
-              workspace_id: myworkspace_id,
-              protocol: 'tcp',
-              port: 0,    # can be any port, so just set to 0 else the cred api screams
-              core: credential_core,
-              status: Metasploit::Model::Login::Status::UNTRIED
-            }
-            create_credential_login(host_login_data)
-          end
+          host_login_data = {
+            address: host_ipaddress,
+            service_name: type,
+            workspace_id: myworkspace_id,
+            protocol: 'tcp',
+            port: 0,    # can be any port, so just set to 0 else the cred api screams
+            core: credential_core,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+          create_credential_login(host_login_data)
         end
       end
 
