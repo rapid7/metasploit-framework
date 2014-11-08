@@ -128,7 +128,6 @@ class Metasploit3 < Msf::Auxiliary
       doc.elements.each('Details/Hosts') do |ele|
         # Add an empty string if a variable doesn't exist, we have to check it
         # somewhere and it's easier to do it here.
-        dns_name = (ele.attributes["dns_name"] != nil ? ele.attributes["dns_name"] : "")
         host_ipaddress = (ele.attributes["host_ipaddress"] != nil ? ele.attributes["host_ipaddress"] : "")
 
         ele.elements.each('HostDetails') do |details|
