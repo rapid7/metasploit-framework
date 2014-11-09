@@ -38,7 +38,6 @@ class CmdStagerTFTP < CmdStagerBase
   end
 
   def teardown(mod = nil)
-    puts self.tftp.inspect
     self.tftp.stop
   end
 
