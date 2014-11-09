@@ -283,6 +283,12 @@ if __FILE__ == $0
 
   if generator_opts[:list_options]
     payload_mod = framework.payloads.create(generator_opts[:payload])
+
+    if payload_mod.nil?
+      $stderr.puts "Invalid payload: #{generator_opts[:payload]}"
+      exit
+    end
+
     $stderr.puts "Options for #{payload_mod.fullname}\n\n" + ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
     exit(0)
   end
