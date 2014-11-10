@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         all SQL Server logins using the SUSER_SNAME function by fuzzing the principal_id parameter.
         This is pretty simple, because the principal ids assigned to logins are incremental.  Once
         logins have been enumerated they can be verified via sp_defaultdb error analysis.
-        This is important, because not all of the principal ids resolve to SQL logins.Some resolve
+        This is important, because not all of the principal ids resolve to SQL logins.  Some resolve
         to roles etc.  Once logins have been enumerated they can be used in dictionary attacks.
       },
       'Author'         => [ 'nullbind <scott.sutherland[at]netspi.com>'],
