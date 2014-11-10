@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('FULL_DUPLEX', [true, 'True iff full-duplex, false otherwise', true])
       ], self.class)
 
-    deregister_options('RHOST')
+    deregister_options('FILTER', 'PCAPFILE', 'RHOST', 'SNAPLEN', 'TIMEOUT')
   end
 
   def setup
