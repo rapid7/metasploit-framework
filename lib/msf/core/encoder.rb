@@ -127,6 +127,18 @@ class Encoder < Module
     # Special printf(1) via PHP magic_quotes Command Encoder
     #
     PrintfPHPMagicQuotes = "printf_php_mq"
+    #
+    # perl encoding.
+    #
+    CmdUnixPerl = 'perl'
+    #
+    # Bourne shell echo encoding.
+    #
+    CmdUnixEcho = 'echo'
+    #
+    # Bourne shell IFS encoding.
+    #
+    CmdUnixIfs = 'ifs'
   end
 
   #
@@ -273,6 +285,10 @@ class Encoder < Module
     # Call encoded_end to do any encoder specific post-processing
     encode_end(state)
 
+    if arch?(ARCH_CMD)
+      dlog("#{self.name} result: #{state.encoded}")
+    end
+
     # Return the encoded buffer to the caller
     return state.encoded
   end
@@ -395,6 +411,27 @@ class Encoder < Module
   #
   def to_native(buf)
     buf
+  end
+
+  #
+  # Determines whether the encoder can preserve registers at all
+  #
+  def preserves_registers?
+    false
+  end
+
+  #
+  # A list of registers always modified by the encoder
+  #
+  def modified_registers
+    []
+  end
+
+  #
+  # Determines whether the encoder can preserve the stack frame
+  #
+  def preserves_stack?
+    false
   end
 
 protected

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     # more active role, so make them regular options.
     register_options(
       [
+        Opt::Proxies,
         OptString.new('SMBPass', [ false, "SMB Password" ]),
         OptString.new('SMBUser', [ false, "SMB Username" ]),
         OptString.new('SMBDomain', [ false, "SMB Domain", '' ]),
@@ -73,6 +74,8 @@ class Metasploit3 < Msf::Auxiliary
       port: rport,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: 5,
+      max_send_size: datastore['TCP::max_send_size'],
+      send_delay: datastore['TCP::send_delay'],
     )
 
     bogus_result = @scanner.attempt_bogus_login(domain)

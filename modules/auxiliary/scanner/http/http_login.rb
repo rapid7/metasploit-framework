@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -54,8 +54,17 @@ class Metasploit3 < Msf::Auxiliary
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
   end
 
-  def find_auth_uri
+  def to_uri(uri)
+    begin
+      # In case TARGETURI is empty, at least we default to '/'
+      uri = "/" if uri.blank?
+      URI(uri)
+    rescue ::URI::InvalidURIError
+      raise RuntimeError, "Invalid URI: #{uri}"
+    end
+  end
 
+  def find_auth_uri
     if datastore['AUTH_URI'].present?
       paths = [datastore['AUTH_URI']]
     else
@@ -69,8 +78,20 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     paths.each do |path|
+      uri = ''
+
+      begin
+        uri = to_uri(path)
+      rescue RuntimeError => e
+        # Bad URI so we will not try to request it
+        print_error(e.message)
+        next
+      end
+
+      uri = normalize_uri(uri.path)
+
       res = send_request_cgi({
-        'uri'     => path,
+        'uri'     => uri,
         'method'  => datastore['REQUESTTYPE'],
         'username' => '',
         'password' => ''

@@ -291,19 +291,22 @@ class Rex::Socket::Comm::Local
           end
 
           sock.close
-          raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
+          raise Rex::HostUnreachable.new(ip, port), caller
 
         rescue ::Errno::EADDRNOTAVAIL,::Errno::EADDRINUSE
           sock.close
-          raise Rex::AddressInUse.new(param.peerhost, param.peerport), caller
+          raise Rex::AddressInUse.new(ip, port), caller
 
         rescue Errno::ETIMEDOUT
           sock.close
-          raise Rex::ConnectionTimeout.new(param.peerhost, param.peerport), caller
+          raise Rex::ConnectionTimeout.new(ip, port), caller
 
         rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
           sock.close
-          raise Rex::ConnectionRefused.new(param.peerhost, param.peerport), caller
+          # Report the actual thing we were trying to connect to here, not
+          # param.peerhost, since that's the eventual target at the end of the
+          # proxy chain
+          raise Rex::ConnectionRefused.new(ip, port.to_i), caller
         end
       end
 
@@ -378,9 +381,9 @@ class Rex::Socket::Comm::Local
       ni_packet << [route_data.length - 4].pack('N') + route_data
       # Now that we've built the whole packet, prepend its length before writing it to the wire
       ni_packet = [ni_packet.length].pack('N') + ni_packet
-      
+
       size = sock.put(ni_packet)
-      
+
       if size != ni_packet.length
         raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
       end
