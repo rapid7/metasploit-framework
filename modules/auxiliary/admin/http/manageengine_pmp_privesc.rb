@@ -223,7 +223,7 @@ class Metasploit3 < Msf::Auxiliary
     version = get_version
     @cookie = login(datastore['USERNAME'], datastore['PASSWORD'])
     if @cookie == nil
-      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate.")
+      fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate.")
     end
 
     creds = inject_sql(version < 7000 ? true : false)
