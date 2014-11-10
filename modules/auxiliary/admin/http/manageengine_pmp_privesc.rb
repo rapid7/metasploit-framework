@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'ManageEngine Password Manager Pro Super Administrator Account Creation and Password DB Retrieval',
+      'Name' => 'ManageEngine Password Manager SQLAdvancedALSearchResult.cc Pro SQL Injection',
       'Description' => %q{
         ManageEngine Password Manager Pro (PMP) has an authenticated blind SQL injection
         vulnerability in SQLAdvancedALSearchResult.cc that can be abused to escalate
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
       'References' =>
         [
           [ 'CVE', '2014-8499' ],
-          [ 'OSVDB', 'TODO' ],
+          #[ 'OSVDB', 'TODO' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_pmp_privesc.txt' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/18' ]
         ],
