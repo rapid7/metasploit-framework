@@ -20,6 +20,16 @@ PATH
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
+    metasploit-framework-db (4.10.1.pre.dev)
+      activerecord (< 4.0.0)
+      metasploit-credential (~> 0.12.0)
+      metasploit-framework (= 4.10.1.pre.dev)
+      metasploit_data_models (~> 0.21.1)
+      pg (>= 0.11)
+    metasploit-framework-pcap (4.10.1.pre.dev)
+      metasploit-framework (= 4.10.1.pre.dev)
+      network_interface (~> 0.0.1)
+      pcaprub
 
 GEM
   remote: https://rubygems.org/
@@ -218,18 +228,14 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord (>= 3.0.0, < 4.0.0)
   aruba
   cucumber-rails
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (~> 0.12.0)
   metasploit-framework!
-  metasploit_data_models (~> 0.21.1)
-  network_interface (~> 0.0.1)
-  pcaprub
-  pg (>= 0.11)
+  metasploit-framework-db!
+  metasploit-framework-pcap!
   pry
   rake (>= 10.0.0)
   redcarpet
