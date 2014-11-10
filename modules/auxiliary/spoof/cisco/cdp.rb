@@ -16,11 +16,9 @@ class Metasploit3 < Msf::Auxiliary
       'Author'      => 'Fatih Ozavci <viproy.com/fozavci>',
       'License'     =>  MSF_LICENSE,
       'Actions'			=> [
-        ['Sniff', { 'Description' => 'Sniffs CDP packets' }],
         ['Spoof', { 'Description' => 'Sends spoofed CDP packets' }]
       ],
-      'PassiveActions' => %w(Sniff),
-      'DefaultAction' => 'Sniff'
+      'DefaultAction' => 'Spoof'
     )
     register_options(
       [
@@ -61,8 +59,6 @@ class Metasploit3 < Msf::Auxiliary
       case action.name
       when 'Spoof'
         do_spoof
-      when 'Sniff'
-        do_sniff
       else
         # this should never happen
         fail ArgumentError, "Invalid action #{action.name}"
@@ -70,81 +66,6 @@ class Metasploit3 < Msf::Auxiliary
     ensure
       close_pcap
     end
-  end
-
-  def do_sniff
-    print_status("Sniffing traffic on #{interface}")
-    lbl = ["CDP Version\t", "Device Id\t", "IP Address\t",  "Switch Port\t",  "Capabilities",  "Software\t", "Platform\t",  nil, "Cluster Management",  "VTP Domain Management" , "Native VLAN\t", nil,  nil,  nil,  nil,  "VoIP VLAN Query"]
-    each_packet do |pkt|
-      p = PacketFu::Packet.parse(pkt)
-      next unless p.proto != ["Eth", "LLDP"] && p.payload =~ /\x01\x00\x0C\xCC\xCC\xCC/
-      pay = p.payload
-      pos = 30
-      cdp = pay[22].getbyte(0)
-      report = "CDP Version\t\t: #{cdp}\n"
-      if cdp == 2
-        while true
-          type = pay[pos - 4, 2].getbyte(1)
-          break if pay[pos - 2, 2].nil?
-          l = pay[pos - 2, 2].unpack('H*')[0].to_i(16)
-          case type
-          when 1
-            d = pay[pos, l]
-            d.chop! if d[-1] == "\n"
-            report << "    #{lbl[type]} \t: #{d}\n"
-          when 2
-            if pay[pos, 4].unpack('H*')[0].to_i(16) == 1
-              addr = pay[pos + 9, 4]
-              ip = []
-              4.times { |i| ip << "#{addr.getbyte(i)}" }
-              report << "    #{lbl[type]}\t: #{ip.join(".")}\n"
-            end
-          when 3
-            report << "    #{lbl[type]}\t: #{pay[pos,l]}\n"
-          when 4
-            c = pay[pos + 3, 1].getbyte(0)
-            c = c.to_s(2)
-            caps = ["Repeater\t\t", "IGMP Capable\t\t", "Host\t\t\t", "Switch\t\t", "Source Route Bridge\t", "Transparent Bridge\t", "Router\t\t"]
-            report << "    #{lbl[type]}\t: \n"
-            c.length.times do
-              if c[-1].to_i == 1
-                report << "\t\t\t  #{caps[-1]} : Yes\n"
-              else
-                report << "\t\t\t  #{caps[-1]} : No\n"
-              end
-              c.chop!
-              caps.delete_at(-1)
-            end
-            unless caps.empty?
-              caps.each do |missing_cap|
-                report << "\t\t\t #{missing_cap}: No\n"
-              end
-            end
-          when 5
-            report << "    #{lbl[type]}\t: #{pay[pos, l].split("\n").join("\n\t\t\t  ")}\n"
-          when 8
-            # TODO?
-            # report << "    #{lbl[type]}\t:\n"
-            # report << "      IP: #{pay[pos+14,4]}\n"
-          when 10
-            report << "    #{lbl[type]}\t: #{pay[pos, 2].unpack('H*')[0].to_i(16)}\n"
-          when 15
-            report << "    #{lbl[type]}\t: #{pay[pos + 1, 2].unpack('H*')[0].to_i(16)}\n"
-          else
-            report << "    #{lbl[type]}\t: #{pay[pos, l]}\n" if lbl[type]
-          end
-          if pos > pay.length
-            break
-          else
-            pos += l
-          end
-        end
-      else
-        report << "    TTL\t\t\t: #{pay[23].unpack('H*')[0].to_i(16)}"
-      end
-      print_good("#{report}")
-    end
-    print_status("Finished sniffing")
   end
 
   def do_spoof
