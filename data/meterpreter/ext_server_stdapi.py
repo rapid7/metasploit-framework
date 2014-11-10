@@ -879,7 +879,7 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 		process_username = ''
 		process_token_user = get_token_user(proc_h)
 		if process_token_user:
-			process_username = get_username_from_token(process_token_user)
+			process_username = get_username_from_token(process_token_user) or ''
 		parch = windll_GetNativeSystemInfo()
 		is_wow64 = ctypes.c_ubyte()
 		is_wow64.value = 0
