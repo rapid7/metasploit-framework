@@ -241,7 +241,7 @@ class Metasploit3 < Msf::Auxiliary
       fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate as Super Administrator, account #{username} might not work.")
     end
 
-    print_stats("#{peer} - Reporting Super Administrator credentials...")
+    print_status("#{peer} - Reporting Super Administrator credentials...")
     report_super_admin_creds(username, password)
 
     print_status("#{peer} - Leaking Password database...")
