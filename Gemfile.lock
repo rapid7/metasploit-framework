@@ -232,7 +232,6 @@ DEPENDENCIES
   pg (>= 0.11)
   pry
   rake (>= 10.0.0)
-  rb-readline
   redcarpet
   rspec (>= 2.12, < 3.0.0)
   rspec-rails (>= 2.12, < 3.0.0)

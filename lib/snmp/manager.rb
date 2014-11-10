@@ -716,4 +716,3 @@ class TrapListener
 end
 
 end
-

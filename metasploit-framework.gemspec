@@ -76,8 +76,14 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog', '~> 1.0'
-  # read... lines...
-  spec.add_runtime_dependency 'rb-readline'
+
+  # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
+  #   NoMethodError undefined method `dlopen' for Fiddle:Module
+  unless Gem.win_platform?
+    # Command line editing, history, and tab completion in msfconsole
+    spec.add_runtime_dependency 'rb-readline'
+  end
+
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules
