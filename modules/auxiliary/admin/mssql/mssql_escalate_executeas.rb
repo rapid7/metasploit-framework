@@ -12,15 +12,15 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft SQL Server - Escalate EXECUTE AS',
-      'Description'    => %q{
-        This module can be used escalate privileges if the IMPERSONATION privilege has been assigned to the user.
-        In most cases this results in additional data access, but in some cases it can be used to gain sysadmin
-        privileges.
+      'Name'        => 'Microsoft SQL Server - Escalate EXECUTE AS',
+      'Description' => %q{
+        This module can be used escalate privileges if the IMPERSONATION privilege has been
+        assigned to the user. In most cases this results in additional data access, but in
+        some cases it can be used to gain sysadmin privileges.
       },
-      'Author'         => [ 'nullbind <scott.sutherland[at]netspi.com>'],
-      'License'        => MSF_LICENSE,
-      'References'     => [[ 'URL','http://msdn.microsoft.com/en-us/library/ms178640.aspx']]
+      'Author'      => ['nullbind <scott.sutherland[at]netspi.com>'],
+      'License'     => MSF_LICENSE,
+      'References'  => [['URL','http://msdn.microsoft.com/en-us/library/ms178640.aspx']]
     ))
   end
 
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Enumerating a list of users that can be impersonated...")
     imp_user_list = check_imp_users
     if imp_user_list.nil? || imp_user_list.length == 0
-      print_error('Sorry, the current user doesnt have permissions to impersonate anyone.')
+      print_error('Sorry, the current user doesn\'t have permissions to impersonate anyone.')
       disconnect
       return
     else
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status('Checking if any of them are sysadmins...')
     imp_user_sysadmin = check_imp_sysadmin(imp_user_list)
     if imp_user_sysadmin.nil?
-      print_error("Sorry, none of the users that can be impersonated are sysadmins.")
+      print_error('Sorry, none of the users that can be impersonated are sysadmins.')
       disconnect
       return
     end
@@ -81,10 +81,10 @@ class Metasploit3 < Msf::Auxiliary
       if user_status == 1
         print_good("Congrats, #{datastore['USERNAME']} is now a sysadmin!.")
       else
-        print_error("Fail buckets, something went wrong.")
+        print_error('Fail buckets, something went wrong.')
       end
     else
-      print_error("Error while trying to escalate privileges.")
+      print_error('Error while trying to escalate privileges.')
     end
 
     disconnect
