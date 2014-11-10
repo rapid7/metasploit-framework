@@ -17,14 +17,13 @@ class Metasploit3 < Msf::Auxiliary
         ManageEngine Password Manager Pro (PMP) has an authenticated blind SQL injection
         vulnerability in SQLAdvancedALSearchResult.cc that can be abused to escalate
         privileges and obtain Super Administrator access. A Super Administrator can then
-        use its privileges to dump the whole password database in CSV format.
-        PMP can use both MySQL and PostgreSQL databases but this module only exploits the
-        latter as MySQL does not support stacked queries with Java.
-        PostgreSQL is the default database in v6.8 and above, but older PMP versions can
-        be upgraded and continue using MySQL, so a higher version does not guarantee
-        exploitability.
-        This module has been tested on v6.8 to v7.1 build 7104 on both Windows and Linux.
-        The vulnerability is fixed in v7.1 build 7105 and above.
+        use its privileges to dump the whole password database in CSV format. PMP can use
+        both MySQL and PostgreSQL databases but this module only exploits the latter as
+        MySQL does not support stacked queries with Java. PostgreSQL is the default database
+        in v6.8 and above, but older PMP versions can be upgraded and continue using MySQL,
+        so a higher version does not guarantee exploitability. This module has been tested
+        on v6.8 to v7.1 build 7104 on both Windows and Linux. The vulnerability is fixed in
+        v7.1 build 7105 and above.
       },
       'Author' =>
         [
@@ -42,14 +41,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('RPORT',
-          [true, 'The target port', 7272]),
-        OptBool.new('SSL',
-          [true, 'Use SSL', true]),
-        OptString.new('USERNAME',
-          [true, 'The username to login as', 'guest']),
-        OptString.new('PASSWORD',
-          [true, 'Password for the specified username', 'guest']),
+        Opt::RPORT(7272),
+        OptBool.new('SSL', [true, 'Use SSL', true]),
+        OptString.new('USERNAME', [true, 'The username to login as', 'guest']),
+        OptString.new('PASSWORD', [true, 'Password for the specified username', 'guest']),
         OptString.new('TARGETURI', [ true,  "Password Manager Pro application URI", '/'])
       ], self.class)
   end
