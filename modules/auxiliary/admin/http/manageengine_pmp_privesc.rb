@@ -189,9 +189,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_version
     res = send_request_cgi({
-                               'uri' => normalize_uri("PassTrixMain.cc"),
-                               'method' => 'GET'
-                           })
+      'uri' => normalize_uri("PassTrixMain.cc"),
+      'method' => 'GET'
+    })
     if res && res.code == 200 && res.body &&
         res.body.to_s =~ /ManageEngine Password Manager Pro/ &&
         (
