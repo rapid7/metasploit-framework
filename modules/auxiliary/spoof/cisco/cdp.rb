@@ -11,11 +11,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'				=> 'Send Cisco Discovery Protocol (CDP) Packets',
+      'Name'        => 'Send Cisco Discovery Protocol (CDP) Packets',
       'Description' => 'This module sends Cisco Discovery Protocol (CDP) packets',
       'Author'      => 'Fatih Ozavci <viproy.com/fozavci>',
       'License'     =>  MSF_LICENSE,
-      'Actions'			=> [
+      'Actions'     => [
         ['Spoof', { 'Description' => 'Sends CDP packets' }]
       ],
       'DefaultAction' => 'Spoof'
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
       cdp_packet = build_cdp
       print_status("Sending CDP messages on #{interface}")
       while @run
-        capture.inject(cdp_packet.to_s)
+        capture.inject(cdp_packet)
         Rex.sleep(60)
       end
     ensure
