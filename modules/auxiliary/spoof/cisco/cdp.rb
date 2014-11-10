@@ -11,15 +11,16 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'				=> 'CDP Discovery and Spoofing',
-      'Description' => 'This module captures and sends Cisco Discovery Protocol (CDP) packets for discovery',
+      'Name'				=> 'Send Cisco Discovery Protocol (CDP) Packets',
+      'Description' => 'This module sends Cisco Discovery Protocol (CDP) packets',
       'Author'      => 'Fatih Ozavci <viproy.com/fozavci>',
       'License'     =>  MSF_LICENSE,
       'Actions'			=> [
-        ['Spoof', { 'Description' => 'Sends spoofed CDP packets' }]
+        ['Spoof', { 'Description' => 'Sends CDP packets' }]
       ],
       'DefaultAction' => 'Spoof'
     )
+
     register_options(
       [
         OptString.new('SMAC', [false, "MAC Address for MAC Spoofing"]),
@@ -32,6 +33,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('SOFTWARE', [true, "Software of the device", "SCCP75.9-3-1SR2-1S"]),
         OptBool.new('FULL_DUPLEX', [true, 'True iff full-duplex, false otherwise', true])
       ], self.class)
+
     deregister_options('RHOST')
   end
 
@@ -56,35 +58,30 @@ class Metasploit3 < Msf::Auxiliary
     begin
       open_pcap
 
-      case action.name
-      when 'Spoof'
-        do_spoof
-      else
-        # this should never happen
-        fail ArgumentError, "Invalid action #{action.name}"
+      @run = true
+      cdp_packet = build_cdp
+      print_status("Sending CDP messages on #{interface}")
+      while @run
+        capture.inject(cdp_packet.to_s)
+        Rex.sleep(60)
       end
     ensure
       close_pcap
     end
   end
 
-  def do_spoof
-    print_status("Sending CDP message on #{interface}")
-    p = prep_cdp                                              # Preparation of the CDP content
-
-    # Injecting packet to the network
-    l = PacketFu::Inject.new(iface: interface)
-    cdp_length = ["%04X" % (p.length + 8).to_s].pack('H*')
-    dot3 =  PacketFu::EthHeader.mac2str("01:00:0C:CC:CC:CC") + PacketFu::EthHeader.mac2str(smac) + cdp_length
-    llc = "\xAA\xAA\x03\x00\x00\x0c\x20\x00"
-    l.array_to_wire(array: [dot3 + llc + p])
-  end
-
-  def prep_cdp
+  def build_cdp
+    cdp = ''
+    # CDP version
+    cdp << "\x02"
+    # TTL (180s)
+    cdp << "\xB4"
+    # checksum, empty for now
+    cdp << "\x00\x00"
     # device ID
-    p = tlv(1, datastore['DEVICE_ID'])
+    cdp << tlv(1, datastore['DEVICE_ID'])
     # port ID
-    p << tlv(3, datastore['PORT'])
+    cdp << tlv(3, datastore['PORT'])
     # TODO: implement this correctly
     # capabilities = datastore['CAPABILITIES'] || "Host"
     # CAPABILITIES
@@ -95,47 +92,51 @@ class Metasploit3 < Msf::Auxiliary
     # define CDP_CAP_LEVEL2_SRB      0x04
     # define CDP_CAP_LEVEL2_TRBR     0x02
     # define CDP_CAP_LEVEL3_ROUTER   0x01
-    p << tlv(4, "\x00\x00\x00\x41")
+    cdp << tlv(4, "\x00\x00\x00\x41")
     # software version
-    p << tlv(5, datastore['SOFTWARE'])
+    cdp << tlv(5, datastore['SOFTWARE'])
     # platform
-    p << tlv(6, datastore['PLATFORM'])
+    cdp << tlv(6, datastore['PLATFORM'])
     # VTP management domain
-    p << tlv(9, datastore['VTPDOMAIN']) if datastore['VTPDOMAIN']
+    cdp << tlv(9, datastore['VTPDOMAIN']) if datastore['VTPDOMAIN']
     # random 1000-7000 power consumption in mW
-    p << tlv(0x10, [1000 + rand(6000)].pack('n'))
+    cdp << tlv(0x10, [1000 + rand(6000)].pack('n'))
     # duplex
-    p << tlv(0x0b, datastore['FULL_DUPLEX'] ? "\x01" : "\x00")
-    # VLAn query.  TOD: figure out this field, use tlv, make configurable
-    p << "\x00\x0F\x00\b \x02\x00\x01"
+    cdp << tlv(0x0b, datastore['FULL_DUPLEX'] ? "\x01" : "\x00")
+    # VLAn query.  TODO: figure out this field, use tlv, make configurable
+    cdp << "\x00\x0F\x00\b \x02\x00\x01"
 
-    # VDP version
-    version = "\x02"
-    # TTL (180s)
-    ttl = "\xB4"
-    checksum = cdpchecksum(version + ttl + "\x00\x00" + p)
-    version + ttl + checksum + p
+    # compute and replace the checksum
+    cdp[2, 2] = [compute_cdp_checksum(cdp)].pack('n')
+
+    # Build and return the final packet, which is 802.3 + LLC + CDP.
+    # 802.3
+    PacketFu::EthHeader.mac2str("01:00:0C:CC:CC:CC") +
+      PacketFu::EthHeader.mac2str(smac) +
+      [cdp.length + 8].pack('n') +
+      # LLC
+      "\xAA\xAA\x03\x00\x00\x0c\x20\x00" +
+      # CDP
+      cdp
   end
 
   def tlv(t, v)
     [ t, v.length + 4 ].pack("nn") + v
   end
 
-  def cdpchecksum(p)
-    num_shorts = p.length / 2
-    cs = 0
-    c = p.length
+  def compute_cdp_checksum(cdp)
+    num_shorts = cdp.length / 2
+    checksum = 0
+    remaining = cdp.length
 
-    p.unpack("S#{num_shorts}").each do |x|
-      cs += x
-      c -= 2
+    cdp.unpack("S#{num_shorts}").each do |short|
+      checksum += short
+      remaining -= 2
     end
 
-    cs += p[p.length - 1].getbyte(0) << 8 if c == 1
-    cs = (cs >> 16) + (cs & 0xffff)
-    cs = ~((cs >> 16) + cs) & 0xffff
-    cs = ([cs].pack("S*")).unpack("n*")[0]
-
-    [ "%02X" % cs ].pack('H*')
+    checksum += cdp[cdp.length - 1].getbyte(0) << 8 if remaining == 1
+    checksum = (checksum >> 16) + (checksum & 0xffff)
+    checksum = ~((checksum >> 16) + checksum) & 0xffff
+    ([checksum].pack("S*")).unpack("n*")[0]
   end
 end
