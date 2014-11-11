@@ -121,11 +121,12 @@ describe Msfcli do
   end
 
   context "#usage" do
-    it "should see a help menu" do
+    it "prints Usage" do
       out = get_stdout {
         msfcli.usage
       }
-      out.should =~ /Usage/
+
+      expect(out).to include('Usage')
     end
   end
 
