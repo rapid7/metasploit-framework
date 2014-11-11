@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status('Verifying the SQL Server logins...')
     sql_logins_list_verified = verify_logins(sql_logins_list)
     if sql_logins_list_verified.nil?
-      print_error("Sorry, no SQL Server logins could be verified.")
+      print_error('Sorry, no SQL Server logins could be verified.')
       disconnect
       return
     else
