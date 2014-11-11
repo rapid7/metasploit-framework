@@ -14,11 +14,22 @@ PATH
       nokogiri
       packetfu (= 1.1.9)
       railties
+      rb-readline
       recog (~> 1.0)
       robots
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
+    metasploit-framework-db (4.10.1.pre.dev)
+      activerecord (< 4.0.0)
+      metasploit-credential (~> 0.12.0)
+      metasploit-framework (= 4.10.1.pre.dev)
+      metasploit_data_models (~> 0.21.1)
+      pg (>= 0.11)
+    metasploit-framework-pcap (4.10.1.pre.dev)
+      metasploit-framework (= 4.10.1.pre.dev)
+      network_interface (~> 0.0.1)
+      pcaprub
 
 GEM
   remote: https://rubygems.org/
@@ -57,7 +68,7 @@ GEM
       childprocess (>= 0.3.6)
       cucumber (>= 1.1.1)
       rspec-expectations (>= 2.7.0)
-    bcrypt (3.1.7)
+    bcrypt (3.1.9)
     builder (3.0.4)
     capybara (2.4.1)
       mime-types (>= 1.16)
@@ -161,6 +172,7 @@ GEM
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
     rake (10.3.2)
+    rb-readline (0.5.1)
     rdoc (3.12.2)
       json (~> 1.4)
     recog (1.0.0)
@@ -216,18 +228,14 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord (>= 3.0.0, < 4.0.0)
   aruba
   cucumber-rails
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential (~> 0.12.0)
   metasploit-framework!
-  metasploit_data_models (~> 0.21.1)
-  network_interface (~> 0.0.1)
-  pcaprub
-  pg (>= 0.11)
+  metasploit-framework-db!
+  metasploit-framework-pcap!
   pry
   rake (>= 10.0.0)
   redcarpet

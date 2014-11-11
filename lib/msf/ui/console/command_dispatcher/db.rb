@@ -1463,7 +1463,7 @@ class Db
           print_error("Please note that there were #{warnings} warnings") if warnings > 1
           print_error("Please note that there was one warning") if warnings == 1
 
-        rescue DBImportError
+        rescue Msf::DBImportError
           print_error("Failed to import #{filename}: #{$!}")
           elog("Failed to import #{filename}: #{$!.class}: #{$!}")
           dlog("Call stack: #{$@.join("\n")}", LEV_3)
