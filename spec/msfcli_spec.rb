@@ -277,13 +277,23 @@ describe Msfcli do
       }
     end
   end
-
+  
+  
   context "#guess_nop_name" do
-    cli = Msfcli.new([])
-    it "should contain a match for guess_nop_name" do
-      nop = 'x86/single_byte'
-      m = cli.guess_nop_name(nop)
-      m.should eq([/nops\/#{nop}/])
+    subject(:guess_nop_name) {
+      msfcli.guess_nop_name(nop_reference_name)
+    }
+
+    context 'with x86/shikata_ga_nai' do
+      let(:nop_reference_name) {
+        'x86/single_byte'
+      }
+
+      it {
+        is_expected.to eq(
+                           [/nops\/#{nop_reference_name}/]
+                       )
+      }
     end
   end
 
