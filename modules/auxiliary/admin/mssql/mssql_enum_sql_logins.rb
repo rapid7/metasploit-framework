@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Microsoft SQL Server - Enumerate SQL Logins',
+      'Name'        => 'Microsoft SQL Server SUSER_SNAME SQL Logins Enumeration',
       'Description' => %q{
         This module can be used to obtain a list of all logins from a SQL Server with any login.
         Selecting all of the logins from the master..syslogins table is restricted to sysadmins.
