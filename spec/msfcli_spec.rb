@@ -135,7 +135,7 @@ describe Msfcli do
   context "#dump_module_list" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
-    it "it should dump a list of modules" do
+    it "should dump a list of modules" do
       tbl = ''
       stdout = get_stdout {
         cli = Msfcli.new([])
