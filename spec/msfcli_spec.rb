@@ -135,13 +135,15 @@ describe Msfcli do
   context "#dump_module_list" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
-    it "should dump a list of modules" do
+    it 'dumps a listof modules' do
       tbl = ''
+
       stdout = get_stdout {
-        cli = Msfcli.new([])
-        tbl = cli.dump_module_list
+        tbl = msfcli.dump_module_list
       }
-      tbl.should =~ /Exploits/ and stdout.should =~ /Please wait/
+
+      expect(tbl).to include 'Exploits'
+      expect(stdout).to include 'Please wait'
     end
   end
 
