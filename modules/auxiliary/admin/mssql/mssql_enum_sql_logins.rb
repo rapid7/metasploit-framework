@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
     sql_logins = []
 
     # Fuzz the principal_id parameter passed to the SUSER_NAME function
-    (1..datastore['FuzzNum']).each do|principal_id|
+    (1..datastore['FuzzNum']).each do |principal_id|
       # Setup query
       sql = "SELECT SUSER_NAME(#{principal_id}) as login"
 
@@ -142,10 +142,12 @@ class Metasploit3 < Msf::Auxiliary
     # Create array for later use
     verified_sql_logins = []
 
+    fake_db_name = Rex::Text.rand_text_alpha_upper(24)
+
     # Check if the user has the db_owner role is any databases
     sql_logins_list.each do |sql_login|
       # Setup query
-      sql = "EXEC sp_defaultdb '#{sql_login}', 'NOTAREALDATABASE1234ABCD'"
+      sql = "EXEC sp_defaultdb '#{sql_login}', '#{fake_db_name}'"
 
       # Execute query
       result = mssql_query(sql)
@@ -155,12 +157,12 @@ class Metasploit3 < Msf::Auxiliary
       result = parse_results[0]
 
       # Check if sid resolved to a sql login
-      if result.include? 'NOTAREALDATABASE1234ABCD'
+      if result.include?(fake_db_name)
         verified_sql_logins.push(sql_login) unless verified_sql_logins.include?(sql_login)
       end
 
       # Check if sid resolved to a sql login
-      if result.include? 'alter the login'
+      if result.include?('alter the login')
         # Add sql server login to verified list
         verified_sql_logins.push(sql_login) unless verified_sql_logins.include?(sql_login)
       end
