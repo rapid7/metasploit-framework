@@ -298,69 +298,180 @@ describe Msfcli do
   end
 
   context "#generate_whitelist" do
-    it "should generate a whitelist for linux/x86/shell/reverse_tcp with encoder x86/fnstenv_mov" do
-      args = "multi/handler payload=linux/x86/shell/reverse_tcp lhost=127.0.0.1 encoder=x86/fnstenv_mov E"
-      cli = Msfcli.new(args.split(' '))
-      list = cli.generate_whitelist.map { |e| e.to_s }
-      answer = [
-          /multi\/handler/,
-          /stages\/linux\/x86\/shell/,
-          /payloads\/(stagers|stages)\/linux\/x86\/.*(reverse_tcp)\.rb$/,
-          /encoders\/x86\/fnstenv_mov/,
-          /post\/.+/,
-          /encoders\/generic\/*/,
-          /nops\/.+/
-      ].map { |e| e.to_s }
+    subject(:generate_whitelist) {
+      msfcli.generate_whitelist.map(&:to_s)
+    }
 
-      list.should eq(answer)
-    end
+    let(:args) {
+      [
+          'multi/handler',
+          "payload=#{payload_reference_name}",
+          'lhost=127.0.0.1',
+          mode
+      ]
+    }
 
-    it "should generate a whitelist for windows/meterpreter/reverse_tcp with default options" do
-      args = 'multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E'
-      cli = Msfcli.new(args.split(' '))
-      list = cli.generate_whitelist.map { |e| e.to_s }
-      answer = [
-          /multi\/handler/,
-          /stages\/windows\/meterpreter/,
-          /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
-          /post\/.+/,
-          /encoders\/generic\/*/,
-          /encoders\/.+/,
-          /nops\/.+/
-      ].map { |e| e.to_s }
+    let(:mode) {
+      'E'
+    }
 
-      list.should eq(answer)
-    end
+    context 'with payload' do
+      context 'linux/x86/reverse_tcp' do
+        let(:payload_reference_name) {
+          'linux/x86/reverse_tcp'
+        }
 
-    it "should generate a whitelist for windows/meterpreter/reverse_tcp with options: encoder='' post='' nop=''" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 encoder='' post='' nop='' E"
-      cli = Msfcli.new(args.split(' '))
-      list = cli.generate_whitelist.map { |e| e.to_s }
-      answer = [
-          /multi\/handler/,
-          /stages\/windows\/meterpreter/,
-          /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
-          /encoders\/''/,
-          /post\/''/,
-          /nops\/''/,
-          /encoders\/generic\/*/
-      ].map { |e| e.to_s }
+        context 'with encoder' do
+          let(:args) {
+            super().tap { |args|
+              args.insert(-2, "encoder=#{encoder_reference_name}")
+            }
+          }
 
-      list.should eq(answer)
-    end
+          context 'x86/fnstenv_mov' do
+            let(:encoder_reference_name) {
+              'x86/fnstenv_mov'
+            }
 
-    it "should generate a whitelist for windows/meterpreter/reverse_tcp with options: encoder= post= nop=" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 encoder= post= nop= E"
-      cli = Msfcli.new(args.split(' '))
-      list = cli.generate_whitelist.map { |e| e.to_s }
-      answer = [
-          /multi\/handler/,
-          /stages\/windows\/meterpreter/,
-          /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
-          /encoders\/generic\/*/
-      ].map { |e| e.to_s }
+            it {
+              is_expected.to match_array(
+                                 [
+                                     /multi\/handler/,
+                                     /stages\/linux\/x86\/shell/,
+                                     /payloads\/(singles|stagers|stages)\/linux\/x86\/.*(reverse_tcp)\.rb$/,
+                                     /encoders\/x86\/fnstenv_mov/,
+                                     /post\/.+/,
+                                     /encoders\/generic\/*/,
+                                     /nops\/.+/
+                                 ].map(&:to_s)
+                             )
+            }
+          end
+        end
+      end
 
-      list.should eq(answer)
+      context 'windows/meterpreter/reverse_tcp' do
+        let(:payload_reference_name) {
+          'windows/meterpreter/reverse_tcp'
+        }
+
+        context 'with default options' do
+          it {
+            is_expected.to match_array(
+                               [
+                                   /multi\/handler/,
+                                   /stages\/windows\/meterpreter/,
+                                   /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
+                                   /post\/.+/,
+                                   /encoders\/generic\/*/,
+                                   /encoders\/.+/,
+                                   /nops\/.+/
+                               ].map(&:to_s)
+                           )
+          }
+        end
+
+        context 'with encoder' do
+          let(:args) {
+            super().tap { |args|
+              args.insert(-2, "encoder=#{encoder_reference_name}")
+            }
+          }
+
+          context "''" do
+            let(:encoder_reference_name) do
+              "''"
+            end
+
+            context 'with post' do
+              let(:args) {
+                super().tap { |args|
+                  args.insert(-2, "post=#{post_reference_name}")
+                }
+              }
+
+              context "''" do
+                let(:post_reference_name) do
+                  "''"
+                end
+
+                context "with nop" do
+                  let(:args) {
+                    super().tap { |args|
+                      args.insert(-2, "nop=#{nop_reference_name}")
+                    }
+                  }
+
+                  context "''" do
+                    let(:nop_reference_name) {
+                      "''"
+                    }
+
+                    it {
+                      is_expected.to match_array(
+                                         [
+                                             /multi\/handler/,
+                                             /stages\/windows\/meterpreter/,
+                                             /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
+                                             /encoders\/''/,
+                                             /post\/''/,
+                                             /nops\/''/,
+                                             /encoders\/generic\/*/
+                                         ].map(&:to_s)
+                                     )
+                    }
+                  end
+                end
+              end
+            end
+          end
+
+          context "<blank>" do
+            let(:encoder_reference_name) do
+              ""
+            end
+
+            context 'with post' do
+              let(:args) {
+                super().tap { |args|
+                  args.insert(-2, "post=#{post_reference_name}")
+                }
+              }
+
+              context "<blank>" do
+                let(:post_reference_name) do
+                  ""
+                end
+
+                context "with nop" do
+                  let(:args) {
+                    super().tap { |args|
+                      args.insert(-2, "nop=#{nop_reference_name}")
+                    }
+                  }
+
+                  context "<blank>" do
+                    let(:nop_reference_name) {
+                      ""
+                    }
+
+                    it {
+                      is_expected.to match_array(
+                                         [
+                                             /multi\/handler/,
+                                             /stages\/windows\/meterpreter/,
+                                             /payloads\/(stagers|stages)\/windows\/.*(reverse_tcp)\.rb$/,
+                                             /encoders\/generic\/*/
+                                         ].map(&:to_s)
+                                     )
+                    }
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
     end
   end
 
