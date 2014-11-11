@@ -13,14 +13,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Oracle TNS Poison vulnerability',
+      'Name'           => 'Oracle TNS Listener Checker',
       'Description'    => %q{
-        This module simply checks the server for vulnerabilities like TNS Poison.
+        This module checks the server for vulnerabilities like TNS Poison.
+        Module sends to server a packet with command to register new TNS Listener and check response.
       },
-      'Author'         => ['ir0njaw (Kelesis Nikita)'],
-      'Company'        => ['Digital Security - http://dsec.ru'],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Oct 12 2014'))
+      'Author'         => ['ir0njaw (Nikita Kelesis) <nikita.elkey@gmail.com>'], # of Digital Security [http://dsec.ru]
+      'References'     =>
+        [
+          [ 'URL', 'http://seclists.org/fulldisclosure/2012/Apr/204' ],
+        ],
+      'License'        => MSF_LICENSE))
 
     register_options(
       [
@@ -33,23 +36,13 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     begin
       connect
-
-      pkt = tns_packet("(CONNECT_DATA=(COMMAND=service_register_NSGR))")
-      sock.put(pkt)
-      a= sock.read(100)
-      	
-      flag = a.include? "(ERROR_STACK=(ERROR="
-	     if (flag==true) then print_error ip+" is not vulnerable"
-	     else	print_good ip+" is vulnerable"
-	     end
-
-     	rescue ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{ip} unable to connect to the server")
-        
-	
-    rescue ::Rex::ConnectionError
-    rescue ::Errno::EPIPE
-	
+      send_packet = tns_packet("(CONNECT_DATA=(COMMAND=service_register_NSGR))")
+      sock.put(send_packet)
+      packet = sock.read(100)
+      find_packet = packet.include? "(ERROR_STACK=(ERROR="
+      find_packet == true ? print_error("#{ip}:#{rport} is not vulnerable ") : print_good("#{ip}:#{rport} is vulnerable")
+      rescue ::Rex::ConnectionError, ::Errno::EPIPE
+      print_error("#{ip}:#{rport} unable to connect to the server")
     end
   end
 end
