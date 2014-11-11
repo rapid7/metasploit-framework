@@ -1872,6 +1872,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
   # Enumerates a specific path on the mounted tree
   def find_first(path)
+    sid = nil
     files = { }
     parm = [
       26,  # Search for ALL files
