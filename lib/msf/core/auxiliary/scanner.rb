@@ -57,6 +57,7 @@ def run
 
   threads_max = datastore['THREADS'].to_i
   @tl = []
+  @scan_errors = []
 
   #
   # Sanity check threading given different conditions
@@ -87,17 +88,22 @@ def run
   begin
 
   if (self.respond_to?('run_range'))
-    # No automated progress reporting for run_range
+    # No automated progress reporting or error handling for run_range
     return run_range(datastore['RHOSTS'])
   end
 
   if (self.respond_to?('run_host'))
 
-    @tl = []
-
     loop do
+      # Stop scanning if we hit a fatal error
+      break if @scan_errors.length > 0
+
       # Spawn threads for each host
       while (@tl.length < threads_max)
+
+        # Stop scanning if we hit a fatal error
+        break if @scan_errors.length > 0
+
         ip = ar.next_ip
         break if not ip
 
@@ -108,6 +114,10 @@ def run
 
           begin
             nmod.run_host(targ)
+          rescue ::Rex::BindFailed
+            if datastore['CHOST']
+              @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
+            end
           rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError
           rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
             raise $!
@@ -119,6 +129,9 @@ def run
           end
         end
       end
+
+      # Stop scanning if we hit a fatal error
+      break if @scan_errors.length > 0
 
       # Exit once we run out of hosts
       if(@tl.length == 0)
@@ -139,6 +152,7 @@ def run
       scanner_show_progress() if @show_progress
     end
 
+    scanner_report_fatal_errors
     return
   end
 
@@ -153,10 +167,12 @@ def run
 
     ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
 
-    @tl = []
-
     while(true)
       nohosts = false
+
+      # Stop scanning if we hit a fatal error
+      break if @scan_errors.length > 0
+
       while (@tl.length < threads_max)
 
         batch = []
@@ -178,6 +194,10 @@ def run
             mybatch = bat.dup
             begin
               nmod.run_batch(mybatch)
+          rescue ::Rex::BindFailed
+            if datastore['CHOST']
+              @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
+            end
             rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
             rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
               raise $!
@@ -196,6 +216,9 @@ def run
           break
         end
       end
+
+      # Stop scanning if we hit a fatal error
+      break if @scan_errors.length > 0
 
       # Exit if there are no more pending threads
       if (@tl.length == 0)
@@ -218,6 +241,7 @@ def run
       scanner_show_progress() if @show_progress
     end
 
+    scanner_report_fatal_errors
     return
   end
 
@@ -238,6 +262,20 @@ def seppuko!
     rescue ::Exception
     end
   end
+end
+
+def scanner_report_fatal_errors
+  return unless @scan_errors && @scan_errors.length > 0
+  return unless @tl
+
+  # First kill any running threads
+  @tl.each {|t| t.kill if t.alive? }
+
+  # Show the unique errors triggered by the scan
+  @scan_errors.uniq.each do |emsg|
+    print_error("Fatal: #{emsg}")
+  end
+  print_status("Scan terminated due to one or more fatal errors")
 end
 
 def scanner_progress
