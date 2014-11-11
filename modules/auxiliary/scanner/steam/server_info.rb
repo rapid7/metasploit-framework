@@ -4,10 +4,12 @@
 ##
 
 require 'msf/core'
+require 'rex/proto/steam'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
+  include Rex::Proto::Steam
 
   def initialize(info = {})
     super(
@@ -32,24 +34,24 @@ class Metasploit3 < Msf::Auxiliary
     [
       Opt::RPORT(27015)
     ], self.class)
-
   end
 
-  # TODO: construct the appropriate probe here.
   def build_probe
-    @probe ||= "\xFF\xFF\xFF\xFFTSource Engine Query\x00"
+    @probe ||= a2s_info
   end
 
-  # Called for each response packet
-  def scanner_process(response, src_host, _src_port)
-    return unless response.size >= 19
+  def scanner_process(response, src_host, src_port)
+    info = a2s_info_decode(response)
+    return unless info
     @results[src_host] ||= []
-    puts "Got something from #{src_host}"
-    #puts response.unpack("NCCZ*Z*Z*Z*SCCCCCCCZ*C")
-
+    if datastore['VERBOSE']
+      print_good("#{src_host}:#{src_port} found '#{info.inspect}'")
+    else
+      print_good("#{src_host}:#{src_port} found '#{info[:name]}'")
+    end
+    @results[src_host] << info
   end
 
-  # Called after the scan block
   def scanner_postscan(_batch)
     @results.each_pair do |host, info|
       report_host(host: host)
