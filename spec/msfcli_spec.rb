@@ -261,11 +261,20 @@ describe Msfcli do
   end
 
   context "#guess_encoder_name" do
-    cli = Msfcli.new([])
-    it "should contain a match for x86/shikata_ga_nai" do
-      encoder = 'x86/shikata_ga_nai'
-      m = cli.guess_encoder_name(encoder)
-      m.should eq([/encoders\/#{encoder}/])
+    subject(:guess_encoder_name) {
+      msfcli.guess_encoder_name(encoder_reference_name)
+    }
+
+    context 'with x86/shikata_ga_nai' do
+      let(:encoder_reference_name) {
+        'x86/shikata_ga_nai'
+      }
+
+      it {
+        is_expected.to eq(
+                           [/encoders\/#{encoder_reference_name}/]
+                       )
+      }
     end
   end
 
