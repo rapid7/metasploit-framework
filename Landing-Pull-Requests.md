@@ -188,27 +188,7 @@ People with commit rights to rapid7/metasploit-framework will have their [keys l
 
 # Cross-linking PRs, Bugs, and Commits
 
-If we had a [Redmine bug](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=420) we were working against, we'd mention it in this commit message as well, and we'd get a cross-reference over in Redmine. There's a special syntax for Redmine bugs, which looks like this:
-
-````
-Land #1234, Fix that thing
-
-[FixRM #5678]
-````
-
-So, mentioning #1234 will create a link between this commit and the PR (you can see [PR #1217](https://github.com/rapid7/metasploit-framework/pull/1217) if you don't believe me), and mentioning `FixRM #5678` or `SeeRM #5678` will update the Redmine bug automatically.
-
-A special phrase of "Closes #1234" will cause PR #1234 to close even if the commit doesn't actually merge everything in PR #1234 (so don't do that unless you mean it). Generally, you don't want to do this, unless you're committing a fix that /wasn't/ the original PR. For example, if you have two competing PRs, and you like one more than the other, you'd say something like:
-
-````
-Land #1234
-
-Fixes the issue more completely than #1230 did.
-
-[FixRM #5678]
-[Closes #1230]
-
-````
+TODO: Update in this new post-Redmine, GitHub issues world
 
 # Merge conflicts
 
