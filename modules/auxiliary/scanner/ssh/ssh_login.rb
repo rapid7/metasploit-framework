@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,10 +10,11 @@ require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
+
+  include Msf::Auxiliary::Scanner
 
   def initialize
     super(
@@ -40,12 +41,11 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
+        Opt::Proxies,
         OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
       ]
     )
-
-    deregister_options('RHOST')
 
   end
 
@@ -113,6 +113,7 @@ class Metasploit3 < Msf::Auxiliary
       host: ip,
       port: rport,
       cred_details: cred_collection,
+      proxies: datastore['Proxies'],
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       connection_timeout: datastore['SSH_TIMEOUT'],
     )
@@ -133,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
         end
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         invalidate_login(credential_data)
@@ -144,9 +145,9 @@ class Metasploit3 < Msf::Auxiliary
         end
         invalidate_login(credential_data)
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-        else
-          invalidate_login(credential_data)
-          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+      else
+        invalidate_login(credential_data)
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       end
     end
   end

@@ -1,18 +1,10 @@
 source 'https://rubygems.org'
 # Add default group gems to `metasploit-framework.gemspec`:
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
-gemspec
+gemspec name: 'metasploit-framework'
 
 group :db do
-  # Needed for Msf::DbManager
-  gem 'activerecord', '>= 3.0.0', '< 4.0.0'
-
-  # Metasploit::Credential database models
-  gem 'metasploit-credential', '~> 0.12.0'
-  # Database models shared between framework and Pro.
-  gem 'metasploit_data_models', '~> 0.21.1'
-  # Needed for module caching in Mdm::ModuleDetails
-  gem 'pg', '>= 0.11'
+  gemspec name: 'metasploit-framework-db'
 end
 
 group :development do
@@ -43,9 +35,7 @@ group :development, :test do
 end
 
 group :pcap do
-  gem 'network_interface', '~> 0.0.1'
-  # For sniffer and raw socket modules
-  gem 'pcaprub'
+  gemspec name: 'metasploit-framework-pcap'
 end
 
 group :test do

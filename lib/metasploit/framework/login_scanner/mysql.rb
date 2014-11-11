@@ -46,40 +46,30 @@ module Metasploit
               :db            => ''
             })
 
-          rescue Rex::HostUnreachable
+          rescue ::SystemCallError, Rex::ConnectionError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof:  "Host was unreachable"
+              proof: e
             })
-          rescue Errno::ECONNREFUSED, Rex::ConnectionRefused
+          rescue RbMysql::ClientError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof:  "Connection refused"
+              proof: e
             })
-          rescue RbMysql::ClientError
+          rescue RbMysql::HostNotPrivileged => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof:  "Connection timeout"
+              proof: e
             })
-          rescue Errno::ETIMEDOUT, Rex::ConnectionTimeout
-            result_options.merge!({
-              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof:  "Operation Timed out"
-            })
-          rescue RbMysql::HostNotPrivileged
-            result_options.merge!({
-              status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof:  "Unable to login from this host due to policy"
-            })
-          rescue RbMysql::AccessDeniedError
+          rescue RbMysql::AccessDeniedError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::INCORRECT,
-              proof:  "Access Denied"
+              proof: e
             })
-          rescue RbMysql::HostIsBlocked
+          rescue RbMysql::HostIsBlocked => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof:  "Host blocked"
+              proof: e
             })
           end
 

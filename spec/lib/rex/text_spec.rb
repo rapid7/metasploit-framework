@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'rex/text'
 
 describe Rex::Text do

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,10 +10,11 @@ require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
+
+  include Msf::Auxiliary::Scanner
 
   attr_accessor :ssh_socket, :good_key
 
@@ -48,6 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
+        Opt::Proxies,
         OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
         OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
@@ -205,6 +207,7 @@ class Metasploit3 < Msf::Auxiliary
       port: rport,
       cred_details: keys,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      proxies: datastore['Proxies'],
       connection_timeout: datastore['SSH_TIMEOUT'],
     )
 
@@ -224,7 +227,7 @@ class Metasploit3 < Msf::Auxiliary
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+            print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
           end
           scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
           invalidate_login(credential_data)
