@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-
 module Rex
 module Proto
 ##
@@ -9,7 +8,6 @@ module Proto
 #
 ##
 module Steam
-
   FRAGMENTED_HEADER = 0xFFFFFFFE
   UNFRAGMENTED_HEADER = 0xFFFFFFFF
 
@@ -47,7 +45,7 @@ module Steam
     info = {}
     info[:version], info[:name], info[:map], info[:folder], info[:game_name],
       info[:game_id], players, players_max, info[:bots],
-      type, env, vis, vac, info[:game_version], edf = payload.unpack("CZ*Z*Z*Z*SCCCCCCCZ*C")
+      type, env, vis, vac, info[:game_version], _edf = payload.unpack("CZ*Z*Z*Z*SCCCCCCCZ*C")
 
     # translate type
     case type
