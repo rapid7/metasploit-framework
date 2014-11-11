@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('FuzzNum', [ true, 'Number of principal_ids to fuzz.',  '300']),
+        OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 300]),
       ], self.class)
   end
 
