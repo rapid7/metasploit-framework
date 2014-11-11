@@ -58,9 +58,9 @@ class Metasploit3 < Msf::Auxiliary
 
     # Get a list if sql server logins using SUSER_NAME()
     print_status("Setup to fuzz #{datastore['FuzzNum']} SQL Server logins.")
-    print_status("Enumerating logins...")
+    print_status('Enumerating logins...')
     sql_logins_list = get_sql_logins
-    if sql_logins_list.nil? || sql_logins_list.length == 0
+    if sql_logins_list.nil? || sql_logins_list.empty?
       print_error('Sorry, somethings went wrong - SQL Server logins were found.')
       disconnect
       return
@@ -92,7 +92,6 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     disconnect
-    return
   end
 
   # Checks if user is a sysadmin
