@@ -478,78 +478,150 @@ describe Msfcli do
   context "#init_modules" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
-    it "should inititalize an exploit module" do
-      args = 'exploit/windows/smb/psexec S'
-      m = ''
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
+    let(:args) {
+      [
+          module_name,
+          mode
+      ]
+    }
+
+    let(:mode) {
+      'S'
+    }
+
+    context 'with exploit/windows/smb/psexec' do
+      let(:module_name) {
+        'exploit/windows/smb/psexec'
       }
-      m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+
+      it 'creates the module in :module' do
+        modules = {}
+
+        Kernel.quietly {
+          modules = msfcli.init_modules
+        }
+
+        expect(modules[:module]).to be_an Msf::Exploit
+        expect(modules[:module].fullname).to eq(module_name)
+      end
     end
 
-    it "should inititalize an auxiliary module" do
-      args = 'auxiliary/server/browser_autopwn S'
-      m = ''
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
+    context 'with auxiliary/server/browser_autopwn' do
+      let(:module_name) {
+        'auxiliary/server/browser_autopwn'
       }
-      m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+
+      it 'creates the module in :module' do
+        modules = {}
+
+        Kernel.quietly {
+          modules = msfcli.init_modules
+        }
+
+        expect(modules[:module]).to be_an Msf::Auxiliary
+        expect(modules[:module].fullname).to eq(module_name)
+      end
     end
 
-    it "should inititalize a post module" do
-      args = 'post/windows/gather/credentials/gpp S'
-      m = ''
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
+    context 'with post/windows/gather/credentials/gpp' do
+      let(:module_name) {
+        'post/windows/gather/credentials/gpp'
       }
-      m[:module].class.to_s.should start_with("Msf::Modules::Mod")
+
+      it 'creates the module in :module' do
+        modules = {}
+
+        Kernel.quietly {
+          modules = msfcli.init_modules
+        }
+
+        expect(modules[:module]).to be_an Msf::Post
+        expect(modules[:module].fullname).to eq(module_name)
+      end
+    end
+    
+    context 'with multi/handler' do
+      let(:module_name) {
+        'multi/handler'
+      }
+
+      it 'creates the module in :module' do
+        modules = {}
+
+        Kernel.quietly {
+          modules = msfcli.init_modules
+        }
+
+        expect(modules[:module]).to be_an Msf::Exploit
+        expect(modules[:module].refname).to eq(module_name)
+      end
+      
+      context 'with payload' do
+        let(:args) {
+          super().tap { |args|
+            args.insert(-2, "payload=#{payload_reference_name}")
+          }
+        }
+        
+        context 'windows/meterpreter/reverse_tcp' do
+          let(:payload_reference_name) do
+            'windows/meterpreter/reverse_tcp'
+          end
+
+          it 'creates payload in :payload' do
+            modules = {}
+
+            Kernel.quietly {
+              modules = msfcli.init_modules
+            }
+
+            expect(modules[:payload]).to be_an Msf::Payload
+            expect(modules[:payload].refname).to eq(payload_reference_name)
+          end
+        end
+      end
+
+      context 'with data store options' do
+        let(:args) {
+          super().tap { |args|
+            args.insert(-2, "#{data_store_key}=#{data_store_value}")
+          }
+        }
+
+        let(:data_store_key) {
+          'lhost'
+        }
+
+        let(:data_store_value) {
+          '127.0.0.1'
+        }
+
+        it 'sets data store on :module' do
+          modules = {}
+
+          Kernel.quietly {
+            modules = msfcli.init_modules
+          }
+
+          expect(modules[:module].datastore[data_store_key]).to eq(data_store_value)
+        end
+      end
     end
 
-    it "should have multi/handler module initialized" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      m    = ''
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
+    context 'with invalid module name' do
+      let(:module_name) {
+        'invalid/module/name'
       }
 
-      m[:module].class.to_s.should =~ /^Msf::Modules::/
-    end
+      it 'returns empty modules Hash' do
+        modules = nil
 
-    it "should have my payload windows/meterpreter/reverse_tcp initialized" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      m    = ''
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-      }
+        Kernel.quietly {
+          modules = msfcli.init_modules
+        }
 
-      m[:payload].class.to_s.should =~ /<Class:/
-    end
-
-    it "should have my modules initialized with the correct parameters" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      m    = ''
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-      }
-
-      m[:module].datastore['lhost'].should eq("127.0.0.1")
-    end
-
-    it "should give me an empty hash as a result of an invalid module name" do
-      args = "WHATEVER payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      m    = ''
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-      }
-
-      m.should eq({})
+        expect(modules).to eq({})
+      end
     end
   end
 
