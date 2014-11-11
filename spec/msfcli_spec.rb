@@ -8,6 +8,13 @@ require 'msf/base'
 
 
 describe Msfcli do
+  subject(:msfcli) {
+    described_class.new(args)
+  }
+
+  let(:args) {
+    []
+  }
 
   # Get stdout:
   # http://stackoverflow.com/questions/11349270/test-output-to-command-line-with-rspec
@@ -23,46 +30,93 @@ describe Msfcli do
   end
 
   context ".initialize" do
-    it "should give me the correct module name in key :module_name after object initialization" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      cli = Msfcli.new(args.split(' '))
-      cli.instance_variable_get(:@args)[:module_name].should eq('multi/handler')
-    end
+    context 'with module name' do
+      let(:args) {
+        [
+            module_name,
+            *params
+        ]
+      }
 
-    it "should give me the correct mode in key :mode after object initialization" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      cli = Msfcli.new(args.split(' '))
-      cli.instance_variable_get(:@args)[:mode].should eq('E')
-    end
+      let(:module_name) {
+        'multi/handler'
+      }
 
-    it "should give me the correct module parameters after object initialization" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      cli = Msfcli.new(args.split(' '))
-      cli.instance_variable_get(:@args)[:params].should eq(['payload=windows/meterpreter/reverse_tcp', 'lhost=127.0.0.1'])
-    end
+      let(:params) {
+        %w{payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1}
+      }
 
-    it "should give me an exploit name without the prefix 'exploit'" do
-      args = "exploit/windows/browser/ie_cbutton_uaf payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      cli = Msfcli.new(args.split(' '))
-      cli.instance_variable_get(:@args)[:module_name].should eq("windows/browser/ie_cbutton_uaf")
-    end
+      let(:parsed_args) {
+        msfcli.instance_variable_get(:@args)
+      }
 
-    it "should give me an exploit name without the prefix 'exploits'" do
-      args = "exploits/windows/browser/ie_cbutton_uaf payload=windows/meterpreter/reverse_tcp lhost=127.0.0.1 E"
-      cli = Msfcli.new(args.split(' '))
-      cli.instance_variable_get(:@args)[:module_name].should eq("windows/browser/ie_cbutton_uaf")
-    end
+      context 'multi/handler' do
+        context 'with mode' do
+          let(:args) {
+            super() + [mode]
+          }
 
-    it "should set mode 's' (summary)" do
-      args = "multi/handler payload=windows/meterpreter/reverse_tcp s"
-      cli = Msfcli.new(args.split(' '))
-      cli.instance_variable_get(:@args)[:mode].should eq('s')
-    end
+          context 'E' do
+            let(:mode) {
+              'E'
+            }
 
-    it "should set mode 'h' (help) as default" do
-      args = "multi/handler"
-      cli = Msfcli.new(args.split(' '))
-      cli.instance_variable_get(:@args)[:mode].should eq('h')
+            it 'parses module name into :module_name arg' do
+              expect(parsed_args[:module_name]).to eq(module_name)
+            end
+
+            it 'parses mode into :mode arg' do
+              expect(parsed_args[:mode]).to eq(mode)
+            end
+
+            it 'parses module parameters between module name and mode' do
+              expect(parsed_args[:params]).to eq(params)
+            end
+          end
+
+          context 's' do
+            let(:mode) {
+              's'
+            }
+
+            it "parses mode as 's' (summary)" do
+              expect(parsed_args[:mode]).to eq(mode)
+            end
+          end
+        end
+
+        context 'without mode' do
+          let(:args) {
+            [
+                module_name
+            ]
+          }
+
+          it "parses mode as 'h' (help) by default" do
+            expect(parsed_args[:mode]).to eq('h')
+          end
+        end
+      end
+
+      context 'exploit/windows/browser/ie_cbutton_uaf' do
+        let(:module_name) {
+          'exploit/windows/browser/ie_cbutton_uaf'
+        }
+
+        it "strips 'exploit/' prefix for :module_name" do
+          expect(parsed_args[:module_name]).to eq('windows/browser/ie_cbutton_uaf')
+        end
+      end
+
+      context 'exploit/windows/browser/ie_cbutton_uaf' do
+        let(:module_name) {
+          'exploits/windows/browser/ie_cbutton_uaf'
+        }
+
+        it "strips 'exploits/' prefix for :module_name" do
+          expect(parsed_args[:module_name]).to eq('windows/browser/ie_cbutton_uaf')
+        end
+      end
     end
   end
 
