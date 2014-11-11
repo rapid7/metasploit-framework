@@ -29,7 +29,7 @@ describe Msfcli do
     fake.string
   end
 
-  context ".initialize" do
+  context "#initialize" do
     context 'with module name' do
       let(:args) {
         [
@@ -120,7 +120,7 @@ describe Msfcli do
     end
   end
 
-  context ".usage" do
+  context "#usage" do
     it "should see a help menu" do
       out = get_stdout {
         msfcli.usage
@@ -132,7 +132,7 @@ describe Msfcli do
   #
   # This one is slow because we're loading all modules
   #
-  context ".dump_module_list" do
+  context "#dump_module_list" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     it "it should dump a list of modules" do
@@ -145,7 +145,7 @@ describe Msfcli do
     end
   end
 
-  context ".guess_payload_name" do
+  context "#guess_payload_name" do
     cli = Msfcli.new([])
 
     it "should contain matches nedded for windows/meterpreter/reverse_tcp" do
@@ -189,7 +189,7 @@ describe Msfcli do
     end
   end
 
-  context ".guess_encoder_name" do
+  context "#guess_encoder_name" do
     cli = Msfcli.new([])
     it "should contain a match for x86/shikata_ga_nai" do
       encoder = 'x86/shikata_ga_nai'
@@ -198,7 +198,7 @@ describe Msfcli do
     end
   end
 
-  context ".guess_nop_name" do
+  context "#guess_nop_name" do
     cli = Msfcli.new([])
     it "should contain a match for guess_nop_name" do
       nop = 'x86/single_byte'
@@ -207,7 +207,7 @@ describe Msfcli do
     end
   end
 
-  context ".generate_whitelist" do
+  context "#generate_whitelist" do
     it "should generate a whitelist for linux/x86/shell/reverse_tcp with encoder x86/fnstenv_mov" do
       args = "multi/handler payload=linux/x86/shell/reverse_tcp lhost=127.0.0.1 encoder=x86/fnstenv_mov E"
       cli = Msfcli.new(args.split(' '))
@@ -274,7 +274,7 @@ describe Msfcli do
     end
   end
 
-  context ".init_modules" do
+  context "#init_modules" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     it "should inititalize an exploit module" do
@@ -352,7 +352,7 @@ describe Msfcli do
     end
   end
 
-  context ".engage_mode" do
+  context "#engage_mode" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
     it "should show me the summary of module auxiliary/scanner/http/http_version" do
