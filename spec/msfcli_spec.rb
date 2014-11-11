@@ -123,8 +123,7 @@ describe Msfcli do
   context ".usage" do
     it "should see a help menu" do
       out = get_stdout {
-        cli = Msfcli.new([])
-        cli.usage
+        msfcli.usage
       }
       out.should =~ /Usage/
     end
