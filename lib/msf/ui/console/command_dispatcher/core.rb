@@ -1655,6 +1655,7 @@ class Core
 
     # Now, perform the actual method
     case method
+    when 'cmd'
       cmds.each do |cmd|
         if sid
           sessions = session_list
