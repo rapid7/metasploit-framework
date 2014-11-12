@@ -59,10 +59,10 @@ Gem::Specification.new do |spec|
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern'
+  spec.add_runtime_dependency 'metasploit-concern', :github => 'rapid7/metasploit-credential', :branch => 'staging/rails-4.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model'
+  spec.add_runtime_dependency 'metasploit-model', :github => 'rapid7/metasploit-credential', :branch => 'staging/rails-4.0'
   # Needed for Meterpreter on Windows, soon others.
   spec.add_runtime_dependency 'meterpreter_bins', '0.0.10'
   # Needed by msfgui and other rpc components
@@ -75,8 +75,14 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
   spec.add_runtime_dependency 'recog', '~> 1.0'
-  # read... lines...
-  spec.add_runtime_dependency 'rb-readline'
+
+  # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
+  #   NoMethodError undefined method `dlopen' for Fiddle:Module
+  unless Gem.win_platform?
+    # Command line editing, history, and tab completion in msfconsole
+    spec.add_runtime_dependency 'rb-readline'
+  end
+
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules

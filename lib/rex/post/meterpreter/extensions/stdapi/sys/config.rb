@@ -20,6 +20,8 @@ module Sys
 ###
 class Config
 
+  SYSTEM_SID = 'S-1-5-18'
+
   def initialize(client)
     self.client = client
   end
@@ -31,6 +33,22 @@ class Config
     request  = Packet.create_request('stdapi_sys_config_getuid')
     response = client.send_request(request)
     client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+  end
+
+  #
+  # Gets the SID of the current process/thread.
+  #
+  def getsid
+    request = Packet.create_request('stdapi_sys_config_getsid')
+    response = client.send_request(request)
+    response.get_tlv_value(TLV_TYPE_SID)
+  end
+
+  #
+  # Determine if the current process/thread is running as SYSTEM
+  #
+  def is_system?
+    getsid == SYSTEM_SID
   end
 
   #
