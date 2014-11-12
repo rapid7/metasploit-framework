@@ -52,7 +52,9 @@ module ReverseHttp
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
+        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ]),
+        OptAddress.new('HttpUnknownRequestForwardHost', [ false, 'Host to forward a request to when the handler receives a request that is not from a payload, instead of answering with HttpUnknownRequestResponse']),
+        OptInt.new('HttpUnknownRequestForwardPort', [ false, 'Port to forward a request to when the handler receives a request that is not from a payload, instead of answering with HttpUnknownRequestResponse', 80]),
       ], Msf::Handler::ReverseHttp)
   end
 
@@ -188,7 +190,15 @@ protected
   def on_request(cli, req, obj)
     resp = Rex::Proto::Http::Response.new
 
-    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
+    further_information = ""
+    if req.headers["Host"]
+      further_information = " at #{req.headers['Host']}"
+    end
+    if req.headers["X-Forwarded-For"]
+      further_information = "#{further_information} via #{req.headers['X-Forwarded-For']}"
+    end
+    
+    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}#{further_information}...")
 
     uri_match = process_uri_resource(req.relative_resource)
 
@@ -335,10 +345,24 @@ protected
         })
 
       else
-        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
-        resp.code    = 200
-        resp.message = "OK"
-        resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match}...")
+        req.inspect.split(/\n/).each { |line| vprint_status("#{cli.peerhost}:#{cli.peerport} #{line}") }
+        if not datastore['HttpUnknownRequestForwardHost']
+          resp.code    = 200
+          resp.message = "OK"
+          resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+        else
+          c = Rex::Proto::Http::Client.new( datastore['HttpUnknownRequestForwardHost'], datastore['HttpUnknownRequestForwardPort'].to_i)
+          new_req = req.clone
+          new_req.headers = req.headers.clone
+          if req.headers["X-Forwarded-For"]
+            new_req.headers["X-Forwarded-For"] = "#{req.headers['X-Forwarded-For']}, #{cli.peerhost}"
+          else
+            new_req.headers["X-Forwarded-For"] = cli.peerhost
+          end
+          
+          resp = c.send_recv(new_req)
+        end
     end
 
     cli.send_response(resp) if (resp)

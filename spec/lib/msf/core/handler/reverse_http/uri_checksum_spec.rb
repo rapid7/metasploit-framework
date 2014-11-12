@@ -13,18 +13,28 @@ describe Msf::Handler::ReverseHttp::UriChecksum do
 
   describe '#generate_uri_checksum' do
     let(:checksum_value) { 92 }
+    let(:expected_length) { 6 }
 
     it 'generates a string that checksums back to the original value' do
       uri_string = dummy_object.generate_uri_checksum(checksum_value)
       expect(Rex::Text.checksum8(uri_string)).to eq checksum_value
     end
-
-    context 'when it fails to generate a random URI' do
-      it 'should use the pre-calculated checksum string' do
-        Rex::Text.stub(:checksum8) { false }
-        expect(dummy_object.generate_uri_checksum(checksum_value)).to eq Msf::Handler::ReverseHttp::UriChecksum::URI_CHECKSUM_PRECALC[checksum_value]
-      end
-
+    
+    it 'generates a string that has the correct length' do
+      uri_string = dummy_object.generate_uri_checksum(checksum_value, expected_length)
+      expect(uri_string.length).to eq expected_length
+    end
+    
+    it 'generates an exception when passed a negative length' do
+      expect { dummy_object.generate_uri_checksum(checksum_value, -1) }.to raise_error(ArgumentError)
+    end
+    
+    it 'generates an exception when passed an invalid checksum' do
+      expect { dummy_object.generate_uri_checksum(256) }.to raise_error(ArgumentError)
+    end
+    
+    it 'generates an exception when it does not find a result' do
+      expect { dummy_object.generate_uri_checksum(2,1) }.to raise_error(RuntimeError)
     end
   end
 
