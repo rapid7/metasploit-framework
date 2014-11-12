@@ -4,6 +4,7 @@ require 'spec_helper'
 require 'msf/core/framework'
 
 describe Msf::Framework do
+  include_context 'Msf::Framework#threads cleaner'
 
   describe "#version" do
     CURRENT_VERSION = "4.10.1-dev"
