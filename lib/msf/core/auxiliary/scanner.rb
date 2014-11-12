@@ -96,13 +96,13 @@ def run
 
     loop do
       # Stop scanning if we hit a fatal error
-      break if @scan_errors.length > 0
+      break if has_fatal_errors?
 
       # Spawn threads for each host
       while (@tl.length < threads_max)
 
         # Stop scanning if we hit a fatal error
-        break if @scan_errors.length > 0
+        break if has_fatal_errors?
 
         ip = ar.next_ip
         break if not ip
@@ -131,7 +131,7 @@ def run
       end
 
       # Stop scanning if we hit a fatal error
-      break if @scan_errors.length > 0
+      break if has_fatal_errors?
 
       # Exit once we run out of hosts
       if(@tl.length == 0)
@@ -152,7 +152,7 @@ def run
       scanner_show_progress() if @show_progress
     end
 
-    scanner_report_fatal_errors
+    scanner_handle_fatal_errors
     return
   end
 
@@ -171,7 +171,7 @@ def run
       nohosts = false
 
       # Stop scanning if we hit a fatal error
-      break if @scan_errors.length > 0
+      break if has_fatal_errors?
 
       while (@tl.length < threads_max)
 
@@ -218,7 +218,7 @@ def run
       end
 
       # Stop scanning if we hit a fatal error
-      break if @scan_errors.length > 0
+      break if has_fatal_errors?
 
       # Exit if there are no more pending threads
       if (@tl.length == 0)
@@ -241,7 +241,7 @@ def run
       scanner_show_progress() if @show_progress
     end
 
-    scanner_report_fatal_errors
+    scanner_handle_fatal_errors
     return
   end
 
@@ -264,8 +264,12 @@ def seppuko!
   end
 end
 
-def scanner_report_fatal_errors
-  return unless @scan_errors && @scan_errors.length > 0
+def has_fatal_errors?
+  @scan_errors && !@scan_errors.empty?
+end
+
+def scanner_handle_fatal_errors
+  return unless has_fatal_errors?
   return unless @tl
 
   # First kill any running threads
@@ -275,7 +279,7 @@ def scanner_report_fatal_errors
   @scan_errors.uniq.each do |emsg|
     print_error("Fatal: #{emsg}")
   end
-  print_status("Scan terminated due to one or more fatal errors")
+  print_error("Scan terminated due to one or more fatal errors")
 end
 
 def scanner_progress
@@ -284,6 +288,8 @@ def scanner_progress
 end
 
 def scanner_show_progress
+  # it should already be in the process of shutting down if there are fatal errors
+  return if has_fatal_errors?
   pct = scanner_progress
   if pct >= (@range_percent + @show_percent)
     @range_percent = @range_percent + @show_percent
