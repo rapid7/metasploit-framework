@@ -22,7 +22,6 @@ class Msfcli
 
   # @attribute framework
   #   @return [Msf::Simple::Framework]
-  attr_writer :framework
 
   #
   # initialize
@@ -46,8 +45,22 @@ class Msfcli
   # Instance Methods
   #
 
+  # The framework to create and list modules.
+  #
+  # @return [Msf::Simple::Framework]
   def framework
     @framework ||= Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
+  end
+
+  # Sets {#framework}.
+  #
+  # @raise [ArgumentError] if {#framework} already set
+  def framework=(framework)
+    if instance_variable_defined? :@framework
+      fail ArgumentError.new("framework already set")
+    end
+
+    @framework = framework
   end
 
   #
@@ -92,7 +105,7 @@ class Msfcli
     # msfcli will end up loading EVERYTHING to memory to show you a help
     # menu plus a list of modules available. Really expensive if you ask me.
     $stdout.puts "[*] Please wait while we load the module tree..."
-    framework = Msf::Simple::Framework.create
+    self.framework = Msf::Simple::Framework.create
     ext = ''
 
     tbl = Rex::Ui::Text::Table.new(

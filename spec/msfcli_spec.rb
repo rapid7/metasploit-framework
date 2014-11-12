@@ -143,6 +143,11 @@ describe Msfcli do
   #
   context "#dump_module_list" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
+    include_context 'Msf::Framework#threads cleaner'
+
+    let(:framework) {
+      msfcli.framework
+    }
 
     it 'dumps a listof modules' do
       tbl = ''
@@ -485,12 +490,17 @@ describe Msfcli do
 
   context "#init_modules" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
+    include_context 'Msf::Framework#threads cleaner'
 
     let(:args) {
       [
           module_name,
           mode
       ]
+    }
+
+    let(:framework) {
+      msfcli.framework
     }
 
     let(:mode) {
@@ -635,6 +645,7 @@ describe Msfcli do
 
   context "#engage_mode" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
+    include_context 'Msf::Framework#threads cleaner'
 
     subject(:engage_mode) {
       msfcli.engage_mode(modules)
@@ -645,6 +656,10 @@ describe Msfcli do
           module_name,
           mode
       ]
+    }
+
+    let(:framework) {
+      msfcli.framework
     }
 
     let(:modules) {
@@ -776,6 +791,12 @@ describe Msfcli do
     end
 
     context 'with windows/smb/ms08_067_netapi' do
+      let(:args) {
+        super().tap { |args|
+          args.insert(-2, "RHOST=127.0.0.1")
+        }
+      }
+
       let(:module_name) {
         'windows/smb/ms08_067_netapi'
       }
