@@ -628,119 +628,159 @@ describe Msfcli do
   context "#engage_mode" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
-    it "should show me the summary of module auxiliary/scanner/http/http_version" do
-      args = 'auxiliary/scanner/http/http_version s'
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
+    subject(:engage_mode) {
+      msfcli.engage_mode(modules)
+    }
+
+    let(:args) {
+      [
+          module_name,
+          mode
+      ]
+    }
+
+    let(:modules) {
+      msfcli.init_modules
+    }
+
+    context 'with auxiliary/scanner/http/http_put' do
+      let(:module_name) {
+        'auxiliary/scanner/http/http_put'
       }
 
-      stdout.should =~ /Module: auxiliary\/scanner\/http\/http_version/
+      context 'with mode' do
+        context 'ac' do
+          let(:mode) {
+            'ac'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/DELETE/)
+          }
+        end
+      end
     end
 
-    it "should show me the options of module auxiliary/scanner/http/http_version" do
-      args = 'auxiliary/scanner/http/http_version O'
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
+    context 'with auxiliary/scanner/http/http_version' do
+      let(:module_name) {
+        'auxiliary/scanner/http/http_version'
       }
 
-      stdout.should =~ /The target address range or CIDR identifier/
+      context 'with mode' do
+        context 'A' do
+          let(:mode) {
+            'A'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/UserAgent/)
+          }
+        end
+
+        context 'I' do
+          let(:mode) {
+            'I'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/Insert fake relative directories into the uri/)
+          }
+        end
+
+        context 'O' do
+          let(:mode) {
+            'O'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/The target address range or CIDR identifier/)
+          }
+        end
+
+        context 'P' do
+          let(:mode) {
+            'P'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/This type of module does not support payloads/)
+          }
+        end
+
+        context 's' do
+          let(:mode) {
+            's'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match %r{Module: auxiliary/scanner/http/http_version}
+          }
+        end
+
+        context 't' do
+          let(:mode) {
+            't'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/This type of module does not support targets/)
+          }
+        end
+      end
     end
 
-    it "should me the advanced options of module auxiliary/scanner/http/http_version" do
-      args = 'auxiliary/scanner/http/http_version A'
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
+    context 'with windows/browser/ie_cbutton_uaf' do
+      let(:module_name) {
+        'windows/browser/ie_cbutton_uaf'
       }
 
-      stdout.should =~ /UserAgent/
+      context 'with mode' do
+        context 'ac' do
+          let(:mode) {
+            'ac'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/This type of module does not support actions/)
+          }
+        end
+
+        context 'P' do
+          let(:mode) {
+            'P'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/windows\/meterpreter\/reverse_tcp/)
+          }
+        end
+
+        context 'T' do
+          let(:mode) {
+            'T'
+          }
+
+          specify {
+            expect(get_stdout { engage_mode }).to match(/IE 8 on Windows 7/)
+          }
+        end
+      end
     end
 
-    it "should show me the IDS options of module auxiliary/scanner/http/http_version" do
-      args = 'auxiliary/scanner/http/http_version I'
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
+    context 'with windows/smb/ms08_067_netapi' do
+      let(:module_name) {
+        'windows/smb/ms08_067_netapi'
       }
-      stdout.should =~ /Insert fake relative directories into the uri/
-    end
 
-    it "should show me the targets available for module windows/browser/ie_cbutton_uaf" do
-      args = "windows/browser/ie_cbutton_uaf T"
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
-      }
-      stdout.should =~ /IE 8 on Windows 7/
-    end
+      context 'with mode C' do
+        let(:mode) {
+          'C'
+        }
 
-    it "should show me the payloads available for module windows/browser/ie_cbutton_uaf" do
-      args = "windows/browser/ie_cbutton_uaf P"
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
-      }
-      stdout.should =~ /windows\/meterpreter\/reverse_tcp/
+        specify {
+          expect(get_stdout { engage_mode }).to match(/#{Msf::Exploit::CheckCode::Unknown[1]}/)
+        }
+      end
     end
-
-    it "should try to run the check function of an exploit" do
-      args = "windows/smb/ms08_067_netapi rhost=0.0.0.1 C"  # Some BS IP so we can fail
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
-      }
-      stdout.should =~ /#{Msf::Exploit::CheckCode::Unknown[1]}/
-    end
-
-    it "should warn my auxiliary module isn't supported by mode 'p' (show payloads)" do
-      args = 'auxiliary/scanner/http/http_version p'
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
-      }
-      stdout.should =~ /This type of module does not support payloads/
-    end
-
-    it "should warn my auxiliary module isn't supported by mode 't' (show targets)" do
-      args = 'auxiliary/scanner/http/http_version t'
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
-      }
-      stdout.should =~ /This type of module does not support targets/
-    end
-
-    it "should warn my exploit module isn't supported by mode 'ac' (show actions)" do
-      args = 'windows/browser/ie_cbutton_uaf ac'
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
-      }
-      stdout.should =~ /This type of module does not support actions/
-    end
-
-    it "should show actions available for module auxiliary/scanner/http/http_put" do
-      args = "auxiliary/scanner/http/http_put ac"
-      stdout = get_stdout {
-        cli = Msfcli.new(args.split(' '))
-        m = cli.init_modules
-        cli.engage_mode(m)
-      }
-      stdout.should =~ /DELETE/
-    end
-
   end
-
 end
