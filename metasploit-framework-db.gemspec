@@ -26,14 +26,13 @@ Gem::Specification.new do |spec|
   # no files, just dependencies
   spec.files         = []
 
-  # The Metasploit ecosystem is not ready for Rails 4 as it uses features of Rails 3.X that are removed in Rails 4.
-  rails_version_constraint = '< 4.0.0'
+  rails_version_constraint = ['>= 4.0.9', '< 4.1.0']
 
   spec.add_runtime_dependency 'activerecord', rails_version_constraint
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential', :github => 'rapid7/metasploit-credential', :branch => 'staging/rails-4.0'
+  #spec.add_runtime_dependency 'metasploit-credential'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models', :github => 'rapid7/metasploit-credential', :branch => 'staging/rails-4.0'
+  #spec.add_runtime_dependency 'metasploit_data_models'
   # depend on metasploit-framewrok as the optional gems are useless with the actual code
   spec.add_runtime_dependency 'metasploit-framework', "= #{spec.version}"
   # Needed for module caching in Mdm::ModuleDetails
