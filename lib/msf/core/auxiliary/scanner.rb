@@ -59,8 +59,14 @@ def run
   @tl = []
 
   #
-  # Sanity check threading on different platforms
+  # Sanity check threading given different conditions
   #
+
+  if datastore['CPORT'].to_i != 0 && threads_max > 1
+    print_error("Warning: A maximum of one thread is possible when a source port is set (CPORT)")
+    print_error("Thread count has been adjusted to 1")
+    threads_max = 1
+  end
 
   if(Rex::Compat.is_windows)
     if(threads_max > 16)
