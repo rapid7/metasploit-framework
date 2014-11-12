@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     # Get list of users that can be impersonated
     print_status("#{peer} - Enumerating a list of users that can be impersonated...")
     imp_user_list = check_imp_users
-    if imp_user_list.nil? || imp_user_list.length == 0
+    if imp_user_list.nil? || imp_user_list.empty?
       print_error("#{peer} - Sorry, the current user doesnt have permissions to impersonate anyone.")
       return
     else
