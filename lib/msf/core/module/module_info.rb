@@ -74,7 +74,7 @@ module Msf::Module::ModuleInfo
   # Checks and merges the supplied key/value pair in the supplied hash.
   #
   def merge_check_key(info, name, val)
-    if (self.respond_to?("merge_info_#{name.downcase}"))
+    if (self.respond_to?("merge_info_#{name.downcase}", true))
       eval("merge_info_#{name.downcase}(info, val)")
     else
       # If the info hash already has an entry for this name
