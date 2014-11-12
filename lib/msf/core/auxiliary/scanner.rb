@@ -59,8 +59,14 @@ def run
   @tl = []
 
   #
-  # Sanity check threading on different platforms
+  # Sanity check threading given different conditions
   #
+
+  if datastore['CPORT'].to_i != 0 && threads_max > 1
+    print_error("Warning: A maximum of one thread is possible when a source port is set (CPORT)")
+    print_error("Thread count has been adjusted to 1")
+    threads_max = 1
+  end
 
   if(Rex::Compat.is_windows)
     if(threads_max > 16)
@@ -241,10 +247,10 @@ end
 
 def scanner_show_progress
   pct = scanner_progress
-  if(pct >= (@range_percent + @show_percent))
+  if pct >= (@range_percent + @show_percent)
     @range_percent = @range_percent + @show_percent
     tdlen = @range_count.to_s.length
-    print_status("Scanned #{"%.#{tdlen}d" % @range_done} of #{@range_count} hosts (#{"%.3d" % pct.to_i}% complete)")
+    print_status(sprintf("Scanned %#{tdlen}d of %d hosts (%d%% complete)", @range_done, @range_count, pct))
   end
 end
 

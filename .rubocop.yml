@@ -8,7 +8,7 @@
 
 # inherit_from: .rubocop_todo.yml
 
-Style/ClassLength:
+Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
   Enabled: true
   Exclude:
@@ -25,14 +25,14 @@ Style/Encoding:
   Description: 'We prefer binary to UTF-8.'
   EnforcedStyle: 'when_needed'
 
-Style/LineLength:
+Metrics/LineLength:
   Description: >-
                   Metasploit modules often pattern match against very
                   long strings when identifying targets.
   Enabled: true
   Max: 180
 
-Style/MethodLength:
+Metrics/MethodLength:
   Enabled: true
   Description: >-
                   While the style guide suggests 10 lines, exploit definitions
@@ -42,6 +42,11 @@ Style/MethodLength:
 # Basically everything in metasploit needs binary encoding, not UTF-8.
 # Disable this here and enforce it through msftidy
 Style/Encoding:
+  Enabled: false
+
+# %q() is super useful for long strings split over multiple lines and
+# is very common in module constructors for things like descriptions
+Style/UnneededPercentQ:
   Enabled: false
 
 Style/NumericLiterals:
