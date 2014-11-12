@@ -7,7 +7,7 @@ require 'msf/ui'
 require 'msf/base'
 
 
-describe Msfcli do
+describe Msfcli, :content do
   subject(:msfcli) {
     described_class.new(args)
   }
