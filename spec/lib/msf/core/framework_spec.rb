@@ -6,6 +6,18 @@ require 'msf/core/framework'
 describe Msf::Framework do
   include_context 'Msf::Framework#threads cleaner'
 
+  context '#initialize' do
+    subject(:framework) {
+      described_class.new
+    }
+
+    it 'creates no threads' do
+      expect {
+        framework
+      }.not_to change { Thread.list.count }
+    end
+  end
+
   describe "#version" do
     CURRENT_VERSION = "4.10.1-dev"
 
