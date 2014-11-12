@@ -276,10 +276,11 @@ def scanner_handle_fatal_errors
   @tl.each {|t| t.kill if t.alive? }
 
   # Show the unique errors triggered by the scan
-  @scan_errors.uniq.each do |emsg|
+  uniq_errors = @scan_errors.uniq
+  uniq_errors.each do |emsg|
     print_error("Fatal: #{emsg}")
   end
-  print_error("Scan terminated due to one or more fatal errors")
+  print_error("Scan terminated due to #{uniq_errors.size} fatal error(s)")
 end
 
 def scanner_progress
