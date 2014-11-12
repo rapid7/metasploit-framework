@@ -12,9 +12,9 @@ describe Msfcli do
     described_class.new(args)
   }
 
-  let(:args) {
-    []
-  }
+  #
+  # methods
+  #
 
   # Get stdout:
   # http://stackoverflow.com/questions/11349270/test-output-to-command-line-with-rspec
@@ -28,6 +28,14 @@ describe Msfcli do
     end
     fake.string
   end
+
+  #
+  # lets
+  #
+
+  let(:args) {
+    []
+  }
 
   context "#initialize" do
     context 'with module name' do
