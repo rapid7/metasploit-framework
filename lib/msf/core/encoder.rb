@@ -162,14 +162,14 @@ class Encoder < Module
   # Returns MODULE_ENCODER to indicate that this is an encoder module.
   #
   def self.type
-    return MODULE_ENCODER
+    return Msf::MODULE_ENCODER
   end
 
   #
   # Returns MODULE_ENCODER to indicate that this is an encoder module.
   #
   def type
-    return MODULE_ENCODER
+    return Msf::MODULE_ENCODER
   end
 
   #

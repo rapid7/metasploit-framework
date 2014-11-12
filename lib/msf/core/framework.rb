@@ -69,7 +69,7 @@ class Framework
   def initialize(opts={})
 
     # Allow specific module types to be loaded
-    types = opts[:module_types] || MODULE_TYPES
+    types = opts[:module_types] || Msf::MODULE_TYPES
 
     self.threads   = ThreadManager.new(self)
     self.events    = EventDispatcher.new(self)
