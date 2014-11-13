@@ -302,6 +302,9 @@ module Msf::DBManager::Import
         when /MetasploitV4/
           @import_filedata[:type] = "Metasploit XML"
           return :msf_xml
+        when /MetasploitV5/
+          @import_filedata[:type] = "Metasploit XML"
+          return :msf_xml
         when /netsparker/
           @import_filedata[:type] = "NetSparker XML"
           return :netsparker_xml
