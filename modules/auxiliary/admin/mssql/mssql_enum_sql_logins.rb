@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
         pretty simple, because the principal IDs assigned to logins are incremental.  Once logins
         have been enumerated they can be verified via sp_defaultdb error analysis. This is
         important, because not all of the principal IDs resolve to SQL logins (some resolve to
-        roles instead) Once logins have been enumerated, they can be used in dictionary attacks.
+        roles instead). Once logins have been enumerated, they can be used in dictionary attacks.
       },
       'Author'      => ['nullbind <scott.sutherland[at]netspi.com>'],
       'License'     => MSF_LICENSE,
