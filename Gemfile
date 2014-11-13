@@ -5,7 +5,6 @@ gemspec name: 'metasploit-framework'
 
 group :db do
   gemspec name: 'metasploit-framework-db'
-  gem 'metasploit-credential', git: 'https://github.com/rapid7/metasploit-credential.git', branch: 'bug/MSP-11609/blank-username-failure'
 end
 
 group :development do
