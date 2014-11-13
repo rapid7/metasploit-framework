@@ -15,21 +15,22 @@ class Metasploit3 < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Gather Quake Server Information',
-        'Description'    => %q(
-          This module uses the getstatus or getinfo request to obtain information from a Quakeserver.
+        'Name'          => 'Gather Quake Server Information',
+        'Description'   => %q(
+          This module uses the getstatus or getinfo request to obtain
+          information from a Quakeserver.
         ),
-        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com',
-        'References'     =>
+        'Author'        => 'Jon Hart <jon_hart[at]rapid7.com',
+        'References'    =>
           [
             ['URL', 'ftp://ftp.idsoftware.com/idstuff/quake3/docs/server.txt']
           ],
-        'License'        => MSF_LICENSE,
-        'Actions'     => [
+        'License'       => MSF_LICENSE,
+        'Actions'       => [
           ['status', 'Description' => 'Use the getstatus command'],
-          ['info', 'Description' => 'Use the getinfo command'],
+          ['info', 'Description' => 'Use the getinfo command']
         ],
-        'DefaultAction'  => 'status'
+        'DefaultAction' => 'status'
       )
     )
 
@@ -60,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
       stuff.inspect
     else
       # try to get the host name, game name and version
-      stuff.select { |k,v| %w(hostname sv_hostname gamename com_gamename version).include?(k) }
+      stuff.select { |k, _| %w(hostname sv_hostname gamename com_gamename version).include?(k) }
     end
   end
 

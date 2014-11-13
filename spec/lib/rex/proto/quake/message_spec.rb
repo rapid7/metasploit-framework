@@ -36,15 +36,17 @@ describe Rex::Proto::Quake do
     end
 
     it 'should properly decode infostrings' do
-      expect(subject.decode_infostring('a\1\b\2\c\blah')).to eq({'a' => '1', 'b' => '2', 'c' => 'blah'})
+      expect(subject.decode_infostring('a\1\b\2\c\blah')).to eq(
+        'a' => '1', 'b' => '2', 'c' => 'blah'
+      )
     end
   end
 
   describe '#decode_response' do
     it 'should raise when server-side errors are encountered' do
-      expect {
+      expect do
         subject.decode_response(subject.encode_message("print\nsomeerror\n"))
-      }.to raise_error(::ArgumentError)
+      end.to raise_error(::ArgumentError)
     end
   end
 
@@ -71,29 +73,29 @@ describe Rex::Proto::Quake do
   describe '#decode_status' do
     it 'should decode status responses properly' do
       expected_status = {
-       "bot_minplayers" => "0",
-       "capturelimit" => "8",
-       "com_gamename" => "Quake3Arena",
-       "com_protocol" => "71",
-       "dmflags" => "0",
-       "fraglimit" => "30",
-       "g_gametype" => "0",
-       "g_maxGameClients" => "0",
-       "g_needpass" => "0",
-       "gamename" => "baseq3",
-       "mapname" => "q3dm2",
-       "sv_allowDownload" => "0",
-       "sv_dlRate" => "100",
-       "sv_floodProtect" => "1",
-       "sv_hostname" => "noname",
-       "sv_maxPing" => "0",
-       "sv_maxRate" => "10000",
-       "sv_maxclients" => "8",
-       "sv_minPing" => "0",
-       "sv_minRate" => "0",
-       "sv_privateClients" => "0",
-       "timelimit" => "25",
-       "version" => "ioq3 1.36+svn2202-1/Ubuntu linux-x86_64 Dec 12 2011"
+        "bot_minplayers" => "0",
+        "capturelimit" => "8",
+        "com_gamename" => "Quake3Arena",
+        "com_protocol" => "71",
+        "dmflags" => "0",
+        "fraglimit" => "30",
+        "g_gametype" => "0",
+        "g_maxGameClients" => "0",
+        "g_needpass" => "0",
+        "gamename" => "baseq3",
+        "mapname" => "q3dm2",
+        "sv_allowDownload" => "0",
+        "sv_dlRate" => "100",
+        "sv_floodProtect" => "1",
+        "sv_hostname" => "noname",
+        "sv_maxPing" => "0",
+        "sv_maxRate" => "10000",
+        "sv_maxclients" => "8",
+        "sv_minPing" => "0",
+        "sv_minRate" => "0",
+        "sv_privateClients" => "0",
+        "timelimit" => "25",
+        "version" => "ioq3 1.36+svn2202-1/Ubuntu linux-x86_64 Dec 12 2011"
       }
       actual_status = subject.decode_status(IO.read(File.join(File.dirname(__FILE__), 'status_response.bin')))
       expect(actual_status).to eq(expected_status)

@@ -53,7 +53,7 @@ module Quake
       # XXX: is there a better exception to throw here?
       fail ::ArgumentError, "#{type} error: #{error}"
     # why doesn't this work?
-    #elsif /^#{type}Response\n(?<infostring>.*)/m =~ resp
+    # elsif /^#{type}Response\n(?<infostring>.*)/m =~ resp
     elsif resp =~ /^#{type}Response\n(.*)/m
       decode_infostring(Regexp.last_match(1))
     else
