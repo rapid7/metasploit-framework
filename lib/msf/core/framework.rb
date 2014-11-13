@@ -91,7 +91,6 @@ class Framework
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
     self.plugins   = PluginManager.new(self)
-    self.db        = DBManager.new(self, options)
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = self.threads
@@ -188,11 +187,16 @@ class Framework
   # unloading of plugins.
   #
   attr_reader   :plugins
-  #
+
   # The framework instance's db manager. The db manager
   # maintains the database db and handles db events
   #
-  attr_reader   :db
+  # @return [Msf::DBManager]
+  def db
+    synchronize {
+      @db ||= Msf::DBManager.new(self, options)
+    }
+  end
 
   # Session manager that tracks sessions associated with this framework
   # instance over the course of their lifetime.
