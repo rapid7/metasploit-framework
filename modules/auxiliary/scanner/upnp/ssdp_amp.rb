@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options([
-      Opt::RPORT(1900),
+      OptString.new('RPORTS', [true, 'Ports to probe', '1900']),
       OptBool.new('SHORT', [ false, "Does a shorter request, for a higher amplifier, not compatible with all devices", false])
     ], self.class)
   end
