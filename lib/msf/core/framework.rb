@@ -78,19 +78,20 @@ class Framework
   #
   # Creates an instance of the framework context.
   #
-  def initialize(opts={})
+  def initialize(options={})
+    self.options = options
     # call super to initialize MonitorMixin.  #synchronize won't work without this.
     super()
 
     # Allow specific module types to be loaded
-    types = opts[:module_types] || Msf::MODULE_TYPES
+    types = options[:module_types] || Msf::MODULE_TYPES
 
     self.events    = EventDispatcher.new(self)
     self.modules   = ModuleManager.new(self,types)
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
     self.plugins   = PluginManager.new(self)
-    self.db        = DBManager.new(self, opts)
+    self.db        = DBManager.new(self, options)
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = self.threads
@@ -214,6 +215,12 @@ class Framework
   end
 
 protected
+
+  # @!attribute options
+  #   Options passed to {#initialize}
+  #
+  #   @return [Hash]
+  attr_accessor :options
 
   attr_writer   :events # :nodoc:
   attr_writer   :modules # :nodoc:
