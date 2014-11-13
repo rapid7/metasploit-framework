@@ -118,7 +118,8 @@ module Metasploit
               threads_logger_pathname = parent_pathname.join('logger')
               load_pathname = parent_pathname.parent.parent.parent.parent.expand_path
 
-              ENV['RUBYOPT'] = "-I#{load_pathname} -r#{threads_logger_pathname} #{ENV['RUBYOPT']}"
+              # Must append to RUBYOPT or Rubymine debugger will not work
+              ENV['RUBYOPT'] = "#{ENV['RUBYOPT']} -I#{load_pathname} -r#{threads_logger_pathname}"
             end
 
             Rake::Task.define_task(spec: 'metasploit:framework:spec:threads:suite')
