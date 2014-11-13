@@ -39,7 +39,14 @@ module Auxiliary::UDPScanner
   end
 
   def setup
+    if datastore['RPORTS'].blank?
+      fail ::ArgumentError, 'No RPORTS specified'
+    end
+
     @rports = Rex::Socket.portspec_crack(datastore['RPORTS'])
+    if @rports.empty?
+      fail ::ArgumentError, "No valid ports found from RPORTS '#{datastore['RPORTS']}'"
+    end
   end
 
   # Define our batch size
