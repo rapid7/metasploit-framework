@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
         ManageEngine Password Manager Pro (PMP) has an authenticated blind SQL injection
         vulnerability in SQLAdvancedALSearchResult.cc that can be abused to escalate
         privileges and obtain Super Administrator access. A Super Administrator can then
-        use its privileges to dump the whole password database in CSV format. PMP can use
+        use his privileges to dump the whole password database in CSV format. PMP can use
         both MySQL and PostgreSQL databases but this module only exploits the latter as
         MySQL does not support stacked queries with Java. PostgreSQL is the default database
         in v6.8 and above, but older PMP versions can be upgraded and continue using MySQL,
