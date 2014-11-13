@@ -27,14 +27,17 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>' ],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes'  => [ 'meterpreter' ],
+        'References'   => [
+        [ 'URL', 'http://www.shelliscoming.com/2014/11/getting-outbound-filtering-rules-by.html' ]
+      ]
       ))
     register_options(
       [
         OptAddress.new("ADDRESS" , [ true, 'Destination IP address.']),
         OptInt.new('HOPS', [true, 'Number of hops to get.', 3]),
         OptInt.new('MIN_TTL', [true, 'Starting TTL value.', 1]),
-        OptString.new('PORTS', [true, 'Ports to test (e.g. 80,443,100-110).']),
+        OptString.new('PORTS', [true, 'Ports to test (e.g. 80,443,100-110).','80,443']),
         OptInt.new('TIMEOUT', [true, 'Timeout for the ICMP socket.', 3]),
         OptBool.new('STOP', [true, 'Stop when it finds a public IP.', false])
       ], self.class)
@@ -165,7 +168,7 @@ class Metasploit3 < Msf::Post
         hop = connections(remote, dport, h_icmp, h_tcp, to)
         if hop != nil
           print_good("#{i} #{hop}")
-          if datastore['STOP'] == true and hop !~ /^\s*(?:10\.|192\.168|172.(?:1[6-9]|2[0-9]|3[01])\.|169\.254)/
+          if datastore['STOP'] == true and not Rex::Socket.is_internal?(hop)
             print_good("Public IP reached. The port #{dport} is not filtered")
             break
           end
