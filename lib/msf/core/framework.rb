@@ -85,7 +85,6 @@ class Framework
     # Allow specific module types to be loaded
     types = opts[:module_types] || Msf::MODULE_TYPES
 
-    self.threads   = ThreadManager.new(self)
     self.events    = EventDispatcher.new(self)
     self.modules   = ModuleManager.new(self,types)
     self.sessions  = SessionManager.new(self)
@@ -199,11 +198,16 @@ class Framework
   # maintains the database db and handles db events
   #
   attr_reader   :db
-  #
+
   # The framework instance's thread manager. The thread manager
   # provides a cleaner way to manage spawned threads
   #
-  attr_reader   :threads
+  # @return [Msf::ThreadManager]
+  def threads
+    synchronize {
+      @threads ||= Msf::ThreadManager.new(self)
+    }
+  end
 
 protected
 
@@ -215,7 +219,6 @@ protected
   attr_writer   :jobs # :nodoc:
   attr_writer   :plugins # :nodoc:
   attr_writer   :db # :nodoc:
-  attr_writer   :threads # :nodoc:
 end
 
 class FrameworkEventSubscriber
