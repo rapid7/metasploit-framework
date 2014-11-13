@@ -93,7 +93,7 @@ class Framework
     self.plugins   = PluginManager.new(self)
 
     # Configure the thread factory
-    Rex::ThreadFactory.provider = self.threads
+    Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
 
     subscriber = FrameworkEventSubscriber.new(self)
     events.add_exploit_subscriber(subscriber)
