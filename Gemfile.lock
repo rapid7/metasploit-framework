@@ -1,3 +1,17 @@
+GIT
+  remote: https://github.com/rapid7/metasploit-credential.git
+  revision: b5c36d0df013969df64625cfe23bd9a0ab3d2ee6
+  branch: bug/MSP-11609/blank-username-failure
+  specs:
+    metasploit-credential (0.13.3.pre.blank.pre.username.pre.failure)
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.28.0)
+      metasploit_data_models (~> 0.21.0)
+      pg
+      railties (< 4.0.0)
+      rubyntlm
+      rubyzip (~> 1.1)
+
 PATH
   remote: .
   specs:
@@ -22,7 +36,7 @@ PATH
       tzinfo
     metasploit-framework-db (4.10.1.pre.dev)
       activerecord (< 4.0.0)
-      metasploit-credential (~> 0.13.0)
+      metasploit-credential
       metasploit-framework (= 4.10.1.pre.dev)
       metasploit_data_models (~> 0.21.1)
       pg (>= 0.11)
@@ -112,14 +126,6 @@ GEM
     metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.13.2)
-      metasploit-concern (~> 0.3.0)
-      metasploit-model (~> 0.28.0)
-      metasploit_data_models (~> 0.21.0)
-      pg
-      railties (< 4.0.0)
-      rubyntlm
-      rubyzip (~> 1.1)
     metasploit-model (0.28.0)
       activesupport
       railties (< 4.0.0)
@@ -233,6 +239,7 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
+  metasploit-credential!
   metasploit-framework!
   metasploit-framework-db!
   metasploit-framework-pcap!
