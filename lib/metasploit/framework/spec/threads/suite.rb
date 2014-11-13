@@ -31,7 +31,7 @@ module Metasploit
             unless @configured
               RSpec.configure do |config|
                 config.before(:suite) do
-                  thread_count = Thread.list.count
+                  thread_count = Metasploit::Framework::Spec::Threads::Suite.non_debugger_thread_list.count
 
                   # check with if first so that error message can be constructed lazily
                   if thread_count > EXPECTED_THREAD_COUNT_AROUND_SUITE
@@ -68,7 +68,7 @@ module Metasploit
                     f.puts 'after(:suite)'
                   end
 
-                  thread_list = Thread.list
+                  thread_list = Metasploit::Framework::Spec::Threads::Suite.non_debugger_thread_list
 
                   thread_uuids = thread_list.map { |thread|
                     thread[Metasploit::Framework::Spec::Threads::Suite::UUID_THREAD_LOCAL_VARIABLE]
@@ -194,6 +194,15 @@ module Metasploit
             end
 
             lines_by_thread_uuid
+          end
+
+          # @return
+          def self.non_debugger_thread_list
+            Thread.list.reject { |thread|
+              # don't do `is_a? Debugger::DebugThread` because it requires Debugger::DebugThread to be loaded, which it
+              # won't when not debugging.
+              thread.class.name == 'Debugger::DebugThread'
+            }
           end
         end
       end
