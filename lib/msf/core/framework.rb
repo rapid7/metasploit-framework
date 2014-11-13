@@ -218,6 +218,16 @@ class Framework
     }
   end
 
+  # Whether {#threads} has been initialized
+  #
+  # @return [true] if {#threads} has been initialized
+  # @return [false] otherwise
+  def threads?
+    synchronize {
+      instance_variable_defined? :@threads
+    }
+  end
+
 protected
 
   # @!attribute options
