@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Microsoft SQL Server - SQLi Escalate Execute As',
       'Description'    => %q{
         This module can be used escalate privileges if the IMPERSONATION privilege has been
-        assigned to the user via error based SQL injection.  In most cases this results in
+        assigned to the user via error based SQL injection.  In most cases, this results in
         additional data access, but in some cases it can be used to gain sysadmin privileges.
         The syntax for injection URLs is: /testing.asp?id=1+and+1=[SQLi];--
       },
