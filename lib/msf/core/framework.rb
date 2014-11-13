@@ -87,7 +87,6 @@ class Framework
 
     self.events    = EventDispatcher.new(self)
     self.modules   = ModuleManager.new(self,types)
-    self.sessions  = SessionManager.new(self)
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
     self.plugins   = PluginManager.new(self)
@@ -168,11 +167,6 @@ class Framework
   #
   attr_reader   :modules
   #
-  # Session manager that tracks sessions associated with this framework
-  # instance over the course of their lifetime.
-  #
-  attr_reader   :sessions
-  #
   # The global framework datastore that can be used by modules.
   #
   attr_reader   :datastore
@@ -199,6 +193,16 @@ class Framework
   #
   attr_reader   :db
 
+  # Session manager that tracks sessions associated with this framework
+  # instance over the course of their lifetime.
+  #
+  # @return [Msf::SessionManager]
+  def sessions
+    synchronize {
+      @sessions ||= Msf::SessionManager.new(self)
+    }
+  end
+
   # The framework instance's thread manager. The thread manager
   # provides a cleaner way to manage spawned threads
   #
@@ -213,7 +217,6 @@ protected
 
   attr_writer   :events # :nodoc:
   attr_writer   :modules # :nodoc:
-  attr_writer   :sessions # :nodoc:
   attr_writer   :datastore # :nodoc:
   attr_writer   :auxmgr # :nodoc:
   attr_writer   :jobs # :nodoc:
