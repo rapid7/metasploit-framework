@@ -1,4 +1,15 @@
 # -*- coding: binary -*-
+
+#
+# Standard Library
+#
+
+require 'monitor'
+
+#
+# Project
+#
+
 require 'metasploit/framework/version'
 require 'msf/core'
 require 'msf/util'
@@ -12,6 +23,7 @@ module Msf
 #
 ###
 class Framework
+  include MonitorMixin
 
   #
   # Versioning information
@@ -67,6 +79,8 @@ class Framework
   # Creates an instance of the framework context.
   #
   def initialize(opts={})
+    # call super to initialize MonitorMixin.  #synchronize won't work without this.
+    super()
 
     # Allow specific module types to be loaded
     types = opts[:module_types] || Msf::MODULE_TYPES
