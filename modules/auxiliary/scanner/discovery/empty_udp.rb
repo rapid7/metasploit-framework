@@ -17,24 +17,16 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
     register_options([
-      OptString.new('PORTS', [true, 'Ports to probe', '1-1024,1194,2000,2049,4353,5060,5061,5351,8443'])
+      OptString.new('RPORTS', [true, 'Ports to probe', '1-1024,1194,2000,2049,4353,5060,5061,5351,8443'])
     ], self.class)
   end
 
-  def setup
-    super
-    @ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-    raise Msf::OptionValidateError.new(['PORTS']) if @ports.empty?
-  end
-
   def scanner_prescan(batch)
-    print_status("Sending #{@ports.length} empty probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    print_status("Sending #{rports.length} empty probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
   end
 
-  def scan_host(ip)
-    @ports.each do |port|
-      scanner_send('', ip, port)
-    end
+  def build_probe
+    @probe ||= ''
   end
 
   def scanner_process(data, shost, sport)

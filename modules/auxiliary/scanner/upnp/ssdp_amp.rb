@@ -46,18 +46,21 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scan_host(ip)
-    if spoofed?
-      datastore['ScannerRecvWindow'] = 0
-      scanner_spoof_send(@msearch_probe, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
-    else
-      scanner_send(@msearch_probe, ip, datastore['RPORT'])
+    rports.each do |rport|
+      if spoofed?
+        datastore['ScannerRecvWindow'] = 0
+        scanner_spoof_send(@msearch_probe, ip, rport, datastore['SRCIP'], datastore['NUM_REQUESTS'])
+      else
+        scanner_send(@msearch_probe, ip, rport)
+      end
     end
   end
 
   def scanner_process(data, shost, sport)
     if data =~ /HTTP\/\d\.\d 200/
-      @results[shost] ||= []
-      @results[shost] << data
+      @results[shost] ||= {}
+      @results[shost][sport] ||= []
+      @results[shost][sport] << data
     else
       vprint_error("Skipping #{data.size}-byte non-SSDP response from #{shost}:#{sport}")
     end
@@ -65,29 +68,31 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called after the scan block
   def scanner_postscan(batch)
-    @results.keys.each do |k|
-      response_map = { @msearch_probe => @results[k] }
-      report_service(
-        host: k,
-        proto: 'udp',
-        port: datastore['RPORT'],
-        name: 'ssdp'
-      )
-
-      peer = "#{k}:#{datastore['RPORT']}"
-      vulnerable, proof = prove_amplification(response_map)
-      what = 'SSDP ssdp:all M-SEARCH amplification'
-      if vulnerable
-        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
-        report_vuln(
-          host: k,
-          port: datastore['RPORT'],
+    @results.each_pair do |host, port_map|
+      port_map.each_pair do |rport, responses|
+        response_map = { @msearch_probe => responses }
+        report_service(
+          host: host,
           proto: 'udp',
-          name: what,
-          refs: self.references
+          port: rport,
+          name: 'ssdp'
         )
-      else
-        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+
+        peer = "#{host}:#{rport}"
+        vulnerable, proof = prove_amplification(response_map)
+        what = 'SSDP ssdp:all M-SEARCH amplification'
+        if vulnerable
+          print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+          report_vuln(
+            host: host,
+            port: rport,
+            proto: 'udp',
+            name: what,
+            refs: self.references
+          )
+        else
+          vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+        end
       end
     end
   end
