@@ -21,7 +21,8 @@ module Auxiliary::UDPScanner
 
     register_options(
     [
-      Opt::RPORT,
+#      Opt::RPORT,
+      OptString.new('RPORTS', [false, 'Try these ports rather than the one port defined in RPORT']),
       OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
       OptInt.new('THREADS', [true, "The number of concurrent threads", 10])
     ], self.class)
@@ -36,6 +37,17 @@ module Auxiliary::UDPScanner
       OptInt.new('ScannerRecvWindow', [true, 'The number of seconds to wait post-scan to catch leftover replies', 15])
 
     ], self.class)
+  end
+
+  def setup
+    deregister_options('RPORT')
+    if datastore['RPORTS']
+      @rports ||= Rex::Socket.portspec_crack(datastore['RPORTS'])
+    else
+      @rports = nil
+    end
+
+    puts "rports = #{rports}"
   end
 
   # Define our batch size
@@ -167,6 +179,10 @@ module Auxiliary::UDPScanner
     datastore['RPORT']
   end
 
+  def rports
+    @rports
+  end
+
   #
   # The including module may override some of these methods
   #
@@ -177,6 +193,7 @@ module Auxiliary::UDPScanner
 
   # Called for each IP in the batch.  This will send all necessary probes.
   def scan_host(ip)
+
     scanner_send(build_probe, ip, rport)
   end
 
