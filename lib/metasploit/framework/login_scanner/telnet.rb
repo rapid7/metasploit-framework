@@ -92,7 +92,7 @@ module Metasploit
               end
 
             end
-          rescue ::EOFError, Errno::ECONNRESET,  Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
+          rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           end
 

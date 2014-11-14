@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'Microsoft SQL Server - Escalate EXECUTE AS',
       'Description' => %q{
         This module can be used escalate privileges if the IMPERSONATION privilege has been
-        assigned to the user. In most cases this results in additional data access, but in
+        assigned to the user. In most cases, this results in additional data access, but in
         some cases it can be used to gain sysadmin privileges.
       },
       'Author'      => ['nullbind <scott.sutherland[at]netspi.com>'],
