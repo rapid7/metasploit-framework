@@ -17,7 +17,6 @@ require 'msf/core/database_event'
 require 'msf/core/db_import_error'
 require 'msf/core/host_state'
 require 'msf/core/service_state'
-require 'msf/core/task_manager'
 
 # The db module provides persistent storage and events. This class should be instantiated LAST
 # as the active_suppport library overrides Kernel.require, slowing down all future code loads.
