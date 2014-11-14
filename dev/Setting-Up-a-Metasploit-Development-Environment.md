@@ -116,7 +116,7 @@ Because Metasploit now ships with `.ruby-gemset` and `.ruby-version`
 files, you do not need to do anything special to ensure your gems get
 stashed in the right place. When you cd to your Metasploit framework
 checkout, your environment will automatically switch contexts to
-`ruby-1.9.3-p550@metasploit-framework`.
+`ruby-1.9.3-p551@metasploit-framework`.
 
 ### rbenv
 
