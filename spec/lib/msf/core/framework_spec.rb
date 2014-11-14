@@ -4,8 +4,6 @@ require 'spec_helper'
 require 'msf/core/framework'
 
 describe Msf::Framework do
-  include_context 'Msf::Framework#threads cleaner'
-
   context '#initialize' do
     subject(:framework) {
       described_class.new
