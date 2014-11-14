@@ -143,7 +143,6 @@ describe Msfcli, :content do
   #
   context "#dump_module_list" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
-    include_context 'Msf::Framework#threads cleaner'
 
     let(:framework) {
       msfcli.framework
@@ -490,7 +489,6 @@ describe Msfcli, :content do
 
   context "#init_modules" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
-    include_context 'Msf::Framework#threads cleaner'
 
     let(:args) {
       [
@@ -645,7 +643,6 @@ describe Msfcli, :content do
 
   context "#engage_mode" do
     include_context 'Metasploit::Framework::Spec::Constants cleaner'
-    include_context 'Msf::Framework#threads cleaner'
 
     subject(:engage_mode) {
       msfcli.engage_mode(modules)
