@@ -77,8 +77,7 @@ module Kademlia
     return nil unless opcode == PONG
     # abort if the response is too large/small
     return nil unless port && port.size == 2
-    # the port will be the port the true endpoint is actually listening on,
-    # which may not be the same as the port you contacted it on (NAT/etc)
+    # this should always be equivalent to the source port from which the PING was received
     port.unpack('v')[0]
   end
 

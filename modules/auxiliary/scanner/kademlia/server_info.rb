@@ -54,14 +54,31 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scanner_process(response, src_host, src_port)
-    info = message_decode(response)
+    return if response.blank?
+    peer = "#{src_host}:#{src_port}"
+
+    case action.name
+    when 'BOOTSTRAP'
+      peer_id, tcp_port, version, peers = decode_bootstrap_res(response)
+      info = {
+        peer_id: peer_id,
+        tcp_port: tcp_port,
+        version: version,
+        peers: peers
+      }
+      if datastore['VERBOSE']
+      else
+        print_good("#{peer} ID #{peer_id}, TCP port #{tcp_port}, version #{version}, #{peers.size} peers")
+      end
+    when 'PING'
+      udp_port = decode_pong(response)
+      print_good("#{peer} PONG")
+      # udp_port should match the port we contacted it from.  TODO: validate this?
+      info = { udp_port: udp_port }
+    end
+
     return unless info
     @results[src_host] ||= []
-    if datastore['VERBOSE']
-      print_good("#{src_host}:#{src_port} found '#{info.inspect}'")
-    else
-      print_good("#{src_host}:#{src_port} found '#{info[:name]}'")
-    end
     @results[src_host] << info
   end
 

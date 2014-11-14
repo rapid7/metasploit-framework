@@ -1,3 +1,3 @@
 # -*- coding: binary -*-
 
-require 'rex/proto/steam/message'
+require 'rex/proto/kademlia/message'
