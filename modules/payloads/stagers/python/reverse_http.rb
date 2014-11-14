@@ -25,13 +25,6 @@ module Metasploit3
   end
 
   #
-  # Do not transmit the stage over the connection.  We handle this via HTTPS
-  #
-  def stage_over_connection?
-    false
-  end
-
-  #
   # Constructs the payload
   #
   def generate
@@ -53,12 +46,5 @@ module Metasploit3
     b64_stub << Rex::Text.encode_base64(cmd)
     b64_stub << "')))"
     return b64_stub
-  end
-
-  #
-  # Always wait at least 20 seconds for this payload (due to staging delays)
-  #
-  def wfs_delay
-    20
   end
 end

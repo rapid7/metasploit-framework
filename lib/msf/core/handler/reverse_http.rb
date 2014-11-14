@@ -201,8 +201,11 @@ protected
         blob = ""
         blob << obj.generate_stage
 
-        # Patch the conn_id
-        blob = blob.sub("CONNECTION_URL = None", "CONNECTION_URL = '#{url}'")
+        # Patch all the things
+        blob = blob.sub("HTTP_CONNECTION_URL = None", "HTTP_CONNECTION_URL = '#{url}'")
+        blob = blob.sub("HTTP_EXPIRATION_TIMEOUT = 604800", "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
+        blob = blob.sub("HTTP_COMMUNICATION_TIMEOUT = 300", "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
+        blob = blob.sub("HTTP_USER_AGENT = None", "HTTP_USER_AGENT = '#{datastore['MeterpreterUserAgent']}'")
 
         resp.body = blob
 
@@ -215,6 +218,7 @@ protected
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
         })
+
       when /^\/INITJM/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
         url = payload_uri + conn_id + "/\x00"
@@ -222,7 +226,7 @@ protected
         blob = ""
         blob << obj.generate_stage
 
-        # This is a TLV packet - I guess somewhere there should be API for building them
+        # This is a TLV packet - I guess somewhere there should be an API for building them
         # in Metasploit :-)
         packet = ""
         packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"

