@@ -95,11 +95,13 @@ describe Rex::Proto::Kademlia do
       peers = subject.decode_bootstrap_peers(data)
       expect(peers.size).to eq(2)
       peer1_id, peer1_ip, peer1_udp, peer1_tcp, peer1_type = peers.first
+      expect(peer1_id).to eq('3020100070605040B0A09080F0E0D0C')
       expect(peer1_ip).to eq('192.168.40.4')
       expect(peer1_udp).to eq(54321)
       expect(peer1_tcp).to eq(12345)
       expect(peer1_type).to eq(8)
       peer2_id, peer2_ip, peer2_udp, peer2_tcp, peer2_type = peers.last
+      expect(peer2_id).to eq('2020101040403030606050508080707')
       expect(peer2_ip).to eq('192.168.40.5')
       expect(peer2_udp).to eq(4444)
       expect(peer2_tcp).to eq(5555)
@@ -111,11 +113,27 @@ describe Rex::Proto::Kademlia do
     it 'should properly decode valid bootstrap responses' do
       data = IO.read(File.join(File.dirname(__FILE__), 'kademlia_bootstrap_res.bin'))
       peer_id, tcp, version, peers = subject.decode_bootstrap_res(data)
-      #expect(peer_id).to eq('XXXX')
+      expect(peer_id).to eq('B54A83462529B21EF51FD54B956B07B0')
       expect(tcp).to eq(4662)
       expect(version).to eq(8)
       # don't bother checking every peer
       expect(peers.size).to eq(20)
+    end
+  end
+
+  describe '#decode_peer_id' do
+    it 'should decode a peer ID properly' do
+      bytes = "\x00\x60\x89\x9B\x0A\x0B\xBE\xAE\x45\x35\xCB\x0E\x07\xA1\x77\x71"
+      peer_id = "9B896000AEBE0B0A0ECB35457177A107"
+      expect(subject.decode_peer_id(bytes)).to eq(peer_id)
+    end
+  end
+
+  describe '#encode_peer' do
+    skip 'should encode a peer ID properly' do
+      bytes = "\x00\x60\x89\x9B\x0A\x0B\xBE\xAE\x45\x35\xCB\x0E\x07\xA1\x77\x71"
+      peer_id = "9B896000AEBE0B0A0ECB35457177A107"
+      expect(subject.encode_peer_id(peer_id)).to eq(bytes)
     end
   end
 end

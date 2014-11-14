@@ -55,8 +55,7 @@ module Kademlia
     # abort if this isn't a valid response
     return nil unless opcode = BOOTSTRAP_RES
     return nil unless payload.size >= 23
-    # XXX: unsure how to get the 128-bit contact ID just yet...
-    peer_id = payload.slice!(0,16)
+    peer_id = decode_peer_id(payload.slice!(0,16))
     tcp_port, version, num_peers = payload.slice!(0,5).unpack('vCv')
     # protocol says there are no peers and the payload confirms this, so just return with no peers
     return [ tcp_port, version, []] if num_peers == 0 && payload.blank?
@@ -99,7 +98,19 @@ module Kademlia
     # TODO; interpret this properly
     peer_id = peer_data.slice!(0, 16)
     ip, udp_port, tcp_port, version = peer_data.unpack('VvvC')
-    [ peer_id, Rex::Socket.addr_itoa(ip), udp_port, tcp_port, version ]
+    [ decode_peer_id(peer_id), Rex::Socket.addr_itoa(ip), udp_port, tcp_port, version ]
+  end
+
+
+  def decode_peer_id(bytes)
+    peer_id = 0
+    return nil unless bytes.size == 16
+    bytes.unpack('VVVV').map { |p| peer_id <<= 32; peer_id ^= p; }
+    peer_id.to_s(16).upcase
+  end
+
+  # TODO?
+  def encode_peer_id(id)
   end
 end
 end
