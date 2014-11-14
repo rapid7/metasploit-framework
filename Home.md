@@ -65,6 +65,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to use the Msf::Exploit::Remote::Tcp mixin]]
 - [[How to check Microsoft patch levels for your exploit]]
 - [[How to zip files with Rex::Zip::Archive]]
+- [[What does my Rex::Proto::SMB Error mean?]]
 
 # GitHub Resources #
 
