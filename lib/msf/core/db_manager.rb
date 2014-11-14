@@ -47,7 +47,6 @@ class Msf::DBManager
   autoload :Service, 'msf/core/db_manager/service'
   autoload :Session, 'msf/core/db_manager/session'
   autoload :SessionEvent, 'msf/core/db_manager/session_event'
-  autoload :Sink, 'msf/core/db_manager/sink'
   autoload :Task, 'msf/core/db_manager/task'
   autoload :Vuln, 'msf/core/db_manager/vuln'
   autoload :VulnAttempt, 'msf/core/db_manager/vuln_attempt'
@@ -80,7 +79,6 @@ class Msf::DBManager
   include Msf::DBManager::Service
   include Msf::DBManager::Session
   include Msf::DBManager::SessionEvent
-  include Msf::DBManager::Sink
   include Msf::DBManager::Task
   include Msf::DBManager::Vuln
   include Msf::DBManager::VulnAttempt
@@ -159,11 +157,6 @@ class Msf::DBManager
     # Determine what drivers are available
     #
     initialize_adapter
-
-    #
-    # Instantiate the database sink
-    #
-    initialize_sink
 
     true
   end
