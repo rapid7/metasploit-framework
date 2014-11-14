@@ -32,6 +32,10 @@ module Metasploit
   # works in compatible manner with activerecord's rake tasks and other
   # railties.
   module Framework
+    extend ActiveSupport::Autoload
+
+    autoload :Spec
+
     # Returns the root of the metasploit-framework project.  Use in place of
     # `Rails.root`.
     #

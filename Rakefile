@@ -10,4 +10,5 @@ require 'metasploit/framework/spec/untested_payloads'
 Metasploit::Framework::Require.optionally_active_record_railtie
 
 Metasploit::Framework::Application.load_tasks
+Metasploit::Framework::Spec::Constants.define_task
 Metasploit::Framework::Spec::UntestedPayloads.define_task
