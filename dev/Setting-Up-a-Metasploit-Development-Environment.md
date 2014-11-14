@@ -64,7 +64,7 @@ Wayne Seguin's RVM has become quite excellent at providing several proven Ruby i
 [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
 ````bash
-\curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.4
+\curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
 Note the *lack* of sudo; you will nearly always want to install this as
@@ -74,16 +74,16 @@ Sometimes, depending on your particular platform, this incantation may
 not be reliable. This is nearly identical, but more typing:
 
 ````bash
-\curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.4
+\curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
-Also, if you're sketchy about piping a web site directly to bash, you
+Also, if you're sketchy about piping a web site directly to bash (which you should be), you
 can perform each step individually, without the &&:
 
 ````bash
 \curl -o rvm.sh -L get.rvm.io 
 less rvm.sh
-cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.4
+cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
 ````
 
 Next, load the RVM scripts by either opening a new terminal window, or
@@ -116,7 +116,7 @@ Because Metasploit now ships with `.ruby-gemset` and `.ruby-version`
 files, you do not need to do anything special to ensure your gems get
 stashed in the right place. When you cd to your Metasploit framework
 checkout, your environment will automatically switch contexts to
-`ruby-2.1.4@metasploit-framework`.
+`ruby-1.9.3-p550@metasploit-framework`.
 
 ### rbenv
 
@@ -125,9 +125,9 @@ Simply follow [this](https://github.com/sstephenson/rbenv#installation)
 ### Moving to Ruby 2.1.x
 
 As a Metasploit developer, you are encouraged to use the non-default
-2.1.4, and you should see some significant performance increases as a result.
-Metasploit is currently cross-compatible with 1.9.3 and 2.1.4. 
-Until January 6, 2015, both Ruby 1.9.3 and Ruby 2.1.4 are supported; after that,
+2.1.5, and you should see some significant performance increases as a result.
+Metasploit is currently cross-compatible with 1.9.3 and 2.1.5. 
+Until January 6, 2015, both Ruby 1.9.3 and Ruby 2.1.x are supported; after that,
 only 2.1.x will be supported, as 1.9.3 will be [completely end of life'd](https://www.ruby-lang.org/en/news/2014/01/10/ruby-1-9-3-will-end-on-2015/).
 
 If you'd like to use another version of ruby, ```rvm``` and ```rbenv``` can help you easily switch:
@@ -137,11 +137,11 @@ If you'd like to use another version of ruby, ```rvm``` and ```rbenv``` can help
 
 Just run `rvm --create --versions-conf use rubyversion@metasploit-framework`, replacing `rubyversion` with whatever version of Ruby you like (see [PR #4136](https://github.com/rapid7/metasploit-framework/pull/4136)).
 
-Running the following will cause your checkout to use Ruby 2.1.4 by default:
+Running the following will cause your checkout to use Ruby 2.1.5 by default:
 
 ````
-rvm install 2.1.4
-rvm --create --versions-conf use 2.1.4@metasploit-framework
+rvm install 2.154
+rvm --create --versions-conf use 2.1.5@metasploit-framework
 pushd ..; popd
 bundle install
 ````
@@ -151,7 +151,7 @@ bundle install
 Just run:
 
 ```
-rbenv shell 2.1.4
+rbenv shell 2.1.5
 ````
 
 ## Your Editor
