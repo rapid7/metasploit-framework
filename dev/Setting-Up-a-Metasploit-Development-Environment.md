@@ -140,9 +140,9 @@ Just run `rvm --create --versions-conf use rubyversion@metasploit-framework`, re
 Running the following will cause your checkout to use Ruby 2.1.5 by default:
 
 ````
-rvm install 2.1.5
-rvm --create --versions-conf use 2.1.5@metasploit-framework
-pushd ..; popd
+rvm install 2.1.5 &&
+rvm --create --versions-conf use 2.1.5@metasploit-framework &&
+pushd ..; popd &&
 bundle install
 ````
 
