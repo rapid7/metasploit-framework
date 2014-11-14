@@ -26,9 +26,9 @@ describe Rex::Proto::Kademlia do
     end
 
     it 'should raise on compressed messages' do
-      expect {
+      expect do
         subject.decode_message("\xE5\x01blahblah")
-      }.to raise_error(NotImplementedError)
+      end.to raise_error(NotImplementedError)
     end
 
     it 'should properly decode valid messages' do
@@ -66,7 +66,7 @@ describe Rex::Proto::Kademlia do
           "\x39\x30" + # TCP port 12345
           "\x08" # peer type
       peer_id, ip, udp_port, tcp_port, type = subject.decode_bootstrap_peer(data)
-      #expect(peer_id).to eq('something')
+      expect(peer_id).to eq('3020100070605040B0A09080F0E0D0C')
       expect(ip).to eq('192.168.40.4')
       expect(udp_port).to eq(54321)
       expect(tcp_port).to eq(12345)
