@@ -64,6 +64,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to deprecate a Metasploit module]]
 - [[How to use the Msf::Exploit::Remote::Tcp mixin]]
 - [[How to check Microsoft patch levels for your exploit]]
+- [[How to zip files with Rex::Zip::Archive]]
 
 # GitHub Resources #
 
