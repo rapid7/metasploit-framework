@@ -20,9 +20,10 @@ before_script:
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
+script:
   # fail build if db/schema.rb update is not committed
   - git diff --exit-code
-script: "bundle exec rake $RAKE_TASK"
+  - "bundle exec rake $RAKE_TASK"
 
 rvm:
   - '1.9.3'
