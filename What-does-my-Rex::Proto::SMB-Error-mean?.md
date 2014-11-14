@@ -1,0 +1,1 @@
+This will explain what your error actually means when you're using our SMB modules.
