@@ -25,7 +25,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
       context "when a core already exists" do
         before(:each) do
           priv = FactoryGirl.create(:metasploit_credential_password, data: password)
-          pub = FactoryGirl.create(:metasploit_credential_public, username: username)
+          pub = FactoryGirl.create(:metasploit_credential_username, username: username)
           core = FactoryGirl.create(:metasploit_credential_core,
                                     origin: FactoryGirl.create(:metasploit_credential_origin_import),
                                     private: priv,

@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Auxiliary
         allow an unauthenticated user to obtain the superuser password of any managed Windows and
         AS/400 hosts. This module abuses both vulnerabilities to collect all the available
         usernames and passwords. First the agentHandler servlet is abused to get the hostid and
-        slid of each device (CVE-2014-6038); then these numeric id's are used to extract usernames
-        and passwords by abusing the hostdetails servlet (CVE-2014-6039). Note that on version 7
+        slid of each device (CVE-2014-6038); then these numeric IDs are used to extract usernames
+        and passwords by abusing the hostdetails servlet (CVE-2014-6039). Note that on version 7,
         the TARGETURI has to be prepended with /event.
       },
       'Author' =>
