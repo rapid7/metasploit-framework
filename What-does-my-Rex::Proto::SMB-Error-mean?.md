@@ -6,7 +6,7 @@ The following is a list of commonly seen errors when using an Metasploit module 
 
 * **STATUS_ACCESS_DENIED**
 
-If you are testing against newer Windows systems such as Windows 7, by default you will see STATUS_ACCESS_DENIED because these systems no longer allow remote access to the share. To change this, that target machine will need to change the LocalAccountTokenFilterPolicy setting to 1 in the registry:
+If you are testing against newer Windows systems such as Windows 7, by default you will see STATUS_ACCESS_DENIED because these systems no longer allow remote access to the share. To change this, that target machine will need to manually change the LocalAccountTokenFilterPolicy setting to 1 in the registry:
 
 ```
 Windows Registry Editor Version 5.00
