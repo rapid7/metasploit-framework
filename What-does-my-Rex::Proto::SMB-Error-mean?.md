@@ -1,1 +1,24 @@
-This will explain what your error actually means when you're using our SMB modules.
+All SMB error codes are explained in the following MSDN documentation:
+
+[http://msdn.microsoft.com/en-us/library/ee441884.aspx](http://msdn.microsoft.com/en-us/library/ee441884.aspx)
+
+The following is a list of commonly seen errors when using an Metasploit module that involves SMB:
+
+* **STATUS_ACCESS_DENIED**
+
+If you are testing against newer Windows systems such as Windows 7, by default you will see STATUS_ACCESS_DENIED because these systems no longer allow remote access to the share. To change this, that target machine will need to change the LocalAccountTokenFilterPolicy setting to 1 in the registry:
+
+```
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
+"LocalAccountTokenFilterPolicy"=dword:00000001
+```
+
+* **STATUS_LOGON_FAILURE**
+
+Invalid SMBUSER or SMBPASS datastore option.
+
+* **STATUS_BAD_NETWORK_NAME**
+
+Invalid SMB share datastore option.
