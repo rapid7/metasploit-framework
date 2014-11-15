@@ -313,6 +313,7 @@ class PythonMeterpreter(object):
 			self.driver = 'tcp'
 		elif HTTP_CONNECTION_URL:
 			self.driver = 'http'
+		self.last_registered_extension = None
 		self.extension_functions = {}
 		self.channels = {}
 		self.interact_channels = []
@@ -330,6 +331,10 @@ class PythonMeterpreter(object):
 			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
 		urllib.install_opener(opener)
 		self._http_last_seen = time.time()
+
+	def register_extension(self, extension_name):
+		self.last_registered_extension = extension_name
+		return self.last_registered_extension
 
 	def register_function(self, func):
 		self.extension_functions[func.__name__] = func
@@ -485,15 +490,19 @@ class PythonMeterpreter(object):
 		data_tlv = packet_get_tlv(request, TLV_TYPE_DATA)
 		if (data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED:
 			return ERROR_FAILURE
-		preloadlib_methods = list(self.extension_functions.keys())
+
+		self.last_registered_extension = None
 		symbols_for_extensions = {'meterpreter':self}
 		symbols_for_extensions.update(EXPORTED_SYMBOLS)
 		i = code.InteractiveInterpreter(symbols_for_extensions)
 		i.runcode(compile(data_tlv['value'], '', 'exec'))
-		postloadlib_methods = list(self.extension_functions.keys())
-		new_methods = list(filter(lambda x: x not in preloadlib_methods, postloadlib_methods))
-		for method in new_methods:
-			response += tlv_pack(TLV_TYPE_METHOD, method)
+		extension_name = self.last_registered_extension
+
+		if extension_name:
+			check_extension = lambda x: x.startswith(extension_name) or x.startswith('channel_open_' + extension_name)
+			lib_methods = list(filter(check_extension, list(self.extension_functions.keys())))
+			for method in lib_methods:
+				response += tlv_pack(TLV_TYPE_METHOD, method)
 		return ERROR_SUCCESS, response
 
 	def _core_shutdown(self, request, response):

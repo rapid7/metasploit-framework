@@ -501,6 +501,8 @@ IFLA_MTU       = 4
 IFA_ADDRESS    = 1
 IFA_LABEL      = 3
 
+meterpreter.register_extension('stdapi')
+
 def calculate_32bit_netmask(bits):
 	if bits == 32:
 		return 0xffffffff

