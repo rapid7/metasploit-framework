@@ -211,6 +211,11 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
+        unless datastore['PROXYHOST'].blank?
+          proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
+          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
+        end
+
         resp.body = blob
 
         # Short-circuit the payload's handle_connection processing for create_session
