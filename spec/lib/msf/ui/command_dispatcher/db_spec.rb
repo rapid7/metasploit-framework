@@ -42,18 +42,59 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
     end
   end
 
-  describe "#cmd_workspace" do
+  describe "#cmd_db_export" do
     describe "-h" do
       it "should show a help message" do
-        db.cmd_workspace "-h"
+        db.cmd_db_export "-h"
         @output.should =~ [
           "Usage:",
-          "    workspace                  List workspaces",
-          "    workspace [name]           Switch workspace",
-          "    workspace -a [name] ...    Add workspace(s)",
-          "    workspace -d [name] ...    Delete workspace(s)",
-          "    workspace -r <old> <new>   Rename workspace",
-          "    workspace -h               Show this help information"
+          "    db_export -f <format> [-a] [filename]",
+          "    Format can be one of: xml, pwdump"
+        ]
+      end
+    end
+  end
+
+  describe "#cmd_db_import" do
+    describe "-h" do
+      it "should show a help message" do
+        db.cmd_db_import "-h"
+        @output.should =~ [
+          "Usage: db_import <filename> [file2...]",
+          "Filenames can be globs like *.xml, or **/*.xml which will search recursively",
+          "Currently supported file types include:",
+          "    Acunetix",
+          "    Amap Log",
+          "    Amap Log -m",
+          "    Appscan",
+          "    Burp Session XML",
+          "    CI",
+          "    Foundstone",
+          "    FusionVM XML",
+          "    IP Address List",
+          "    IP360 ASPL",
+          "    IP360 XML v3",
+          "    Libpcap Packet Capture",
+          "    Metasploit PWDump Export",
+          "    Metasploit XML",
+          "    Metasploit Zip Export",
+          "    Microsoft Baseline Security Analyzer",
+          "    NeXpose Simple XML",
+          "    NeXpose XML Report",
+          "    Nessus NBE Report",
+          "    Nessus XML (v1)",
+          "    Nessus XML (v2)",
+          "    NetSparker XML",
+          "    Nikto XML",
+          "    Nmap XML",
+          "    OpenVAS Report",
+          "    OpenVAS XML",
+          "    Outpost24 XML",
+          "    Qualys Asset XML",
+          "    Qualys Scan XML",
+          "    Retina XML",
+          "    Spiceworks CSV Export",
+          "    Wapiti XML"
         ]
       end
     end
@@ -78,6 +119,53 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         ]
       end
     end
+  end
+
+  describe "#cmd_loot" do
+    describe "-h" do
+      it "should show a help message" do
+        db.cmd_loot "-h"
+        @output.should =~ [
+          "Usage: loot <options>",
+          " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
+          "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]",
+          "  Del: loot -d [addr1 addr2 ...]",
+          "  -a,--add          Add loot to the list of addresses, instead of listing",
+          "  -d,--delete       Delete *all* loot matching host and type",
+          "  -f,--file         File with contents of the loot to add",
+          "  -i,--info         Info of the loot to add",
+          "  -t <type1,type2>  Search for a list of types",
+          "  -h,--help         Show this help information",
+          "  -S,--search       Search string to filter by"
+        ]
+      end
+    end
+
+  end
+
+  describe "#cmd_notes" do
+    describe "-h" do
+      it "should show a help message" do
+        db.cmd_notes "-h"
+        @output.should =~ [
+          "Usage: notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]",
+          "  -a,--add                  Add a note to the list of addresses, instead of listing",
+          "  -d,--delete               Delete the hosts instead of searching",
+          "  -n,--note <data>          Set the data for a new note (only with -a)",
+          "  -t <type1,type2>          Search for a list of types",
+          "  -h,--help                 Show this help information",
+          "  -R,--rhosts               Set RHOSTS from the results of the search",
+          "  -S,--search               Regular expression to match for search",
+          "  --sort <field1,field2>    Fields to sort by (case sensitive)",
+          "Examples:",
+          "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
+          "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41",
+          "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
+        ]
+
+      end
+    end
+
   end
 
   describe "#cmd_services" do
@@ -167,132 +255,18 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
 
   end
 
-  describe "#cmd_notes" do
+  describe "#cmd_workspace" do
     describe "-h" do
       it "should show a help message" do
-        db.cmd_notes "-h"
-        @output.should =~ [
-          "Usage: notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]",
-          "  -a,--add                  Add a note to the list of addresses, instead of listing",
-          "  -d,--delete               Delete the hosts instead of searching",
-          "  -n,--note <data>          Set the data for a new note (only with -a)",
-          "  -t <type1,type2>          Search for a list of types",
-          "  -h,--help                 Show this help information",
-          "  -R,--rhosts               Set RHOSTS from the results of the search",
-          "  -S,--search               Regular expression to match for search",
-          "  --sort <field1,field2>    Fields to sort by (case sensitive)",
-          "Examples:",
-          "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
-          "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41",
-          "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
-        ]
-
-      end
-    end
-
-  end
-
-  describe "#cmd_loot" do
-    describe "-h" do
-      it "should show a help message" do
-        db.cmd_loot "-h"
-        @output.should =~ [
-          "Usage: loot <options>",
-          " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
-          "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]",
-          "  Del: loot -d [addr1 addr2 ...]",
-          "  -a,--add          Add loot to the list of addresses, instead of listing",
-          "  -d,--delete       Delete *all* loot matching host and type",
-          "  -f,--file         File with contents of the loot to add",
-          "  -i,--info         Info of the loot to add",
-          "  -t <type1,type2>  Search for a list of types",
-          "  -h,--help         Show this help information",
-          "  -S,--search       Search string to filter by"
-        ]
-      end
-    end
-
-  end
-
-=begin
-  describe "#cmd_creds" do
-    describe "-h" do
-      it "should show a help message" do
-        db.cmd_creds "-h"
-        @output.should =~ [
-          "Usage: creds [addr range]",
-          "List credentials. If an address range is given, show only credentials with",
-          "logins on hosts within that range.",
-          "  -h,--help             Show this help information",
-          "  -c,--columns          Columns of interest",
-          "  -P,--password <regex> List passwords that match this regex",
-          "  -p,--port <portspec>  List creds with logins on services matching this port spec",
-          "  -s <svc names>        List creds matching comma-separated service names",
-          "  -u,--user <regex>     List users that match this regex",
-          "Examples:",
-          "  creds               # Default, returns all credentials",
-          "  creds 1.2.3.4/24    # nmap host specification",
-          "  creds -p 22-25,445  # nmap port specification",
-          "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
-        ]
-      end
-    end
-  end
-=end
-
-  describe "#cmd_db_import" do
-    describe "-h" do
-      it "should show a help message" do
-        db.cmd_db_import "-h"
-        @output.should =~ [
-          "Usage: db_import <filename> [file2...]",
-          "Filenames can be globs like *.xml, or **/*.xml which will search recursively",
-          "Currently supported file types include:",
-          "    Acunetix",
-          "    Amap Log",
-          "    Amap Log -m",
-          "    Appscan",
-          "    Burp Session XML",
-          "    CI",
-          "    Foundstone",
-          "    FusionVM XML",
-          "    IP Address List",
-          "    IP360 ASPL",
-          "    IP360 XML v3",
-          "    Libpcap Packet Capture",
-          "    Metasploit PWDump Export",
-          "    Metasploit XML",
-          "    Metasploit Zip Export",
-          "    Microsoft Baseline Security Analyzer",
-          "    NeXpose Simple XML",
-          "    NeXpose XML Report",
-          "    Nessus NBE Report",
-          "    Nessus XML (v1)",
-          "    Nessus XML (v2)",
-          "    NetSparker XML",
-          "    Nikto XML",
-          "    Nmap XML",
-          "    OpenVAS Report",
-          "    OpenVAS XML",
-          "    Outpost24 XML",
-          "    Qualys Asset XML",
-          "    Qualys Scan XML",
-          "    Retina XML",
-          "    Spiceworks CSV Export",
-          "    Wapiti XML"
-        ]
-      end
-    end
-  end
-
-  describe "#cmd_db_export" do
-    describe "-h" do
-      it "should show a help message" do
-        db.cmd_db_export "-h"
+        db.cmd_workspace "-h"
         @output.should =~ [
           "Usage:",
-          "    db_export -f <format> [-a] [filename]",
-          "    Format can be one of: xml, pwdump"
+          "    workspace                  List workspaces",
+          "    workspace [name]           Switch workspace",
+          "    workspace -a [name] ...    Add workspace(s)",
+          "    workspace -d [name] ...    Delete workspace(s)",
+          "    workspace -r <old> <new>   Rename workspace",
+          "    workspace -h               Show this help information"
         ]
       end
     end
