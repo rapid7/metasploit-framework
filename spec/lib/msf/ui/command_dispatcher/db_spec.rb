@@ -11,6 +11,59 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
     described_class.new(driver)
   end
 
+  it { is_expected.to respond_to :active? }
+  it { is_expected.to respond_to :arg_host_range }
+  it { is_expected.to respond_to :arg_port_range }
+  it { is_expected.to respond_to :cmd_creds_help }
+  it { is_expected.to respond_to :cmd_creds_tabs }
+  it { is_expected.to respond_to :cmd_db_autopwn }
+  it { is_expected.to respond_to :cmd_db_autopwn_help }
+  it { is_expected.to respond_to :cmd_db_connect }
+  it { is_expected.to respond_to :cmd_db_connect_help }
+  it { is_expected.to respond_to :cmd_db_disconnect }
+  it { is_expected.to respond_to :cmd_db_disconnect_help }
+  it { is_expected.to respond_to :cmd_db_driver }
+  it { is_expected.to respond_to :cmd_db_driver_help }
+  it { is_expected.to respond_to :cmd_db_export_help }
+  it { is_expected.to respond_to :cmd_db_hosts_help }
+  it { is_expected.to respond_to :cmd_db_import_help }
+  it { is_expected.to respond_to :cmd_db_import_tabs }
+  it { is_expected.to respond_to :cmd_db_nmap }
+  it { is_expected.to respond_to :cmd_db_notes }
+  it { is_expected.to respond_to :cmd_db_notes_help }
+  it { is_expected.to respond_to :cmd_db_rebuild_cache }
+  it { is_expected.to respond_to :cmd_db_rebuild_cache_help }
+  it { is_expected.to respond_to :cmd_db_services }
+  it { is_expected.to respond_to :cmd_db_services_help }
+  it { is_expected.to respond_to :cmd_db_status }
+  it { is_expected.to respond_to :cmd_db_vulns }
+  it { is_expected.to respond_to :cmd_db_vulns_help }
+  it { is_expected.to respond_to :cmd_hosts }
+  it { is_expected.to respond_to :cmd_hosts_help }
+  it { is_expected.to respond_to :cmd_loot_help }
+  it { is_expected.to respond_to :cmd_notes_help }
+  it { is_expected.to respond_to :cmd_services_help }
+  it { is_expected.to respond_to :cmd_vulns_help }
+  it { is_expected.to respond_to :cmd_workspace_help }
+  it { is_expected.to respond_to :cmd_workspace_tabs }
+  it { is_expected.to respond_to :commands }
+  it { is_expected.to respond_to :creds_add }
+  it { is_expected.to respond_to :creds_add_non_replayable_hash }
+  it { is_expected.to respond_to :creds_add_ntlm_hash }
+  it { is_expected.to respond_to :creds_add_password }
+  it { is_expected.to respond_to :creds_add_ssh_key }
+  it { is_expected.to respond_to :creds_search }
+  it { is_expected.to respond_to :db_check_driver }
+  it { is_expected.to respond_to :db_connect_postgresql }
+  it { is_expected.to respond_to :db_find_tools }
+  it { is_expected.to respond_to :db_parse_db_uri_postgresql }
+  it { is_expected.to respond_to :deprecated_commands }
+  it { is_expected.to respond_to :each_host_range_chunk }
+  it { is_expected.to respond_to :make_sortable }
+  it { is_expected.to respond_to :name }
+  it { is_expected.to respond_to :report_store_local }
+  it { is_expected.to respond_to :set_rhosts_from_addrs }
+
   describe "#cmd_creds" do
     describe "add-password" do
       let(:username) { "username" }
@@ -270,13 +323,5 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         ]
       end
     end
-  end
-
-  describe "#db_nmap" do
-    it "should have some specs describing its output"
-  end
-
-  describe "#db_rebuild_cache" do
-    it "should have some specs describing its output"
   end
 end
