@@ -77,14 +77,18 @@ module Metasploit
                     if LOG_PATHNAME.exist?
                       caller_by_thread_uuid = Metasploit::Framework::Spec::Threads::Suite.caller_by_thread_uuid
 
-                      thread_uuids = thread_list.map { |thread|
-                        thread[Metasploit::Framework::Spec::Threads::Suite::UUID_THREAD_LOCAL_VARIABLE]
-                      }.compact
+                      thread_list.each do |thread|
+                        thread_uuid = thread[Metasploit::Framework::Spec::Threads::Suite::UUID_THREAD_LOCAL_VARIABLE]
 
-                      thread_uuids.each do |thread_uuid|
+                        # unmanaged thread, such as the main VM thread
+                        unless thread_uuid
+                          next
+                        end
+
                         caller = caller_by_thread_uuid[thread_uuid]
 
-                        error_lines << "Thread #{thread_uuid}\n"
+                        error_lines << "Thread #{thread_uuid}'s status is #{thread.status.inspect} " \
+                                       "and was started here:\n"
 
                         error_lines.concat(caller)
                       end
