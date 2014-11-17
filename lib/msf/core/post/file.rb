@@ -31,14 +31,17 @@ module Msf::Post::File
     end
   end
 
-  def dir(where = nil)
+  #
+  # Returns a list of the contents of the specified +directory+
+  #
+  def dir(directory = nil)
     if session.type == 'meterpreter'
-      return session.fs.dir.entries(where)
+      return session.fs.dir.entries(directory)
     else
       if session.platform =~ /win/
-        return session.shell_command_token("dir #{where}").split(/[\r\n]+/)
+        return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
       else
-        return session.shell_command_token("ls #{where}").split(/[\r\n]+/)
+        return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
       end
     end
   end
