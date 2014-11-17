@@ -5,6 +5,8 @@ env:
   - RAKE_TASK=spec SPEC_OPTS="--tag ~content"
 
 language: ruby
+matrix:
+  fast_finish: true
 before_install:
   - rake --version
   - sudo apt-get update -qq
