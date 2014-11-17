@@ -34,7 +34,7 @@ module Msf::Post::File
   # Returns a list of the contents of the specified directory
   # @param directory [String] the directory to list
   # @return [Array] the contents of the directory
-  def dir(directory = nil)
+  def dir(directory)
     if session.type == 'meterpreter'
       return session.fs.dir.entries(directory)
     else
