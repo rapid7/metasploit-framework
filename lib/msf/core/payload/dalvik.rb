@@ -61,6 +61,7 @@ module Msf::Payload::Dalvik
     # """
     cert.not_after = cert.not_before + 3600*24*365*20 # 20 years
     cert.sign(key, OpenSSL::Digest::SHA1.new)
+
     return cert, key
   end
 end
