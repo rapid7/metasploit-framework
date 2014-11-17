@@ -36,9 +36,9 @@ module Msf::Post::File
       return session.fs.dir.entries(where)
     else
       if session.platform =~ /win/
-        return session.shell_command_token("dir #{where}")
+        return session.shell_command_token("dir #{where}").split(/[\r\n]+/)
       else
-        return session.shell_command_token("ls #{where}")
+        return session.shell_command_token("ls #{where}").split(/[\r\n]+/)
       end
     end
   end
