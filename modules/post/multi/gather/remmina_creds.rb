@@ -41,6 +41,7 @@ class Metasploit3 < Msf::Post
 
       creds.each do |cred|
         cred_table << cred
+        report_credential(cred[3], cred[4])
       end
 
       print_line(cred_table.to_s)
@@ -169,4 +170,19 @@ class Metasploit3 < Msf::Post
     vprint_error("No settings found in #{file}") if settings.empty?
     settings
   end
+
+  def report_credential(user,  pass)
+    credential_data = {
+        workspace_id: myworkspace_id,
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: user,
+        private_data: pass,
+        private_type: :password
+    }
+
+    create_credential(credential_data)
+  end
+
 end
