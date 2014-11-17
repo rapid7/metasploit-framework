@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
       }
 
       function bodyOnLoad() {
-        var detected_version = window.os_detect.getVersion();
+        var detected_version = os_detect.getVersion();
         //#{js_debug('detected_version')}
         report_and_get_exploits(detected_version);
       } // function bodyOnLoad
