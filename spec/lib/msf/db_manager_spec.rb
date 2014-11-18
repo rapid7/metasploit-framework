@@ -40,7 +40,6 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Service'
   it_should_behave_like 'Msf::DBManager::Session'
   it_should_behave_like 'Msf::DBManager::SessionEvent'
-  it_should_behave_like 'Msf::DBManager::Sink'
   it_should_behave_like 'Msf::DBManager::Task'
   it_should_behave_like 'Msf::DBManager::Vuln'
   it_should_behave_like 'Msf::DBManager::VulnAttempt'
