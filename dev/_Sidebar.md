@@ -4,7 +4,7 @@
 * [Getting Ruby](#getting-ruby)
 * [Your Editor](#your-editor)
 * [Using GitHub](#using-github)
-* [Using Git](#using-git)
+* [Using Git](#working-with-git)
 * [Git Aliases](#git-aliases)
 * [Forking Metasploit](#forking-metasploit)
 * [Setting your Prompt](#setting-your-prompt)
