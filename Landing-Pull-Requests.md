@@ -7,8 +7,20 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
  - Configure your git environment as described [here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#keeping-in-sync).
  - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your `.git/config`.
  - Add your signing key: `git config --global user.signingkey`
- - When merging code from a pull request, always, always `merge -S --no-ff --edit`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). This `--no-ff` flag goes for PRs that go back to a contributor's branch as well as PRs that land in rapid7's master branch. The `-S` indicates that you're going to sign the merge with your PGP/GPG key, which is a nice assurance that you're really you.
- - If you're making changes (often the case), merge to a landing branch, then merge **that** branch to upstream/master with the required command options.
+ - When merging code from a pull request, always, always `merge -S --no-ff --edit`, and write a meaningful commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). For example, your message should look like this:
+
+````
+Land #1234, a whizbang bug fix
+
+Adds a whiz to the existing bang. It appears that without this, bad things
+can occasionally happen. Thanks @mcfakepants!
+
+Fixes #1024, also see #999.
+````
+
+  - The `--no-ff` flag goes for PRs that go back to a contributor's branch as well as PRs that land in rapid7's master branch.
+  - The `-S` indicates that you're going to sign the merge with your PGP/GPG key, which is a nice assurance that you're really you.
+ - If you're making changes (often the case), merge to a landing branch, then merge **that** branch to upstream/master with the `--no-ff -S` options.
 
 # Fork and clone
 
