@@ -1839,7 +1839,7 @@ describe 'modules/payloads', :content do
 
   context 'python/meterpreter/reverse_http' do
     it_should_behave_like 'payload can be instantiated',
-                          ancestor_reference_name: [
+                          ancestor_reference_names: [
                             'stagers/python/reverse_http',
                             'stages/python/meterpreter'
                           ],
