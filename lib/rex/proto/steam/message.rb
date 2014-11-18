@@ -8,19 +8,30 @@ module Proto
 #
 ##
 module Steam
+  # The Steam header ussed when the message is fragmented.
   FRAGMENTED_HEADER = 0xFFFFFFFE
+  # The Steam header ussed when the message is not fragmented.
   UNFRAGMENTED_HEADER = 0xFFFFFFFF
 
+  # Decodes a Steam response message.
+  #
+  # @param message [String] the message to decode
+  # @return [Array] the message type and body
   def decode_message(message)
     # minimum size is header (4) + type (1)
     return if message.length < 5
     header, type = message.unpack('NC')
     # TODO: handle fragmented responses
     return if header != UNFRAGMENTED_HEADER
-    [header, type, message[5, message.length]]
+    [type, message[5, message.length]]
   end
 
-  def encode_message(type, payload)
+  # Encodes a Steam message.
+  #
+  # @param type [String, Fixnum] the message type
+  # @param body [String] the message body
+  # @return [String] the encoded Steam message
+  def encode_message(type, body)
     if type.is_a? Fixnum
       type_num = type
     elsif type.is_a? String
@@ -29,23 +40,30 @@ module Steam
       fail ArgumentError, 'type must be a String or Fixnum'
     end
 
-    [UNFRAGMENTED_HEADER, type_num ].pack('NC') + payload
+    [UNFRAGMENTED_HEADER, type_num ].pack('NC') + body
   end
 
+  # Builds an A2S_INFO message
+  #
+  # @return [String] the A2S_INFO message
   def a2s_info
     encode_message('T', "Source Engine Query\x00")
   end
 
-  def a2s_info_decode(message)
+  # Decodes an A2S_INFO response message
+  #
+  # @parameter response [String] the A2S_INFO resposne to decode
+  # @return [Hash] the fields extracted from the response
+  def a2s_info_decode(response)
     # abort if it is impossibly short
-    return nil if message.length < 19
-    _header, message_type, payload = decode_message(message)
+    return nil if response.length < 19
+    message_type, body = decode_message(response)
     # abort if it isn't a valid Steam response
     return nil if message_type != 0x49 # 'I'
     info = {}
     info[:version], info[:name], info[:map], info[:folder], info[:game_name],
       info[:game_id], players, players_max, info[:bots],
-      type, env, vis, vac, info[:game_version], _edf = payload.unpack("CZ*Z*Z*Z*SCCCCCCCZ*C")
+      type, env, vis, vac, info[:game_version], _edf = body.unpack("CZ*Z*Z*Z*SCCCCCCCZ*C")
 
     # translate type
     case type

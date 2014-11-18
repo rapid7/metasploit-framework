@@ -26,8 +26,7 @@ describe Rex::Proto::Steam do
     end
 
     it 'properly decodes valid messages' do
-      header, type, message = steam.decode_message("\xFF\xFF\xFF\xFF\x54Test")
-      expect(header).to eq(Rex::Proto::Steam::UNFRAGMENTED_HEADER)
+      type, message = steam.decode_message("\xFF\xFF\xFF\xFF\x54Test")
       expect(type).to eq(0x54)
       expect(message).to eq('Test')
     end
