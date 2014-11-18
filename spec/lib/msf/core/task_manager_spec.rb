@@ -4,10 +4,7 @@ require 'msf/core'
 require 'msf/core/task_manager'
 
 describe Msf::TaskManager do
-
-  let(:framework) do
-    Msf::Framework.new
-  end
+  include_context 'Msf::Simple::Framework'
 
   let(:tm) do
     Msf::TaskManager.new(framework)
