@@ -7,7 +7,7 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
  - Configure your git environment as described [here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#keeping-in-sync).
  - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your `.git/config`.
  - Add your signing key: `git config --global user.signingkey`
- - When merging code from a pull request, always, always `merge -S --no-ff --edit`, and write a meaningful (50/72)[http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html] commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). For example, your message should look like this:
+ - When merging code from a pull request, always, always `merge -S --no-ff --edit`, and write a meaningful [50/72](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). For example, your message should look like this:
 
 ````
 Land #1234, a whizbang bug fix
