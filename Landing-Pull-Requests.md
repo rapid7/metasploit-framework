@@ -12,8 +12,8 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 ````
 Land #1234, a whizbang bug fix
 
-Adds a whiz to the existing bang. It appears that without this, bad things
-can occasionally happen. Thanks @mcfakepants!
+Adds a whiz to the existing bang. It appears that without this,
+bad things can occasionally happen. Thanks @mcfakepants!
 
 Fixes #1024, also see #999.
 ````
