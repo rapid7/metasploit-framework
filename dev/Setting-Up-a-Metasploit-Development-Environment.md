@@ -195,12 +195,7 @@ file. Note, **Metasploit no longer uses hard tabs**.
 
 ## Using GitHub
 
-The entire Metasploit code base is hosted here on GitHub. If you have an
-old Redmine account over at https://dev.metasploit.com, that's not going
-to provide authentication and identification on GitHub (but we still
-take bugs over on Redmine).
-
-[[https://help.github.com/assets/help/set-up-git-27bd5975b24e994bc994ec1cf5c82ff9.gif]]
+[[https://help.github.com/assets/images/site/set-up-git.gif]]
 
 Setting yourself up on GitHub is [well-documented
 here](https://help.github.com/articles/set-up-git#platform-all), as is
