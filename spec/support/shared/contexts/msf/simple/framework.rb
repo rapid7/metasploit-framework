@@ -3,8 +3,6 @@ require 'msf/base/simple/framework'
 require 'metasploit/framework'
 
 shared_context 'Msf::Simple::Framework' do
-  include_context 'Msf::Framework#threads cleaner'
-
   let(:dummy_pathname) do
     Rails.root.join('spec', 'dummy')
   end
