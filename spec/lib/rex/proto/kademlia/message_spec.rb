@@ -3,69 +3,80 @@ require 'spec_helper'
 require 'rex/proto/kademlia/message'
 
 describe Rex::Proto::Kademlia do
-  subject do
+  subject(:kad) do
     mod = Module.new
     mod.extend described_class
     mod
   end
 
   describe '#encode_message' do
-    it 'should properly encode messages' do
-      expect(subject.encode_message(1)).to eq("\xE4\x01")
-      expect(subject.encode_message(1, 'p2p')).to eq("\xE4\x01p2p")
+    it 'properly encodes messages without a body' do
+      expect(kad.encode_message(1)).to eq("\xE4\x01")
+    end
+    it 'properly encodes messages with a body' do
+      expect(kad.encode_message(1, 'p2p')).to eq("\xE4\x01p2p")
     end
   end
 
   describe '#decode_message' do
-    it 'should not decode overly short messages' do
-      expect(subject.decode_message('f')).to eq(nil)
+    it 'does not decode overly short messages' do
+      expect(kad.decode_message('f')).to eq(nil)
     end
 
-    it 'should not decode unknown messages' do
-      expect(subject.decode_message("this is not kademlia")).to eq(nil)
+    it 'does not decode unknown messages' do
+      expect(kad.decode_message("this is not kademlia")).to eq(nil)
     end
 
-    it 'should raise on compressed messages' do
+    it 'raises on compressed messages' do
       expect do
-        subject.decode_message("\xE5\x01blahblah")
+        kad.decode_message("\xE5\x01blahblah")
       end.to raise_error(NotImplementedError)
     end
 
-    it 'should properly decode valid messages' do
-      type, payload = subject.decode_message("\xE4\xFF")
+    it 'properly decodes valid messages without a body' do
+      type, payload = kad.decode_message("\xE4\xFF")
       expect(type).to eq(0xFF)
       expect(payload).to eq('')
+    end
 
-      _, payload = subject.decode_message("\xE4\xFFtesttesttest")
+    it 'properly decodes valid messages wth a body' do
+      type, payload = kad.decode_message("\xE4\xFFtesttesttest")
+      expect(type).to eq(0xFF)
       expect(payload).to eq('testtesttest')
     end
   end
 
   describe '#decode_pong' do
-    it 'should not decode overly large/small pongs' do
-      expect(subject.decode_pong("\xE4\x61\x01")).to eq(nil)
-      expect(subject.decode_pong("\xE4\x61\x01\x02\x03")).to eq(nil)
+    it 'does not decode overly small pongs' do
+      expect(kad.decode_pong("\xE4\x61\x01")).to eq(nil)
     end
 
-    it 'should properly decode valid pongs' do
-      expect(subject.decode_pong("\xE4\x61\x9E\x86")).to eq(34462)
+    it 'does not decode overly large pongs' do
+      expect(kad.decode_pong("\xE4\x61\x01\x02\x03")).to eq(nil)
+    end
+
+    it 'properly decodes valid pongs' do
+      expect(kad.decode_pong("\xE4\x61\x9E\x86")).to eq(34462)
     end
   end
 
   describe '#decode_bootstrap_peer' do
-    it 'should not decode overly large/small peer' do
-      expect(subject.decode_bootstrap_peer("this is too small")).to eq(nil)
-      expect(subject.decode_bootstrap_peer("this is much, much, much too large")).to eq(nil)
+    it 'does not decode overly small peer responses' do
+      expect(kad.decode_bootstrap_peer("this is too small")).to eq(nil)
     end
 
-    it 'should properly extract peer info' do
+    it 'does not decode overly large peer responses' do
+      expect(kad.decode_bootstrap_peer("this is much, much, much too large")).to eq(nil)
+    end
+
+    it 'properly extracts peer info' do
       data =
           "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F" + # peer ID
           "\x04\x28\xA8\xC0" + # 192.168.40.4
           "\x31\xd4" + # UDP port 54321
           "\x39\x30" + # TCP port 12345
           "\x08" # peer type
-      peer_id, ip, udp_port, tcp_port, type = subject.decode_bootstrap_peer(data)
+      peer_id, ip, udp_port, tcp_port, type = kad.decode_bootstrap_peer(data)
       expect(peer_id).to eq('3020100070605040B0A09080F0E0D0C')
       expect(ip).to eq('192.168.40.4')
       expect(udp_port).to eq(54321)
@@ -75,12 +86,15 @@ describe Rex::Proto::Kademlia do
   end
 
   describe '#decode_bootstrap_peers' do
-    it 'should not decode overly small peers' do
-      expect(subject.decode_bootstrap_peer("this is too small")).to eq(nil)
-      expect(subject.decode_bootstrap_peer("this is large enough but truncated")).to eq(nil)
+    it 'does not decode overly small bootstrap responses' do
+      expect(kad.decode_bootstrap_peer("this is too small")).to eq(nil)
     end
 
-    it 'should properly extract peers info' do
+    it 'does not decode overly large bootstrap responses' do
+      expect(kad.decode_bootstrap_peer("this is large enough but truncated")).to eq(nil)
+    end
+
+    it 'properly extracts peers info' do
       data =
           "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F" + # peer ID
           "\x04\x28\xA8\xC0" + # 192.168.40.4
@@ -92,7 +106,7 @@ describe Rex::Proto::Kademlia do
           "\x5c\x11" + # UDP port 4444
           "\xb3\x15" + # TCP port 5555
           "\x09" # peer type
-      peers = subject.decode_bootstrap_peers(data)
+      peers = kad.decode_bootstrap_peers(data)
       expect(peers.size).to eq(2)
       peer1_id, peer1_ip, peer1_udp, peer1_tcp, peer1_type = peers.first
       expect(peer1_id).to eq('3020100070605040B0A09080F0E0D0C')
@@ -110,9 +124,9 @@ describe Rex::Proto::Kademlia do
   end
 
   describe '#decode_bootstrap_res' do
-    it 'should properly decode valid bootstrap responses' do
+    it 'properly decodes valid bootstrap responses' do
       data = IO.read(File.join(File.dirname(__FILE__), 'kademlia_bootstrap_res.bin'))
-      peer_id, tcp, version, peers = subject.decode_bootstrap_res(data)
+      peer_id, tcp, version, peers = kad.decode_bootstrap_res(data)
       expect(peer_id).to eq('B54A83462529B21EF51FD54B956B07B0')
       expect(tcp).to eq(4662)
       expect(version).to eq(8)
@@ -122,18 +136,18 @@ describe Rex::Proto::Kademlia do
   end
 
   describe '#decode_peer_id' do
-    it 'should decode a peer ID properly' do
+    it 'decodes a peer ID properly' do
       bytes = "\x00\x60\x89\x9B\x0A\x0B\xBE\xAE\x45\x35\xCB\x0E\x07\xA1\x77\x71"
       peer_id = "9B896000AEBE0B0A0ECB35457177A107"
-      expect(subject.decode_peer_id(bytes)).to eq(peer_id)
+      expect(kad.decode_peer_id(bytes)).to eq(peer_id)
     end
   end
 
   describe '#encode_peer' do
-    skip 'should encode a peer ID properly' do
+    skip 'encodes a peer ID properly' do
       bytes = "\x00\x60\x89\x9B\x0A\x0B\xBE\xAE\x45\x35\xCB\x0E\x07\xA1\x77\x71"
       peer_id = "9B896000AEBE0B0A0ECB35457177A107"
-      expect(subject.encode_peer_id(peer_id)).to eq(bytes)
+      expect(kad.encode_peer_id(peer_id)).to eq(bytes)
     end
   end
 end

@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
           typically belonging to eMule/eDonkey/BitTorrent servers or other P2P
           applications.
         ),
-        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com',
+        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
         'References'     =>
           [
             # There are lots of academic papers on the protocol but they tend to lack usable
