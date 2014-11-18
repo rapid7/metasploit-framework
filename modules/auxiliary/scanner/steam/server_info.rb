@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         'Description'    => %q(
           This module uses the A2S_INFO request to obtain information from a Steam server.
         ),
-        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com',
+        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
         'References'     =>
           [
             # TODO: add more from https://developer.valvesoftware.com/wiki/Server_queries,
