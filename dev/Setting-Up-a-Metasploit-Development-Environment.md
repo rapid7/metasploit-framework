@@ -230,7 +230,7 @@ look like this:
 
 [[/screens/ssh10.png]]
 
-### Git aliases
+### Git Aliases
 
 Git is super and everything, but sometimes the commands can be too
 arcane, verbose, or long. For that, @todb-r7 has shared a pile of git
@@ -242,6 +242,16 @@ Team](https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights),
 so unless you like a lot of memorization and sore fingers, you might
 want to pick and chose from there what makes sense for you and your
 workflow.
+
+### Bundler config
+
+Metasploit Framework now uses Bundler extensively to keep versioned gemsets
+all nicely aligned. This means that after pulling a fresh version of Metasploit
+from GitHub, you likely need to `bundle install` (**not `bundle update`**). To
+make that process move slightly quicker, you're encouraged to install gems
+[in parallel](http://robots.thoughtbot.com/parallel-gem-installing-using-bundler)
+by first running `bundle config --global jobs X` (where X is the number of CPUs
+you have available, minus one).
 
 ## Working with Git
 
