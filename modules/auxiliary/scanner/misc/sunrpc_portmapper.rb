@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       progver		= 2
       procedure	= 4
 
-      return unless sunrpc_create('udp', program, progver)
+      sunrpc_create('udp', program, progver)
       sunrpc_authnull
       resp = sunrpc_call(procedure, "")
 
