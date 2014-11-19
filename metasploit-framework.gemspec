@@ -65,7 +65,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '~> 0.28.0'
   # Needed for Meterpreter on Windows, soon others.
-  spec.add_runtime_dependency 'meterpreter_bins', '0.0.10'
+  spec.add_runtime_dependency 'meterpreter_bins', '0.0.11'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler
@@ -74,6 +74,16 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'packetfu', '1.1.9'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
+  # required for OS fingerprinting
+  spec.add_runtime_dependency 'recog', '~> 1.0'
+
+  # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
+  #   NoMethodError undefined method `dlopen' for Fiddle:Module
+  unless Gem.win_platform?
+    # Command line editing, history, and tab completion in msfconsole
+    spec.add_runtime_dependency 'rb-readline'
+  end
+
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules
@@ -82,6 +92,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
-  # required for OS fingerprinting
-  spec.add_runtime_dependency 'recog', '~> 1.0'
 end

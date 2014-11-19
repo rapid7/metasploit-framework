@@ -162,14 +162,14 @@ class Encoder < Module
   # Returns MODULE_ENCODER to indicate that this is an encoder module.
   #
   def self.type
-    return MODULE_ENCODER
+    return Msf::MODULE_ENCODER
   end
 
   #
   # Returns MODULE_ENCODER to indicate that this is an encoder module.
   #
   def type
-    return MODULE_ENCODER
+    return Msf::MODULE_ENCODER
   end
 
   #
@@ -411,6 +411,27 @@ class Encoder < Module
   #
   def to_native(buf)
     buf
+  end
+
+  #
+  # Determines whether the encoder can preserve registers at all
+  #
+  def preserves_registers?
+    false
+  end
+
+  #
+  # A list of registers always modified by the encoder
+  #
+  def modified_registers
+    []
+  end
+
+  #
+  # Determines whether the encoder can preserve the stack frame
+  #
+  def preserves_stack?
+    false
   end
 
 protected

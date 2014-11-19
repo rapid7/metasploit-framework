@@ -27,6 +27,8 @@ describe Msf::Modules::Loader::Directory do
 
     context '#load_module' do
       context 'with existent module_path' do
+        include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
         let(:framework) do
           framework = double('Msf::Framework', :datastore => {})
 

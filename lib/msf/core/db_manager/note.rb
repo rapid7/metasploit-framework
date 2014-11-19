@@ -75,9 +75,10 @@ module Msf::DBManager::Note
       if (opts[:port])
         proto = nil
         sname = nil
-        case opts[:proto].to_s.downcase # Catch incorrect usages
+        proto_lower = opts[:proto].to_s.downcase # Catch incorrect usages
+        case proto_lower
         when 'tcp','udp'
-          proto = opts[:proto]
+          proto = proto_lower
           sname = opts[:sname] if opts[:sname]
         when 'dns','snmp','dhcp'
           proto = 'udp'
