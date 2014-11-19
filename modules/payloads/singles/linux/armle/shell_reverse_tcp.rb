@@ -112,7 +112,7 @@ module Metasploit3
     register_options(
       [
         OptString.new('SHELL', [ true, "The shell to execute.", "/system/bin/sh" ]),
-        OptString.new('SHELLARG', [ false, "The argument to pass to the shell.", "-C" ])
+        OptString.new('ARGV0', [ false, "argv[0] to pass to execve", "sh" ]) # mostly used for busybox
       ], self.class)
   end
 
@@ -125,10 +125,10 @@ module Metasploit3
     end
     p[140, sh.length] = sh
 
-    arg = datastore['SHELLARG']
+    arg = datastore['ARGV0']
     if arg
       if arg.length >= 16
-        raise ArgumentError, "The specified shell argument must be less than 16 bytes."
+        raise ArgumentError, "The specified argv[0] must be less than 16 bytes."
       end
       p[156, arg.length] = arg
     end
