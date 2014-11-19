@@ -117,7 +117,7 @@ module Rex::Socket::SslTcpServer
       if pem =~ /PRIVATE KEY/
         key = OpenSSL::PKey::RSA.new(pem)
       elsif pem =~ /CERTIFICATE/
-        certs << OpenSSL::X509::Certificate.new(ssl_cert)
+        certs << OpenSSL::X509::Certificate.new(pem)
       end
     end
 
