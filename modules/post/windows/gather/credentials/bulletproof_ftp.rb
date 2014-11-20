@@ -171,10 +171,10 @@ class Metasploit3 < Msf::Post
   end
 
   def check_bulletproof(user_dir)
-    session.fs.dir.foreach(user_dir) do |dir|
-      if dir =~ /BulletProof Software/
-        vprint_status("BulletProof Data Directory found at #{user_dir}\\#{dir}")
-        return "#{user_dir}\\#{dir}"#"\\BulletProof FTP Client\\2010\\sites\\Bookmarks"
+    session.fs.dir.foreach(user_dir) do |directory|
+      if directory =~ /BulletProof Software/
+        vprint_status("BulletProof Data Directory found at #{user_dir}\\#{directory}")
+        return "#{user_dir}\\#{directory}"#"\\BulletProof FTP Client\\2010\\sites\\Bookmarks"
       end
     end
     return nil

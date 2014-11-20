@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       transport = Net::SSH::Transport::Session.new(ip, options)
-    rescue Rex::ConnectionError, Rex::AddressInUse
+    rescue Rex::ConnectionError
       return :connection_error
     end
 
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
           :fail
         end
       end
-    rescue Rex::ConnectionError, Rex::AddressInUse
+    rescue Rex::ConnectionError
       return :connection_error
     rescue Net::SSH::Disconnect, ::EOFError
       return :success

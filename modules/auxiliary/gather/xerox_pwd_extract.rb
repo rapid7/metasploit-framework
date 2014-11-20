@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect(true, 'RPORT' => jport)
       sock.put(create_print_job)
-    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse
+    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout
       print_error("#{rhost}:#{jport} - Error connecting to #{rhost}")
     ensure
       disconnect
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
       res = sock.get_once || ''
       passwd = res.match(/\r\n\s(.+?)\n/)
       return passwd ? passwd[1] : ''
-    rescue ::EOFError, ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse, EOFError
+    rescue ::EOFError, ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, ::EOFError
       print_error("#{rhost}:#{jport} - Error getting password from #{rhost}")
       return
     ensure
@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect(true, 'RPORT' => jport)
       sock.put(remove_print_job)
-    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::AddressInUse
+    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout
       print_error("#{rhost}:#{jport} - Error removing print job from #{rhost}")
     ensure
       disconnect
