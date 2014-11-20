@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'SMTP NTLM Domain Extraction',
-      'Description' => 'Extract the Windows domain name given an NTLM challenge.',
+      'Description' => 'Extract the Windows domain name from a SMTP NTLM challenge.',
       'References'  => [ ['URL', 'http://msdn.microsoft.com/en-us/library/cc246870.aspx' ] ],
-      'Author'      => [ 'Rich Whitcroft <rwhitcroft@digitalboundary.net>' ],
+      'Author'      => [ 'Rich Whitcroft <rwhitcroft[at]digitalboundary.net>' ],
       'License'     => MSF_LICENSE
     )
 
@@ -33,11 +33,11 @@ class Metasploit3 < Msf::Auxiliary
     begin
       domain = nil
       connect
-      print_status("Connected to #{ip}:#{datastore['RPORT']}")
+      vprint_status("Connected to #{ip}:#{datastore['RPORT']}")
 
       # send a EHLO and parse the extensions returned
       sock.puts("EHLO " + datastore['EHLO_DOMAIN'] + "\r\n")
-      exts = sock.get_once.split(/\n/)
+      exts = sock.get_once.to_s.split(/\n/)
 
       # loop through all returned extensions related to NTLM
       exts.grep(/NTLM/).each do |ext|
