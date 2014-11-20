@@ -227,15 +227,12 @@ class Metasploit4 < Msf::Auxiliary
               end
             print_good("#{ip}:#{port}\t - #{service} OPEN")
 
-            begin
-              report_note(
-                :host => "#{ip}",
-                :proto => 'TCP',
-                :port => "#{port}",
-                :type => 'SAP',
-                :data => "#{service}"
-              )
-            end
+            report_note(
+              :host => "#{ip}",
+              :port => "#{port}",
+              :type => 'SAP',
+              :data => "#{service}"
+            )
             r << [ip,port,"open", service]
             rescue ::Rex::ConnectionRefused
               vprint_status("#{ip}:#{port}\t - TCP closed")
