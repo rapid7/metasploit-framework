@@ -4,12 +4,11 @@
 ##
 
 require 'msf/core'
-require 'rex/proto/kademlia'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
-  include Rex::Proto::Kademlia
+  include Msf::Auxiliary::Kademlia
 
   def initialize(info = {})
     super(

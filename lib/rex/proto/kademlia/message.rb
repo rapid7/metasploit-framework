@@ -39,10 +39,10 @@ module Kademlia
         fail NotImplementedError, "Unable to handle #{message.length}-byte compressed Kademlia message"
       end
       return if header != STANDARD_PACKET
-      Message.new(type,data[2, data.length]])
+      Message.new(type, data[2, data.length])
     end
 
-    def to_s
+    def to_str
       [STANDARD_PACKET, @type].pack('CC') + @body
     end
   end

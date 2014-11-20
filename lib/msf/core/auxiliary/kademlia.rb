@@ -1,22 +1,16 @@
 # -*- coding: binary -*-
+require 'rex/proto/kademlia'
 
-module Rex
-module Proto
-##
+module Msf
+
+###
 #
-# Minimal support for the newer Kademlia protocol, referred to here and often
-# elsewhere as Kademlia2.  It is unclear how this differs from the old protocol.
+# This module provides methods for working with Kademlia
 #
-# Protocol details are hard to come by because most documentation is academic
-# in nature and glosses over the low-level network details.  The best
-# documents I found on the protocol are:
-#
-# http://gbmaster.wordpress.com/2013/05/05/botnets-surrounding-us-an-initial-focus-on-kad/
-# http://gbmaster.wordpress.com/2013/06/16/botnets-surrounding-us-sending-kademlia2_bootstrap_req-kademlia2_hello_req-and-their-strict-cousins/
-# http://gbmaster.wordpress.com/2013/11/23/botnets-surrounding-us-performing-requests-sending-out-kademlia2_req-and-asking-contact-where-art-thou/
-#
-##
-module Kademlia
+###
+module Auxiliary::Kademlia
+  include Rex::Proto::Kademlia
+
   # Opcode for a BOOTSTRAP request
   BOOTSTRAP_REQ = 0x01
   # Opcode for a BOOTSTRAP response
@@ -43,15 +37,15 @@ module Kademlia
   # @return [Array] the discovered peer ID, TCP port, version and a list of peers
   #   if the response if valid, nil otherwise
   def decode_bootstrap_res(response)
-    type, body = decode_message(response)
+    message = Message.from_data(response)
     # abort if this isn't a valid response
-    return nil unless type = BOOTSTRAP_RES
-    return nil unless body.size >= 23
-    peer_id = decode_peer_id(body.slice!(0,16))
-    tcp_port, version, num_peers = body.slice!(0,5).unpack('vCv')
+    return nil unless message.type = BOOTSTRAP_RES
+    return nil unless message.body.size >= 23
+    peer_id = decode_peer_id(message.body.slice!(0,16))
+    tcp_port, version, num_peers = message.body.slice!(0,5).unpack('vCv')
     # protocol says there are no peers and the body confirms this, so just return with no peers
-    return [ tcp_port, version, []] if num_peers == 0 && body.blank?
-    peers = decode_bootstrap_peers(body)
+    return [ tcp_port, version, []] if num_peers == 0 && message.body.blank?
+    peers = decode_bootstrap_peers(message.body)
     # abort if the peer data was invalid
     return nil unless peers
     [ peer_id, tcp_port, version, peers ]
@@ -61,7 +55,7 @@ module Kademlia
   #
   # @return [String] a PING request
   def ping
-    encode_message(PING)
+    Message.new(PING)
   end
 
   # Decode a PING response, PONG
@@ -69,13 +63,13 @@ module Kademlia
   # @param response [String] the response to decode
   # @return [Integer] the source port from the PING response if the response is valid, nil otherwise
   def decode_pong(response)
-    type, port = decode_message(response)
+    message = Message.from_data(response)
     # abort if this isn't a pong
-    return nil unless type == PONG
+    return nil unless message.type == PONG
     # abort if the response is too large/small
-    return nil unless port && port.size == 2
+    return nil unless message.body && message.body.size == 2
     # this should always be equivalent to the source port from which the PING was received
-    port.unpack('v')[0]
+    message.body.unpack('v')[0]
   end
 
   # Decode a list of peers from a BOOTSTRAP response
@@ -120,6 +114,5 @@ module Kademlia
   # TODO
   # def encode_peer_id(id)
   # end
-end
 end
 end
