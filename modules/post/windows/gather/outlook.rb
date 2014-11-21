@@ -116,12 +116,12 @@ class Metasploit3 < Msf::Post
     object	= "HTMLBody"
     allow 	= datastore['A_TRANSLATION']
     allow_access_for = datastore['ACF_TRANSLATION']
+    langNotSupported = false
 
     # OS language check
     sysLang = client.sys.config.sysinfo['System Language']
     if sysLang != "en_US" and sysLang != "NL"
-        print_error ("System language not supported, only English (en-US) and Dutch (NL) are supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
-        abort()
+        langNotSupported = true
     else
       atrans = A_HASH[sysLang]
       acftrans = ACF_HASH[sysLang]
@@ -130,6 +130,11 @@ class Metasploit3 < Msf::Post
     if allow and allow_access_for
        atrans = allow
        acftrans = allow_access_for
+    else
+       if langNotSupported == true
+           print_error ("System language not supported, only English (en-US) and Dutch (NL) are supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
+           abort()
+       end
     end
 
     # Outlook installed
