@@ -231,7 +231,8 @@ class Metasploit4 < Msf::Auxiliary
               :host => "#{ip}",
               :port => "#{port}",
               :type => 'SAP',
-              :data => "#{service}"
+              :data => "#{service}",
+              :update => :unique_data
             )
             r << [ip,port,"open", service]
             rescue ::Rex::ConnectionRefused
