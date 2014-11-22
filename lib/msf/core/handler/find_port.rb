@@ -55,7 +55,7 @@ module FindPort
     # If this is a multi-stage payload, then we just need to blindly
     # transmit the stage and create the session, hoping that it works.
     if (self.payload_type != Msf::Payload::Type::Single)
-      handle_connection(sock)
+      handle_connection(sock, { datastore: datastore })
     # Otherwise, check to see if we found a session.  We really need
     # to improve this, as we could create a session when the exploit
     # really didn't succeed.
