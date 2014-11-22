@@ -35,6 +35,7 @@ module Metasploit
     extend ActiveSupport::Autoload
 
     autoload :Spec
+    autoload :ThreadFactoryProvider
 
     # Returns the root of the metasploit-framework project.  Use in place of
     # `Rails.root`.

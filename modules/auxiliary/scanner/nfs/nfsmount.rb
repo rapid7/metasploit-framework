@@ -76,11 +76,12 @@ class Metasploit3 < Msf::Auxiliary
           :update => :unique_data
         )
       elsif(exports == 0x00)
-        print_status("#{ip} - No exported directories")
+        vprint_status("#{ip} - No exported directories")
       end
 
       sunrpc_destroy
-    rescue ::Rex::Proto::SunRPC::RPCTimeout
+    rescue ::Rex::Proto::SunRPC::RPCTimeout, ::Rex::Proto::SunRPC::RPCError => e
+      vprint_error(e.to_s)
     end
   end
 

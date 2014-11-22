@@ -31,6 +31,23 @@ module Msf::Post::File
     end
   end
 
+  # Returns a list of the contents of the specified directory
+  # @param directory [String] the directory to list
+  # @return [Array] the contents of the directory
+  def dir(directory)
+    if session.type == 'meterpreter'
+      return session.fs.dir.entries(directory)
+    else
+      if session.platform =~ /win/
+        return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
+      else
+        return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
+      end
+    end
+  end
+
+  alias ls dir
+
   #
   # See if +path+ exists on the remote system and is a directory
   #
