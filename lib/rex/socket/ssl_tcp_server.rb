@@ -138,44 +138,31 @@ module Rex::Socket::SslTcpServer
 
   #
   # Generate a realistic-looking but obstensibly fake SSL
-  # certificate.
+  # certificate. This matches a typical "snakeoil" cert.
   #
   # @return [String, String, Array]
   def self.ssl_generate_certificate
-    key = OpenSSL::PKey::RSA.new(1024){ }
+    yr   = 24*3600*365
+    vf   = Time.at(Time.now.to_i - rand(yr * 3) - yr)
+    vt   = Time.at(vf.to_i + (10 * yr))
+    cn   = Rex::Text.rand_text_alpha_lower(rand(8)+2)
+    key  = OpenSSL::PKey::RSA.new(2048){ }
     cert = OpenSSL::X509::Certificate.new
-    cert.version = 2
-    cert.serial = rand(0xFFFFFFFF)
-    subject = OpenSSL::X509::Name.new([
-        ["C","US"],
-        ['ST', Rex::Text.rand_state()],
-        ["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
-        ["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-        ["CN", Rex::Text.rand_hostname],
-      ])
-    issuer = OpenSSL::X509::Name.new([
-        ["C","US"],
-        ['ST', Rex::Text.rand_state()],
-        ["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
-        ["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-        ["CN", Rex::Text.rand_hostname],
-      ])
-
-    cert.subject = subject
-    cert.issuer = issuer
-    cert.not_before = Time.now - (3600 * 365)
-    cert.not_after = Time.now + (3600 * 365)
+    cert.version    = 2
+    cert.serial     = (rand(0xFFFFFFFF) << 32) + rand(0xFFFFFFFF)
+    cert.subject    = OpenSSL::X509::Name.new([["CN", cn]])
+    cert.issuer     = OpenSSL::X509::Name.new([["CN", cn]])
+    cert.not_before = vf
+    cert.not_after  = vt
     cert.public_key = key.public_key
+
     ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
     cert.extensions = [
-      ef.create_extension("basicConstraints","CA:FALSE"),
-      ef.create_extension("subjectKeyIdentifier","hash"),
-      ef.create_extension("extendedKeyUsage","serverAuth"),
-      ef.create_extension("keyUsage","keyEncipherment,dataEncipherment,digitalSignature")
+      ef.create_extension("basicConstraints","CA:FALSE")
     ]
     ef.issuer_certificate = cert
-    cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
-    cert.sign(key, OpenSSL::Digest::SHA1.new)
+
+    cert.sign(key, OpenSSL::Digest::SHA256.new)
 
     [key, cert, nil]
   end
