@@ -56,7 +56,8 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Checking #{peer} for DLSw exposure")
     response = get_response
 
-    if !response.blank? && (response =~ /IOS Software|cisco.com/)
+    dlsw_header = ["3148015b"].pack("H*") # => "\x31\x48\x01\x5b""
+    if !response.blank? && (response[0..3] == dlsw_header)
       print_good("#{peer}: The target Cisco router appears vulnerable: parts of a Cisco IOS banner detected")
       report_vuln(
         host: rhost,
@@ -86,6 +87,7 @@ class Metasploit3 < Msf::Auxiliary
   # Borrowed from https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/ssl/openssl_heartbleed.rb
   def get_data(length = -1)
 
+    print_status("Calling get_response")
     return sock.get_once(-1, response_timeout) if length == -1
 
     to_receive = length
@@ -128,4 +130,3 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer}: DLSw leaked data stored in #{path}")
   end
 end
-
