@@ -38,8 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(2067),
-        OptInt.new('LEAK_AMOUNT', [true, 'The number of bytes to store before shutting down.', 1024]),
-        OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 5])
+        OptInt.new('LEAK_AMOUNT', [true, 'The number of bytes to store before shutting down.', 1024])
       ], self.class)
   end
 
@@ -106,3 +105,4 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer}: DLSw leaked data stored in #{path}")
   end
 end
+
