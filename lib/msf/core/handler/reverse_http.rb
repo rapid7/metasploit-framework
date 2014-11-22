@@ -138,7 +138,7 @@ module ReverseHttp
         'MsfExploit' => self,
       },
       comm,
-      (ssl?) ? datastore["SSLCert"] : nil
+      (ssl?) ? datastore["HandlerSSLCert"] : nil
     )
 
     self.service.server_name = datastore['MeterpreterServerName']
