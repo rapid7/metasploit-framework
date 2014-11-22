@@ -679,3 +679,8 @@ resume and see if there are any current or upcoming openings.
 
 If you are looking for instructions on how to set up a development environment on OS X, please go to the following link:
 http://www.darkoperator.com/installing-metasploit-framewor/
+
+If you prefer an installation script, you can try the following made by our community contributor Carlos Perez.
+https://github.com/darkoperator/MSF-Installer
+
+Any issues with the installation script, please contact Carlos, not Rapid7 :-)
