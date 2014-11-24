@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
         external packet analysis tool, such as tcpdump or Wireshark in order to learn more
         about the Cisco switch and router environment.
       },
-      'Author'      => 'Fatih Ozavci <viproy.com/fozavci>',
+      'Author'      => 'Fatih Ozavci', # viproy.com/fozavci
       'License'     =>  MSF_LICENSE,
       'References'  => [
         [ 'URL', 'http://en.wikipedia.org/wiki/CDP_Spoofing' ]
