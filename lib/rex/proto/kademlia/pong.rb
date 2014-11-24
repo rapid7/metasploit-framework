@@ -10,7 +10,7 @@ module Kademlia
 
   # A Kademlia pong message.
   class Pong < Message
-    # the source port from which the PING was received
+    # @return [Integer] the source port from which the PING was received
     attr_reader :port
 
     def initialize(port = nil)
@@ -18,6 +18,10 @@ module Kademlia
       @port = port
     end
 
+    # Builds a pong from given data
+    #
+    # @param data [String] the data to decode
+    # @return [Pong] the pong if the data is valid, nil otherwise
     def self.from_data(data)
       message = super(data)
       return if message.type != PONG

@@ -18,13 +18,13 @@ describe Rex::Proto::Kademlia::BootstrapResponse do
       expect(peer[:ip]).to eq('149.91.116.59')
       expect(peer[:tcp_port]).to eq(4882)
       expect(peer[:udp_port]).to eq(4992)
-      expect(peer[:type]).to eq(8)
+      expect(peer[:version]).to eq(8)
       peer = response.peers.last
       expect(peer[:id]).to eq('9B896000AEBE0B0A0ECB35457177A107')
       expect(peer[:ip]).to eq('83.46.192.208')
       expect(peer[:tcp_port]).to eq(3662)
       expect(peer[:udp_port]).to eq(3672)
-      expect(peer[:type]).to eq(8)
+      expect(peer[:version]).to eq(8)
     end
 
     it 'does not decode overly small bootstrap responses' do

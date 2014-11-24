@@ -17,14 +17,20 @@ module Proto
 #
 ##
 module Kademlia
+  # A simple Kademlia message
   class Message
     # The header that non-compressed Kad messages use
     STANDARD_PACKET = 0xE4
     # The header that compressed Kad messages use, which is currently unsupported
     COMPRESSED_PACKET = 0xE5
 
-    attr_accessor :type, :body
+    # @return [Integer] the message type
+    attr_reader :type
+    # @return [String] the message body
+    attr_reader :body
 
+    # Construct a new Message from the provided type and body
+    #
     # @param type [String] the message type
     # @param body [String] the message body
     def initialize(type, body = '')
@@ -32,6 +38,10 @@ module Kademlia
       @body = body
     end
 
+    # Construct a new Message from the provided data
+    #
+    # @param data [String] the data to interpret as a Kademlia message
+    # @return [Message] the message if valid, nil otherwise
     def self.from_data(data)
       return if data.length < 2
       header, type = data.unpack('CC')

@@ -11,12 +11,21 @@ module Kademlia
 
   # A Kademlia bootstrap response message
   class BootstrapResponse < Message
+    # @return [String] the ID of the peer that send the bootstrap response
     attr_reader :peer_id
+    # @return [Integer] the TCP port that the responding peer is listening on
     attr_reader :tcp_port
+    # @return [Integer] the version of this peer
     attr_reader :version
-    # An array of hashes containing the peer ID, IP address, UDP and TCP ports as well as the type/version
+    # @return [Array<Hash<String, Object>>] the peer ID, IP address, UDP/TCP ports and version of each peer
     attr_reader :peers
 
+    # Constructs a new bootstrap response
+    #
+    # @param peer_id [String] the ID of this peer
+    # @param tcp_port [Integer] the TCP port that this peer is listening on
+    # @param version [Integer] the version of this peer
+    # @param peers [Array<Hash<String, Object>>] the peer ID, IP address, UDP/TCP ports and version of each peer
     def initialize(peer_id, tcp_port, version, peers)
       @peer_id = peer_id
       @tcp_port = tcp_port
