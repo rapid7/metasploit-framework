@@ -193,10 +193,7 @@ class Metasploit3 < Msf::Auxiliary
       if windows_login.length != 0
         print_status(" - #{windows_login}")
 
-        # Verbose output
-        if datastore['VERBOSE']
-          print_status("Test sid: #{win_sid}")
-        end
+        vprint_status("Test sid: #{win_sid}")
       end
 
       # Add to windows domain object list
