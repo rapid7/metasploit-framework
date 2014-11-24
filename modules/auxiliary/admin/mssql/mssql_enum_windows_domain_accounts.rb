@@ -102,9 +102,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{win_domain_user_list.length} user accounts, groups, and computer accounts were found.")
 
       win_domain_user_list.sort.each do |windows_login|
-        if datastore['VERBOSE']
-          print_status(" - #{windows_login}")
-        end
+        vprint_status(" - #{windows_login}")
       end
 
       # Create table for report
