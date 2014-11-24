@@ -17,12 +17,12 @@ module Proto
 #
 ##
 module Kademlia
-  # The header that non-compressed Kad messages use
-  STANDARD_PACKET = 0xE4
-  # The header that compressed Kad messages use, which is currently unsupported
-  COMPRESSED_PACKET = 0xE5
-
   class Message
+    # The header that non-compressed Kad messages use
+    STANDARD_PACKET = 0xE4
+    # The header that compressed Kad messages use, which is currently unsupported
+    COMPRESSED_PACKET = 0xE5
+
     attr_accessor :type, :body
 
     # @param type [String] the message type
@@ -36,7 +36,7 @@ module Kademlia
       return if data.length < 2
       header, type = data.unpack('CC')
       if header == COMPRESSED_PACKET
-        fail NotImplementedError, "Unable to handle #{message.length}-byte compressed Kademlia message"
+        fail NotImplementedError, "Unable to handle #{data.length}-byte compressed Kademlia message"
       end
       return if header != STANDARD_PACKET
       Message.new(type, data[2, data.length])
@@ -44,6 +44,10 @@ module Kademlia
 
     def to_str
       [STANDARD_PACKET, @type].pack('CC') + @body
+    end
+
+    def ==(other)
+      type == other.type && body == other.body
     end
   end
 end

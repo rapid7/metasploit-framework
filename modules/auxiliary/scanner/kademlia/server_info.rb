@@ -46,9 +46,9 @@ class Metasploit3 < Msf::Auxiliary
   def build_probe
     @probe ||= case action.name
                when 'BOOTSTRAP'
-                 bootstrap
+                 BootstrapRequest.new
                when 'PING'
-                 ping
+                 Ping.new
                end
   end
 
@@ -58,22 +58,22 @@ class Metasploit3 < Msf::Auxiliary
 
     case action.name
     when 'BOOTSTRAP'
-      peer_id, tcp_port, version, peers = decode_bootstrap_res(response)
-      info = {
-        peer_id: peer_id,
-        tcp_port: tcp_port,
-        version: version,
-        peers: peers
-      }
-      if datastore['VERBOSE']
-      else
-        print_good("#{peer} ID #{peer_id}, TCP port #{tcp_port}, version #{version}, #{peers.size} peers")
+      if bootstrap_res = BootstrapResponse.from_data(response)
+        info = {
+          peer_id: bootstrap_res.peer_id,
+          tcp_port: bootstrap_res.tcp_port,
+          version: bootstrap_res.version,
+          peers: bootstrap_res.peers
+        }
+        print_good("#{peer} ID #{bootstrap_res.peer_id}, TCP port #{bootstrap_res.tcp_port}," +
+                   " version #{bootstrap_res.version}, #{bootstrap_res.peers.size} peers")
       end
     when 'PING'
-      udp_port = decode_pong(response)
-      print_good("#{peer} PONG")
-      # udp_port should match the port we contacted it from.  TODO: validate this?
-      info = { udp_port: udp_port }
+      if pong = Pong.from_data(response)
+        print_good("#{peer} PONG port #{pong.port}")
+        # port should match the port we contacted it from.  TODO: validate this?
+        info = { udp_port: pong.port }
+      end
     end
 
     return unless info
