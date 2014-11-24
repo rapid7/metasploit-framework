@@ -118,15 +118,12 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       # Create output file
-      this_service = nil
-      if framework.db and framework.db.active
-        this_service = report_service(
-          :host  => rhost,
-          :port => rport,
-          :name => 'mssql',
-          :proto => 'tcp'
-        )
-      end
+      this_service = report_service(
+        :host  => rhost,
+        :port => rport,
+        :name => 'mssql',
+        :proto => 'tcp'
+      )
       filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_windows_domain_accounts.csv"
       path = store_loot("windows_domain_accounts", "text/plain", datastore['RHOST'], windows_domain_login_table.to_csv, filename, "SQL Server query results",this_service)
       print_status("Query results have been saved to: #{path}")
