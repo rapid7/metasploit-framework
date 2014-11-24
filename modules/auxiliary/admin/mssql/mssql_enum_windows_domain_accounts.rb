@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Auxiliary
   # Get windows domain
   def get_windows_domain
 
-    # Setup query to check for sysadmin
+    # Setup query to check the domain
     sql = "SELECT DEFAULT_DOMAIN() as mydomain"
 
     # Run query
@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
   # Get the sql server's hostname
   def get_sql_server_name
 
-    # Setup query to check for sysadmin
+    # Setup query to check the server name
     sql = "SELECT @@servername"
 
     # Run query
@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
     # Set group
     domain_group = "#{sql_server_domain}\\Domain Admins"
 
-    # Setup query to check for sysadmin
+    # Setup query to check the Domain SID
     sql = "select SUSER_SID('#{domain_group}') as dasid"
 
     # Run query
