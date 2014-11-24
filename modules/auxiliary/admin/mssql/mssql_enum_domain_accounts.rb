@@ -47,17 +47,6 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    # Query for sysadmin status
-    print_status("Checking if #{datastore['USERNAME']} has the sysadmin role...")
-    user_status = check_sysadmin
-
-    # Check if user has sysadmin role
-    if user_status == 1
-      print_good("#{datastore['USERNAME']} is a sysadmin.")
-    else
-      print_status("#{datastore['USERNAME']} is NOT a sysadmin.")
-    end
-
     # Get the server name
     sql_server_name = get_sql_server_name
     print_status("SQL Server Name: #{sql_server_name}")
@@ -136,23 +125,6 @@ class Metasploit3 < Msf::Auxiliary
       'Domain Users enumerated through SQL Server',
       this_service)
     print_status("Query results have been saved to: #{path}")
-  end
-
-  # Checks if user is a sysadmin
-  def check_sysadmin
-
-    # Setup query to check for sysadmin
-    sql = "select is_srvrolemember('sysadmin') as IsSysAdmin"
-
-    # Run query
-    result = mssql_query(sql)
-
-    # Parse query results
-    parse_results = result[:rows]
-    status = parse_results[0][0]
-
-    # Return status
-    return status
   end
 
   # Get list of windows accounts,groups,and computer accounts
