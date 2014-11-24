@@ -1,9 +1,9 @@
 Feature: Help command
-  
+
   Background:
     Given I run `msfconsole` interactively
     And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
-    
+
   Scenario: The 'help' command's output
     When I type "help"
     And I type "exit"
@@ -75,4 +75,4 @@ Feature: Help command
           vulns             List all vulnerabilities in the database
           workspace         Switch between database workspaces
       """
-  
+

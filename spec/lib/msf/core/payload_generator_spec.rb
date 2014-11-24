@@ -2,12 +2,7 @@ require 'spec_helper'
 require 'msf/core/payload_generator'
 
 describe Msf::PayloadGenerator do
-
-  PAYLOAD_FRAMEWORK = Msf::Simple::Framework.create(
-      :module_types => [  ::Msf::MODULE_PAYLOAD, ::Msf::MODULE_ENCODER, ::Msf::MODULE_NOP],
-      'DisableDatabase' => true,
-      'DisableLogging' => true
-  )
+  include_context 'Msf::Simple::Framework#modules loading'
 
   let(:lhost) { "192.168.172.1"}
   let(:lport) { "8443" }
@@ -15,13 +10,18 @@ describe Msf::PayloadGenerator do
   let(:add_code) { false }
   let(:arch) { "x86" }
   let(:badchars) { "\x20\x0D\x0A" }
-  let(:encoder)  { 'x86/shikata_ga_nai' }
+  let(:encoder_reference_name)  {
+    # use encoder_module to ensure it is loaded prior to passing to generator
+    encoder_module.refname
+  }
   let(:format) { "raw" }
-  let(:framework) { PAYLOAD_FRAMEWORK }
   let(:iterations) { 1 }
   let(:keep) { false }
   let(:nops) { 0 }
-  let(:payload) { "windows/meterpreter/reverse_tcp"}
+  let(:payload_reference_name) {
+    # use payload_module to ensure it is loaded prior to passing to generator
+    payload_module.refname
+  }
   let(:platform) { "Windows" }
   let(:space) { 1073741824 }
   let(:stdin) { nil }
@@ -31,25 +31,41 @@ describe Msf::PayloadGenerator do
         add_code: add_code,
         arch: arch,
         badchars: badchars,
-        encoder: encoder,
+        encoder: encoder_reference_name,
         datastore: datastore,
         format: format,
         framework: framework,
         iterations: iterations,
         keep: keep,
         nops: nops,
-        payload: payload,
+        payload: payload_reference_name,
         platform: platform,
         space: space,
         stdin: stdin,
         template: template
     }
   }
-  let(:payload_module) { framework.payloads.create(payload)}
+  let(:payload_module) {
+    load_and_create_module(
+        ancestor_reference_names: %w{
+          stagers/windows/reverse_tcp
+          stages/windows/meterpreter
+        },
+        module_type: 'payload',
+        reference_name: 'windows/meterpreter/reverse_tcp'
+    )
+  }
   let(:shellcode) { "\x50\x51\x58\x59" }
-  let(:encoder_module) { framework.encoders.create('x86/shikata_ga_nai') }
+  let(:encoder_module) {
+    load_and_create_module(
+        module_type: 'encoder',
+        reference_name: 'x86/shikata_ga_nai'
+    )
+  }
 
-  subject(:payload_generator) { described_class.new(generator_opts) }
+  subject(:payload_generator) {
+    described_class.new(generator_opts)
+  }
 
   it { should respond_to :add_code }
   it { should respond_to :arch }
@@ -77,13 +93,13 @@ describe Msf::PayloadGenerator do
             add_code: add_code,
             arch: arch,
             badchars: badchars,
-            encoder: encoder,
+            encoder: encoder_reference_name,
             datastore: datastore,
             format: format,
             iterations: iterations,
             keep: keep,
             nops: nops,
-            payload: payload,
+            payload: payload_reference_name,
             platform: platform,
             space: space,
             stdin: stdin,
@@ -95,19 +111,19 @@ describe Msf::PayloadGenerator do
     end
 
     context 'when not given a payload' do
-      let(:payload) { nil }
+      let(:payload_reference_name) { nil }
 
       it { should raise_error(ArgumentError, "Invalid Payload Selected") }
     end
 
     context 'when given an invalid payload' do
-      let(:payload) { "beos/meterpreter/reverse_gopher" }
+      let(:payload_reference_name) { "beos/meterpreter/reverse_gopher" }
 
       it { should raise_error(ArgumentError, "Invalid Payload Selected") }
     end
 
     context 'when given a payload through stdin' do
-      let(:payload) { "stdin" }
+      let(:payload_reference_name) { "stdin" }
 
       it { should_not raise_error }
     end
@@ -230,7 +246,7 @@ describe Msf::PayloadGenerator do
 
     context 'when passing a payload through stdin' do
       let(:stdin) { "\x90\x90\x90"}
-      let(:payload) { "stdin" }
+      let(:payload_reference_name) { "stdin" }
 
       context 'when no arch has been selected' do
         let(:arch) { '' }
@@ -330,6 +346,13 @@ describe Msf::PayloadGenerator do
   end
 
   context '#prepend_nops' do
+    before(:each) do
+      load_and_create_module(
+          module_type: 'nop',
+          reference_name: 'x86/opty2'
+      )
+    end
+
     context 'when nops are set to 0' do
       it 'returns the unmodified shellcode' do
         expect(payload_generator.prepend_nops(shellcode)).to eq shellcode
@@ -367,15 +390,41 @@ describe Msf::PayloadGenerator do
     end
 
     context 'when multiple encoders are selected' do
-      let(:encoder) { "x86/shikata_ga_nai,x86/alpha_mixed"}
+      #
+      # lets
+      #
+
+      let(:encoder_reference_name) {
+        encoder_reference_names.join(',')
+      }
+
+      let(:encoder_reference_names) {
+        %w{
+          x86/shikata_ga_nai
+          x86/alpha_mixed
+        }
+      }
+
+      #
+      # Callbacks
+      #
+
+      before(:each) do
+        encoder_reference_names.each do |reference_name|
+          load_and_create_module(
+              module_type: 'encoder',
+              reference_name: reference_name
+          )
+        end
+      end
 
       it 'returns an array of the right size' do
         expect(payload_generator.get_encoders.count).to eq 2
       end
 
       it 'returns each of the selected encoders in the array' do
-        payload_generator.get_encoders.each do |my_encoder|
-          expect(encoder_names).to include my_encoder.name
+        payload_generator.get_encoders.each do |msf_encoder|
+          expect(encoder_names).to include msf_encoder.name
         end
       end
 
@@ -385,17 +434,17 @@ describe Msf::PayloadGenerator do
     end
 
     context 'when no encoder is selected but badchars are present' do
-      let(:encoder) { '' }
+      let(:encoder_reference_name) { '' }
 
       it 'returns an array of all encoders with a compatible arch' do
         payload_generator.get_encoders.each do |my_encoder|
-          expect(my_encoder.arch).to include arch
+          expect(encoder_module.arch).to include arch
         end
       end
     end
 
     context 'when no encoder or badchars are selected' do
-      let(:encoder) { '' }
+      let(:encoder_reference_name) { '' }
       let(:badchars) { '' }
 
       it 'returns an empty array' do
@@ -407,9 +456,8 @@ describe Msf::PayloadGenerator do
   context '#run_encoder' do
 
     it 'should call the encoder a number of times equal to the iterations' do
-      my_encoder = encoder_module
-      my_encoder.should_receive(:encode).exactly(iterations).times.and_return(shellcode)
-      payload_generator.run_encoder(my_encoder, shellcode)
+      encoder_module.should_receive(:encode).exactly(iterations).times.and_return(shellcode)
+      payload_generator.run_encoder(encoder_module, shellcode)
     end
 
     context 'when the encoder makes a buffer too large' do
@@ -454,12 +502,21 @@ describe Msf::PayloadGenerator do
       let(:format) { 'war' }
 
       context 'if the payload is a valid java payload' do
-        let(:payload) { "java/meterpreter/reverse_tcp"}
+        let(:payload_module) {
+          load_and_create_module(
+              ancestor_reference_names: %w{
+                stagers/java/reverse_tcp
+                stages/java/meterpreter
+              },
+              module_type: 'payload',
+              reference_name: 'java/meterpreter/reverse_tcp'
+          )
+        }
+
         it 'calls the generate_war on the payload' do
-          java_payload = framework.payloads.create("java/meterpreter/reverse_tcp")
-          framework.stub_chain(:payloads, :keys).and_return ["java/meterpreter/reverse_tcp"]
-          framework.stub_chain(:payloads, :create).and_return(java_payload)
-          java_payload.should_receive(:generate_war).and_call_original
+          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
+          framework.stub_chain(:payloads, :create).and_return(payload_module)
+          payload_module.should_receive(:generate_war).and_call_original
           payload_generator.generate_java_payload
         end
       end
@@ -473,23 +530,40 @@ describe Msf::PayloadGenerator do
       let(:format) { 'raw' }
 
       context 'if the payload responds to generate_jar' do
-        let(:payload) { "java/meterpreter/reverse_tcp"}
+        let(:payload_module) {
+          load_and_create_module(
+              ancestor_reference_names: %w{
+                stagers/java/reverse_tcp
+                stages/java/meterpreter
+              },
+              module_type: 'payload',
+              reference_name: 'java/meterpreter/reverse_tcp'
+          )
+        }
+
         it 'calls the generate_jar on the payload' do
-          java_payload = framework.payloads.create("java/meterpreter/reverse_tcp")
-          framework.stub_chain(:payloads, :keys).and_return ["java/meterpreter/reverse_tcp"]
-          framework.stub_chain(:payloads, :create).and_return(java_payload)
-          java_payload.should_receive(:generate_jar).and_call_original
+          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
+          framework.stub_chain(:payloads, :create).and_return(payload_module)
+          payload_module.should_receive(:generate_jar).and_call_original
           payload_generator.generate_java_payload
         end
       end
 
       context 'if the payload does not respond to generate_jar' do
-        let(:payload) { "java/jsp_shell_reverse_tcp"}
+        let(:payload_module) {
+          load_and_create_module(
+              ancestor_reference_names: %w{
+                singles/java/jsp_shell_reverse_tcp
+              },
+              module_type: 'payload',
+              reference_name: 'java/jsp_shell_reverse_tcp'
+          )
+        }
+
         it 'calls #generate' do
-          java_payload = framework.payloads.create("java/jsp_shell_reverse_tcp")
-          framework.stub_chain(:payloads, :keys).and_return ["java/jsp_shell_reverse_tcp"]
-          framework.stub_chain(:payloads, :create).and_return(java_payload)
-          java_payload.should_receive(:generate).and_call_original
+          framework.stub_chain(:payloads, :keys).and_return [payload_reference_name]
+          framework.stub_chain(:payloads, :create).and_return(payload_module)
+          payload_module.should_receive(:generate).and_call_original
           payload_generator.generate_java_payload
         end
       end
@@ -510,22 +584,29 @@ describe Msf::PayloadGenerator do
   context '#generate_payload' do
 
     it 'calls each step of the process' do
-      my_generator = payload_generator
-      my_generator.should_receive(:generate_raw_payload).and_call_original
-      my_generator.should_receive(:add_shellcode).and_call_original
-      my_generator.should_receive(:encode_payload).and_call_original
-      my_generator.should_receive(:prepend_nops).and_call_original
-      my_generator.should_receive(:format_payload).and_call_original
-      my_generator.generate_payload
+      payload_generator.should_receive(:generate_raw_payload).and_call_original
+      payload_generator.should_receive(:add_shellcode).and_call_original
+      payload_generator.should_receive(:encode_payload).and_call_original
+      payload_generator.should_receive(:prepend_nops).and_call_original
+      payload_generator.should_receive(:format_payload).and_call_original
+      payload_generator.generate_payload
     end
 
     context 'when the payload is java' do
-      let(:payload) { "java/meterpreter/reverse_tcp" }
+      let(:payload_module) {
+        load_and_create_module(
+            ancestor_reference_names: %w{
+                stagers/java/reverse_tcp
+                stages/java/meterpreter
+              },
+            module_type: 'payload',
+            reference_name: 'java/meterpreter/reverse_tcp'
+        )
+      }
 
       it 'calls generate_java_payload' do
-        my_generator = payload_generator
-        my_generator.should_receive(:generate_java_payload)
-        my_generator.generate_payload
+        payload_generator.should_receive(:generate_java_payload)
+        payload_generator.generate_payload
       end
     end
   end

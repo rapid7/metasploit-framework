@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -127,6 +127,8 @@ class Metasploit3 < Msf::Auxiliary
     # done
     sunrpc_destroy
 
+  rescue Timeout::Error, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Rex::Proto::SunRPC::RPCError => e
+    print_error(e.to_s)
   rescue ::Rex::Proto::SunRPC::RPCTimeout
     print_warning 'Warning: ' + $!
     print_warning 'Exploit may or may not have succeeded.'

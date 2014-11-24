@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('URI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
+        OptString.new('TARGETURI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      uri = normalize_uri(datastore['URI'])
+      uri = normalize_uri(target_uri.path)
       res = send_request_cgi({
         'uri'     => uri,
         'method'  => 'GET',
