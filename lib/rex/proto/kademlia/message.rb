@@ -52,10 +52,17 @@ module Kademlia
       Message.new(type, data[2, data.length])
     end
 
+    # Get this Message as a String
+    #
+    # @return [String] the string representation of this Message
     def to_str
       [STANDARD_PACKET, @type].pack('CC') + @body
     end
 
+    # Compares this Message and another Message for equality
+    #
+    # @param other [Message] the Message to compare
+    # @return [Boolean] true iff the two messages have equal types and bodies, false otherwise
     def ==(other)
       type == other.type && body == other.body
     end

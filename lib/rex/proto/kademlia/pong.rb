@@ -29,6 +29,9 @@ module Kademlia
       Pong.new(message.body.unpack('v')[0])
     end
 
+    # Get this Pong as a String
+    #
+    # @return [String] the string representation of this Pong
     def to_str
       super + [@port].pack('v')
     end
