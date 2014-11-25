@@ -189,15 +189,14 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       # Convert number to hex and fix order
-      principal_id_hex = "%02X" % principal_id
-      principal_id_hex_pad = principal_id_hex.size.even? ? principal_id_hex : "0#{principal_id_hex}"
-      principal_id_clean  = principal_id_hex_pad.scan(/(..)/).reverse.flatten.join
-
+      principal_id = "%02X" % principal_id
+      principal_id = principal_id.size.even? ? principal_id : "0#{principal_id}"
+      principal_id  = principal_id.scan(/(..)/).reverse.join
       # Add padding
-      principal_id_hex_padded2 = principal_id_clean.ljust(8, '0')
+      principal_id = principal_id.ljust(8, '0')
 
       # Create full sid
-      win_sid = "0x#{windows_domain_sid}#{principal_id_hex_padded2}"
+      win_sid = "0x#{windows_domain_sid}#{principal_id}"
 
       # Return if sid does not resolve correctly for a domain
       if win_sid.length < 48
