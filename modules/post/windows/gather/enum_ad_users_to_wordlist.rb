@@ -42,18 +42,18 @@ class Metasploit3 < Msf::Post
         one (up to 24 characters). Results are dumped into /tmp
       },
       'License'      => MSF_LICENSE,
-      'Author'       => [ 'Thomas Ring' ],
-      'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ],
+      'Author'       => ['Thomas Ring'],
+      'Platform'     => ['win'],
+      'SessionTypes' => ['meterpreter']
     ))
 
     register_options([
-      OptString.new('FIELDS', [true, 'Fields to retrieve (ie, sn, givenName, displayName, description, comment)', DEFAULT_FIELDS]),
+      OptString.new('FIELDS', [true, 'Fields to retrieve (ie, sn, givenName, displayName, description, comment)', DEFAULT_FIELDS.join(',')]),
     ], self.class)
   end
 
   def run
-    fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
+    fields = datastore['FIELDS'].gsub(/\s+/,'').split(',')
 
     begin
       q = query(SEARCH_FILTER, datastore['MAX_SEARCH'], fields)
