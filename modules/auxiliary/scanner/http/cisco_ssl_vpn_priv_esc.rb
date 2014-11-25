@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Auxiliary
     # Validate we're dealing with Cisco SSL VPN
     unless validate_cisco_ssl_vpn
       vprint_error("#{peer} - Does not appear to be Cisco SSL VPN")
-      :abort
+      return
     end
 
     # This is crude, but I've found this to be somewhat
