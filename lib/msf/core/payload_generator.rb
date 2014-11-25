@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'active_support/core_ext/numeric/bytes'
 module Msf
 
@@ -307,12 +308,14 @@ module Msf
       if encoder.present?
         # Allow comma seperated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
-          encoders << framework.encoders.create(chosen_encoder)
+          e = framework.encoders.create(chosen_encoder)
+          encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif badchars.present?
-        framework.encoders.each_module_ranked('Arch' => [arch]) do |name, mod|
-          encoders << framework.encoders.create(name)
+        framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
+          e = framework.encoders.create(name)
+          encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       else
@@ -363,7 +366,9 @@ module Msf
       iterations.times do |x|
         shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
         cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
-        raise EncoderSpaceViolation, "encoder has made a buffer that is too big" if shellcode.length > space
+        if shellcode.length > space
+          raise EncoderSpaceViolation, "encoder has made a buffer that is too big"
+        end
       end
       shellcode
     end

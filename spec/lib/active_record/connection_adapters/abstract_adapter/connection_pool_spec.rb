@@ -1,19 +1,16 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-# helps with environment configuration to use for connection to database
-require 'metasploit/framework'
-
-# load Mdm::Host for testing
-MetasploitDataModels.require_models
-
 describe ActiveRecord::ConnectionAdapters::ConnectionPool do
+  self.use_transactional_fixtures = false
+
   def database_configurations
     YAML.load_file(database_configurations_pathname)
   end
 
   def database_configurations_pathname
-    Metasploit::Framework.root.join('config', 'database.yml')
+    # paths are always Array<String>, but there should only be on 'config/database' entry
+    Rails.application.config.paths['config/database'].first
   end
 
   subject(:connection_pool) do
@@ -24,7 +21,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
   # used, so have to manually establish connection.
   before(:each) do
     ActiveRecord::Base.configurations = database_configurations
-    spec = ActiveRecord::Base.configurations[Metasploit::Framework.env]
+    spec = ActiveRecord::Base.configurations[Rails.env]
     ActiveRecord::Base.establish_connection(spec)
   end
 
@@ -47,14 +44,14 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
     end
 
     context 'in thread with connection' do
-      it { should be_true }
+      it { should be_truthy }
     end
 
     context 'in thread without connection' do
       it 'should be false' do
         thread = Thread.new do
           Thread.current.should_not == main_thread
-          expect(active_connection?).to be_false
+          expect(active_connection?).to be_falsey
         end
 
         thread.join
@@ -100,7 +97,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
       end
 
       it 'should return true from #active_connection?' do
-        expect(connection_pool.active_connection?).to be_true
+        expect(connection_pool.active_connection?).to be_truthy
       end
 
       context 'with error' do
@@ -132,7 +129,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 
     context 'without active thread connection' do
       it 'should return false from #active_connection?' do
-        expect(connection_pool.active_connection?).to be_false
+        expect(connection_pool.active_connection?).to be_falsey
       end
 
       context 'with error' do

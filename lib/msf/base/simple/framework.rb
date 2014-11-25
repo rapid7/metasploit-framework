@@ -54,12 +54,12 @@ module Framework
 
   ModuleSimplifiers =
     {
-      MODULE_ENCODER => Msf::Simple::Encoder,
-      MODULE_EXPLOIT => Msf::Simple::Exploit,
-      MODULE_NOP     => Msf::Simple::Nop,
-      MODULE_PAYLOAD => Msf::Simple::Payload,
-      MODULE_AUX     => Msf::Simple::Auxiliary,
-      MODULE_POST    => Msf::Simple::Post,
+      Msf::MODULE_ENCODER => Msf::Simple::Encoder,
+      Msf::MODULE_EXPLOIT => Msf::Simple::Exploit,
+      Msf::MODULE_NOP     => Msf::Simple::Nop,
+      Msf::MODULE_PAYLOAD => Msf::Simple::Payload,
+      Msf::MODULE_AUX     => Msf::Simple::Auxiliary,
+      Msf::MODULE_POST    => Msf::Simple::Post,
     }
 
   #

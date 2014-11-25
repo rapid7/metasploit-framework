@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       sd = Rex::Socket.create_tcp_server('LocalPort' => stderr_port)
 
-    rescue Rex::AddressInUse
+    rescue Rex::BindFailed
       # Ignore and try again
 
     end

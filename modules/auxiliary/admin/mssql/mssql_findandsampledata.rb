@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -358,7 +358,7 @@ class Metasploit3 < Msf::Auxiliary
     #CREATE TABLE TO STORE SQL SERVER DATA LOOT
     sql_data_tbl = Rex::Ui::Text::Table.new(
       'Header'  => 'SQL Server Data',
-      'Ident'   => 1,
+      'Indent'   => 1,
       'Columns' => ['Server', 'Database', 'Schema', 'Table', 'Column', 'Data Type', 'Sample Data', 'Row Count']
     )
 

@@ -1,9 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/tomcat'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -56,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('URI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
+        OptString.new('TARGETURI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
@@ -70,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      uri = normalize_uri(datastore['URI'])
+      uri = normalize_uri(target_uri.path)
       res = send_request_cgi({
         'uri'     => uri,
         'method'  => 'GET',
@@ -91,60 +93,46 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    each_user_pass { |user, pass|
-      do_login(user, pass)
-    }
-  end
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS'],
+    )
 
-  def do_login(user='tomcat', pass='tomcat')
-    vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' with password:'#{pass}'")
-    success = false
-    srvhdr = '?'
-    uri = normalize_uri(datastore['URI'])
-    begin
-      res = send_request_cgi({
-        'uri'     => uri,
-        'method'  => 'GET',
-        'username' => user,
-        'password' => pass
-        }, 25)
-      unless (res.kind_of? Rex::Proto::Http::Response)
-        vprint_error("http://#{rhost}:#{rport}#{uri} not responding")
-        return :abort
-      end
-      return :abort if (res.code == 404)
-      srvhdr = res.headers['Server']
-      if res.code == 200
-        # Could go with res.headers['Server'] =~ /Apache-Coyote/i
-        # as well but that seems like an element someone's more
-        # likely to change
-        success = true if(res.body.scan(/Tomcat/i).size >= 5)
-        success
-      end
+    cred_collection = prepend_db_passwords(cred_collection)
 
-    rescue ::Rex::ConnectionError => e
-      vprint_error("http://#{rhost}:#{rport}#{uri} - #{e}")
-      return :abort
-    end
+    scanner = Metasploit::Framework::LoginScanner::Tomcat.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: 10,
+        user_agent: datastore['UserAgent'],
+        vhost: datastore['VHOST']
+    )
 
-    if success
-      print_good("http://#{rhost}:#{rport}#{uri} [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :pass => pass,
-        :proof => "WEBAPP=\"Tomcat Application Manager\"",
-        :source_type => "user_supplied",
-        :duplicate_ok => true,
-        :active => true
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
       )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-      return :next_user
-    else
-      vprint_error("http://#{rhost}:#{rport}#{uri} [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
-      return
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+      else
+        invalidate_login(credential_data)
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+      end
     end
   end
+
 end

@@ -50,8 +50,9 @@ end
 
 changed_files.each_line do |fname|
   fname.strip!
-  next unless File.exist?(fname) and File.file?(fname)
-  next unless fname =~ /modules.+\.rb/
+  next unless File.exist?(fname)
+  next unless File.file?(fname)
+  next unless fname =~ /^modules.+\.rb/
   files_to_check << fname
 end
 
@@ -64,7 +65,7 @@ else
     msftidy_output= %x[ #{cmd} ]
     puts "#{fname} - msftidy check passed" if msftidy_output.empty?
     msftidy_output.each_line do |line|
-      valid = false
+      valid = false unless line['INFO']
       puts line
     end
   end

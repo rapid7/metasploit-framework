@@ -3,6 +3,7 @@ require 'digest/md5'
 require 'digest/sha1'
 require 'stringio'
 require 'cgi'
+require 'rex/exploitation/powershell'
 
 %W{ iconv zlib }.each do |libname|
   begin
@@ -305,19 +306,7 @@ module Text
   # Converts a raw string to a powershell byte array
   #
   def self.to_powershell(str, name = "buf")
-    return "[Byte[]]$#{name} = ''" if str.nil? or str.empty?
-
-    code = str.unpack('C*')
-    buff = "[Byte[]]$#{name} = 0x#{code[0].to_s(16)}"
-    1.upto(code.length-1) do |byte|
-      if(byte % 10 == 0)
-        buff << "\r\n$#{name} += 0x#{code[byte].to_s(16)}"
-      else
-        buff << ",0x#{code[byte].to_s(16)}"
-      end
-    end
-
-    return buff
+    return Rex::Exploitation::Powershell::Script.to_byte_array(str, name)
   end
 
   #
@@ -788,15 +777,18 @@ module Text
 
     return str if mode == 'none' # fast track no encoding
 
-    all = /[^\/\\]+/
+    all = /./
+    noslashes = /[^\/\\]+/
     # http://tools.ietf.org/html/rfc3986#section-2.3
     normal = /[^a-zA-Z0-9\/\\\.\-_~]+/
 
     case mode
-    when 'hex-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-random'
       res = ''
       str.each_byte do |c|
@@ -806,10 +798,12 @@ module Text
           b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
       end
       return res
-    when 'u-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-random'
       res = ''
       str.each_byte do |c|
@@ -1288,6 +1282,30 @@ module Text
   # @return [String]
   def self.rand_guid
     "{#{[8,4,4,4,12].map {|a| rand_text_hex(a) }.join("-")}}"
+  end
+
+  #
+  # Convert 16-byte string to a GUID string
+  #
+  # @example
+  #   str = "ABCDEFGHIJKLMNOP"
+  #   Rex::Text.to_guid(str) #=> "{44434241-4645-4847-494a-4b4c4d4e4f50}"
+  #
+  # @param bytes [String] 16 bytes which represent a GUID in the proper
+  #   order.
+  #
+  # @return [String]
+  def self.to_guid(bytes)
+    return nil unless bytes
+    s = bytes.unpack('H*')[0]
+    parts = [
+      s[6,  2] + s[4,  2] + s[2, 2] + s[0, 2],
+      s[10, 2] + s[8,  2],
+      s[14, 2] + s[12, 2],
+      s[16, 4],
+      s[20, 12]
+    ]
+    "{#{parts.join('-')}}"
   end
 
   #
