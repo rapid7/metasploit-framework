@@ -199,11 +199,9 @@ class Metasploit3 < Msf::Auxiliary
       if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
         windows_login = $1
 
-        if windows_login.length != 0
-          print_status("#{peer} -  #{windows_login}")
-          windows_logins.push(windows_login) unless windows_logins.include?(windows_login)
-          # Verbose output
-          vprint_status("#{peer} - Test sid: #{win_sid}")
+        unless windows_login.empty? || windows_logins.include?(windows_login)
+          windows_logins.push(windows_login)
+          print_good("#{peer} -  #{windows_login}")
         end
       end
 
