@@ -235,7 +235,7 @@ class Metasploit3 < Msf::Auxiliary
           windows_logins.push(windows_login) unless windows_logins.include?(windows_login)
 
           # Verbose output
-          vprint_status("Test sid: #{win_sid}")
+          vprint_status("#{peer} - Test sid: #{win_sid}")
         end
       end
 
