@@ -77,6 +77,12 @@ class Metasploit3 < Msf::Post
     ordered_dict = @words_dict.sort_by { |k,v| v }.reverse
     ordered_dict.collect! { |k, v| k }
 
+    if ordered_dict.blank?
+      print_error("The wordlist is empty")
+      return
+    end
+
+    print_good("Wordlist with #{ordered_dict.length} entries built")
     stored_path = store_loot('ad.wordlist', 'text/plain', session, ordered_dict.join("\n"))
     print_status("Results saved to: #{stored_path}")
   end
