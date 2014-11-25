@@ -205,6 +205,16 @@ class Core
     end
     print_status("Reloading modules from all module paths...")
     framework.modules.reload_modules
+
+    # Check for modules that failed to load
+    if framework.modules.module_load_error_by_path.length > 0
+      print_error("WARNING! The following modules could not be loaded!")
+
+      framework.modules.module_load_error_by_path.each do |path, error|
+        print_error("\t#{path}: #{error}")
+      end
+    end
+
     cmd_banner()
   end
 
