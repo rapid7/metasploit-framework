@@ -204,6 +204,10 @@ class Metasploit3 < Msf::Auxiliary
     # Fuzz the principal_id parameter (RID in this case) passed to the SUSER_NAME function
     (500..datastore['FuzzNum']).each do |principal_id|
 
+      if principal_id % 100 == 0
+        print_status("#{peer} - Querying SID #{principal_id} of #{datastore['FuzzNum']}")
+      end
+
       # Convert number to hex and fix order
       principal_id_hex = "%02X" % principal_id
       principal_id_hex_pad = (principal_id_hex.size.even? ? principal_id_hex : ("0"+ principal_id_hex))
