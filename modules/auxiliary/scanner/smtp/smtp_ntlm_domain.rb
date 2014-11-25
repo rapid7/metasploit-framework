@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'SMTP NTLM Domain Extraction',
-      'Description' => 'Extract the Windows domain name from a SMTP NTLM challenge.',
+      'Description' => 'Extract the Windows domain name from an SMTP NTLM challenge.',
       'References'  => [ ['URL', 'http://msdn.microsoft.com/en-us/library/cc246870.aspx' ] ],
       'Author'      => [ 'Rich Whitcroft <rwhitcroft[at]digitalboundary.net>' ],
       'License'     => MSF_LICENSE

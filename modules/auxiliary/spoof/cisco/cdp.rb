@@ -9,11 +9,20 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Capture
 
   def initialize
+
     super(
       'Name'        => 'Send Cisco Discovery Protocol (CDP) Packets',
-      'Description' => 'This module sends Cisco Discovery Protocol (CDP) packets',
-      'Author'      => 'Fatih Ozavci <viproy.com/fozavci>',
+      'Description' => %q{
+        This module sends Cisco Discovery Protocol (CDP) packets. Note that any responses
+        to the CDP packets broadcast from this module will need to be analyzed with an
+        external packet analysis tool, such as tcpdump or Wireshark in order to learn more
+        about the Cisco switch and router environment.
+      },
+      'Author'      => 'Fatih Ozavci', # viproy.com/fozavci
       'License'     =>  MSF_LICENSE,
+      'References'  => [
+        [ 'URL', 'http://en.wikipedia.org/wiki/CDP_Spoofing' ]
+      ],
       'Actions'     => [
         ['Spoof', { 'Description' => 'Sends CDP packets' }]
       ],
