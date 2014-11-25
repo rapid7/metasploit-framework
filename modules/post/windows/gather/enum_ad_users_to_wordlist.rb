@@ -67,54 +67,42 @@ class Metasploit3 < Msf::Post
 
     return if q.nil? || q[:results].empty?
 
-    wordlist = {}
+    @words_dict = {}
     q[:results].each do |result|
       result.each do |field|
-        next unless field.present?
-        next if field =~ /^\s*$/ or field == '-' or field == '' or field.length < 3
-
-        field.gsub!(/[\(\)\"]/, '')      # clear up common punctuation in descriptions
-        field.downcase!                  # clear up case
-
-        tmp = []
-        parts = field.split(/\s+/)
-        tmp = tmp + parts + [ parts.join ] unless parts.empty?
-        parts = field.split('-')
-        tmp = tmp + parts + [ parts.join ] unless parts.empty?
-        parts = field.split(',')
-        tmp = tmp + parts + [ parts.join ] unless parts.empty?
-        parts = field.split('+')
-        tmp = tmp + parts + [ parts.join ] unless parts.empty?
-
-        # add the entire field if its not too long
-        wordlist[field] += 1 if field.length < 24
-
-        if tmp.length > 0
-          tmp = tmp.flatten
-          tmp.each do |r|
-            next if r.length < 3 or r.length > 24
-            # sub fields can still have unwanted characters due to not chained if (ie, it has dashes and commas)
-            r.gsub!(/[\s\,\-\+]/, '')
-            wordlist[r] += 1 if r.length < 24
-          end
-        end
+        search_words(field)
       end # result.each
     end # q.each
 
     # build array of words to output sorted on frequency
-    out = []
-    s = wordlist.sort_by &:last
-    s.each do |k, v|
-      if(k.length > 3)
-        out.push(k)
-        # print_status("#{k} ==> #{v}")
+    output = []
+    ordered_dict = @words_dict.sort_by { |k,v| v }.reverse
+    ordered_dict.collect! { |k, v| k }
+
+    wordlist_file = Rex::Quickfile.new("wordlist")
+    wordlist_file.write(ordered_dict.join("\n") + "\n")
+    print_status("Seeded the password database with #{output.length} words into #{wordlist_file.path}...")
+    wordlist_file.close
+  end
+
+  def search_words(field)
+    return if field.blank?
+    return if field =~ /^\s*$/ || field.length < 3
+
+    field.gsub!(/[\(\)\"]/, '') # clear up common punctuation in descriptions
+    field.downcase!             # clear up case
+
+    words = field.split(/\s+|=|\/|,|\+/)
+    return if words.empty?
+
+    words.each do |word|
+      next if word.length < 3 || word.length > 24
+      if @words_dict[word]
+        @words_dict[word] += 1
+      else
+        @words_dict[word] = 1
       end
     end
-    wordlist_file = Rex::Quickfile.new("wordlist")
-    wordlist_file.write( out.flatten.uniq.join("\n") + "\n" )
-    print_status("Seeded the password database with #{out.length} words into #{wordlist_file.path}...")
-    wordlist_file.close
-
   end
 end
 
