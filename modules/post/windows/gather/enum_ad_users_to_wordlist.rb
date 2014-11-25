@@ -11,14 +11,35 @@ class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
+  SEARCH_FILTER = '(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))'
+  DEFAULT_FIELDS = [
+    'sn',
+    'givenName',
+    'state',
+    'postalCode',
+    'physicalDeliveryOfficeName',
+    'telephoneNumber',
+    'mobile',
+    'facsimileTelephoneNumber',
+    'displayName',
+    'title',
+    'department',
+    'company',
+    'streetAddress',
+    'sAMAccountName',
+    'userAccountControl',
+    'comment',
+    'description'
+  ]
+
   def initialize(info={})
     super( update_info( info,
       'Name'         => 'Windows Gather Words from Active Directory',
-      'Description'  => %Q{
-        This module will enumerate all user accounts in the default Active Domain (AD) directory and use
-        these as words to seed a wordlist.In cases (like description) where spaces may occur, some extra processing
-        is done to generate multiple words in addition to one long one (up to 24 characters).Results are dumped into
-        /tmp
+      'Description'  => %q{
+        This module will enumerate all user accounts in the default Active Domain (AD) directory
+        and use these as words to seed a wordlist.In cases (like description) where spaces may
+        occur, some extra processing is done to generate multiple words in addition to one long
+        one (up to 24 characters). Results are dumped into /tmp
       },
       'License'      => MSF_LICENSE,
       'Author'       => [ 'Thomas Ring' ],
@@ -27,26 +48,15 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptString.new('FIELDS', [false, 'Fields to retrieve (ie, sn, givenName, displayName, description, comment)', '']),
+      OptString.new('FIELDS', [true, 'Fields to retrieve (ie, sn, givenName, displayName, description, comment)', DEFAULT_FIELDS]),
     ], self.class)
   end
 
   def run
-
-    fields = []
-    if(datastore['FIELDS'] == '')
-      field_str = 'sn,givenName,state,postalCode,physicalDeliveryOfficeName,telephoneNumber,mobile,facsimileTelephoneNumber,displayName,'
-      field_str << 'title,department,company, streetAddress,sAMAccountName,userAccountControl,comment,description'
-      fields = field_str.gsub!(/\s+/,'').split(',')
-    else
-      fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
-    end
-
-    search_filter = '(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))'
-    max_search = datastore['MAX_SEARCH']
+    fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
 
     begin
-      q = query(search_filter, max_search, fields)
+      q = query(SEARCH_FILTER, datastore['MAX_SEARCH'], fields)
       return if !q or q[:results].empty?
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
