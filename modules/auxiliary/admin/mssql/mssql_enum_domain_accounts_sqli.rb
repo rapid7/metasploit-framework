@@ -81,10 +81,6 @@ class Metasploit3 < Msf::Auxiliary
     # Print number of objects found and write to a file
     print_good("#{peer} - #{domain_users.length} user accounts, groups, and computer accounts were found.")
 
-    domain_users.sort.each do |windows_login|
-      vprint_status(" - #{windows_login}")
-    end
-
     # Create table for report
     windows_domain_login_table = Rex::Ui::Text::Table.new(
       'Header'  => 'Windows Domain Accounts',
@@ -105,8 +101,7 @@ class Metasploit3 < Msf::Auxiliary
       datastore['RHOST'],
       windows_domain_login_table.to_csv,
       filename,
-      'SQL Server query results',
-      this_service
+      'SQL Server query results'
     )
     print_status("Query results have been saved to: #{path}")
   end
