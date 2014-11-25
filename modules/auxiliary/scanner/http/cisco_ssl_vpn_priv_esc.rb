@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'Cisco ASA SSL VPN Privilege Escalation Vulnerability',
       'Description' => %q{
         This module exploits a privilege escalation vulnerability for Cisco
-        ASA SSL VPN (aka: WebVPN).  It allows level 0 users to escalate to
+        ASA SSL VPN (aka: WebVPN). It allows level 0 users to escalate to
         level 15.
       },
       'Author'       =>
@@ -236,24 +236,43 @@ class Metasploit3 < Msf::Auxiliary
 
       if creds
         print_good("#{peer} - Successfully added level 15 account #{creds.join(", ")}")
-
         user, pass = creds
-
-        report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'Cisco ASA SSL VPN Privilege Escalation',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'
-        }
-
-        report_auth_info(report_hash)
+        report_escalated_creds(user, pass)
       else
         vprint_error("#{peer} - Failed to created user account on Cisco SSL VPN")
       end
     end
+  end
+
+  def report_escalated_creds(username, password)
+    status = Metasploit::Model::Login::Status::SUCCESSFUL
+
+    service_data = {
+        address: rhost,
+        port: rport,
+        service_name: 'https',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname,
+        private_type: :password,
+        private_data: password,
+        username: username
+    }
+
+    credential_data.merge!(service_data)
+    credential_core = create_credential(credential_data)
+    login_data = {
+        core: credential_core,
+        access_level: 'Level 15',
+        status: status,
+        last_attempted_at: DateTime.now
+    }
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
   end
 
 end
