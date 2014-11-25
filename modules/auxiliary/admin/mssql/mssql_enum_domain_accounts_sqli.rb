@@ -76,15 +76,15 @@ class Metasploit3 < Msf::Auxiliary
 
     # Get a list of windows users, groups, and computer accounts using SUSER_NAME()
     print_status("#{peer} - Brute forcing #{datastore['FuzzNum']} RIDs through the SQL Server, be patient...")
-    win_domain_user_list = get_win_domain_users(windows_domain_sid)
-    if win_domain_user_list.nil?
+    domain_users = get_win_domain_users(windows_domain_sid)
+    if domain_users.nil?
       print_error("#{peer} - Sorry, no Windows domain accounts were found, or DC could not be contacted.")
       return
     else
       # Print number of objects found and write to a file
-      print_good("#{peer} - #{win_domain_user_list.length} user accounts, groups, and computer accounts were found.")
+      print_good("#{peer} - #{domain_users.length} user accounts, groups, and computer accounts were found.")
 
-      win_domain_user_list.sort.each do |windows_login|
+      domain_users.sort.each do |windows_login|
         vprint_status(" - #{windows_login}")
       end
 
@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       # Add brute forced names to table
-      win_domain_user_list.each do |object_name|
+      domain_users.each do |object_name|
         windows_domain_login_table << [object_name]
       end
 
