@@ -4,6 +4,9 @@ module RPC
 class RPC_Db < RPC_Base
 
 private
+
+  include Metasploit::Credential::Creation
+
   def db
     self.framework.db.active
   end
@@ -13,6 +16,21 @@ private
       return self.framework.db.find_workspace(wspace) || error(500, "Invalid workspace")
     end
     self.framework.db.workspace
+  end
+
+  def fix_cred_options(opts)
+    new_opts = fix_options(opts)
+
+    # Convert some of are data back to symbols
+    if new_opts[:origin_type]
+      new_opts[:origin_type] = new_opts[:origin_type].to_sym
+    end
+
+    if new_opts[:private_type]
+      new_opts[:private_type] = new_opts[:private_type].to_sym
+    end
+
+    new_opts
   end
 
   def fix_options(opts)
@@ -88,6 +106,76 @@ private
 
 public
 
+  def rpc_create_cracked_credential(xopts)
+    opts = fix_cred_options(xopts)
+    create_credential(opts)
+  end
+
+  def rpc_create_credential(xopts)
+    opts = fix_cred_options(xopts)
+    core = create_credential(opts)
+
+    ret = {
+        username: core.public.try(:username),
+        private: core.private.try(:data),
+        private_type: core.private.try(:type),
+        realm_value: core.realm.try(:value),
+        realm_key: core.realm.try(:key)
+    }
+
+    if opts[:last_attempted_at] && opts[:status]
+      opts[:core] = core
+      opts[:last_attempted_at] = opts[:last_attempted_at].to_datetime
+      login = create_credential_login(opts)
+
+      ret[:host]   = login.service.host.address,
+      ret[:sname]  = login.service.name
+      ret[:status] = login.status
+    end
+    ret
+  end
+
+  def rpc_invalidate_login(xopts)
+    opts = fix_cred_options(xopts)
+    invalidate_login(opts)
+  end
+
+  def rpc_creds(xopts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      ret = {}
+      ret[:creds] = []
+      opts, wspace = init_db_opts_workspace(xopts)
+      limit = opts.delete(:limit) || 100
+      offset = opts.delete(:offset) || 0
+      query = Metasploit::Credential::Core.where(
+        workspace_id: wspace
+      ).offset(offset).limit(limit)
+      query.each do |cred|
+        host = ''
+        port = 0
+        proto = ''
+        sname = ''
+        unless cred.logins.empty?
+          login = cred.logins.first
+          host = login.service.host.address.to_s
+          sname = login.service.name.to_s if login.service.name.present?
+          port = login.service.port.to_i
+          proto = login.service.proto.to_s
+        end
+        ret[:creds] << {
+                :user => cred.public.username.to_s,
+                :pass => cred.private.data.to_s,
+                :updated_at => cred.private.updated_at.to_i,
+                :type => cred.private.type.to_s,
+                :host => host,
+                :port => port,
+                :proto => proto,
+                :sname => sname}
+      end
+      ret
+    }
+  end
+
   def rpc_hosts(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -129,7 +217,7 @@ public
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions[:state] = [ServiceState::Open] if opts[:only_up]
+    conditions[:state] = [Msf::ServiceState::Open] if opts[:only_up]
     conditions[:proto] = opts[:proto] if opts[:proto]
     conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
     conditions[:port] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
@@ -329,7 +417,7 @@ public
       sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
     elsif(opts[:proto] && opts[:port])
       conditions = {}
-      conditions[:state] = [ServiceState::Open] if opts[:up]
+      conditions[:state] = [Msf::ServiceState::Open] if opts[:up]
       conditions[:proto] = opts[:proto] if opts[:proto]
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]
@@ -485,33 +573,6 @@ public
       note[:type ] = n.ntype.to_s
       note[:data] = n.data.inspect
       ret[:notes] << note
-    end
-    ret
-  }
-  end
-
-  def rpc_report_auth_info(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    res = self.framework.db.report_auth_info(opts)
-    return { :result => 'success' } if(res)
-    { :result => 'failed' }
-  }
-  end
-
-  def rpc_get_auth_info(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    ret = {}
-    ret[:auth_info] = []
-    # XXX: This method doesn't exist...
-    ai = self.framework.db.get_auth_info(opts)
-    ai.each do |i|
-      info = {}
-      i.each do |k,v|
-        info[k.to_sym] = v
-      end
-      ret[:auth_info] << info
     end
     ret
   }
@@ -828,42 +889,6 @@ public
   }
   end
 
-  # requires host, port, user, pass, ptype, and active
-  def rpc_report_cred(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    res = framework.db.find_or_create_cred(opts)
-    return { :result => 'success' } if res
-    { :result => 'failed' }
-  }
-  end
-
-  #right now workspace is the only option supported
-  def rpc_creds(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    limit = opts.delete(:limit) || 100
-    offset = opts.delete(:offset) || 0
-
-    ret = {}
-    ret[:creds] = []
-    ::Mdm::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?",
-        framework.db.workspace.id ], :limit => limit, :offset => offset).each do |c|
-      cred = {}
-      cred[:host] = c.service.host.address if(c.service.host)
-      cred[:updated_at] = c.updated_at.to_i
-      cred[:port] = c.service.port
-      cred[:proto] = c.service.proto
-      cred[:sname] = c.service.name
-      cred[:type] = c.ptype
-      cred[:user] = c.user
-      cred[:pass] = c.pass
-      cred[:active] = c.active
-      ret[:creds] << cred
-    end
-    ret
-  }
-  end
 
   def rpc_import_data(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
@@ -1046,7 +1071,7 @@ public
     end
 
     cdb = ""
-    if ::ActiveRecord::Base.connected?
+    if framework.db.connection_established?
       ::ActiveRecord::Base.connection_pool.with_connection { |conn|
         if conn.respond_to? :current_database
           cdb = conn.current_database

@@ -1,3 +1,9 @@
+env:
+  - RAKE_TASK=cucumber
+  - RAKE_TASK=cucumber:boot
+  - RAKE_TASK=spec SPEC_OPTS="--tag content"
+  - RAKE_TASK=spec SPEC_OPTS="--tag ~content"
+
 language: ruby
 before_install:
   - rake --version
@@ -14,10 +20,11 @@ before_script:
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
+script: "bundle exec rake $RAKE_TASK"
 
 rvm:
-  #- '1.8.7'
   - '1.9.3'
+  - '2.1'
 
 notifications:
   irc: "irc.freenode.org#msfnotify"

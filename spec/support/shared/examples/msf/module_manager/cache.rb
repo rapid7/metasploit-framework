@@ -44,7 +44,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         {}
       end
 
-      it { should be_true }
+      it { should be_truthy }
     end
 
     context 'without empty' do
@@ -54,7 +54,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         }
       end
 
-      it { should be_false }
+      it { should be_falsey }
     end
   end
 
@@ -153,6 +153,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     context 'with module info in cache' do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
       let(:module_info_by_path) do
         {
             'path/to/module' => {
@@ -196,7 +198,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             false
           end
 
-          it { should be_false }
+          it { should be_falsey }
         end
 
         context 'with true' do
@@ -204,7 +206,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             true
           end
 
-          it { should be_true }
+          it { should be_truthy }
         end
       end
     end
@@ -214,7 +216,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         {}
       end
 
-      it { should be_false }
+      it { should be_falsey }
     end
   end
 
@@ -315,7 +317,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           true
         end
 
-        it { should be_true }
+        it { should be_truthy }
       end
 
       context 'without migrated' do
@@ -323,7 +325,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
           false
         end
 
-        it { should be_false }
+        it { should be_falsey }
       end
     end
 
@@ -332,16 +334,20 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         framework.stub(:db => nil)
       end
 
-      it { should be_false }
+      it { should be_falsey }
     end
   end
 
   context '#module_info_by_path' do
-    it { should respond_to(:module_info_by_path) }
+    it 'should have protected method module_info_by_path' do
+      subject.respond_to?(:module_info_by_path, true).should be_truthy
+    end
   end
 
   context '#module_info_by_path=' do
-    it { should respond_to(:module_info_by_path=) }
+    it 'should have protected method module_info_by_path=' do
+      subject.respond_to?(:module_info_by_path=, true).should be_truthy
+    end
   end
 
   context '#module_info_by_path_from_database!' do
@@ -358,27 +364,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     context 'with framework migrated' do
-      include_context 'DatabaseCleaner'
-
       let(:framework_migrated?) do
         true
-      end
-
-      before(:each) do
-        configurations = Metasploit::Framework::Database.configurations
-        spec = configurations[Metasploit::Framework.env]
-
-        # Need to connect or ActiveRecord::Base.connection_pool will raise an
-        # error.
-        framework.db.connect(spec)
-      end
-
-      it 'should call ActiveRecord::Base.connection_pool.with_connection' do
-        # 1st is from with_established_connection
-        # 2nd is from module_info_by_path_from_database!
-        ActiveRecord::Base.connection_pool.should_receive(:with_connection).at_least(2).times
-
-        module_info_by_path_from_database!
       end
 
       it 'should use ActiveRecord::Batches#find_each to enumerate Mdm::Module::Details in batches' do
@@ -408,7 +395,7 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         it 'should use Msf::Modules::Loader::Base.typed_path to derive parent_path' do
-          Msf::Modules::Loader::Base.should_receive(:typed_path).with(type, reference_name).and_call_original
+          Msf::Modules::Loader::Base.should_receive(:typed_path).with(type, reference_name).at_least(:once).and_call_original
 
           module_info_by_path_from_database!
         end
@@ -422,10 +409,10 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
             module_info_by_path_from_database!
           end
 
-          its([:modification_time]) { should be_within(1.second).of(pathname_modification_time) }
-          its([:parent_path]) { should == parent_path }
-          its([:reference_name]) { should == reference_name }
-          its([:type]) { should == type }
+          it { expect(subject[:modification_time]).to be_within(1.second).of(pathname_modification_time) }
+          it { expect(subject[:parent_path]).to eq(parent_path) }
+          it { expect(subject[:reference_name]).to eq(reference_name) }
+          it { expect(subject[:type]).to eq(type) }
         end
 
         context 'typed module set' do
@@ -464,8 +451,6 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
       let(:framework_migrated?) do
         false
       end
-
-      it { should_not query_the_database.when_calling(:module_info_by_path_from_database!) }
 
       it 'should reset #module_info_by_path' do
         # pre-fill module_info_by_path so change can be detected

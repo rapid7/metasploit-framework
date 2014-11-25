@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'    =>
         [
           'Carlos Perez <carlos_perez[at]darkoperator.com>', # Base code
-          'Thanat0s <thanspam[at]trollprod[dot]org>' # Output, Throttling & Db notes add
+          'Thanat0s <thanspam[at]trollprod.org>' # Output, Throttling & Db notes add
         ],
       'License'   => BSD_LICENSE
     ))

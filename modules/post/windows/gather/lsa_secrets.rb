@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
       'SessionTypes'    => ['meterpreter'],
-      'Author'          => ['Rob Bathurst <rob.bathurst@foundstone.com>']
+      'Author'          => ['Rob Bathurst <rob.bathurst[at]foundstone.com>']
     ))
   end
 

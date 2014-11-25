@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -38,7 +38,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(8080),
-      OptString.new('RFILE', [true, 'Remote File', 'c:\\boot.ini']),
+      OptString.new('RFILE', [true, 'Remote File', 'c:\\windows\\win.ini']),
       OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/']),
     ], self.class)
 

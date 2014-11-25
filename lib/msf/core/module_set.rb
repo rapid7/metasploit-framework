@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'msf/core'
-require 'fastlib'
 require 'pathname'
 
 #

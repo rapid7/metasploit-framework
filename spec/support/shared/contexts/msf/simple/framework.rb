@@ -4,7 +4,7 @@ require 'metasploit/framework'
 
 shared_context 'Msf::Simple::Framework' do
   let(:dummy_pathname) do
-    Metasploit::Framework.root.join('spec', 'dummy')
+    Rails.root.join('spec', 'dummy')
   end
 
   let(:framework) do
@@ -25,16 +25,5 @@ shared_context 'Msf::Simple::Framework' do
 
   after(:each) do
     dummy_pathname.rmtree
-  end
-
-  after(:each) do
-    # explicitly kill threads so that they don't exhaust connection pool
-    thread_manager = framework.threads
-
-    thread_manager.each do |thread|
-      thread.kill
-    end
-
-    thread_manager.monitor.kill
   end
 end
