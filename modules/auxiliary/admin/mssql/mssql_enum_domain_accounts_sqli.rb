@@ -44,7 +44,6 @@ class Metasploit3 < Msf::Auxiliary
     db_server_name = get_server_name
     if db_server_name.nil?
       print_error("#{peer} - Unable to grab the server name...")
-      disconnect
       return
     else
       print_good("#{peer} - Server name: #{db_server_name}")
@@ -54,14 +53,12 @@ class Metasploit3 < Msf::Auxiliary
     db_domain_name = get_domain_name
     if db_domain_name.nil?
       print_error("#{peer} - Unable to grab domain name...")
-      disconnect
       return
     end
 
     # Check if server is on a domain
     if db_server_name == db_domain_name
       print_error("The SQL Server does not appear to be part of a Windows domain.")
-      disconnect
       return
     else
       print_good("#{peer} - Domain name: #{db_domain_name}")
@@ -72,7 +69,6 @@ class Metasploit3 < Msf::Auxiliary
     windows_domain_sid = get_windows_domain_sid(db_domain_name)
     if windows_domain_sid.nil?
       print_error("#{peer} - Could not recover the SQL Server's domain sid.")
-      disconnect
       return
     else
       print_good("#{peer} - Domain sid: #{windows_domain_sid}")
@@ -82,8 +78,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer} - Brute forcing #{datastore['FuzzNum']} RIDs through the SQL Server, be patient...")
     win_domain_user_list = get_win_domain_users(windows_domain_sid)
     if win_domain_user_list.nil?
-      print_error('#{peer} - Sorry, no Windows domain accounts were found, or DC could not be contacted.')
-      disconnect
+      print_error("#{peer} - Sorry, no Windows domain accounts were found, or DC could not be contacted.")
       return
     else
       # Print number of objects found and write to a file
