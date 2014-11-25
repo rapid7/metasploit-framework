@@ -11,7 +11,6 @@ class Metasploit3 < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
-  SEARCH_FILTER = '(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))'
   DEFAULT_FIELDS = [
     'sn',
     'givenName',
@@ -34,12 +33,11 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'         => 'Windows Gather Words from Active Directory',
+      'Name'         => 'Windows Active Directory Wordlist Builder',
       'Description'  => %q{
-        This module will enumerate all user accounts in the default Active Domain (AD) directory
-        and use these as words to seed a wordlist.In cases (like description) where spaces may
-        occur, some extra processing is done to generate multiple words in addition to one long
-        one (up to 24 characters). Results are dumped into /tmp
+        This module will gather information from the default Active Domain (AD) directory
+        and use these words to seed a wordlist. By default it enumerates user accounts to
+        build the wordlist
       },
       'License'      => MSF_LICENSE,
       'Author'       => ['Thomas Ring'],
@@ -49,16 +47,17 @@ class Metasploit3 < Msf::Post
 
     register_options([
       OptString.new('FIELDS', [true, 'Fields to retrieve (ie, sn, givenName, displayName, description, comment)', DEFAULT_FIELDS.join(',')]),
+      OptString.new('FILTER', [true, 'Search filter.','(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))'])
     ], self.class)
   end
 
   def run
     fields = datastore['FIELDS'].gsub(/\s+/,'').split(',')
-
+    search_filter = datastore['FILTER']
     q = nil
 
     begin
-      q = query(SEARCH_FILTER, datastore['MAX_SEARCH'], fields)
+      q = query(search_filter, datastore['MAX_SEARCH'], fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
@@ -75,7 +74,6 @@ class Metasploit3 < Msf::Post
     end # q.each
 
     # build array of words to output sorted on frequency
-    output = []
     ordered_dict = @words_dict.sort_by { |k,v| v }.reverse
     ordered_dict.collect! { |k, v| k }
 
