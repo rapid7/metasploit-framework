@@ -55,14 +55,17 @@ class Metasploit3 < Msf::Post
   def run
     fields = datastore['FIELDS'].gsub(/\s+/,'').split(',')
 
+    q = nil
+
     begin
       q = query(SEARCH_FILTER, datastore['MAX_SEARCH'], fields)
-      return if !q or q[:results].empty?
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
       return
     end
+
+    return if q.nil? || q[:results].empty?
 
     wordlist = {}
     q[:results].each do |result|
