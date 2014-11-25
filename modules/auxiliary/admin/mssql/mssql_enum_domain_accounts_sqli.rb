@@ -93,6 +93,8 @@ class Metasploit3 < Msf::Auxiliary
       windows_domain_login_table << [object_name]
     end
 
+    print_line(windows_domain_login_table.to_s)
+
     # Create output file
     filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_windows_domain_accounts.csv"
     path = store_loot(
