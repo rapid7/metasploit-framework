@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer} - Grabbing the server and domain name...")
     db_server_name = get_server_name
     if db_server_name.nil?
-      print_error("#{peer} - Unable to grab the server name...")
+      print_error("#{peer} - Unable to grab the server name")
       return
     else
       print_good("#{peer} - Server name: #{db_server_name}")
@@ -52,13 +52,13 @@ class Metasploit3 < Msf::Auxiliary
     # Get the domain name of the SQL Server
     db_domain_name = get_domain_name
     if db_domain_name.nil?
-      print_error("#{peer} - Unable to grab domain name...")
+      print_error("#{peer} - Unable to grab domain name")
       return
     end
 
     # Check if server is on a domain
     if db_server_name == db_domain_name
-      print_error("The SQL Server does not appear to be part of a Windows domain.")
+      print_error("#{peer} - The SQL Server does not appear to be part of a Windows domain")
       return
     else
       print_good("#{peer} - Domain name: #{db_domain_name}")
@@ -85,9 +85,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{peer} - #{win_domain_user_list.length} user accounts, groups, and computer accounts were found.")
 
       win_domain_user_list.sort.each do |windows_login|
-        if datastore['VERBOSE']
-          print_status(" - #{windows_login}")
-        end
+        vprint_status(" - #{windows_login}")
       end
 
       # Create table for report
