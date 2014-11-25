@@ -38,7 +38,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-
     print_status("#{peer} - Grabbing the server and domain name...")
     db_server_name = get_server_name
     if db_server_name.nil?
@@ -191,7 +190,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Convert number to hex and fix order
       principal_id_hex = "%02X" % principal_id
-      principal_id_hex_pad = (principal_id_hex.size.even? ? principal_id_hex : ("0"+ principal_id_hex))
+      principal_id_hex_pad = principal_id_hex.size.even? ? principal_id_hex : "0#{principal_id_hex}"
       principal_id_clean  = principal_id_hex_pad.scan(/(..)/).reverse.flatten.join
 
       # Add padding
