@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Get list of windows accounts, groups and computer accounts
-  def get_win_domain_users(windows_domain_sid)
+  def get_win_domain_users(domain_sid)
     clue_start = Rex::Text.rand_text_alpha(8)
     clue_end = Rex::Text.rand_text_alpha(8)
 
@@ -177,22 +177,14 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{peer} - Querying SID #{principal_id} of #{datastore['FuzzNum']}")
       end
 
-      # Convert number to hex and fix order
-      principal_id = "%02X" % principal_id
-      principal_id = principal_id.size.even? ? principal_id : "0#{principal_id}"
-      principal_id  = principal_id.scan(/(..)/).reverse.join
-      # Add padding
-      principal_id = principal_id.ljust(8, '0')
-
-      # Create full sid
-      win_sid = "0x#{windows_domain_sid}#{principal_id}"
+       user_sid = build_user_sid(domain_sid, principal_id)
 
       # Return if sid does not resolve correctly for a domain
-      if win_sid.length < 48
+      if user_sid.length < 48
         return nil
       end
 
-      sql = "(SELECT '#{clue_start}'+(SELECT SUSER_SNAME(#{win_sid}) as name)+'#{clue_end}')"
+      sql = "(SELECT '#{clue_start}'+(SELECT SUSER_SNAME(#{user_sid}) as name)+'#{clue_end}')"
 
       result = mssql_query(sql)
 
@@ -208,6 +200,18 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     windows_logins
+  end
+
+  def build_user_sid(domain_sid, rid)
+    # Convert number to hex and fix order
+    principal_id = "%02X" % rid
+    principal_id = principal_id.size.even? ? principal_id : "0#{principal_id}"
+    principal_id  = principal_id.scan(/(..)/).reverse.join
+    # Add padding
+    principal_id = principal_id.ljust(8, '0')
+
+    # Create full sid
+    "0x#{domain_sid}#{principal_id}"
   end
 
 end
