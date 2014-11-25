@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    wordlist = Hash.new(0)
+    wordlist = {}
     q[:results].each do |result|
       result.each do |field|
         next unless field.present?
@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Post
     end # q.each
 
     # build array of words to output sorted on frequency
-    out = Array.new()
+    out = []
     s = wordlist.sort_by &:last
     s.each do |k, v|
       if(k.length > 3)
