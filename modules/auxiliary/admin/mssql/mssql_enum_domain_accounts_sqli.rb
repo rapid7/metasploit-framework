@@ -235,9 +235,7 @@ class Metasploit3 < Msf::Auxiliary
           windows_logins.push(windows_login) unless windows_logins.include?(windows_login)
 
           # Verbose output
-          if datastore['VERBOSE']
-            print_status("Test sid: #{win_sid}")
-          end
+          vprint_status("Test sid: #{win_sid}")
         end
       end
 
