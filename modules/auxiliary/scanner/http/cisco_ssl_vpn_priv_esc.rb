@@ -10,8 +10,6 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  attr_accessor :ssh_socket
-
   def initialize(info = {})
     super(update_info(info,
       'Name'        => 'Cisco ASA SSL VPN Privilege Escalation Vulnerability',
