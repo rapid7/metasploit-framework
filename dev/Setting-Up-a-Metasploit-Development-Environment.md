@@ -1,4 +1,4 @@
-# Metasploit Development Environment TEST WHOOP
+# Metasploit Development Environment
 
 This is a guide for setting up an environment for effectively **contributing
 to the Metasploit Framework**. If you just want to use Metasploit for
