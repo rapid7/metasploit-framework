@@ -29,7 +29,8 @@ $args = Rex::Parser::Arguments.new(
 #
 def usage
   $stderr.puts("\n" +
-    "    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|Cs[H]arp|[P]erl|Rub[Y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar|Pytho[N]>\n" +
+    "    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|Cs[H]arp|" +
+    "[P]erl|Rub[Y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar|Pytho[N]|s[O]>\n" +
     $args.usage)
   exit
 end
@@ -53,9 +54,7 @@ $args.parse(ARGV) { |opt, idx, val|
   end
 }
 
-if (cmd != "list" and rest.length < 2)
-  usage
-end
+usage if cmd != "list" && rest.length < 2
 
 require 'msf/ui'
 require 'msf/base'
@@ -124,18 +123,19 @@ end
 
 payload.datastore.merge! options
 
-if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
-  fmt = 'perl' if (cmd =~ /^p$/)
-  fmt = 'ruby' if (cmd =~ /^y$/)
-  fmt = 'raw' if (cmd =~ /^(r|x|d)$/)
-  fmt = 'raw' if (cmd =~ /^v$/)
-  fmt = 'c' if (cmd =~ /^c$/)
-  fmt = 'csharp' if (cmd =~ /^h$/)
-  fmt = 'js_be' if (cmd =~ /^j$/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
-  fmt = 'js_le' if (cmd =~ /^j$/ and ! fmt)
-  fmt = 'java'  if (cmd =~ /^b$/)
-  fmt = 'raw' if (cmd =~ /^w$/)
-  fmt = 'python' if (cmd =~ /^n$/)
+if cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n|o)$/
+  fmt = 'perl' if cmd =~ /^p$/
+  fmt = 'ruby' if cmd =~ /^y$/
+  fmt = 'raw' if cmd =~ /^(r|x|d|o)$/
+  fmt = 'raw' if cmd =~ /^v$/
+  fmt = 'c' if cmd =~ /^c$/
+  fmt = 'csharp' if cmd =~ /^h$/
+  fmt = 'js_be' if cmd =~ /^j$/ && Rex::Arch.endian(payload.arch) == ENDIAN_BIG
+  fmt = 'js_le' if cmd =~ /^j$/ && !fmt
+  fmt = 'java'  if cmd =~ /^b$/
+  fmt = 'raw' if cmd =~ /^w$/
+  fmt = 'python' if cmd =~ /^n$/
+  enc = options['ENCODER']
 
   begin
     buf = payload.generate_simple(
@@ -148,7 +148,7 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
 
   $stdout.binmode
 
-  if (cmd =~ /^x$/)
+  if cmd =~ /^x$/
     note =
       "Created by msfpayload (http://www.metasploit.com).\n" +
       "Payload: " + payload.refname + "\n" +
@@ -160,11 +160,11 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
 
     exe  = Msf::Util::EXE.to_executable($framework, arch, plat, buf)
 
-    if(!exe and plat.index(Msf::Module::Platform::Java))
+    if !exe && plat.index(Msf::Module::Platform::Java)
       exe = payload.generate_jar.pack
     end
 
-    if(exe)
+    if exe
       $stderr.puts(note)
       $stdout.write(exe)
       exit(0)
@@ -174,7 +174,7 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
     exit(-1)
   end
 
-  if(cmd =~ /^v$/)
+  if cmd =~ /^v$/
     exe = Msf::Util::EXE.to_win32pe($framework, buf)
     note =
       "'Created by msfpayload (http://www.metasploit.com).\r\n" +
@@ -187,7 +187,7 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
     exit(0)
   end
 
-  if(cmd =~ /^d$/)
+  if cmd =~ /^d$/
     dll = Msf::Util::EXE.to_win32pe_dll($framework, buf)
     note =
       "Created by msfpayload (http://www.metasploit.com).\r\n" +
@@ -195,7 +195,7 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
       " Length: " + buf.length.to_s + "\r\n" +
       "Options: " + options.inspect + "\r\n"
 
-    if(dll)
+    if dll
       $stderr.puts(note)
       $stdout.write(dll)
       exit(0)
@@ -205,7 +205,25 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
     exit(-1)
   end
 
-  if(cmd =~ /^w$/)
+  if cmd =~ /^o$/
+    so = Msf::Util::EXE.to_linux_x64_elf_dll($framework, buf)
+    note =
+       "Created by msfpayload (http://www.metasploit.com).\r\n" +
+       "Payload: " + payload.refname + "\r\n" +
+       " Length: " + buf.length.to_s + "\r\n" +
+       "Options: " + options.inspect + "\r\n"
+
+    if so
+      $stderr.puts(note)
+      $stdout.write(so)
+      exit(0)
+    end
+
+    $stderr.puts "Failed to build dll"
+    exit(-1)
+  end
+
+  if cmd =~ /^w$/
     note =
       "Created by msfpayload (http://www.metasploit.com).\n" +
       "Payload: " + payload.refname + "\n" +
@@ -222,8 +240,7 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
       exe  = Msf::Util::EXE.to_jsp_war(exe)
     end
 
-
-    if(exe)
+    if exe
       $stderr.puts(note)
       $stdout.write(exe)
       exit(0)
@@ -235,7 +252,7 @@ if (cmd =~ /^(p|y|r|d|c|h|j|x|b|v|w|n)$/)
 
   $stdout.write(buf)
 
-elsif (cmd =~ /^(s|o)$/)
+elsif cmd =~ /^(s|o)$/
   payload.datastore.import_options_from_s(rest.join('_|_'), '_|_')
   puts Msf::Serializer::ReadableText.dump_module(payload)
 

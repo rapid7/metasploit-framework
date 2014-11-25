@@ -26,19 +26,4 @@ shared_context 'Msf::Simple::Framework' do
   after(:each) do
     dummy_pathname.rmtree
   end
-
-  after(:each) do
-    # explicitly kill threads so that they don't exhaust connection pool
-    thread_manager = framework.threads
-
-    thread_manager.each do |thread|
-      thread.kill
-      # ensure killed thread is cleaned up by VM
-      thread.join
-    end
-
-    thread_manager.monitor.kill
-    # ensure killed thread is cleaned up by VM
-    thread_manager.monitor.join
-  end
 end

@@ -8,6 +8,7 @@ describe Metasploit::Framework::LoginScanner::AFP do
 
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base', has_realm_key: false, has_default_realm: false
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
+  it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
   it { should respond_to :login_timeout }
 
