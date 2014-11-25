@@ -80,40 +80,45 @@ class Metasploit3 < Msf::Auxiliary
     if domain_users.nil?
       print_error("#{peer} - Sorry, no Windows domain accounts were found, or DC could not be contacted.")
       return
-    else
-      # Print number of objects found and write to a file
-      print_good("#{peer} - #{domain_users.length} user accounts, groups, and computer accounts were found.")
-
-      domain_users.sort.each do |windows_login|
-        vprint_status(" - #{windows_login}")
-      end
-
-      # Create table for report
-      windows_domain_login_table = Rex::Ui::Text::Table.new(
-        'Header'  => 'Windows Domain Accounts',
-        'Ident'   => 1,
-        'Columns' => ['name']
-      )
-
-      # Add brute forced names to table
-      domain_users.each do |object_name|
-        windows_domain_login_table << [object_name]
-      end
-
-      # Create output file
-      this_service = nil
-      if framework.db and framework.db.active
-        this_service = report_service(
-          :host  => rhost,
-          :port => rport,
-          :name => 'mssql',
-          :proto => 'tcp'
-        )
-      end
-      filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_windows_domain_accounts.csv"
-      path = store_loot("windows_domain_accounts", "text/plain", datastore['RHOST'], windows_domain_login_table.to_csv, filename, "SQL Server query results",this_service)
-      print_status("Query results have been saved to: #{path}")
     end
+
+    # Print number of objects found and write to a file
+    print_good("#{peer} - #{domain_users.length} user accounts, groups, and computer accounts were found.")
+
+    domain_users.sort.each do |windows_login|
+      vprint_status(" - #{windows_login}")
+    end
+
+    # Create table for report
+    windows_domain_login_table = Rex::Ui::Text::Table.new(
+      'Header'  => 'Windows Domain Accounts',
+      'Ident'   => 1,
+      'Columns' => ['name']
+    )
+
+    # Add brute forced names to table
+    domain_users.each do |object_name|
+      windows_domain_login_table << [object_name]
+    end
+
+    # Create output file
+    this_service = report_service(
+      :host  => rhost,
+      :port => rport,
+      :name => 'mssql',
+      :proto => 'tcp'
+    )
+    filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_windows_domain_accounts.csv"
+    path = store_loot(
+      'mssql.domain.accounts',
+      'text/plain',
+      datastore['RHOST'],
+      windows_domain_login_table.to_csv,
+      filename,
+      'SQL Server query results',
+      this_service
+    )
+    print_status("Query results have been saved to: #{path}")
   end
 
   def get_server_name
@@ -178,9 +183,7 @@ class Metasploit3 < Msf::Auxiliary
       domain_sid = object_sid[0..47]
 
       # Return if sid does not resolve for a domain
-      if domain_sid.length == 0
-        return nil
-      end
+      return nil if domain_sid.empty?
     else
       domain_sid = nil
     end
