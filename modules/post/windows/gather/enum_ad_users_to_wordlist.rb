@@ -79,10 +79,8 @@ class Metasploit3 < Msf::Post
     ordered_dict = @words_dict.sort_by { |k,v| v }.reverse
     ordered_dict.collect! { |k, v| k }
 
-    wordlist_file = Rex::Quickfile.new("wordlist")
-    wordlist_file.write(ordered_dict.join("\n") + "\n")
-    print_status("Seeded the password database with #{output.length} words into #{wordlist_file.path}...")
-    wordlist_file.close
+    stored_path = store_loot('ad.wordlist', 'text/plain', session, ordered_dict.join("\n"))
+    print_status("Results saved to: #{stored_path}")
   end
 
   def search_words(field)
