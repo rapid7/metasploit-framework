@@ -22,6 +22,9 @@ Fixes #1024, also see #999.
   - The `-S` indicates that you're going to sign the merge with your PGP/GPG key, which is a nice assurance that you're really you.
  - If you're making changes (often the case), merge to a landing branch, then merge **that** branch to upstream/master with the `-S --no-ff --edit` options.
 
+# Handy Git aliases
+
+Check out [this gist](https://gist.github.com/todb-r7/3fbee1a9e7b36d82ca55) that automates (mostly) landing pull requests, signing the merge commit, all while rarely losing a race with other committers.
 # Fork and clone
 
 First, fork and clone the `rapid7/metasploit-framework` repo, [following these instructions](https://help.github.com/articles/fork-a-repo). I like using ssh with `~/.ssh/config` aliases [as described here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#wiki-ssh), but the https method will work, too.
