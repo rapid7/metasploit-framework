@@ -50,12 +50,14 @@ class Metasploit3 < Msf::Post
       return nil
     end
     vprint_status("ICMP raw socket created successfully")
-    sockaddr = Rex::Socket.to_sockaddr(session.tunnel_peer.partition(':')[0], 0)
+
+    sockaddr = Rex::Socket.to_sockaddr(session.session_host, 0)
     r = client.railgun.ws2_32.bind(handler['return'],sockaddr,16)
     if r['GetLastError'] != 0
-      print_error("There was an error binding the ICMP socket; GetLastError: #{r['GetLastError']}")
+      print_error("There was an error binding the ICMP socket to #{session.session_host}; GetLastError: #{r['GetLastError']}")
       return nil
     end
+    vprint_status("ICMP socket successfully bound to #{session.session_host}")
 
     # int WSAIoctl(
     # _In_   SOCKET s,
@@ -85,6 +87,9 @@ class Metasploit3 < Msf::Post
       return nil
     end
     vprint_status("TCP socket created successfully")
+
+    # 0x8004667E = FIONBIO
+    # Enable non-blocking mode when *argp (third parameter in ioctlsocket) is set to a nonzero value
 
     cmd = 0x8004667E
     r = client.railgun.ws2_32.ioctlsocket(handler['return'], cmd, 1)
