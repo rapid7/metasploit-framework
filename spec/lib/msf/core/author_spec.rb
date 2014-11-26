@@ -99,9 +99,9 @@ describe Msf::Author do
       end
     end
 
-    context 'when given a name/email combination that is in KNOWN' do
+    context 'when given a name that is in KNOWN' do
       let(:name) { described_class::KNOWN.keys.sample }
-      let(:email) { described_class::KNOWN[name] }
+      let(:email) { 'blargulsberg' }
 
       describe '#name' do
         it 'is set to the "name" parameter' do
@@ -110,8 +110,8 @@ describe Msf::Author do
       end
 
       describe '#email' do
-        it 'is set to the email listed in KNOWN' do
-          expect(subject.email).to eq(described_class::KNOWN[name])
+        it 'is set to the "email" parameter' do
+          expect(subject.email).to eq(email)
         end
       end
     end
