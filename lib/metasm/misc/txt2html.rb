@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: binary (rage)
 #    This file is part of Metasm, the Ruby assembly manipulation suite
 #    Copyright (C) 2006-2009 Yoann GUILLOT
 #
@@ -48,7 +49,7 @@ class Elem
       if e.class.ancestors.include? Elem
         @content << e
       else
-        @content << e.to_s.gsub(Regexp.new("(#{@@quotechars.keys.join('|')})")) { |x| @@quotechars[x] }
+        @content << e.to_s.gsub(Regexp.new("(#{@@quotechars.keys.join('|')})", 'm')) { |x| @@quotechars[x] }
       end
     }
     self
@@ -273,7 +274,7 @@ class Txt2Html
     puts "compiling #{outf}..." if $VERBOSE
 
     @pathfix = outf.split('/')[0...-1].map { '../' }.join
-    out = compile(File.read(f).gsub("\r", '') + "\n\n")
+    out = compile(File.open(f, 'rb') { |fd| fd.read }.gsub("\r", '') + "\n\n")
     File.open(outf, 'wb') { |fd| fd.write out.to_s.gsub("\r", '').gsub("\n", "\r\n") }
   end
 
@@ -338,8 +339,8 @@ class Txt2Html
           if pl = state[:list][bullet.chop]
             pl.content.last.content << lst
           else
-          out.body << lst
-        end
+            out.body << lst
+          end
         end
         lst.add_line compile_string(text)
 
@@ -358,9 +359,9 @@ class Txt2Html
           lst = state[:list].sort.last[1]
           lst.content.last.content << ' ' << compile_string(l)
         else
-        prev << ' ' if prev.length > 0
-        prev << l
-      end
+          prev << ' ' if prev.length > 0
+          prev << l
+        end
       end
     }
     flush[]
@@ -368,13 +369,13 @@ class Txt2Html
     out
   end
 
-  # handle **bold_words** *italic* `fixed` <links>
+  # handle **bold_words** *italic* `fixed` <links> **bold__word__with__underscore**
   def compile_string(str)
     o = [str]
     on = []
     o.each { |s|
       while s.kind_of? String and o1 = s.index('**') and o2 = s.index('**', o1+2) and not s[o1..o2].index(' ')
-        on << s[0...o1] << Html::Elem.new('b').add(s[o1+2...o2].tr('_', ' '))
+        on << s[0...o1] << Html::Elem.new('b').add(s[o1+2...o2].tr('_', ' ').gsub('  ', '_'))
         s = s[o2+2..-1]
       end
       on << s
@@ -383,7 +384,7 @@ class Txt2Html
     on = []
     o.each { |s|
       while s.kind_of? String and o1 = s.index('*') and o2 = s.index('*', o1+1) and not s[o1..o2].index(' ')
-        on << s[0...o1] << Html::Elem.new('i').add(s[o1+1...o2].tr('_', ' '))
+        on << s[0...o1] << Html::Elem.new('i').add(s[o1+1...o2].tr('_', ' ').gsub('  ', '_'))
         s = s[o2+1..-1]
       end
       on << s
@@ -409,19 +410,20 @@ class Txt2Html
           when 'txt'
             tg = outfilename(lnk)
             Txt2Html.new(lnk)
-            on << Html::A.new(@pathfix + tg, File.basename(lnk, '.txt').tr('_', ' '))
+            on << Html::A.new(@pathfix + tg, File.basename(lnk, '.txt').tr('_', ' ').gsub('  ', '_'))
           when 'jpg', 'png'
             on << Html::Img.new(lnk)
           end
         else
+          on << Html::A.new(lnk, lnk)
           if lnk =~ /\.txt$/
             @@seen_nofile ||= []
             if not @@seen_nofile.include? lnk
               @@seen_nofile << lnk
               puts "reference to missing #{lnk.inspect}"
             end
+            on.last.hclass('brokenlink')
           end
-          on << Html::A.new(lnk, lnk)
         end
       end
       on << s

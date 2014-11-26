@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
         PORT will be used depending of the mode configured.},
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
-      'Platform'      => [ 'windows' ],
+      'Platform'      => 'win',
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 
@@ -46,7 +46,8 @@ class Metasploit3 < Msf::Post
       else
         print_status("Rpcap service found: #{serv['Name']}")
         reg=registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Services\\rpcapd","Start")
-        prog=expand_path("%ProgramFiles%") << "\\winpcap\\rpcapd.exe"
+        # TODO: check if this works on x64
+        prog=session.sys.config.getenv('ProgramFiles') << "\\winpcap\\rpcapd.exe"
         if reg != 2
           print_status("Setting rpcapd as 'auto' service")
           service_change_startup("rpcapd","auto")

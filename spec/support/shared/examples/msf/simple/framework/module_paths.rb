@@ -2,12 +2,14 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
   it { should be_a Msf::Simple::Framework::ModulePaths }
 
   context '#init_module_paths' do
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
     def init_module_paths
-      framework.init_module_paths
+      framework.init_module_paths(options)
     end
 
     let(:module_directory) do
-      nil
+      Rails.application.root.join('modules').expand_path.to_path
     end
 
     let(:user_module_directory) do
@@ -23,7 +25,6 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
       # to init_module_paths doesn't get captured.
       framework
 
-      Msf::Config.stub(:module_directory => module_directory)
       Msf::Config.stub(:user_module_directory => user_module_directory)
     end
 
@@ -33,22 +34,15 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
       init_module_paths
     end
 
+    it "adds Rails.application.paths['modules'] to module paths" do
+      expect(framework.modules).to receive(:add_module_path).with(module_directory, options)
+
+      init_module_paths
+    end
+
     context 'Msf::Config' do
-      context 'module_directory' do
-        context 'without nil' do
-          let(:module_directory) do
-            'modules'
-          end
-
-          it 'should add Msf::Config.module_directory to module paths' do
-            framework.modules.should_receive(:add_module_path).with(
-                module_directory,
-                options
-            )
-
-            init_module_paths
-          end
-        end
+      before(:each) do
+        allow(Rails.application.paths).to receive(:[]).with('modules').and_return(nil)
       end
 
       context 'user_module_directory' do
@@ -70,6 +64,10 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
     end
 
     context 'datastore' do
+      before(:each) do
+        allow(Rails.application.paths).to receive(:[]).with('modules').and_return(nil)
+      end
+
       context 'MsfModulePaths' do
         let(:module_paths) do
           module_paths = []

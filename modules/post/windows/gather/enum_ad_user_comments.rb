@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
         such users have their passwords specified in these fields.
         },
         'License'      => MSF_LICENSE,
-        'Author'       => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+        'Author'       => [ 'Ben Campbell' ],
         'Platform'     => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'References'	=>
@@ -46,15 +46,10 @@ class Metasploit3 < Msf::Post
       if q.nil? or q[:results].empty?
         return
       end
-    rescue ::Exception => e
-      if e.kind_of?(RuntimeError) or e.kind_of?(RequestError)
-        # Can't bind or in a network w/ limited accounts
-        print_error(e.message)
-        return
-      else
-        # Unexpected, raise it
-        raise $1
-      end
+    rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
+      # Can't bind or in a network w/ limited accounts
+      print_error(e.message)
+      return
     end
 
     # Results table holds raw string data

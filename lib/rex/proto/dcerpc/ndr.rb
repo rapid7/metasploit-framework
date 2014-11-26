@@ -34,7 +34,7 @@ class NDR
   #       byte element_1;
   def self.byte(string)
     warn 'should be using Rex::Encoder::NDR'
-    return [string].pack('c')
+    return [string].pack('C')
   end
 
   # Encode a byte array

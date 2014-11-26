@@ -3,6 +3,7 @@ require 'digest/md5'
 require 'digest/sha1'
 require 'stringio'
 require 'cgi'
+require 'rex/exploitation/powershell'
 
 %W{ iconv zlib }.each do |libname|
   begin
@@ -32,6 +33,7 @@ module Text
   #
   ##
 
+  TLDs = ['com', 'net', 'org', 'gov', 'biz', 'edu']
   States = ["AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", "HI",
     "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN",
     "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH",
@@ -100,6 +102,62 @@ module Text
     nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
     nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
     nil, nil, nil, nil, nil, nil, nil, nil, nil
+  ]
+
+  #
+  # Most 100 common surnames, male/female names in the U.S. (http://names.mongabay.com/)
+  #
+
+  Surnames = [
+    "adams", "alexander", "allen", "anderson", "bailey", "baker", "barnes",
+    "bell", "bennett", "brooks", "brown", "bryant", "butler", "campbell",
+    "carter", "clark", "coleman", "collins", "cook", "cooper", "cox",
+    "davis", "diaz", "edwards", "evans", "flores", "foster", "garcia",
+    "gonzales", "gonzalez", "gray", "green", "griffin", "hall", "harris",
+    "hayes", "henderson", "hernandez", "hill", "howard", "hughes", "jackson",
+    "james", "jenkins", "johnson", "jones", "kelly", "king", "lee", "lewis",
+    "long", "lopez", "martin", "martinez", "miller", "mitchell", "moore",
+    "morgan", "morris", "murphy", "nelson", "parker", "patterson", "perez",
+    "perry", "peterson", "phillips", "powell", "price", "ramirez", "reed",
+    "richardson", "rivera", "roberts", "robinson", "rodriguez", "rogers",
+    "ross", "russell", "sanchez", "sanders", "scott", "simmons", "smith",
+    "stewart", "taylor", "thomas", "thompson", "torres", "turner", "walker",
+    "ward", "washington", "watson", "white", "williams", "wilson", "wood",
+    "wright", "young"
+  ]
+
+  Names_Male = [
+    "aaron", "adam", "alan", "albert", "andrew", "anthony", "antonio",
+    "arthur", "benjamin", "billy", "bobby", "brandon", "brian", "bruce",
+    "carl", "carlos", "charles", "chris", "christopher", "clarence", "craig",
+    "daniel", "david", "dennis", "donald", "douglas", "earl", "edward",
+    "eric", "ernest", "eugene", "frank", "fred", "gary", "george", "gerald",
+    "gregory", "harold", "harry", "henry", "howard", "jack", "james", "jason",
+    "jeffrey", "jeremy", "jerry", "jesse", "jimmy", "joe", "john", "johnny",
+    "jonathan", "jose", "joseph", "joshua", "juan", "justin", "keith",
+    "kenneth", "kevin", "larry", "lawrence", "louis", "mark", "martin",
+    "matthew", "michael", "nicholas", "patrick", "paul", "peter", "philip",
+    "phillip", "ralph", "randy", "raymond", "richard", "robert", "roger",
+    "ronald", "roy", "russell", "ryan", "samuel", "scott", "sean", "shawn",
+    "stephen", "steve", "steven", "terry", "thomas", "timothy", "todd",
+    "victor", "walter", "wayne", "william", "willie"
+  ]
+
+  Names_Female = [
+    "alice", "amanda", "amy", "andrea", "angela", "ann", "anna", "anne",
+    "annie", "ashley", "barbara", "betty", "beverly", "bonnie", "brenda",
+    "carol", "carolyn", "catherine", "cheryl", "christina", "christine",
+    "cynthia", "deborah", "debra", "denise", "diana", "diane", "donna",
+    "doris", "dorothy", "elizabeth", "emily", "evelyn", "frances", "gloria",
+    "heather", "helen", "irene", "jacqueline", "jane", "janet", "janice",
+    "jean", "jennifer", "jessica", "joan", "joyce", "judith", "judy", "julia",
+    "julie", "karen", "katherine", "kathleen", "kathryn", "kathy", "kelly",
+    "kimberly", "laura", "lillian", "linda", "lisa", "lois", "lori", "louise",
+    "margaret", "maria", "marie", "marilyn", "martha", "mary", "melissa",
+    "michelle", "mildred", "nancy", "nicole", "norma", "pamela", "patricia",
+    "paula", "phyllis", "rachel", "rebecca", "robin", "rose", "ruby", "ruth",
+    "sandra", "sara", "sarah", "sharon", "shirley", "stephanie", "susan",
+    "tammy", "teresa", "theresa", "tina", "virginia", "wanda"
   ]
 
   ##
@@ -248,19 +306,7 @@ module Text
   # Converts a raw string to a powershell byte array
   #
   def self.to_powershell(str, name = "buf")
-    return "[Byte[]]$#{name} = ''" if str.nil? or str.empty?
-
-    code = str.unpack('C*')
-    buff = "[Byte[]]$#{name} = 0x#{code[0].to_s(16)}"
-    1.upto(code.length-1) do |byte|
-      if(byte % 10 == 0)
-        buff << "\r\n$#{name} += 0x#{code[byte].to_s(16)}"
-      else
-        buff << ",0x#{code[byte].to_s(16)}"
-      end
-    end
-
-    return buff
+    return Rex::Exploitation::Powershell::Script.to_byte_array(str, name)
   end
 
   #
@@ -429,7 +475,7 @@ module Text
   #
   # Returns a unicode escaped string for Javascript
   #
-  def self.to_unescape(data, endian=ENDIAN_LITTLE)
+  def self.to_unescape(data, endian=ENDIAN_LITTLE, prefix='%%u')
     data << "\x41" if (data.length % 2 != 0)
     dptr = 0
     buff = ''
@@ -440,9 +486,9 @@ module Text
       dptr += 1
 
       if (endian == ENDIAN_LITTLE)
-        buff << sprintf('%%u%.2x%.2x', c2, c1)
+        buff << sprintf("#{prefix}%.2x%.2x", c2, c1)
       else
-        buff << sprintf('%%u%.2x%.2x', c1, c2)
+        buff << sprintf("#{prefix}%.2x%.2x", c1, c2)
       end
     end
     return buff
@@ -731,15 +777,18 @@ module Text
 
     return str if mode == 'none' # fast track no encoding
 
-    all = /[^\/\\]+/
-    normal = /[^a-zA-Z0-9\/\\\.\-]+/
-    normal_na = /[a-zA-Z0-9\/\\\.\-]/
+    all = /./
+    noslashes = /[^\/\\]+/
+    # http://tools.ietf.org/html/rfc3986#section-2.3
+    normal = /[^a-zA-Z0-9\/\\\.\-_~]+/
 
     case mode
-    when 'hex-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(s, '%') }
+    when 'hex-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(s, '%') }
     when 'hex-random'
       res = ''
       str.each_byte do |c|
@@ -749,10 +798,12 @@ module Text
           b.gsub(normal){ |s| Rex::Text.to_hex(s, '%') } )
       end
       return res
-    when 'u-normal'
-      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-all'
       return str.gsub(all) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-normal'
+      return str.gsub(normal) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
+    when 'u-noslashes'
+      return str.gsub(noslashes) { |s| Rex::Text.to_hex(Rex::Text.to_unicode(s, 'uhwtfms'), '%u', 2) }
     when 'u-random'
       res = ''
       str.each_byte do |c|
@@ -1234,6 +1285,30 @@ module Text
   end
 
   #
+  # Convert 16-byte string to a GUID string
+  #
+  # @example
+  #   str = "ABCDEFGHIJKLMNOP"
+  #   Rex::Text.to_guid(str) #=> "{44434241-4645-4847-494a-4b4c4d4e4f50}"
+  #
+  # @param bytes [String] 16 bytes which represent a GUID in the proper
+  #   order.
+  #
+  # @return [String]
+  def self.to_guid(bytes)
+    return nil unless bytes
+    s = bytes.unpack('H*')[0]
+    parts = [
+      s[6,  2] + s[4,  2] + s[2, 2] + s[0, 2],
+      s[10, 2] + s[8,  2],
+      s[14, 2] + s[12, 2],
+      s[16, 4],
+      s[20, 12]
+    ]
+    "{#{parts.join('-')}}"
+  end
+
+  #
   # Creates a pattern that can be used for offset calculation purposes.  This
   # routine is capable of generating patterns using a supplied set and a
   # supplied number of identifiable characters (slots).  The supplied sets
@@ -1329,12 +1404,12 @@ module Text
   # Randomize the whitespace in a string
   #
   def self.randomize_space(str)
+    set = ["\x09", "\x20", "\x0d", "\x0a"]
     str.gsub(/\s+/) { |s|
       len = rand(50)+2
-      set = "\x09\x20\x0d\x0a"
       buf = ''
       while (buf.length < len)
-        buf << set[rand(set.length),1]
+        buf << set.sample
       end
 
       buf
@@ -1525,14 +1600,47 @@ module Text
     (rand(5) + 1).times {
       host.push(Rex::Text.rand_text_alphanumeric(rand(10) + 1))
     }
-    d = ['com', 'net', 'org', 'gov']
-    host.push(d[rand(d.size)])
+    host.push(TLDs.sample)
     host.join('.').downcase
   end
 
   # Generate a state
   def self.rand_state()
-    States[rand(States.size)]
+    States.sample
+  end
+
+  # Generate a surname
+  def self.rand_surname
+    Surnames.sample
+  end
+
+  # Generate a name
+  def self.rand_name
+    if rand(10) % 2 == 0
+      Names_Male.sample
+    else
+      Names_Female.sample
+    end
+  end
+
+  # Generate a male name
+  def self.rand_name_male
+    Names_Male.sample
+  end
+
+  # Generate a female name
+  def self.rand_name_female
+    Names_Female.sample
+  end
+
+  # Generate a random mail address
+  def self.rand_mail_address
+    mail_address = ''
+    mail_address << Rex::Text.rand_name
+    mail_address << '.'
+    mail_address << Rex::Text.rand_surname
+    mail_address << '@'
+    mail_address << Rex::Text.rand_hostname
   end
 
 

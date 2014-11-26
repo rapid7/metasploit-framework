@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -139,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
         'method' => 'GET'
       })
 
-    if res and res.code == 200 and res.headers['Set-Cookie'] =~ /JSESSIONID=(.*);/
+    if res and res.code == 200 and res.get_cookies =~ /JSESSIONID=(.*);/
       first_session = $1
     end
 
@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
       'cookie' => "JSESSIONID=#{first_session}"
     })
 
-    if res and res.code == 200 and res.headers['Set-Cookie'] =~ /JSESSIONID=(.*);/
+    if res and res.code == 200 and res.get_cookies =~ /JSESSIONID=(.*);/
       @session = $1
       return true
     end

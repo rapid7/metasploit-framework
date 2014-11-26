@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -28,6 +28,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         => [ 'K. Reid Wightman <wightman[at]digitalbond.com>' ],
       'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CVE', '2012-6663'],
+        ],
       'DisclosureDate' => 'Jan 19 2012'
       ))
 

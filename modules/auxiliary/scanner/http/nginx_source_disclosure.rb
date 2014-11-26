@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
           save_source.puts(res.body.to_s)
           save_source.close
 
-          print_status("#{target_url} - nginx - File successfully saved: #{path_save}#{uri}")	if (File.exists?("#{path_save}#{uri}"))
+          print_status("#{target_url} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exists?("#{path_save}#{uri}"))
 
         else
           print_error("http://#{vhost}:#{rport} - nginx - Unrecognized #{res.code} response")

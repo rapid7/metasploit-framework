@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 # Fuzzer written by corelanc0d3r - <peter.ve [at] corelan.be>
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
       OptPort.new('SRVPORT', [ true, "The local port to listen on.", 21 ]),
-      OptString.new('FUZZCMDS', [ true, "Comma separated list of commands to fuzz.", "LIST,NLST,LS,RETR" ]),
+      OptString.new('FUZZCMDS', [ true, "Comma separated list of commands to fuzz (Uppercase).", "LIST,NLST,LS,RETR", nil, /(?:[A-Z]+,?)+/ ]),
       OptInt.new('STARTSIZE', [ true, "Fuzzing string startsize.",1000]),
       OptInt.new('ENDSIZE', [ true, "Max Fuzzing string size.",200000]),
       OptInt.new('STEPSIZE', [ true, "Increment fuzzing string each attempt.",1000]),
