@@ -51,8 +51,7 @@ class Metasploit3 < Msf::Post
     end
     vprint_status("ICMP raw socket created successfully")
 
-    sockaddr = Rex::Socket.to_sockaddr(session.session_host, 0)
-    r = client.railgun.ws2_32.bind(handler['return'],sockaddr,16)
+    r = client.railgun.ws2_32.bind(handler['return'],"\x02\x00\x00\x00" << Rex::Socket.addr_aton(session.session_host) << "\x00"*8 ,16)
     if r['GetLastError'] != 0
       print_error("There was an error binding the ICMP socket to #{session.session_host}; GetLastError: #{r['GetLastError']}")
       return nil
@@ -120,7 +119,8 @@ class Metasploit3 < Msf::Post
 
   def connections(remote, dst_port, h_icmp, h_tcp, to)
     sock_addr = Rex::Socket.to_sockaddr(remote, dst_port)
-    r = client.railgun.ws2_32.connect(h_tcp, sock_addr, 16)
+    r = client.railgun.ws2_32.connect(h_tcp, "\x02\x00" << [dst_port].pack("n") << Rex::Socket.addr_aton(remote) << "\x00"*8 , 16)
+
     # A GetLastError == 1035 is expected since the socket is set to non-blocking mode
     if r['GetLastError'] != 10035
       print_error("There was an error creating the connection to the peer #{remote}; GetLastError: #{r['GetLastError']}")
