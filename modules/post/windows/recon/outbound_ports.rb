@@ -118,7 +118,6 @@ class Metasploit3 < Msf::Post
   end
 
   def connections(remote, dst_port, h_icmp, h_tcp, to)
-    sock_addr = Rex::Socket.to_sockaddr(remote, dst_port)
     r = client.railgun.ws2_32.connect(h_tcp, "\x02\x00" << [dst_port].pack("n") << Rex::Socket.addr_aton(remote) << "\x00"*8 , 16)
 
     # A GetLastError == 1035 is expected since the socket is set to non-blocking mode
