@@ -13,25 +13,25 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Windows Outbound-Filering Rules',
-        'Description'   => %q{
-          This module makes some kind of TCP traceroute to get outbound-filtering rules.
-          It will try to make a TCP connection to a certain public IP address (this IP
-          does not need to be under your control) using different TTL incremental values.
-          This way if you get an answer (ICMP ttl time exceeded packet) from a public IP
-          device you can infer that the destination port is allowed. Setting STOP to
-          true the module will stop as soon as you reach a public IP (this will generate
-          less noise in the network).
-        },
-
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>' ],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ],
-        'References'   => [
+      'Name'          => 'Windows Outbound-Filering Rules',
+      'Description'   => %q{
+        This module makes some kind of TCP traceroute to get outbound-filtering rules.
+        It will try to make a TCP connection to a certain public IP address (this IP
+        does not need to be under your control) using different TTL incremental values.
+        This way if you get an answer (ICMP ttl time exceeded packet) from a public IP
+        device you can infer that the destination port is allowed. Setting STOP to
+        true the module will stop as soon as you reach a public IP (this will generate
+        less noise in the network).
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>' ],
+      'Platform'      => [ 'win' ],
+      'SessionTypes'  => [ 'meterpreter' ],
+      'References'   => [
         [ 'URL', 'http://www.shelliscoming.com/2014/11/getting-outbound-filtering-rules-by.html' ]
       ]
-      ))
+    ))
+
     register_options(
       [
         OptAddress.new("ADDRESS" , [ true, 'Destination IP address.']),
@@ -41,7 +41,6 @@ class Metasploit3 < Msf::Post
         OptInt.new('TIMEOUT', [true, 'Timeout for the ICMP socket.', 3]),
         OptBool.new('STOP', [true, 'Stop when it finds a public IP.', false])
       ], self.class)
-
   end
 
   def icmp_setup
@@ -87,8 +86,8 @@ class Metasploit3 < Msf::Post
     end
     vprint_status("TCP socket created successfully")
 
-    fionbio = 0x8004667E
-    r = client.railgun.ws2_32.ioctlsocket(handler['return'],fionbio,1)
+    cmd = 0x8004667E
+    r = client.railgun.ws2_32.ioctlsocket(handler['return'], cmd, 1)
     if r['GetLastError'] != 0
       print_error("There was an error setting the TCP socket in non-blocking mode; GetLastError: #{r['GetLastError']}")
       return nil
@@ -103,9 +102,9 @@ class Metasploit3 < Msf::Post
     #_In_  int optlen
     # );
 
-    ipproto_ip = 0x00000000
-    ip_ttl = 0x00000004
-    r = client.railgun.ws2_32.setsockopt(handler['return'], ipproto_ip, ip_ttl,[ttl].pack('C'),4)
+    ipproto_ip = 0
+    ip_ttl = 4
+    r = client.railgun.ws2_32.setsockopt(handler['return'], ipproto_ip, ip_ttl, [ttl].pack('C'), 4)
     if r['GetLastError'] != 0
       print_error("There was an error setting the TTL value; GetLastError: #{r['GetLastError']}")
       return nil
@@ -114,20 +113,20 @@ class Metasploit3 < Msf::Post
     return handler['return']
   end
 
-  def connections(remote,dport,h_icmp,h_tcp, to)
-    sockaddr = Rex::Socket.to_sockaddr(remote, dport)
-    r = client.railgun.ws2_32.connect(h_tcp,sockaddr,16)
+  def connections(remote, dst_port, h_icmp, h_tcp, to)
+    sock_addr = Rex::Socket.to_sockaddr(remote, dst_port)
+    r = client.railgun.ws2_32.connect(h_tcp, sock_addr, 16)
     # A GetLastError == 1035 is expected since the socket is set to non-blocking mode
     if r['GetLastError'] != 10035
       print_error("There was an error creating the connection to the peer #{remote}; GetLastError: #{r['GetLastError']}")
       return
     end
 
-    from=" "*16
+    from = " " * 16
 
     begin
       ::Timeout.timeout(to) do
-        r = client.railgun.ws2_32.recvfrom(h_icmp,"",100,0,from,16)
+        r = client.railgun.ws2_32.recvfrom(h_icmp, "", 100, 0, from, 16)
         hop = Rex::Socket.addr_ntoa(r['from'][4..7])
         return hop
       end
@@ -138,17 +137,17 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    if not is_admin?
+    unless is_admin?
       print_error("You don't have enough privileges. Try getsystem.")
       return
     end
 
-    if sysinfo["OS"] =~ /XP/
-      print_error("Windows XP is not supported")
+    if sysinfo['OS'] =~ /XP/
+      print_error('Windows XP is not supported')
       return
     end
 
-    output = cmd_exec("netsh"," advfirewall firewall add rule name=\"All ICMP v4\" dir=in action=allow protocol=icmpv4:any,any")
+    output = cmd_exec('netsh',' advfirewall firewall add rule name="All ICMP v4" dir=in action=allow protocol=icmpv4:any,any')
     print_status("ICMP firewall IN rule established: #{output}")
 
     session.railgun.ws2_32
@@ -159,22 +158,24 @@ class Metasploit3 < Msf::Post
 
     ports.each do |dport|
       print_status("Testing port #{dport}...")
-      0.upto(datastore['HOPS']-1) { |i|
+      0.upto(datastore['HOPS'] - 1) { |i|
         i = i + datastore['MIN_TTL']
         h_icmp = icmp_setup
+        return if h_icmp.nil?
         h_tcp = tcp_setup(i)
-        return if h_icmp == nil or h_tcp == nil
+        return if h_tcp .nil?
 
         hop = connections(remote, dport, h_icmp, h_tcp, to)
         if hop != nil
           print_good("#{i} #{hop}")
-          if datastore['STOP'] == true and not Rex::Socket.is_internal?(hop)
+          if datastore['STOP'] == true and !Rex::Socket.is_internal?(hop)
             print_good("Public IP reached. The port #{dport} is not filtered")
             break
           end
         else
           print_error("#{i} *")
         end
+
         client.railgun.ws2_32.closesocket(h_tcp)
         client.railgun.ws2_32.closesocket(h_icmp)
        }
