@@ -42,12 +42,7 @@ class Client
   @@ext_hash = {}
 
   #
-  # Cached SSL context (required to scale)
-  #
-  @@ssl_cert_info = nil
-
-  #
-  # Cached SSL certificate
+  # Cached auto-generated SSL certificate
   #
   @@ssl_cached_cert = nil
 
@@ -110,7 +105,6 @@ class Client
     self.target_id    = opts[:target_id]
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
-
 
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
@@ -218,45 +212,40 @@ class Client
 
   def generate_ssl_context
 
-    # Initialize a null context
     ctx = nil
+    ssl_cert_info = nil
 
-    # Synchronize to prevent race conditions
-    @@ssl_mutex.synchronize do
+    loop do
 
-      # If the user specified a certificate and its not the cached one, delete the cached info
-      if self.ssl_cert && self.ssl_cert != @@ssl_cached_cert
-        @ssl_ctx = nil
+      # Load a custom SSL certificate if one has been specified
+      if self.ssl_cert
+        wlog("Loading custom SSL certificate for Meterpreter session")
+        ssl_cert_info = Rex::Socket::SslTcpServer.ssl_parse_pem(self.ssl_cert)
+        wlog("Loaded custom SSL certificate for Meterpreter session")
+        break
       end
 
-      # If the user did not specify a certificate and we have cached one, delete the cached info
-      if ! self.ssl_cert && @@ssl_cached_cert
-        @@ssl_cert_info = nil
-      end
-
-      unless @@ssl_cert_info
-        # If no certificate was specified, generate one
-        unless self.ssl_cert
+      # Generate a certificate if necessary and cache it
+      if ! @@ssl_cached_cert
+        @@ssl_mutex.synchronize do
           wlog("Generating SSL certificate for Meterpreter sessions")
-          @@ssl_cert_info = Rex::Socket::SslTcpServer.ssl_generate_certificate
+          @@ssl_cached_cert = Rex::Socket::SslTcpServer.ssl_generate_certificate
           wlog("Generated SSL certificate for Meterpreter sessions")
-        # Load the user's specified certificate
-        else
-          wlog("Loading custom SSL certificate for Meterpreter sessions")
-          @@ssl_cert_info = Rex::Socket::SslTcpServer.ssl_parse_pem(self.ssl_cert)
-          wlog("Loaded custom SSL certificate for Meterpreter sessions")
-          @@ssl_cached_cert = self.ssl_cert
         end
       end
 
-      # Create a new context for each session
-      ctx = OpenSSL::SSL::SSLContext.new()
-      ctx.key = @@ssl_cert_info[0]
-      ctx.cert = @@ssl_cert_info[1]
-      ctx.extra_chain_cert = @@ssl_cert_info[2]
-      ctx.options = 0
-      ctx.session_id_context = Rex::Text.rand_text(16)
-    end # End of mutex.synchronize
+      # Use the cached certificate
+      ssl_cert_info = @@ssl_cached_cert
+      break
+    end
+
+    # Create a new context for each session
+    ctx = OpenSSL::SSL::SSLContext.new()
+    ctx.key = ssl_cert_info[0]
+    ctx.cert = ssl_cert_info[1]
+    ctx.extra_chain_cert = ssl_cert_info[2]
+    ctx.options = 0
+    ctx.session_id_context = Rex::Text.rand_text(16)
 
     ctx
   end
