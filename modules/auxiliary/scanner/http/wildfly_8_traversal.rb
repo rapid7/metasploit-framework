@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new("FILEPATH", [false, 'Specify a parameter for the action', 'standalone\\\\configuration\\\\standalone.xml'])
+        OptString.new("FILEPATH", [false, 'Full path to the file to read', 'standalone\\\\configuration\\\\standalone.xml'])
       ], self.class)
 
     register_advanced_options(
