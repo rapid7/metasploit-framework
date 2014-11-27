@@ -26,6 +26,11 @@ class Driver < Msf::Ui::Driver
   DefaultPrompt     = "%undmsf%clr"
   DefaultPromptChar = "%clr>"
 
+  if Rex::Compat.is_windows
+    DefaultPrompt     = "msf"
+    DefaultPromptChar = ">"
+  end
+
   #
   # The console driver processes various framework notified events.
   #
