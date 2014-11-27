@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -59,6 +59,14 @@ class Metasploit3 < Msf::Auxiliary
 
       result.each do |u|
         print_status("[#{target_host}] #{tpath} [#{u}]")
+
+        report_note(
+          :host    => target_host,
+          :port    => rport,
+          :proto   => 'tcp',
+          :type    => "http.scraper.#{rport}",
+          :data    => u
+        )
 
         report_web_vuln(
           :host	=> target_host,

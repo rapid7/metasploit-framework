@@ -56,11 +56,12 @@ class Rex::Socket::Parameters
   # @option hash [Bool] 'Bool' Create a bare socket
   # @option hash [Bool] 'Server' Whether or not this should be a server
   # @option hash [Bool] 'SSL' Whether or not SSL should be used
-  # @option hash [String] 'SSLVersion' Specify SSL2, SSL3, or TLS1 (SSL3 is
+  # @option hash [String] 'SSLVersion' Specify Auto, SSL2, SSL3, or TLS1 (Auto is
   #   default)
   # @option hash [String] 'SSLCert' A file containing an SSL certificate (for
   #   server sockets)
   # @option hash [String] 'SSLCipher' see {#ssl_cipher}
+  # @option hash [Bool] 'SSLCompression' enable SSL-level compression where available
   # @option hash [String] 'SSLVerifyMode' SSL certificate verification
   #   mechanism. One of 'NONE' (default), 'CLIENT_ONCE', 'FAIL_IF_NO_PEER_CERT ', 'PEER'
   # @option hash [String] 'Proxies' List of proxies to use.
@@ -116,7 +117,7 @@ class Rex::Socket::Parameters
       self.ssl = false
     end
 
-    supported_ssl_versions = ['SSL2', 'SSL23', 'TLS1', 'SSL3', :SSLv2, :SSLv3, :SSLv23, :TLSv1]
+    supported_ssl_versions = ['Auto', 'SSL2', 'SSL23', 'TLS1', 'SSL3', :Auto, :SSLv2, :SSLv3, :SSLv23, :TLSv1]
     if (hash['SSLVersion'] and supported_ssl_versions.include? hash['SSLVersion'])
       self.ssl_version = hash['SSLVersion']
     end
@@ -124,6 +125,10 @@ class Rex::Socket::Parameters
     supported_ssl_verifiers = %W{CLIENT_ONCE FAIL_IF_NO_PEER_CERT NONE PEER}
     if (hash['SSLVerifyMode'] and supported_ssl_verifiers.include? hash['SSLVerifyMode'])
       self.ssl_verify_mode = hash['SSLVerifyMode']
+    end
+
+    if hash['SSLCompression']
+      self.ssl_compression = hash['SSLCompression']
     end
 
     if (hash['SSLCipher'])
@@ -319,7 +324,7 @@ class Rex::Socket::Parameters
   # @return [Bool]
   attr_accessor :ssl
 
-  # What version of SSL to use (SSL2, SSL3, SSL23, TLS1)
+  # What version of SSL to use (Auto, SSL2, SSL3, SSL23, TLS1)
   # @return [String,Symbol]
   attr_accessor :ssl_version
 
@@ -333,6 +338,10 @@ class Rex::Socket::Parameters
   # {Rex::Socket::SslTcpServer#makessl}
   # @return [String]
   attr_accessor :ssl_cert
+
+  # Enables SSL/TLS-level compression
+  # @return [Bool]
+  attr_accessor :ssl_compression
 
   #
   # The SSL context verification mechanism

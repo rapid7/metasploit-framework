@@ -188,9 +188,9 @@ describe Msfupdate do
   context "in an apt installation" do
     let(:msfbase_dir) { dummy_apt_pathname }
 
-    its(:apt?) { should == true }
-    its(:binary_install?) { should == false }
-    its(:git?) { should == false }
+    it { expect(subject.apt?).to be_truthy }
+    it { expect(subject.binary_install?).to be_falsey }
+    it { expect(subject.git?).to be_falsey }
 
     context "#validate_args" do
       before(:each) do
@@ -199,22 +199,22 @@ describe Msfupdate do
 
       context "with no args" do
         let(:args) { [] }
-        its(:validate_args) { should == true }
+        it { expect(subject.validate_args).to be_truthy }
       end
 
       context "with --git-remote" do
         let(:args) { ['--git-remote', 'foo'] }
-        its(:validate_args) { should == false }
+        it { expect(subject.validate_args).to be_falsey }
       end
 
       context "with --git-branch" do
         let(:args) { ['--git-branch', 'foo'] }
-        its(:validate_args) { should == false }
+        it { expect(subject.validate_args).to be_falsey }
       end
 
       context "with --offline-file" do
         let(:args) { ['--offline-file', 'foo'] }
-        its(:validate_args) { should == false }
+        it { expect(subject.validate_args).to be_falsey }
       end
     end
 
@@ -241,9 +241,9 @@ describe Msfupdate do
   context "in a binary installation" do
     let(:msfbase_dir) { dummy_install_pathname }
 
-    its(:apt?) { should == false }
-    its(:binary_install?) { should == true }
-    its(:git?) { should == false }
+    it { expect(subject.apt?).to be_falsey }
+    it { expect(subject.binary_install?).to be_truthy }
+    it { expect(subject.git?).to be_falsey }
 
     context "#validate_args" do
       before(:each) do
@@ -252,22 +252,22 @@ describe Msfupdate do
 
       context "with no args" do
         let(:args) { [] }
-        its(:validate_args) { should == true }
+        it { expect(subject.validate_args).to be_truthy }
       end
 
       context "with --git-remote" do
         let(:args) { ['--git-remote', 'foo'] }
-        its(:validate_args) { should == false }
+        it { expect(subject.validate_args).to be_falsey }
       end
 
       context "with --git-branch" do
         let(:args) { ['--git-branch', 'foo'] }
-        its(:validate_args) { should == false }
+        it { expect(subject.validate_args).to be_falsey }
       end
 
       context "with --offline-file" do
         let(:args) { ['--offline-file', 'foo'] }
-        its(:validate_args) { should == true }
+        it { expect(subject.validate_args).to be_truthy }
       end
     end
 
@@ -294,9 +294,10 @@ describe Msfupdate do
   context "in a git installation" do
     let(:msfbase_dir) { dummy_git_pathname }
 
-    its(:apt?) { should == false }
-    its(:binary_install?) { should == false }
-    its(:git?) { should == true }
+    it { expect(subject.apt?).to be_falsey }
+    it { expect(subject.binary_install?).to be_falsey }
+    it { expect(subject.git?).to be_truthy }
+
 
     context "#validate_args" do
       before(:each) do
@@ -305,22 +306,22 @@ describe Msfupdate do
 
       context "with no args" do
         let(:args) { [] }
-        its(:validate_args) { should == true }
+        it { expect(subject.validate_args).to be_truthy }
       end
 
       context "with --git-remote" do
         let(:args) { ['--git-remote', 'foo'] }
-        its(:validate_args) { should == true }
+        it { expect(subject.validate_args).to be_truthy }
       end
 
       context "with --git-branch" do
         let(:args) { ['--git-branch', 'foo'] }
-        its(:validate_args) { should == true }
+        it { expect(subject.validate_args).to be_truthy }
       end
 
       context "with --offline-file" do
         let(:args) { ['--offline-file', 'foo'] }
-        its(:validate_args) { should == false }
+        it { expect(subject.validate_args).to be_falsey }
       end
     end
 

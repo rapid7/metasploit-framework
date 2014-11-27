@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,6 +23,7 @@ module Metasploit3
       'Handler'     => Msf::Handler::None,
       'Session'     => Msf::Sessions::CommandShell,
       'PayloadType' => 'cmd',
+      'RequiredCmd' => 'wscript',
       'Payload'     =>
         {
           'Offsets' => { },

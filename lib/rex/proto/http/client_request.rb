@@ -40,7 +40,7 @@ class ClientRequest
     #
     'encode_params'          => true,
     'encode'                 => false,
-    'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
+    'uri_encode_mode'        => 'hex-normal', # hex-normal, hex-all, hex-noslashes, hex-random, u-normal, u-all, u-noslashes, u-random
     'uri_encode_count'       => 1,       # integer
     'uri_full_url'           => false,   # bool
     'pad_method_uri_count'   => 1,       # integer
@@ -112,12 +112,16 @@ class ClientRequest
 
       opts['vars_get'].each_pair do |var,val|
         var = var.to_s
-        val = val.to_s
 
         qstr << '&' if qstr.length > 0
         qstr << (opts['encode_params'] ? set_encode_uri(var) : var)
-        qstr << '='
-        qstr << (opts['encode_params'] ? set_encode_uri(val) : val)
+        # support get parameter without value
+        # Example: uri?parameter
+        if val
+          val = val.to_s
+          qstr << '='
+          qstr << (opts['encode_params'] ? set_encode_uri(val) : val)
+        end
       end
 
       if (opts['pad_post_params'])

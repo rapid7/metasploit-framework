@@ -11,7 +11,6 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-require 'fastlib'
 require 'msfenv'
 
 
@@ -80,6 +79,10 @@ end
 
 opt.on('-B', '--before [bytes]', 'Number of bytes to show before match (-a/-b)') do |t|
   param['before'] = opt2i(t)
+end
+
+opt.on('-D', '--disasm', 'Disassemble the bytes at this address') do |t|
+  param['disasm'] = true
 end
 
 opt.on('-I', '--image-base [address]', 'Specify an alternate ImageBase') do |t|

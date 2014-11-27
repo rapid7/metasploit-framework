@@ -1,11 +1,13 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 class Metasploit3 < Msf::Post
+
+  include Msf::Post::Linux::System
 
   def initialize(info={})
     super( update_info( info,
@@ -21,8 +23,8 @@ class Metasploit3 < Msf::Post
         [
           'ohdae <bindshell[at]live.com>',
         ],
-      'Platform'      => [ 'linux' ],
-      'SessionTypes'  => [ 'shell' ]
+      'Platform'      => ['linux'],
+      'SessionTypes'  => ['shell', 'meterpreter']
     ))
   end
 
@@ -72,7 +74,7 @@ class Metasploit3 < Msf::Post
 
     configs.each do |f|
       output = read_file("#{f}")
-      save(f,  output) if output !~ /No such file or directory/
+      save(f,  output) if output && output !~ /No such file or directory/
     end
   end
 end

@@ -166,7 +166,7 @@ module BindTcp
     socks[0].extend(Rex::Socket::Tcp)
     socks[1].extend(Rex::Socket::Tcp)
 
-    m = OpenSSL::Digest::Digest.new('md5')
+    m = OpenSSL::Digest.new('md5')
     m.reset
     key = m.digest(datastore["AESPassword"] || "")
 

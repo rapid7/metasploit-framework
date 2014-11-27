@@ -16,10 +16,20 @@ require 'rex'
 
 
 class Msfcli
+  #
+  # Attributes
+  #
+
+  # @attribute framework
+  #   @return [Msf::Simple::Framework]
+
+  #
+  # initialize
+  #
+
   def initialize(args)
     @args      = {}
     @indent    = '   '
-    @framework = nil
 
     @args[:module_name] = args.shift      # First argument should be the module name
     @args[:mode]        = args.pop || 'h' # Last argument should be the mode
@@ -29,6 +39,28 @@ class Msfcli
       @args[:module_name] = @args[:module_name].split('/')
       @args[:module_name] = @args[:module_name][1, @args[:module_name].length] * "/"
     end
+  end
+
+  #
+  # Instance Methods
+  #
+
+  # The framework to create and list modules.
+  #
+  # @return [Msf::Simple::Framework]
+  def framework
+    @framework ||= Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
+  end
+
+  # Sets {#framework}.
+  #
+  # @raise [ArgumentError] if {#framework} already set
+  def framework=(framework)
+    if instance_variable_defined? :@framework
+      fail ArgumentError.new("framework already set")
+    end
+
+    @framework = framework
   end
 
   #
@@ -44,11 +76,12 @@ class Msfcli
     tbl << ['(H)elp',        "You're looking at it baby!"]
     tbl << ['(S)ummary',     'Show information about this module']
     tbl << ['(O)ptions',     'Show available options for this module']
+    tbl << ['(M)issing',     'Show empty required options for this module']
     tbl << ['(A)dvanced',    'Show available advanced options for this module']
     tbl << ['(I)DS Evasion', 'Show available ids evasion options for this module']
     tbl << ['(P)ayloads',    'Show available payloads for this module']
     tbl << ['(T)argets',     'Show available targets for this exploit module']
-    tbl << ['(AC)tions',     'Show available actions for this auxiliary module']
+    tbl << ['(AC)tions',     'Show available actions for this module']
     tbl << ['(C)heck',       'Run the check routine of the selected module']
     tbl << ['(E)xecute',     'Execute the selected module']
 
@@ -72,7 +105,7 @@ class Msfcli
     # msfcli will end up loading EVERYTHING to memory to show you a help
     # menu plus a list of modules available. Really expensive if you ask me.
     $stdout.puts "[*] Please wait while we load the module tree..."
-    framework = Msf::Simple::Framework.create
+    self.framework = Msf::Simple::Framework.create
     ext = ''
 
     tbl = Rex::Ui::Text::Table.new(
@@ -282,7 +315,6 @@ class Msfcli
   # Initializes exploit/payload/encoder/nop modules.
   #
   def init_modules
-    @framework = Msf::Simple::Framework.create({'DeferModuleLoads'=>true})
     $stdout.puts "[*] Initializing modules..."
 
     module_name = @args[:module_name]
@@ -296,11 +328,11 @@ class Msfcli
     whitelist = generate_whitelist
 
     # Load up all the possible modules, this is where things get slow again
-    @framework.init_module_paths({:whitelist=>whitelist})
-    if (@framework.modules.module_load_error_by_path.length > 0)
+    framework.init_module_paths({:whitelist=>whitelist})
+    if (framework.modules.module_load_error_by_path.length > 0)
       print("Warning: The following modules could not be loaded!\n\n")
 
-      @framework.modules.module_load_error_by_path.each do |path, error|
+      framework.modules.module_load_error_by_path.each do |path, error|
         print("\t#{path}: #{error}\n\n")
       end
 
@@ -309,16 +341,16 @@ class Msfcli
 
     # Determine what type of module it is
     if module_name =~ /exploit\/(.*)/
-      modules[:module] = @framework.exploits.create($1)
+      modules[:module] = framework.exploits.create($1)
     elsif module_name =~ /auxiliary\/(.*)/
-      modules[:module] = @framework.auxiliary.create($1)
+      modules[:module] = framework.auxiliary.create($1)
     elsif module_name =~ /post\/(.*)/
-      modules[:module] = @framework.post.create($1)
+      modules[:module] = framework.post.create($1)
     else
-      modules[:module] = @framework.exploits.create(module_name)
+      modules[:module] = framework.exploits.create(module_name)
       if modules[:module].nil?
         # Try falling back on aux modules
-        modules[:module] = @framework.auxiliary.create(module_name)
+        modules[:module] = framework.auxiliary.create(module_name)
       end
     end
 
@@ -341,7 +373,7 @@ class Msfcli
 
     # Create the payload to use
     if (modules[:module].datastore['PAYLOAD'])
-      modules[:payload] = @framework.payloads.create(modules[:module].datastore['PAYLOAD'])
+      modules[:payload] = framework.payloads.create(modules[:module].datastore['PAYLOAD'])
       if modules[:payload]
         modules[:payload].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
       end
@@ -349,7 +381,7 @@ class Msfcli
 
     # Create the encoder to use
     if modules[:module].datastore['ENCODER']
-      modules[:encoder] = @framework.encoders.create(modules[:module].datastore['ENCODER'])
+      modules[:encoder] = framework.encoders.create(modules[:module].datastore['ENCODER'])
       if modules[:encoder]
         modules[:encoder].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
       end
@@ -357,7 +389,7 @@ class Msfcli
 
     # Create the NOP to use
     if modules[:module].datastore['NOP']
-      modules[:nop] = @framework.nops.create(modules[:module].datastore['NOP'])
+      modules[:nop] = framework.nops.create(modules[:module].datastore['NOP'])
       if modules[:nop]
         modules[:nop].datastore.import_options_from_s(@args[:params].join('_|_'), '_|_')
       end
@@ -382,6 +414,15 @@ class Msfcli
     $stdout.puts("\nPayload:\n\n" + readable.dump_options(m[:payload], @indent)) if m[:payload]
     $stdout.puts("\nEncoder:\n\n" + readable.dump_options(m[:encoder], @indent)) if m[:encoder]
     $stdout.puts("\nNOP\n\n" + readable.dump_options(m[:nop], @indent))          if m[:nop]
+  end
+
+
+  def show_missing(m)
+    readable = Msf::Serializer::ReadableText
+    $stdout.puts("\n" + readable.dump_options(m[:module], @indent, true))
+    $stdout.puts("\nPayload:\n\n" + readable.dump_options(m[:payload], @indent, true)) if m[:payload]
+    $stdout.puts("\nEncoder:\n\n" + readable.dump_options(m[:encoder], @indent, true)) if m[:encoder]
+    $stdout.puts("\nNOP\n\n" + readable.dump_options(m[:nop], @indent, true))          if m[:nop]
   end
 
 
@@ -418,7 +459,7 @@ class Msfcli
 
   def show_actions(m)
     readable = Msf::Serializer::ReadableText
-    $stdout.puts("\n" + readable.dump_auxiliary_actions(m[:module], @indent))
+    $stdout.puts("\n" + readable.dump_module_actions(m[:module], @indent))
   end
 
 
@@ -444,7 +485,7 @@ class Msfcli
       Msf::Ui::Console::Driver::DefaultPrompt,
       Msf::Ui::Console::Driver::DefaultPromptChar,
       {
-        'Framework' => @framework,
+        'Framework' => framework,
         # When I use msfcli, chances are I want speed, so ASCII art fanciness
         # probably isn't much of a big deal for me.
         'DisableBanner' => true
@@ -464,7 +505,7 @@ class Msfcli
     con.run_single("exploit")
 
     # If we have sessions or jobs, keep running
-    if @framework.sessions.length > 0 or @framework.jobs.length > 0
+    if framework.sessions.length > 0 or framework.jobs.length > 0
       con.run
     else
       con.run_single("quit")
@@ -483,6 +524,8 @@ class Msfcli
       show_summary(modules)
     when "o"
       show_options(modules)
+    when "m"
+      show_missing(modules)
     when "a"
       show_advanced(modules)
     when "i"
@@ -501,7 +544,7 @@ class Msfcli
         show_targets(modules)
       end
     when "ac"
-      if modules[:module].file_path =~ /auxiliary\//i
+      if modules[:module].kind_of?(Msf::Module::HasActions)
         show_actions(modules)
       else
         $stdout.puts("\nError: This type of module does not support actions")
@@ -523,7 +566,6 @@ class Msfcli
     end
 
     $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
-    require 'fastlib'
     require 'msfenv'
     require 'msf/ui'
     require 'msf/base'
@@ -547,7 +589,7 @@ class Msfcli
     end
 
     # Process special var/val pairs...
-    Msf::Ui::Common.process_cli_arguments(@framework, @args[:params])
+    Msf::Ui::Common.process_cli_arguments(framework, @args[:params])
 
     engage_mode(modules)
     $stdout.puts

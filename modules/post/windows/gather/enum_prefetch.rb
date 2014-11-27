@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Post
     print_prefetch_key_value
     print_timezone_key_values(key_value)
     print_good("Current UTC Time: %s" % Time.now.utc)
-    sys_root = expand_path("%SYSTEMROOT%")
+    sys_root = session.sys.config.getenv('SYSTEMROOT')
     full_path = sys_root + "\\Prefetch\\"
     file_type = "*.pf"
     print_status("Gathering information from remote system. This will take awhile..")

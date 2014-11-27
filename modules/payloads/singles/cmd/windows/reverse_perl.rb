@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -24,6 +24,7 @@ module Metasploit3
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
+      'RequiredCmd'   => 'perl',
       'Payload'       =>
         {
           'Offsets' => { },

@@ -64,29 +64,30 @@ LEV_3     = 3
 #
 # Architecture constants
 #
-ARCH_ANY    = '_any_'
-ARCH_X86    = 'x86'
-ARCH_X86_64 = 'x86_64'
-ARCH_X64    = 'x64' # To be used for compatability with ARCH_X86_64
-ARCH_MIPS   = 'mips'
-ARCH_MIPSLE = 'mipsle'
-ARCH_MIPSBE = 'mipsbe'
-ARCH_PPC    = 'ppc'
-ARCH_PPC64  = 'ppc64'
-ARCH_CBEA   = 'cbea'
-ARCH_CBEA64 = 'cbea64'
-ARCH_SPARC  = 'sparc'
-ARCH_CMD    = 'cmd'
-ARCH_PHP    = 'php'
-ARCH_TTY    = 'tty'
-ARCH_ARMLE  = 'armle'
-ARCH_ARMBE  = 'armbe'
-ARCH_JAVA   = 'java'
-ARCH_RUBY   = 'ruby'
-ARCH_DALVIK = 'dalvik'
-ARCH_PYTHON = 'python'
-ARCH_NODEJS = 'nodejs'
-ARCH_TYPES  =
+ARCH_ANY     = '_any_'
+ARCH_X86     = 'x86'
+ARCH_X86_64  = 'x86_64'
+ARCH_X64     = 'x64' # To be used for compatability with ARCH_X86_64
+ARCH_MIPS    = 'mips'
+ARCH_MIPSLE  = 'mipsle'
+ARCH_MIPSBE  = 'mipsbe'
+ARCH_PPC     = 'ppc'
+ARCH_PPC64   = 'ppc64'
+ARCH_CBEA    = 'cbea'
+ARCH_CBEA64  = 'cbea64'
+ARCH_SPARC   = 'sparc'
+ARCH_CMD     = 'cmd'
+ARCH_PHP     = 'php'
+ARCH_TTY     = 'tty'
+ARCH_ARMLE   = 'armle'
+ARCH_ARMBE   = 'armbe'
+ARCH_JAVA    = 'java'
+ARCH_RUBY    = 'ruby'
+ARCH_DALVIK  = 'dalvik'
+ARCH_PYTHON  = 'python'
+ARCH_NODEJS  = 'nodejs'
+ARCH_FIREFOX = 'firefox'
+ARCH_TYPES   =
   [
     ARCH_X86,
     ARCH_X86_64,
@@ -107,7 +108,8 @@ ARCH_TYPES  =
     ARCH_RUBY,
     ARCH_DALVIK,
     ARCH_PYTHON,
-    ARCH_NODEJS
+    ARCH_NODEJS,
+    ARCH_FIREFOX
   ]
 
 ARCH_ALL = ARCH_TYPES

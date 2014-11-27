@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 #
 # Meterpreter script to deploy & run the "plink" commandline ssh-client
 # supports only MS-Windows-2k/XP/Vista Hosts
@@ -87,7 +94,7 @@ def upload(client,file,trgloc = nil)
     raise "File to Upload does not exists!"
   else
     if trgloc == nil
-      location = client.fs.file.expand_path("%TEMP%")
+      location = client.sys.config.getenv('TEMP')
     else
       location = trgloc
     end

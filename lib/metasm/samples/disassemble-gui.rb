@@ -40,7 +40,7 @@ OptionParser.new { |opt|
   opt.on('--map <mapfile>', 'load a map file (addr <-> name association)') { |f| opts[:map] = f }
   opt.on('--fast', 'dasm cli args with disassemble_fast_deep') { opts[:fast] = true }
   opt.on('--decompile') { opts[:decompile] = true }
-  opt.on('--gui <gtk|win32|qt>') { |g| require 'metasm/gui/' + g }
+  opt.on('--gui <gtk|win32|qt>') { |g| ENV['METASM_GUI'] = g }
   opt.on('--cpu <cpu>', 'the CPU class to use for a shellcode (Ia32, X64, ...)') { |c| opts[:sc_cpu] = c }
   opt.on('--exe <exe_fmt>', 'the executable file format to use (PE, ELF, ...)') { |c| opts[:exe_fmt] = c }
   opt.on('--rebase <addr>', 'rebase the loaded file to <addr>') { |a| opts[:rebase] = Integer(a) }
@@ -49,6 +49,8 @@ OptionParser.new { |opt|
   opt.on('-v', '--verbose') { $VERBOSE = true }	# default
   opt.on('-q', '--no-verbose') { $VERBOSE = false }
   opt.on('-d', '--debug') { $DEBUG = $VERBOSE = true }
+  opt.on('-S <file>', '--session <sessionfile>', 'save user actions in this session file') { |a|  opts[:session] = a }
+  opt.on('-N', '--new-session', 'start new session, discard old one') { opts[:newsession] = true }
 }.parse!(ARGV)
 
 case exename = ARGV.shift
@@ -66,6 +68,8 @@ when /^(tcp:|udp:)?..+:/
 else
   w = Metasm::Gui::DasmWindow.new("#{exename + ' - ' if exename}metasm disassembler")
   if exename
+    opts[:sc_cpu] = eval(opts[:sc_cpu]) if opts[:sc_cpu] =~ /[.(\s:]/
+    opts[:exe_fmt] = eval(opts[:exe_fmt]) if opts[:exe_fmt] =~ /[.(\s:]/
     exe = w.loadfile(exename, opts[:sc_cpu], opts[:exe_fmt])
     exe.disassembler.rebase(opts[:rebase]) if opts[:rebase]
     if opts[:autoload]
@@ -73,6 +77,7 @@ else
       opts[:map] ||= basename + '.map' if File.exist?(basename + '.map')
       opts[:cheader] ||= basename + '.h' if File.exist?(basename + '.h')
       (opts[:plugin] ||= []) << (basename + '.rb') if File.exist?(basename + '.rb')
+      opts[:session] ||= basename + '.metasm-session'
     end
   end
 end
@@ -80,21 +85,46 @@ end
 ep = ARGV.map { |arg| (?0..?9).include?(arg[0]) ? Integer(arg) : arg }
 
 if exe
-  dasm = exe.init_disassembler
+  dasm = exe.disassembler
 
   dasm.load_map opts[:map] if opts[:map]
   dasm.parse_c_file opts[:cheader] if opts[:cheader]
   dasm.backtrace_maxblocks_data = -1 if opts[:nodatatrace]
   dasm.debug_backtrace = true if opts[:debugbacktrace]
-  dasm.disassemble_fast_deep(*ep) if opts[:fast]
   dasm.callback_finished = lambda { w.dasm_widget.focus_addr w.dasm_widget.curaddr, :decompile ; dasm.decompiler.finalize } if opts[:decompile]
+  dasm.disassemble_fast_deep(*ep) if opts[:fast]
 elsif dbg
   dbg.load_map opts[:map] if opts[:map]
-  opts[:plugin].to_a.each { |p| dbg.load_plugin(p) }
+  dbg.disassembler.parse_c_file opts[:cheader] if opts[:cheader]
+  opts[:plugin].to_a.each { |p|
+    begin
+      dbg.load_plugin(p)
+    rescue ::Exception
+      puts "Error with plugin #{p}: #{$!.class} #{$!}"
+    end
+  }
 end
 if dasm
   w.display(dasm, ep)
-  opts[:plugin].to_a.each { |p| dasm.load_plugin(p) }
+  opts[:plugin].to_a.each { |p|
+    begin
+      dasm.load_plugin(p)
+    rescue ::Exception
+      puts "Error with plugin #{p}: #{$!.class} #{$!}"
+    end
+  }
+
+  if opts[:session]
+    if File.exist?(opts[:session])
+      if opts[:newsession]
+        File.unlink(opts[:session])
+      else
+        puts "replaying session #{opts[:session]}"
+        w.widget.replay_session(opts[:session])
+      end
+    end
+    w.widget.save_session opts[:session]
+  end
 end
 
 opts[:hookstr].to_a.each { |f| eval f }

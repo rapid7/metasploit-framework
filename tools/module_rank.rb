@@ -13,7 +13,6 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
-require 'fastlib'
 require 'msfenv'
 
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
@@ -37,9 +36,6 @@ maxrank= 600
 sort = 0
 filter= 'All'
 filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
-ranks = ['Manual','Low','Average','Normal','Good','Great','Excellent']
-
-
 
 opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ],

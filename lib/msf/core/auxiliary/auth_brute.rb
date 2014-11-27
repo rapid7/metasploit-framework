@@ -20,8 +20,8 @@ module Auxiliary::AuthBrute
       OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
       OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
       OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
-      OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", true]),
-      OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", true]),
+      OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", false]),
+      OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
       OptBool.new('DB_ALL_CREDS', [false,"Try each user/password couple stored in the current database",false]),
       OptBool.new('DB_ALL_USERS', [false,"Add all users in the current database to the list",false]),
       OptBool.new('DB_ALL_PASS', [false,"Add all passwords in the current database to the list",false]),
@@ -48,6 +48,53 @@ module Auxiliary::AuthBrute
   def setup
     @@max_per_service = nil
   end
+
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing NTLMHashes
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_hashes(cred_collection)
+    if datastore['DB_ALL_CREDS'] && framework.db.active
+      creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' }, workspace_id: myworkspace.id)
+      creds.each do |cred|
+        cred_collection.prepend_cred(cred.to_credential)
+      end
+    end
+    cred_collection
+  end
+
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing SSHKeys
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_keys(cred_collection)
+    if datastore['DB_ALL_CREDS'] && framework.db.active
+      creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::SSHKey' }, workspace_id: myworkspace.id)
+      creds.each do |cred|
+        cred_collection.prepend_cred(cred.to_credential)
+      end
+    end
+    cred_collection
+  end
+
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing Password Credentials
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_passwords(cred_collection)
+    if datastore['DB_ALL_CREDS'] && framework.db.active
+      creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::Password' }, workspace_id: myworkspace.id)
+      creds.each do |cred|
+        cred_collection.prepend_cred(cred.to_credential)
+      end
+    end
+    cred_collection
+  end
+
+
 
   # Checks all three files for usernames and passwords, and combines them into
   # one credential list to apply against the supplied block. The block (usually
@@ -330,6 +377,9 @@ module Auxiliary::AuthBrute
     end
 
     creds = [ [], [], [], [] ] # userpass, pass, user, rest
+    remaining_pairs = combined_array.length # counter for our occasional output
+    interval = 60 # seconds between each remaining pair message reported to user
+    next_message_time = Time.now + interval # initial timing interval for user message
     # Move datastore['USERNAME'] and datastore['PASSWORD'] to the front of the list.
     # Note that we cannot tell the user intention if USERNAME or PASSWORD is blank --
     # maybe (and it's often) they wanted a blank. One more credential won't kill
@@ -344,6 +394,14 @@ module Auxiliary::AuthBrute
       else
         creds[3] << pair
       end
+      if Time.now > next_message_time
+        print_brute(
+          :level => :vstatus,
+          :msg => "Pair list is still building with #{remaining_pairs} pairs left to process"
+        )
+        next_message_time = Time.now + interval
+      end
+      remaining_pairs -= 1
     end
     return creds[0] + creds[1] + creds[2] + creds[3]
   end
