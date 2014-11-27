@@ -380,6 +380,10 @@ Once that's complete, rename your
 file to 'database.yml' and be sure to fill in at least the "development"
 and "test" sections.
 
+If you are going to be running specs the user for the test database will need to be able to create databaseswhich can be done by running the following psql command:
+
+`ALTER USER your_user WITH CREATEDB;`
+
 ## Start Metasploit
 
 Now that you have a source checkout of Metasploit and you have all your
