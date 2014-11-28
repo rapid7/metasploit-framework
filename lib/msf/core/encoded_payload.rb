@@ -125,6 +125,17 @@ class EncodedPayload
         self.encoder = encmod.new
         self.encoded = nil
 
+        # If the encoding is requested by an exploit check compatibility
+        # options first of all. For the 'generic/none' encoder compatibility
+        # options don't apply.
+        if (reqs['Exploit'] &&
+            !reqs['Exploit'].compatible?(self.encoder) &&
+            encname !~ /generic\/none/)
+          wlog("#{pinst.refname}: Encoder #{encoder.refname} doesn't match the exploit Compat options",
+            'core', LEV_1)
+          next
+        end
+
         # If there is an encoder type restriction, check to see if this
         # encoder matches with what we're searching for.
         if ((reqs['EncoderType']) and
@@ -143,6 +154,18 @@ class EncodedPayload
             (reqs['Encoder'].nil?) and
             (self.encoder.rank == ManualRanking))
           wlog("#{pinst.refname}: Encoder #{encoder.refname} is manual ranked and was not defined as a preferred encoder.",
+            'core', LEV_1)
+          next
+        end
+
+        # If the caller explictly requires register preservation, make sure
+        # that the module in question can handle it. This is mostly used by
+        # the stage encoder path.
+        if (reqs['ForceSaveRegisters'] and
+            reqs['EncoderOptions'] and
+            (reqs['EncoderOptions']['SaveRegisters'].to_s.length > 0) and
+            (! self.encoder.preserves_registers?))
+          wlog("#{pinst.refname}: Encoder #{encoder.refname} does not preserve registers and the caller needs #{reqs['EncoderOptions']['SaveRegisters']} preserved.",
             'core', LEV_1)
           next
         end
@@ -198,7 +221,7 @@ class EncodedPayload
 
           # Check to see if we have enough room for the minimum requirements
           if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
-            wlog("#{err_start}: Encoded payload version is too large with encoder #{encoder.refname}",
+            wlog("#{err_start}: Encoded payload version is too large (#{eout.length} bytes) with encoder #{encoder.refname}",
               'core', LEV_1)
             next_encoder = true
             break
@@ -213,12 +236,10 @@ class EncodedPayload
         self.encoded = eout
         break
       }
-
       # If the encoded payload is nil, raise an exception saying that we
       # suck at life.
       if (self.encoded == nil)
         self.encoder = nil
-
         raise NoEncodersSucceededError,
           "#{pinst.refname}: All encoders failed to encode.",
           caller
@@ -232,6 +253,7 @@ class EncodedPayload
 
     # Prefix the prepend encoder value
     self.encoded = (reqs['PrependEncoder'] || '') + self.encoded
+    self.encoded << (reqs['AppendEncoder'] || '')
   end
 
   #
@@ -390,6 +412,15 @@ class EncodedPayload
     return pinst.generate_war(opts) if pinst.respond_to? :generate_war
 
     Msf::Util::EXE.to_jsp_war(encoded_exe(opts), opts)
+  end
+
+  #
+  # An array containing the architecture(s) that this payload was made to run on
+  #
+  def arch
+    if pinst
+      pinst.arch
+    end
   end
 
   #

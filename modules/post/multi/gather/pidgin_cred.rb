@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -307,7 +307,7 @@ class Metasploit3 < Msf::Post
 
   def whoami
     if @platform == :windows
-      session.fs.file.expand_path("%USERNAME%")
+      session.sys.config.getenv('USERNAME')
     else
       session.shell_command("whoami").chomp
     end

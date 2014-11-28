@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'Typo3 Login Bruteforcer',
       'Description' => 'This module attempts to bruteforce Typo3 logins.',
-      'Author'      => [ 'Christian Mehlmauer <FireFart[at]gmail.com>' ],
+      'Author'      => [ 'Christian Mehlmauer' ],
       'License'     => MSF_LICENSE
     )
   end

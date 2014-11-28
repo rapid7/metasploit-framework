@@ -1,15 +1,34 @@
+env:
+  - RAKE_TASK=cucumber
+  - RAKE_TASK=cucumber:boot
+  - RAKE_TASK=spec SPEC_OPTS="--tag content"
+  - RAKE_TASK=spec SPEC_OPTS="--tag ~content"
+
 language: ruby
+matrix:
+  fast_finish: true
 before_install:
+  - rake --version
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpcap-dev
+  # Uncomment when we have fewer shipping msftidy warnings.
+  # Merge committers will still be checking, just not autofailing.
+  # See https://dev.metasploit.com/redmine/issues/8498
+  # - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+  # - ls -la ./.git/hooks
+  # - ./.git/hooks/post-merge
 before_script:
   - cp config/database.yml.travis config/database.yml
-  - rake db:create
-  - rake db:migrate
+  - bundle exec rake --version
+  - bundle exec rake db:create
+  - bundle exec rake db:migrate
+script:
+  # fail build if db/schema.rb update is not committed
+  - git diff --exit-code && bundle exec rake $RAKE_TASK
 
 rvm:
-  #- '1.8.7'
   - '1.9.3'
+  - '2.1'
 
 notifications:
   irc: "irc.freenode.org#msfnotify"

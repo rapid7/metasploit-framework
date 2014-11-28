@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
     paths = []
     services = []
     vuln = ""
-    @temp = session.fs.file.expand_path("%TEMP%")
+    @temp = session.sys.config.getenv('TEMP')
 
     if init_railgun() == :error
       return

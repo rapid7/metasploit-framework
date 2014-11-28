@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptAddress.new('SPOOFIP', [ true, "IP address with which to poison responses", "127.0.0.1"]),
-      OptString.new('REGEX', [ true, "Regex applied to the NB Name to determine if spoofed reply is sent", '.*']),
+      OptRegexp.new('REGEX', [ true, "Regex applied to the NB Name to determine if spoofed reply is sent", '.*']),
     ])
 
     register_advanced_options([
@@ -67,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 
     while @run # Not exactly thrilled we can never turn this off XXX fix this sometime.
       packet, addr = @sock.recvfrom(512)
+      src_port = addr[1]
       rhost = addr[3]
 
       break if packet.length == 0
@@ -127,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
         p.ip_daddr = rhost
         p.ip_ttl = 255
         p.udp_sport = 137
-        p.udp_dport = 137
+        p.udp_dport = src_port
         p.payload = response
         p.recalc
 

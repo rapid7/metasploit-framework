@@ -1,10 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex/proto/rfb'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/vnc'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -24,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'      =>
         [
-          'carstein <carstein.sec [at] gmail [dot] com>',
+          'carstein <carstein.sec[at]gmail.com>',
           'jduck'
         ],
       'References'     =>
@@ -36,6 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         Opt::RPORT(5900),
         OptString.new('PASSWORD', [ false, 'The password to test' ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
@@ -56,82 +59,47 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     print_status("#{ip}:#{rport} - Starting VNC login sweep")
 
-    begin
-      each_user_pass { |user, pass|
-        ret = nil
-        attempts = 5
-        attempts.times { |n|
-          ret = do_login(user, pass)
-          break if ret != :retry
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS']
+    )
 
-          delay = (2**(n+1)) + 1
-          vprint_status("Retrying in #{delay} seconds...")
-          select(nil, nil, nil, delay)
-        }
-        # If we tried all these attempts, and we still got a retry condition,
-        # we'll just give up.. Must be that nasty blacklist algorithm kicking
-        # our butt.
-        return :abort if ret == :retry
-        ret
-      }
-    rescue ::Rex::ConnectionError
-      nil
-    end
-  end
+    cred_collection = prepend_db_passwords(cred_collection)
 
-  def do_login(user, pass)
-    vprint_status("#{target_host}:#{rport} - Attempting VNC login with password '#{pass}'")
+    scanner = Metasploit::Framework::LoginScanner::VNC.new(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: datastore['ConnectTimeout'],
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
+    )
 
-    connect
-
-    begin
-      vnc = Rex::Proto::RFB::Client.new(sock, :allow_none => false)
-      if not vnc.handshake
-        vprint_error("#{target_host}:#{rport}, #{vnc.error}")
-        return :abort
-      end
-
-      ver = "#{vnc.majver}.#{vnc.minver}"
-      vprint_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
-      report_service(
-        :host => rhost,
-        :port => rport,
-        :proto => 'tcp',
-        :name => 'vnc',
-        :info => "VNC protocol version #{ver}"
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
       )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-      if not vnc.authenticate(pass)
-        vprint_error("#{target_host}:#{rport}, #{vnc.error}")
-        return :retry if vnc.error =~ /connection has been rejected/ # UltraVNC
-        return :retry if vnc.error =~ /Too many security failures/   # vnc4server
-        return :fail
+        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+      else
+        invalidate_login(credential_data)
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
-
-      print_good("#{target_host}:#{rport}, VNC server password : \"#{pass}\"")
-
-      access_type = "password"
-      #access_type = "view-only password" if vnc.view_only_mode
-      report_auth_info({
-        :host => rhost,
-        :port => rport,
-        :sname => 'vnc',
-        :pass => pass,
-        :type => access_type,
-        :duplicate_ok => true,
-        :source_type => "user_supplied",
-        :active => true
-      })
-      return :next_user
-
-    # For debugging only.
-    #rescue ::Exception
-    #	raise $!
-    #	print_error("#{$!}")
-
-    ensure
-      disconnect()
     end
+
   end
 
 end
