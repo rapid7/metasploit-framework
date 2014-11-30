@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -66,11 +66,11 @@ class Metasploit3 < Msf::Post
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
-        'Header'     => "Domain Computers",
-        'Indent'     => 1,
-        'SortIndex'  => -1,
-        'Columns'    => fields
-      )
+      'Header'     => "Domain Computers",
+      'Indent'     => 1,
+      'SortIndex'  => -1,
+      'Columns'    => fields
+    )
 
     # Hostnames holds DNS Names to Resolve
     hostnames = []
@@ -81,40 +81,37 @@ class Metasploit3 < Msf::Post
 
       report = {}
       0.upto(fields.length-1) do |i|
-        if result[i].nil?
-          field = ""
-        else
-          field = result[i]
+        field = result[i] || ""
 
-          # Only perform these actions if the database is connected and we want
-          # to store in the DB.
-          if db and datastore['STORE_DB']
-            case fields[i]
-            when 'dNSHostName'
-              dns = field
-              report[:name] = dns
-              hostnames << dns
-            when 'operatingSystem'
-              os = field
-              index = os.index(/windows/i)
-              if index
-                name = 'Microsoft Windows'
-                flavour = os[index..-1]
-                report[:os_name] = name
-                report[:os_flavor] = flavour
-              else
-                # Incase there are non-windows domain computers?!
-                report[:os_name] = os
-              end
-            when 'distinguishedName'
-              if field =~ /Domain Controllers/i
-                report[:purpose] = "DC"
-              end
-            when 'operatingSystemServicePack'
-              report[:os_sp] = field
-            when 'description'
-              report[:info] = field
+        # Only perform these actions if the database is connected and we want
+        # to store in the DB.
+        if db && datastore['STORE_DB']
+          case fields[i]
+          when 'dNSHostName'
+            dns = field
+            report[:name] = dns
+            hostnames << dns
+          when 'operatingSystem'
+            report[:os_name] = field
+          when 'distinguishedName'
+            if field =~ /Domain Controllers/i
+              # TODO: Find another way to mark a host as being a domain controller
+              #       The 'purpose' field should be server, client, device, printer, etc
+              #report[:purpose] = "DC"
+              report[:purpose] = "server"
             end
+          when 'operatingSystemServicePack'
+            # XXX: Does this take into account the leading 'SP' string?
+
+            if field.to_i > 0
+              report[:os_sp] = 'SP' + field
+            end
+            if field =~ /(Service Pack|SP)\s?(\d+)/
+              report[:os_sp] = 'SP' + $2
+            end
+
+          when 'description'
+            report[:info] = field
           end
         end
 
@@ -125,7 +122,7 @@ class Metasploit3 < Msf::Post
       results_table << row
     end
 
-    if db and datastore['STORE_DB']
+    if db && datastore['STORE_DB']
       print_status("Resolving IP addresses...")
       ip_results = client.net.resolve.resolve_hosts(hostnames, AF_INET)
 

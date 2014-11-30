@@ -26,7 +26,7 @@ class Wmi
   # @param root [String] Specify root to target, otherwise defaults
   #   to 'root\cimv2'
   #
-  # @returns [Hash] Array of field names with associated values.
+  # @return [Hash] Array of field names with associated values.
   #
   def query(query, root = nil)
     request = Packet.create_request('extapi_wmi_query')

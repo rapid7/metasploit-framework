@@ -20,6 +20,7 @@ class OptBase
   # attrs[1] = description (string)
   # attrs[2] = default value
   # attrs[3] = possible enum values
+  # attrs[4] = Regex to validate the option
   #
   def initialize(in_name, attrs = [])
     self.name     = in_name
@@ -29,6 +30,21 @@ class OptBase
     self.desc     = attrs[1]
     self.default  = attrs[2]
     self.enums    = [ *(attrs[3]) ].map { |x| x.to_s }
+    regex_temp    = attrs[4] || nil
+    if regex_temp
+      # convert to string
+      regex_temp = regex_temp.to_s if regex_temp.is_a? Regexp
+      # remove start and end character, they will be added later
+      regex_temp = regex_temp.sub(/^\^/, '').sub(/\$$/, '')
+      # Add start and end marker to match the whole regex
+      regex_temp = "^#{regex_temp}$"
+      begin
+        Regexp.compile(regex_temp)
+        self.regex = regex_temp
+      rescue RegexpError, TypeError => e
+        raise("Invalid Regex #{regex_temp}: #{e}")
+      end
+    end
   end
 
   #
@@ -63,7 +79,18 @@ class OptBase
   # If it's required and the value is nil or empty, then it's not valid.
   #
   def valid?(value)
-    return (required? and (value == nil or value.to_s.empty?)) ? false : true
+    if required?
+      # required variable not set
+      return false if (value == nil or value.to_s.empty?)
+    end
+    if regex
+      if value.match(regex)
+        return true
+      else
+        return false
+      end
+    end
+    return true
   end
 
   #
@@ -125,6 +152,10 @@ class OptBase
   # The list of potential valid values
   #
   attr_accessor :enums
+  #
+  # A optional regex to validate the option value
+  #
+  attr_accessor :regex
 
 protected
 

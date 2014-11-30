@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -33,7 +33,7 @@ module Metasploit3
         Apache but it might work on other web servers
         that leak file descriptors to child processes.
         },
-      'Author'        => [ 'egypt <egypt@metasploit.com>' ],
+      'Author'        => [ 'egypt' ],
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
       'Handler'       => Msf::Handler::FindShell,

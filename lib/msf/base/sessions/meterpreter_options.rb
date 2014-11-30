@@ -59,6 +59,12 @@ module MeterpreterOptions
       end
     end
 
+    if session.platform =~ /android/i
+      if datastore['AutoLoadAndroid']
+        session.load_android
+      end
+    end
+
     [ 'InitialAutoRunScript', 'AutoRunScript' ].each do |key|
       if (datastore[key].empty? == false)
         args = Shellwords.shellwords( datastore[key] )

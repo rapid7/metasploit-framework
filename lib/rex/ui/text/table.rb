@@ -275,9 +275,9 @@ protected
         nameline << pad(' ', last_col, last_idx)
 
         remainder = colprops[last_idx]['MaxWidth'] - last_col.length
-      if (remainder < 0)
-        remainder = 0
-      end
+        if (remainder < 0)
+          remainder = 0
+        end
         barline << (' ' * (cellpad + remainder))
       end
       nameline << col
@@ -305,7 +305,7 @@ protected
     last_cell = nil
     last_idx = nil
     row.each_with_index { |cell, idx|
-      if (last_cell)
+      if (idx != 0)
         line << pad(' ', last_cell.to_s, last_idx)
       end
       # line << pad(' ', cell.to_s, idx)

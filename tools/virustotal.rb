@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -34,7 +34,6 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', 'lib')))
-require 'fastlib'
 require 'msfenv'
 require 'rex'
 require 'msf/core'

