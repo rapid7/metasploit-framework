@@ -283,6 +283,12 @@ if __FILE__ == $0
 
   if generator_opts[:list_options]
     payload_mod = framework.payloads.create(generator_opts[:payload])
+
+    if payload_mod.nil?
+      $stderr.puts "Invalid payload: #{generator_opts[:payload]}"
+      exit
+    end
+
     $stderr.puts "Options for #{payload_mod.fullname}\n\n" + ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
     exit(0)
   end
@@ -294,6 +300,7 @@ if __FILE__ == $0
     venom_generator =  Msf::PayloadGenerator.new(generator_opts)
     payload = venom_generator.generate_payload
   rescue ::Exception => e
+    elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
     $stderr.puts e.message
   end
 

@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
         Net::SSH.start(ip, user, opt_hash)
       end
-    rescue Rex::ConnectionError, Rex::AddressInUse
+    rescue Rex::ConnectionError
       return :connection_error
     rescue Net::SSH::Disconnect, ::EOFError
       return :success

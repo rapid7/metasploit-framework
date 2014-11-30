@@ -7,15 +7,11 @@ require 'spec_helper'
 require 'support/shared/contexts/msf/util/exe'
 
 describe Msf::Util::EXE do
+  include_context 'Msf::Simple::Framework#modules loading'
 
   subject do
     described_class
   end
-
-  $framework = Msf::Simple::Framework.create(
-    :module_types => [ Msf::MODULE_NOP ],
-    'DisableDatabase' => true
-  )
 
   describe '.win32_rwx_exec' do
     it "should contain the shellcode" do
@@ -32,7 +28,7 @@ describe Msf::Util::EXE do
 
   describe '.to_executable_fmt' do
     it "should output nil when given a bogus format" do
-      bin = subject.to_executable_fmt($framework, "", "", "", "does not exist", {})
+      bin = subject.to_executable_fmt(framework, "", "", "", "does not exist", {})
 
       bin.should == nil
     end
@@ -41,21 +37,34 @@ describe Msf::Util::EXE do
 
     @platform_format_map.each do |plat, formats|
       context "with platform=#{plat}" do
+        if plat == 'windows'
+          before(:each) do
+            load_and_create_module(
+                module_type: 'encoder',
+                reference_name: 'x86/shikata_ga_nai'
+            )
+            load_and_create_module(
+                module_type: 'nop',
+                reference_name: 'x86/opty2'
+            )
+          end
+        end
+
         let(:platform) do
           Msf::Module::PlatformList.transform(plat)
         end
 
         it "should output nil when given bogus format" do
-          bin = subject.to_executable_fmt($framework, formats.first[:arch], platform, "\xcc", "asdf", {})
+          bin = subject.to_executable_fmt(framework, formats.first[:arch], platform, "\xcc", "asdf", {})
           bin.should == nil
         end
         it "should output nil when given bogus arch" do
-          bin = subject.to_executable_fmt($framework, "asdf", platform, "\xcc", formats.first[:format], {})
+          bin = subject.to_executable_fmt(framework, "asdf", platform, "\xcc", formats.first[:format], {})
           bin.should == nil
         end
         [ ARCH_X86, ARCH_X64, ARCH_X86_64, ARCH_PPC, ARCH_MIPSLE, ARCH_MIPSBE, ARCH_ARMLE ].each do |arch|
           it "returns nil when given bogus format for arch=#{arch}" do
-            bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", "asdf", {})
+            bin = subject.to_executable_fmt(framework, arch, platform, "\xcc", "asdf", {})
           end
         end
 
@@ -69,7 +78,7 @@ describe Msf::Util::EXE do
           end
 
           it "returns an executable when given arch=#{arch}, fmt=#{fmt}" do
-            bin = subject.to_executable_fmt($framework, arch, platform, "\xcc", fmt, {})
+            bin = subject.to_executable_fmt(framework, arch, platform, "\xcc", fmt, {})
             bin.should be_a String
 
             verify_bin_fingerprint(format_hash, bin)

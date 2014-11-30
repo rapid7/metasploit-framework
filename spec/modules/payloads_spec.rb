@@ -2150,6 +2150,15 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/exec'
   end
 
+  context 'windows/format_all_drives' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                              'singles/windows/format_all_drives'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/format_all_drives'
+  end
+
   context 'windows/loadlibrary' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [

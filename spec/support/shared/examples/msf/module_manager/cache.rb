@@ -153,6 +153,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     context 'with module info in cache' do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
       let(:module_info_by_path) do
         {
             'path/to/module' => {

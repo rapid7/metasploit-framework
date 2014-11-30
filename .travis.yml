@@ -5,6 +5,8 @@ env:
   - RAKE_TASK=spec SPEC_OPTS="--tag ~content"
 
 language: ruby
+matrix:
+  fast_finish: true
 before_install:
   - rake --version
   - sudo apt-get update -qq
@@ -20,7 +22,9 @@ before_script:
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
-script: "bundle exec rake $RAKE_TASK"
+script:
+  # fail build if db/schema.rb update is not committed
+  - git diff --exit-code && bundle exec rake $RAKE_TASK
 
 rvm:
   - '1.9.3'

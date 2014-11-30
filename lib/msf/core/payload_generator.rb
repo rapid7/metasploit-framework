@@ -308,12 +308,14 @@ module Msf
       if encoder.present?
         # Allow comma seperated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
-          encoders << framework.encoders.create(chosen_encoder)
+          e = framework.encoders.create(chosen_encoder)
+          encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif badchars.present?
         framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
-          encoders << framework.encoders.create(name)
+          e = framework.encoders.create(name)
+          encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       else
