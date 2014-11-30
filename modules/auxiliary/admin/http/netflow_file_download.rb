@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI',
           [ true, "The base path to NetFlow Analyzer", '/netflow' ]),
-        OptString.new('FILEPATH', [false, 'Path of the file to download', '/etc/passwd']),
+        OptString.new('FILEPATH', [false, 'Path of the file to download (escape Windows paths with 4 back slashes)', '/etc/passwd']),
       ], self.class)
   end
 
