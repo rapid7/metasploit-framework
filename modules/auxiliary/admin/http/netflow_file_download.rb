@@ -12,18 +12,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "ManageEngine NetFlow Analyzer Arbitrary File Download",
+      'Name'           => 'ManageEngine NetFlow Analyzer Arbitrary File Download',
       'Description'    => %q{
-          This module exploits an arbitrary file download vulnerability in CSVServlet
-          on ManageEngine NetFlow Analyzer.
-          This module has been tested on both Windows and Linux with versions 8.6 to 10.2.
-          Windows paths have to be escaped with 4 backslashes on the command line.
+        This module exploits an arbitrary file download vulnerability in CSVServlet
+        on ManageEngine NetFlow Analyzer. This module has been tested on both Windows
+        and Linux with versions 8.6 to 10.2. Windows paths have to be escaped with 4
+        backslashes on the command line.
       },
-      'Author'       =>
+      'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Vulnerability Discovery and Metasploit module
         ],
-      'License'     => MSF_LICENSE,
+      'License'        => MSF_LICENSE,
       'References'     =>
         [
           [ 'CVE', '2014-5445' ],
