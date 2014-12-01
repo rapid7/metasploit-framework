@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri' => normalize_uri(datastore['TARGETURI'], 'servlet', 'CSVServlet'),
         'vars_get' => { 'schFilePath' => datastore['FILEPATH'] },
       })
-    rescue Rex::ConnectionRefused
+    rescue Rex::ConnectionError
       print_error("#{peer} - Could not connect.")
       return
     end
