@@ -62,13 +62,12 @@ module Framework
       Msf::MODULE_POST    => Msf::Simple::Post,
     }
 
-  #
   # Create a simplified instance of the framework.  This routine takes a hash
   # of parameters as an argument.  This hash can contain:
   #
-  #   OnCreateProc => A callback procedure that is called once the framework
-  #   instance is created.
-  #
+  # @param opts [Hash{String => Object}]
+  # @option opts (see simplify)
+  # @return [Msf::Simple::Frameworkt s]
   def self.create(opts = {})
     framework = Msf::Framework.new(opts)
     return simplify(framework, opts)
