@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
         res.body,
         fname
       )
-      print_good("File saved in: #{path}")
+      print_good("#{peer} - File saved in: #{path}")
     else
       print_error("#{peer} - Failed to download file.")
     end
