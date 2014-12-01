@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{peer} - Attempting to download: #{datastore['RELATIVE_FILE_PATH']}")
+    vprint_status("#{peer} - Attempting to download: #{datastore['RELATIVE_FILE_PATH']}")
 
     traversal = "..\\" * datastore['TRAVERSAL_DEPTH']
     res = send_request_raw({
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
       )
       print_good("#{peer} - File saved in: #{path}")
     else
-      print_error("#{peer} - Nothing was downloaded")
+      vprint_error("#{peer} - Nothing was downloaded")
     end
   end
 end
