@@ -7,9 +7,9 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
