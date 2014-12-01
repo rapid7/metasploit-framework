@@ -163,10 +163,10 @@ module ReverseTcp
         begin
           if datastore['ReverseListenerThreaded']
             self.conn_threads << framework.threads.spawn("ReverseTcpHandlerSession-#{local_port}-#{client.peerhost}", false, client) { | client_copy|
-              handle_connection(wrap_aes_socket(client_copy))
+              handle_connection(wrap_aes_socket(client_copy), { datastore: datastore })
             }
           else
-            handle_connection(wrap_aes_socket(client))
+            handle_connection(wrap_aes_socket(client), { datastore: datastore })
           end
         rescue ::Exception
           elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
