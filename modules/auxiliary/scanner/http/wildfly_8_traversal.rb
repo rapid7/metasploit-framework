@@ -58,8 +58,6 @@ class Metasploit3 < Msf::Auxiliary
       'uri'    => "/#{traversal}\\#{datastore['FILEPATH']}"
     }, 25)
 
-    print_status("Server returns HTTP code: #{res.code.to_s}")
-
     if res && res.code == 200
       vprint_line(res.to_s)
       fname = File.basename(datastore['FILEPATH'])
