@@ -33,15 +33,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new("FILEPATH", [true, 'Full path to the file to read', 'standalone\\configuration\\standalone.xml'])
-      ], self.class)
-
-    register_advanced_options(
-      [
+        OptString.new("FILEPATH", [true, 'Full path to the file to read', 'standalone\\configuration\\standalone.xml']),
         OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 1])
       ], self.class)
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)
