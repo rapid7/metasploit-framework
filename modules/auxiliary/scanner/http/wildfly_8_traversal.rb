@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => "/#{traversal}\\#{datastore['FILEPATH']}"
-    }, 25)
+    },)
 
     if res && res.code == 200
       vprint_line(res.to_s)
