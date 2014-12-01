@@ -74,9 +74,18 @@ module Framework
     return simplify(framework, opts)
   end
 
+  # @note If `opts['ConfigDirectory']` is set, then `Msf::Config::Defaults['ConfigDirectory']` will be updated to
+  #   `opts['ConfigDirectory']`.
   #
   # Extends a framework object that may already exist.
   #
+  # @param framework [Msf::Framework, Msf::Simple::Framework] framework to simplify
+  # @param opts [Hash{String => Object}]
+  # @option opts [#call] 'OnCreateProc' Proc to call after {#init_simplified}.  Will be passed `framework`.
+  # @option opts [String] 'ConfigDirectory'  Directory where configuration is saved.  The `~/.msf4` directory.
+  # @option opts [Boolean] 'DisableLogging' (false) `true` to disable `Msf::Logging.init`
+  # @option opts [Boolean] 'DeferModuleLoads' (false) `true` to disable `framework.init_module_paths`.
+  # @return [Msf::Simple::Framework] `framework`
   def self.simplify(framework, opts)
 
     # If the framework instance has not already been extended, do it now.
