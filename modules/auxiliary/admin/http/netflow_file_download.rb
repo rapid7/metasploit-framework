@@ -38,18 +38,12 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI',
           [ true, "The base path to NetFlow Analyzer", '/netflow' ]),
-        OptString.new('FILEPATH', [false, 'Path of the file to download (escape Windows paths with 4 back slashes)', '/etc/passwd']),
+        OptString.new('FILEPATH', [true, 'Path of the file to download (escape Windows paths with 4 back slashes)', '/etc/passwd']),
       ], self.class)
   end
 
 
   def run
-    # No point to continue if filepath is not specified
-    if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
-      print_error("Please supply the path of the file you want to download.")
-      return
-    end
-
     # Create request
     begin
       print_status("#{peer} - Downloading file #{datastore['FILEPATH']}")
