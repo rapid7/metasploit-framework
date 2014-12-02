@@ -26,8 +26,8 @@ module Metasploit3
 
     register_options(
       [
-        OptString.new('PROXY_HOST', [ false, "The address of an http proxy to use", "" ]),
-        OptInt.new('PROXY_PORT',    [ false, "The Proxy port to connect to", 8080 ])
+        OptString.new('PROXY_HOST', [true, "The proxy server's IP address", "127.0.0.1"]),
+        OptPort.new('PROXY_PORT', [true, "The proxy port to connect to", 8080 ]),
       ], Msf::Handler::ReverseHttp)
   end
 
