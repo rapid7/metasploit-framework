@@ -698,7 +698,9 @@ def stdapi_sys_config_getsid(request, response):
 
 @meterpreter.register_function
 def stdapi_sys_config_getuid(request, response):
-	if has_windll:
+	if has_pwd:
+		username = pwd.getpwuid(os.getuid()).pw_name
+	elif has_windll:
 		token = get_token_user(ctypes.windll.kernel32.GetCurrentProcess())
 		if not token:
 			return ERROR_FAILURE, response
