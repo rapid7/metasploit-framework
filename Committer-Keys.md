@@ -2,6 +2,7 @@ This page lists the keys in use by [Metasploit committers](https://github.com/ra
 
 | Account | E-mail | Gist | MIT |
 | ---------- | ------ | ------------ | ------- |
+| [@bcook-r7](https://github.com/bcook-r7) |bcook@rapid7.com | [D5E4D8D5](https://gist.github.com/bcook-r7/51ea7598ce6780d2aadd) | [0x663AF51BD5E4D8D5](http://pgp.mit.edu/pks/lookup?op=get&search=0x663AF51BD5E4D8D5) |
 | [@FireFart](https://github.com/FireFart) |firefart@gmail.com | [66BC32C7](https://gist.github.com/FireFart/093da40e1130d79a737a) | [0xBCFF4FA966BC32C7](http://pgp.mit.edu/pks/lookup?op=vindex&search=0xBCFF4FA966BC32C7) |
 | [@jlee-r7](https://github.com/jlee-r7) | egypt@metasploit.com | [CEA0A321](https://gist.github.com/jlee-r7/7321405) | [0x2d6094c7cea0a321](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2d6094c7cea0a321) |
 | [@jhart-r7](https://github.com/jhart-r7) | jon_hart@rapid7.com | [AFA8E9D3](https://gist.github.com/jhart-r7/f4bb98f4cb6540462cfd) | [0x2FA9F0A3AFA8E9D3](http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x2FA9F0A3AFA8E9D3) |
