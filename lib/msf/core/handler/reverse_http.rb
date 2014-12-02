@@ -158,6 +158,7 @@ module ReverseHttp
       'VirtualDirectory' => true)
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
+    lookup_proxy_settings
   end
 
   #
@@ -174,6 +175,43 @@ module ReverseHttp
   attr_accessor :service # :nodoc:
 
 protected
+
+  #
+  # Parses the proxy settings and returns a hash
+  #
+  def lookup_proxy_settings
+    info = {}
+    return @proxy_settings if @proxy_settings
+
+    if datastore['PROXY_HOST'].to_s == ""
+      @proxy_settings = info
+      return @proxy_settings
+    end
+
+    info[:host] = datastore['PROXY_HOST'].to_s
+    info[:port] = (datastore['PROXY_PORT'] || 8080).to_i
+    info[:type] = datastore['PROXY_TYPE'].to_s
+
+    if info[:port] == 80
+      info[:info] = info[:host]
+    else
+      info[:info] = "#{info[:host]}:#{info[:port]}"
+    end
+
+    if info[:type] == "HTTP"
+      info[:info] = "http://#{info[:info]}"
+      if datastore['PROXY_USERNAME'].to_s != ""
+        info[:username] = datastore['PROXY_USERNAME'].to_s
+      end
+      if datastore['PROXY_PASSWORD'].to_s != ""
+        info[:password] = datastore['PROXY_PASSWORD'].to_s
+      end
+    else
+      info[:info] = "socks=#{info[:info]}"
+    end
+
+    @proxy_settings = info
+  end
 
   #
   # Parses the HTTPS request
@@ -204,9 +242,8 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
-        unless datastore['PROXY_HOST'].blank?
-          proxy_url = "http://#{datastore['PROXY_HOST']}:#{datastore['PROXY_PORT']}"
-          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
+        if @proxy_settings[:host] && @proxy_settings[:type] == "HTTP"
+          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(@proxy_settings[:info])}'")
         end
 
         resp.body = blob
@@ -268,38 +305,21 @@ protected
         end
 
         # Activate a custom proxy
-        i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-        if i
-          if datastore['PROXY_HOST']
-            if datastore['PROXY_HOST'].to_s != ""
-              proxyhost = datastore['PROXY_HOST'].to_s
-              proxyport = datastore['PROXY_PORT'].to_s || "8080"
-              proxyinfo = proxyhost + ":" + proxyport
-              if proxyport == "80"
-                proxyinfo = proxyhost
-              end
-              if datastore['PROXY_TYPE'].to_s == 'HTTP'
-                proxyinfo = 'http://' + proxyinfo
-              else #socks
-                proxyinfo = 'socks=' + proxyinfo
-              end
-              proxyinfo << "\x00"
-              blob[i, proxyinfo.length] = proxyinfo
-              print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
-              #Optional authentification
-              unless (datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
-                (datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
-                datastore['PROXY_TYPE'] == 'SOCKS'
+        if blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00") && @proxy_settings[:info]
+          proxy_info = @proxy_settings[:info] + "\x00"
 
-                proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-                proxy_username = datastore['PROXY_USERNAME'] << "\x00"
-                blob[proxy_username_loc, proxy_username.length] = proxy_username
+          blob[i, proxy_info.length] = proxy_info
+          print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
 
-                proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-                proxy_password = datastore['PROXY_PASSWORD'] << "\x00"
-                blob[proxy_password_loc, proxy_password.length] = proxy_password
-              end
-            end
+          # Optional authentication
+          if @proxy_settings[:username] && @proxy_settings[:password]
+            proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+            proxy_username = @proxy_settings[:username] + "\x00"
+            blob[proxy_username_loc, proxy_username.length] = proxy_username
+
+            proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+            proxy_password = @proxy_settings[:password] + "\x00"
+            blob[proxy_password_loc, proxy_password.length] = proxy_password
           end
         end
 
