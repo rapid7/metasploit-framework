@@ -1,0 +1,5 @@
+require 'rex/java/serialization/model/element'
+require 'rex/java/serialization/model/end_block_data'
+require 'rex/java/serialization/model/null_reference'
+require 'rex/java/serialization/model/utf'
+require 'rex/java/serialization/model/field'
