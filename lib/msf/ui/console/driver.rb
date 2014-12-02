@@ -59,7 +59,10 @@ class Driver < Msf::Ui::Driver
     histfile = opts['HistFile'] || Msf::Config.history_file
 
     # Initialize attributes
-    self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
+
+    # Defer loading of modules until paths from opts can be added below
+    framework_create_options = {'DeferModuleLoads' => true}.merge(opts)
+    self.framework = opts['Framework'] || Msf::Simple::Framework.create(framework_create_options)
 
     if self.framework.datastore['Prompt']
       prompt = self.framework.datastore['Prompt']
