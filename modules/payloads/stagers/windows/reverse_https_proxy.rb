@@ -93,12 +93,12 @@ module Metasploit3
     else #socks
       proxyinfo = 'socks=' + proxyinfo
     end
-    proxyloc = p.index("PROXY_HOST:PORT")
-    p = p.gsub("PROXY_HOST:PORT",proxyinfo)
 
-    # patch the call
-    calloffset = proxyinfo.length
-    calloffset += 1
+    proxyloc = p.index("PROXYHOST:PORT")
+    p = p.gsub("PROXYHOST:PORT",proxyinfo)
+
+    # Patch the call
+    calloffset = proxyinfo.length + 1
     p[proxyloc-4] = [calloffset].pack('V')[0]
 
     # Authentication credentials have not been specified
