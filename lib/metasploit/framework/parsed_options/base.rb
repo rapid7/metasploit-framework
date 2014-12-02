@@ -85,6 +85,7 @@ class Metasploit::Framework::ParsedOptions::Base
       options.framework.config = nil
 
       options.modules = ActiveSupport::OrderedOptions.new
+      options.modules.defer_loads = false
       options.modules.path = nil
 
       @options = options
@@ -154,6 +155,13 @@ class Metasploit::Framework::ParsedOptions::Base
 
       option_parser.separator ''
       option_parser.separator 'Module options'
+
+      option_parser.on(
+          '--defer-module-loads',
+          'Defer module loading unless explicitly asked.'
+      ) do
+        options.modules.defer_loads = true
+      end
 
       option_parser.on(
           '-m',
