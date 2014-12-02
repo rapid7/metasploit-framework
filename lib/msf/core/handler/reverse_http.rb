@@ -58,18 +58,12 @@ module ReverseHttp
       ], Msf::Handler::ReverseHttp)
   end
 
-  # Toggle for IPv4 vs IPv6 mode
-  #
-  def ipv6?
-    Rex::Socket.is_ipv6?(datastore['LHOST'])
-  end
-
   # Determine where to bind the server
   #
   # @return [String]
   def listener_address
-    if datastore['ReverseListenerBindAddress'].to_s.empty?
-      bindaddr = (ipv6?) ? '::' : '0.0.0.0'
+    if datastore['ReverseListenerBindAddress'].to_s == ""
+      bindaddr = Rex::Socket.is_ipv6?(datastore['LHOST']) ? '::' : '0.0.0.0'
     else
       bindaddr = datastore['ReverseListenerBindAddress']
     end
@@ -77,14 +71,12 @@ module ReverseHttp
     bindaddr
   end
 
+  # Return a URI suitable for placing in a payload
+  #
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
-    if ipv6?
-      listen_host = "[#{listener_address}]"
-    else
-      listen_host = listener_address
-    end
-    "#{scheme}://#{listen_host}:#{datastore['LPORT']}/"
+    uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
+    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -95,13 +87,13 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def payload_uri(req)
     if req and req.headers and req.headers['Host'] and not datastore['OverrideRequestHost']
-      callback_host = req.headers['Host']
-    elsif ipv6?
-      callback_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
+      uri_host = req.headers['Host']
+    elsif Rex::Socket.is_ipv6?(datastore['LHOST'])
+      uri_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
     else
-      callback_host = "#{datastore['LHOST']}:#{datastore['LPORT']}"
+      uri_host = "#{datastore['LHOST']}:#{datastore['LPORT']}"
     end
-    "#{scheme}://#{callback_host}/"
+    "#{scheme}://#{uri_host}/"
   end
 
   # Use the {#refname} to determine whether this handler uses SSL or not
@@ -192,13 +184,17 @@ protected
     info[:port] = (datastore['PROXY_PORT'] || 8080).to_i
     info[:type] = datastore['PROXY_TYPE'].to_s
 
-    if info[:port] == 80
-      info[:info] = info[:host]
-    else
-      info[:info] = "#{info[:host]}:#{info[:port]}"
+    uri_host = info[:host]
+
+    if Rex::Socket.is_ipv6?(uri_host)
+      uri_host = "[#{info[:host]}]"
     end
 
-    if info[:type] == "HTTP"
+    info[:info] = "#{uri_host}:#{info[:port]}"
+
+    if info[:type] == "SOCKS"
+      info[:info] = "socks=#{info[:info]}"
+    else
       info[:info] = "http://#{info[:info]}"
       if datastore['PROXY_USERNAME'].to_s != ""
         info[:username] = datastore['PROXY_USERNAME'].to_s
@@ -206,8 +202,6 @@ protected
       if datastore['PROXY_PASSWORD'].to_s != ""
         info[:password] = datastore['PROXY_PASSWORD'].to_s
       end
-    else
-      info[:info] = "socks=#{info[:info]}"
     end
 
     @proxy_settings = info
@@ -242,7 +236,7 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
-        if @proxy_settings[:host] && @proxy_settings[:type] == "HTTP"
+        if @proxy_settings[:host]
           blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(@proxy_settings[:info])}'")
         end
 
