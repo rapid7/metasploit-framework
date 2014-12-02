@@ -12,7 +12,7 @@ module Rex
           #   @return [String] the contents of the string
           attr_accessor :contents
 
-          # Userializes a Java::Serialization::Model::Utf
+          # Unserializes a Java::Serialization::Model::Utf
           #
           # @param io [IO] the io to read from
           # @return [Java::Serialization::Model::Utf] if deserialization is possible
@@ -29,7 +29,7 @@ module Rex
             self.length = contents.length
           end
 
-          # Userializes a Java::Serialization::Model::Utf
+          # Unserializes a Java::Serialization::Model::Utf
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization is possible
