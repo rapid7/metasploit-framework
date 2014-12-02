@@ -53,6 +53,10 @@ class Module
   include Msf::Module::UI
   include Msf::Module::UUID
 
+  # The key where a comma-separated list of Ruby module names will live in the
+  # datastore, consumed by #replicant to allow clean override of MSF module methods.
+  REPLICANT_EXTENSION_DS_KEY = 'ReplicantExtensions'
+
   # Make include public so we can runtime extend
   public_class_method :include
 
@@ -142,7 +146,6 @@ class Module
   # Creates a fresh copy of an instantiated module
   #
   def replicant
-
     obj = self.class.new
     self.instance_variables.each { |k|
       v = instance_variable_get(k)
@@ -154,7 +157,32 @@ class Module
     obj.user_input   = self.user_input
     obj.user_output  = self.user_output
     obj.module_store = self.module_store.clone
+
+    obj.perform_extensions
     obj
+  end
+
+  # Extends self with the constant list in the datastore
+  # @return [void]
+  def perform_extensions
+    if datastore[REPLICANT_EXTENSION_DS_KEY].present?
+      if datastore[REPLICANT_EXTENSION_DS_KEY].respond_to?(:each)
+        datastore[REPLICANT_EXTENSION_DS_KEY].each do |const|
+          self.extend(const)
+        end
+      else
+        fail "Invalid settings in datastore at key #{REPLICANT_EXTENSION_DS_KEY}"
+      end
+    end
+  end
+
+  # @param[Constant] One or more Ruby constants
+  # @return [void]
+  def register_extensions(*rb_modules)
+    datastore[REPLICANT_EXTENSION_DS_KEY] = [] unless datastore[REPLICANT_EXTENSION_DS_KEY].present?
+    rb_modules.each do |rb_mod|
+      datastore[REPLICANT_EXTENSION_DS_KEY] << rb_mod unless datastore[REPLICANT_EXTENSION_DS_KEY].include? rb_mod
+    end
   end
 
   #
