@@ -34,17 +34,6 @@ module Rex
           #   @return [Java::Serialization::Model::Utf] The type of the field on object types.
           attr_accessor :field_type
 
-          # Unserializes a Java::Serialization::Field
-          #
-          # @param io [IO] the io to read from
-          # @return [Java::Serialization::Model::Field] if deserialization is possible
-          # @return [nil] if deserialization isn't possible
-          def self.decode(io)
-            elem = self.new
-
-            elem.decode(io)
-          end
-
           def initialize
             self.type = ''
             self.name = nil

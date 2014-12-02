@@ -90,43 +90,4 @@ describe Rex::Java::Serialization::Model::Field do
       end
     end
   end
-
-  describe ".decode" do
-    context "when stream contains a primitive field" do
-      it "returns a Rex::Java::Serialization::Model::Field" do
-        expect(described_class.decode(sample_primitive_io)).to be_a(Rex::Java::Serialization::Model::Field)
-      end
-
-      it "decodes field type" do
-        field = described_class.decode(sample_primitive_io)
-        expect(field.type).to eq('integer')
-      end
-
-      it "decodes field name as Utf" do
-        field = described_class.decode(sample_primitive_io)
-        expect(field.name.contents).to eq('number')
-      end
-    end
-
-    context "when stream contains an object field" do
-      it "returns a Rex::Java::Serialization::Model::Field" do
-        expect(described_class.decode(sample_object_io)).to be_a(Rex::Java::Serialization::Model::Field)
-      end
-
-      it "decodes field type" do
-        field = described_class.decode(sample_object_io)
-        expect(field.type).to eq('array')
-      end
-
-      it "decodes field name" do
-        field = described_class.decode(sample_object_io)
-        expect(field.name.contents).to eq('test_array')
-      end
-
-      it "decodes field_type string" do
-        field = described_class.decode(sample_object_io)
-        expect(field.field_type.contents).to eq('[LEmployee;')
-      end
-    end
-  end
 end

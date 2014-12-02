@@ -89,49 +89,4 @@ describe Rex::Java::Serialization::Model::LongUtf do
     end
   end
 
-  describe ".decode" do
-    context "when stream contains empty string" do
-      it "returns nil" do
-        expect(described_class.decode(empty_io)).to be_nil
-      end
-    end
-
-    context "when stream contains empty long_utf" do
-      it "returns a Rex::Java::Serialization::Model::LongUtf" do
-        expect(described_class.decode(empty_utf_io)).to be_a(Rex::Java::Serialization::Model::LongUtf)
-      end
-
-      it "sets length to 0" do
-        long_utf = described_class.decode(empty_utf_io)
-        expect(long_utf.length).to eq(0)
-      end
-
-      it "sets contents to empty string" do
-        long_utf = described_class.decode(empty_utf_io)
-        expect(long_utf.contents).to be_empty
-      end
-    end
-
-    context "when stream contains incomplete utf" do
-      it "returns nil" do
-        expect(described_class.decode(incomplete_utf_io)).to be_nil
-      end
-    end
-
-    context "when stream contains correct long_utf" do
-      it "returns a Rex::Java::Serialization::Model::LongUtf" do
-        expect(described_class.decode(sample_utf_io)).to be_a(Rex::Java::Serialization::Model::LongUtf)
-      end
-
-      it "sets length to 0" do
-        long_utf = described_class.decode(sample_utf_io)
-        expect(long_utf.length).to eq(16)
-      end
-
-      it "sets contents to sample string" do
-        long_utf = described_class.decode(sample_utf_io)
-        expect(long_utf.contents).to eq('java.lang.Number')
-      end
-    end
-  end
 end

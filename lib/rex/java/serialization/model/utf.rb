@@ -12,17 +12,6 @@ module Rex
           #   @return [String] the contents of the string
           attr_accessor :contents
 
-          # Unserializes a Java::Serialization::Model::Utf
-          #
-          # @param io [IO] the io to read from
-          # @return [Java::Serialization::Model::Utf] if deserialization is possible
-          # @return [nil] if deserialization isn't possible
-          def self.decode(io)
-            elem = self.new
-
-            elem.decode(io)
-          end
-
           # @param contents [String] the contents of the utf string
           def initialize(contents = '')
             self.contents = contents
