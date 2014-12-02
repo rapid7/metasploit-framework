@@ -57,7 +57,7 @@ PATH
       bcrypt
       jsobfu (~> 0.2.0)
       json
-      meterpreter_bins (= 0.0.10)
+      meterpreter_bins (= 0.0.11)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
@@ -153,7 +153,7 @@ GEM
     json (1.8.1)
     mail (2.6.1)
       mime-types (>= 1.16, < 3)
-    meterpreter_bins (0.0.10)
+    meterpreter_bins (0.0.11)
     method_source (0.8.2)
     mime-types (1.25.1)
     mini_portile (0.6.0)
