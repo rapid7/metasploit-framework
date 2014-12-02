@@ -167,8 +167,8 @@ class Module
   def perform_extensions
     if datastore[REPLICANT_EXTENSION_DS_KEY].present?
       if datastore[REPLICANT_EXTENSION_DS_KEY].respond_to?(:each)
-        datastore[REPLICANT_EXTENSION_DS_KEY].each do |const_name|
-          self.extend(const_name.constantize)
+        datastore[REPLICANT_EXTENSION_DS_KEY].each do |const|
+          self.extend(const)
         end
       else
         fail "Invalid settings in datastore at key #{REPLICANT_EXTENSION_DS_KEY}"
@@ -176,18 +176,12 @@ class Module
     end
   end
 
-  # @overload register_extensions(name)
-  #   @param[String] name of Ruby module
-  #
-  # @overload register_extensions(name_array)
-  #   @param[Array<String>] name_array array of Ruby module names
-  #
+  # @param[Constant] One or more Ruby constants
   # @return [void]
   def register_extensions(*rb_modules)
     datastore[REPLICANT_EXTENSION_DS_KEY] = [] unless datastore[REPLICANT_EXTENSION_DS_KEY].present?
     rb_modules.each do |rb_mod|
-      name = rb_mod.name
-      datastore[REPLICANT_EXTENSION_DS_KEY] << name unless datastore[REPLICANT_EXTENSION_DS_KEY].include? name
+      datastore[REPLICANT_EXTENSION_DS_KEY] << rb_mod unless datastore[REPLICANT_EXTENSION_DS_KEY].include? rb_mod
     end
   end
 
