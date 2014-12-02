@@ -113,6 +113,8 @@ module Auxiliary
     # be normalized
     mod.validate
 
+    mod.setup
+
     # Run check
     mod.check
   end
