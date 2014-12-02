@@ -22,5 +22,5 @@ Before do |scenario|
 
   simplecov_setup_pathname = Pathname.new(__FILE__).expand_path.parent.join('simplecov_setup')
   # set environment variable so child processes will merge their coverage data with parent process's coverage data.
-  set_env('RUBYOPT', "-r#{simplecov_setup_pathname} #{ENV['RUBYOPT']}")
+  set_env('RUBYOPT', "#{ENV['RUBYOPT']} -r#{simplecov_setup_pathname}")
 end
