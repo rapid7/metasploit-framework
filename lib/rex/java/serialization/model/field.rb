@@ -44,18 +44,19 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization is possible
-          # @return [nil] if deserialization isn't possible
+          # @faise [RuntimeError] if deserialization isn't possible
           def decode(io)
             code = io.read(1)
-            return nil unless code && is_valid?(code)
-            self.type = TYPE_CODES[code]
 
+            unless code && is_valid?(code)
+              raise ::RuntimeError, 'Failed to unserialize Field'
+            end
+
+            self.type = TYPE_CODES[code]
             self.name = Utf.decode(io)
-            return nil if name.nil?
 
             if is_object?
               self.field_type = decode_field_type(io)
-              return nil if field_type.nil?
             end
 
             self
@@ -64,10 +65,10 @@ module Rex
           # Serializes the Java::Serialization::Model::Field
           #
           # @return [String] if serialization is possible
-          # @return [nil] if serialization isn't possible
+          # @raise [RuntimeError] if serialization isn't possible
           def encode
             unless is_type_valid?
-              return nil
+              raise ::RuntimeError, 'Failed to serialize Field'
             end
 
             encoded = ''
@@ -142,9 +143,12 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [Java::Serialization::Model::Utf]
+          # @raise [RuntimeError] if unserialization isn't possible
           def decode_field_type(io)
             opcode = io.read(1)
-            return nil unless opcode && opcode == [Java::Serialization::TC_STRING].pack('C')
+            unless opcode && opcode == [Java::Serialization::TC_STRING].pack('C')
+              raise ::RuntimeError, 'Failed to unserialize Field'
+            end
             type = Utf.decode(io)
 
             type

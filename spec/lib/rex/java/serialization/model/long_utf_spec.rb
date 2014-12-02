@@ -44,8 +44,8 @@ describe Rex::Java::Serialization::Model::LongUtf do
 
   describe "#decode" do
     context "when stream contains empty string" do
-      it "returns nil" do
-        expect(long_utf.decode(empty_io)).to be_nil
+      it "raises RuntimeError" do
+        expect { long_utf.decode(empty_io) }.to raise_error(::RuntimeError)
       end
     end
 
@@ -67,7 +67,7 @@ describe Rex::Java::Serialization::Model::LongUtf do
 
     context "when stream contains incomplete long_utf" do
       it "returns nil" do
-        expect(long_utf.decode(incomplete_utf_io)).to be_nil
+        expect { long_utf.decode(incomplete_utf_io) }.to raise_error(::RuntimeError)
       end
     end
 

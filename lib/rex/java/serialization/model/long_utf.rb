@@ -11,14 +11,18 @@ module Rex
           # @return [nil] if deserialization isn't possible
           def decode(io)
             raw_length = io.read(8)
-            return nil if raw_length.nil?
+            if raw_length.nil? || raw_length.length != 8
+              raise ::RuntimeError, 'Failed to unserialize LongUtf'
+            end
             self.length = raw_length.unpack('Q>')[0]
 
             if length == 0
               self.contents = ''
             else
               self.contents = io.read(length)
-              return nil if contents.nil? || contents.length != length
+              if contents.nil? || contents.length != length
+                raise ::RuntimeError, 'Failed to unserialize LongUtf'
+              end
             end
 
             self
@@ -26,8 +30,7 @@ module Rex
 
           # Serializes the Java::Serialization::Model::LongUtf
           #
-          # @return [String] if serialization is possible
-          # @return [nil] if serialization isn't possible
+          # @return [String]
           def encode
             encoded = [length].pack('Q>')
             encoded << contents

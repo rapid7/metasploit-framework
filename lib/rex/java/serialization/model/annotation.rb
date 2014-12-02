@@ -18,22 +18,21 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization is possible
-          # @return [nil] if deserialization isn't possible
-          # @raise [RuntimeError] if unsupported contents
+          # @raise [RuntimeError] if deserialization isn't possible
           def decode(io)
             loop do
               opcode = io.read(1)
-              return nil if opcode.nil?
+              if opcode.nil?
+                raise ::RuntimeError, 'Failed to unserialize Annotation'
+              end
               opcode = opcode.unpack('C')[0]
 
               case opcode
               when Rex::Java::Serialization::TC_BLOCKDATA
                 block = BlockData.decode(io)
-                return nil if block.nil?
                 self.contents << block
               when Rex::Java::Serialization::TC_BLOCKDATALONG
                 block = BlockDataLong.decode(io)
-                return nil if block.nil?
                 self.contents << block
               when Rex::Java::Serialization::TC_ENDBLOCKDATA
                 return self
@@ -49,8 +48,7 @@ module Rex
           # Serializes the Java::Serialization::Model::Annotation
           #
           # @return [String] if serialization is possible
-          # @return [nil] if serialization isn't possible
-          # @raise [RuntimeError] if unsupported contents
+          # @raise [RuntimeError] if serialization isn't possible
           def encode
             encoded = ''
 
@@ -64,7 +62,6 @@ module Rex
                 raise ::RuntimeError, 'Unsupported content'
               end
               encoded_content = content.encode
-              return nil if encoded_content.nil?
               encoded << encoded_content
             end
 

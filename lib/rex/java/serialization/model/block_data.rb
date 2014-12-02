@@ -22,17 +22,19 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization is possible
-          # @return [nil] if deserialization isn't possible
+          # @raise [RuntimeError] if deserialization isn't possible
           def decode(io)
             raw_length = io.read(1)
-            return nil if raw_length.nil?
+            raise RuntimeError, 'Failed to unserialize BlockData' if raw_length.nil?
             self.length = raw_length.unpack('C')[0]
 
             if length == 0
               self.contents = ''
             else
               self.contents = io.read(length)
-              return nil if contents.nil? || contents.length != length
+              if contents.nil? || contents.length != length
+                raise RuntimeError, 'Failed to unserialize BlockData'
+              end
             end
 
             self
@@ -40,8 +42,7 @@ module Rex
 
           # Serializes the Java::Serialization::Model::BlockData
           #
-          # @return [String] if serialization is possible
-          # @return [nil] if serialization isn't possible
+          # @return [String]
           def encode
             encoded = [length].pack('C')
             encoded << contents

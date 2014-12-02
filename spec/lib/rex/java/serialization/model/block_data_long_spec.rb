@@ -45,7 +45,7 @@ describe Rex::Java::Serialization::Model::BlockDataLong do
   describe "#decode" do
     context "when stream contains empty string" do
       it "returns nil" do
-        expect(block.decode(empty_io)).to be_nil
+        expect { block.decode(empty_io) }.to raise_error(::RuntimeError)
       end
     end
 
@@ -67,7 +67,7 @@ describe Rex::Java::Serialization::Model::BlockDataLong do
 
     context "when stream contains incomplete block" do
       it "returns nil" do
-        expect(block.decode(incomplete_block_io)).to be_nil
+        expect { block.decode(incomplete_block_io) }.to raise_error(::RuntimeError)
       end
     end
 
