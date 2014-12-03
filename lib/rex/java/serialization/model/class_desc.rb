@@ -31,6 +31,9 @@ module Rex
             when TC_PROXYCLASSDESC
               #TODO: Support TC_PROXYCLASSDESC
               raise ::RuntimeError, 'ClassDesc unserialize failed due to unsupported class'
+            when TC_REFERENCE
+              #TODO: Support TC_REFERENCE
+              raise ::RuntimeError, 'ClassDesc unserialize failed due to unsupported class'
             else
               raise ::RuntimeError, 'ClassDesc unserialize failed'
             end
