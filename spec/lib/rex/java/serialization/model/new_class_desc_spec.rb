@@ -51,52 +51,52 @@ describe Rex::Java::Serialization::Model::NewClassDesc do
       expect(class_desc_new.decode(sample_io)).to be_a(Rex::Java::Serialization::Model::NewClassDesc)
     end
 
-    it "unserializes class_name as Utf" do
+    it "deserializes class_name as Utf" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.class_name).to be_a(Rex::Java::Serialization::Model::Utf)
     end
 
-    it "unserializes class_name contents correctly" do
+    it "deserializes class_name contents correctly" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.class_name.contents).to eq('java.lang.Byte')
     end
 
-    it "unserializes serial_version correctly" do
+    it "deserializes serial_version correctly" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.serial_version).to eq(0x9c4e6084ee50f51c)
     end
 
-    it "unserializes flags correctly" do
+    it "deserializes flags correctly" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.flags).to eq(2)
     end
 
-    it "unserializes fields" do
+    it "deserializes fields" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.fields.length).to eq(1)
     end
 
-    it "unserializes fields contents correctly" do
+    it "deserializes fields contents correctly" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.fields[0].type).to eq('byte')
     end
 
-    it "unserializes class annotation correctly" do
+    it "deserializes class annotation correctly" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.class_annotation).to be_a(Rex::Java::Serialization::Model::Annotation)
     end
 
-    it "unserializes class annotation contents" do
+    it "deserializes class annotation contents" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.class_annotation.contents).to be_empty
     end
 
-    it "unserializes super_class" do
+    it "deserializes super_class" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.super_class).to be_a(Rex::Java::Serialization::Model::ClassDesc)
     end
 
-    it "unserializes super class description" do
+    it "deserializes super class description" do
       class_desc_new.decode(sample_io)
       expect(class_desc_new.super_class.description).to be_a(Rex::Java::Serialization::Model::NewClassDesc)
     end

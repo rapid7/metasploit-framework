@@ -31,7 +31,7 @@ describe Rex::Java::Serialization::Model::ClassDesc do
       expect(class_desc.decode(sample_io)).to be_a(Rex::Java::Serialization::Model::ClassDesc)
     end
 
-    it "unserializes the description correctly" do
+    it "deserializes the description correctly" do
       class_desc.decode(sample_io)
       expect(class_desc.description).to be_a(Rex::Java::Serialization::Model::NewClassDesc)
     end

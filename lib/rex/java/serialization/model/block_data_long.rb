@@ -18,11 +18,11 @@ module Rex
             self.length = contents.length
           end
 
-          # Unserializes a Java::Serialization::Model::BlockDataLong
+          # Deserializes a Java::Serialization::Model::BlockDataLong
           #
           # @param io [IO] the io to read from
-          # @return [self] if deserialization is possible
-          # @raise [RuntimeError] if deserialization isn't possible
+          # @return [self] if deserialization succeeds
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             raw_length = io.read(4)
             if raw_length.nil? || raw_length.length != 4

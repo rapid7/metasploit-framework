@@ -35,7 +35,7 @@ module Rex
             self.super_class = nil
           end
 
-          # Unserializes a Java::Serialization::Model::ClassDescription
+          # Deserializes a Java::Serialization::Model::ClassDescription
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -78,11 +78,11 @@ module Rex
 
           private
 
-          # Unserializes a class serial version
+          # Deserializes a class serial version
           #
           # @param io [IO] the io to read from
-          # @return [Integer] if deserialization is possible
-          # @raise [RuntimeError] if deserialization isn't possible
+          # @return [Integer] if deserialization succeeds
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_serial_version(io)
             raw_serial = io.read(8)
             if raw_serial.nil? || raw_serial.length != 8
@@ -92,11 +92,11 @@ module Rex
             raw_serial.unpack('Q>')[0]
           end
 
-          # Unserializes a class flags
+          # Deserializes a class flags
           #
           # @param io [IO] the io to read from
           # @return [Integer] if deserialization is possible
-          # @raise [RuntimeError] if deserialization isn't possible
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_flags(io)
             raw_flags = io.read(1)
             raise ::RuntimeError, 'Failed to unserialize ClassDescription' if raw_flags.nil?
@@ -104,11 +104,11 @@ module Rex
             raw_flags.unpack('C')[0]
           end
 
-          # Unserializes a class fields length
+          # Deserializes a class fields length
           #
           # @param io [IO] the io to read from
           # @return [Integer] if deserialization is possible
-          # @raise [RuntimeError] if deserialization isn't possible
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_fields_length(io)
             fields_length = io.read(2)
             if fields_length.nil? || fields_length.length != 2

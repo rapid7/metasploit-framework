@@ -4,11 +4,12 @@ module Rex
       module Model
         # This class provides a Long Utf string representation
         class LongUtf < Utf
-          # Unserializes a Java::Serialization::Model::LongUtf
+
+          # Deserializes a Java::Serialization::Model::LongUtf
           #
           # @param io [IO] the io to read from
-          # @return [self] if deserialization is possible
-          # @return [nil] if deserialization isn't possible
+          # @return [self] if deserialization succeeds
+          # @return [nil] if deserialization doesn't succeed
           def decode(io)
             raw_length = io.read(8)
             if raw_length.nil? || raw_length.length != 8

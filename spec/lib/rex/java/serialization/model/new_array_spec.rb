@@ -102,128 +102,128 @@ describe Rex::Java::Serialization::Model::NewArray do
   describe "#decode" do
 
     context "when boolean Array" do
-      it "unserializes Array" do
+      it "deserializes Array" do
         expect(new_array.decode(boolean_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
       end
 
-      it "unserializes type correctly" do
+      it "deserializes type correctly" do
         new_array.decode(boolean_array_io)
         expect(new_array.type).to eq('boolean')
       end
 
-      it "unserializes values correctly" do
+      it "deserializes values correctly" do
         new_array.decode(boolean_array_io)
         expect(new_array.values).to eq([1, 0, 1, 1, 1, 1, 1, 1, 1, 0])
       end
     end
 
     context "when byte Array" do
-      it "unserializes Array" do
+      it "deserializes Array" do
         expect(new_array.decode(byte_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
       end
 
-      it "unserializes type correctly" do
+      it "deserializes type correctly" do
         new_array.decode(byte_array_io)
         expect(new_array.type).to eq('byte')
       end
 
-      it "unserializes values correctly" do
+      it "deserializes values correctly" do
         new_array.decode(byte_array_io)
         expect(new_array.values).to eq([-20, 65])
       end
     end
 
     context "when char Array" do
-      it "unserializes Array" do
+      it "deserializes Array" do
         expect(new_array.decode(char_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
       end
 
-      it "unserializes type correctly" do
+      it "deserializes type correctly" do
         new_array.decode(char_array_io)
         expect(new_array.type).to eq('char')
       end
 
-      it "unserializes values correctly" do
+      it "deserializes values correctly" do
         new_array.decode(char_array_io)
         expect(new_array.values).to eq([97, 98])
       end
     end
 
     context "when short Array" do
-      it "unserializes Array" do
+      it "deserializes Array" do
         expect(new_array.decode(short_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
       end
 
-      it "unserializes type correctly" do
+      it "deserializes type correctly" do
         new_array.decode(short_array_io)
         expect(new_array.type).to eq('short')
       end
 
-      it "unserializes values correctly" do
+      it "deserializes values correctly" do
         new_array.decode(short_array_io)
         expect(new_array.values).to eq([-20, 65])
       end
     end
 
     context "when double Array" do
-      it "unserializes Array" do
+      it "deserializes Array" do
         expect(new_array.decode(double_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
       end
 
-      it "unserializes type correctly" do
+      it "deserializes type correctly" do
         new_array.decode(double_array_io)
         expect(new_array.type).to eq('double')
       end
 
-      it "unserializes values correctly" do
+      it "deserializes values correctly" do
         new_array.decode(double_array_io)
         expect(new_array.values).to eq([0.25, 0.21])
       end
     end
 
     context "when float Array" do
-      it "decodes a float Array" do
+      it "deserializes a float Array" do
         expect(new_array.decode(float_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
       end
 
-      it "unserializes type correctly" do
+      it "deserializes type correctly" do
         new_array.decode(float_array_io)
         expect(new_array.type).to eq('float')
       end
 
-      it "unserializes values correctly" do
+      it "deserializes values correctly" do
         new_array.decode(float_array_io)
         expect(new_array.values).to eq([1.0, 2.0])
       end
     end
 
     context "when int Array" do
-      it "unserializes Array" do
+      it "deserializes Array" do
         expect(new_array.decode(int_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
       end
 
-      it "unserializes type correctly" do
+      it "deserializes type correctly" do
         new_array.decode(int_array_io)
         expect(new_array.type).to eq('int')
       end
 
-      it "unserializes values correctly" do
+      it "deserializes values correctly" do
         new_array.decode(int_array_io)
         expect(new_array.values).to eq([-20, 65])
       end
     end
 
     context "when long Array" do
-      it "unserializes Array" do
+      it "deserializes Array" do
         expect(new_array.decode(long_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
       end
 
-      it "unserializes type correctly" do
+      it "deserializes type correctly" do
         new_array.decode(long_array_io)
         expect(new_array.type).to eq('long')
       end
 
-      it "unserializes values correctly" do
+      it "deserializes values correctly" do
         new_array.decode(long_array_io)
         expect(new_array.values).to eq([-20, 65])
       end
@@ -238,7 +238,7 @@ describe Rex::Java::Serialization::Model::NewArray do
   end
 
   describe "#encode" do
-    it "encodes a boolean Array" do
+    it "serializes a boolean Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[Z')
       new_class_desc.serial_version = 0x578f203914b85de2
@@ -255,7 +255,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       expect(new_array.encode.unpack("C*")).to eq(boolean_array.unpack("C*"))
     end
 
-    it "encodes a byte Array" do
+    it "serializes a byte Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[B')
       new_class_desc.serial_version = 0xacf317f8060854e0
@@ -272,7 +272,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       expect(new_array.encode.unpack("C*")).to eq(byte_array.unpack("C*"))
     end
 
-    it "encodes a char Array" do
+    it "serializes a char Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[C')
       new_class_desc.serial_version = 0xb02666b0e25d84ac
@@ -289,7 +289,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       expect(new_array.encode.unpack("C*")).to eq(char_array.unpack("C*"))
     end
 
-    it "encodes a short Array" do
+    it "serializes a short Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[S')
       new_class_desc.serial_version = 0xef832e06e55db0fa
@@ -306,7 +306,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       expect(new_array.encode.unpack("C*")).to eq(short_array.unpack("C*"))
     end
 
-    it "encodes a double Array" do
+    it "serializes a double Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[D')
       new_class_desc.serial_version = 0x3ea68c14ab635a1e
@@ -323,7 +323,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       expect(new_array.encode.unpack("C*")).to eq(double_array.unpack("C*"))
     end
 
-    it "encodes a float Array" do
+    it "serializes a float Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[F')
       new_class_desc.serial_version = 0xb9c818922e00c42
@@ -340,7 +340,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       expect(new_array.encode.unpack("C*")).to eq(float_array.unpack("C*"))
     end
 
-    it "encodes a int Array" do
+    it "serializes a int Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[I')
       new_class_desc.serial_version = 0x4dba602676eab2a5
@@ -357,7 +357,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       expect(new_array.encode.unpack("C*")).to eq(int_array.unpack("C*"))
     end
 
-    it "encodes a int Array" do
+    it "serializes a int Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[J')
       new_class_desc.serial_version = 0x782004b512b17593

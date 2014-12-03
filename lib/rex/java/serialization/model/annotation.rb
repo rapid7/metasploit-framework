@@ -16,11 +16,11 @@ module Rex
             self.contents = []
           end
 
-          # Unserializes a Java::Serialization::Model::Annotation
+          # Deserializes a Java::Serialization::Model::Annotation
           #
           # @param io [IO] the io to read from
-          # @return [self] if deserialization is possible
-          # @raise [RuntimeError] if deserialization isn't possible
+          # @return [self] if deserialization succeeds
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             loop do
               opcode = io.read(1)
@@ -49,8 +49,8 @@ module Rex
 
           # Serializes the Java::Serialization::Model::Annotation
           #
-          # @return [String] if serialization is possible
-          # @raise [RuntimeError] if serialization isn't possible
+          # @return [String] if serialization suceeds
+          # @raise [RuntimeError] if serialization doesn't succeed
           def encode
             encoded = ''
 

@@ -19,7 +19,7 @@ module Rex
             self.constant_name = nil
           end
 
-          # Unserializes a Java::Serialization::Model::NewEnum
+          # Deserializes a Java::Serialization::Model::NewEnum
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds

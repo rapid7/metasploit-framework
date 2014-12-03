@@ -13,7 +13,7 @@ module Rex
             self.description = nil
           end
 
-          # Unserializes a Java::Serialization::Model::ClassDesc
+          # Deserializes a Java::Serialization::Model::ClassDesc
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds

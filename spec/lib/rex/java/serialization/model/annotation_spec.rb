@@ -57,17 +57,17 @@ describe Rex::Java::Serialization::Model::Annotation do
         expect(annotation.decode(contents_io)).to be_a(Rex::Java::Serialization::Model::Annotation)
       end
 
-      it "decodes contents" do
+      it "deserializes contents" do
         annotation.decode(contents_io)
         expect(annotation.contents.length).to eq(2)
       end
 
-      it "decodes block data contents" do
+      it "deserializes block data contents" do
         annotation.decode(contents_io)
         expect(annotation.contents[0]).to be_a_kind_of(Rex::Java::Serialization::Model::BlockData)
       end
 
-      it "decodes block data long contents" do
+      it "deserializes block data long contents" do
         annotation.decode(contents_io)
         expect(annotation.contents[1]).to be_a_kind_of(Rex::Java::Serialization::Model::BlockDataLong)
       end
