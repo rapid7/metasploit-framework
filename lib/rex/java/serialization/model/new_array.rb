@@ -7,7 +7,7 @@ module Rex
 
           include Rex::Java::Serialization
 
-          # @!attribute class_name
+          # @!attribute array_description
           #   @return [Java::Serialization::Model::ClassDescription] The description of the array
           attr_accessor :array_description
           # @!attribute type
@@ -23,11 +23,11 @@ module Rex
             self.values = []
           end
 
-          # Unserializes a Java::Serialization::Model::NewArray
+          # Deserializes a Java::Serialization::Model::NewArray
           #
           # @param io [IO] the io to read from
-          # @return [self] if deserialization is possible
-          # @raise [RuntimeError] if deserialization isn't possible
+          # @return [self] if deserialization succeeds
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             self.array_description = ClassDesc.decode(io)
             self.type = array_type
@@ -44,10 +44,12 @@ module Rex
 
           # Serializes the Java::Serialization::Model::NewArray
           #
-          # @return [String] if serialization is possible
-          # @raise [RuntimeError] if serialization isn't possible
+          # @return [String] if serialization succeeds
+          # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            raise ::RuntimeError, 'Failed to serialize NewArray' if array_description.nil?
+            unless array_description.class == Rex::Java::Serialization::Model::ClassDesc
+              raise ::RuntimeError, 'Failed to serialize NewArray'
+            end
 
             encoded = ''
             encoded << array_description.encode
@@ -63,11 +65,11 @@ module Rex
 
           private
 
-          # Unserializes the NewArray length
+          # Deserializes the NewArray length
           #
           # @param io [IO] the io to read from
-          # @return [Integer] if deserialization is possible
-          # @raise [RuntimeError] if deserialization isn't possible
+          # @return [Integer] if deserialization succeeds
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_values_length(io)
             values_length = io.read(4)
             if values_length.nil? || values_length.length != 4
@@ -108,7 +110,7 @@ module Rex
             PRIMITIVE_TYPE_CODES[desc.class_name.contents[1]]
           end
 
-          # Unserializes a NewArray value
+          # Deserializes a NewArray value
           #
           # @param io [IO] the io to read from
           # @return [Fixnum] if deserialization succeeds
