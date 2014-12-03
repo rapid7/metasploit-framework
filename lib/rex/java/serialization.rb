@@ -27,6 +27,24 @@ module Rex
       SC_SERIALIZABLE = 0x02
       SC_EXTERNALIZABLE = 0x04
       SC_ENUM = 0x10
+
+      PRIMITIVE_TYPE_CODES = {
+        'B' => 'byte',
+        'C' => 'char',
+        'D' => 'double',
+        'F' => 'float',
+        'I' => 'int',
+        'J' => 'long',
+        'S' => 'short',
+        'Z' => 'boolean'
+      }
+
+      OBJECT_TYPE_CODES = {
+        '[' => 'array',
+        'L' => 'object'
+      }
+
+      TYPE_CODES = PRIMITIVE_TYPE_CODES.merge(OBJECT_TYPE_CODES)
     end
   end
 end

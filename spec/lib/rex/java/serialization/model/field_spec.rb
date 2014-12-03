@@ -36,7 +36,7 @@ describe Rex::Java::Serialization::Model::Field do
 
     context "when primitive field" do
       it do
-        field.type = 'integer'
+        field.type = 'int'
         field.name = Rex::Java::Serialization::Model::Utf.new('number')
         expect(field.encode).to eq(sample_primitive)
       end
@@ -60,7 +60,7 @@ describe Rex::Java::Serialization::Model::Field do
 
       it "decodes field type" do
         field.decode(sample_primitive_io)
-        expect(field.type).to eq('integer')
+        expect(field.type).to eq('int')
       end
 
       it "decodes field name as Utf" do

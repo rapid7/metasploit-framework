@@ -6,23 +6,7 @@ module Rex
         # both primitive descriptions (primitiveDesc) and object descriptions (objectDesc).
         class Field < Element
 
-          PRIMITIVE_TYPE_CODES = {
-            'B' => 'byte',
-            'C' => 'char',
-            'D' => 'double',
-            'F' => 'float',
-            'I' => 'integer',
-            'J' => 'long',
-            'S' => 'short',
-            'Z' => 'boolean',
-          }
-
-          OBJECT_TYPE_CODES = {
-            '[' => 'array',
-            'L' => 'object'
-          }
-
-          TYPE_CODES = PRIMITIVE_TYPE_CODES.merge(OBJECT_TYPE_CODES)
+          include Rex::Java::Serialization
 
           # @!attribute type
           #   @return [String] The type of the field.
@@ -133,7 +117,7 @@ module Rex
           #
           # @return [String]
           def encode_field_type
-            encoded = [Java::Serialization::TC_STRING].pack('C')
+            encoded = [TC_STRING].pack('C')
             encoded << field_type.encode
 
             encoded
@@ -146,7 +130,7 @@ module Rex
           # @raise [RuntimeError] if unserialization isn't possible
           def decode_field_type(io)
             opcode = io.read(1)
-            unless opcode && opcode == [Java::Serialization::TC_STRING].pack('C')
+            unless opcode && opcode == [TC_STRING].pack('C')
               raise ::RuntimeError, 'Failed to unserialize Field'
             end
             type = Utf.decode(io)

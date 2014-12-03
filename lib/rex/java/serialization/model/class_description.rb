@@ -5,6 +5,8 @@ module Rex
         # This class provides a class description representation
         class ClassDescription < Element
 
+          include Rex::Java::Serialization
+
           # @!attribute class_name
           #   @return [Java::Serialization::Model::Utf] The name of the class
           attr_accessor :class_name
@@ -73,10 +75,10 @@ module Rex
 
             case super_class
             when Rex::Java::Serialization::Model::ClassDescription
-              encoded << [Rex::Java::Serialization::TC_CLASSDESC].pack('C')
+              encoded << [TC_CLASSDESC].pack('C')
               encoded << super_class.encode
             when nil
-              encoded << [Rex::Java::Serialization::TC_NULL].pack('C')
+              encoded << [TC_NULL].pack('C')
             else
               #TODO: support other superclass types
               raise RuntimeError, 'Failed to serialize ClassDescription'
@@ -142,9 +144,9 @@ module Rex
             class_desc = nil
 
             case super_opcode
-            when Rex::Java::Serialization::TC_NULL
+            when TC_NULL
               class_desc = nil
-            when Rex::Java::Serialization::TC_CLASSDESC
+            when TC_CLASSDESC
               class_desc = ClassDescription.decode(io)
             else
               #TODO: Support TC_PROXYCLASSDESC

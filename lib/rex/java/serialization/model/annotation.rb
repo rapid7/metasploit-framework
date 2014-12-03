@@ -6,6 +6,8 @@ module Rex
         # annotations (classAnnotation) and object annotations (objectAnnotation).
         class Annotation < Element
 
+          include Rex::Java::Serialization
+
           # @!attribute contents
           #   @return [Array] The annotation contents
           attr_accessor :contents
@@ -28,13 +30,13 @@ module Rex
               opcode = opcode.unpack('C')[0]
 
               case opcode
-              when Rex::Java::Serialization::TC_BLOCKDATA
+              when TC_BLOCKDATA
                 block = BlockData.decode(io)
                 self.contents << block
-              when Rex::Java::Serialization::TC_BLOCKDATALONG
+              when TC_BLOCKDATALONG
                 block = BlockDataLong.decode(io)
                 self.contents << block
-              when Rex::Java::Serialization::TC_ENDBLOCKDATA
+              when TC_ENDBLOCKDATA
                 return self
               else
                 #TODO: unsupported
@@ -55,9 +57,9 @@ module Rex
             contents.each do |content|
               case content
               when Rex::Java::Serialization::Model::BlockData
-                encoded << [Rex::Java::Serialization::TC_BLOCKDATA].pack('C')
+                encoded << [TC_BLOCKDATA].pack('C')
               when Rex::Java::Serialization::Model::BlockDataLong
-                encoded << [Rex::Java::Serialization::TC_BLOCKDATALONG].pack('C')
+                encoded << [TC_BLOCKDATALONG].pack('C')
               else
                 raise ::RuntimeError, 'Unsupported content'
               end
@@ -65,7 +67,7 @@ module Rex
               encoded << encoded_content
             end
 
-            encoded << [Rex::Java::Serialization::TC_ENDBLOCKDATA].pack('C')
+            encoded << [TC_ENDBLOCKDATA].pack('C')
 
             encoded
           end
