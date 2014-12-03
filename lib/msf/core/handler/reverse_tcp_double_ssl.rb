@@ -121,7 +121,7 @@ module ReverseTcpDoubleSSL
           begin
             sock_inp, sock_out = detect_input_output(client_a_copy, client_b_copy)
             chan = TcpReverseDoubleSSLSessionChannel.new(framework, sock_inp, sock_out)
-            handle_connection(chan.lsock)
+            handle_connection(chan.lsock, { datastore: datastore })
           rescue
             elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
           end

@@ -20,17 +20,17 @@ class ReadableText
   # @return [String] formatted text output of the dump.
   def self.dump_module(mod, indent = "  ")
     case mod.type
-      when MODULE_PAYLOAD
+      when Msf::MODULE_PAYLOAD
         return dump_payload_module(mod, indent)
-      when MODULE_NOP
+      when Msf::MODULE_NOP
         return dump_basic_module(mod, indent)
-      when MODULE_ENCODER
+      when Msf::MODULE_ENCODER
         return dump_basic_module(mod, indent)
-      when MODULE_EXPLOIT
+      when Msf::MODULE_EXPLOIT
         return dump_exploit_module(mod, indent)
-      when MODULE_AUX
+      when Msf::MODULE_AUX
         return dump_auxiliary_module(mod, indent)
-      when MODULE_POST
+      when Msf::MODULE_POST
         return dump_post_module(mod, indent)
       else
         return dump_generic_module(mod, indent)

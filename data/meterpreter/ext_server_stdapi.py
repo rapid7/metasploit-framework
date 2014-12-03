@@ -60,9 +60,13 @@ if sys.version_info[0] < 3:
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
 else:
-	is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
+	if isinstance(__builtins__, dict):
+		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
+		str = lambda x: __builtins__['str'](x, 'UTF-8')
+	else:
+		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
+		str = lambda x: __builtins__.str(x, 'UTF-8')
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
-	str = lambda x: __builtins__['str'](x, 'UTF-8')
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
 
@@ -215,6 +219,9 @@ if has_ctypes:
 			("wProcessorLevel", ctypes.c_uint16),
 			("wProcessorRevision", ctypes.c_uint16)]
 
+	class TOKEN_USER(ctypes.Structure):
+		_fields_ = [("User", SID_AND_ATTRIBUTES)]
+
 	#
 	# Linux Structures
 	#
@@ -364,6 +371,7 @@ TLV_TYPE_COMPUTER_NAME         = TLV_META_TYPE_STRING  | 1040
 TLV_TYPE_OS_NAME               = TLV_META_TYPE_STRING  | 1041
 TLV_TYPE_USER_NAME             = TLV_META_TYPE_STRING  | 1042
 TLV_TYPE_ARCHITECTURE          = TLV_META_TYPE_STRING  | 1043
+TLV_TYPE_SID                   = TLV_META_TYPE_STRING  | 1045
 
 ##
 # Environment
@@ -497,6 +505,8 @@ IFLA_MTU       = 4
 IFA_ADDRESS    = 1
 IFA_LABEL      = 3
 
+meterpreter.register_extension('stdapi')
+
 def calculate_32bit_netmask(bits):
 	if bits == 32:
 		return 0xffffffff
@@ -524,6 +534,36 @@ def get_stat_buffer(path):
 	st_buf += struct.pack('<IIII', si.st_size, long(si.st_atime), long(si.st_mtime), long(si.st_ctime))
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
+
+def get_token_user(handle):
+	TOKEN_QUERY = 0x0008
+	TokenUser = 1
+	advapi32 = ctypes.windll.advapi32
+	advapi32.OpenProcessToken.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.POINTER(ctypes.c_void_p)]
+
+	token_handle = ctypes.c_void_p()
+	if not advapi32.OpenProcessToken(handle, TOKEN_QUERY, ctypes.byref(token_handle)):
+		return None
+	token_user_buffer = (ctypes.c_byte * 4096)()
+	dw_returned = ctypes.c_uint32()
+	result = advapi32.GetTokenInformation(token_handle, TokenUser, ctypes.byref(token_user_buffer), ctypes.sizeof(token_user_buffer), ctypes.byref(dw_returned))
+	ctypes.windll.kernel32.CloseHandle(token_handle)
+	if not result:
+		return None
+	return cstruct_unpack(TOKEN_USER, token_user_buffer)
+
+def get_username_from_token(token_user):
+	user = (ctypes.c_char * 512)()
+	domain = (ctypes.c_char * 512)()
+	user_len = ctypes.c_uint32()
+	user_len.value = ctypes.sizeof(user)
+	domain_len = ctypes.c_uint32()
+	domain_len.value = ctypes.sizeof(domain)
+	use = ctypes.c_ulong()
+	use.value = 0
+	if not ctypes.windll.advapi32.LookupAccountSidA(None, token_user.User.Sid, user, ctypes.byref(user_len), domain, ctypes.byref(domain_len), ctypes.byref(use)):
+		return None
+	return str(ctypes.string_at(domain)) + '\\' + str(ctypes.string_at(user))
 
 def netlink_request(req_type):
 	import select
@@ -633,11 +673,6 @@ def channel_open_stdapi_net_tcp_server(request, response):
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
-def stdapi_sys_config_getuid(request, response):
-	response += tlv_pack(TLV_TYPE_USER_NAME, getpass.getuser())
-	return ERROR_SUCCESS, response
-
-@meterpreter.register_function
 def stdapi_sys_config_getenv(request, response):
 	for env_var in packet_enum_tlvs(request, TLV_TYPE_ENV_VARIABLE):
 		pgroup = ''
@@ -647,6 +682,32 @@ def stdapi_sys_config_getenv(request, response):
 			pgroup += tlv_pack(TLV_TYPE_ENV_VARIABLE, env_var)
 			pgroup += tlv_pack(TLV_TYPE_ENV_VALUE, env_val)
 			response += tlv_pack(TLV_TYPE_ENV_GROUP, pgroup)
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function_windll
+def stdapi_sys_config_getsid(request, response):
+	token = get_token_user(ctypes.windll.kernel32.GetCurrentProcess())
+	if not token:
+		return ERROR_FAILURE, response
+	sid_str = ctypes.c_char_p()
+	if not ctypes.windll.advapi32.ConvertSidToStringSidA(token.User.Sid, ctypes.byref(sid_str)):
+		return ERROR_FAILURE, response
+	sid_str = str(ctypes.string_at(sid_str))
+	response += tlv_pack(TLV_TYPE_SID, sid_str)
+	return ERROR_SUCCESS, response
+
+@meterpreter.register_function
+def stdapi_sys_config_getuid(request, response):
+	if has_windll:
+		token = get_token_user(ctypes.windll.kernel32.GetCurrentProcess())
+		if not token:
+			return ERROR_FAILURE, response
+		username = get_username_from_token(token)
+		if not username:
+			return ERROR_FAILURE, response
+	else:
+		username = getpass.getuser()
+	response += tlv_pack(TLV_TYPE_USER_NAME, username)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -821,26 +882,10 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 			exe_path = ctypes.string_at(exe_path)
 		else:
 			exe_path = ''
-		complete_username = ''
-		tkn_h = ctypes.c_long()
-		tkn_len = ctypes.c_uint32()
-		if ctypes.windll.advapi32.OpenProcessToken(proc_h, TOKEN_QUERY, ctypes.byref(tkn_h)):
-			ctypes.windll.advapi32.GetTokenInformation(tkn_h, TokenUser, None, 0, ctypes.byref(tkn_len))
-			buf = (ctypes.c_ubyte * tkn_len.value)()
-			if ctypes.windll.advapi32.GetTokenInformation(tkn_h, TokenUser, ctypes.byref(buf), ctypes.sizeof(buf), ctypes.byref(tkn_len)):
-				user_tkn = SID_AND_ATTRIBUTES()
-				ctypes.memmove(ctypes.byref(user_tkn), buf, ctypes.sizeof(user_tkn))
-				username = (ctypes.c_char * 512)()
-				domain = (ctypes.c_char * 512)()
-				u_len = ctypes.c_uint32()
-				u_len.value = ctypes.sizeof(username)
-				d_len = ctypes.c_uint32()
-				d_len.value = ctypes.sizeof(domain)
-				use = ctypes.c_ulong()
-				use.value = 0
-				ctypes.windll.advapi32.LookupAccountSidA(None, user_tkn.Sid, username, ctypes.byref(u_len), domain, ctypes.byref(d_len), ctypes.byref(use))
-				complete_username = str(ctypes.string_at(domain)) + '\\' + str(ctypes.string_at(username))
-			k32.CloseHandle(tkn_h)
+		process_username = ''
+		process_token_user = get_token_user(proc_h)
+		if process_token_user:
+			process_username = get_username_from_token(process_token_user) or ''
 		parch = windll_GetNativeSystemInfo()
 		is_wow64 = ctypes.c_ubyte()
 		is_wow64.value = 0
@@ -851,7 +896,7 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 		pgroup  = bytes()
 		pgroup += tlv_pack(TLV_TYPE_PID, pe32.th32ProcessID)
 		pgroup += tlv_pack(TLV_TYPE_PARENT_PID, pe32.th32ParentProcessID)
-		pgroup += tlv_pack(TLV_TYPE_USER_NAME, complete_username)
+		pgroup += tlv_pack(TLV_TYPE_USER_NAME, process_username)
 		pgroup += tlv_pack(TLV_TYPE_PROCESS_NAME, pe32.szExeFile)
 		pgroup += tlv_pack(TLV_TYPE_PROCESS_PATH, exe_path)
 		pgroup += tlv_pack(TLV_TYPE_PROCESS_ARCH, parch)

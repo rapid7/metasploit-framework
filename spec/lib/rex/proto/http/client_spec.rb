@@ -224,11 +224,11 @@ describe Rex::Proto::Http::Client do
     cli.should respond_to :username
     cli.should respond_to :password
     cli.should respond_to :junk_pipeline
-    # These are supposed to be protected
-    cli.should respond_to :ssl
-    cli.should respond_to :ssl_version
-    cli.should respond_to :hostname
-    cli.should respond_to :port
+    # These are protected. Why are they protected? Hysterical raisins.
+    #cli.should respond_to :ssl
+    #cli.should respond_to :ssl_version
+    #cli.should respond_to :hostname
+    #cli.should respond_to :port
   end
 
   # Not super sure why these are protected...

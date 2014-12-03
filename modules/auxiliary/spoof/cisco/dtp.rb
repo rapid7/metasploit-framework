@@ -31,6 +31,13 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST', 'PCAPFILE')
   end
 
+  def setup
+    super
+    unless datastore['SMAC'] || datastore['INTERFACE']
+      raise ArgumentError, 'Must specify SMAC or INTERFACE'
+    end
+  end
+
   def build_dtp_frame
     p = PacketFu::EthPacket.new
     p.eth_daddr = '01:00:0c:cc:cc:cc'
