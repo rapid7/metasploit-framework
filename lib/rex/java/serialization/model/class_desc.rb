@@ -19,11 +19,11 @@ module Rex
           # @return [self] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
-            super_opcode = io.read(1)
-            raise ::RuntimeError, 'Failed to unserialize ClassDesc' if super_opcode.nil?
-            super_opcode = super_opcode.unpack('C')[0]
+            opcode = io.read(1)
+            raise ::RuntimeError, 'Failed to unserialize ClassDesc' if opcode.nil?
+            opcode = opcode.unpack('C')[0]
 
-            case super_opcode
+            case opcode
             when TC_NULL
               self.description = NullReference.new
             when TC_CLASSDESC
