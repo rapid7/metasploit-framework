@@ -48,9 +48,7 @@ Feature: `msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `msfconsole --environment test --yaml command_line.yml` interactively
-    And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
-    And I type "exit"
+    When I run `msfconsole --environment test --execute-command exit --yaml command_line.yml`
     Then the output should contain "command_line_metasploit_framework_test"
 
   Scenario: Without --yaml, MSF_DATABASE_CONFIG wins
