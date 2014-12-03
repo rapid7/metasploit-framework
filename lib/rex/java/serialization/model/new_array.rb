@@ -113,8 +113,7 @@ module Rex
           # Deserializes a NewArray value
           #
           # @param io [IO] the io to read from
-          # @return [Fixnum] if deserialization succeeds
-          # @return [Float] if deserialization succeeds
+          # @return [Fixnum, Float] if deserialization succeeds
           # @raise [RuntimeError] if deserialization fails
           def decode_value(io)
             value = nil

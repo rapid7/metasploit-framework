@@ -24,6 +24,10 @@ describe Rex::Java::Serialization::Model::NewObject do
     it "initializes class_desc with nil" do
       expect(new_object.class_desc).to be_nil
     end
+
+    it "initializes class_data with empty array" do
+      expect(new_object.class_data).to be_empty
+    end
   end
 
   describe "#decode" do

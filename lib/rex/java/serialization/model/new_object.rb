@@ -7,9 +7,11 @@ module Rex
 
           include Rex::Java::Serialization
 
-          # @!attribute array_description
+          # @!attribute class_desc
           #   @return [Java::Serialization::Model::ClassDescription] The description of the object
           attr_accessor :class_desc
+          # @!attribute class_data
+          #   @return [Array] The data of the object
           attr_accessor :class_data
 
           def initialize
@@ -34,7 +36,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::NewArray
+          # Serializes the Java::Serialization::Model::NewObject
           #
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
@@ -55,6 +57,11 @@ module Rex
 
           private
 
+          # Deserializes the class_data
+          #
+          # @param io [IO] the io to read from
+          # @return [Array] class_data values if deserialization succeeds
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_class_data(io)
             values = []
 
@@ -69,11 +76,11 @@ module Rex
             values
           end
 
-          # Deserializes a NewArray value
+          # Deserializes a class_data value
           #
           # @param io [IO] the io to read from
-          # @return [Fixnum] if deserialization succeeds
-          # @return [Float] if deserialization succeeds
+          # @param type [String] the type of the value to deserialize
+          # @return [Array(String, <Fixnum, Float>)] type and value if deserialization succeeds
           # @raise [RuntimeError] if deserialization fails
           def decode_value(io, type)
             value = []
@@ -130,10 +137,9 @@ module Rex
             value
           end
 
-          # Serializes an NewArray value
+          # Serializes an class_data value
           #
-          # @param value [Fixnum] the value to serialize
-          # @param value [Float] the value to serialize
+          # @param value [Array] the type and value to serialize
           # @return [String] the serialized value
           # @raise [RuntimeError] if serialization fails
           def encode_value(value)
