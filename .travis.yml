@@ -36,3 +36,9 @@ notifications:
 
 git:
   depth: 5
+
+# Blacklist certain branches from triggering travis builds
+branches:
+  except:
+    - gh-pages
+    - metakitty
