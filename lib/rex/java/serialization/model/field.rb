@@ -51,6 +51,10 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
+            unless name.class == Java::Serialization::Model::Utf
+              raise ::RuntimeError, 'Failed to serialize Field'
+            end
+
             unless is_type_valid?
               raise ::RuntimeError, 'Failed to serialize Field'
             end
@@ -117,6 +121,10 @@ module Rex
           #
           # @return [String]
           def encode_field_type
+            unless field_type.class == Java::Serialization::Model::Utf
+              raise ::RuntimeError, 'Failed to serialize Field'
+            end
+
             encoded = [TC_STRING].pack('C')
             encoded << field_type.encode
 
