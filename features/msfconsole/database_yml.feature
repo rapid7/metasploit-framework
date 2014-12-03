@@ -82,7 +82,7 @@ Feature: `msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `msfconsole --environment test --execute-command exit`
+    When I run `msfconsole --defer-module-loads --environment test --execute-command exit`
     Then the output should contain "environment_metasploit_framework_test"
 
   Scenario: Without --yaml or MSF_DATABASE_CONFIG, ~/.msf4/database.yml wins
