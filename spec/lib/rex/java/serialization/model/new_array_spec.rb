@@ -357,7 +357,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       expect(new_array.encode.unpack("C*")).to eq(int_array.unpack("C*"))
     end
 
-    it "serializes a int Array" do
+    it "serializes a long Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[J')
       new_class_desc.serial_version = 0x782004b512b17593
