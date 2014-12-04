@@ -8,7 +8,7 @@ module Rex
           include Rex::Java::Serialization
 
           # @!attribute magic
-          #   @return [String] The stream signature
+          #   @return [Fixnum] The stream signature
           attr_accessor :magic
           # @!attribute version
           #   @return [Fixnum] The stream version
@@ -30,7 +30,7 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             self.magic = decode_magic(io)
-            self.constant_name = decode_version(io)
+            self.version = decode_version(io)
 
             self.contents << decode_content(io) until io.eof?
 
@@ -43,7 +43,7 @@ module Rex
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
             encoded = ''
-            encoded << magic
+            encoded << [magic].pack('n')
             encoded << [version].pack('n')
             contents.each do |content|
               encoded << encode_content(content)
@@ -60,11 +60,12 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succed
           def decode_magic(io)
             magic = io.read(2)
-            unless magic && magic == STREAM_MAGIC
+
+            unless magic && magic.length == 2 && magic.unpack('n')[0] == STREAM_MAGIC
               raise ::RuntimeError, 'Failed to unserialize Stream'
             end
 
-            magic
+            STREAM_MAGIC
           end
 
           # Deserializes the version stream
@@ -78,7 +79,7 @@ module Rex
               raise ::RuntimeError, 'Failed to unserialize Stream'
             end
 
-            version
+            STREAM_VERSION
           end
 
           # Deserializes a content
