@@ -3,9 +3,6 @@ module Rex
     module Serialization
       module Model
         class Reset < Element
-          def to_s
-            'TC_RESET'
-          end
         end
       end
     end

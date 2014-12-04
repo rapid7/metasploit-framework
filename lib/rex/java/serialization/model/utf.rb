@@ -51,10 +51,6 @@ module Rex
 
             encoded
           end
-
-          def to_s
-            contents
-          end
         end
       end
     end
