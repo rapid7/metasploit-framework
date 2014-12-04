@@ -148,6 +148,6 @@ Feature: `msfconsole` `database.yml`
     And the output should contain "[*] postgresql selected, no connection"
 
   Scenario: Starting `msfconsole` with a valid database.yml
-    When I run `msfconsole --execute-command db_status --execute-command exit`
+    When I run `msfconsole --defer-module-loads --execute-command db_status --execute-command exit`
     Then the output should contain "[*] postgresql connected to metasploit_framework_test"
 
