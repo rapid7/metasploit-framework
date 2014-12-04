@@ -140,7 +140,7 @@ Feature: `msfconsole` `database.yml`
     And a mocked home directory
     And I cd to "../.."
     And the project "database.yml" does not exist
-    When I run `msfconsole --environment test --execute-command db_status --execute-command exit`
+    When I run `msfconsole --defer-module-loads --environment test --execute-command db_status --execute-command exit`
     Then the output should not contain "command_line_metasploit_framework_test"
     And the output should not contain "environment_metasploit_framework_test"
     And the output should not contain "user_metasploit_framework_test"
