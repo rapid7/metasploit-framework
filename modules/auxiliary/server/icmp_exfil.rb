@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       OptAddress.new('LOCALIP', [false, 'The IP address of the local interface'])
     ], self.class)
 
-    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','UDP_SECRET','GATEWAY','NETMASK', 'TIMEOUT')
+    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','UDP_SECRET','GATEWAY', 'TIMEOUT')
   end
 
   def run

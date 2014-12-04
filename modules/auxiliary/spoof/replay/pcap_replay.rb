@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('PKT_DELAY', [true, "the delay in millisecond between each packet",0]),
     ], self.class)
 
-    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','TIMEOUT','UDP_SECRET','GATEWAY','NETMASK')
+    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','TIMEOUT','UDP_SECRET','GATEWAY')
   end
 
   def run
