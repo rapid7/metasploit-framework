@@ -37,7 +37,7 @@ describe Rex::Java::Serialization::Model::Field do
     context "when primitive field" do
       it do
         field.type = 'int'
-        field.name = Rex::Java::Serialization::Model::Utf.new('number')
+        field.name = Rex::Java::Serialization::Model::Utf.new(nil, 'number')
         expect(field.encode).to eq(sample_primitive)
       end
     end
@@ -45,8 +45,8 @@ describe Rex::Java::Serialization::Model::Field do
     context "when object field" do
       it do
         field.type = 'array'
-        field.name = Rex::Java::Serialization::Model::Utf.new('test_array')
-        field.field_type = Rex::Java::Serialization::Model::Utf.new('[LEmployee;')
+        field.name = Rex::Java::Serialization::Model::Utf.new(nil, 'test_array')
+        field.field_type = Rex::Java::Serialization::Model::Utf.new(nil, '[LEmployee;')
         expect(field.encode).to eq(sample_object)
       end
     end

@@ -14,7 +14,8 @@ module Rex
           #   @return [Array] The data of the object
           attr_accessor :class_data
 
-          def initialize
+          def initialize(stream = nil)
+            super(stream)
             self.class_desc = nil
             self.class_data = []
           end

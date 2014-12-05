@@ -17,7 +17,8 @@ module Rex
           #   @return [Array] The stream's contents
           attr_accessor :contents
 
-          def initialize
+          def initialize(stream = nil)
+            super(stream)
             self.magic = STREAM_MAGIC
             self.version = STREAM_VERSION
             self.contents = []

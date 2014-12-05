@@ -40,7 +40,7 @@ describe Rex::Java::Serialization::Model::ClassDesc do
   describe "#encode" do
     it "serializes a ClassDesc" do
       super_class_desc_new = Rex::Java::Serialization::Model::NewClassDesc.new
-      super_class_desc_new.class_name = Rex::Java::Serialization::Model::Utf.new('java.lang.Number')
+      super_class_desc_new.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'java.lang.Number')
       super_class_desc_new.serial_version = 0x86ac951d0b94e08b
       super_class_desc_new.flags = 2
       super_class_desc_new.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -52,12 +52,12 @@ describe Rex::Java::Serialization::Model::ClassDesc do
       super_class_desc.description = super_class_desc_new
 
       class_desc_new = Rex::Java::Serialization::Model::NewClassDesc.new
-      class_desc_new.class_name = Rex::Java::Serialization::Model::Utf.new('java.lang.Byte')
+      class_desc_new.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'java.lang.Byte')
       class_desc_new.serial_version = 0x9c4e6084ee50f51c
       class_desc_new.flags = 2
       field = Rex::Java::Serialization::Model::Field.new
       field.type = 'byte'
-      field.name = Rex::Java::Serialization::Model::Utf.new('value')
+      field.name = Rex::Java::Serialization::Model::Utf.new(nil, 'value')
       class_desc_new.fields << field
       class_desc_new.class_annotation = Rex::Java::Serialization::Model::Annotation.new
       class_desc_new.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new

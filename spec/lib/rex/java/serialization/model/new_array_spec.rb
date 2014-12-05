@@ -255,7 +255,7 @@ describe Rex::Java::Serialization::Model::NewArray do
   describe "#encode" do
     it "serializes a boolean Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[Z')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[Z')
       new_class_desc.serial_version = 0x578f203914b85de2
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -273,7 +273,7 @@ describe Rex::Java::Serialization::Model::NewArray do
 
     it "serializes a byte Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[B')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[B')
       new_class_desc.serial_version = 0xacf317f8060854e0
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -291,7 +291,7 @@ describe Rex::Java::Serialization::Model::NewArray do
 
     it "serializes a char Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[C')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[C')
       new_class_desc.serial_version = 0xb02666b0e25d84ac
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -309,7 +309,7 @@ describe Rex::Java::Serialization::Model::NewArray do
 
     it "serializes a short Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[S')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[S')
       new_class_desc.serial_version = 0xef832e06e55db0fa
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -327,7 +327,7 @@ describe Rex::Java::Serialization::Model::NewArray do
 
     it "serializes a double Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[D')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[D')
       new_class_desc.serial_version = 0x3ea68c14ab635a1e
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -345,7 +345,7 @@ describe Rex::Java::Serialization::Model::NewArray do
 
     it "serializes a float Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[F')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[F')
       new_class_desc.serial_version = 0xb9c818922e00c42
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -363,7 +363,7 @@ describe Rex::Java::Serialization::Model::NewArray do
 
     it "serializes a int Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[I')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[I')
       new_class_desc.serial_version = 0x4dba602676eab2a5
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -381,7 +381,7 @@ describe Rex::Java::Serialization::Model::NewArray do
 
     it "serializes a long Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[J')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[J')
       new_class_desc.serial_version = 0x782004b512b17593
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -399,7 +399,7 @@ describe Rex::Java::Serialization::Model::NewArray do
 
     it "serializes a String (Objects) Array" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[Ljava.lang.String;')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[Ljava.lang.String;')
       new_class_desc.serial_version = 0xadd256e7e91d7b47
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -410,7 +410,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_array.array_description = Rex::Java::Serialization::Model::ClassDesc.new
       new_array.array_description.description = new_class_desc
       new_array.type = 'java.lang.String;'
-      new_array.values = [ Rex::Java::Serialization::Model::Utf.new('msf') ]
+      new_array.values = [ Rex::Java::Serialization::Model::Utf.new(nil, 'msf') ]
 
       expect(new_array.encode.unpack("C*")).to eq(string_array.unpack("C*"))
     end

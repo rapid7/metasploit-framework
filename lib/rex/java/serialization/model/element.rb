@@ -11,13 +11,13 @@ module Rex
           # @param io [IO] the io to read from
           # @return [Java::Serialization::Model::Element] if deserialization succeeds
           # @return [nil] if deserialization doesn't succeed
-          def self.decode(io)
-            elem = self.new
+          def self.decode(io, stream = nil)
+            elem = self.new(stream)
             elem.decode(io)
           end
 
-          def initialize
-
+          def initialize(stream = nil)
+            self.stream = stream
           end
 
           def decode(io)

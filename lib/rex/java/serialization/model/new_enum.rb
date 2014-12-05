@@ -14,7 +14,8 @@ module Rex
           #   @return [Array] The constant value in the Java Enum
           attr_accessor :constant_name
 
-          def initialize
+          def initialize(stream = nil)
+            super(stream)
             self.enum_description = nil
             self.constant_name = nil
           end

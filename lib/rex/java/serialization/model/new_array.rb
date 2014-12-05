@@ -17,7 +17,8 @@ module Rex
           #   @return [Array] The contents of the java array
           attr_accessor :values
 
-          def initialize
+          def initialize(stream = nil)
+            super(stream)
             self.array_description = nil
             self.type = ''
             self.values = []

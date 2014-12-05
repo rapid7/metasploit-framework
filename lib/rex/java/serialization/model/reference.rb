@@ -3,7 +3,13 @@ module Rex
     module Serialization
       module Model
         class Reference < Element
+
           attr_accessor :handler
+
+          def initialize(stream = nil)
+            super(stream)
+            handler = 0
+          end
 
           def decode(io)
             handler_raw = io.read(4)

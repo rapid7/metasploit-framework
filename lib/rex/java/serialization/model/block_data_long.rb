@@ -13,7 +13,8 @@ module Rex
           attr_accessor :contents
 
           # @param contents [String] the contents of the block
-          def initialize(contents = '')
+          def initialize(stream = nil, contents = '')
+            super(stream)
             self.contents = contents
             self.length = contents.length
           end

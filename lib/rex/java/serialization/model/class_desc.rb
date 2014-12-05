@@ -9,7 +9,8 @@ module Rex
 
           attr_accessor :description
 
-          def initialize
+          def initialize(stream = nil)
+            super(stream)
             self.description = nil
           end
 

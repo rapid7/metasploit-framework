@@ -18,7 +18,8 @@ module Rex
           #   @return [Java::Serialization::Model::Utf] The type of the field on object types.
           attr_accessor :field_type
 
-          def initialize
+          def initialize(stream = nil)
+            super(stream)
             self.type = ''
             self.name = nil
             self.field_type = nil

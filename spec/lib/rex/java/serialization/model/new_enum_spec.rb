@@ -48,14 +48,14 @@ describe Rex::Java::Serialization::Model::NewEnum do
   describe "#encode" do
     it "serializes an Enum" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('Enums$Day')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'Enums$Day')
       new_class_desc.serial_version = 0
       new_class_desc.flags = 18
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
       new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.super_class.description.class_name = Rex::Java::Serialization::Model::Utf.new('java.lang.Enum')
+      new_class_desc.super_class.description.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'java.lang.Enum')
       new_class_desc.super_class.description.serial_version = 0
       new_class_desc.super_class.description.flags = 18
       new_class_desc.super_class.description.class_annotation = Rex::Java::Serialization::Model::Annotation.new
@@ -65,7 +65,7 @@ describe Rex::Java::Serialization::Model::NewEnum do
 
       new_enum.enum_description = Rex::Java::Serialization::Model::ClassDesc.new
       new_enum.enum_description.description = new_class_desc
-      new_enum.constant_name = Rex::Java::Serialization::Model::Utf.new('SUNDAY')
+      new_enum.constant_name = Rex::Java::Serialization::Model::Utf.new(nil, 'SUNDAY')
 
       expect(new_enum.encode.unpack("C*")).to eq(sample_enum.unpack("C*"))
     end

@@ -12,7 +12,8 @@ module Rex
           #   @return [Array] The annotation contents
           attr_accessor :contents
 
-          def initialize
+          def initialize(stream = nil)
+            super(stream)
             self.contents = []
           end
 

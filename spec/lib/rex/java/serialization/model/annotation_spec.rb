@@ -32,8 +32,8 @@ describe Rex::Java::Serialization::Model::Annotation do
 
     context "when block data contents" do
       it do
-        annotation.contents << Rex::Java::Serialization::Model::BlockData.new("\x01\x02\x03\x04\x05")
-        annotation.contents << Rex::Java::Serialization::Model::BlockDataLong.new("\x01\x02\x03\x04\x05")
+        annotation.contents << Rex::Java::Serialization::Model::BlockData.new(nil, "\x01\x02\x03\x04\x05")
+        annotation.contents << Rex::Java::Serialization::Model::BlockDataLong.new(nil, "\x01\x02\x03\x04\x05")
         annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
         expect(annotation.encode).to eq(contents)
       end

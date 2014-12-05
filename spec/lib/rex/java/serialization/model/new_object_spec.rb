@@ -50,12 +50,12 @@ describe Rex::Java::Serialization::Model::NewObject do
   describe "#encode" do
     it "serializes an Object" do
       new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('Easy')
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'Easy')
       new_class_desc.serial_version = 0x741de1bcbb2fcbaa
       new_class_desc.flags = 2
       field = Rex::Java::Serialization::Model::Field.new
       field.type = 'int'
-      field.name = Rex::Java::Serialization::Model::Utf.new('SSN')
+      field.name = Rex::Java::Serialization::Model::Utf.new(nil, 'SSN')
       new_class_desc.fields << field
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
       new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
