@@ -64,7 +64,7 @@ module Rex
             encoded << name.encode
 
             if is_object?
-              encoded << encode_field_type
+                encoded << encode_field_type
             end
 
             encoded
@@ -138,10 +138,18 @@ module Rex
           # @raise [RuntimeError] if unserialization doesn't succeed
           def decode_field_type(io)
             opcode = io.read(1)
-            unless opcode && opcode == [TC_STRING].pack('C')
-              raise ::RuntimeError, 'Failed to unserialize Field'
+            raise ::RuntimeError, 'Failed to unserialize Field field_type' if opcode.nil?
+            opcode = opcode.unpack('C')[0]
+            type = nil
+
+            case opcode
+            when TC_STRING
+              type = Utf.decode(io)
+            when TC_REFERENCE
+              type = Reference.decode(io)
+            else
+              raise ::RuntimeError, 'Failed to unserialize Field field_type'
             end
-            type = Utf.decode(io)
 
             type
           end

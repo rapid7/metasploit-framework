@@ -5,7 +5,7 @@ module Rex
         # This class provides a NewObject (Java Object) representation
         class NewObject < Element
 
-          include Rex::Java::Serialization
+          include Rex::Java::Serialization::Model::Contents
 
           # @!attribute class_desc
           #   @return [Java::Serialization::Model::ClassDescription] The description of the object
@@ -26,7 +26,9 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             self.class_desc = ClassDesc.decode(io)
-            self.class_data = decode_class_data(io, class_desc)
+            if class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc
+              self.class_data = decode_class_data(io, class_desc)
+            end
 
             self
           end
@@ -80,11 +82,11 @@ module Rex
             values = []
 
             my_class_desc.description.fields.each do |field|
-              unless field.is_primitive?
-                raise ::RuntimeError, 'Deserialization of objects with complex fields not supported'
+              if field.is_primitive?
+                values << decode_value(io, field.type)
+              else
+                values << decode_content(io)
               end
-
-              values << decode_value(io, field.type)
             end
 
             values

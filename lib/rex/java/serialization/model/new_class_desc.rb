@@ -45,7 +45,6 @@ module Rex
             self.serial_version = decode_serial_version(io)
             self.flags = decode_flags(io)
             fields_length = decode_fields_length(io)
-
             fields_length.times do
               field = Field.decode(io)
               self.fields << field

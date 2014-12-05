@@ -21,6 +21,7 @@ module Rex
             self.magic = STREAM_MAGIC
             self.version = STREAM_VERSION
             self.contents = []
+            self.stream = self
           end
 
           # Deserializes a Java::Serialization::Model::Stream
@@ -32,7 +33,10 @@ module Rex
             self.magic = decode_magic(io)
             self.version = decode_version(io)
 
-            self.contents << decode_content(io) until io.eof?
+            until io.eof?
+              content = decode_content(io)
+              self.contents << content
+            end
 
             self
           end
@@ -57,7 +61,7 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [String] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succed
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_magic(io)
             magic = io.read(2)
 
@@ -72,7 +76,7 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [Fixnum] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succed
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_version(io)
             version = io.read(2)
             unless version && version.unpack('n')[0] == STREAM_VERSION

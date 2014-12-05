@@ -4,6 +4,8 @@ module Rex
       module Model
         class Element
 
+          attr_accessor :stream
+
           # Deserializes a Java::Serialization::Model::Element
           #
           # @param io [IO] the io to read from

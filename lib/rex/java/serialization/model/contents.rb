@@ -40,7 +40,7 @@ module Rex
             when TC_PROXYCLASSDESC
               raise ::RuntimeError, 'Failed to unserialize unsupported TC_PROXYCLASSDESC content'
             when TC_REFERENCE
-              raise ::RuntimeError, 'Failed to unserialize unsupported TC_REFERENCE content'
+              content = Reference.decode(io)
             when TC_NULL
               content = NullReference.decode(io)
             when TC_EXCEPTION
