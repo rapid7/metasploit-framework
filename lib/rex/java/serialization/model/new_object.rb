@@ -26,12 +26,7 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             self.class_desc = ClassDesc.decode(io)
-
-            unless class_desc.description.super_class.description.class == Rex::Java::Serialization::Model::NullReference
-              raise ::RuntimeError, 'Deserialization of objects with super classes not supported'
-            end
-
-            self.class_data = decode_class_data(io)
+            self.class_data = decode_class_data(io, class_desc)
 
             self
           end
@@ -57,15 +52,34 @@ module Rex
 
           private
 
-          # Deserializes the class_data
+          # Deserializes the class_data for a class_desc and its super classes
           #
           # @param io [IO] the io to read from
+          # @param my_class_desc [Rex::Java::Serialization::Model::ClassDesc] the class_desc whose data is being extracted
           # @return [Array] class_data values if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
-          def decode_class_data(io)
+          def decode_class_data(io, my_class_desc)
             values = []
 
-            class_desc.description.fields.each do |field|
+            unless my_class_desc.description.super_class.description.class == Rex::Java::Serialization::Model::NullReference
+              values += decode_class_data(io, my_class_desc.description.super_class)
+            end
+
+            values += decode_class_fields(io, my_class_desc)
+
+            values
+          end
+
+          # Deserializes the fields data for a class_desc
+          #
+          # @param io [IO] the io to read from
+          # @param my_class_desc [Rex::Java::Serialization::Model::ClassDesc] the class_desc whose data is being extracted
+          # @return [Array] class_data values if deserialization succeeds
+          # @raise [RuntimeError] if deserialization doesn't succeed
+          def decode_class_fields(io, my_class_desc)
+            values = []
+
+            my_class_desc.description.fields.each do |field|
               unless field.is_primitive?
                 raise ::RuntimeError, 'Deserialization of objects with complex fields not supported'
               end
