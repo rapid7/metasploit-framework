@@ -24,7 +24,7 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             loop do
-              content = decode_content(io)
+              content = decode_content(io, stream)
               self.contents << content
               return self if content.class == Rex::Java::Serialization::Model::EndBlockData
             end

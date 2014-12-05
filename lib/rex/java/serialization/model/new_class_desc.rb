@@ -42,17 +42,17 @@ module Rex
           # @return [self] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
-            self.class_name = Utf.decode(io)
+            self.class_name = Utf.decode(io, stream)
             self.serial_version = decode_serial_version(io)
             self.flags = decode_flags(io)
             fields_length = decode_fields_length(io)
             fields_length.times do
-              field = Field.decode(io)
+              field = Field.decode(io, stream)
               self.fields << field
             end
 
-            self.class_annotation = Annotation.decode(io)
-            self.super_class = ClassDesc.decode(io)
+            self.class_annotation = Annotation.decode(io, stream)
+            self.super_class = ClassDesc.decode(io, stream)
 
             self
           end

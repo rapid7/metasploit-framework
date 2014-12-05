@@ -20,7 +20,7 @@ module Rex
           # @return [self] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
-            content = decode_content(io)
+            content = decode_content(io, stream)
             allowed_contents = [NullReference, NewClassDesc, Reference]
 
             unless allowed_contents.include?(content.class)

@@ -26,7 +26,7 @@ module Rex
           # @return [self] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
-            self.class_desc = ClassDesc.decode(io)
+            self.class_desc = ClassDesc.decode(io, stream)
             if class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc
               self.class_data = decode_class_data(io, class_desc)
             end
@@ -86,7 +86,7 @@ module Rex
               if field.is_primitive?
                 values << decode_value(io, field.type)
               else
-                values << decode_content(io)
+                values << decode_content(io, stream)
               end
             end
 

@@ -30,7 +30,7 @@ module Rex
           # @return [self] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
-            self.array_description = ClassDesc.decode(io)
+            self.array_description = ClassDesc.decode(io, stream)
             self.type = array_type
 
             values_length = decode_values_length(io)
@@ -164,7 +164,7 @@ module Rex
               raise ::RuntimeError, 'Failed to deserialize NewArray value' if value.nil?
               value = value.unpack('c')[0]
             else # object
-              value = decode_content(io)
+              value = decode_content(io, stream)
             end
 
             value

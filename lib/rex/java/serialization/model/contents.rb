@@ -10,7 +10,7 @@ module Rex
           # @param io [IO] the io to read from
           # @return [Rex::Java::Serialization::Model::Element] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed or unsupported content
-          def decode_content(io)
+          def decode_content(io, stream)
             opcode = io.read(1)
             raise ::RuntimeError, 'Failed to unserialize content' if opcode.nil?
             opcode = opcode.unpack('C')[0]
@@ -18,35 +18,35 @@ module Rex
 
             case opcode
             when TC_BLOCKDATA
-              content = BlockData.decode(io)
+              content = BlockData.decode(io, stream)
             when TC_BLOCKDATALONG
-              content = BlockDataLong.decode(io)
+              content = BlockDataLong.decode(io, stream)
             when TC_ENDBLOCKDATA
-              content = EndBlockData.decode(io)
+              content = EndBlockData.decode(io, stream)
             when TC_OBJECT
-              content = NewObject.decode(io)
+              content = NewObject.decode(io, stream)
             when TC_CLASS
-              content = ClassDesc.decode(io)
+              content = ClassDesc.decode(io, stream)
             when TC_ARRAY
-              content = NewArray.decode(io)
+              content = NewArray.decode(io, stream)
             when TC_STRING
-              content = Utf.decode(io)
+              content = Utf.decode(io, stream)
             when TC_LONGSTRING
-              content = LongUtf.decode(io)
+              content = LongUtf.decode(io, stream)
             when TC_ENUM
-              content = NewEnum.decode(io)
+              content = NewEnum.decode(io, stream)
             when TC_CLASSDESC
-              content = NewClassDesc.decode(io)
+              content = NewClassDesc.decode(io, stream)
             when TC_PROXYCLASSDESC
               raise ::RuntimeError, 'Failed to unserialize unsupported TC_PROXYCLASSDESC content'
             when TC_REFERENCE
-              content = Reference.decode(io)
+              content = Reference.decode(io, stream)
             when TC_NULL
-              content = NullReference.decode(io)
+              content = NullReference.decode(io, stream)
             when TC_EXCEPTION
               raise ::RuntimeError, 'Failed to unserialize unsupported TC_EXCEPTION content'
             when TC_RESET
-              content = Reset.decode(io)
+              content = Reset.decode(io, stream)
             else
               raise ::RuntimeError, 'Failed to unserialize content'
             end

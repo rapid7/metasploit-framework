@@ -34,7 +34,7 @@ module Rex
             self.version = decode_version(io)
 
             until io.eof?
-              content = decode_content(io)
+              content = decode_content(io, self)
               self.contents << content
             end
 

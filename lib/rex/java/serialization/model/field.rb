@@ -38,7 +38,7 @@ module Rex
             end
 
             self.type = TYPE_CODES[code]
-            self.name = Utf.decode(io)
+            self.name = Utf.decode(io, stream)
 
             if is_object?
               self.field_type = decode_field_type(io)
@@ -137,7 +137,7 @@ module Rex
           # @return [Java::Serialization::Model::Utf]
           # @raise [RuntimeError] if unserialization doesn't succeed
           def decode_field_type(io)
-            type = decode_content(io)
+            type = decode_content(io, stream)
 
             unless type.class == Rex::Java::Serialization::Model::Utf || type.class == Rex::Java::Serialization::Model::Reference
               raise ::RuntimeError, 'Failed to unserialize Field field_type'

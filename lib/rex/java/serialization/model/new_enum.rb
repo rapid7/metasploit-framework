@@ -26,7 +26,7 @@ module Rex
           # @return [self] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
-            self.enum_description = ClassDesc.decode(io)
+            self.enum_description = ClassDesc.decode(io, stream)
             self.constant_name = decode_constant_name(io)
 
             self
@@ -56,7 +56,7 @@ module Rex
           # @return [Rex::Java::Serialization::Model::Utf] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succed
           def decode_constant_name(io)
-            content = decode_content(io)
+            content = decode_content(io, stream)
             raise ::RuntimeError, 'Failed to unserialize NewEnum' unless content.class == Rex::Java::Serialization::Model::Utf
 
             content
