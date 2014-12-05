@@ -58,6 +58,7 @@ describe Rex::Java::Serialization::Model::NewObject do
       field.name = Rex::Java::Serialization::Model::Utf.new('SSN')
       new_class_desc.fields << field
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 

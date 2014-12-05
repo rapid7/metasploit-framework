@@ -7,6 +7,7 @@ module Rex
         class Annotation < Element
 
           include Rex::Java::Serialization
+          include Rex::Java::Serialization::Model::Contents
 
           # @!attribute contents
           #   @return [Array] The annotation contents
@@ -23,25 +24,9 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             loop do
-              opcode = io.read(1)
-              if opcode.nil?
-                raise ::RuntimeError, 'Failed to unserialize Annotation'
-              end
-              opcode = opcode.unpack('C')[0]
-
-              case opcode
-              when TC_BLOCKDATA
-                block = BlockData.decode(io)
-                self.contents << block
-              when TC_BLOCKDATALONG
-                block = BlockDataLong.decode(io)
-                self.contents << block
-              when TC_ENDBLOCKDATA
-                return self
-              else
-                #TODO: unsupported
-                raise ::RuntimeError, 'Unsupported content opcode'
-              end
+              content = decode_content(io)
+              self.contents << content
+              return self if content.class == Rex::Java::Serialization::Model::EndBlockData
             end
 
             self
@@ -52,22 +37,13 @@ module Rex
           # @return [String] if serialization suceeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
+            raise ::RuntimeError, 'Failed to serialize Annotation with empty contents' if contents.empty?
+
             encoded = ''
 
             contents.each do |content|
-              case content
-              when Rex::Java::Serialization::Model::BlockData
-                encoded << [TC_BLOCKDATA].pack('C')
-              when Rex::Java::Serialization::Model::BlockDataLong
-                encoded << [TC_BLOCKDATALONG].pack('C')
-              else
-                raise ::RuntimeError, 'Unsupported content'
-              end
-              encoded_content = content.encode
-              encoded << encoded_content
+              encoded << encode_content(content)
             end
-
-            encoded << [TC_ENDBLOCKDATA].pack('C')
 
             encoded
           end

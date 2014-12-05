@@ -88,7 +88,7 @@ describe Rex::Java::Serialization::Model::NewClassDesc do
 
     it "deserializes class annotation contents" do
       class_desc_new.decode(sample_io)
-      expect(class_desc_new.class_annotation.contents).to be_empty
+      expect(class_desc_new.class_annotation.contents[0]).to be_a(Rex::Java::Serialization::Model::EndBlockData)
     end
 
     it "deserializes super_class" do
@@ -109,6 +109,7 @@ describe Rex::Java::Serialization::Model::NewClassDesc do
       super_class_desc_new.serial_version = 0x86ac951d0b94e08b
       super_class_desc_new.flags = 2
       super_class_desc_new.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      super_class_desc_new.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       super_class_desc_new.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       super_class_desc_new.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -123,6 +124,7 @@ describe Rex::Java::Serialization::Model::NewClassDesc do
       field.name = Rex::Java::Serialization::Model::Utf.new('value')
       class_desc_new.fields << field
       class_desc_new.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      class_desc_new.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       class_desc_new.super_class = super_class_desc
 
       expect(class_desc_new.encode.unpack("C*")).to eq(sample.unpack("C*"))

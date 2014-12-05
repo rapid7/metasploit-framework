@@ -25,6 +25,7 @@ describe Rex::Java::Serialization::Model::Annotation do
 
     context "when empty contents" do
       it do
+        annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
         expect(annotation.encode).to eq(empty_contents)
       end
     end
@@ -33,6 +34,7 @@ describe Rex::Java::Serialization::Model::Annotation do
       it do
         annotation.contents << Rex::Java::Serialization::Model::BlockData.new("\x01\x02\x03\x04\x05")
         annotation.contents << Rex::Java::Serialization::Model::BlockDataLong.new("\x01\x02\x03\x04\x05")
+        annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
         expect(annotation.encode).to eq(contents)
       end
     end
@@ -46,9 +48,14 @@ describe Rex::Java::Serialization::Model::Annotation do
         expect(annotation.decode(empty_contents_io)).to be_a(Rex::Java::Serialization::Model::Annotation)
       end
 
-      it "keeps contents" do
+      it "unserializes one content" do
         annotation.decode(empty_contents_io)
-        expect(annotation.contents).to be_empty
+        expect(annotation.contents.length).to eq(1)
+      end
+
+      it "unserializes one EndBlockData content" do
+        annotation.decode(empty_contents_io)
+        expect(annotation.contents[0]).to be_a(Rex::Java::Serialization::Model::EndBlockData)
       end
     end
 
@@ -59,7 +66,7 @@ describe Rex::Java::Serialization::Model::Annotation do
 
       it "deserializes contents" do
         annotation.decode(contents_io)
-        expect(annotation.contents.length).to eq(2)
+        expect(annotation.contents.length).to eq(3)
       end
 
       it "deserializes block data contents" do
@@ -70,6 +77,11 @@ describe Rex::Java::Serialization::Model::Annotation do
       it "deserializes block data long contents" do
         annotation.decode(contents_io)
         expect(annotation.contents[1]).to be_a_kind_of(Rex::Java::Serialization::Model::BlockDataLong)
+      end
+
+      it "deserializes end block data" do
+        annotation.decode(contents_io)
+        expect(annotation.contents[2]).to be_a_kind_of(Rex::Java::Serialization::Model::EndBlockData)
       end
     end
 

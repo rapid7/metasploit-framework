@@ -44,6 +44,7 @@ describe Rex::Java::Serialization::Model::ClassDesc do
       super_class_desc_new.serial_version = 0x86ac951d0b94e08b
       super_class_desc_new.flags = 2
       super_class_desc_new.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      super_class_desc_new.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       super_class_desc_new.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       super_class_desc_new.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -59,6 +60,7 @@ describe Rex::Java::Serialization::Model::ClassDesc do
       field.name = Rex::Java::Serialization::Model::Utf.new('value')
       class_desc_new.fields << field
       class_desc_new.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      class_desc_new.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       class_desc_new.super_class = super_class_desc
 
       class_desc.description = class_desc_new

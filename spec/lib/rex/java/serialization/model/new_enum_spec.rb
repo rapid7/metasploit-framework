@@ -52,12 +52,14 @@ describe Rex::Java::Serialization::Model::NewEnum do
       new_class_desc.serial_version = 0
       new_class_desc.flags = 18
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NewClassDesc.new
       new_class_desc.super_class.description.class_name = Rex::Java::Serialization::Model::Utf.new('java.lang.Enum')
       new_class_desc.super_class.description.serial_version = 0
       new_class_desc.super_class.description.flags = 18
       new_class_desc.super_class.description.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.super_class.description.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class.description.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 

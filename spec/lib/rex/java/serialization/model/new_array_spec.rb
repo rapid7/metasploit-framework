@@ -244,6 +244,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_class_desc.serial_version = 0x578f203914b85de2
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -261,6 +262,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_class_desc.serial_version = 0xacf317f8060854e0
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -278,6 +280,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_class_desc.serial_version = 0xb02666b0e25d84ac
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -295,6 +298,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_class_desc.serial_version = 0xef832e06e55db0fa
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -312,6 +316,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_class_desc.serial_version = 0x3ea68c14ab635a1e
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -329,6 +334,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_class_desc.serial_version = 0xb9c818922e00c42
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -346,6 +352,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_class_desc.serial_version = 0x4dba602676eab2a5
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
@@ -363,6 +370,7 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_class_desc.serial_version = 0x782004b512b17593
       new_class_desc.flags = 2
       new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
       new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
       new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
 
