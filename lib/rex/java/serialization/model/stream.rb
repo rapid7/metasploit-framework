@@ -5,7 +5,6 @@ module Rex
         # This class provides a Java Stream representation
         class Stream < Element
 
-          include Rex::Java::Serialization
           include Rex::Java::Serialization::Model::Contents
 
           # @!attribute magic

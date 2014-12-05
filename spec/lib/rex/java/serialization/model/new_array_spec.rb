@@ -229,9 +229,24 @@ describe Rex::Java::Serialization::Model::NewArray do
       end
     end
 
-    context "when unsupported Array type" do
-      it "raises a RuntimeError" do
-        expect { new_array.decode(string_array_io) }.to raise_error(RuntimeError)
+    context "when Strings (Objects) array" do
+      it "deserializes the array" do
+        expect(new_array.decode(string_array_io)).to be_a(Rex::Java::Serialization::Model::NewArray)
+      end
+
+      it "deserializes type correctly" do
+        new_array.decode(string_array_io)
+        expect(new_array.type).to eq('java.lang.String;')
+      end
+
+      it "deserializes number of members correctly" do
+        new_array.decode(string_array_io)
+        expect(new_array.values.length).to eq(1)
+      end
+
+      it "deserializes the members correctly" do
+        new_array.decode(string_array_io)
+        expect(new_array.values[0].contents).to eq('msf')
       end
     end
 
@@ -380,6 +395,24 @@ describe Rex::Java::Serialization::Model::NewArray do
       new_array.values = [-20, 65]
 
       expect(new_array.encode.unpack("C*")).to eq(long_array.unpack("C*"))
+    end
+
+    it "serializes a String (Objects) Array" do
+      new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
+      new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new('[Ljava.lang.String;')
+      new_class_desc.serial_version = 0xadd256e7e91d7b47
+      new_class_desc.flags = 2
+      new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+      new_class_desc.class_annotation.contents << Rex::Java::Serialization::Model::EndBlockData.new
+      new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
+      new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
+
+      new_array.array_description = Rex::Java::Serialization::Model::ClassDesc.new
+      new_array.array_description.description = new_class_desc
+      new_array.type = 'java.lang.String;'
+      new_array.values = [ Rex::Java::Serialization::Model::Utf.new('msf') ]
+
+      expect(new_array.encode.unpack("C*")).to eq(string_array.unpack("C*"))
     end
 
   end

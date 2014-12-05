@@ -5,7 +5,7 @@ module Rex
         # This class provides a NewArray (Java Array) representation
         class NewArray < Element
 
-          include Rex::Java::Serialization
+          include Rex::Java::Serialization::Model::Contents
 
           # @!attribute array_description
           #   @return [Java::Serialization::Model::ClassDescription] The description of the array
@@ -95,19 +95,18 @@ module Rex
 
             desc = array_description.description
 
-            unless desc.class_name.length == 2
-              raise ::RuntimeError, 'Unsupported Complex NewArray deserialization'
-            end
-
             unless desc.class_name.contents[0] == '[' # Array
               raise ::RuntimeError, 'Unsupported NewArray description'
             end
 
-            unless PRIMITIVE_TYPE_CODES.keys.include?(desc.class_name.contents[1])
-              raise ::RuntimeError, 'Unsupported NewArray of Object Type'
+            decoded_type = desc.class_name.contents[1]
+            if PRIMITIVE_TYPE_CODES.keys.include?(decoded_type)
+              return PRIMITIVE_TYPE_CODES[decoded_type]
+            elsif decoded_type == 'L' # L : Object
+              return desc.class_name.contents[2..desc.class_name.contents.index(';')] # Object class
+            else
+              raise ::RuntimeError, 'Unsupported NewArray Type'
             end
-
-            PRIMITIVE_TYPE_CODES[desc.class_name.contents[1]]
           end
 
           # Deserializes a NewArray value
@@ -163,8 +162,8 @@ module Rex
               value = io.read(1)
               raise ::RuntimeError, 'Failed to deserialize NewArray value' if value.nil?
               value = value.unpack('c')[0]
-            else
-              raise ::RuntimeError, 'Unsupported NewArray type'
+            else # object
+              value = decode_content(io)
             end
 
             value
@@ -196,8 +195,10 @@ module Rex
               res = [value].pack('s>')
             when 'boolean'
               res = [value].pack('c')
-            else
-              raise ::RuntimeError, 'Unsupported NewArray type'
+            when Rex::Java::Serialization::Model::Element
+              res = value.encode
+            else # object
+              res = encode_content(value)
             end
 
             res

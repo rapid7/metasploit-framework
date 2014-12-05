@@ -6,7 +6,6 @@ module Rex
         # annotations (classAnnotation) and object annotations (objectAnnotation).
         class Annotation < Element
 
-          include Rex::Java::Serialization
           include Rex::Java::Serialization::Model::Contents
 
           # @!attribute contents
