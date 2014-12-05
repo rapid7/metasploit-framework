@@ -16,12 +16,18 @@ module Rex
           # @!attribute contents
           #   @return [Array] The stream's contents
           attr_accessor :contents
+          attr_accessor :references
 
           def initialize(stream = nil)
             super(stream)
             self.magic = STREAM_MAGIC
             self.version = STREAM_VERSION
             self.contents = []
+            self.references = []
+          end
+
+          def add_reference(ref)
+            self.references.push(ref)
           end
 
           # Deserializes a Java::Serialization::Model::Stream

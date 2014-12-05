@@ -70,6 +70,7 @@ module Rex
             encoded = ''
             encoded << class_name.encode
             encoded << [serial_version].pack('Q>')
+            stream.add_reference(self) unless stream.nil?
             encoded << [flags].pack('C')
             encoded << [fields.length].pack('n')
             fields.each do |field|

@@ -31,6 +31,7 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             self.array_description = ClassDesc.decode(io, stream)
+            stream.add_reference(self) unless stream.nil?
             self.type = array_type
 
             values_length = decode_values_length(io)

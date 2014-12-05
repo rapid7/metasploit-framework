@@ -27,6 +27,7 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             self.enum_description = ClassDesc.decode(io, stream)
+            stream.add_reference(self) unless stream.nil?
             self.constant_name = decode_constant_name(io)
 
             self

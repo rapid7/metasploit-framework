@@ -11,6 +11,7 @@ module Rex
           # @return [self] if deserialization succeeds
           # @return [nil] if deserialization doesn't succeed
           def decode(io)
+            stream.add_reference(self) unless stream.nil?
             raw_length = io.read(8)
             if raw_length.nil? || raw_length.length != 8
               raise ::RuntimeError, 'Failed to unserialize LongUtf'

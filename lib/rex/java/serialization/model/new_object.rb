@@ -27,6 +27,7 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             self.class_desc = ClassDesc.decode(io, stream)
+            stream.add_reference(self) unless stream.nil?
             if class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc
               self.class_data = decode_class_data(io, class_desc)
             end
