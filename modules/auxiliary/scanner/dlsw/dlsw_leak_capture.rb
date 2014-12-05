@@ -13,10 +13,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Cisco DLSw Information Leak Scanner',
+      'Name'           => 'Cisco DLSw Information Disclosure Scanner',
       'Description'    => %q(
-        This module implements the DLSw information leak retrieval. There is
-        a bug in Cisco's DLSw implementation affecting 12.x and 15.x trains
+        This module implements the DLSw information disclosure retrieval. There
+        is a bug in Cisco's DLSw implementation affecting 12.x and 15.x trains
         that allows an unuthenticated remote attacker to retrieve the partial
         contents of packets traversing a Cisco router with DLSw configured
         and active.
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called when using check
   def check_host(_ip)
-    print_status("#{peer}: Checking for DLSw exposure")
+    print_status("#{peer}: Checking for DLSw information disclosure (CVE-2014-7992)")
     response = get_response
 
     if response.blank?
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
       # TODO: check that response has something that truly indicates it is vulnerable
       # and not simply that it responded
       unless response[18..72].scan(/\x00/).length == 54
-        print_good("#{peer}: leaked #{response.length} bytes")
+        print_good("#{peer}: vulnerable to DLSw information disclosure; leaked #{response.length} bytes")
         report_vuln(
           host: rhost,
           port: rport,
