@@ -21,7 +21,6 @@ class Msf::Post < Msf::Module
 
   def setup
     m = replicant
-    action = datastore['ACTION']
     if m.actions.length > 0 && !m.action
       raise Msf::MissingActionError, "Please use: #{m.actions.collect {|e| e.name} * ", "}"
     end
