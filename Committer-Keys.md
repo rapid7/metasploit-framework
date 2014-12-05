@@ -16,7 +16,7 @@ This page lists the keys in use by [Metasploit committers](https://github.com/ra
 | [@timwr](https://github.com/timwr) | timrlw@gmail.com | [ABBAABEF](https://gist.github.com/timwr/4c88fa851efabd435d4d) | [0x217FBA50ABBAABEF](http://pgp.mit.edu/pks/lookup?op=vindex&search=0x217FBA50ABBAABEF) |
 | [@todb-r7](https://github.com/todb-r7) | tod_beardsley@rapid7.com | [EA19CAAC](https://gist.github.com/todb-r7/7269765) | [0xBD63D0A3EA19CAAC](https://pgp.mit.edu/pks/lookup?op=get&search=0xBD63D0A3EA19CAAC) |
 | [@wchen-r7](https://github.com/wchen-r7) | wei_chen@rapid7.com | [F06F730B](https://gist.github.com/wchen-r7/0e0269d9ff0afc1ca7a5) | [0x2384DB4EF06F730B](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2384DB4EF06F730B) |
-| [@wvu-r7](https://github.com/wvu-r7) | william_vu@rapid7.com | [C1629024](https://gist.github.com/wvu-r7/dc5d571f99688bc16c99) | [0xE761DCB4C1629024](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0xE761DCB4C1629024)|
+| [@wvu-r7](https://github.com/wvu-r7) | william_vu@rapid7.com | [25866743](https://gist.github.com/wvu-r7/373f4b2e765798a6e46a) | [0x68BD00CE25866743](http://pgp.mit.edu/pks/lookup?op=vindex&search=0x68BD00CE25866743)|
 | [@zeroSteiner](https://github.com/zeroSteiner) | zeroSteiner@gmail.com | [A5E15412](https://gist.github.com/zeroSteiner/b32f86a76d701af42dbd) | [0xC00D6B6AA5E15412](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0xC00D6B6AA5E15412)|
 
 # Signing criteria
