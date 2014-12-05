@@ -21,7 +21,6 @@ module Rex
             self.magic = STREAM_MAGIC
             self.version = STREAM_VERSION
             self.contents = []
-            self.stream = self
           end
 
           # Deserializes a Java::Serialization::Model::Stream
