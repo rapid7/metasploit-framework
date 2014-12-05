@@ -1,4 +1,4 @@
-bundler_args: --without coverage
+bundler_args: --without development coverage
 env:
   - RAKE_TASK=cucumber
   - RAKE_TASK=cucumber:boot
