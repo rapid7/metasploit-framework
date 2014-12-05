@@ -5,7 +5,7 @@ module Rex
         # This class provides a NewEnum (Java Enum) representation
         class NewEnum < Element
 
-          include Rex::Java::Serialization
+          include Rex::Java::Serialization::Model::Contents
 
           # @!attribute enum_description
           #   @return [Java::Serialization::Model::ClassDescription] The description of the enum
@@ -43,8 +43,7 @@ module Rex
 
             encoded = ''
             encoded << enum_description.encode
-            encoded << [TC_STRING].pack('C')
-            encoded << constant_name.encode
+            encoded << encode_content(constant_name)
             encoded
           end
 
@@ -56,14 +55,10 @@ module Rex
           # @return [Rex::Java::Serialization::Model::Utf] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succed
           def decode_constant_name(io)
-            opcode = io.read(1)
-            unless opcode && opcode.unpack('C')[0] == TC_STRING
-              raise ::RuntimeError, 'Failed to unserialize NewEnum'
-            end
+            content = decode_content(io)
+            raise ::RuntimeError, 'Failed to unserialize NewEnum' unless content.class == Rex::Java::Serialization::Model::Utf
 
-            constant = Utf.decode(io)
-
-            constant
+            content
           end
         end
       end

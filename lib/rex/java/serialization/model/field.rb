@@ -6,7 +6,7 @@ module Rex
         # both primitive descriptions (primitiveDesc) and object descriptions (objectDesc).
         class Field < Element
 
-          include Rex::Java::Serialization
+          include Rex::Java::Serialization::Model::Contents
 
           # @!attribute type
           #   @return [String] The type of the field.
@@ -125,8 +125,7 @@ module Rex
               raise ::RuntimeError, 'Failed to serialize Field'
             end
 
-            encoded = [TC_STRING].pack('C')
-            encoded << field_type.encode
+            encoded = encode_content(field_type)
 
             encoded
           end
@@ -137,17 +136,9 @@ module Rex
           # @return [Java::Serialization::Model::Utf]
           # @raise [RuntimeError] if unserialization doesn't succeed
           def decode_field_type(io)
-            opcode = io.read(1)
-            raise ::RuntimeError, 'Failed to unserialize Field field_type' if opcode.nil?
-            opcode = opcode.unpack('C')[0]
-            type = nil
+            type = decode_content(io)
 
-            case opcode
-            when TC_STRING
-              type = Utf.decode(io)
-            when TC_REFERENCE
-              type = Reference.decode(io)
-            else
+            unless type.class == Rex::Java::Serialization::Model::Utf || type.class == Rex::Java::Serialization::Model::Reference
               raise ::RuntimeError, 'Failed to unserialize Field field_type'
             end
 

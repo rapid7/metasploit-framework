@@ -5,7 +5,7 @@ module Rex
         # This class provides a Java classDesc representation
         class ClassDesc < Element
 
-          include Rex::Java::Serialization
+          include Rex::Java::Serialization::Model::Contents
 
           attr_accessor :description
 
@@ -19,24 +19,14 @@ module Rex
           # @return [self] if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
-            opcode = io.read(1)
-            raise ::RuntimeError, 'Failed to unserialize ClassDesc' if opcode.nil?
-            opcode = opcode.unpack('C')[0]
+            content = decode_content(io)
+            allowed_contents = [NullReference, NewClassDesc, Reference]
 
-            case opcode
-            when TC_NULL
-              self.description = NullReference.new
-            when TC_CLASSDESC
-              self.description = NewClassDesc.decode(io)
-            when TC_PROXYCLASSDESC
-              #TODO: Support TC_PROXYCLASSDESC
-              raise ::RuntimeError, 'ClassDesc unserialize failed due to unsupported class'
-            when TC_REFERENCE
-              self.description = Reference.decode(io)
-            else
+            unless allowed_contents.include?(content.class)
               raise ::RuntimeError, 'ClassDesc unserialize failed'
             end
 
+            self.description = content
             self
           end
 
@@ -46,17 +36,13 @@ module Rex
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
             encoded = ''
+            allowed_contents = [NullReference, NewClassDesc]
 
-            case description
-            when NewClassDesc
-              encoded << [TC_CLASSDESC].pack('C')
-              encoded << description.encode
-            when NullReference
-              encoded << [TC_NULL].pack('C')
-            else
-              #TODO: support other superclass types
-              raise RuntimeError, 'Failed to serialize ClassDesc'
+            unless allowed_contents.include?(description.class)
+              raise ::RuntimeError, 'Failed to serialize ClassDesc'
             end
+
+            encoded << encode_content(description)
 
             encoded
           end
