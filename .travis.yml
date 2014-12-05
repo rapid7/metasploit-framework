@@ -9,6 +9,7 @@ language: ruby
 matrix:
   fast_finish: true
 before_install:
+  - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpcap-dev
