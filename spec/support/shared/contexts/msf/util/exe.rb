@@ -36,6 +36,8 @@ shared_context 'Msf::Util::Exe' do
       { :format => "psh",  :arch => "x86_64", :file_fp => /ASCII/  },
       { :format => "psh-net",  :arch => "x86", :file_fp => /ASCII/  },
       { :format => "psh-net",  :arch => "x86_64", :file_fp => /ASCII/  },
+      { :format => "psh-cmd", :arch => "x86", :file_fp => /ASCII/ },
+      { :format => "psh-cmd", :arch => "x86_64", :file_fp => /ASCII/ },
       { :format => "war",  :arch => "x86", :file_fp => /zip|jar/i  },
       { :format => "war",  :arch => "x86_64", :file_fp => /zip|jar/i  },
       { :format => "msi",  :arch => "x86", :file_fp => /(Composite Document)|(CDF V2 Document)/  },
