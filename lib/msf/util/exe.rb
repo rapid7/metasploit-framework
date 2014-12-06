@@ -1056,8 +1056,12 @@ require 'rex/exploitation/powershell'
   end
 
   def self.to_powershell_command(framework, arch, code)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
     Rex::Exploitation::Powershell::Command.cmd_psh_payload(code,
                     arch,
+                    template_path,
                     encode_final_payload: true,
                     method: 'reflection')
   end
