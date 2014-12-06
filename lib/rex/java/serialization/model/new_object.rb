@@ -14,6 +14,7 @@ module Rex
           #   @return [Array] The data of the object
           attr_accessor :class_data
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             super(stream)
             self.class_desc = nil
@@ -32,7 +33,7 @@ module Rex
             if class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc
               self.class_data = decode_class_data(io, class_desc.description)
             elsif class_desc.description.class == Rex::Java::Serialization::Model::Reference
-              ref = class_desc.description.handler - BASE_WIRE_HANDLE
+              ref = class_desc.description.handle - BASE_WIRE_HANDLE
               self.class_data = decode_class_data(io, stream.references[ref])
             end
 

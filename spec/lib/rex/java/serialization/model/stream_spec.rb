@@ -70,6 +70,10 @@ describe Rex::Java::Serialization::Model::Stream do
       expect(stream.version).to eq(Rex::Java::Serialization::STREAM_VERSION)
     end
 
+    it "initializes references as empty array " do
+      expect(stream.references).to be_empty
+    end
+
     it "initializes stream to nil by default" do
       expect(stream.stream).to be_nil
     end

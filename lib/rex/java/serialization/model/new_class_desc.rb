@@ -26,6 +26,7 @@ module Rex
           #   @return [Java::Serialization::Model::ClassDesc] The java class superclass description
           attr_accessor :super_class
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             super(stream)
             self.class_name = nil

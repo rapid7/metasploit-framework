@@ -18,6 +18,7 @@ module Rex
           #   @return [Java::Serialization::Model::Utf] The type of the field on object types.
           attr_accessor :field_type
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             super(stream)
             self.type = ''

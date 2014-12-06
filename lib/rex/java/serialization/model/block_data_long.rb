@@ -12,6 +12,7 @@ module Rex
           #   @return [String] the contents of the block
           attr_accessor :contents
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           # @param contents [String] the contents of the block
           def initialize(stream = nil, contents = '')
             super(stream)

@@ -9,6 +9,7 @@ module Rex
 
           attr_accessor :description
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             super(stream)
             self.description = nil

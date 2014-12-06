@@ -14,6 +14,7 @@ module Rex
           #   @return [Array] The constant value in the Java Enum
           attr_accessor :constant_name
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             super(stream)
             self.enum_description = nil

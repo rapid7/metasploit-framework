@@ -12,6 +12,7 @@ module Rex
           #   @return [Array] The annotation contents
           attr_accessor :contents
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             super(stream)
             self.contents = []

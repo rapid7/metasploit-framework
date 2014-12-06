@@ -17,6 +17,7 @@ module Rex
           #   @return [Array] The contents of the java array
           attr_accessor :values
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             super(stream)
             self.array_description = nil

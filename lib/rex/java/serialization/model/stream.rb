@@ -14,20 +14,18 @@ module Rex
           #   @return [Fixnum] The stream version
           attr_accessor :version
           # @!attribute contents
-          #   @return [Array] The stream's contents
+          #   @return [Array] The stream contents
           attr_accessor :contents
+          # @!attribute references
+          #   @return [Array] The stream objects to be referenced through handles
           attr_accessor :references
 
           def initialize(stream = nil)
-            super(stream)
+            super(nil)
             self.magic = STREAM_MAGIC
             self.version = STREAM_VERSION
             self.contents = []
             self.references = []
-          end
-
-          def add_reference(ref)
-            self.references.push(ref)
           end
 
           # Deserializes a Java::Serialization::Model::Stream
@@ -59,6 +57,13 @@ module Rex
               encoded << encode_content(content)
             end
             encoded
+          end
+
+          # Adds an element to the references array
+          #
+          # @param io [Rex::Java::Serialization::Model::Element] the object to save as reference dst
+          def add_reference(ref)
+            self.references.push(ref)
           end
 
           private

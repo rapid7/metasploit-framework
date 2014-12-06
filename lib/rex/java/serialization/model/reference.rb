@@ -2,33 +2,46 @@ module Rex
   module Java
     module Serialization
       module Model
+        # This class provides a Java Reference representation.
         class Reference < Element
 
-          attr_accessor :handler
+          # @!attribute contents
+          #   @return [Fixnum] The stream handle being referenced
+          attr_accessor :handle
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             super(stream)
-            self.handler = 0
+            self.handle = 0
           end
 
+          # Deserializes a Java::Serialization::Model::Reference
+          #
+          # @param io [IO] the io to read from
+          # @return [self] if deserialization succeeds
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
-            handler_raw = io.read(4)
-            unless handler_raw && handler_raw.length == 4
+            handle_raw = io.read(4)
+            unless handle_raw && handle_raw.length == 4
               raise ::RuntimeError, 'Failed to unserialize Reference'
             end
 
-            self.handler = handler_raw.unpack('N')[0]
+            self.handle = handle_raw.unpack('N')[0]
 
             self
           end
 
+          # Serializes the Java::Serialization::Model::Reference
+          #
+          # @return [String] if serialization succeeds
+          # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            if handler < BASE_WIRE_HANDLE
+            if handle < BASE_WIRE_HANDLE
               raise ::RuntimeError, 'Failed to serialize Reference'
             end
 
             encoded = ''
-            encoded << [handler].pack('N')
+            encoded << [handle].pack('N')
 
             encoded
           end

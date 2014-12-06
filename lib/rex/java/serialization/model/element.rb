@@ -16,6 +16,7 @@ module Rex
             elem.decode(io)
           end
 
+          # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
           def initialize(stream = nil)
             self.stream = stream
           end
