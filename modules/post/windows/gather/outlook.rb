@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
       'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
       'References'    => [ 'URL', 'https://forsec.nl/2014/11/reading-outlook-using-metasploit' ],
       'Platform'      => [ 'win' ],
-      'Arch'	        => [ 'x86', 'x64' ],
+      'Arch'          => [ 'x86', 'x64' ],
       'SessionTypes'  => [ 'meterpreter' ],
       'Actions'       => [
         [ 'LIST', { 'Description' => 'Lists all folders' } ],
