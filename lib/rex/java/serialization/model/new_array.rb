@@ -50,7 +50,7 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless array_description.class == Rex::Java::Serialization::Model::ClassDesc
+            unless array_description.class == ClassDesc
               raise ::RuntimeError, 'Failed to serialize NewArray'
             end
 
@@ -92,7 +92,7 @@ module Rex
               raise ::RuntimeError, 'Empty NewArray description'
             end
 
-            unless array_description.class == Rex::Java::Serialization::Model::ClassDesc
+            unless array_description.class == ClassDesc
               raise ::RuntimeError, 'Unsupported NewArray description class'
             end
 
@@ -198,7 +198,7 @@ module Rex
               res = [value].pack('s>')
             when 'boolean'
               res = [value].pack('c')
-            when Rex::Java::Serialization::Model::Element
+            when Element
               res = value.encode
             else # object
               res = encode_content(value)

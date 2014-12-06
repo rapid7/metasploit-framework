@@ -65,31 +65,31 @@ module Rex
             encoded = ''
 
             case content
-            when Rex::Java::Serialization::Model::BlockData
+            when BlockData
               encoded << [TC_BLOCKDATA].pack('C')
-            when Rex::Java::Serialization::Model::BlockDataLong
+            when BlockDataLong
               encoded << [TC_BLOCKDATALONG].pack('C')
-            when Rex::Java::Serialization::Model::EndBlockData
+            when EndBlockData
               encoded << [TC_ENDBLOCKDATA].pack('C')
-            when Rex::Java::Serialization::Model::NewObject
+            when NewObject
               encoded << [TC_OBJECT].pack('C')
-            when Rex::Java::Serialization::Model::ClassDesc
+            when ClassDesc
               encoded << [TC_CLASS].pack('C')
-            when Rex::Java::Serialization::Model::NewArray
+            when NewArray
               encoded << [TC_ARRAY].pack('C')
-            when Rex::Java::Serialization::Model::Utf
+            when Utf
               encoded << [TC_STRING].pack('C')
-            when Rex::Java::Serialization::Model::LongUtf
+            when LongUtf
               encoded << [TC_LONGSTRING].pack('C')
-            when Rex::Java::Serialization::Model::NewEnum
+            when NewEnum
               encoded << [TC_ENUM].pack('C')
-            when Rex::Java::Serialization::Model::NewClassDesc
+            when NewClassDesc
               encoded << [TC_CLASSDESC].pack('C')
-            when Rex::Java::Serialization::Model::NullReference
+            when NullReference
               encoded << [TC_NULL].pack('C')
-            when Rex::Java::Serialization::Model::Reset
+            when Reset
               encoded << [TC_RESET].pack('C')
-            when Rex::Java::Serialization::Model::Reference
+            when Reference
               encoded << [TC_REFERENCE].pack('C')
             else
               raise ::RuntimeError, 'Failed to serialize content'

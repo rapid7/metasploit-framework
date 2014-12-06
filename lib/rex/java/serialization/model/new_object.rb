@@ -30,9 +30,9 @@ module Rex
             self.class_desc = ClassDesc.decode(io, stream)
             stream.add_reference(self) unless stream.nil?
 
-            if class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc
+            if class_desc.description.class == NewClassDesc
               self.class_data = decode_class_data(io, class_desc.description)
-            elsif class_desc.description.class == Rex::Java::Serialization::Model::Reference
+            elsif class_desc.description.class == Reference
               ref = class_desc.description.handle - BASE_WIRE_HANDLE
               self.class_data = decode_class_data(io, stream.references[ref])
             end
@@ -45,7 +45,7 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless class_desc.class == Rex::Java::Serialization::Model::ClassDesc
+            unless class_desc.class == ClassDesc
               raise ::RuntimeError, 'Failed to serialize NewObject'
             end
 
@@ -74,7 +74,7 @@ module Rex
           def decode_class_data(io, my_class_desc)
             values = []
 
-            unless my_class_desc.super_class.description.class == Rex::Java::Serialization::Model::NullReference
+            unless my_class_desc.super_class.description.class == NullReference
               values += decode_class_data(io, my_class_desc.super_class.description)
             end
 

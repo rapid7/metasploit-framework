@@ -27,7 +27,7 @@ module Rex
             loop do
               content = decode_content(io, stream)
               self.contents << content
-              return self if content.class == Rex::Java::Serialization::Model::EndBlockData
+              return self if content.class == EndBlockData
             end
 
             self

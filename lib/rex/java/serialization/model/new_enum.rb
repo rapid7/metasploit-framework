@@ -39,8 +39,8 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless enum_description.class == Rex::Java::Serialization::Model::ClassDesc &&
-                    constant_name.class == Rex::Java::Serialization::Model::Utf
+            unless enum_description.class == ClassDesc &&
+                    constant_name.class == Utf
               raise ::RuntimeError, 'Failed to serialize EnumDescription'
             end
 
