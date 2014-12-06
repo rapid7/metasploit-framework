@@ -33,7 +33,7 @@ class JavaDeserializer
   # @return [nil] if error
   def run
     if file.nil?
-      print_error("file required")
+      print_error("file path with serialized java stream required")
       return
     end
 
