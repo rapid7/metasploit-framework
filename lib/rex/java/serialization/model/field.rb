@@ -122,7 +122,9 @@ module Rex
           #
           # @return [String]
           def encode_field_type
-            unless field_type.class == Java::Serialization::Model::Utf
+            allowed_contents = [Utf, Reference]
+
+            unless allowed_contents.include?(field_type.class)
               raise ::RuntimeError, 'Failed to serialize Field'
             end
 
@@ -137,9 +139,10 @@ module Rex
           # @return [Java::Serialization::Model::Utf]
           # @raise [RuntimeError] if unserialization doesn't succeed
           def decode_field_type(io)
+            allowed_contents = [Utf, Reference]
             type = decode_content(io, stream)
 
-            unless type.class == Rex::Java::Serialization::Model::Utf || type.class == Rex::Java::Serialization::Model::Reference
+            unless allowed_contents.include?(type.class)
               raise ::RuntimeError, 'Failed to unserialize Field field_type'
             end
 

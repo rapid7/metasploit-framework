@@ -89,6 +89,8 @@ module Rex
               encoded << [TC_NULL].pack('C')
             when Rex::Java::Serialization::Model::Reset
               encoded << [TC_RESET].pack('C')
+            when Rex::Java::Serialization::Model::Reference
+              encoded << [TC_REFERENCE].pack('C')
             else
               raise ::RuntimeError, 'Failed to serialize content'
             end

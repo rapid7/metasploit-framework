@@ -37,7 +37,7 @@ module Rex
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
             encoded = ''
-            allowed_contents = [NullReference, NewClassDesc]
+            allowed_contents = [NullReference, NewClassDesc, Reference]
 
             unless allowed_contents.include?(description.class)
               raise ::RuntimeError, 'Failed to serialize ClassDesc'

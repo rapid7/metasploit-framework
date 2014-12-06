@@ -52,7 +52,11 @@ module Rex
             encoded << class_desc.encode
 
             class_data.each do |value|
-              encoded << encode_value(value)
+              if value.class == Array
+                encoded << encode_value(value)
+              else
+                encoded << encode_content(value)
+              end
             end
 
             encoded
@@ -91,7 +95,8 @@ module Rex
               if field.is_primitive?
                 values << decode_value(io, field.type)
               else
-                values << decode_content(io, stream)
+                content =  decode_content(io, stream)
+                values << content
               end
             end
 

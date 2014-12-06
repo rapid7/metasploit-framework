@@ -8,7 +8,7 @@ module Rex
 
           def initialize(stream = nil)
             super(stream)
-            handler = 0
+            self.handler = 0
           end
 
           def decode(io)
@@ -20,6 +20,17 @@ module Rex
             self.handler = handler_raw.unpack('N')[0]
 
             self
+          end
+
+          def encode
+            if handler < BASE_WIRE_HANDLE
+              raise ::RuntimeError, 'Failed to serialize Reference'
+            end
+
+            encoded = ''
+            encoded << [handler].pack('N')
+
+            encoded
           end
         end
       end
