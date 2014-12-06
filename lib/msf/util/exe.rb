@@ -18,6 +18,7 @@ require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
+require 'rex/exploitation/powershell'
 
   ##
   #
@@ -1088,6 +1089,13 @@ require 'msf/core/exe/segment_injector'
                                   hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
 
+  def self.to_powershell_command(framework, arch, code)
+    Rex::Exploitation::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    encode_final_payload: true,
+                    method: 'reflection')
+  end
+
   def self.to_win32pe_vbs(framework, code, opts = {})
     to_exe_vbs(to_win32pe(framework, code, opts), opts)
   end
@@ -1897,6 +1905,8 @@ to_linux_x86_elf(framework, code, exeopts)
       Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
     when 'psh-reflection'
       Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
+    when 'psh-cmd'
+      Msf::Util::EXE.to_powershell_command(framework, arch, code)
     end
   end
 
@@ -1920,6 +1930,7 @@ to_linux_x86_elf(framework, code, exeopts)
       "psh",
       "psh-net",
       "psh-reflection",
+      "psh-cmd",
       "vba",
       "vba-exe",
       "vbs",
