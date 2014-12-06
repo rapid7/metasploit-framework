@@ -1,9 +1,9 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/exploitation/powershell'
+require 'rex/powershell'
 
-describe Rex::Exploitation::Powershell::Param do
+describe Rex::Powershell::Param do
 
   let(:param_name) do
     Rex::Text.rand_text_alpha(15)
@@ -15,7 +15,7 @@ describe Rex::Exploitation::Powershell::Param do
 
   describe "::initialize" do
     it 'should create a param' do
-      param = Rex::Exploitation::Powershell::Param.new(klass_name, param_name)
+      param = Rex::Powershell::Param.new(klass_name, param_name)
       param.should be
       param.name.should eq param_name
       param.klass.should eq klass_name
