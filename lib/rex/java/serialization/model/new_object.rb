@@ -28,8 +28,12 @@ module Rex
           def decode(io)
             self.class_desc = ClassDesc.decode(io, stream)
             stream.add_reference(self) unless stream.nil?
+
             if class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc
-              self.class_data = decode_class_data(io, class_desc)
+              self.class_data = decode_class_data(io, class_desc.description)
+            elsif class_desc.description.class == Rex::Java::Serialization::Model::Reference
+              ref = class_desc.description.handler - BASE_WIRE_HANDLE
+              self.class_data = decode_class_data(io, stream.references[ref])
             end
 
             self
@@ -59,14 +63,14 @@ module Rex
           # Deserializes the class_data for a class_desc and its super classes
           #
           # @param io [IO] the io to read from
-          # @param my_class_desc [Rex::Java::Serialization::Model::ClassDesc] the class_desc whose data is being extracted
+          # @param my_class_desc [Rex::Java::Serialization::Model::NewClassDesc] the class description whose data is being extracted
           # @return [Array] class_data values if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_class_data(io, my_class_desc)
             values = []
 
-            unless my_class_desc.description.super_class.description.class == Rex::Java::Serialization::Model::NullReference
-              values += decode_class_data(io, my_class_desc.description.super_class)
+            unless my_class_desc.super_class.description.class == Rex::Java::Serialization::Model::NullReference
+              values += decode_class_data(io, my_class_desc.super_class.description)
             end
 
             values += decode_class_fields(io, my_class_desc)
@@ -77,13 +81,13 @@ module Rex
           # Deserializes the fields data for a class_desc
           #
           # @param io [IO] the io to read from
-          # @param my_class_desc [Rex::Java::Serialization::Model::ClassDesc] the class_desc whose data is being extracted
+          # @param my_class_desc [Rex::Java::Serialization::Model::NewClassDesc] the class description whose data is being extracted
           # @return [Array] class_data values if deserialization succeeds
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode_class_fields(io, my_class_desc)
             values = []
 
-            my_class_desc.description.fields.each do |field|
+            my_class_desc.fields.each do |field|
               if field.is_primitive?
                 values << decode_value(io, field.type)
               else

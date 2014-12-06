@@ -28,7 +28,6 @@ module Rex
             end
 
             self.description = content
-            stream.add_reference(self) unless stream.nil?
             self
           end
 

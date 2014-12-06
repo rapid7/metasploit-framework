@@ -31,8 +31,10 @@ module Rex
               content = NewArray.decode(io, stream)
             when TC_STRING
               content = Utf.decode(io, stream)
+              stream.add_reference(content) unless stream.nil?
             when TC_LONGSTRING
               content = LongUtf.decode(io, stream)
+              stream.add_reference(content) unless stream.nil?
             when TC_ENUM
               content = NewEnum.decode(io, stream)
             when TC_CLASSDESC

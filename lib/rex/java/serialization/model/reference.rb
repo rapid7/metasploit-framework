@@ -17,7 +17,9 @@ module Rex
               raise ::RuntimeError, 'Failed to unserialize Reference'
             end
 
-            handler_raw.unpack('N')[0]
+            self.handler = handler_raw.unpack('N')[0]
+
+            self
           end
         end
       end

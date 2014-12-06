@@ -44,6 +44,7 @@ module Rex
           def decode(io)
             self.class_name = Utf.decode(io, stream)
             self.serial_version = decode_serial_version(io)
+            stream.add_reference(self) unless stream.nil?
             self.flags = decode_flags(io)
             fields_length = decode_fields_length(io)
             fields_length.times do
