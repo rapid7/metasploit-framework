@@ -86,4 +86,17 @@ describe Rex::Java::Serialization::Model::Annotation do
     end
 
   end
+
+  describe "#to_s" do
+    it "prints an empty annotation" do
+      annotation.decode(empty_contents_io)
+      expect(annotation.to_s).to eq('[ EndBlockData ]')
+    end
+
+    it "prints an annotation with contents" do
+      annotation.decode(contents_io)
+      expect(annotation.to_s).to eq('[ BlockData { [ 0x1, 0x2, 0x3, 0x4, 0x5 ] }, BlockDataLong { [ 0x1, 0x2, 0x3, 0x4, 0x5 ] }, EndBlockData ]')
+    end
+  end
+
 end

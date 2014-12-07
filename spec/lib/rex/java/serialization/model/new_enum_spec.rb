@@ -71,4 +71,10 @@ describe Rex::Java::Serialization::Model::NewEnum do
     end
   end
 
+  describe "#to_s" do
+    it "prints a sample NewEnum stream" do
+      new_enum.decode(sample_enum_io)
+      expect(new_enum.to_s).to eq('SUNDAY')
+    end
+  end
 end

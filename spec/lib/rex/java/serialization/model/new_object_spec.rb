@@ -70,4 +70,10 @@ describe Rex::Java::Serialization::Model::NewObject do
     end
   end
 
+  describe "#to_s" do
+    it "prints a sample Object stream" do
+      new_object.decode(easy_object_io)
+      expect(new_object.to_s).to eq('Easy => { ["int", 1094861636] }')
+    end
+  end
 end

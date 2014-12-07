@@ -87,6 +87,18 @@ describe Rex::Java::Serialization::Model::LongUtf do
         expect(long_utf.contents).to eq('java.lang.Number')
       end
     end
+
+    describe "#to_s" do
+      it "prints an stream containing a sample long utf" do
+        long_utf.decode(sample_utf_io)
+        expect(long_utf.to_s).to eq('java.lang.Number')
+      end
+
+      it "prints an stream containing an empty long utf" do
+        long_utf.decode(empty_utf_io)
+        expect(long_utf.to_s).to eq('')
+      end
+    end
   end
 
 end

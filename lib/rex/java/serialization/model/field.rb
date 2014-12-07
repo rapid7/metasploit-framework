@@ -105,6 +105,20 @@ module Rex
             false
           end
 
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            str = "#{name} "
+            if is_primitive?
+              str << "(#{type})"
+            else
+              str << "(#{field_type})"
+            end
+
+            str
+          end
+
           private
 
           # Whether the type opcode is a valid one.

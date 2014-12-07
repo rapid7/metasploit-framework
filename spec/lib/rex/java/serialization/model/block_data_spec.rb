@@ -88,4 +88,16 @@ describe Rex::Java::Serialization::Model::BlockData do
       end
     end
   end
+
+  describe "#to_s" do
+    it "prints a block with contents" do
+      block.decode(sample_block_io)
+      expect(block.to_s).to eq('[ 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10 ]')
+    end
+
+    it "prints an empty string for an empty block" do
+      block.decode(empty_block_io)
+      expect(block.to_s).to eq('[  ]')
+    end
+  end
 end

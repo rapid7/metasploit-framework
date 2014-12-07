@@ -53,6 +53,13 @@ module Rex
 
             encoded
           end
+
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            contents
+          end
         end
       end
     end

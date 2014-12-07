@@ -90,4 +90,16 @@ describe Rex::Java::Serialization::Model::Field do
       end
     end
   end
+
+  describe "#to_s" do
+    it "prints an stream containing a primitive field" do
+      field.decode(sample_primitive_io)
+      expect(field.to_s).to eq('number (int)')
+    end
+
+    it "prints an stream containing an object field" do
+      field.decode(sample_object_io)
+      expect(field.to_s).to eq('test_array ([LEmployee;)')
+    end
+  end
 end

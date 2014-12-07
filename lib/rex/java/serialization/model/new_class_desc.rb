@@ -84,6 +84,27 @@ module Rex
             encoded
           end
 
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            str = "#{class_name}, [ "
+            fields_str = []
+            fields.each do |field|
+              fields_str << field.to_s
+            end
+            str << "#{fields_str.join(', ')} ]"
+
+            case super_class.description
+            when NewClassDesc
+              str << ", @super_class: #{super_class.description.class_name.to_s}"
+            when Reference
+              str << ", @super_class: #{super_class.description.to_s}"
+            end
+
+            str
+          end
+
           private
 
           # Deserializes a class serial version

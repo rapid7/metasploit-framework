@@ -414,7 +414,53 @@ describe Rex::Java::Serialization::Model::NewArray do
 
       expect(new_array.encode.unpack("C*")).to eq(string_array.unpack("C*"))
     end
+  end
 
+  describe "#to_s" do
+    it "prints a boolean array stream" do
+      new_array.decode(boolean_array_io)
+      expect(new_array.to_s).to eq('boolean, ["1", "0", "1", "1", "1", "1", "1", "1", "1", "0"]')
+    end
+
+    it "prints a byte array stream" do
+      new_array.decode(byte_array_io)
+      expect(new_array.to_s).to eq('byte, ["-20", "65"]')
+    end
+
+    it "prints a char array stream" do
+      new_array.decode(char_array_io)
+      expect(new_array.to_s).to eq('char, ["97", "98"]')
+    end
+
+    it "prints a short array stream" do
+      new_array.decode(short_array_io)
+      expect(new_array.to_s).to eq('short, ["-20", "65"]')
+    end
+
+    it "prints a double array stream" do
+      new_array.decode(double_array_io)
+      expect(new_array.to_s).to eq('double, ["0.25", "0.21"]')
+    end
+
+    it "prints a float array stream" do
+      new_array.decode(float_array_io)
+      expect(new_array.to_s).to eq('float, ["1.0", "2.0"]')
+    end
+
+    it "prints a int array stream" do
+      new_array.decode(int_array_io)
+      expect(new_array.to_s).to eq('int, ["-20", "65"]')
+    end
+
+    it "prints a long array stream" do
+      new_array.decode(long_array_io)
+      expect(new_array.to_s).to eq('long, ["-20", "65"]')
+    end
+
+    it "prints a string array stream" do
+      new_array.decode(string_array_io)
+      expect(new_array.to_s).to eq('java.lang.String;, ["msf"]')
+    end
   end
 
 end

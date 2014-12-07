@@ -49,6 +49,17 @@ module Rex
             encoded
           end
 
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            str = '[ '
+            contents_data = contents.collect {|content| "#{print_content(content)}"}
+            str << contents_data.join(', ')
+            str << ' ]'
+            str
+          end
+
         end
       end
     end

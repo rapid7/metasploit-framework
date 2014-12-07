@@ -38,6 +38,7 @@ module Rex
 
             encoded
           end
+
         end
       end
     end

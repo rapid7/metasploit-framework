@@ -66,6 +66,24 @@ module Rex
             self.references.push(ref)
           end
 
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            str = "@magic: 0x#{magic.to_s(16)}\n"
+            str << "@version: #{version}\n"
+            str << "@contents: [\n"
+            contents.each do |content|
+              str << "  #{print_content(content)}\n"
+            end
+            str << "]\n"
+            str << "@references: [\n"
+            references.each do |ref|
+                str << "  [#{(references.index(ref) + BASE_WIRE_HANDLE).to_s(16)}] #{print_content(ref)}\n"
+            end
+            str << "]\n"
+          end
+
           private
 
           # Deserializes the magic stream value

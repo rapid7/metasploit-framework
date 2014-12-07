@@ -45,6 +45,13 @@ module Rex
 
             encoded
           end
+
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            "0x#{handle.to_s(16)}"
+          end
         end
       end
     end

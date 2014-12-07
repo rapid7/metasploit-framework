@@ -42,6 +42,16 @@ module Rex
             self
           end
 
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            contents_hex = []
+            contents.each_byte {|byte| contents_hex << "0x#{byte.to_s(16)}" }
+
+            "[ #{contents_hex.join(', ')} ]"
+          end
+
           # Serializes the Java::Serialization::Model::BlockData
           #
           # @return [String]

@@ -8,7 +8,7 @@ module Rex
           include Rex::Java::Serialization::Model::Contents
 
           # @!attribute class_desc
-          #   @return [Java::Serialization::Model::ClassDescription] The description of the object
+          #   @return [Rex::Java::Serialization::Model::ClassDesc] The description of the object
           attr_accessor :class_desc
           # @!attribute class_data
           #   @return [Array] The data of the object
@@ -61,6 +61,23 @@ module Rex
             end
 
             encoded
+          end
+
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            str  = ''
+            if class_desc.description.class == NewClassDesc
+              str << class_desc.description.class_name.to_s
+            elsif class_desc.description.class == Reference
+              str << (class_desc.description.handle - BASE_WIRE_HANDLE).to_s(16)
+            end
+
+            str << ' => { '
+            data = class_data.collect { |data| data.to_s }
+            str << data.join(', ')
+            str << ' }'
           end
 
           private
