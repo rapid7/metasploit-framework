@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 module Msf::HTTP::JBoss::BeanShellScripts
-  
+
   # Generates a Bean Shell Script.
   #
   # @param type [Symbol] The Bean Shell script type, `:create` or `:delete`.
