@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2014-5445' ],
-          [ 'OSVDB', '115341' ],
+          [ 'OSVDB', '115340' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_netflow_it360_file_dl.txt' ],
           [ 'URL', 'http://seclists.org/fulldisclosure/2014/Dec/9' ]
         ],
