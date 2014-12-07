@@ -11,7 +11,7 @@ module Rex
           #   @return [Java::Serialization::Model::ClassDescription] The description of the enum
           attr_accessor :enum_description
           # @!attribute constant_name
-          #   @return [Array] The constant value in the Java Enum
+          #   @return [Java::Serialization::Model::Utf] The constant value in the Java Enum
           attr_accessor :constant_name
 
           # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
@@ -48,6 +48,13 @@ module Rex
             encoded << enum_description.encode
             encoded << encode_content(constant_name)
             encoded
+          end
+
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            constant_name.to_s
           end
 
           private

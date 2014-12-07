@@ -15,6 +15,19 @@ describe Rex::Java::Serialization::Model::Stream do
     "\x42\x43\x44"
   end
   let(:easy_object_stream_io) { StringIO.new(easy_object_stream) }
+  let(:easy_object_stream_to_s) {
+    <<-EOS
+@magic: 0xaced
+@version: 5
+@contents: [
+  NewObject { Easy => { ["int", 1094861636] } }
+]
+@references: [
+  [7e0000] NewClassDesc { Easy, [ SSN (int) ] }
+  [7e0001] NewObject { Easy => { ["int", 1094861636] } }
+]
+    EOS
+  }
 
   let(:char_array_stream) do
     "\xac\xed\x00\x05\x75\x72\x00\x02" +
@@ -23,6 +36,19 @@ describe Rex::Java::Serialization::Model::Stream do
     "\x00\x00\x02\x00\x61\x00\x62"
   end
   let(:char_array_stream_io) { StringIO.new(char_array_stream) }
+  let(:char_array_stream_to_s) {
+    <<-EOS
+@magic: 0xaced
+@version: 5
+@contents: [
+  NewArray { char, ["97", "98"] }
+]
+@references: [
+  [7e0000] NewClassDesc { [C, [  ] }
+  [7e0001] NewArray { char, ["97", "98"] }
+]
+    EOS
+  }
 
   let(:complex_stream) do
     "\xac\xed\x00\x05\x77\x22\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00" +
@@ -56,6 +82,36 @@ describe Rex::Java::Serialization::Model::Stream do
     "\xc1\xc0"
   end
   let(:complex_stream_io) { StringIO.new(complex_stream) }
+  let(:complex_stream_to_s) {
+    <<-EOS
+@magic: 0xaced
+@version: 5
+@contents: [
+  BlockData { [ 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0xf6, 0xb6, 0x89, 0x8d, 0x8b, 0xf2, 0x86, 0x43 ] }
+  NewArray { java.rmi.server.ObjID;, ["java.rmi.server.ObjID => { [\\"long\\", 991106561224880050], java.rmi.server.UID => { [\\"short\\", -32746], [\\"long\\", 1416095896184], [\\"int\\", -766517433] } }"] }
+  BlockData { [ 0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1 ] }
+  NewObject { java.rmi.dgc.Lease => { ["long", 600000], java.rmi.dgc.VMID => { byte, ["107", "2", "-57", "114", "96", "28", "-57", "-107"], 5 => { ["short", -32767], ["long", 1416097169642], ["int", -379403840] } } } }
+]
+@references: [
+  [7e0000] NewClassDesc { [Ljava.rmi.server.ObjID;, [  ] }
+  [7e0001] NewArray { java.rmi.server.ObjID;, ["java.rmi.server.ObjID => { [\\"long\\", 991106561224880050], java.rmi.server.UID => { [\\"short\\", -32746], [\\"long\\", 1416095896184], [\\"int\\", -766517433] } }"] }
+  [7e0002] NewClassDesc { java.rmi.server.ObjID, [ objNum (long), space (Ljava/rmi/server/UID;) ] }
+  [7e0003] Utf { Ljava/rmi/server/UID; }
+  [7e0004] NewObject { java.rmi.server.ObjID => { ["long", 991106561224880050], java.rmi.server.UID => { ["short", -32746], ["long", 1416095896184], ["int", -766517433] } } }
+  [7e0005] NewClassDesc { java.rmi.server.UID, [ count (short), time (long), unique (int) ] }
+  [7e0006] NewObject { java.rmi.server.UID => { ["short", -32746], ["long", 1416095896184], ["int", -766517433] } }
+  [7e0007] NewClassDesc { java.rmi.dgc.Lease, [ value (long), vmid (Ljava/rmi/dgc/VMID;) ] }
+  [7e0008] Utf { Ljava/rmi/dgc/VMID; }
+  [7e0009] NewObject { java.rmi.dgc.Lease => { ["long", 600000], java.rmi.dgc.VMID => { byte, ["107", "2", "-57", "114", "96", "28", "-57", "-107"], 5 => { ["short", -32767], ["long", 1416097169642], ["int", -379403840] } } } }
+  [7e000a] NewClassDesc { java.rmi.dgc.VMID, [ addr ([B), uid (0x7e0003) ] }
+  [7e000b] Utf { [B }
+  [7e000c] NewObject { java.rmi.dgc.VMID => { byte, ["107", "2", "-57", "114", "96", "28", "-57", "-107"], 5 => { ["short", -32767], ["long", 1416097169642], ["int", -379403840] } } }
+  [7e000d] NewClassDesc { [B, [  ] }
+  [7e000e] NewArray { byte, ["107", "2", "-57", "114", "96", "28", "-57", "-107"] }
+  [7e000f] NewObject { 5 => { ["short", -32767], ["long", 1416097169642], ["int", -379403840] } }
+]
+    EOS
+  }
 
   describe ".new" do
     it "Rex::Java::Serialization::Model::Stream" do
@@ -126,6 +182,23 @@ describe Rex::Java::Serialization::Model::Stream do
         stream.decode(complex_stream_io)
         expect(stream.contents[3]).to be_a(Rex::Java::Serialization::Model::NewObject)
       end
+    end
+  end
+
+  describe "#to_s" do
+    it "prints a simple Object stream" do
+      stream.decode(easy_object_stream_io)
+      expect(stream.to_s).to eq(easy_object_stream_to_s)
+    end
+
+    it "prints a char array stream" do
+      stream.decode(char_array_stream_io)
+      expect(stream.to_s).to eq(char_array_stream_to_s)
+    end
+
+    it "prints a complex stream with references" do
+      stream.decode(complex_stream_io)
+      expect(stream.to_s).to eq(complex_stream_to_s)
     end
   end
 

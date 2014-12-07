@@ -130,4 +130,11 @@ describe Rex::Java::Serialization::Model::NewClassDesc do
       expect(class_desc_new.encode.unpack("C*")).to eq(sample.unpack("C*"))
     end
   end
+
+  describe "#to_s" do
+    it "prints a sample NewClassDesc stream" do
+      class_desc_new.decode(sample_io)
+      expect(class_desc_new.to_s).to eq('java.lang.Byte, [ value (byte) ], @super_class: java.lang.Number')
+    end
+  end
 end

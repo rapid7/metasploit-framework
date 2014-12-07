@@ -98,6 +98,55 @@ module Rex
             encoded << content.encode
             encoded
           end
+
+          # Creates a print-friendly string representation
+          #
+          # @param content [Rex::Java::Serialization::Model::Element] the content to print
+          # @return [String]
+          def print_content(content)
+            str = ''
+
+            case content
+            when BlockData
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when BlockDataLong
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when EndBlockData
+              str << "#{print_class(content)}"
+            when NewObject
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when ClassDesc
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when NewArray
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when Utf
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when LongUtf
+              str << "#{print_class(content)} { #{content.to_s} } "
+            when NewEnum
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when NewClassDesc
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when NullReference
+              str << "#{print_class(content)}"
+            when Reset
+              str << "#{print_class(content)}"
+            when Reference
+              str << "#{print_class(content)} { #{content.to_s} }"
+            else
+              raise ::RuntimeError, 'Failed to serialize content'
+            end
+
+            str
+          end
+
+          # Creates a print-friendly string representation of the content class
+          #
+          # @param content [Rex::Java::Serialization::Model::Element] the content
+          # @return [String]
+          def print_class(content)
+            content.class.name.split('::').last
+          end
         end
       end
     end

@@ -8,7 +8,7 @@ module Rex
           include Rex::Java::Serialization::Model::Contents
 
           # @!attribute array_description
-          #   @return [Java::Serialization::Model::ClassDescription] The description of the array
+          #   @return [Java::Serialization::Model::ClassDesc] The description of the array
           attr_accessor :array_description
           # @!attribute type
           #   @return [String] The type of the array values
@@ -64,6 +64,15 @@ module Rex
             end
 
             encoded
+          end
+
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            str = "#{type}, "
+            values_data = values.collect {|v| "#{v}"}
+            str << "#{values_data}"
           end
 
           private

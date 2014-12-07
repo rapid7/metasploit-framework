@@ -88,4 +88,17 @@ describe Rex::Java::Serialization::Model::Utf do
       end
     end
   end
+
+  describe "#to_s" do
+    it "prints an stream containing a sample utf" do
+      utf.decode(sample_utf_io)
+      expect(utf.to_s).to eq('java.lang.Number')
+    end
+
+    it "prints an stream containing an empty utf" do
+      utf.decode(empty_utf_io)
+      expect(utf.to_s).to eq('')
+    end
+  end
+
 end

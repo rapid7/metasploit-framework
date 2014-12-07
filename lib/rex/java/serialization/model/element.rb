@@ -28,6 +28,13 @@ module Rex
           def encode
             ''
           end
+
+          # Creates a print-friendly string representation
+          #
+          # @return [String]
+          def to_s
+            self.class.name.split('::').last
+          end
         end
       end
     end

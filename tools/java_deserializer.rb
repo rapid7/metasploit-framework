@@ -49,7 +49,7 @@ class JavaDeserializer
       return
     end
 
-    pp(stream)
+    puts stream
   end
 
   private

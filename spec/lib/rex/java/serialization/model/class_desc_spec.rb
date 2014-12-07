@@ -68,4 +68,11 @@ describe Rex::Java::Serialization::Model::ClassDesc do
       expect(class_desc.encode.unpack("C*")).to eq(sample.unpack("C*"))
     end
   end
+
+  describe "#to_s" do
+    it "prints a sample ClassDesc" do
+      class_desc.decode(sample_io)
+      expect(class_desc.to_s).to be_a(String)
+    end
+  end
 end
