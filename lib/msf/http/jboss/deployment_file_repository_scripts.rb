@@ -3,7 +3,7 @@
 module Msf::HTTP::JBoss::DeploymentFileRepositoryScripts
 
   # Generate a stager JSP to write the second stager to the
-  # deploy/management direcotry. It is only used with HEAD/GET requests
+  # deploy/management directory. It is only used with HEAD/GET requests
   # to overcome the size limit in those requests
   #
   # @param stager_base [String] The name of the base of the stager.

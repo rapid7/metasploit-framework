@@ -49,31 +49,34 @@ module Msf::HTTP::JBoss::Base
 
   # Try to auto detect the target architecture and platform
   #
-  # @param [String] The available targets
+  # @param [Array] The available targets
   # @return [Msf::Module::Target, nil] The detected target or nil
   def auto_target(available_targets)
-    if http_verb == 'HEAD' then
+    if http_verb == 'HEAD'
       print_status("Sorry, automatic target detection doesn't work with HEAD requests")
     else
       print_status("Attempting to automatically select a target...")
       res = query_serverinfo
-      if not (plat = detect_platform(res))
+      plat = detect_platform(res)
+      unless plat
         print_warning('Unable to detect platform!')
         return nil
       end
 
-      if not (arch = detect_architecture(res))
+      arch = detect_architecture(res)
+      unless arch
         print_warning('Unable to detect architecture!')
         return nil
       end
 
       # see if we have a match
-      available_targets.each { |t| return t if (t['Platform'] == plat) and (t['Arch'] == arch) }
+      available_targets.each { |t| return t if t['Platform'] == plat && t['Arch'] == arch }
     end
 
     # no matching target found, use Java as fallback
     java_targets = available_targets.select {|t| t.name =~ /^Java/ }
-    return java_targets[0]
+
+    java_targets[0]
   end
 
   # Query the server information from HtmlAdaptor
@@ -102,6 +105,7 @@ module Msf::HTTP::JBoss::Base
 
   # Try to autodetect the target platform
   #
+  # @param res [Rex::Proto::Http::Response] the http response where fingerprint platform from
   # @return [String, nil] The target platform or nil
   def detect_platform(res)
     if res && res.body =~ /<td.*?OSName.*?(Linux|FreeBSD|Windows).*?<\/td>/m
@@ -120,13 +124,14 @@ module Msf::HTTP::JBoss::Base
 
   # Try to autodetect the target architecture
   #
+  # @param res [Rex::Proto::Http::Response] the http response where fingerprint architecture from
   # @return [String, nil] The target architecture or nil
   def detect_architecture(res)
     if res && res.body =~ /<td.*?OSArch.*?(x86|i386|i686|x86_64|amd64).*?<\/td>/m
       arch = $1
-      if (arch =~ /(x86|i386|i686)/i)
+      if arch =~ /(x86|i386|i686)/i
         return ARCH_X86
-      elsif (arch =~ /(x86_64|amd64)/i)
+      elsif arch =~ /(x86_64|amd64)/i
         return ARCH_X86
       end
     end
