@@ -418,7 +418,7 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer} - Sending Client Hello...")
     sock.put(client_hello)
 
-    server_hello = sock.get_once(-1, response_timeout)
+    server_hello = sock.get(-1, response_timeout)
     unless server_hello
       vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
       return nil
@@ -777,19 +777,19 @@ class Metasploit3 < Msf::Auxiliary
     cert_len_padding = unpacked[0]
     cert_len = unpacked[1]
     vprint_debug("\t\tCertificates length: #{cert_len}")
+    vprint_debug("\t\tData length: #{data.length}")
     # contains multiple certs
     already_read = 3
     cert_counter = 0
     while already_read < cert_len
-      start = already_read
       cert_counter += 1
       # get single certificate length
-      single_cert_unpacked = data[start, 3].unpack('Cn')
+      single_cert_unpacked = data[already_read, 3].unpack('Cn')
       single_cert_len_padding = single_cert_unpacked[0]
       single_cert_len =  single_cert_unpacked[1]
       vprint_debug("\t\tCertificate ##{cert_counter}:")
       vprint_debug("\t\t\tCertificate ##{cert_counter}: Length: #{single_cert_len}")
-      certificate_data = data[(start + 3), single_cert_len]
+      certificate_data = data[(already_read + 3), single_cert_len]
       cert = OpenSSL::X509::Certificate.new(certificate_data)
       # First received certificate is the one from the server
       @cert = cert if @cert.nil?
