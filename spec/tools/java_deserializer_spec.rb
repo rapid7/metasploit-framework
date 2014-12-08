@@ -47,25 +47,28 @@ describe JavaDeserializer do
     end
 
     context "when file contains a valid stream" do
-      it "returns an Stream" do
+      it "prints the stream contents" do
         expect(File).to receive(:new) do
           contents = valid_stream
           StringIO.new(contents)
         end
         deserializer.file = 'sample'
-        expect(deserializer.run).to be_an(Rex::Java::Serialization::Model::Stream)
+        deserializer.run
+        expect($stdout.string).to include('[7e0001] NewArray { char, ["97", "98"] }')
       end
     end
 
     context "when file contains an invalid stream" do
-      it "returns nil" do
+      it "prints the error while deserializing" do
         expect(File).to receive(:new) do
           contents = 'invalid_stream'
           StringIO.new(contents)
         end
         deserializer.file = 'sample'
-        expect(deserializer.run).to be_nil
+        deserializer.run
+        expect($stdout.string).to include('[-] Failed to unserialize Stream')
       end
     end
+
   end
 end
