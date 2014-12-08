@@ -339,7 +339,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def tls_jabber
     sock.put(jabber_connect_msg(xmpp_domain))
-    res = sock.get_once(-1, response_timeout)
+    res = get_data
     if res && res.include?('host-unknown')
       jabber_host = res.match(/ from='([\w.]*)' /)
       if jabber_host && jabber_host[1]
@@ -347,7 +347,7 @@ class Metasploit3 < Msf::Auxiliary
         establish_connect
         vprint_status("#{peer} - Connecting with autodetected remote XMPP hostname: #{jabber_host[1]}...")
         sock.put(jabber_connect_msg(jabber_host[1]))
-        res = sock.get_once(-1, response_timeout)
+        res = get_data
       end
     end
     if res.nil? || res.include?('stream:error') || res !~ /<starttls xmlns=['"]urn:ietf:params:xml:ns:xmpp-tls['"]/
@@ -356,14 +356,14 @@ class Metasploit3 < Msf::Auxiliary
     end
     msg = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
     sock.put(msg)
-    res = sock.get_once(-1, response_timeout)
+    res = get_data
     return nil if res.nil? || !res.include?('<proceed')
     res
   end
 
   def tls_ftp
     # http://tools.ietf.org/html/rfc4217
-    res = sock.get_once(-1, response_timeout)
+    res = get_data
     return nil if res.nil?
     sock.put("AUTH TLS\r\n")
     res = get_data
@@ -383,18 +383,25 @@ class Metasploit3 < Msf::Auxiliary
   # Get data from the socket
   # this ensures the requested length is read (if available)
   def get_data(length = -1)
-
-    return sock.get_once(-1, response_timeout) if length == -1
-
     to_receive = length
     data = ''
-    while to_receive > 0
-      temp = sock.get_once(to_receive, response_timeout)
+    done = false
+    while done == false
+      begin
+        temp = sock.get_once(to_receive, response_timeout)
+      rescue EOFError
+        break
+      end
+
       break if temp.nil?
 
       data << temp
-      to_receive -= temp.length
+      if length != -1
+        to_receive -= temp.length
+        done = true if to_receive <= 0
+      end
     end
+
     data
   end
 
@@ -417,8 +424,7 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("#{peer} - Sending Client Hello...")
     sock.put(client_hello)
-
-    server_hello = sock.get(-1, response_timeout)
+    server_hello = get_data
     unless server_hello
       vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
       return nil
