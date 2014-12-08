@@ -1837,6 +1837,16 @@ describe 'modules/payloads', :content do
                           reference_name: 'python/meterpreter/bind_tcp'
   end
 
+  context 'python/meterpreter/reverse_http' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/python/reverse_http',
+                            'stages/python/meterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'python/meterpreter/reverse_http'
+  end
+
   context 'python/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [

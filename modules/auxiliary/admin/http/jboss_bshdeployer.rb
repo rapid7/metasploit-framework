@@ -126,8 +126,9 @@ class Metasploit3 < Msf::Auxiliary
 
     case action.name
     when 'Deploy'
-      unless File.exist?(datastore['WARFILE'])
+      unless datastore['WARFILE'] && File.exist?(datastore['WARFILE'])
         print_error("WAR file not found")
+        return
       end
       war_data = File.read(datastore['WARFILE'])
       deploy_action(app_base, war_data)

