@@ -945,8 +945,7 @@ def stdapi_fs_delete_dir(request, response):
 @meterpreter.register_function
 def stdapi_fs_delete_file(request, response):
 	file_path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	if os.path.exists(file_path):
-		os.unlink(file_path)
+	os.unlink(file_path)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
