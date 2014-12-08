@@ -16,8 +16,11 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'          => 'Windows Gather Outlook Email Messages',
       'Description'   => %q{
-        This module allows you to read and search email messages from the local Outlook installation using powershell. Please note that this module is manipulating the victims keyboard/mouse.
-        If a victim is behind the target system, he might notice the activities of this module. Tested on Windows 8.1 x64 with Office 2013.
+        This module allows reading and searching email messages from the local
+        Outlook installation using PowerShell. Please note that this module is
+        manipulating the victims keyboard/mouse.  If a victim is active on the target
+        system, he may notice the activities of this module. Tested on Windows 8.1
+        x64 with Office 2013.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
@@ -128,9 +131,9 @@ class Metasploit3 < Msf::Post
 
     # Powershell installed check
     if have_powershell?
-      print_good("Powershell is installed.")
+      print_good("PowerShell is installed.")
     else
-      fail_with(Failure::Unknown, "Powershell is not installed")
+      fail_with(Failure::Unknown, "PowerShell is not installed")
     end
 
     # Check whether target system is locked
