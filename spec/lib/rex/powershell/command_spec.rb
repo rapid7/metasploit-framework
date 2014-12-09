@@ -3,10 +3,10 @@ require 'spec_helper'
 require 'msf/core'
 
 def decompress(code)
-  Rex::Exploitation::Powershell::Script.new(code).decompress_code
+  Rex::Powershell::Script.new(code).decompress_code
 end
 
-describe Rex::Exploitation::Powershell::Command do
+describe Rex::Powershell::Command do
   let(:example_script) do
     File.join(Msf::Config.data_directory, "exploits", "powershell", "powerdump.ps1")
   end

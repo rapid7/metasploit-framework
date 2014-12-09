@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 module Rex
-module Exploitation
 module Powershell
   ##
   # Convenience methods for generating powershell code in Ruby
@@ -65,6 +64,5 @@ module Powershell
       %Q^ Get-QADComputer -ComputerRole DomainController | foreach { (Get-QADUser -Service $_.Name -SamAccountName "#{user}").LastLogon} | Measure-Latest^
     end
   end
-end
 end
 end

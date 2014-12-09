@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 module Rex
-module Exploitation
 module Powershell
 module Command
   #
@@ -18,7 +17,7 @@ module Command
   # @return [String] Encoded script
   def self.encode_script(script_in, opts={})
     # Build script object
-    psh = Rex::Exploitation::Powershell::Script.new(script_in)
+    psh = Rex::Powershell::Script.new(script_in)
     psh.strip_comments if opts[:strip_comments]
     psh.strip_whitespace if opts[:strip_whitespace]
     psh.sub_vars if opts[:sub_vars]
@@ -41,7 +40,7 @@ module Command
   # @return [String] Compressed script with decompression stub
   def self.compress_script(script_in, eof=nil, opts={})
     # Build script object
-    psh = Rex::Exploitation::Powershell::Script.new(script_in)
+    psh = Rex::Powershell::Script.new(script_in)
     psh.strip_comments if opts[:strip_comments]
     psh.strip_whitespace if opts[:strip_whitespace]
     psh.sub_vars if opts[:sub_vars]
@@ -259,11 +258,11 @@ EOS
 
     psh_payload = case opts[:method]
                     when 'net'
-                      Rex::Exploitation::Powershell::Payload.to_win32pe_psh_net(template_path, pay)
+                      Rex::Powershell::Payload.to_win32pe_psh_net(template_path, pay)
                     when 'reflection'
-                      Rex::Exploitation::Powershell::Payload.to_win32pe_psh_reflection(template_path, pay)
+                      Rex::Powershell::Payload.to_win32pe_psh_reflection(template_path, pay)
                     when 'old'
-                      Rex::Exploitation::Powershell::Payload.to_win32pe_psh(template_path, pay)
+                      Rex::Powershell::Payload.to_win32pe_psh(template_path, pay)
                     when 'msil'
                       fail RuntimeError, 'MSIL Powershell method no longer exists'
                     else
@@ -352,7 +351,6 @@ EOS
 
     command
   end
-end
 end
 end
 end

@@ -18,7 +18,7 @@ require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
-require 'rex/exploitation/powershell'
+require 'rex/powershell'
 
   ##
   #
@@ -1033,14 +1033,14 @@ require 'rex/exploitation/powershell'
     template_path = File.join(Msf::Config.data_directory,
                                   "templates",
                                   "scripts")
-    Rex::Exploitation::Powershell::Payload.to_win32pe_psh_net(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh_net(template_path, code)
   end
 
   def self.to_win32pe_psh(framework, code, opts = {})
     template_path = File.join(Msf::Config.data_directory,
                               "templates",
                               "scripts")
-    Rex::Exploitation::Powershell::Payload.to_win32pe_psh(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh(template_path, code)
   end
 
   #
@@ -1052,14 +1052,14 @@ require 'rex/exploitation/powershell'
     template_path = File.join(Msf::Config.data_directory,
                               "templates",
                               "scripts")
-    Rex::Exploitation::Powershell::Payload.to_win32pe_psh_reflection(template_path, code)
+    Rex::Powershell::Payload.to_win32pe_psh_reflection(template_path, code)
   end
 
   def self.to_powershell_command(framework, arch, code)
     template_path = File.join(Msf::Config.data_directory,
                               "templates",
                               "scripts")
-    Rex::Exploitation::Powershell::Command.cmd_psh_payload(code,
+    Rex::Powershell::Command.cmd_psh_payload(code,
                     arch,
                     template_path,
                     encode_final_payload: true,

@@ -2,7 +2,6 @@
 require 'rex/random_identifier_generator'
 
 module Rex
-module Exploitation
 module Powershell
 module Payload
 
@@ -74,7 +73,6 @@ module Payload
                                  hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
 
-end
 end
 end
 end
