@@ -32,7 +32,7 @@ module Rex
             #   @return [Array<Fixnum>] The desired encryption algorithm to be used in the response
             attr_accessor :etype
             # @!attribute enc_auth_data
-            #   @return [EncryptedData] An encoding of the desired authorization-data encrypted
+            #   @return [Rex::Proto::Kerberos::Type::EncryptedData] An encoding of the desired authorization-data encrypted
             attr_accessor :enc_auth_data
 
             def decode(input, type_req)
@@ -137,7 +137,7 @@ module Rex
             end
 
             def decode_enc_auth_data(input)
-              ''
+              Rex::Proto::Kerberos::Model::Type::EncryptedData.decode(input.value[0])
             end
           end
         end
