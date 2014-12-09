@@ -309,12 +309,14 @@ module Msf
         # Allow comma seperated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
           e = framework.encoders.create(chosen_encoder)
+          e.datastore.import_options_from_hash(datastore)
           encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif badchars.present?
         framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
           e = framework.encoders.create(name)
+          e.datastore.import_options_from_hash(datastore)
           encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
