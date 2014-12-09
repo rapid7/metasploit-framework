@@ -1,3 +1,6 @@
+# -*- coding:binary -*-
+require 'spec_helper'
+
 require 'rex/proto/kerberos'
 
 describe Rex::Proto::Kerberos::Model::Field::KdcRequestBody do
