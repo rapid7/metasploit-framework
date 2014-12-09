@@ -28,10 +28,14 @@ module Rex
               when OpenSSL::ASN1::Sequence
                 decode_asn1(input)
               else
-                raise ::RuntimeError, 'Failed to decode Principal Name, invalid input'
+                raise ::RuntimeError, 'Failed to decode EncryptedData Name, invalid input'
               end
 
               self
+            end
+
+            def encode
+              raise ::RuntimeError, 'EncryptedData encoding is not supported'
             end
 
             private
