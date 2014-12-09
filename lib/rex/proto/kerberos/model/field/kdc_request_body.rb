@@ -50,7 +50,7 @@ module Rex
             end
 
             def encode
-
+              raise ::RuntimeError, 'KdcRequestBody encoding is not supported'
             end
 
             private

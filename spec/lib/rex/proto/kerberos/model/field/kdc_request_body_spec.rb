@@ -207,21 +207,4 @@ describe Rex::Proto::Kerberos::Model::Field::KdcRequestBody do
       end
     end
   end
-
-=begin
-  describe "#encode" do
-    it "encodes correctly PrincipalName with single name" do
-      principal_name.name_type = 1
-      principal_name.name_string = ['juan']
-      expect(principal_name.encode.unpack('C*')).to eq(sample_single_name.unpack('C*'))
-    end
-
-
-    it "encodes correctly PrincipalName with several names" do
-      principal_name.name_type = 1
-      principal_name.name_string = ['krbtgt', 'DEMO.LOCAL']
-      expect(principal_name.encode.unpack('C*')).to eq(sample_multiple_name.unpack('C*'))
-    end
-  end
-=end
 end
