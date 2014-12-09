@@ -690,10 +690,10 @@ def stdapi_sys_config_getenv(request, response):
 def stdapi_sys_config_getsid(request, response):
 	token = get_token_user(ctypes.windll.kernel32.GetCurrentProcess())
 	if not token:
-		return ERROR_FAILURE, response
+		return error_result_windows(), response
 	sid_str = ctypes.c_char_p()
 	if not ctypes.windll.advapi32.ConvertSidToStringSidA(token.User.Sid, ctypes.byref(sid_str)):
-		return ERROR_FAILURE, response
+		return error_result_windows(), response
 	sid_str = str(ctypes.string_at(sid_str))
 	response += tlv_pack(TLV_TYPE_SID, sid_str)
 	return ERROR_SUCCESS, response
@@ -705,10 +705,10 @@ def stdapi_sys_config_getuid(request, response):
 	elif has_windll:
 		token = get_token_user(ctypes.windll.kernel32.GetCurrentProcess())
 		if not token:
-			return ERROR_FAILURE, response
+			return error_result_windows(), response
 		username = get_username_from_token(token)
 		if not username:
-			return ERROR_FAILURE, response
+			return error_result_windows(), response
 	else:
 		username = getpass.getuser()
 	response += tlv_pack(TLV_TYPE_USER_NAME, username)
@@ -796,9 +796,9 @@ def stdapi_sys_process_kill(request, response):
 			k32 = ctypes.windll.kernel32
 			proc_h = k32.OpenProcess(PROCESS_TERMINATE, False, pid)
 			if not proc_h:
-				return ERROR_FAILURE, response
+				return error_result_windows(), response
 			if not k32.TerminateProcess(proc_h, 0):
-				return ERROR_FAILURE, response
+				return error_result_windows(), response
 		elif hasattr(os, 'kill'):
 			os.kill(pid, 9)
 		else:
@@ -865,7 +865,7 @@ def stdapi_sys_process_get_processes_via_windll(request, response):
 	proc_snap = k32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
 	result = k32.Process32First(proc_snap, ctypes.byref(pe32))
 	if not result:
-		return ERROR_FAILURE, response
+		return error_result_windows(), response
 	while result:
 		proc_h = k32.OpenProcess((PROCESS_QUERY_INFORMATION | PROCESS_VM_READ), False, pe32.th32ProcessID)
 		if not proc_h:
@@ -945,8 +945,7 @@ def stdapi_fs_delete_dir(request, response):
 @meterpreter.register_function
 def stdapi_fs_delete_file(request, response):
 	file_path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	if os.path.exists(file_path):
-		os.unlink(file_path)
+	os.unlink(file_path)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -1348,10 +1347,10 @@ def stdapi_registry_create_key(request, response):
 	base_key = ctypes.create_string_buffer(bytes(base_key, 'UTF-8'))
 	permission = packet_get_tlv(request, TLV_TYPE_PERMISSION).get('value', winreg.KEY_ALL_ACCESS)
 	res_key = ctypes.c_void_p()
-	if ctypes.windll.advapi32.RegCreateKeyExA(root_key, ctypes.byref(base_key), 0, None, 0, permission, None, ctypes.byref(res_key), None) == ERROR_SUCCESS:
-		response += tlv_pack(TLV_TYPE_HKEY, res_key.value)
-		return ERROR_SUCCESS, response
-	return ERROR_FAILURE, response
+	if ctypes.windll.advapi32.RegCreateKeyExA(root_key, ctypes.byref(base_key), 0, None, 0, permission, None, ctypes.byref(res_key), None) != ERROR_SUCCESS:
+		return error_result_windows(), response
+	response += tlv_pack(TLV_TYPE_HKEY, res_key.value)
+	return ERROR_SUCCESS, response
 
 @meterpreter.register_function_windll
 def stdapi_registry_delete_key(request, response):
@@ -1442,21 +1441,20 @@ def stdapi_registry_open_key(request, response):
 	base_key = ctypes.create_string_buffer(bytes(base_key, 'UTF-8'))
 	permission = packet_get_tlv(request, TLV_TYPE_PERMISSION).get('value', winreg.KEY_ALL_ACCESS)
 	handle_id = ctypes.c_void_p()
-	if ctypes.windll.advapi32.RegOpenKeyExA(root_key, ctypes.byref(base_key), 0, permission, ctypes.byref(handle_id)) == ERROR_SUCCESS:
-		response += tlv_pack(TLV_TYPE_HKEY, handle_id.value)
-		return ERROR_SUCCESS, response
-	return ERROR_FAILURE, response
+	if ctypes.windll.advapi32.RegOpenKeyExA(root_key, ctypes.byref(base_key), 0, permission, ctypes.byref(handle_id)) != ERROR_SUCCESS:
+		return error_result_windows(), response
+	response += tlv_pack(TLV_TYPE_HKEY, handle_id.value)
+	return ERROR_SUCCESS, response
 
 @meterpreter.register_function_windll
 def stdapi_registry_open_remote_key(request, response):
 	target_host = packet_get_tlv(request, TLV_TYPE_TARGET_HOST)['value']
 	root_key = packet_get_tlv(request, TLV_TYPE_ROOT_KEY)['value']
 	result_key = ctypes.c_void_p()
-	result = ctypes.windll.advapi32.RegConnectRegistry(target_host, root_key, ctypes.byref(result_key))
-	if (result == ERROR_SUCCESS):
-		response += tlv_pack(TLV_TYPE_HKEY, result_key.value)
-		return ERROR_SUCCESS, response
-	return ERROR_FAILURE, response
+	if ctypes.windll.advapi32.RegConnectRegistry(target_host, root_key, ctypes.byref(result_key)) != ERROR_SUCCESS:
+		return error_result_windows(), response
+	response += tlv_pack(TLV_TYPE_HKEY, result_key.value)
+	return ERROR_SUCCESS, response
 
 @meterpreter.register_function_windll
 def stdapi_registry_query_class(request, response):
@@ -1464,11 +1462,10 @@ def stdapi_registry_query_class(request, response):
 	value_data = (ctypes.c_char * 4096)()
 	value_data_sz = ctypes.c_uint32()
 	value_data_sz.value = ctypes.sizeof(value_data)
-	result = ctypes.windll.advapi32.RegQueryInfoKeyA(hkey, value_data, ctypes.byref(value_data_sz), None, None, None, None, None, None, None, None, None)
-	if result == ERROR_SUCCESS:
-		response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data))
-		return ERROR_SUCCESS, response
-	return ERROR_FAILURE, response
+	if ctypes.windll.advapi32.RegQueryInfoKeyA(hkey, value_data, ctypes.byref(value_data_sz), None, None, None, None, None, None, None, None, None) != ERROR_SUCCESS:
+		return error_result_windows(), response
+	response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data))
+	return ERROR_SUCCESS, response
 
 @meterpreter.register_function_windll
 def stdapi_registry_query_value(request, response):
@@ -1496,7 +1493,7 @@ def stdapi_registry_query_value(request, response):
 		else:
 			response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data, value_data_sz.value))
 		return ERROR_SUCCESS, response
-	return ERROR_FAILURE, response
+	return error_result_windows(), response
 
 @meterpreter.register_function_windll
 def stdapi_registry_set_value(request, response):

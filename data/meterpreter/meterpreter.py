@@ -37,6 +37,7 @@ else:
 	has_urllib = True
 
 if sys.version_info[0] < 3:
+	is_str = lambda obj: issubclass(obj.__class__, str)
 	is_bytes = lambda obj: issubclass(obj.__class__, str)
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
@@ -71,6 +72,8 @@ PACKET_TYPE_PLAIN_RESPONSE = 11
 ERROR_SUCCESS = 0
 # not defined in original C implementation
 ERROR_FAILURE = 1
+ERROR_FAILURE_PYTHON = 2
+ERROR_FAILURE_WINDOWS = 3
 
 CHANNEL_CLASS_BUFFERED = 0
 CHANNEL_CLASS_STREAM   = 1
@@ -154,6 +157,50 @@ def export(symbol):
 def generate_request_id():
 	chars = 'abcdefghijklmnopqrstuvwxyz'
 	return ''.join(random.choice(chars) for x in range(32))
+
+@export
+def crc16(data):
+	poly = 0x1021
+	reg = 0x0000
+	if is_str(data):
+		data = list(map(ord, data))
+	elif is_bytes(data):
+		data = list(data)
+	data.append(0)
+	data.append(0)
+	for byte in data:
+		mask = 0x80
+		while mask > 0:
+			reg <<= 1
+			if byte & mask:
+				reg += 1
+			mask >>= 1
+			if reg > 0xffff:
+				reg &= 0xffff
+				reg ^= poly
+	return reg
+
+@export
+def error_result(exception=None):
+	if not exception:
+		_, exception, _ = sys.exc_info()
+	exception_crc = crc16(exception.__class__.__name__)
+	if exception_crc == 0x4cb2: # WindowsError
+		return error_result_windows(exception.errno)
+	else:
+		result = ((exception_crc << 16) | ERROR_FAILURE_PYTHON)
+	return result
+
+@export
+def error_result_windows(error_number=None):
+	if not has_windll:
+		return ERROR_FAILURE
+	if error_number == None:
+		error_number = ctypes.windll.kernel32.GetLastError()
+	if error_number > 0xffff:
+		return ERROR_FAILURE
+	result = ((error_number << 16) | ERROR_FAILURE_WINDOWS)
+	return result
 
 @export
 def inet_pton(family, address):
@@ -336,6 +383,10 @@ class PythonMeterpreter(object):
 			if hasattr(self, 'driver_init_' + self.driver):
 				getattr(self, 'driver_init_' + self.driver)()
 			self.running = True
+
+	def debug_print(self, msg):
+		if DEBUGGING:
+			print(msg)
 
 	def driver_init_http(self):
 		if HTTP_PROXY:
@@ -533,7 +584,7 @@ class PythonMeterpreter(object):
 		channel_type = packet_get_tlv(request, TLV_TYPE_CHANNEL_TYPE)
 		handler = 'channel_open_' + channel_type['value']
 		if handler not in self.extension_functions:
-			return ERROR_FAILURE, response
+			return error_result(NotImplementedError), response
 		handler = self.extension_functions[handler]
 		return handler(request, response)
 
@@ -641,18 +692,16 @@ class PythonMeterpreter(object):
 		if handler_name in self.extension_functions:
 			handler = self.extension_functions[handler_name]
 			try:
-				if DEBUGGING:
-					print('[*] running method ' + handler_name)
+				self.debug_print('[*] running method ' + handler_name)
 				result, resp = handler(request, resp)
 			except Exception:
+				self.debug_print('[-] method ' + handler_name + ' resulted in an error')
 				if DEBUGGING:
-					print('[-] method ' + handler_name + ' resulted in an error')
 					traceback.print_exc(file=sys.stderr)
-				result = ERROR_FAILURE
+				result = error_result()
 		else:
-			if DEBUGGING:
-				print('[-] method ' + handler_name + ' was requested but does not exist')
-			result = ERROR_FAILURE
+			self.debug_print('[-] method ' + handler_name + ' was requested but does not exist')
+			result = error_result(NotImplementedError)
 		resp += tlv_pack(TLV_TYPE_RESULT, result)
 		resp = struct.pack('>I', len(resp) + 4) + resp
 		return resp
