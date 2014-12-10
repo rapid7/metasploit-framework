@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft SQL Server - Find and Sample Data',
+      'Name'           => 'Microsoft SQL Server Find and Sample Data',
       'Description'    => %q{This script will search through all of the non-default databases
       on the SQL Server for columns that match the keywords defined in the TSQL KEYWORDS
       option. If column names are found that match the defined keywords and data is present

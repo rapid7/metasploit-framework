@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Microsoft SQL Server - SQLi SUSER_SNAME Domain Account Enumeration',
+      'Name'        => 'Microsoft SQL Server SQLi SUSER_SNAME Windows Domain Account Enumeration',
       'Description' => %q{
         This module can be used to bruteforce RIDs associated with the domain of the SQL Server
         using the SUSER_SNAME function via Error Based SQL injection. This is similar to the
