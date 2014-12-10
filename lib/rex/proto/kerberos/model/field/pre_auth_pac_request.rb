@@ -52,7 +52,6 @@ module Rex
             # @param input [OpenSSL::ASN1::Sequence] the input to decode from
             def decode_asn1(input)
               self.value = decode_asn1_value(input.value[0])
-              p self.value.class
             end
 
             # Decodes the value from an OpenSSL::ASN1::ASN1Data

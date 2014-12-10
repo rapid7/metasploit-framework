@@ -12,5 +12,6 @@ module Rex
 end
 
 require 'rex/proto/kerberos/model/field/pre_auth_pac_request'
+require 'rex/proto/kerberos/model/field/pre_auth_enc_time_stamp'
 require 'rex/proto/kerberos/model/field/pre_auth_data'
 require 'rex/proto/kerberos/model/field/kdc_request_body'
