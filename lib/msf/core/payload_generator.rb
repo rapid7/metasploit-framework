@@ -177,6 +177,7 @@ module Msf
         shellcode
       else
         encoder_list.each do |encoder_mod|
+          encoder_mod.datastore.merge!(datastore)
           cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
           begin
             return run_encoder(encoder_mod, shellcode.dup)
