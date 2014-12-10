@@ -1,3 +1,6 @@
+# -*- coding:binary -*-
+require 'spec_helper'
+
 require 'rex/java'
 require 'stringio'
 
