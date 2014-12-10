@@ -9,4 +9,5 @@ module Rex
   end
 end
 
+require 'rex/proto/kerberos/model/field/pre_auth_data'
 require 'rex/proto/kerberos/model/field/kdc_request_body'
