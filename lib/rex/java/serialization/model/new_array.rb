@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 module Rex
   module Java
     module Serialization

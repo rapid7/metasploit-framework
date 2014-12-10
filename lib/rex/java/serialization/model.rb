@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 require 'rex/java/serialization/model/element'
 require 'rex/java/serialization/model/null_reference'
 require 'rex/java/serialization/model/reference'
