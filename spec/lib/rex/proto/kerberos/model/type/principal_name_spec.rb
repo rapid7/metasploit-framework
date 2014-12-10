@@ -26,14 +26,6 @@ describe Rex::Proto::Kerberos::Model::Type::PrincipalName do
     it "returns a Rex::Proto::Kerberos::Model::Type::PrincipalName" do
       expect(principal_name).to be_a(Rex::Proto::Kerberos::Model::Type::PrincipalName)
     end
-
-    it "initializes name_type to -1" do
-      expect(principal_name.name_type).to eq(-1)
-    end
-
-    it "initializes name_string to empty Array" do
-      expect(principal_name.name_string).to eq([])
-    end
   end
 
   describe "#decode" do

@@ -35,6 +35,11 @@ module Rex
             #   @return [Rex::Proto::Kerberos::Type::EncryptedData] An encoding of the desired authorization-data encrypted
             attr_accessor :enc_auth_data
 
+            def self.decode(input, type_req)
+              elem = self.new
+              elem.decode(input, type_req)
+            end
+
             def decode(input, type_req)
 
               case input

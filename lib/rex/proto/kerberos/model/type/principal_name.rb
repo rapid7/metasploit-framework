@@ -14,11 +14,6 @@ module Rex
             #   @return [Array<String>] A sequence of strings that form a name.
             attr_accessor :name_string
 
-            def initialize
-              self.name_type = -1
-              self.name_string = []
-            end
-
             # Decodes a Rex::Proto::Kerberos::Model::Type::PrincipalName
             #
             # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from

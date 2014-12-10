@@ -41,6 +41,12 @@ module Rex
         # Unique ID
         NT_UID = 5
 
+        # From padata
+
+        PA_TGS_REQ = 1
+        PA_ENC_TIMESTAMP = 2
+        PA_PW_SALT = 3
+        PA_PAC_REQUEST = 128
       end
     end
   end
@@ -49,3 +55,4 @@ end
 require 'rex/proto/kerberos/model/element'
 require 'rex/proto/kerberos/model/type'
 require 'rex/proto/kerberos/model/field'
+require 'rex/proto/kerberos/model/message'

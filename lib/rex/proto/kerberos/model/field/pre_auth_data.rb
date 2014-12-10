@@ -3,7 +3,7 @@ module Rex
     module Kerberos
       module Model
         module Field
-          class PreAuthData
+          class PreAuthData < Element
             attr_accessor :type
             attr_accessor :value
           end
