@@ -15,7 +15,7 @@ module Rex
             self.handle = 0
           end
 
-          # Deserializes a Java::Serialization::Model::Reference
+          # Deserializes a Rex::Java::Serialization::Model::Reference
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -31,7 +31,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::Reference
+          # Serializes the Rex::Java::Serialization::Model::Reference
           #
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed

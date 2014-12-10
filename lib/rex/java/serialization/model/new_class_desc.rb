@@ -8,7 +8,7 @@ module Rex
           include Rex::Java::Serialization
 
           # @!attribute class_name
-          #   @return [Java::Serialization::Model::Utf] The name of the class
+          #   @return [Rex::Java::Serialization::Model::Utf] The name of the class
           attr_accessor :class_name
           # @!attribute name
           #   @return [Integer] The java class serial version
@@ -20,10 +20,10 @@ module Rex
           #   @return [Array] The java class fields
           attr_accessor :fields
           # @!attribute fields
-          #   @return [Java::Serialization::Model::Annotation] The java class annotations
+          #   @return [Rex::Java::Serialization::Model::Annotation] The java class annotations
           attr_accessor :class_annotation
           # @!attribute super_class
-          #   @return [Java::Serialization::Model::ClassDesc] The java class superclass description
+          #   @return [Rex::Java::Serialization::Model::ClassDesc] The java class superclass description
           attr_accessor :super_class
 
           # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
@@ -37,7 +37,7 @@ module Rex
             self.super_class = nil
           end
 
-          # Deserializes a Java::Serialization::Model::ClassDescription
+          # Deserializes a Rex::Java::Serialization::Model::ClassDescription
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -59,14 +59,14 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::ClassDescription
+          # Serializes the Rex::Java::Serialization::Model::ClassDescription
           #
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless class_name.class == Java::Serialization::Model::Utf &&
-                    class_annotation.class == Java::Serialization::Model::Annotation &&
-                    super_class.class == Java::Serialization::Model::ClassDesc
+            unless class_name.class == Rex::Java::Serialization::Model::Utf &&
+                    class_annotation.class == Rex::Java::Serialization::Model::Annotation &&
+                    super_class.class == Rex::Java::Serialization::Model::ClassDesc
               raise ::RuntimeError, 'Filed to serialize NewClassDesc'
             end
             encoded = ''

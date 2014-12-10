@@ -5,7 +5,7 @@ module Rex
         # This class provides a Long Utf string representation
         class LongUtf < Utf
 
-          # Deserializes a Java::Serialization::Model::LongUtf
+          # Deserializes a Rex::Java::Serialization::Model::LongUtf
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -29,7 +29,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::LongUtf
+          # Serializes the Rex::Java::Serialization::Model::LongUtf
           #
           # @return [String]
           def encode

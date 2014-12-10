@@ -25,7 +25,7 @@ module Rex
             self.values = []
           end
 
-          # Deserializes a Java::Serialization::Model::NewArray
+          # Deserializes a Rex::Java::Serialization::Model::NewArray
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -45,7 +45,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::NewArray
+          # Serializes the Rex::Java::Serialization::Model::NewArray
           #
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed

@@ -18,7 +18,7 @@ module Rex
             self.contents = []
           end
 
-          # Deserializes a Java::Serialization::Model::Annotation
+          # Deserializes a Rex::Java::Serialization::Model::Annotation
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -33,7 +33,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::Annotation
+          # Serializes the Rex::Java::Serialization::Model::Annotation
           #
           # @return [String] if serialization suceeds
           # @raise [RuntimeError] if serialization doesn't succeed

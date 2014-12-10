@@ -20,7 +20,7 @@ module Rex
             self.length = contents.length
           end
 
-          # Deserializes a Java::Serialization::Model::BlockDataLong
+          # Deserializes a Rex::Java::Serialization::Model::BlockDataLong
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -44,7 +44,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::BlockDataLong
+          # Serializes the Rex::Java::Serialization::Model::BlockDataLong
           #
           # @return [String]
           def encode

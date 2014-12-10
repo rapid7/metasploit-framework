@@ -21,7 +21,7 @@ module Rex
             self.class_data = []
           end
 
-          # Deserializes a Java::Serialization::Model::NewObject
+          # Deserializes a Rex::Java::Serialization::Model::NewObject
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -40,7 +40,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::NewObject
+          # Serializes the Rex::Java::Serialization::Model::NewObject
           #
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed

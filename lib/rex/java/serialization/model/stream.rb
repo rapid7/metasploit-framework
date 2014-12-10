@@ -28,7 +28,7 @@ module Rex
             self.references = []
           end
 
-          # Deserializes a Java::Serialization::Model::Stream
+          # Deserializes a Rex::Java::Serialization::Model::Stream
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -45,7 +45,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::Stream
+          # Serializes the Rex::Java::Serialization::Model::Stream
           #
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed

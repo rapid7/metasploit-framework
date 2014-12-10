@@ -12,10 +12,10 @@ module Rex
           #   @return [String] The type of the field.
           attr_accessor :type
           # @!attribute name
-          #   @return [Java::Serialization::Model::Utf] The name of the field.
+          #   @return [Rex::Java::Serialization::Model::Utf] The name of the field.
           attr_accessor :name
           # @!attribute field_type
-          #   @return [Java::Serialization::Model::Utf] The type of the field on object types.
+          #   @return [Rex::Java::Serialization::Model::Utf] The type of the field on object types.
           attr_accessor :field_type
 
           # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
@@ -26,7 +26,7 @@ module Rex
             self.field_type = nil
           end
 
-          # Deserializes a Java::Serialization::Model::Field
+          # Deserializes a Rex::Java::Serialization::Model::Field
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -48,12 +48,12 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::Field
+          # Serializes the Rex::Java::Serialization::Model::Field
           #
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless name.class == Java::Serialization::Model::Utf
+            unless name.class == Rex::Java::Serialization::Model::Utf
               raise ::RuntimeError, 'Failed to serialize Field'
             end
 

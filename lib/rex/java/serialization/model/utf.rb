@@ -20,7 +20,7 @@ module Rex
             self.length = contents.length
           end
 
-          # Deserializes a Java::Serialization::Model::Utf
+          # Deserializes a Rex::Java::Serialization::Model::Utf
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -44,7 +44,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::Utf
+          # Serializes the Rex::Java::Serialization::Model::Utf
           #
           # @return [String]
           def encode

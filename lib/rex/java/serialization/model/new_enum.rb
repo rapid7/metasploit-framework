@@ -8,10 +8,10 @@ module Rex
           include Rex::Java::Serialization::Model::Contents
 
           # @!attribute enum_description
-          #   @return [Java::Serialization::Model::ClassDescription] The description of the enum
+          #   @return [Rex::Java::Serialization::Model::ClassDescription] The description of the enum
           attr_accessor :enum_description
           # @!attribute constant_name
-          #   @return [Java::Serialization::Model::Utf] The constant value in the Java Enum
+          #   @return [Rex::Java::Serialization::Model::Utf] The constant value in the Java Enum
           attr_accessor :constant_name
 
           # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
@@ -21,7 +21,7 @@ module Rex
             self.constant_name = nil
           end
 
-          # Deserializes a Java::Serialization::Model::NewEnum
+          # Deserializes a Rex::Java::Serialization::Model::NewEnum
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -34,7 +34,7 @@ module Rex
             self
           end
 
-          # Serializes the Java::Serialization::Model::NewEnum
+          # Serializes the Rex::Java::Serialization::Model::NewEnum
           #
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
