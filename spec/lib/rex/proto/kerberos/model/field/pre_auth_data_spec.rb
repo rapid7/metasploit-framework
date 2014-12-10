@@ -59,7 +59,6 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
         pre_auth_data.decode(pac_sample)
         expect(pre_auth_data.value.length).to eq(7)
       end
-
     end
   end
 

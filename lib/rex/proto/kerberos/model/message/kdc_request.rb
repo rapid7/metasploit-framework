@@ -11,7 +11,7 @@ module Rex
             #   @return [Fixnum] The type of a protocol message
             attr_accessor :msg_type
             # @!attribute pa_data
-            #   @return [Rex::Proto::Kerberos::Model::Field::PreAuthData] Authentication information which may
+            #   @return [Array<Rex::Proto::Kerberos::Model::Field::PreAuthData>] Authentication information which may
             #   be needed before credentials can be issued or decrypted
             attr_accessor :pa_data
             # @!attribute req_body
@@ -47,7 +47,7 @@ module Rex
               seq_values    = input.value[0].value
               self.pvno     = decode_asn1_pvno(seq_values[0])
               self.msg_type = decode_asn1_msg_type(seq_values[1])
-              #self.pa_data  = decode_asn1_pa_data(seq_values[2])
+              self.pa_data  = decode_asn1_pa_data(seq_values[2])
               self.req_body = decode_asn1_req_body(seq_values[3])
             end
 
@@ -60,7 +60,12 @@ module Rex
             end
 
             def decode_asn1_pa_data(input)
+              pre_auth = []
+              input.value[0].value.each do |pre_auth_data|
+                pre_auth << Rex::Proto::Kerberos::Model::Field::PreAuthData.decode(pre_auth_data)
+              end
 
+              pre_auth
             end
 
             def decode_asn1_req_body(input)
