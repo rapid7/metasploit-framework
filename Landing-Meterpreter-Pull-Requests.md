@@ -12,5 +12,5 @@ Luckily, these steps are sequential, so there are no dependencies that will get 
  - Get @cdoughty-r7 to push the build button to build and publish a new version of the gem.
  - Wait for it to publish and become downloadable.
  - Update metasploit-framework.gemspec to the new gem version.
- - Make sure the new meterpreter_bins gets downloaded and updated with msfupdate.
- - Submit PR with the new functionality.
+ - Make sure the new meterpreter_bins gets downloaded and updated with msfupdate / bundle install.
+ - Submit or land PR with the new functionality + the gemspec update in https://github.com/rapid7/metasploit-framework
