@@ -43,12 +43,11 @@ class Metasploit4 < Msf::Auxiliary
     datastore['LOCALUSER']
   end
 
-
-  def get_password_reset
+  def password_reset
     send_request_cgi('uri' => normalize_uri(target_uri.path, 'PasswordReset'))
   end
 
-  def is_track_it?(res)
+  def track_it?(res)
     res.body =~ /<title>Track-It! Password Reset/i
   end
 
@@ -59,20 +58,21 @@ class Metasploit4 < Msf::Auxiliary
   def check_host(ip)
     vprint_status("#{peer}: retrieving PasswordReset page to extract Track-It! version")
 
-    unless res = get_password_reset
+    unless (res = password_reset)
       print_error("#{peer}: Could not contact server")
     end
 
-    if is_track_it?(res)
+    if track_it?(res)
       version = extract_track_it_version(res)
       if version
         fix_version = '11.4'
         if Gem::Version.new(version) < Gem::Version.new(fix_version)
           report_vuln(
-            :host => ip,
-            :port => rport,
-            :name => self.name,
-            :refs => self.references
+            host: ip,
+            port: rport,
+            name: name,
+            info: "Module #{fullname} detected Track-It! version #{version}",
+            refs: references
           )
           vprint_status("#{peer}: Track-It! version #{version} is less than #{fix_version}")
           return Exploit::CheckCode::Vulnerable
@@ -99,7 +99,7 @@ class Metasploit4 < Msf::Auxiliary
       vprint_status("#{peer}: retrieving domain name")
     end
 
-    unless res = get_password_reset
+    unless (res = password_reset)
       print_error("#{peer}: Could not contact server")
       return
     end
