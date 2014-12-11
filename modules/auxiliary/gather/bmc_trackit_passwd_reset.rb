@@ -72,7 +72,7 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     if !res or res.body != "{\"success\":true,\"data\":{\"userUpdated\":true}}"
-      fail_with("Could not register the user.")
+      fail_with(Failure::Unknown, "Could not register the user.")
     end
 
     password = Rex::Text.rand_text_alpha(10) + "!1"
