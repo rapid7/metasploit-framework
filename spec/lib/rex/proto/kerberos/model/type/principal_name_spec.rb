@@ -9,12 +9,90 @@ describe Rex::Proto::Kerberos::Model::Type::PrincipalName do
     described_class.new
   end
 
+=begin
+#<OpenSSL::ASN1::Sequence:0x007ff9c1adef40
+ @infinite_length=false,
+ @tag=16,
+ @tag_class=:UNIVERSAL,
+ @tagging=nil,
+ @value=
+  [#<OpenSSL::ASN1::ASN1Data:0x007ff9c1adf058
+    @infinite_length=false,
+    @tag=0,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::Integer:0x007ff9c1adf080
+       @infinite_length=false,
+       @tag=2,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value=#<OpenSSL::BN:0x007ff9c1adf0a8>>]>,
+   #<OpenSSL::ASN1::ASN1Data:0x007ff9c1adef68
+    @infinite_length=false,
+    @tag=1,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::Sequence:0x007ff9c1adef90
+       @infinite_length=false,
+       @tag=16,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value=
+        [#<OpenSSL::ASN1::GeneralString:0x007ff9c1adefb8
+          @infinite_length=false,
+          @tag=27,
+          @tag_class=:UNIVERSAL,
+          @tagging=nil,
+          @value="juan">]>]>]>
+=end
   let(:sample_single_name) do
     "\x30\x0f\xa0\x03\x02\x01\x01\xa1" +
     "\x08\x30\x06\x1b\x04\x6a\x75\x61" +
     "\x6e"
   end
 
+=begin
+#<OpenSSL::ASN1::Sequence:0x007ff9c384a4d0
+ @infinite_length=false,
+ @tag=16,
+ @tag_class=:UNIVERSAL,
+ @tagging=nil,
+ @value=
+  [#<OpenSSL::ASN1::ASN1Data:0x007ff9c384a638
+    @infinite_length=false,
+    @tag=0,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::Integer:0x007ff9c384a660
+       @infinite_length=false,
+       @tag=2,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value=#<OpenSSL::BN:0x007ff9c384a688>>]>,
+   #<OpenSSL::ASN1::ASN1Data:0x007ff9c384a4f8
+    @infinite_length=false,
+    @tag=1,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::Sequence:0x007ff9c384a520
+       @infinite_length=false,
+       @tag=16,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value=
+        [#<OpenSSL::ASN1::GeneralString:0x007ff9c384a598
+          @infinite_length=false,
+          @tag=27,
+          @tag_class=:UNIVERSAL,
+          @tagging=nil,
+          @value="krbtgt">,
+         #<OpenSSL::ASN1::GeneralString:0x007ff9c384a548
+          @infinite_length=false,
+          @tag=27,
+          @tag_class=:UNIVERSAL,
+          @tagging=nil,
+          @value="DEMO.LOCAL">]>]>]>
+=end
   let(:sample_multiple_name) do
     "\x30\x1d\xa0\x03\x02\x01\x01\xa1" +
     "\x16\x30\x14\x1b\x06\x6b\x72\x62" +

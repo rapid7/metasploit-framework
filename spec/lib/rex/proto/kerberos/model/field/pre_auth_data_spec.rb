@@ -9,6 +9,37 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
     described_class.new
   end
 
+=begin
+#<OpenSSL::ASN1::Sequence:0x007ff9c500d5e0
+ @infinite_length=false,
+ @tag=16,
+ @tag_class=:UNIVERSAL,
+ @tagging=nil,
+ @value=
+  [#<OpenSSL::ASN1::ASN1Data:0x007ff9c500d6a8
+    @infinite_length=false,
+    @tag=1,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::Integer:0x007ff9c500d6d0
+       @infinite_length=false,
+       @tag=2,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value=#<OpenSSL::BN:0x007ff9c500d6f8>>]>,
+   #<OpenSSL::ASN1::ASN1Data:0x007ff9c500d608
+    @infinite_length=false,
+    @tag=2,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::OctetString:0x007ff9c500d630
+       @infinite_length=false,
+       @tag=4,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value=
+        "0=\xA0\x03\x02\x01\x17\xA26\x044`\xAES\xA5\vV.Fa\xD9\xD6\x89\x98\xFCy\x9DEs}\r\x8Ax\x84M\xD7|\xC6P\b\x8D\xAB\"y\xC3\x8D\xD3\xAF\x9F^\xB7\xB8\x9BW\xC5\xC9\xC5\xEA\x90\x89\xC3cX">]>]>
+=end
   let(:timestamp_sample) do
     "\x30\x48\xa1\x03\x02\x01\x02\xa2\x41\x04\x3f\x30\x3d\xa0\x03\x02" +
     "\x01\x17\xa2\x36\x04\x34\x60\xae\x53\xa5\x0b\x56\x2e\x46\x61\xd9" +
@@ -17,6 +48,36 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
     "\x57\xc5\xc9\xc5\xea\x90\x89\xc3\x63\x58"
   end
 
+=begin
+#<OpenSSL::ASN1::Sequence:0x007ff9c30b4888
+ @infinite_length=false,
+ @tag=16,
+ @tag_class=:UNIVERSAL,
+ @tagging=nil,
+ @value=
+  [#<OpenSSL::ASN1::ASN1Data:0x007ff9c30b4950
+    @infinite_length=false,
+    @tag=1,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::Integer:0x007ff9c30b4978
+       @infinite_length=false,
+       @tag=2,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value=#<OpenSSL::BN:0x007ff9c30b49a0>>]>,
+   #<OpenSSL::ASN1::ASN1Data:0x007ff9c30b48b0
+    @infinite_length=false,
+    @tag=2,
+    @tag_class=:CONTEXT_SPECIFIC,
+    @value=
+     [#<OpenSSL::ASN1::OctetString:0x007ff9c30b48d8
+       @infinite_length=false,
+       @tag=4,
+       @tag_class=:UNIVERSAL,
+       @tagging=nil,
+       @value="0\x05\xA0\x03\x01\x01\x00">]>]>
+=end
   let(:pac_sample) do
     "\x30\x11\xa1\x04\x02\x02" +
     "\x00\x80\xa2\x09\x04\x07\x30\x05\xa0\x03\x01\x01\x00"
