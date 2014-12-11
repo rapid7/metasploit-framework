@@ -26,6 +26,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[Style Tips]]
 - [[Committer Rights]]
 - [[Landing Pull Requests]]
+- [[Landing Meterpreter Pull Requests]]
 
 # Metasploit Resources #
 
