@@ -42,10 +42,10 @@ module Rex
             #
             # @return [String]
             def encode
-              pvno_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pvno], 0, :CONTEXT_SPECIFIC)
-              msg_type_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_msg_type], 1, :CONTEXT_SPECIFIC)
-              pa_data_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pa_data], 2, :CONTEXT_SPECIFIC)
-              req_body_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_req_body], 3, :CONTEXT_SPECIFIC)
+              pvno_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pvno], 1, :CONTEXT_SPECIFIC)
+              msg_type_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_msg_type], 2, :CONTEXT_SPECIFIC)
+              pa_data_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pa_data], 3, :CONTEXT_SPECIFIC)
+              req_body_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_req_body], 4, :CONTEXT_SPECIFIC)
               seq = OpenSSL::ASN1::Sequence.new([pvno_asn1, msg_type_asn1, pa_data_asn1, req_body_asn1])
 
               seq.to_der
@@ -53,20 +53,38 @@ module Rex
 
             private
 
+            # Encodes the etype field
+            #
+            # @return [OpenSSL::ASN1::Integer]
             def encode_pvno
+              bn = OpenSSL::BN.new(pvno)
+              int = OpenSSL::ASN1::Integer(bn)
 
+              int
             end
 
+            # Encodes the msg_type field
+            #
+            # @return [OpenSSL::ASN1::Integer]
             def encode_msg_type
+              bn = OpenSSL::BN.new(msg_type)
+              int = OpenSSL::ASN1::Integer(bn)
 
+              int
             end
 
+            # Encodes the pa_data field
+            #
+            # @return [String]
             def encode_pa_data
-
+              pa_data.encode
             end
 
+            # Encodes the req_body field
+            #
+            # @return [String]
             def encode_req_body
-
+              req_body.encode
             end
 
             # Decodes a Rex::Proto::Kerberos::Model::Message::KdcRequest from an String

@@ -753,4 +753,20 @@ describe Rex::Proto::Kerberos::Model::Message::KdcRequest do
     end
   end
 
+  describe "#encode" do
+    context "when AS-REQ" do
+      it "re-encodes a KdcRequest correctly" do
+        kdc_request.decode(sample_as_req)
+        expect(kdc_request.encode).to eq(sample_as_req)
+      end
+    end
+
+    context "when TGS-REQ" do
+      it "re-encodes a KdcRequest correctly" do
+        kdc_request.decode(sample_tgs_req)
+        expect(kdc_request.encode).to eq(sample_tgs_req)
+      end
+    end
+  end
+
 end
