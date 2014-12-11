@@ -38,7 +38,7 @@ describe Metasploit::Framework::LoginScanner::Telnet do
         expect(login_scanner.errors[:banner_timeout]).to include "must be greater than or equal to 1"
       end
 
-      it 'is valid for a legitimate  number' do
+      it 'is valid for a legitimate number' do
         login_scanner.port = rand(1000) + 1
         expect(login_scanner.errors[:banner_timeout]).to be_empty
       end
@@ -69,7 +69,7 @@ describe Metasploit::Framework::LoginScanner::Telnet do
         expect(login_scanner.errors[:telnet_timeout]).to include "must be greater than or equal to 1"
       end
 
-      it 'is valid for a legitimate  number' do
+      it 'is valid for a legitimate number' do
         login_scanner.port = rand(1000) + 1
         expect(login_scanner.errors[:telnet_timeout]).to be_empty
       end
