@@ -47,8 +47,8 @@ module Rex
               pa_data_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pa_data], 3, :CONTEXT_SPECIFIC)
               req_body_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_req_body], 4, :CONTEXT_SPECIFIC)
               seq = OpenSSL::ASN1::Sequence.new([pvno_asn1, msg_type_asn1, pa_data_asn1, req_body_asn1])
-
-              seq.to_der
+              seq_asn1 = OpenSSL::ASN1::ASN1Data.new([seq], msg_type, :APPLICATION)
+              seq_asn1.to_der
             end
 
             private
@@ -77,7 +77,12 @@ module Rex
             #
             # @return [String]
             def encode_pa_data
-              pa_data.encode
+              elems = []
+              pa_data.each do |data|
+                elems << data.encode
+              end
+
+              OpenSSL::ASN1::Sequence.new(elems)
             end
 
             # Encodes the req_body field
