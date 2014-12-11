@@ -113,4 +113,13 @@ describe Rex::Proto::Kerberos::Model::Type::EncryptedData do
       end
     end
   end
+
+  describe "#encode" do
+    context "when EncryptedData without kvno" do
+      it "encodes Rex::Proto::Kerberos::Model::Type::EncryptedData correctly" do
+        encrypted_data.decode(sample_enc_data)
+        expect(sample_enc_data.encode).to eq(sample_enc_data)
+      end
+    end
+  end
 end

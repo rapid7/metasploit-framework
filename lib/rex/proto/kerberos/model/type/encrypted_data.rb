@@ -36,17 +36,21 @@ module Rex
               self
             end
 
+            # Encodes a Rex::Proto::Kerberos::Model::Type::EncryptedData into an String
+            #
+            # @return [String]
+            # @raise [RuntimeError] if encoding doesn't succeed
             def encode
-              int_bn = OpenSSL::BN.new(name_type)
-              int = OpenSSL::ASN1::Integer(int_bn)
-              strings = []
-              name_string.each do |s|
-                strings << OpenSSL::ASN1::GeneralString(s)
+              seq = nil
+              etype_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_etype], 0, :CONTEXT_SPECIFIC)
+              if kvno
+                kvno_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_kvno], 1, :CONTEXT_SPECIFIC)
+                cipher_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_cipher], 2, :CONTEXT_SPECIFIC)
+                seq = OpenSSL::ASN1::Sequence.new([etype_asn1, kvno_asn1, cipher_asn1])
+              else
+                cipher_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_cipher], 1, :CONTEXT_SPECIFIC)
+                seq = OpenSSL::ASN1::Sequence.new([etype_asn1, cipher_asn1])
               end
-              seq_string = OpenSSL::ASN1::Sequence.new(strings)
-              integer_asn1 = OpenSSL::ASN1::ASN1Data.new([int], 0, :CONTEXT_SPECIFIC)
-              string_asn1 = OpenSSL::ASN1::ASN1Data.new([seq_string], 1, :CONTEXT_SPECIFIC)
-              seq = OpenSSL::ASN1::Sequence.new([integer_asn1, string_asn1])
 
               seq.to_der
             end
@@ -74,6 +78,30 @@ module Rex
             end
 
             private
+
+            # Encodes the etype
+            #
+            # @return [OpenSSL::ASN1::Integer]
+            def encode_etype
+              bn = OpenSSL::BN.new(etype)
+              int = OpenSSL::ASN1::Integer(bn)
+
+              int
+            end
+
+            # Encodes the kvno (unsupported)
+            #
+            # @raise [RuntimeError]
+            def encode_kvno
+              raise RuntimeError, 'Encoding EncryptedData failed, kvno not supported'
+            end
+
+            # Encodes the cipher
+            #
+            # @return [OpenSSL::ASN1::OctetString]
+            def encode_cipher
+              OpenSSL::ASN1::OctetString.new(cipher)
+            end
 
             # Decrypts the cipher using RC4-HMAC schema
             #
