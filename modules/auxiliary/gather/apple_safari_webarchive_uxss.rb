@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('FILENAME', [ true, 'The file name.',  'msf.webarchive']),
-        OptString.new('URLS', [ true, 'A space-delimited list of URLs to UXSS (eg http//browserscan.rapid7.com/']),
+        OptString.new('URLS', [ true, 'A space-delimited list of URLs to UXSS (eg http://browserscan.rapid7.com/']),
         OptString.new('URIPATH', [false, 'The URI to receive the UXSS\'ed data', '/grab']),
         OptString.new('DOWNLOAD_PATH', [ true, 'The path to download the webarhive.', '/msf.webarchive']),
         OptString.new('URLS', [ true, 'The URLs to steal cookie and form data from.', '']),
