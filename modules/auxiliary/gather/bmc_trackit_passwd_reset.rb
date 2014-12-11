@@ -32,7 +32,6 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'The path to BMC TrackIt!', '/']),
         OptString.new('LOCALUSER', [true, 'The local user to change password for', 'Administrator']),
         OptString.new('DOMAIN', [false, 'The domain of the user. By default the local user\'s computer name will be autodetected', ''])
