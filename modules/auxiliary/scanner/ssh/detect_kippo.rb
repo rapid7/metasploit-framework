@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     response = sock.get(1024) # Not sure what the difference is between get and recv, but updated. Will look into.
     if response == "Protocol mismatch.\n" or response.include? "bad packet length 168430090" # I know this is ugly
       print_status("#{ip} - Kippo honeypot detected!") # Currently reading the report_* documentation trying to figure out how to implement properly
-      end
     end
   end
+end
 
