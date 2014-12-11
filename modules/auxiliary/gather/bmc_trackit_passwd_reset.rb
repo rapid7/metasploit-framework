@@ -90,7 +90,7 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     if !res or res.body != '{"success":true,"data":{"PasswordResetStatus":0}}'
-      fail_with("Could not change the user's password. Is it a domain or local user?")
+      fail_with(Failure::Unknown, "Could not change the user's password. Is it a domain or local user?")
     end
 
     print_status("Please run the psexec module using:")
