@@ -678,12 +678,6 @@ describe Rex::Proto::Kerberos::Model::Message::KdcRequest do
     "\x80\xb2\x4f\xcd\x3d\x3d\x58\xb5"
   end
 
-  describe ".new" do
-    it "returns a Rex::Proto::Kerberos::Model::Message::KdcRequest" do
-      expect(kdc_request).to be_a(Rex::Proto::Kerberos::Model::Message::KdcRequest)
-    end
-  end
-
   describe "#decode" do
     context "when AS-REQ" do
       it "returns the Rex::Proto::Kerberos::Model::Message::KdcRequest decoded" do

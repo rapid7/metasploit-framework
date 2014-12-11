@@ -83,12 +83,6 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
     "\x00\x80\xa2\x09\x04\x07\x30\x05\xa0\x03\x01\x01\x00"
   end
 
-  describe ".new" do
-    it "returns a Rex::Proto::Kerberos::Model::Field::PreAuthData" do
-      expect(pre_auth_data).to be_a(Rex::Proto::Kerberos::Model::Field::PreAuthData)
-    end
-  end
-
   describe "#decode" do
     context "when PAC-ENC-TIMESTAMP" do
       it "returns the decoded Rex::Proto::Kerberos::Model::Field::PreAuthData" do

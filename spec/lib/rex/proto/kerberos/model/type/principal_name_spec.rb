@@ -100,12 +100,6 @@ describe Rex::Proto::Kerberos::Model::Type::PrincipalName do
     "\x4f\x2e\x4c\x4f\x43\x41\x4c"
   end
 
-  describe ".new" do
-    it "returns a Rex::Proto::Kerberos::Model::Type::PrincipalName" do
-      expect(principal_name).to be_a(Rex::Proto::Kerberos::Model::Type::PrincipalName)
-    end
-  end
-
   describe "#decode" do
     context "when PrincipalName with single name" do
       it "returns the PrincipalName instance" do

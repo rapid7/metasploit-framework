@@ -13,7 +13,7 @@ module Rex
             attr_accessor :etype
             # @!attribute kvno
             #   @return [Fixnum] The version number of the key
-            attr_accessor :kvno
+            # attr_accessor :kvno
             # @!attribute cipher
             #   @return [String] The enciphered text
             attr_accessor :cipher
@@ -39,18 +39,21 @@ module Rex
             # Encodes a Rex::Proto::Kerberos::Model::Type::EncryptedData into an ASN.1 String
             #
             # @return [String]
-            # @raise [RuntimeError] if encoding doesn't succeed
             def encode
-              seq = nil
+              elems = []
               etype_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_etype], 0, :CONTEXT_SPECIFIC)
-              if kvno
-                kvno_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_kvno], 1, :CONTEXT_SPECIFIC)
-                cipher_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_cipher], 2, :CONTEXT_SPECIFIC)
-                seq = OpenSSL::ASN1::Sequence.new([etype_asn1, kvno_asn1, cipher_asn1])
-              else
-                cipher_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_cipher], 1, :CONTEXT_SPECIFIC)
-                seq = OpenSSL::ASN1::Sequence.new([etype_asn1, cipher_asn1])
-              end
+              elems << etype_asn1
+
+              #TODO: support kvno
+              #if kvno
+                #kvno_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_kvno], 1, :CONTEXT_SPECIFIC)
+                #elems << kvno_asn1
+              #end
+
+              cipher_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_cipher], 2, :CONTEXT_SPECIFIC)
+              elems << cipher_asn1
+
+              seq = OpenSSL::ASN1::Sequence.new(elems)
 
               seq.to_der
             end
@@ -150,15 +153,19 @@ module Rex
             # @raise [RuntimeError] if decoding doesn't succeed
             def decode_asn1(input)
               seq_values = input.value
-              self.etype = decode_etype(seq_values[0])
-              case seq_values[1].value[0]
-              when OpenSSL::ASN1::Integer
-                self.kvno = decode_kvno(seq_values[1])
-                self.cipher = decode_cipher(seq_values[2])
-              when OpenSSL::ASN1::OctetString
-                self.cipher = decode_cipher(seq_values[1])
-              else
-                raise ::RuntimeError, 'Failed to decode EncryptedData ASN1 Sequence'
+
+              seq_values.each do |val|
+                case val.tag
+                when 0
+                  self.etype = decode_etype(val)
+                #TODO: support kvno
+                #when 1
+                  #self.kvno = decode_kvno(val)
+                when 2
+                  self.cipher = decode_cipher(val)
+                else
+                  raise ::RuntimeError, 'Failed to decode EncryptedData SEQUENCE'
+                end
               end
             end
 

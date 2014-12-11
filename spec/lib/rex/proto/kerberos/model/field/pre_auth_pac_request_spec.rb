@@ -32,12 +32,6 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest do
     "\x30\x05\xa0\x03\x01\x01\x00"
   end
 
-  describe ".new" do
-    it "returns a Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest" do
-      expect(pre_auth_pac_request).to be_a(Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest)
-    end
-  end
-
   describe "#decode" do
     it "returns the decoded Rex::Proto::Kerberos::Model::Field::PreAuthData" do
       expect(pre_auth_pac_request.decode(pac_sample)).to eq(pre_auth_pac_request)

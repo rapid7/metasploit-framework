@@ -9,9 +9,6 @@ describe Rex::Proto::Kerberos::Model::Field::KdcRequestBody do
     described_class.new
   end
 
-  let(:as_req) { 10 }
-  let(:tgs_req) { 12 }
-
 =begin
 #<OpenSSL::ASN1::Sequence:0x007ff9c30196d0
  @infinite_length=false,
@@ -434,65 +431,59 @@ describe Rex::Proto::Kerberos::Model::Field::KdcRequestBody do
     "\x9f\xf3\x9b\x87\x80\xb2\x4f\xcd\x3d\x3d\x58\xb5"
   end
 
-  describe ".new" do
-    it "returns a Rex::Proto::Kerberos::Model::Type::KdcRequestBody" do
-      expect(kdc_request_body).to be_a(Rex::Proto::Kerberos::Model::Field::KdcRequestBody)
-    end
-  end
-
   describe "#decode" do
     context "when KdcRequestBody from a KRB_AS_REQ message" do
       it "returns the KdcRequestBody instance" do
-        expect(kdc_request_body.decode(sample_as_req, as_req)).to eq(kdc_request_body)
+        expect(kdc_request_body.decode(sample_as_req)).to eq(kdc_request_body)
       end
 
       it "decodes options" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.options).to eq(0x50800000)
       end
 
       it "decodes cname" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.cname.name_string).to eq(['juan'])
       end
 
       it "decodes realm" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.realm).to eq('DEMO.LOCAL')
       end
 
       it "decodes sname" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.sname.name_string).to eq(['krbtgt', 'DEMO.LOCAL'])
       end
 
       it "decodes from" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.from.to_s).to eq('1970-01-01 00:00:00 UTC')
       end
 
       it "decodes till" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.till.to_s).to eq('1970-01-01 00:00:00 UTC')
       end
 
       it "decodes rtime" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.rtime.to_s).to eq('1970-01-01 00:00:00 UTC')
       end
 
       it "decodes nonce" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.nonce).to eq(418648108)
       end
 
       it "decodes etype" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.etype).to eq([23])
       end
 
       it "doesn't decode enc_auth_data" do
-        kdc_request_body.decode(sample_as_req, as_req)
+        kdc_request_body.decode(sample_as_req)
         expect(kdc_request_body.enc_auth_data).to be_nil
       end
 
@@ -500,57 +491,73 @@ describe Rex::Proto::Kerberos::Model::Field::KdcRequestBody do
 
     context "when KdcRequestBody from a KRB_TGS_REQ message" do
       it "returns the KdcRequestBody instance" do
-        expect(kdc_request_body.decode(sample_tgs_req, tgs_req)).to eq(kdc_request_body)
+        expect(kdc_request_body.decode(sample_tgs_req)).to eq(kdc_request_body)
       end
 
       it "decodes options" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.options).to eq(0x50800000)
       end
 
       it "leaves cname as nil" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.cname).to be_nil
       end
 
       it "decodes realm" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.realm).to eq('DEMO.LOCAL')
       end
 
       it "decodes sname" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.sname.name_string).to eq(['krbtgt', 'DEMO.LOCAL'])
       end
 
       it "decodes from" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.from.to_s).to eq('1970-01-01 00:00:00 UTC')
       end
 
       it "decodes till" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.till.to_s).to eq('1970-01-01 00:00:00 UTC')
       end
 
       it "decodes rtime" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.rtime.to_s).to eq('1970-01-01 00:00:00 UTC')
       end
 
       it "decodes nonce" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.nonce).to eq(2053110444)
       end
 
       it "decodes etype" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.etype).to eq([23])
       end
 
       it "decodes enc_auth_data" do
-        kdc_request_body.decode(sample_tgs_req, tgs_req)
+        kdc_request_body.decode(sample_tgs_req)
         expect(kdc_request_body.enc_auth_data.cipher.length).to eq(643)
+      end
+    end
+  end
+
+  describe "#encode" do
+    context "when KdcRequestBody from a KRB_AS_REQ message" do
+      it "encodes KdcRequestBody correctly" do
+        kdc_request_body.decode(sample_as_req)
+        expect(kdc_request_body.encode).to eq(sample_as_req)
+      end
+    end
+
+    context "when KdcRequestBody from a KRB_TGS_REQ message" do
+      it "encodes KdcRequestBody correctly" do
+        kdc_request_body.decode(sample_tgs_req)
+        expect(kdc_request_body.encode).to eq(sample_tgs_req)
       end
     end
   end

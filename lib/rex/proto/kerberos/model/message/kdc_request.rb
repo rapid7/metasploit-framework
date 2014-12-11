@@ -71,7 +71,7 @@ module Rex
             end
 
             def decode_asn1_req_body(input)
-              Rex::Proto::Kerberos::Model::Field::KdcRequestBody.decode(input.value[0], msg_type)
+              Rex::Proto::Kerberos::Model::Field::KdcRequestBody.decode(input.value[0])
             end
           end
         end

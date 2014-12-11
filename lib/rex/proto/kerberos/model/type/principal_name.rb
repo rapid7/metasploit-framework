@@ -64,7 +64,7 @@ module Rex
             def encode_name_string
               strings = []
               name_string.each do |s|
-                strings << OpenSSL::ASN1::GeneralString(s)
+                strings << OpenSSL::ASN1::GeneralString.new(s)
               end
               seq_string = OpenSSL::ASN1::Sequence.new(strings)
 

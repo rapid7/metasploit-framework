@@ -85,12 +85,6 @@ describe Rex::Proto::Kerberos::Model::Type::EncryptedData do
     "\x3d\x3d\x58\xb5"
   end
 
-  describe ".new" do
-    it "returns a Rex::Proto::Kerberos::Model::Type::EncryptedData" do
-      expect(encrypted_data).to be_a(Rex::Proto::Kerberos::Model::Type::EncryptedData)
-    end
-  end
-
   describe "#decode" do
     context "when EncryptedData without kvno" do
       it "returns the EncryptedData instance" do
@@ -105,11 +99,6 @@ describe Rex::Proto::Kerberos::Model::Type::EncryptedData do
       it "decodes cipher correctly" do
         encrypted_data.decode(sample_enc_data)
         expect(encrypted_data.cipher.length).to eq(643)
-      end
-
-      it "leaves kvno as nil" do
-        encrypted_data.decode(sample_enc_data)
-        expect(encrypted_data.kvno).to be_nil
       end
     end
   end

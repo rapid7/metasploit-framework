@@ -88,12 +88,6 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp do
     "\x9f\x5e\xb7\xb8\x9b\x57\xc5\xc9\xc5\xea\x90\x89\xc3\x63\x58"
   end
 
-  describe ".new" do
-    it "returns a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp" do
-      expect(pre_auth_enc_time_stamp).to be_a(Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp)
-    end
-  end
-
   describe "#decode" do
     it "returns the decoded Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp" do
       expect(pre_auth_enc_time_stamp.decode(time_stamp_raw)).to eq(pre_auth_enc_time_stamp)
