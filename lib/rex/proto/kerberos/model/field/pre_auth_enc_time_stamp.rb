@@ -8,6 +8,8 @@ module Rex
           # This class is a representation of a PA-ENC-TIMESTAMP, an encrypted timestamp
           class PreAuthEncTimeStamp < Element
 
+            include Rex::Proto::Kerberos::Crypto::Rc4Hmac
+
             # @!attribute pa_time_stamp
             #   @return [Time] client's time
             attr_accessor :pa_time_stamp
@@ -45,29 +47,21 @@ module Rex
               seq.to_der
             end
 
-            # Decrypts a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
+            # Encrypts the Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
             #
-            # @param input [String, OpenSSL::ASN1::Sequence] the input to decrypt from
-            # @return [Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp] if decryption succeeds
-            # @raise [RuntimeError] if decryption doesn't succeed
-            def self.decrypt(input, key)
-              elem = PreAuthEncTimeStamp.new
-              elem.decrypt(input, key)
+            # @return [String]
+            def encrypt(key, etype)
+              data = self.encode
 
-              elem
-            end
+              res = ''
+              case etype
+              when KERB_ETYPE_RC4_HMAC
+                res = encrypt_rc4_hmac(data, key, msg_type)
+              else
+                raise ::RuntimeError, 'EncryptedData schema is not supported'
+              end
 
-            # Decrypts a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
-            #
-            # @param input [String, OpenSSL::ASN1::Sequence] the input to decrypt from
-            # @return [self] if decryption succeeds
-            # @raise [RuntimeError] if decryption doesn't succeed
-            def decrypt(input, key)
-              ed = Rex::Proto::Kerberos::Model::Type::EncryptedData.decode(input)
-              decrypted = ed.decrypt(key, 1)
-              decode(decrypted[8, decrypted.length - 1])
-
-              self
+              res
             end
 
             private
