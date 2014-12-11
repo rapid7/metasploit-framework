@@ -173,7 +173,7 @@ module Metasploit
           # {#cred_details}, by calling {#attempt_login} once for each.
           #
           # If a successful login is found for a user, no more attempts
-          # will be made for that user, assuming stop_on_success is false.
+          # will be made for that user.
           #
           # @yieldparam result [Result] The {Result} object for each attempt
           # @yieldreturn [void]
