@@ -43,24 +43,41 @@ module Rex
             end
 
             def decode(input, type_req)
-
               case input
               when String
                 decode_string(input, type_req)
               when OpenSSL::ASN1::Sequence
                 decode_asn1(input, type_req)
               else
-                raise ::RuntimeError, 'Failed to decode Principal Name, invalid input'
+                raise ::RuntimeError, 'Failed to decode KdcRequestBody, invalid input'
               end
 
               self
             end
 
-            def encode
-              raise ::RuntimeError, 'KdcRequestBody encoding is not supported'
+            def encode(type_req)
+              res = ''
+              case type_req
+              when AS_REQ
+                res = encode_as_req
+              when TGS_REQ
+                res = encode_tgs_req
+              else
+                raise ::RuntimeError, 'Failed to encode KdcRequestBody, invalid type_req'
+              end
+
+              res
             end
 
             private
+
+            def encode_as_req
+
+            end
+
+            def encode_tgs_req
+
+            end
 
             def decode_string(input, type_req)
               asn1 = OpenSSL::ASN1.decode(input)

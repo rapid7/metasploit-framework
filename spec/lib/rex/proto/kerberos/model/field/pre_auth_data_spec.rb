@@ -123,4 +123,22 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
     end
   end
 
+  describe "#encode" do
+    context "when PAC-ENC-TIMESTAMP" do
+      it "encodes Rex::Proto::Kerberos::Model::Field::PreAuthData correctly" do
+        pre_auth_data.decode(timestamp_sample)
+        expect(pre_auth_data.encode).to eq(timestamp_sample)
+      end
+
+    end
+
+    context "when PA-PAC-REQUEST" do
+      it "encodes Rex::Proto::Kerberos::Model::Field::PreAuthData correctly" do
+        pre_auth_data.decode(pac_sample)
+        expect(pre_auth_data.encode).to eq(pac_sample)
+      end
+
+    end
+  end
+
 end

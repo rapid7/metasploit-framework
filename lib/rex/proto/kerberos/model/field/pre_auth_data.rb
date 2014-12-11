@@ -32,11 +32,35 @@ module Rex
               self
             end
 
+            # Encodes a Rex::Proto::Kerberos::Model::Field::PreAuthData into an ASN.1 String
+            #
+            # @return [String]
             def encode
-              raise ::RuntimeError, 'PreAuthData encoding unsupported'
+              type_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_type], 1, :CONTEXT_SPECIFIC)
+              value_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_value], 2, :CONTEXT_SPECIFIC)
+              seq = OpenSSL::ASN1::Sequence.new([type_asn1, value_asn1])
+
+              seq.to_der
             end
 
             private
+
+            # Encodes the type
+            #
+            # @return [OpenSSL::ASN1::Integer]
+            def encode_type
+              int_bn = OpenSSL::BN.new(type)
+              int = OpenSSL::ASN1::Integer(int_bn)
+
+              int
+            end
+
+            # Encodes the value
+            #
+            # @return [OpenSSL::ASN1::OctetString]
+            def encode_value
+              OpenSSL::ASN1::OctetString.new(value)
+            end
 
             # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthData
             #
