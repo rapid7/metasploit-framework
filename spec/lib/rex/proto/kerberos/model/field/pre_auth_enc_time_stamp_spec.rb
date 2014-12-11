@@ -148,4 +148,11 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp do
     end
   end
 
+  describe "#encode" do
+    it "encodes Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp correctly" do
+      pre_auth_enc_time_stamp.decode(time_stamp_raw)
+      expect(pre_auth_enc_time_stamp.encode).to eq(time_stamp_raw)
+    end
+  end
+
 end

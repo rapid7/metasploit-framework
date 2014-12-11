@@ -33,8 +33,16 @@ module Rex
               self
             end
 
+            # Encodes a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp into an
+            # ASN.1 String
+            #
+            # @return [String]
             def encode
-              raise ::RuntimeError, 'EncryptedData encoding is not supported'
+              pa_time_stamp_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pa_time_stamp], 0, :CONTEXT_SPECIFIC)
+              pausec_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pausec], 1, :CONTEXT_SPECIFIC)
+              seq = OpenSSL::ASN1::Sequence.new([pa_time_stamp_asn1, pausec_asn1])
+
+              seq.to_der
             end
 
             # Decrypts a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
@@ -63,6 +71,23 @@ module Rex
             end
 
             private
+
+            # Encodes the pa_time_stamp
+            #
+            # @return [OpenSSL::ASN1::GeneralizedTime]
+            def encode_pa_time_stamp
+              OpenSSL::ASN1::GeneralizedTime.new(pa_time_stamp)
+            end
+
+            # Encodes the pausec
+            #
+            # @return [OpenSSL::ASN1::Integer]
+            def encode_pausec
+              int_bn = OpenSSL::BN.new(pausec)
+              int = OpenSSL::ASN1::Integer(int_bn)
+
+              int
+            end
 
             # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
             #
