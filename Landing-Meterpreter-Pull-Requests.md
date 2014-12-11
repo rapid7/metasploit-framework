@@ -4,7 +4,7 @@ Luckily, these steps are sequential, so there are no dependencies that will get 
 
  - Land the PR at https://github.com/rapid7/meterpreter first.
      Test by copying the DLLs, .so, etc. into metasploit-framework/data/meterpreter.
- - Push the build button in jenkins to push the build and publish buttons to generate new version of the gem. @cdoughty-r7 and @bcook-r7 can push said button, which also increments the version number in the meterpreter_bins project as a side-effect.
+ - Push the build buttons in jenkins to generate and publish a new version of the gem. @cdoughty-r7 and @bcook-r7 can push said buttons, which also increment the version number in the meterpreter_bins project as a side-effect.
  - Wait for it to publish and become downloadable. This takes no time at all.
  - Update metasploit-framework.gemspec to the new gem version. Install that gem.
  - Make sure the new meterpreter_bins gets downloaded and updated with msfupdate / bundle install.
