@@ -37,7 +37,18 @@ module Rex
             end
 
             def encode
-              raise ::RuntimeError, 'EncryptedData encoding is not supported'
+              int_bn = OpenSSL::BN.new(name_type)
+              int = OpenSSL::ASN1::Integer(int_bn)
+              strings = []
+              name_string.each do |s|
+                strings << OpenSSL::ASN1::GeneralString(s)
+              end
+              seq_string = OpenSSL::ASN1::Sequence.new(strings)
+              integer_asn1 = OpenSSL::ASN1::ASN1Data.new([int], 0, :CONTEXT_SPECIFIC)
+              string_asn1 = OpenSSL::ASN1::ASN1Data.new([seq_string], 1, :CONTEXT_SPECIFIC)
+              seq = OpenSSL::ASN1::Sequence.new([integer_asn1, string_asn1])
+
+              seq.to_der
             end
 
             # Decrypts the cipher with etype encryption schema
