@@ -8,8 +8,8 @@ class Metasploit3 < Msf::Auxiliary
     def initialize
       super(
         'Name'           => 'Kippo SSH Honeypot Detector',
-        'Description'    => %q{This module will detect if an SSH server is running a Kippo 
-          honeypot. This is done by issuing unexpected data to the SSH service and checking 
+        'Description'    => %q{This module will detect if an SSH server is running a Kippo
+          honeypot. This is done by issuing unexpected data to the SSH service and checking
           the response returned for two particular non-standard error messages.},
         'References'  =>
           [
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     connect
-    banner = sock.get(1024)
+    banner = sock.get_once(1024)
     sock.put(banner+"\n"*8)
     response = sock.get(1024) # Not sure what the difference is between get and recv, but updated. Will look into.
     if response == "Protocol mismatch.\n" or response.include? "bad packet length 168430090" # I know this is ugly
