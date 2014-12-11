@@ -536,7 +536,7 @@ class Msftidy
       # RM#8498 for discussion, starting at comment #16:
       #
       # https://dev.metasploit.com/redmine/issues/8498#note-16
-      if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
+      if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*(=|<<)(?![=~>])/
         info("datastore is modified in code: #{ln}", idx)
       end
 
@@ -548,6 +548,10 @@ class Msftidy
       # Auxiliary modules do not have a rank attribute
       if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
         warn("Auxiliary modules have no 'Rank': #{ln}", idx)
+      end
+
+      if ln =~ /^\s*def\s+(?:[^\(\)]*[A-Z]+[^\(\)]*)(?:\(.*\))?$/
+        warn("Please use snake case on method names: #{ln}", idx)
       end
     end
   end
@@ -583,6 +587,15 @@ class Msftidy
   def check_udp_sock_get
     if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
       info('Please specify a timeout to udp_sock.get')
+    end
+  end
+
+  def check_invalid_url_scheme
+    test = @source.scan(/^.+http\/\/.+$/)
+    unless test.empty?
+      test.each { |item|
+        info("Invalid URL: #{item}")
+      }
     end
   end
 
@@ -634,6 +647,7 @@ def run_checks(full_filepath)
   tidy.check_newline_eof
   tidy.check_sock_get
   tidy.check_udp_sock_get
+  tidy.check_invalid_url_scheme
   return tidy
 end
 
