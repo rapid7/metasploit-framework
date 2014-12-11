@@ -10,6 +10,8 @@ module Rex
 
             include Rex::Proto::Kerberos::Crypto::Rc4Hmac
 
+            CRYPTO_MSG_TYPE = 1
+
             # @!attribute pa_time_stamp
             #   @return [Time] client's time
             attr_accessor :pa_time_stamp
@@ -56,7 +58,7 @@ module Rex
               res = ''
               case etype
               when KERB_ETYPE_RC4_HMAC
-                res = encrypt_rc4_hmac(data, key, msg_type)
+                res = encrypt_rc4_hmac(data, key, CRYPTO_MSG_TYPE)
               else
                 raise ::RuntimeError, 'EncryptedData schema is not supported'
               end
