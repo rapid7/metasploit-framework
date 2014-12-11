@@ -42,10 +42,32 @@ module Rex
             #
             # @return [String]
             def encode
-              raise ::RuntimeError, 'KdcRequest encoding not supported'
+              pvno_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pvno], 0, :CONTEXT_SPECIFIC)
+              msg_type_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_msg_type], 1, :CONTEXT_SPECIFIC)
+              pa_data_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_pa_data], 2, :CONTEXT_SPECIFIC)
+              req_body_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_req_body], 3, :CONTEXT_SPECIFIC)
+              seq = OpenSSL::ASN1::Sequence.new([pvno_asn1, msg_type_asn1, pa_data_asn1, req_body_asn1])
+
+              seq.to_der
             end
 
             private
+
+            def encode_pvno
+
+            end
+
+            def encode_msg_type
+
+            end
+
+            def encode_pa_data
+
+            end
+
+            def encode_req_body
+
+            end
 
             # Decodes a Rex::Proto::Kerberos::Model::Message::KdcRequest from an String
             #
@@ -62,11 +84,20 @@ module Rex
             # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
             # @raise [RuntimeError] if decoding doesn't succeed
             def decode_asn1(input)
-              seq_values    = input.value[0].value
-              self.pvno     = decode_asn1_pvno(seq_values[0])
-              self.msg_type = decode_asn1_msg_type(seq_values[1])
-              self.pa_data  = decode_asn1_pa_data(seq_values[2])
-              self.req_body = decode_asn1_req_body(seq_values[3])
+              input.value[0].value.each do |val|
+                case val.tag
+                when 1
+                  self.pvno = decode_asn1_pvno(val)
+                when 2
+                  self.msg_type = decode_asn1_msg_type(val)
+                when 3
+                  self.pa_data  = decode_asn1_pa_data(val)
+                when 4
+                  self.req_body = decode_asn1_req_body(val)
+                else
+                  raise ::RuntimeError, 'Filed to decode KdcRequest SEQUENCE'
+                end
+              end
             end
 
             # Decodes the pvno from an OpenSSL::ASN1::ASN1Data
