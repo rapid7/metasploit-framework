@@ -51,8 +51,10 @@ module Rex
 
             # Encrypts the Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
             #
-            # @return [String]
-            def encrypt(key, etype)
+            # @param etype [Fixnum] the crypto schema to encrypt
+            # @param key [String] the key to encrypt
+            # @return [String] the encrypted result
+            def encrypt(etype, key)
               data = self.encode
 
               res = ''
