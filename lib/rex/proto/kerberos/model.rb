@@ -49,6 +49,9 @@ module Rex
         PA_ENC_TIMESTAMP = 2
         PA_PW_SALT = 3
         PA_PAC_REQUEST = 128
+
+        # From RFC-4757: The RC4-HMAC Kerberos Encryption Types Used by Microsoft Windows
+        KERB_ETYPE_RC4_HMAC = 23
       end
     end
   end

@@ -40,7 +40,60 @@ module Rex
               raise ::RuntimeError, 'EncryptedData encoding is not supported'
             end
 
+            # Decrypts the cipher with etype encryption schema
+            #
+            # @param key [String] the key to decrypt
+            # @param key [Fixnum] the message type
+            # @return [String] if decryption succeeds
+            # @raise [RuntimeError] if decryption doesn't succeed
+            def decrypt(key, msg_type)
+              if cipher.nil? or cipher.empty?
+                return ''
+              end
+
+              res = ''
+              case etype
+              when KERB_ETYPE_RC4_HMAC
+                res = decrypt_rc4_hmac(key, msg_type)
+              else
+                raise ::RuntimeError, 'EncryptedData encoding is not supported'
+              end
+
+              res
+            end
+
             private
+
+            # Decrypts the cipher using RC4-HMAC schema
+            #
+            # @param key [String] the key to decrypt
+            # @param key [Fixnum] the message type
+            # @return [String] if decryption succeeds
+            # @raise [RuntimeError] if decryption doesn't succeed
+            def decrypt_rc4_hmac(key, msg_type)
+              unless cipher && cipher.length > 16
+                raise ::RuntimeError, 'RC4-HMAC decryption failed'
+              end
+
+              my_key = OpenSSL::Digest.digest('MD4', Rex::Text.to_unicode(key))
+
+              checksum = cipher[0, 16]
+              data = cipher[16, cipher.length - 1]
+
+              k1 = OpenSSL::HMAC.digest('MD5', my_key, [msg_type].pack('V'))
+              k3 = OpenSSL::HMAC.digest('MD5', k1, checksum)
+
+              cipher = OpenSSL::Cipher::Cipher.new("rc4")
+              cipher.decrypt
+              cipher.key = k3
+              decrypted = cipher.update(data) + cipher.final
+
+              if OpenSSL::HMAC.digest('MD5', k1, decrypted) != checksum
+                raise ::RuntimeError, 'RC4-HMAC decryption failed, incorrect checksum verification'
+              end
+
+              decrypted
+            end
 
             # Decodes a Rex::Proto::Kerberos::Model::Type::EncryptedData from an String
             #
