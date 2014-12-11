@@ -81,11 +81,11 @@ class Metasploit4 < Msf::Auxiliary
           return Exploit::CheckCode::Safe
         end
       else
-        vprint_error("#{peer} unable to get Track-It! version")
+        vprint_error("#{peer}: unable to get Track-It! version")
         return Exploit::CheckCode::Unknown
       end
     else
-      vprint_status("#{peer} does not appear to be running Track-It!")
+      vprint_status("#{peer}: does not appear to be running Track-It!")
       return Exploit::CheckCode::Safe
     end
   end
