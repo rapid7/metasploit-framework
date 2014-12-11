@@ -49,4 +49,10 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest do
     end
   end
 
+  describe "#encode" do
+    it "encodes Rex::Proto::Kerberos::Model::Type::EncryptedData correctly" do
+      pre_auth_pac_request.decode(pac_sample)
+      expect(pre_auth_pac_request.encode).to eq(pac_sample)
+    end
+  end
 end

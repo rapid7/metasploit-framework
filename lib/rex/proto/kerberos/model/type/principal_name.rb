@@ -34,7 +34,8 @@ module Rex
               self
             end
 
-            # Encodes a Rex::Proto::Kerberos::Model::Type::PrincipalName into an String
+            # Encodes a Rex::Proto::Kerberos::Model::Type::PrincipalName into an
+            # ASN.1 String
             #
             # @return [String]
             def encode

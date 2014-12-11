@@ -36,7 +36,7 @@ module Rex
               self
             end
 
-            # Encodes a Rex::Proto::Kerberos::Model::Type::EncryptedData into an String
+            # Encodes a Rex::Proto::Kerberos::Model::Type::EncryptedData into an ASN.1 String
             #
             # @return [String]
             # @raise [RuntimeError] if encoding doesn't succeed

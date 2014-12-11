@@ -31,11 +31,25 @@ module Rex
               self
             end
 
+            # Encodes a Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest into an
+            # ASN.1 String
+            #
+            # @return [String]
             def encode
-              raise ::RuntimeError, 'PreAuthPacRequest encoding unsupported'
+              value_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_value], 0, :CONTEXT_SPECIFIC)
+              seq = OpenSSL::ASN1::Sequence.new([value_asn1])
+
+              seq.to_der
             end
 
             private
+
+            # Encodes value attribute
+            #
+            # @return [OpenSSL::ASN1::Boolean]
+            def encode_value
+              OpenSSL::ASN1::Boolean.new(value)
+            end
 
             # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest
             #
