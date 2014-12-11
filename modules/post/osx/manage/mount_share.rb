@@ -217,5 +217,7 @@ class Metasploit3 < Msf::Post
   end
 
   # path to osascript on the remote system
-  def osascript_path; datastore['OSASCRIPT_PATH'].shellescape; end
+  def osascript_path
+    datastore['OSASCRIPT_PATH'].shellescape
+  end
 end
