@@ -4,6 +4,7 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
     def initialize
       super(
@@ -28,9 +29,10 @@ class Metasploit3 < Msf::Auxiliary
     connect
     banner = sock.get_once(1024)
     sock.put(banner+"\n"*8)
-    response = sock.get(1024) # Not sure what the difference is between get and recv, but updated. Will look into.
-    if response == "Protocol mismatch.\n" or response.include? "bad packet length 168430090" # I know this is ugly
-      print_status("#{ip} - Kippo honeypot detected!") # Currently reading the report_* documentation trying to figure out how to implement properly
+    response = sock.get(1024)
+    if response == "Protocol mismatch.\n" or response.include? "bad packet length 168430090"
+      print_status("#{ip}:#{rport} - Kippo honeypot detected!")
+      report_service(:host => rhost, :port => rport, :name => "ssh", :info => "Kippo SSH Honeypot")
     end
   end
 end
