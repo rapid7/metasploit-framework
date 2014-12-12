@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
         host: host,
         proto: 'udp',
         port: rport,
-        name: 'Kademlia',
+        name: 'kademlia',
         info: info
       )
     end
