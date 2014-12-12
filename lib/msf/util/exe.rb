@@ -147,6 +147,18 @@ require 'msf/core/exe/segment_injector'
     nil
   end
 
+  def self.clear_dynamic_base(exe, pe)
+    c_bits = ("%32d" %pe.hdr.opt.DllCharacteristics.to_s(2)).split('').map { |e| e.to_i }.reverse
+    c_bits[6] = 0 # DYNAMIC_BASE
+    new_dllcharacteristics = c_bits.reverse.join.to_i(2)
+
+    # PE Header Pointer offset = 60d
+    # SizeOfOptionalHeader offset = 94h
+    dll_ch_offset = exe[60, 4].unpack('h4')[0].reverse.hex + 94
+    exe[dll_ch_offset, 2] = [new_dllcharacteristics].pack("v")
+    exe
+  end
+
   def self.to_win32pe(framework, code, opts = {})
 
     # For backward compatability, this is roughly equivalent to 'exe-small' fmt
@@ -169,12 +181,6 @@ require 'msf/core/exe/segment_injector'
     fsize = File.size(opts[:template])
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
-    # DYNAMIC_BASE modification
-    original_dllcharacteristics = pe.hdr.opt.DllCharacteristics
-    c_bits = ("%32d" %original_dllcharacteristics.to_s(2)).split('').map { |e| e.to_i }.reverse
-    c_bits[6] = 0 # DYNAMIC_BASE
-    new_dllcharacteristics = c_bits.reverse.join.to_i(2)
-
     text = nil
     pe.sections.each {|sec| text = sec if sec.name == ".text"}
 
@@ -185,7 +191,7 @@ require 'msf/core/exe/segment_injector'
           :template => opts[:template],
           :arch     => :x86
       })
-      injector.generate_pe
+      return injector.generate_pe
     end
 
     raise RuntimeError, "No .text section found in the template" unless text
@@ -284,15 +290,12 @@ require 'msf/core/exe/segment_injector'
     tds = pe.hdr.file.TimeDateStamp
     exe[exe.index([tds].pack('V')), 4] = [tds - rand(0x1000000)].pack("V")
 
-    # Patch dll characteristics
-    dll_ch_offset = exe[60, 4].unpack('h4')[0].reverse.hex + 94
-    exe[dll_ch_offset, 2] = [ new_dllcharacteristics ].pack("v")
-
     cks = pe.hdr.opt.CheckSum
     unless cks == 0
       exe[exe.index([cks].pack('V')), 4] = [0].pack("V")
     end
 
+    exe = clear_dynamic_base(exe, pe)
     pe.close
 
     exe
@@ -359,6 +362,7 @@ require 'msf/core/exe/segment_injector'
     # put the shellcode at the entry point, overwriting template
     entryPoint_file_offset = pe.rva_to_file_offset(addressOfEntryPoint)
     exe[entryPoint_file_offset,code.length] = code
+    exe = clear_dynamic_base(exe, pe)
     exe
   end
 
@@ -440,7 +444,6 @@ require 'msf/core/exe/segment_injector'
   end
 
   def self.exe_sub_method(code,opts ={})
-
     pe = self.get_file_contents(opts[:template])
 
     case opts[:exe_type]
@@ -506,7 +509,7 @@ require 'msf/core/exe/segment_injector'
          :template => opts[:template],
          :arch     => :x64
       })
-      injector.generate_pe
+      return injector.generate_pe
     end
     opts[:exe_type] = :exe_sub
     exe_sub_method(code,opts)
