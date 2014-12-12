@@ -163,7 +163,7 @@ class Metasploit4 < Msf::Auxiliary
       host: ip,
       port: rport,
       name: name,
-      info: "Module #{fullname} changed #{domain}'s password to #{password}",
+      info: "Module #{fullname} changed #{full_user}'s password to #{password}",
       refs: references
     )
     print_good("#{peer}: Please run the psexec module using #{full_user}:#{password}")
