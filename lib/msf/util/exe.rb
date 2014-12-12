@@ -147,6 +147,10 @@ require 'msf/core/exe/segment_injector'
     nil
   end
 
+  # Clears the DYNAMIC_BASE flag for a Windows executable
+  # @param exe [String] The raw executable to be modified by the method
+  # @param pe [Rex::PeParsey::Pe] Use Rex::PeParsey::Pe.new_from_file
+  # @return [String] the modified executable
   def self.clear_dynamic_base(exe, pe)
     c_bits = ("%32d" %pe.hdr.opt.DllCharacteristics.to_s(2)).split('').map { |e| e.to_i }.reverse
     c_bits[6] = 0 # DYNAMIC_BASE
