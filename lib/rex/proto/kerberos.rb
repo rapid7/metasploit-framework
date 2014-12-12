@@ -3,4 +3,5 @@
 # Kerberos 5 implementation according to RFC 1510
 
 require 'openssl'
+require 'rex/proto/kerberos/crypto'
 require 'rex/proto/kerberos/model'

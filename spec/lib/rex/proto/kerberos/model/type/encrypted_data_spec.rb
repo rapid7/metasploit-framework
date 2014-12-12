@@ -85,6 +85,50 @@ describe Rex::Proto::Kerberos::Model::Type::EncryptedData do
     "\x3d\x3d\x58\xb5"
   end
 
+=begin
+#<OpenSSL::ASN1::Sequence:0x007ff70196b158
+  @infinite_length=false,
+  @tag=16,
+  @tag_class=:UNIVERSAL,
+  @tagging=nil,
+  @value=
+    [
+    #<OpenSSL::ASN1::ASN1Data:0x007ff70196b2c0
+      @infinite_length=false,
+      @tag=0,
+      @tag_class=:CONTEXT_SPECIFIC,
+      @value=
+        [#<OpenSSL::ASN1::Integer:0x007ff70196b2e8
+          @infinite_length=false,
+          @tag=2,
+          @tag_class=:UNIVERSAL,
+          @tagging=nil,
+          @value=#<OpenSSL::BN:0x007ff70196b338>>
+        ]>,
+    #<OpenSSL::ASN1::ASN1Data:0x007ff70196b1a8
+      @infinite_length=false,
+      @tag=2,
+      @tag_class=:CONTEXT_SPECIFIC,
+      @value=
+        [#<OpenSSL::ASN1::OctetString:0x007ff70196b1f8
+          @infinite_length=false,
+          @tag=4,
+          @tag_class=:UNIVERSAL,
+          @tagging=nil,
+          @value=
+          "`\xAES\xA5\vV.Fa\xD9\xD6\x89\x98\xFCy\x9DEs}\r\x8Ax\x84M\xD7|\xC6P\b\x8D\xAB\"y\xC3\x8D\xD3\xAF\x9F^\xB7\xB8\x9BW\xC5\xC9\xC5\xEA\x90\x89\xC3cX">
+        ]>
+    ]>
+=end
+  let(:sample_known_enc_data) do
+    "\x30\x3d\xa0\x03\x02\x01\x17\xa2\x36\x04\x34\x60\xae\x53\xa5\x0b" +
+    "\x56\x2e\x46\x61\xd9\xd6\x89\x98\xfc\x79\x9d\x45\x73\x7d\x0d\x8a" +
+    "\x78\x84\x4d\xd7\x7c\xc6\x50\x08\x8d\xab\x22\x79\xc3\x8d\xd3\xaf" +
+    "\x9f\x5e\xb7\xb8\x9b\x57\xc5\xc9\xc5\xea\x90\x89\xc3\x63\x58"
+  end
+  let(:msg_type) { 1 }
+  let(:known_password) { 'juan' }
+
   describe "#decode" do
     context "when EncryptedData without kvno" do
       it "returns the EncryptedData instance" do
@@ -111,4 +155,36 @@ describe Rex::Proto::Kerberos::Model::Type::EncryptedData do
       end
     end
   end
+
+
+  describe "#decrypt" do
+
+    context "correct key" do
+      it "returns the decrypted string" do
+        encrypted_data.decode(sample_known_enc_data)
+        expect(encrypted_data.decrypt(known_password, msg_type)).to be_a(String)
+      end
+
+      it "returns a valid object" do
+        encrypted_data.decode(sample_known_enc_data)
+        plain = encrypted_data.decrypt(known_password, msg_type)
+        expect(Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp.decode(plain)).to be_a(Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp)
+      end
+    end
+
+    context "when incorrect key" do
+      it "raises RuntimeError" do
+        encrypted_data.decode(sample_known_enc_data)
+        expect { encrypted_data.decrypt('error', msg_type) }.to raise_error(RuntimeError)
+      end
+    end
+
+    context "when incorrect msg_type" do
+      it "raises RuntimeError" do
+        encrypted_data.decode(sample_known_enc_data)
+        expect { encrypted_data.decrypt(known_password, 10) }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
 end

@@ -51,11 +51,13 @@ module Rex
             k3 = OpenSSL::HMAC.digest('MD5', k1, checksum)
 
             cipher = OpenSSL::Cipher::Cipher.new('rc4')
-            cipher.crypt
+            cipher.encrypt
             cipher.key = k3
             encrypted = cipher.update(data_encrypt) + cipher.final
 
-            encrypted
+            res = checksum + encrypted
+
+            res
           end
         end
       end
