@@ -53,14 +53,6 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 
-  def track_it?(res)
-    res.body =~ /<title>Track-It! Password Reset/i
-  end
-
-  def extract_track_it_version(res)
-    res.body.scan(/\bBuild=([\d\.]+)/).flatten.first
-  end
-
   def check_host(ip)
     vprint_status("#{peer}: retrieving PasswordReset page to extract Track-It! version")
 
@@ -68,8 +60,8 @@ class Metasploit4 < Msf::Auxiliary
       return
     end
 
-    if track_it?(res)
-      version = extract_track_it_version(res)
+    if res.body =~ /<title>Track-It! Password Reset/i
+      version = res.body.scan(/\bBuild=([\d\.]+)/).flatten.first
       if version
         fix_version = '11.4'
         if Gem::Version.new(version) < Gem::Version.new(fix_version)
