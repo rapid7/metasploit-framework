@@ -87,6 +87,9 @@ class Msf::Module::SiteReference < Msf::Module::Reference
 
   #
   # Initialize the site reference.
+  # If you're updating the references, please also update:
+  # * tools/module_reference.rb
+  # * https://github.com/rapid7/metasploit-framework/wiki/Metasploit-module-reference-identifiers
   #
   def initialize(in_ctx_id = 'Unknown', in_ctx_val = '')
     self.ctx_id  = in_ctx_id

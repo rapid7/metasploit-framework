@@ -33,7 +33,7 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
           begin
-            cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version)
+            cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version, proxies)
             cli.connect
             req = cli.request_cgi({
               'method'=>'POST',
@@ -49,8 +49,8 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
           Result.new(result_opts)
         end

@@ -33,13 +33,13 @@ module Metasploit
           res = nil
 
           begin
-            cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version)
+            cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version, proxies)
             cli.connect
             req = cli.request_cgi(req_opts)
             res = cli.send_recv(req)
 
-          rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, ::EOFError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, ::EOFError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
             return Result.new(result_opts)
           end
 

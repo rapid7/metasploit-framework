@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft SQL Server - Escalate Db_Owner',
+      'Name'           => 'Microsoft SQL Server Escalate Db_Owner',
       'Description'    => %q{
         This module can be used to escalate privileges to sysadmin if the user has
         the db_owner role in a trustworthy database owned by a sysadmin user.  Once

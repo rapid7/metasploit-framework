@@ -104,8 +104,6 @@ end
 # Create an instance of the framework
 $framework = Msf::Simple::Framework.create(frameworkOpts)
 
-$framework.db.sink.restart if RUBY_PLATFORM !~ /cygwin/ and not frameworkOpts['DisableDatabase']
-
 # Run the plugin instance in the foreground.
 begin
   $framework.plugins.load("#{rpctype.downcase}rpc", opts).run

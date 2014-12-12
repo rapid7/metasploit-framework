@@ -31,6 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "db2_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
@@ -60,7 +61,10 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: 30
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 30,
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
     )
 
     scanner.scan! do |result|

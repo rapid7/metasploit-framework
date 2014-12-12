@@ -38,6 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         Opt::RPORT(5900),
         OptString.new('PASSWORD', [ false, 'The password to test' ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
@@ -76,7 +77,10 @@ class Metasploit3 < Msf::Auxiliary
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: datastore['ConnectTimeout']
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: datastore['ConnectTimeout'],
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
     )
 
     scanner.scan! do |result|

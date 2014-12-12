@@ -50,6 +50,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options([
       OptString.new('FILEPREFIX', [false, 'Add a custom prefix to the temporary files','']),
+      OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
+      OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
     ], self.class)
 
     deregister_options('RHOST')
@@ -70,9 +72,21 @@ class Metasploit3 < Msf::Auxiliary
         print_error("#{peer} - Unable to authenticate with given credentials: #{autherror}")
         return
       end
-      if execute_command(text, bat)
+      res = execute_command(text, bat)
+
+      if res
+        for i in 0..(datastore['RETRY'])
+          Rex.sleep(datastore['DELAY'])
+          # if the output file is still locked then the program is still likely running
+          if (exclusive_access(text))
+            break
+          elsif (i == datastore['RETRY'])
+            print_error("Command seems to still be executing. Try increasing RETRY and DELAY")
+          end
+        end
         get_output(text)
       end
+
       cleanup_after(text, bat)
       disconnect
     end
@@ -103,9 +117,39 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} - Command finished with no output")
       return
     end
-    print_good("#{peer} - Command completed successfuly! Output:")
-    print_line("#{output}")
+
+    # Report output
+    print_good("#{peer} - Command completed successfuly!")
+    vprint_status("Output for \"#{datastore['COMMAND']}\":")
+    vprint_line("#{output}")
+
+    report_note(
+      :rhost => datastore['RHOSTS'], 
+      :rport => datastore['RPORT'], 
+      :type => "psexec_command",
+      :name => datastore['COMMAND'], 
+      :data => output
+    )
+
   end
+
+  #check if our process is done using these files
+  def exclusive_access(*files)
+      simple.connect("\\\\#{@ip}\\#{@smbshare}")
+      files.each do |file|
+      begin
+        print_status("checking if the file is unlocked")
+        fd = smb_open(file, 'rwo')
+        fd.close
+      rescue Rex::Proto::SMB::Exceptions::ErrorCode => accesserror
+        print_status("#{peer} - Unable to get handle: #{accesserror}")
+        return false
+      end
+      simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
+    end
+    return true
+  end
+
 
   # Removes files created during execution.
   def cleanup_after(*files)

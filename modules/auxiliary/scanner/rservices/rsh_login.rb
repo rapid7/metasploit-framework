@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
       begin
         sd = Rex::Socket.create_tcp_server('LocalPort' => lport)
 
-      rescue Rex::AddressInUse
+      rescue Rex::BindFailed
         # Ignore and try again
 
       end
