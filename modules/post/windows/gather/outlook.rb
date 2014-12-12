@@ -9,8 +9,8 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Powershell
 
-  A_HASH = { "en_US" => "Allow", "NL" => "Toestaan", "de_DE" => "Erteilen", "de_AT" => "Erteilen" }
-  ACF_HASH = { "en_US" => "Allow access for", "NL" => "Toegang geven voor", "de_DE" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr", "de_AT" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr" }
+  A_HASH = { "en_US" => "Allow", "nl_NL" => "Toestaan", "de_DE" => "Erteilen", "de_AT" => "Erteilen" }
+  ACF_HASH = { "en_US" => "Allow access for", "nl_NL" => "Toegang geven voor", "de_DE" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr", "de_AT" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr" }
 
   def initialize(info={})
     super(update_info(info,
