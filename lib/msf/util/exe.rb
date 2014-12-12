@@ -168,6 +168,13 @@ require 'msf/core/exe/segment_injector'
     # Create a new PE object and run through sanity checks
     fsize = File.size(opts[:template])
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+
+    # DYNAMIC_BASE modification
+    original_dllcharacteristics = pe.hdr.opt.DllCharacteristics
+    c_bits = ("%32d" %original_dllcharacteristics.to_s(2)).split('').map { |e| e.to_i }.reverse
+    c_bits[6] = 0 # DYNAMIC_BASE
+    new_dllcharacteristics = c_bits.reverse.join.to_i(2)
+
     text = nil
     pe.sections.each {|sec| text = sec if sec.name == ".text"}
 
@@ -276,6 +283,10 @@ require 'msf/core/exe/segment_injector'
 
     tds = pe.hdr.file.TimeDateStamp
     exe[exe.index([tds].pack('V')), 4] = [tds - rand(0x1000000)].pack("V")
+
+    # Patch dll characteristics
+    dll_ch_offset = exe[60, 4].unpack('h4')[0].reverse.hex + 94
+    exe[dll_ch_offset, 2] = [ new_dllcharacteristics ].pack("v")
 
     cks = pe.hdr.opt.CheckSum
     unless cks == 0
