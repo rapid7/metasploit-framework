@@ -537,7 +537,7 @@ class Msftidy
       #
       # https://dev.metasploit.com/redmine/issues/8498#note-16
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*(=|<<)(?![=~>])/
-        info("datastore is modified in code: #{ln}", idx)
+        info("datastore is modified in code with '#{Regexp.last_match(1)}': #{ln}", idx)
       end
 
       # do not read Set-Cookie header (ignore commented lines)
@@ -590,8 +590,12 @@ class Msftidy
     end
   end
 
+  # At one point in time, somebody committed a module with a bad metasploit.com URL
+  # in the header -- http//metasploit.com/download rather than http://metasploit.com/download.
+  # This module then got copied and committed 20+ times and is used in numerous other places.
+  # This ensures that this stops.
   def check_invalid_url_scheme
-    test = @source.scan(/^.+http\/\/.+$/)
+    test = @source.scan(/^#.+http\/\/metasploit.com/)
     unless test.empty?
       test.each { |item|
         info("Invalid URL: #{item}")
