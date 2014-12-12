@@ -44,7 +44,13 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def password_reset
-    send_request_cgi('uri' => normalize_uri(target_uri.path, 'PasswordReset'))
+    begin
+      uri = normalize_uri(target_uri.path, 'PasswordReset')
+      send_request_cgi('uri' => uri)
+    rescue => e
+      vprint_error("#{peer}: unable to request #{uri}: #{e}")
+      nil
+    end
   end
 
   def track_it?(res)
@@ -59,7 +65,7 @@ class Metasploit4 < Msf::Auxiliary
     vprint_status("#{peer}: retrieving PasswordReset page to extract Track-It! version")
 
     unless (res = password_reset)
-      print_error("#{peer}: Could not contact server")
+      return
     end
 
     if track_it?(res)
@@ -100,7 +106,6 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     unless (res = password_reset)
-      print_error("#{peer}: Could not contact server")
       return
     end
 
