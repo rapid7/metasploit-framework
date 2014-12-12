@@ -197,7 +197,7 @@ module ReverseTcp
     m.reset
     key = m.digest(datastore["AESPassword"] || "")
 
-    Rex::ThreadFactory.spawn('AESEncryption', false) {
+    Rex::ThreadFactory.spawn('Session-AESEncrypt', false) {
       c1 = OpenSSL::Cipher.new('aes-128-cfb8')
       c1.encrypt
       c1.key=key
@@ -210,7 +210,7 @@ module ReverseTcp
       end
       sock.close()
     }
-    Rex::ThreadFactory.spawn('AESEncryption', false) {
+    Rex::ThreadFactory.spawn('Session-AESDecrypt', false) {
       c2 = OpenSSL::Cipher.new('aes-128-cfb8')
       c2.decrypt
       c2.key=key

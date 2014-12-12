@@ -44,9 +44,7 @@ module ReverseTcpSsl
     super
     register_advanced_options(
       [
-        OptPath.new('SSLCert',    [ false, 'Path to a custom SSL certificate (default is randomly generated)']),
-        OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ])
+        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"])
       ], Msf::Handler::ReverseTcpSsl)
 
   end
@@ -57,8 +55,8 @@ module ReverseTcpSsl
   # if it fails to start the listener.
   #
   def setup_handler
-    if datastore['Proxies']
-      raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies'
+    if datastore['Proxies'] and not datastore['ReverseAllowProxy']
+      raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
     end
 
     ex = false
@@ -81,7 +79,7 @@ module ReverseTcpSsl
         'LocalHost' => ip,
         'LocalPort' => local_port,
         'Comm'      => comm,
-        'SSLCert'	=> datastore['SSLCert'],
+        'SSLCert'   => datastore['HandlerSSLCert'],
         'Context'   =>
           {
             'Msf'        => framework,
