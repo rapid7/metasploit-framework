@@ -107,6 +107,28 @@ Now, we're on a local branch identical to the original pull request, and can mov
 
 In this particular case with PR #1217, I did want to send some changes back to the contributor.
 
+**Important**: If the codebase the contributor's PR is based on is severely outdated (e.g., they branched off an outdated ```master```), you should not test their PR in isolation as described above. Instead, you should create a test branch that is identical to the latest codebase, merge the contributor's PR into the test branch, and then start your testing.
+
+Here's an example with #4328 (your workflow may vary):
+
+```
+$ git checkout -B dev -t upstream/master 
+Branch dev set up to track remote branch master from upstream.
+Switched to and reset branch 'dev'
+Your branch is up-to-date with 'upstream/master'.
+$ git merge --no-ff --no-edit upstream/pr/4328
+Merge made by the 'recursive' strategy.
+ modules/exploits/unix/webapp/actualanalyzer_ant_cookie_exec.rb | 242 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 242 insertions(+)
+ create mode 100644 modules/exploits/unix/webapp/actualanalyzer_ant_cookie_exec.rb
+[*] Running msftidy.rb in .git/hooks/post-merge mode
+--- Checking new and changed module syntax with tools/msftidy.rb ---
+modules/exploits/unix/webapp/actualanalyzer_ant_cookie_exec.rb - [INFO] Invalid URL: # This module requires Metasploit: http//metasploit.com
+------------------------------------------------------------------------
+```
+
+This ensures that the contributor's PR is being tested against the latest codebase and not an outdated one. **If you do not do this**, when you land the PR, you may end up breaking Metasploit.
+
 ## Checking out branches from a remote forked repo in your forked repo
 After your .git/config is set up per the above, and you successfully run `git fetch --all`, you are two steps away from being able to check out a branch from a contributor's forked repo.
 
