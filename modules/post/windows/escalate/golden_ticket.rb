@@ -66,9 +66,13 @@ class Metasploit3 < Msf::Post
     end
 
     unless krbtgt_hash
-      print_status('Searching for krbtgt hash in database...')
-      krbtgt_hash = lookup_krbtgt_hash(domain)
-      return unless krbtgt_hash
+      if framework.db.active
+        print_status('Searching for krbtgt hash in database...')
+        krbtgt_hash = lookup_krbtgt_hash(domain)
+        fail_with(Failure::Unknown, 'Unable to find krbtgt hash in database') unless krbtgt_hash
+      else
+        fail_with(Failure::BadConfig, 'No database, please supply the krbtgt hash')
+      end
     end
 
     unless domain_sid
@@ -175,44 +179,42 @@ class Metasploit3 < Msf::Post
   def lookup_krbtgt_hash(domain)
     krbtgt_hash = nil
 
-    if framework.db.active
-      krbtgt_creds = Metasploit::Credential::Core.joins(:public, :private).where(
-          metasploit_credential_publics: { username: 'krbtgt' },
-          metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' },
-          workspace_id: myworkspace.id)
+    krbtgt_creds = Metasploit::Credential::Core.joins(:public, :private).where(
+        metasploit_credential_publics: { username: 'krbtgt' },
+        metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' },
+        workspace_id: myworkspace.id)
 
-      if krbtgt_creds
+    if krbtgt_creds
 
-        if krbtgt_creds.count == 0
-          print_error('No KRBTGT Hashes found in database')
-        elsif krbtgt_creds.count > 1
+      if krbtgt_creds.count == 0
+        print_error('No KRBTGT Hashes found in database')
+      elsif krbtgt_creds.count > 1
 
-          # Can we reduce the list by domain...
-          krbtgt_creds_realm = krbtgt_creds.select { |c| c.realm.to_s.upcase == domain.upcase }
+        # Can we reduce the list by domain...
+        krbtgt_creds_realm = krbtgt_creds.select { |c| c.realm.to_s.upcase == domain.upcase }
 
-          # We have found a krbtgt hashes in our target domain
-          if krbtgt_creds_realm.length == 1
-            cred = krbtgt_creds_realm.first
-            krbtgt_hash = cred.private.data.split(':')[1]
-            print_good("Using #{cred.realm}:#{cred.public.username}:#{krbtgt_hash}")
-            return krbtgt_hash
-          # We have found multiple krbtgt hashes in our target domain?!
-          elsif krbtgt_creds_realm.length > 0
-            krbtgt_creds = krbtgt_creds_realm
-          end
-
-          # Multiple hashes found, the user will have to manually set one...
-          print_error('Multiple KRBTGT Hashes found in database, please use one of the below:')
-          krbtgt_creds.each do |kc|
-            hash = kc.private.data.split(':')[1]
-            print_line("#{kc.realm}:#{kc.public.username}:#{hash}")
-          end
-        else
-          # Highlander, there can only be one!
-          cred = krbtgt_creds.first
+        # We have found a krbtgt hashes in our target domain
+        if krbtgt_creds_realm.length == 1
+          cred = krbtgt_creds_realm.first
           krbtgt_hash = cred.private.data.split(':')[1]
           print_good("Using #{cred.realm}:#{cred.public.username}:#{krbtgt_hash}")
+          return krbtgt_hash
+        # We have found multiple krbtgt hashes in our target domain?!
+        elsif krbtgt_creds_realm.length > 0
+          krbtgt_creds = krbtgt_creds_realm
         end
+
+        # Multiple hashes found, the user will have to manually set one...
+        print_error('Multiple KRBTGT Hashes found in database, please use one of the below:')
+        krbtgt_creds.each do |kc|
+          hash = kc.private.data.split(':')[1]
+          print_line("#{kc.realm}:#{kc.public.username}:#{hash}")
+        end
+      else
+        # Highlander, there can only be one!
+        cred = krbtgt_creds.first
+        krbtgt_hash = cred.private.data.split(':')[1]
+        print_good("Using #{cred.realm}:#{cred.public.username}:#{krbtgt_hash}")
       end
     end
 
