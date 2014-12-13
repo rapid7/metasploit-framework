@@ -13,9 +13,10 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
                       'Name'         => 'Windows Escalate Golden Ticket',
                       'Description'  => %q{
-                          This module will create a Golden Kerberos Ticket using the Mimikatz Kiwi Extension. If no options are applied
-                        it will attempt to identify the current domain, and the domain administrator account. By default the well-known
-                        Administrator's groups 512, 513, 518, 519, and 520 will be applied to the ticket (Mimikatz defaults).
+                          This module will create a Golden Kerberos Ticket using the Mimikatz Kiwi Extension. If no
+                        options are applied it will attempt to identify the current domain, and the domain administrator
+                        account. By default the well-known Administrator's groups 512, 513, 518, 519, and 520 will be
+                        applied to the ticket (Mimikatz defaults).
                         },
                       'License'      => MSF_LICENSE,
                       'Author'       => [
