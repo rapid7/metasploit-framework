@@ -82,7 +82,7 @@ module Rex
 
         def send_recv(req)
           send_request(req)
-          res = read_response
+          res = recv_response
 
           res
         end

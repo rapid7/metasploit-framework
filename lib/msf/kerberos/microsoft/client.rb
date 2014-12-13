@@ -19,6 +19,20 @@ module Msf
           )
         end
 
+        # Returns the target host
+        def rhost
+          datastore['RHOST']
+        end
+
+        # Returns the remote port
+        def rport
+          datastore['RPORT']
+        end
+
+        def peer
+          "#{rhost}:#{rport}"
+        end
+
         def connect(opts={})
           kerb_client = Rex::Proto::Kerberos::Client.new(
             hostname: opts['rhost'] || rhost,
@@ -31,11 +45,8 @@ module Msf
             proto: 'tcp'
           )
 
-          # If this connection is global, persist it
-          if opts['global']
-            disconnect if client
-            self.client = kerb_client
-          end
+          disconnect if client
+          self.client = kerb_client
 
           kerb_client
         end
@@ -57,9 +68,11 @@ module Msf
         end
 
         def send_request_as(opts = {})
+          connect(opts)
           req = build_as_request(opts)
+          pp req
           res = client.send_recv(req)
-
+          disconnect
           res
         end
 
