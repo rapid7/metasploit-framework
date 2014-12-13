@@ -13,10 +13,12 @@ class Metasploit4 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'           => 'BMC TrackIt! Unauthenticated Arbitrary Local User Password Change',
+      'Name'           => 'BMC TrackIt! Unauthenticated Arbitrary User Password Change',
       'Description'    => %q(
       This module exploits a flaw in the password reset mechanism in BMC TrackIt! 11.3
-      and possibly prior versions.
+      and possibly prior versions. If the password reset service is configured to use
+      a domain administrator (which is the recommended configuration), then domain
+      credentials can be reset (such as domain Administrator).
       ),
       'References'     =>
         [
@@ -25,7 +27,8 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'bperry', # discovery/metasploit module
+          'bperry', # discovery/metasploit module,
+          'jhart'
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Dec 9 2014"
@@ -34,7 +37,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The path to BMC TrackIt!', '/']),
-        OptString.new('LOCALUSER', [true, 'The local user to change password for', 'Administrator']),
+        OptString.new('LOCALUSER', [true, 'The user to change password for', 'Administrator']),
         OptString.new('LOCALPASS', [false, 'The password to set for the local user (blank for random)', '']),
         OptString.new('DOMAIN', [false, 'The domain of the user. By default the local user\'s computer name will be autodetected', ''])
       ], self.class)
