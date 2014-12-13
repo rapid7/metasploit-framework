@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
         if db && datastore['STORE_DB']
           case fields[i]
           when 'dNSHostName'
-            dns = field.value
+            dns = field
             report[:name] = dns
             hostnames << dns
           when 'operatingSystem'
