@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
                       'Description'  => %q{
                           This module will create a Golden Kerberos Ticket using the Mimikatz Kiwi Extension. If no
                         options are applied it will attempt to identify the current domain, the domain administrator
-                        account, the target account SID, and retrieve the krbtgt NTLM hash from the database. By default
+                        account, the target domain SID, and retrieve the krbtgt NTLM hash from the database. By default
                         the well-known Administrator's groups 512, 513, 518, 519, and 520 will be applied to the ticket.
                         },
                       'License'      => MSF_LICENSE,
