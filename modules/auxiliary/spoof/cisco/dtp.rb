@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -29,6 +29,13 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('SMAC',    	[false, 'The spoofed mac (if unset, derived from netifaces)']),
       ], self.class)
     deregister_options('RHOST', 'PCAPFILE')
+  end
+
+  def setup
+    super
+    unless datastore['SMAC'] || datastore['INTERFACE']
+      raise ArgumentError, 'Must specify SMAC or INTERFACE'
+    end
   end
 
   def build_dtp_frame

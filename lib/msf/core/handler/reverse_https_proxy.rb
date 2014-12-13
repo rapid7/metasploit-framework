@@ -45,7 +45,7 @@ module ReverseHttpsProxy
         OptEnum.new('PROXY_TYPE', [true, 'Http or Socks4 proxy type', 'HTTP', ['HTTP', 'SOCKS']]),
         OptString.new('PROXY_USERNAME', [ false, "An optional username for HTTP proxy authentification"]),
         OptString.new('PROXY_PASSWORD', [ false, "An optional password for HTTP proxy authentification"])
- 			], Msf::Handler::ReverseHttpsProxy)
+      ], Msf::Handler::ReverseHttpsProxy)
 
     register_advanced_options(
       [

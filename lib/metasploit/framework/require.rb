@@ -80,13 +80,18 @@ module Metasploit
       # @return [void]
       def self.optionally_require_metasploit_db_gem_engines
         optionally(
-          'metasploit/credential/engine',
-          'metasploit-credential not in the bundle',
-        )
+            'metasploit/credential',
+            'metasploit-credential not in the bundle',
+        ) do
+          require 'metasploit/credential/engine'
+        end
+
         optionally(
-          'metasploit_data_models/engine',
-          'metaspoit_data_models not in the bundle'
-        )
+          'metasploit_data_models',
+          'metasploit_data_models not in the bundle'
+        ) do
+          require 'metasploit_data_models/engine'
+        end
       end
 
       #

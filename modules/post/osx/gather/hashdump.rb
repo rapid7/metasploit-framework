@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -126,7 +126,9 @@ class Metasploit3 < Msf::Post
   end
 
   # @return [String] hostname
-  def host; session.session_host; end
+  def host
+    session.session_host
+  end
 
   # @return [Bool] system version is 10.7
   def lion?

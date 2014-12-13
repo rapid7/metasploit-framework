@@ -369,8 +369,7 @@ describe Rex::MIME::Message do
     end
 
     let(:regexp_web) do
-      regex = "\r\n"
-      regex << "--_Part_.*\r\n"
+      regex = "--_Part_.*\r\n"
       regex << "Content-Disposition: form-data; name=\"action\"\r\n"
       regex << "\r\n"
       regex << "save\r\n"
@@ -388,8 +387,8 @@ describe Rex::MIME::Message do
       Regexp.new(regex)
     end
 
-    it "returns \\r\\n if Rex::MIME::Message is empty" do
-      expect(subject.to_s).to eq("\r\n")
+    it "returns empty string if Rex::MIME::Message is empty" do
+      expect(subject.to_s).to be_empty
     end
 
     it "generates valid MIME email messages" do

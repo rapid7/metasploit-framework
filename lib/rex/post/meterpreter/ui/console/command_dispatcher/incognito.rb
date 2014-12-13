@@ -221,7 +221,7 @@ class Console::CommandDispatcher::Incognito
   end
 
   def system_privilege_check
-    if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
+    unless client.sys.config.is_system?
       print_line("[-] Warning: Not currently running as SYSTEM, not all tokens will be available")
       print_line("             Call rev2self if primary process token is SYSTEM")
     end

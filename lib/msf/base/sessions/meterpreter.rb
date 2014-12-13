@@ -30,10 +30,12 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   include Msf::Session::Scriptable
 
-  # Override for server implementations that can't do ssl
+  # Override for server implementations that can't do SSL
   def supports_ssl?
     true
   end
+
+  # Override for server implementations that can't do zlib
   def supports_zlib?
     true
   end
@@ -49,10 +51,23 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       :ssl => supports_ssl?,
       :zlib => supports_zlib?
     }
+
+    # The caller didn't request to skip ssl, so make sure we support it
     if not opts[:skip_ssl]
-      # the caller didn't request to skip ssl, so make sure we support it
       opts.merge!(:skip_ssl => (not supports_ssl?))
     end
+
+    #
+    # Parse options passed in via the datastore
+    #
+
+    # Extract the HandlerSSLCert option if specified by the user
+    if opts[:datastore] and opts[:datastore]['HandlerSSLCert']
+      opts[:ssl_cert] = opts[:datastore]['HandlerSSLCert']
+    end
+
+    # Don't pass the datastore into the init_meterpreter method
+    opts.delete(:datastore)
 
     #
     # Initialize the meterpreter client

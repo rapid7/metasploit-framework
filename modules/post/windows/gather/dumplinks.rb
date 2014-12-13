@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -112,13 +112,13 @@ class Metasploit3 < Msf::Post
           record = lnk_file.sysread(0x48)
           hdr = get_headers(record)
 
-          @data_out += get_lnk_file_MAC(file_stat, path, file_name)
+          @data_out += get_lnk_file_mac(file_stat, path, file_name)
           @data_out += "Contents of #{path + file_name}:\n"
           @data_out += get_flags(hdr)
           @data_out += get_attrs(hdr)
-          @data_out += get_lnk_MAC(hdr)
+          @data_out += get_lnk_mac(hdr)
           @data_out += get_showwnd(hdr)
-          @data_out += get_lnk_MAC(hdr)
+          @data_out += get_lnk_mac(hdr)
 
           # advance the file & offset
           offset += 0x4c
@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def get_lnk_file_MAC(file_stat, path, file_name)
+  def get_lnk_file_mac(file_stat, path, file_name)
     data_out = "#{path + file_name}:\n"
     data_out += "\tAccess Time       = #{file_stat.atime}\n"
     data_out += "\tCreation Date     = #{file_stat.ctime}\n"
@@ -240,7 +240,7 @@ class Metasploit3 < Msf::Post
     return data_out
   end
 
-  def get_lnk_MAC(hdr)
+  def get_lnk_mac(hdr)
     data_out = "\tTarget file's MAC Times stored in lnk file:\n"
     data_out += "\t\tCreation Time     = #{Time.at(hdr["ctime"])}. (UTC)\n"
     data_out += "\t\tModification Time = #{Time.at(hdr["mtime"])}. (UTC)\n"

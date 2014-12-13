@@ -54,26 +54,15 @@ class Driver < Msf::Ui::Driver
   # @option opts [Boolean] 'SkipDatabaseInit' (false) Whether to skip
   #   connecting to the database and running migrations
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
-
-    # Choose a readline library before calling the parent
-    rl = false
-    rl_err = nil
-    begin
-      if(opts['RealReadline'])
-        require 'readline'
-        rl = true
-      end
-    rescue ::LoadError
-      rl_err = $!
-    end
-
-    # Default to the RbReadline wrapper
-    require 'readline_compatible' if(not rl)
+    choose_readline(opts)
 
     histfile = opts['HistFile'] || Msf::Config.history_file
 
     # Initialize attributes
-    self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
+
+    # Defer loading of modules until paths from opts can be added below
+    framework_create_options = {'DeferModuleLoads' => true}.merge(opts)
+    self.framework = opts['Framework'] || Msf::Simple::Framework.create(framework_create_options)
 
     if self.framework.datastore['Prompt']
       prompt = self.framework.datastore['Prompt']
@@ -112,9 +101,9 @@ class Driver < Msf::Ui::Driver
     enstack_dispatcher(CommandDispatcher::Core)
 
     # Report readline error if there was one..
-    if not rl_err.nil?
+    if !@rl_err.nil?
       print_error("***")
-      print_error("* WARNING: Unable to load readline: #{rl_err}")
+      print_error("* WARNING: Unable to load readline: #{@rl_err}")
       print_error("* Falling back to RbReadLine")
       print_error("***")
     end
@@ -535,6 +524,11 @@ class Driver < Msf::Ui::Driver
 
     framework.events.on_ui_start(Msf::Framework::Revision)
 
+    if $msf_spinner_thread
+      $msf_spinner_thread.kill
+      $stderr.print "\n"
+    end
+
     run_single("banner") unless opts['DisableBanner']
 
     opts["Plugins"].each do |plug|
@@ -714,6 +708,43 @@ protected
     set_log_level(Msf::LogSource, val)
   end
 
+  # Require the appropriate readline library based on the user's preference.
+  #
+  # @return [void]
+  def choose_readline(opts)
+    # Choose a readline library before calling the parent
+    @rl_err = nil
+    if opts['RealReadline']
+      # Remove the gem version from load path to be sure we're getting the
+      # stdlib readline.
+      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
+      rb_readline_path = File.join(gem_dir, "lib")
+      index = $LOAD_PATH.index(rb_readline_path)
+      # Bundler guarantees that the gem will be there, so it should be safe to
+      # assume we found it in the load path, but check to be on the safe side.
+      if index
+        $LOAD_PATH.delete_at(index)
+      end
+    end
+
+    begin
+      require 'readline'
+    rescue ::LoadError => e
+      if @rl_err.nil? && index
+        # Then this is the first time the require failed and we have an index
+        # for the gem version as a fallback.
+        @rl_err = e
+        # Put the gem back and see if that works
+        $LOAD_PATH.insert(index, rb_readline_path)
+        index = rb_readline_path = nil
+        retry
+      else
+        # Either we didn't have the gem to fall back on, or we failed twice.
+        # Nothing more we can do here.
+        raise e
+      end
+    end
+  end
 end
 
 #
@@ -725,6 +756,7 @@ class DefangedException < ::Exception
     "This functionality is currently disabled (defanged mode)"
   end
 end
+
 
 end
 end

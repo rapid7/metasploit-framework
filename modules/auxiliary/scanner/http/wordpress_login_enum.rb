@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       # Brute force previously found users
       if not usernames.empty?
         print_status("#{target_uri} - Brute-forcing previously found accounts...")
-        passwords = load_password_vars(datastore['PASS_FILE'])
+        passwords = load_password_vars
         usernames.each do |user|
           passwords.each do |pass|
             do_login(user, pass)
