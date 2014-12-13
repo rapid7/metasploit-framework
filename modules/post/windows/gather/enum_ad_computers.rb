@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Post
             report[:name] = dns
             hostnames << dns
           when 'operatingSystem'
-            report[:os_name] = field
+            report[:os_name] = field.gsub("\xAE",'')
           when 'distinguishedName'
             if field =~ /Domain Controllers/i
               # TODO: Find another way to mark a host as being a domain controller
