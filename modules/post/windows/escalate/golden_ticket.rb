@@ -141,7 +141,7 @@ class Metasploit3 < Msf::Post
     # Send 0 length buffers so we get the correct buffer sizes from the out values
     buffers = client.railgun.advapi32.LookupAccountNameA(
                                nil,
-                               'administrator@metasploitable.local',
+                               domain,
                                sid_buffer,
                                cb_sid,
                                referenced_domain_name_buffer,
