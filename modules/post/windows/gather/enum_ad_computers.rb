@@ -81,14 +81,14 @@ class Metasploit3 < Msf::Post
 
       report = {}
       0.upto(fields.length-1) do |i|
-        field = result[i] || ""
+        field = result[i][:value] || ""
 
         # Only perform these actions if the database is connected and we want
         # to store in the DB.
         if db && datastore['STORE_DB']
           case fields[i]
           when 'dNSHostName'
-            dns = field
+            dns = field.value
             report[:name] = dns
             hostnames << dns
           when 'operatingSystem'
