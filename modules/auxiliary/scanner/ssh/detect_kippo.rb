@@ -15,6 +15,7 @@ class Metasploit3 < Msf::Auxiliary
         'References'  =>
           [
             [ 'URL', 'https://cultofthedyingsun.wordpress.com/2014/09/12/death-by-magick-number-fingerprinting-kippo-2014/' ],
+            [ 'URL', 'http://morris.guru/detecting-kippo-ssh-honeypots/' ],
           ],
         'Author'         => 'Andrew Morris <andrew[at]morris.guru>',
         'License'        => MSF_LICENSE
