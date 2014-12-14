@@ -32,7 +32,7 @@ module Rex
               when OpenSSL::ASN1::ASN1Data
                 decode_asn1(input)
               else
-                raise ::RuntimeError, 'Failed to decode Principal Name, invalid input'
+                raise ::RuntimeError, 'Failed to decode KDC Request, invalid input'
               end
 
               self
