@@ -80,7 +80,7 @@ module Rex
 
         # Receives a kerberos response through the connection
         #
-        # @return [String] the kerberos response raw message
+        # @return [Rex::Proto::Kerberos::Model::Message::KrbError] the kerberos response message
         # @raise [RuntimeError] if the connection isn't established
         # @raise [RuntimeError] if the transport protocol is unknown or unsupported
         # @raise [RuntimeError] if the response can't be parsed
@@ -105,7 +105,7 @@ module Rex
         # Sends a kerberos request, and reads the response through the connection
         #
         # @param req [Rex::Proto::Kerberos::Model::Message::KdcRequest] the request to sent
-        # @return [String] The raw kerberos response message
+        # @return [Rex::Proto::Kerberos::Model::Message::KrbError] The kerberos message
         # @raise [RuntimeError] if the transport protocol is unknown or unsupported
         # @raise [RuntimeError] if the response can't be parsed
         def send_recv(req)
@@ -152,8 +152,8 @@ module Rex
 
         # Receives a Kerberos Response over a tcp connection
         #
-        # @return [String] the raw kerberos message
-        # @raise [RuntimeError] if the response can't be read
+        # @return [Rex::Proto::Kerberos::Model::Message::KrbError] the kerberos message response
+        # @raise [RuntimeError] if the response can't be processed
         # @raise [EOFError] if expected data can't be read
         def recv_response_tcp
           length_raw = connection.get_once(4)
@@ -167,11 +167,34 @@ module Rex
             raise ::RuntimeError, 'Kerberos Client: failed to read response'
           end
 
-          data
+          res = decode_kerb_response(data)
+
+          res
         end
 
         def recv_response_udp
           raise ::RuntimeError, 'Kerberos Client: UDP unsupported'
+        end
+
+        private
+
+        # Decodes a Kerberos response
+        #
+        # @param input [String] the raw response message
+        # @return [Rex::Proto::Kerberos::Model::Message::KrbError] the kerberos message response
+        # @raise [RuntimeError] if the response can't be processed
+        def decode_kerb_response(data)
+          asn1 = OpenSSL::ASN1.decode(data)
+          msg_type = asn1.value[0].value[1].value[0].value
+
+          case msg_type
+          when Rex::Proto::Kerberos::Model::KRB_ERROR
+            res = Rex::Proto::Kerberos::Model::Message::KrbError.decode(asn1)
+          else
+            raise ::RuntimeError, 'Kerberos Client: Unknown response'
+          end
+
+          res
         end
       end
     end

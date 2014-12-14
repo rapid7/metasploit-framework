@@ -52,6 +52,10 @@ module Rex
 
         # From RFC-4757: The RC4-HMAC Kerberos Encryption Types Used by Microsoft Windows
         KERB_ETYPE_RC4_HMAC = 23
+
+        # Message types
+
+        KRB_ERROR = 30
       end
     end
   end
