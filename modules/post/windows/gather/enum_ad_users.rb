@@ -12,17 +12,18 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Accounts
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name'	       => 'Windows Gather Active Directory Users',
-                      'Description'  => %{
-                        This module will enumerate user accounts in the default Active Domain (AD) directory and stores
-                      them in the database.
-                      },
-                      'License'      => MSF_LICENSE,
-                      'Author'       => [ 'Ben Campbell' ],
-                      'Platform'     => [ 'win' ],
-                      'SessionTypes' => [ 'meterpreter' ]
-      ))
+    super(update_info(
+      info,
+      'Name'	       => 'Windows Gather Active Directory Users',
+      'Description'  => %{
+        This module will enumerate user accounts in the default Active Domain (AD) directory and stores
+      them in the database.
+      },
+      'License'      => MSF_LICENSE,
+      'Author'       => [ 'Ben Campbell' ],
+      'Platform'     => [ 'win' ],
+      'SessionTypes' => [ 'meterpreter' ]
+    ))
 
     register_options([
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false])
