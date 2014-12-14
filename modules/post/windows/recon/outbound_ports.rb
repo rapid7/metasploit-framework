@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Post
 
     begin
       ::Timeout.timeout(to) do
-        r = client.railgun.ws2_32.recvfrom(h_icmp, "", 100, 0, from, 16)
+        r = client.railgun.ws2_32.recvfrom(h_icmp, "\x00" * 100, 100, 0, from, 16)
         hop = Rex::Socket.addr_ntoa(r['from'][4..7])
         return hop
       end
