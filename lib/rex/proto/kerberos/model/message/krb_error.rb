@@ -39,6 +39,9 @@ module Rex
             # @!attribute sname
             #   @return [Rex::Proto::Kerberos::Type::PrincipalName] The name part of the server's identity
             attr_accessor :sname
+            # @!attribute e_data
+            #   @return [String] additional data about the error (ASN.1 encoded data)
+            attr_accessor :e_data
 
             # Decodes the Rex::Proto::Kerberos::Model::Message::KrbError from an input
             #
@@ -102,6 +105,8 @@ module Rex
                   self.realm = decode_realm(val)
                 when 10
                   self.sname = decode_sname(val)
+                when 12
+                  self.e_data = decode_e_data(val)
                 else
                   raise ::RuntimeError, 'Failed to decode KRB-ERROR SEQUENCE'
                 end
@@ -194,6 +199,14 @@ module Rex
             # @return [Rex::Proto::Kerberos::Type::PrincipalName]
             def decode_sname(input)
               Rex::Proto::Kerberos::Model::Type::PrincipalName.decode(input.value[0])
+            end
+
+            # Decodes the e_data from an OpenSSL::ASN1::ASN1Data
+            #
+            # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+            # @return [String]
+            def decode_e_data(input)
+              input.value[0].value
             end
           end
         end
