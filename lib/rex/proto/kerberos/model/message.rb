@@ -12,4 +12,5 @@ module Rex
 end
 
 require 'rex/proto/kerberos/model/message/kdc_request'
+require 'rex/proto/kerberos/model/message/krb_error'
 require 'rex/proto/kerberos/model/message/kdc_response'

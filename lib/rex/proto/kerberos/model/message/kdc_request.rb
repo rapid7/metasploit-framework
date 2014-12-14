@@ -101,8 +101,7 @@ module Rex
               decode_asn1(asn1)
             end
 
-            # Decodes a Rex::Proto::Kerberos::Model::Message::KdcRequest from an
-            # OpenSSL::ASN1::Sequence
+            # Decodes a Rex::Proto::Kerberos::Model::Message::KdcRequest
             #
             # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
             # @raise [RuntimeError] if decoding doesn't succeed
