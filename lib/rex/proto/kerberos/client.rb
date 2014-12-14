@@ -80,7 +80,7 @@ module Rex
 
         # Receives a kerberos response through the connection
         #
-        # @return [Rex::Proto::Kerberos::Model::Message::KdcResponse]
+        # @return [String] the kerberos response raw message
         # @raise [RuntimeError] if the connection isn't established
         # @raise [RuntimeError] if the transport protocol is unknown or unsupported
         # @raise [RuntimeError] if the response can't be parsed
@@ -105,7 +105,7 @@ module Rex
         # Sends a kerberos request, and reads the response through the connection
         #
         # @param req [Rex::Proto::Kerberos::Model::Message::KdcRequest] the request to sent
-        # @return [Rex::Proto::Kerberos::Model::Message::KdcResponse]
+        # @return [String] The raw kerberos response message
         # @raise [RuntimeError] if the transport protocol is unknown or unsupported
         # @raise [RuntimeError] if the response can't be parsed
         def send_recv(req)
@@ -152,12 +152,22 @@ module Rex
 
         # Receives a Kerberos Response over a tcp connection
         #
-        # @return [String] the data read from the connection
-        # @raise [EOFError] if the response can't be read
+        # @return [String] the raw kerberos message
+        # @raise [RuntimeError] if the response can't be read
+        # @raise [EOFError] if expected data can't be read
         def recv_response_tcp
-          res = connection.get_once(-1)
+          length_raw = connection.get_once(4)
+          unless length_raw && length_raw.length == 4
+            raise ::RuntimeError, 'Kerberos Client: failed to read response'
+          end
+          length = length_raw.unpack('N')[0]
 
-          res
+          data = connection.get_once(length)
+          unless data && data.length == length
+            raise ::RuntimeError, 'Kerberos Client: failed to read response'
+          end
+
+          data
         end
 
         def recv_response_udp
