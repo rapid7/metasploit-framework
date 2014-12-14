@@ -35,9 +35,6 @@ module Rex
         def connect
           return connection if connection
 
-          #timeout = (t.nil? or t == -1) ? 0 : t
-          timeout = 0
-
           case protocol
           when 'tcp'
             self.connection = create_tcp_connection
@@ -124,6 +121,9 @@ module Rex
         #
         # @return [Rex::Socket::Tcp]
         def create_tcp_connection
+          #timeout = (t.nil? or t == -1) ? 0 : t
+          timeout = 0
+          
           self.connection = Rex::Socket::Tcp.create(
             'PeerHost'   => hostname,
             'PeerPort'   => port.to_i,
