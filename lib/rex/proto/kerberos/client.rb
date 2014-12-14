@@ -3,12 +3,22 @@
 module Rex
   module Proto
     module Kerberos
+      # This class is a representation of kerberos client.
       class Client
-
+        # @!attribute hostname
+        #   @return [String] The kerberos server hostname
         attr_accessor :hostname
+        # @!attribute port
+        #   @return [Fixnum] The kerberos server port
         attr_accessor :port
+        # @!attribute protocol
+        #   @return [String] The transport protocol used (tcp/udp)
         attr_accessor :protocol
+        # @!attribute context
+        #   @return [Hash]
         attr_accessor :context
+        # @!attribute connection
+        #   @return [IO]
         attr_accessor :connection
 
         def initialize(opts = {})
@@ -18,25 +28,29 @@ module Rex
           self.context  = opts[:context] || {}
         end
 
+        # Creates a connection through a Rex socket
+        #
+        # @return [Rex::Socket::Tcp]
+        # @raise [RuntimeError] if the connection can not be created
         def connect
           return connection if connection
 
           #timeout = (t.nil? or t == -1) ? 0 : t
           timeout = 0
 
-          self.connection = Rex::Socket::Tcp.create(
-            'PeerHost'   => hostname,
-            'PeerPort'   => port.to_i,
-            #'LocalHost'  => self.local_host,
-            #'LocalPort'  => self.local_port,
-            'Context'    => context,
-            #'Proxies'    => self.proxies,
-            'Timeout'    => timeout
-          )
+          case protocol
+          when 'tcp'
+            self.connection = create_tcp_connection
+          when 'udp'
+            raise ::RuntimeError, 'Kerberos Client: UDP unsupported'
+          else
+            raise ::RuntimeError, 'Kerberos Client: unknown transport protocol'
+          end
 
           connection
         end
 
+        # Closes the connection
         def close
           if connection
             connection.shutdown
@@ -46,6 +60,11 @@ module Rex
           self.connection = nil
         end
 
+        # Sends a kerberos request through the connection
+        #
+        # @param req [Rex::Proto::Kerberos::Model::Message::KdcRequest] the request to send
+        # @return [Fixnum] the number of bytes sent
+        # @raise [RuntimeError] if the transport protocol is unknown or not supported
         def send_request(req)
           connect
 
@@ -62,6 +81,12 @@ module Rex
           sent
         end
 
+        # Receives a kerberos response through the connection
+        #
+        # @return [Rex::Proto::Kerberos::Model::Message::KdcResponse]
+        # @raise [RuntimeError] if the connection isn't established
+        # @raise [RuntimeError] if the transport protocol is unknown or unsupported
+        # @raise [RuntimeError] if the response can't be parsed
         def recv_response
           if connection.nil?
             raise ::RuntimeError, 'Kerberos Client: connection not established'
@@ -80,6 +105,12 @@ module Rex
           res
         end
 
+        # Sends a kerberos request, and reads the response through the connection
+        #
+        # @param req [Rex::Proto::Kerberos::Model::Message::KdcRequest] the request to sent
+        # @return [Rex::Proto::Kerberos::Model::Message::KdcResponse]
+        # @raise [RuntimeError] if the transport protocol is unknown or unsupported
+        # @raise [RuntimeError] if the response can't be parsed
         def send_recv(req)
           send_request(req)
           res = recv_response
@@ -89,6 +120,21 @@ module Rex
 
         private
 
+        # Creates a TCP connection
+        #
+        # @return [Rex::Socket::Tcp]
+        def create_tcp_connection
+          self.connection = Rex::Socket::Tcp.create(
+            'PeerHost'   => hostname,
+            'PeerPort'   => port.to_i,
+            #'LocalHost'  => self.local_host,
+            #'LocalPort'  => self.local_port,
+            'Context'    => context,
+            #'Proxies'    => self.proxies,
+            'Timeout'    => timeout
+          )
+        end
+
         # Sends a Kerberos Request over a tcp connection
         #
         # @param req [Rex::Proto::Kerberos::Model::Message::KdcRequest] the request to send
@@ -96,7 +142,8 @@ module Rex
         # @raise [RuntimeError] if the request can't be encoded
         def send_request_tcp(req)
           data = req.encode
-          connection.put(data)
+          length = [data.length].pack('N')
+          connection.put(length + data)
         end
 
         def send_request_udp(req)
