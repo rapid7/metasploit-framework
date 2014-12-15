@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
       'DisclosureDate' => 'Oct 15 2014',
       'References'     =>
         [
-          [ 'URL', 'https://labs.mwrinfosecurity.com/tools/' ]
+          [ 'URL', 'https://labs.mwrinfosecurity.com/tools/gitlab-user-enumeration-metasploit-module' ]
         ]
     ))
 
@@ -69,18 +69,10 @@ class Metasploit3 < Msf::Auxiliary
         ssl: ssl,
         info: "Gitlab Version - #{git_version}"
       )
-    else
+    elsif res && res.code == 401
+      fail_with(Failure::NotVulnerable, 'Unable to retrieve Gitlab version...')
+    else 
       fail_with(Failure::Unknown, 'Unable to retrieve Gitlab version...')
-    end
-
-    major, minor, _ = git_version.split('.')
-
-    if major.to_i > 7
-      fail_with(Failure::NotVulnerable, "Version #{git_version} is not vulnerable.")
-    else
-      if major.to_i == 7 && minor.to_i >= 5
-        fail_with(Failure::NotVulnerable, "Version #{git_version} is not vulnerable.")
-      end
     end
 
     discover = normalize_uri(target_uri.path, internal_api, 'discover')
