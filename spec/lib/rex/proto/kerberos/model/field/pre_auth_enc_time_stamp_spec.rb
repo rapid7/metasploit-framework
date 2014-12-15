@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp do
+describe Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp do
 
   subject(:pre_auth_enc_time_stamp) do
     described_class.new
@@ -51,7 +51,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp do
   let(:enc_type) { 23 }
 
   describe "#decode" do
-    it "returns the decoded Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp" do
+    it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp" do
       expect(pre_auth_enc_time_stamp.decode(time_stamp_raw)).to eq(pre_auth_enc_time_stamp)
     end
 
@@ -67,7 +67,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp do
   end
 
   describe "#encode" do
-    it "encodes Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp correctly" do
+    it "encodes Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp correctly" do
       pre_auth_enc_time_stamp.decode(time_stamp_raw)
       expect(pre_auth_enc_time_stamp.encode).to eq(time_stamp_raw)
     end
@@ -82,7 +82,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp do
     it "allows decryption" do
       pre_auth_enc_time_stamp.decode(time_stamp_raw)
       cipher = pre_auth_enc_time_stamp.encrypt(enc_type, password)
-      ed = Rex::Proto::Kerberos::Model::Type::EncryptedData.new(etype: enc_type, cipher: cipher)
+      ed = Rex::Proto::Kerberos::Model::EncryptedData.new(etype: enc_type, cipher: cipher)
       plain = ed.decrypt(password, msg_type)
       pre_auth_enc_time_stamp.decode(plain)
       expect(pre_auth_enc_time_stamp.pa_time_stamp.to_s).to eq('2014-12-09 01:09:09 UTC')

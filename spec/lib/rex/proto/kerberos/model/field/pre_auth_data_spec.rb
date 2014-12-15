@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
+describe Rex::Proto::Kerberos::Model::PreAuthData do
 
   subject(:pre_auth_data) do
     described_class.new
@@ -85,7 +85,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
 
   describe "#decode" do
     context "when PAC-ENC-TIMESTAMP" do
-      it "returns the decoded Rex::Proto::Kerberos::Model::Field::PreAuthData" do
+      it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthData" do
         expect(pre_auth_data.decode(timestamp_sample)).to eq(pre_auth_data)
       end
 
@@ -101,7 +101,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
     end
 
     context "when PA-PAC-REQUEST" do
-      it "returns the decoded Rex::Proto::Kerberos::Model::Field::PreAuthData" do
+      it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthData" do
         expect(pre_auth_data.decode(pac_sample)).to eq(pre_auth_data)
       end
 
@@ -119,7 +119,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
 
   describe "#encode" do
     context "when PAC-ENC-TIMESTAMP" do
-      it "encodes Rex::Proto::Kerberos::Model::Field::PreAuthData correctly" do
+      it "encodes Rex::Proto::Kerberos::Model::PreAuthData correctly" do
         pre_auth_data.decode(timestamp_sample)
         expect(pre_auth_data.encode).to eq(timestamp_sample)
       end
@@ -127,7 +127,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthData do
     end
 
     context "when PA-PAC-REQUEST" do
-      it "encodes Rex::Proto::Kerberos::Model::Field::PreAuthData correctly" do
+      it "encodes Rex::Proto::Kerberos::Model::PreAuthData correctly" do
         pre_auth_data.decode(pac_sample)
         expect(pre_auth_data.encode).to eq(pac_sample)
       end

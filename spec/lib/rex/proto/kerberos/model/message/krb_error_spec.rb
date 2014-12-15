@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::Message::KrbError do
+describe Rex::Proto::Kerberos::Model::KrbError do
 
   subject(:krb_error) do
     described_class.new
@@ -298,7 +298,7 @@ describe Rex::Proto::Kerberos::Model::Message::KrbError do
 
   describe "#decode" do
     context "when generic error" do
-      it "returns the Rex::Proto::Kerberos::Model::Message::KrbError decoded" do
+      it "returns the Rex::Proto::Kerberos::Model::KrbError decoded" do
         expect(krb_error.decode(generic_error)).to eq(krb_error)
       end
 
@@ -334,7 +334,7 @@ describe Rex::Proto::Kerberos::Model::Message::KrbError do
     end
 
     context "when pre auth failed error" do
-      it "returns the Rex::Proto::Kerberos::Model::Message::KrbError decoded" do
+      it "returns the Rex::Proto::Kerberos::Model::KrbError decoded" do
         expect(krb_error.decode(pre_auth_failed)).to eq(krb_error)
       end
 

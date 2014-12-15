@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest do
+describe Rex::Proto::Kerberos::Model::PreAuthPacRequest do
 
   subject(:pre_auth_pac_request) do
     described_class.new
@@ -33,7 +33,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest do
   end
 
   describe "#decode" do
-    it "returns the decoded Rex::Proto::Kerberos::Model::Field::PreAuthData" do
+    it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthData" do
       expect(pre_auth_pac_request.decode(pac_sample)).to eq(pre_auth_pac_request)
     end
 
@@ -44,7 +44,7 @@ describe Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest do
   end
 
   describe "#encode" do
-    it "encodes Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest correctly" do
+    it "encodes Rex::Proto::Kerberos::Model::PreAuthPacRequest correctly" do
       pre_auth_pac_request.decode(pac_sample)
       expect(pre_auth_pac_request.encode).to eq(pac_sample)
     end

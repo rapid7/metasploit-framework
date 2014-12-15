@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::Message::KdcRequest do
+describe Rex::Proto::Kerberos::Model::KdcRequest do
 
   subject(:kdc_request) do
     described_class.new
@@ -680,7 +680,7 @@ describe Rex::Proto::Kerberos::Model::Message::KdcRequest do
 
   describe "#decode" do
     context "when AS-REQ" do
-      it "returns the Rex::Proto::Kerberos::Model::Message::KdcRequest decoded" do
+      it "returns the Rex::Proto::Kerberos::Model::KdcRequest decoded" do
         expect(kdc_request.decode(sample_as_req)).to eq(kdc_request)
       end
 
@@ -716,7 +716,7 @@ describe Rex::Proto::Kerberos::Model::Message::KdcRequest do
     end
 
     context "when TGS-REQ" do
-      it "returns the Rex::Proto::Kerberos::Model::Message::KdcRequest decoded" do
+      it "returns the Rex::Proto::Kerberos::Model::KdcRequest decoded" do
         expect(kdc_request.decode(sample_tgs_req)).to eq(kdc_request)
       end
 

@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::Type::EncryptedData do
+describe Rex::Proto::Kerberos::Model::EncryptedData do
 
   subject(:encrypted_data) do
     described_class.new
@@ -149,7 +149,7 @@ describe Rex::Proto::Kerberos::Model::Type::EncryptedData do
 
   describe "#encode" do
     context "when EncryptedData without kvno" do
-      it "encodes Rex::Proto::Kerberos::Model::Type::EncryptedData correctly" do
+      it "encodes Rex::Proto::Kerberos::Model::EncryptedData correctly" do
         encrypted_data.decode(sample_enc_data)
         expect(sample_enc_data.encode).to eq(sample_enc_data)
       end
@@ -168,7 +168,7 @@ describe Rex::Proto::Kerberos::Model::Type::EncryptedData do
       it "returns a valid object" do
         encrypted_data.decode(sample_known_enc_data)
         plain = encrypted_data.decrypt(known_password, msg_type)
-        expect(Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp.decode(plain)).to be_a(Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp)
+        expect(Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp.decode(plain)).to be_a(Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp)
       end
     end
 
