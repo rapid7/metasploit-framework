@@ -12,3 +12,4 @@ end
 
 require 'rex/proto/kerberos/pac/element'
 require 'rex/proto/kerberos/pac/priv_svr_checksum'
+require 'rex/proto/kerberos/pac/server_checksum'
