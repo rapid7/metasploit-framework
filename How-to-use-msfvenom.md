@@ -1,4 +1,4 @@
-Msfvenom supports the following options:
+Msfvenom is the combination of payload generation and encoding. It's a replacement for msfpayload and msfencode. It supports the following options:
 
 ```
 Options:
