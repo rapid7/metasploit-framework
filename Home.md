@@ -67,6 +67,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to check Microsoft patch levels for your exploit]]
 - [[How to zip files with Rex::Zip::Archive]]
 - [[What does my Rex::Proto::SMB Error mean?]]
+- [[How to use msfvenom]]
 
 # GitHub Resources #
 
