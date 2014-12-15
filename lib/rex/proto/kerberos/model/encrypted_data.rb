@@ -14,7 +14,7 @@ module Rex
           attr_accessor :etype
           # @!attribute kvno
           #   @return [Fixnum] The version number of the key
-          # attr_accessor :kvno
+          attr_accessor :kvno
           # @!attribute cipher
           #   @return [String] The enciphered text
           attr_accessor :cipher
@@ -130,9 +130,8 @@ module Rex
               case val.tag
               when 0
                 self.etype = decode_etype(val)
-              #TODO: support kvno
-              #when 1
-                #self.kvno = decode_kvno(val)
+              when 1
+                self.kvno = decode_kvno(val)
               when 2
                 self.cipher = decode_cipher(val)
               else

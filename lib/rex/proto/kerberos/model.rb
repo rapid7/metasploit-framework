@@ -6,10 +6,11 @@ module Rex
       module Model
         VERSION = 5
 
-        # From KDC_REQ
+        # Application Message Id's
 
         AS_REQ = 10
         TGS_REQ = 12
+        KRB_ERROR = 30
 
         KDC_OPTION_RESERVED        = 0
         KDC_OPTION_FORWARDABLE     = 1
@@ -52,10 +53,6 @@ module Rex
 
         # From RFC-4757: The RC4-HMAC Kerberos Encryption Types Used by Microsoft Windows
         KERB_ETYPE_RC4_HMAC = 23
-
-        # Message types
-
-        KRB_ERROR = 30
       end
     end
   end
@@ -71,3 +68,4 @@ require 'rex/proto/kerberos/model/kdc_request_body'
 require 'rex/proto/kerberos/model/kdc_request'
 require 'rex/proto/kerberos/model/krb_error'
 #require 'rex/proto/kerberos/model/kdc_response'
+require 'rex/proto/kerberos/model/ticket'
