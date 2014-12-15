@@ -4,10 +4,11 @@ module Rex
   module Proto
     module Kerberos
       module Crypto
+        module RsaMd5
+          # Checksum identifier
+          RSA_MD5 = 7
+        end
       end
     end
   end
 end
-
-require 'rex/proto/kerberos/crypto/rc4_hmac'
-require 'rex/proto/kerberos/crypto/rsa_md5'
