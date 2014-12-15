@@ -84,6 +84,11 @@ module Metasploit3
     # patch proxy info
     proxyhost = datastore['PROXY_HOST'].to_s
     proxyport = datastore['PROXY_PORT'].to_s || "8080"
+
+    if Rex::Socket.is_ipv6?(proxyhost)
+      proxyhost = "[#{proxyhost}]"
+    end
+
     proxyinfo = proxyhost + ":" + proxyport
     if proxyport == "80"
       proxyinfo = proxyhost
