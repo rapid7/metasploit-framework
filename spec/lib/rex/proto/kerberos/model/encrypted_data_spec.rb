@@ -168,7 +168,7 @@ describe Rex::Proto::Kerberos::Model::EncryptedData do
       it "returns a valid object" do
         encrypted_data.decode(sample_known_enc_data)
         plain = encrypted_data.decrypt(known_password, msg_type)
-        expect(Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp.decode(plain)).to be_a(Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp)
+        expect(Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp.decode(plain)).to be_a(Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp)
       end
     end
 
