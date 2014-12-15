@@ -9,8 +9,15 @@ module Rex
         # Application Message Id's
 
         AS_REQ = 10
+        AS_REP = 11
         TGS_REQ = 12
+        TGS_REP = 13
         KRB_ERROR = 30
+
+        # Encryption Message Id's
+        ENC_KDC_REQUEST_BODY = 10
+        ENC_AS_RESPONSE = 8
+        ENC_TGS_RESPONSE = 9
 
         KDC_OPTION_RESERVED        = 0
         KDC_OPTION_FORWARDABLE     = 1
@@ -67,5 +74,8 @@ require 'rex/proto/kerberos/model/pre_auth_data'
 require 'rex/proto/kerberos/model/kdc_request_body'
 require 'rex/proto/kerberos/model/kdc_request'
 require 'rex/proto/kerberos/model/krb_error'
-require 'rex/proto/kerberos/model/kdc_response'
 require 'rex/proto/kerberos/model/ticket'
+require 'rex/proto/kerberos/model/encryption_key'
+require 'rex/proto/kerberos/model/last_request'
+require 'rex/proto/kerberos/model/enc_kdc_response'
+require 'rex/proto/kerberos/model/kdc_response'

@@ -10,6 +10,7 @@ describe Rex::Proto::Kerberos::Model::KdcResponse do
   end
 
   let(:msg_type) { 11 }
+  let(:as_decrypt_msg_type) { 8 }
 
 =begin
 #<OpenSSL::ASN1::ASN1Data:0x007fb67a878ec0
