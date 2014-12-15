@@ -62,6 +62,12 @@ module Rex
 end
 
 require 'rex/proto/kerberos/model/element'
-require 'rex/proto/kerberos/model/type'
-require 'rex/proto/kerberos/model/field'
-require 'rex/proto/kerberos/model/message'
+require 'rex/proto/kerberos/model/principal_name'
+require 'rex/proto/kerberos/model/encrypted_data'
+require 'rex/proto/kerberos/model/pre_auth_pac_request'
+require 'rex/proto/kerberos/model/pre_auth_enc_time_stamp'
+require 'rex/proto/kerberos/model/pre_auth_data'
+require 'rex/proto/kerberos/model/kdc_request_body'
+require 'rex/proto/kerberos/model/kdc_request'
+require 'rex/proto/kerberos/model/krb_error'
+require 'rex/proto/kerberos/model/kdc_response'
