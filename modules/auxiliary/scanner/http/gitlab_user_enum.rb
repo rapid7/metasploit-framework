@@ -13,16 +13,24 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
+    super(update_info(
+      info,
       'Name'        => 'Gitlab User Enumeration',
-      'Description' => %q(
+      'Description' => "
         The Gitlab 'internal' API is exposed unauthenticated on Gitlab. This
         allows the username for each SSH Key ID number to be retrieved. Users
-        who do not have an SSH Key cannot be enumerated in this fashion.
-      ),
+        who do not have an SSH Key cannot be enumerated in this fashion. LDAP
+        users, e.g. Active Directory users will also be returned.
+        This issue was fixed in Gitlab v7.5.0.
+      ",
       'Author'      => 'Ben Campbell',
-      'License'     => MSF_LICENSE
-      ))
+      'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Oct 15 2014',
+      'References'     =>
+        [
+          [ 'URL', 'https://labs.mwrinfosecurity.com/tools/' ]
+        ]
+    ))
 
     register_options(
       [
@@ -62,8 +70,17 @@ class Metasploit3 < Msf::Auxiliary
         info: "Gitlab Version - #{git_version}"
       )
     else
-      print_error('Unable to retrieve Gitlab version...')
-      return
+      fail_with(Failure::Unknown, 'Unable to retrieve Gitlab version...')
+    end
+
+    major, minor, _ = git_version.split('.')
+
+    if major.to_i > 7
+      fail_with(Failure::NotVulnerable, "Version #{git_version} is not vulnerable.")
+    else
+      if major.to_i == 7 && minor.to_i >= 5
+        fail_with(Failure::NotVulnerable, "Version #{git_version} is not vulnerable.")
+      end
     end
 
     discover = normalize_uri(target_uri.path, internal_api, 'discover')
@@ -91,3 +108,4 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 end
+
