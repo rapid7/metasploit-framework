@@ -9,13 +9,13 @@ module Rex
           #   @return [Fixnum] The ticket flags
           attr_accessor :options
           # @!attribute cname
-          #   @return [Rex::Proto::Kerberos::Type::PrincipalName] The name part of the client's principal identifier
+          #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the client's principal identifier
           attr_accessor :cname
           # @!attribute realm
           #   @return [String] The realm part of the server's principal identifier
           attr_accessor :realm
           # @!attribute sname
-          #   @return [Rex::Proto::Kerberos::Type::PrincipalName] The name part of the server's identity
+          #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
           # @!attribute from
           #   @return [Time] Start time when the ticket is to be postdated
@@ -33,7 +33,7 @@ module Rex
           #   @return [Array<Fixnum>] The desired encryption algorithm to be used in the response
           attr_accessor :etype
           # @!attribute enc_auth_data
-          #   @return [Rex::Proto::Kerberos::Type::EncryptedData] An encoding of the desired authorization-data encrypted
+          #   @return [Rex::Proto::Kerberos::Model::EncryptedData] An encoding of the desired authorization-data encrypted
           attr_accessor :enc_auth_data
 
           # Decodes the Rex::Proto::Kerberos::Model::KdcRequestBody attributes from input

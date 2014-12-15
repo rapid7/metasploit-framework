@@ -15,16 +15,16 @@ module Rex
           #   @return [String] The realm part of the client's principal identifier
           attr_accessor :crealm
           # @!attribute cname
-          #   @return [Rex::Proto::Kerberos::Type::PrincipalName] The name part of the client's principal identifier
+          #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the client's principal identifier
           attr_accessor :cname
           # @!attribute ticket
-          #   @return [Rex::Proto::Kerberos::Type::PrincipalName] The name part of the client's principal identifier
+          #   @return [Rex::Proto::Kerberos::Model::Ticket] The issued ticket
           attr_accessor :ticket
-          # @!attribute enc_auth_data
-          #   @return [Rex::Proto::Kerberos::Type::EncryptedData] The newly issued ticket
+          # @!attribute enc_part
+          #   @return [Rex::Proto::Kerberos::Model::EncryptedData] The encrypted part of the response
           attr_accessor :enc_part
 
-          # Decodes the Rex::Proto::Kerberos::Model::KrbError from an input
+          # Decodes the Rex::Proto::Kerberos::Model::KdcResponse from an input
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
@@ -36,19 +36,19 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KRB Error, invalid input'
+              raise ::RuntimeError, 'Failed to decode KdcResponse, invalid input'
             end
 
             self
           end
 
           def encode
-            raise ::RuntimeError, 'KrbError encoding not supported'
+            raise ::RuntimeError, 'KdcResponse encoding not supported'
           end
 
           private
 
-          # Decodes a Rex::Proto::Kerberos::Model::KrbError from an String
+          # Decodes a Rex::Proto::Kerberos::Model::KdcResponse from an String
           #
           # @param input [String] the input to decode from
           def decode_string(input)
@@ -57,7 +57,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::KrbError
+          # Decodes a Rex::Proto::Kerberos::Model::KdcResponse
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
           # @raise [RuntimeError] if decoding doesn't succeed
@@ -112,6 +112,22 @@ module Rex
           # @return [Rex::Proto::Kerberos::Type::PrincipalName]
           def decode_cname(input)
             Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
+          end
+
+          # Decodes the ticket field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Rex::Proto::Kerberos::Type::Ticket]
+          def decode_ticket(input)
+            Rex::Proto::Kerberos::Model::Ticket.decode(input.value[0])
+          end
+
+          # Decodes the enc_part
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Rex::Proto::Kerberos::Model::EncryptedData]
+          def decode_enc_part(input)
+            Rex::Proto::Kerberos::Model::EncryptedData.decode(input.value[0])
           end
         end
       end

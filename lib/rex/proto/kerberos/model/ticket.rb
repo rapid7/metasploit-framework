@@ -12,10 +12,10 @@ module Rex
           #   @return [String] The realm that issued the ticket
           attr_accessor :realm
           # @!attribute sname
-          #   @return [Rex::Proto::Kerberos::Type::PrincipalName] The name part of the server's identity
+          #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
           # @!attribute enc_part
-          #   @return [Rex::Proto::Kerberos::Type::EncryptedData] An encrypted part of the ticket
+          #   @return [Rex::Proto::Kerberos::Model::EncryptedData] The encrypted part of the ticket
           attr_accessor :enc_part
 
           # Decodes the Rex::Proto::Kerberos::Model::KrbError from an input

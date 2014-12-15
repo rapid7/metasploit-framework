@@ -30,13 +30,13 @@ module Rex
           #   @return [String] The realm part of the client's principal identifier
           attr_accessor :crealm
           # @!attribute cname
-          #   @return [Rex::Proto::Kerberos::Type::PrincipalName] The name part of the client's principal identifier
+          #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the client's principal identifier
           attr_accessor :cname
           # @!attribute realm
           #   @return [String] The realm part of the server's principal identifier
           attr_accessor :realm
           # @!attribute sname
-          #   @return [Rex::Proto::Kerberos::Type::PrincipalName] The name part of the server's identity
+          #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
           # @!attribute e_data
           #   @return [String] additional data about the error (ASN.1 encoded data)
@@ -179,7 +179,7 @@ module Rex
           # Decodes the cname field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Rex::Proto::Kerberos::Type::PrincipalName]
+          # @return [Rex::Proto::Kerberos::Model::PrincipalName]
           def decode_cname(input)
             Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
           end
@@ -195,7 +195,7 @@ module Rex
           # Decodes the sname field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Rex::Proto::Kerberos::Type::PrincipalName]
+          # @return [Rex::Proto::Kerberos::Model::PrincipalName]
           def decode_sname(input)
             Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
           end
