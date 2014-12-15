@@ -128,10 +128,7 @@ class Metasploit3 < Msf::Auxiliary
     "#{rhost}:#{rport}"
   end
 
-  def run_host(ip)
-
-    connect
-
+  def check_rdp_vuln
     # check if rdp is open
     if not check_rdp
       vprint_status "#{peer} Could not connect to RDP."
@@ -168,8 +165,20 @@ class Metasploit3 < Msf::Auxiliary
     else
       vprint_status("#{peer} Not Vulnerable")
     end
+  end
 
-    disconnect()
+  def run_host(ip)
+    begin
+      connect
+      check_rdp_vuln
+    rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+      bt = e.backtrace.join("\n")
+      print_error("Unexpected error: #{e.message}")
+      vprint_line(bt)
+      elog("#{e.message}\n#{bt}")
+    ensure
+      disconnect
+    end
   end
 
 end
