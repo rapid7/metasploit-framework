@@ -19,7 +19,7 @@ module Rex
           #   @return [String] The enciphered text
           attr_accessor :cipher
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::EncryptedData
+          # Decodes a Rex::Proto::Kerberos::Model::EncryptedData
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self]
@@ -37,7 +37,7 @@ module Rex
             self
           end
 
-          # Encodes a Rex::Proto::Kerberos::Model::Type::EncryptedData into an ASN.1 String
+          # Encodes a Rex::Proto::Kerberos::Model::EncryptedData into an ASN.1 String
           #
           # @return [String]
           def encode
@@ -109,7 +109,7 @@ module Rex
             OpenSSL::ASN1::OctetString.new(cipher)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::EncryptedData from an String
+          # Decodes a Rex::Proto::Kerberos::Model::EncryptedData from an String
           #
           # @param input [String] the input to decode from
           def decode_string(input)
@@ -118,7 +118,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::EncryptedData from an
+          # Decodes a Rex::Proto::Kerberos::Model::EncryptedData from an
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from

@@ -15,7 +15,7 @@ module Rex
           #   @return [Array<String>] A sequence of strings that form a name.
           attr_accessor :name_string
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::PrincipalName
+          # Decodes a Rex::Proto::Kerberos::Model::PrincipalName
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
@@ -33,7 +33,7 @@ module Rex
             self
           end
 
-          # Encodes a Rex::Proto::Kerberos::Model::Type::PrincipalName into an
+          # Encodes a Rex::Proto::Kerberos::Model::PrincipalName into an
           # ASN.1 String
           #
           # @return [String]
@@ -70,7 +70,7 @@ module Rex
             seq_string
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::PrincipalName from an String
+          # Decodes a Rex::Proto::Kerberos::Model::PrincipalName from an String
           #
           # @param input [String] the input to decode from
           def decode_string(input)
@@ -79,7 +79,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::PrincipalName from an
+          # Decodes a Rex::Proto::Kerberos::Model::PrincipalName from an
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from

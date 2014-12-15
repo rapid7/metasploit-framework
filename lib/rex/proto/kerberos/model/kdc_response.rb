@@ -24,7 +24,7 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Type::EncryptedData] The newly issued ticket
           attr_accessor :enc_part
 
-          # Decodes the Rex::Proto::Kerberos::Model::Message::KrbError from an input
+          # Decodes the Rex::Proto::Kerberos::Model::KrbError from an input
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
@@ -48,7 +48,7 @@ module Rex
 
           private
 
-          # Decodes a Rex::Proto::Kerberos::Model::Message::KrbError from an String
+          # Decodes a Rex::Proto::Kerberos::Model::KrbError from an String
           #
           # @param input [String] the input to decode from
           def decode_string(input)
@@ -57,7 +57,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Message::KrbError
+          # Decodes a Rex::Proto::Kerberos::Model::KrbError
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
           # @raise [RuntimeError] if decoding doesn't succeed
@@ -111,7 +111,7 @@ module Rex
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [Rex::Proto::Kerberos::Type::PrincipalName]
           def decode_cname(input)
-            Rex::Proto::Kerberos::Model::Type::PrincipalName.decode(input.value[0])
+            Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
           end
         end
       end

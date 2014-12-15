@@ -18,7 +18,7 @@ module Rex
           #   @return [Fixnum] optional microseconds client's time
           attr_accessor :pausec
 
-          # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
@@ -36,7 +36,7 @@ module Rex
             self
           end
 
-          # Encodes a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp into an
+          # Encodes a Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp into an
           # ASN.1 String
           #
           # @return [String]
@@ -48,7 +48,7 @@ module Rex
             seq.to_der
           end
 
-          # Encrypts the Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
+          # Encrypts the Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp
           #
           # @param etype [Fixnum] the crypto schema to encrypt
           # @param key [String] the key to encrypt
@@ -86,7 +86,7 @@ module Rex
             int
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthEncTimeStamp
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp
           #
           # @param input [String] the input to decode from
           def decode_string(input)
@@ -95,7 +95,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::PreAuthEncTimeStamp from an
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp from an
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from

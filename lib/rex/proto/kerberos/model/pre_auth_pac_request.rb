@@ -12,7 +12,7 @@ module Rex
           #   @return [Boolean]
           attr_accessor :value
 
-          # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthPacRequest
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
@@ -30,7 +30,7 @@ module Rex
             self
           end
 
-          # Encodes a Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest into an
+          # Encodes a Rex::Proto::Kerberos::Model::PreAuthPacRequest into an
           # ASN.1 String
           #
           # @return [String]
@@ -50,7 +50,7 @@ module Rex
             OpenSSL::ASN1::Boolean.new(value)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthPacRequest
           #
           # @param input [String] the input to decode from
           def decode_string(input)
@@ -59,7 +59,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::PreAuthPacRequest from an
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthPacRequest from an
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from

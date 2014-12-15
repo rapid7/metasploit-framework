@@ -13,7 +13,7 @@ module Rex
           #   @return [String] The padata value
           attr_accessor :value
 
-          # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthData
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthData
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
@@ -31,7 +31,7 @@ module Rex
             self
           end
 
-          # Encodes a Rex::Proto::Kerberos::Model::Field::PreAuthData into an ASN.1 String
+          # Encodes a Rex::Proto::Kerberos::Model::PreAuthData into an ASN.1 String
           #
           # @return [String]
           def encode
@@ -61,7 +61,7 @@ module Rex
             OpenSSL::ASN1::OctetString.new(value)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Field::PreAuthData
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthData
           #
           # @param input [String] the input to decode from
           def decode_string(input)
@@ -70,7 +70,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Type::PreAuthData from an
+          # Decodes a Rex::Proto::Kerberos::Model::PreAuthData from an
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from

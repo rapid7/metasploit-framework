@@ -36,7 +36,7 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Type::EncryptedData] An encoding of the desired authorization-data encrypted
           attr_accessor :enc_auth_data
 
-          # Decodes the Rex::Proto::Kerberos::Model::Field::KdcRequestBody attributes from input
+          # Decodes the Rex::Proto::Kerberos::Model::KdcRequestBody attributes from input
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
@@ -54,7 +54,7 @@ module Rex
             self
           end
 
-          # Encodes the Rex::Proto::Kerberos::Model::Field::KdcRequestBody into an ASN.1 String
+          # Encodes the Rex::Proto::Kerberos::Model::KdcRequestBody into an ASN.1 String
           #
           # @return [String]
           def encode
@@ -158,7 +158,7 @@ module Rex
             enc_auth_data.encode
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Field::KdcRequestBody from an String
+          # Decodes a Rex::Proto::Kerberos::Model::KdcRequestBody from an String
           #
           # @param input [String] the input to decode from
           # @raise [RuntimeError] if decoding doesn't succeed
@@ -168,7 +168,7 @@ module Rex
             decode_asn1(asn1)
           end
 
-          # Decodes a Rex::Proto::Kerberos::Model::Field::KdcRequestBody from an
+          # Decodes a Rex::Proto::Kerberos::Model::KdcRequestBody from an
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from
@@ -215,9 +215,9 @@ module Rex
           # Decodes the cname field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Rex::Proto::Kerberos::Type::PrincipalName]
+          # @return [Rex::Proto::Kerberos::Model::PrincipalName]
           def decode_cname(input)
-            Rex::Proto::Kerberos::Model::Type::PrincipalName.decode(input.value[0])
+            Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
           end
 
           # Decodes the realm field
@@ -231,9 +231,9 @@ module Rex
           # Decodes the sname field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Rex::Proto::Kerberos::Type::PrincipalName]
+          # @return [Rex::Proto::Kerberos::Model::PrincipalName]
           def decode_sname(input)
-            Rex::Proto::Kerberos::Model::Type::PrincipalName.decode(input.value[0])
+            Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
           end
 
           # Decodes the from field
@@ -283,9 +283,9 @@ module Rex
           # Decodes the enc_auth_data field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Rex::Proto::Kerberos::Model::Type::EncryptedData]
+          # @return [Rex::Proto::Kerberos::Model::EncryptedData]
           def decode_enc_auth_data(input)
-            Rex::Proto::Kerberos::Model::Type::EncryptedData.decode(input.value[0])
+            Rex::Proto::Kerberos::Model::EncryptedData.decode(input.value[0])
           end
         end
       end
