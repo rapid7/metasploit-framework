@@ -48,7 +48,7 @@ By default, the encoding feature will automatically kick in when you use the -b 
 ./msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -f raw
 ```
 
-To find out how encoders you can use, you can use the -l flag:
+To find out what encoders you can use, you can use the -l flag:
 
 ```
 ./msfvenom -l encoders
