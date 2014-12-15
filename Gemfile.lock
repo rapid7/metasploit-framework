@@ -22,7 +22,7 @@ PATH
       tzinfo
     metasploit-framework-db (4.10.1.pre.dev)
       activerecord (< 4.0.0)
-      metasploit-credential (~> 0.13.7)
+      metasploit-credential (~> 0.13.8)
       metasploit-framework (= 4.10.1.pre.dev)
       metasploit_data_models (~> 0.21.1)
       pg (>= 0.11)
@@ -112,7 +112,7 @@ GEM
     metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.13.7)
+    metasploit-credential (0.13.8)
       metasploit-concern (~> 0.3.0)
       metasploit-model (~> 0.28.0)
       metasploit_data_models (~> 0.21.0)
