@@ -60,7 +60,7 @@ You can also encode the payload multiple times using the -i flag. Sometimes more
 ./msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3 
 ```
 
-**How to use the -b flag**
+**How to avoid bad characters**
 
 The -b flag is meant to be used to avoid certain characters in the payload. When this option is used, msfvenom will automatically find a suitable encoder to encode the payload:
 
