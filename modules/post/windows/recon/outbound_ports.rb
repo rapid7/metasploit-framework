@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('MIN_TTL', [true, 'Starting TTL value.', 1]),
         OptString.new('PORTS', [true, 'Ports to test (e.g. 80,443,100-110).','80,443']),
         OptInt.new('TIMEOUT', [true, 'Timeout for the ICMP socket.', 3]),
-        OptBool.new('STOP', [true, 'Stop when it finds a public IP.', false])
+        OptBool.new('STOP', [true, 'Stop when it finds a public IP.', true])
       ], self.class)
   end
 
@@ -161,6 +161,7 @@ class Metasploit3 < Msf::Post
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
     ports.each do |dport|
+      pub_ip = false
       print_status("Testing port #{dport}...")
       0.upto(datastore['HOPS'] - 1) { |i|
         i = i + datastore['MIN_TTL']
@@ -172,17 +173,17 @@ class Metasploit3 < Msf::Post
         hop = connections(remote, dport, h_icmp, h_tcp, to)
         if hop != nil
           print_good("#{i} #{hop}")
-          if datastore['STOP'] == true and !Rex::Socket.is_internal?(hop)
-            print_good("Public IP reached. The port #{dport} is not filtered")
-            break
+          if !Rex::Socket.is_internal?(hop)
+            pub_ip = true
+            break if datastore['STOP'] == true
           end
         else
           print_error("#{i} *")
         end
-
         client.railgun.ws2_32.closesocket(h_tcp)
         client.railgun.ws2_32.closesocket(h_icmp)
        }
+      print_good("Public IP reached. The TCP port #{dport} is not filtered") if pub_ip == true
     end
   end
 end
