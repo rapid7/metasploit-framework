@@ -9,7 +9,7 @@ module Rex
           include Rex::Proto::Kerberos::Crypto::RsaMd5
 
           # @!attribute buffers
-          #   @return [Array<Rex::Text::Proto::Kerberos::Pac::Element>] An array of PAC_INFO_BUFFER structures
+          #   @return [Array<Rex::Text::Proto::Kerberos::Pac::Element>] The array of PAC_INFO_BUFFER structures
           attr_accessor :buffers
           # @!attribute checksum
           #   @return [Fixnum] The type of checksum to use when encoding PAC-TYPE
