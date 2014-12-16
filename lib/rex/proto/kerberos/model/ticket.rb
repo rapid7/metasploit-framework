@@ -37,10 +37,50 @@ module Rex
           end
 
           def encode
-            raise ::RuntimeError, 'Ticket encoding not supported'
+            elems = []
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_tkt_vno], 0, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_realm], 1, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_sname], 2, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_enc_part], 3, :CONTEXT_SPECIFIC)
+            seq = OpenSSL::ASN1::Sequence.new(elems)
+
+            seq_asn1 = OpenSSL::ASN1::ASN1Data.new([seq], TICKET, :APPLICATION)
+
+            seq_asn1.to_der
           end
 
           private
+
+          # Encodes the tkt_vno
+          #
+          # @return [OpenSSL::ASN1::Integer]
+          def encode_tkt_vno
+            bn = OpenSSL::BN.new(tkt_vno)
+            int = OpenSSL::ASN1::Integer(bn)
+
+            int
+          end
+
+          # Encodes the realm
+          #
+          # @return [OpenSSL::ASN1::GeneralString]
+          def encode_realm
+            OpenSSL::ASN1::GeneralString.new(realm)
+          end
+
+          # Encodes the sname
+          #
+          # @return [String]
+          def encode_sname
+            sname.encode
+          end
+
+          # Encodes the enc_part
+          #
+          # @return [String]
+          def encode_enc_part
+            enc_part.encode
+          end
 
           # Decodes a Rex::Proto::Kerberos::Model::Ticket from an String
           #

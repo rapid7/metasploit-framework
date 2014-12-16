@@ -13,6 +13,7 @@ module Rex
         TGS_REQ = 12
         TGS_REP = 13
         KRB_ERROR = 30
+        TICKET = 1
 
         # Encryption Message Id's
         ENC_KDC_REQUEST_BODY = 10

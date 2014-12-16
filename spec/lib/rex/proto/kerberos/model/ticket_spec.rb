@@ -156,7 +156,7 @@ describe Rex::Proto::Kerberos::Model::Ticket do
   end
 
   describe "#decode" do
-    context "when AS Response ticket" do
+    context "when decoding AS Response ticket" do
       it "returns the Rex::Proto::Kerberos::Model::Ticket decoded" do
         expect(ticket.decode(as_ticket)).to eq(ticket)
       end
@@ -182,4 +182,14 @@ describe Rex::Proto::Kerberos::Model::Ticket do
       end
     end
   end
+
+  describe "#encode" do
+    context "when encoding TGS Request ticket" do
+      it "re-encodes the AS-RESP ticket correctly" do
+        ticket.decode(as_ticket)
+        expect(ticket.encode).to eq(as_ticket)
+      end
+    end
+  end
+
 end

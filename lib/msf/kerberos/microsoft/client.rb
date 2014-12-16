@@ -146,11 +146,41 @@ module Msf
           request
         end
 
-        def build_tgs_request
+        def build_tgs_request(opts = {})
+          options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
+          from = opts[:from] || Time.new('1970-01-01-01 00:00:00')
+          till = opts[:till] || Time.new('1970-01-01-01 00:00:00')
+          rtime = opts[:rtime] || Time.new('1970-01-01-01 00:00:00')
+          nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
+          etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
+          pa_data = opts[:pa_data] || build_as_pa_data(opts)
+          cname = build_as_client_name(opts)
+          realm = opts[:realm] || ''
+          sname = build_as_server_name(opts)
 
+          body = Rex::Proto::Kerberos::Model::Field::KdcRequestBody.new(
+            options: options,
+            cname: cname,
+            realm: realm,
+            sname: sname,
+            from: from,
+            till: till,
+            rtime: rtime,
+            nonce: nonce,
+            etype: etype
+          )
+
+          request = Rex::Proto::Kerberos::Model::Message::KdcRequest.new(
+            pvno: 5,
+            msg_type: Rex::Proto::Kerberos::Model::AS_REQ,
+            pa_data: pa_data,
+            req_body: body
+          )
+
+          request
         end
 
-        # Builds a kerberos pre authenticated information structure
+        # Builds a kerberos pre authenticated information structure for an AS Request
         #
         # @param opts [Hash]
         # @return [Array<Rex::Proto::Kerberos::Model::Field::PreAuthData>]
@@ -158,9 +188,26 @@ module Msf
           pa_data = []
 
           pa_data << build_as_pa_time_stamp(opts)
-          pa_data << build_as_pa_pac_request(opts)
+          pa_data << build_pa_pac_request(opts)
 
           pa_data
+        end
+
+        # Builds a kerberos pre authenticated information structure for an TGS request
+        #
+        # @param opts [Hash]
+        # @return [Array<Rex::Proto::Kerberos::Model::Field::PreAuthData>]
+        def build_tgs_pa_data(opts = {})
+          pa_data = []
+
+          pa_data << build_pa_tgs_req(opts)
+          pa_data << build_pa_pac_request(opts)
+
+          pa_data
+        end
+
+        def build_pa_tgs_req(opts = {})
+
         end
 
         # Builds a kerberos PA-ENC-TIMESTAMP pre authenticated structure
@@ -200,7 +247,7 @@ module Msf
         # @param opts [Hash{Symbol => Boolean}]
         # @option opts [Boolean] :pac_request_value
         # @return [Rex::Proto::Kerberos::Model::Field::PreAuthData]
-        def build_as_pa_pac_request(opts = {})
+        def build_pa_pac_request(opts = {})
           value = opts[:pac_request_value] || false
           pac_request = Rex::Proto::Kerberos::Model::Field::PreAuthPacRequest.new(value: value)
           pa_pac_request = Rex::Proto::Kerberos::Model::Field::PreAuthData.new(

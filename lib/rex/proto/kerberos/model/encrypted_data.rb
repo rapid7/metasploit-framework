@@ -45,11 +45,10 @@ module Rex
             etype_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_etype], 0, :CONTEXT_SPECIFIC)
             elems << etype_asn1
 
-            #TODO: support kvno
-            #if kvno
-              #kvno_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_kvno], 1, :CONTEXT_SPECIFIC)
-              #elems << kvno_asn1
-            #end
+            if kvno
+              kvno_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_kvno], 1, :CONTEXT_SPECIFIC)
+              elems << kvno_asn1
+            end
 
             cipher_asn1 = OpenSSL::ASN1::ASN1Data.new([encode_cipher], 2, :CONTEXT_SPECIFIC)
             elems << cipher_asn1
@@ -95,11 +94,14 @@ module Rex
             int
           end
 
-          # Encodes the kvno (unsupported)
+          # Encodes the kvno
           #
           # @raise [RuntimeError]
           def encode_kvno
-            raise RuntimeError, 'Encoding EncryptedData failed, kvno not supported'
+            bn = OpenSSL::BN.new(kvno)
+            int = OpenSSL::ASN1::Integer(bn)
+
+            int
           end
 
           # Encodes the cipher
