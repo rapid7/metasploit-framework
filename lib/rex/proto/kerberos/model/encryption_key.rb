@@ -32,8 +32,17 @@ module Rex
             self
           end
 
+          # Encodes a Rex::Proto::Kerberos::Model::EncryptionKey into an
+          # ASN.1 String
+          #
+          # @return [String]
           def encode
-            raise ::RuntimeError, 'EncryptionKey encoding not supported'
+            elems = []
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_type], 0, :CONTEXT_SPECIFIC)
+            elems << OpenSSL::ASN1::ASN1Data.new([encode_value], 1, :CONTEXT_SPECIFIC)
+            seq = OpenSSL::ASN1::Sequence.new(elems)
+
+            seq.to_der
           end
 
           private
@@ -71,6 +80,23 @@ module Rex
           # @return [String]
           def decode_value(input)
             input.value[0].value
+          end
+
+          # Encodes the type field
+          #
+          # @return [OpenSSL::ASN1::Integer]
+          def encode_type
+            bn = OpenSSL::BN.new(type)
+            int = OpenSSL::ASN1::Integer(bn)
+
+            int
+          end
+
+          # Encodes the value field
+          #
+          # @return [OpenSSL::ASN1::OctetString]
+          def encode_value
+            OpenSSL::ASN1::OctetString.new(value)
           end
         end
       end
