@@ -11,7 +11,7 @@ module Rex
       module Patch
 
         # Replace the transport string
-        def patch_transport! blob, ssl
+        def self.patch_transport! blob, ssl
 
           i = blob.index("METERPRETER_TRANSPORT_SSL")
           if i
@@ -22,7 +22,7 @@ module Rex
         end
 
         # Replace the URL
-        def patch_url! blob, url
+        def self.patch_url! blob, url
 
           i = blob.index("https://" + ("X" * 256))
           if i
@@ -33,7 +33,7 @@ module Rex
         end
 
         # Replace the session expiration timeout
-        def patch_expiration! blob, expiration
+        def self.patch_expiration! blob, expiration
 
           i = blob.index([0xb64be661].pack("V"))
           if i
@@ -44,7 +44,7 @@ module Rex
         end
 
         # Replace the session communication timeout
-        def patch_comm_timeout! blob, comm_timeout
+        def self.patch_comm_timeout! blob, comm_timeout
 
           i = blob.index([0xaf79257f].pack("V"))
           if i
@@ -55,7 +55,7 @@ module Rex
         end
 
         # Replace the user agent string with our option
-        def patch_ua! blob, ua
+        def self.patch_ua! blob, ua
 
           ua = ua[0,255] + "\x00"
           i = blob.index("METERPRETER_UA\x00")
@@ -66,7 +66,7 @@ module Rex
         end
 
         # Activate a custom proxy
-        def patch_proxy! blob, proxyhost, proxyport, proxy_type
+        def self.patch_proxy! blob, proxyhost, proxyport, proxy_type
 
           i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
           if i
@@ -92,7 +92,7 @@ module Rex
         end
 
         # Proxy authentification
-        def patch_proxy_auth! blob, proxy_username, proxy_password, proxy_type
+        def self.patch_proxy_auth! blob, proxy_username, proxy_password, proxy_type
 
           unless (proxy_username.nil? or proxy_username.empty?) or
             (proxy_password.nil? or proxy_password.empty?) or
@@ -110,19 +110,19 @@ module Rex
         end
 
         # Patch options into metsrv for reverse HTTP payloads
-        def patch_passive_service! blob, options
+        def self.patch_passive_service! blob, options
 
-          blob.patch_transport! blob, options[:ssl]
-          blob.patch_url! blob, options[:url]
-          blob.patch_expiration! blob, options[:expiration]
-          blob.patch_comm_timeout! blob, options[:comm_timeout]
-          blob.patch_ua! blob, options[:ua]
-          blob.patch_proxy!(blob,
+          patch_transport! blob, options[:ssl]
+          patch_url! blob, options[:url]
+          patch_expiration! blob, options[:expiration]
+          patch_comm_timeout! blob, options[:comm_timeout]
+          patch_ua! blob, options[:ua]
+          patch_proxy!(blob,
             options[:proxyhost],
             options[:proxyport],
             options[:proxy_type]
           )
-          blob.patch_proxy_auth!(blob,
+          patch_proxy_auth!(blob,
             options[:proxy_username],
             options[:proxy_password],
             options[:proxy_type]

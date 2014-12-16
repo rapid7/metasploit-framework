@@ -231,12 +231,10 @@ class ClientCore < Extension
 
     if client.passive_service
 
-      blob.extend Rex::Payloads::Meterpreter::Patch
-
       #
       # Patch options into metsrv for reverse HTTP payloads
       #
-      blob.patch_passive_service! blob,
+      Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
         :ssl  =>  client.ssl,
         :url =>  self.client.url,
         :expiration  => self.client.expiration,
