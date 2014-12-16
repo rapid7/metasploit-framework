@@ -16,16 +16,33 @@ Options:
     -x, --template   <path>          Specify a custom executable file to use as a template
     -k, --keep                       Preserve the template behavior and inject the payload as a new thread
     -o, --options                    List the payload's standard options
+    -v, --var-name <name>            Specify a custom variable name to use for certain output formats
     -h, --help                       Show this message
         --help-formats               List available formats
 ```
 
 **How to generate a payload**
 
-To generate a payload, you can use the -p flag.
+To generate a payload, you can use the -p flag. You will also most likely use the -f flag (also known as --format) to specify what the output should be. Format can be two things: either you're generating an executable type format, or you are generating a transform type format. The executable type means when you create the payload, the output is meant to be a file. The transform format means this is code, as in you probably copy and paste this to some exploit code you're working on.
+
+The executable format is pretty straight forward, so it needs no further explanation. But there is another flag that's specifically designed for some transform formats, and that is the -v flag (--var-name). This option allows you have a custom variable name in your output, and currently only the following transform formats support --var-name: bash, c, csharp, java, perl, powershell, py, rb, sh, vbapplication, vbscript.
+
+The following is a basic example of how to generate a file:
 
 ```
 ./msfvenom -p windows/meterpreter/bind_tcp -f exe
+```
+
+The -p flag also supports "-" as a way to accept a custom payload:
+
+```
+cat payload_file.bin | ./msfvenom -p - -a x86 --platform win -e x86/shikata_ga_nai -f raw
+```
+
+This is an example of setting a custom variable for a C output:
+
+```
+echo AAAA | ./msfvenom -p - -a x86 --platform windows -v myVar -f java
 ```
 
 If you'd like to know all the built-in Metasploit payloads available, you can use the -l flag:
@@ -34,11 +51,7 @@ If you'd like to know all the built-in Metasploit payloads available, you can us
 ./msfvenom -l payloads
 ```
 
-The -p flag also supports "-" as a way to accept a custom payload:
 
-```
-cat payload_file.bin | ./msfvenom -p - -a x86 --platform win -e x86/shikata_ga_nai -f raw
-```
 
 **How to encode a payload**
 
