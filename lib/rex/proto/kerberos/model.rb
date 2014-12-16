@@ -69,6 +69,7 @@ end
 require 'rex/proto/kerberos/model/element'
 require 'rex/proto/kerberos/model/principal_name'
 require 'rex/proto/kerberos/model/encrypted_data'
+require 'rex/proto/kerberos/model/checksum'
 require 'rex/proto/kerberos/model/pre_auth_pac_request'
 require 'rex/proto/kerberos/model/pre_auth_enc_time_stamp'
 require 'rex/proto/kerberos/model/pre_auth_data'
