@@ -7,6 +7,13 @@ module Rex
         module RsaMd5
           # Checksum identifier
           RSA_MD5 = 7
+
+          def checksum_rsa_md5(data)
+            md5 = OpenSSL::Digest::MD5.new
+            md5 << data
+
+            md5.digest
+          end
         end
       end
     end
