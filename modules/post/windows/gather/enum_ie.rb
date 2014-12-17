@@ -258,6 +258,9 @@ class Metasploit3 < Msf::Post
     h_paths = []
     c_paths = []
     base = session.sys.config.getenv('USERPROFILE')
+    unless base
+      fail_with(Failure::Unknown, "Unable to retrieve environment variable USERPROFILE")
+    end
     if host['OS'] =~ /(Windows 7|2008|Vista)/
       h_paths << base + vist_h
       h_paths << base + vist_hlow

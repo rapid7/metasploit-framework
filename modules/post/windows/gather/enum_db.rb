@@ -293,6 +293,9 @@ class Metasploit3 < Msf::Post
     end
 
     windir = session.sys.config.getenv('windir')
+    unless windir
+      fail_with(Failure::Unknown, "Unable to retrieve environment variable windir")
+    end
     getfile = session.fs.file.search(windir + "\\system32\\drivers\\etc\\","services.*",recurse=true,timeout=-1)
 
     data = nil
