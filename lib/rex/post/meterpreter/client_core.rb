@@ -8,6 +8,9 @@ require 'rex/post/meterpreter/client'
 # argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
 
+# Provides methods to patch options into the metsrv stager.
+require 'rex/payloads/meterpreter/patch'
+
 module Rex
 module Post
 module Meterpreter
@@ -228,31 +231,21 @@ class ClientCore < Extension
 
     if client.passive_service
 
-      # Replace the transport string first (TRANSPORT_SOCKET_SSL
-      i = blob.index("METERPRETER_TRANSPORT_SSL")
-      if i
-        str = client.ssl ? "METERPRETER_TRANSPORT_HTTPS\x00" : "METERPRETER_TRANSPORT_HTTP\x00"
-        blob[i, str.length] = str
-      end
+      #
+      # Patch options into metsrv for reverse HTTP payloads
+      #
+      Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+        :ssl            =>  client.ssl,
+        :url            =>  self.client.url,
+        :expiration     => self.client.expiration,
+        :comm_timeout   =>  self.client.comm_timeout,
+        :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
+        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
+        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
+        :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
+        :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
+        :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
 
-      conn_id = self.client.conn_id
-      i = blob.index("https://" + ("X" * 256))
-      if i
-        str = self.client.url
-        blob[i, str.length] = str
-      end
-
-      i = blob.index([0xb64be661].pack("V"))
-      if i
-        str = [ self.client.expiration ].pack("V")
-        blob[i, str.length] = str
-      end
-
-      i = blob.index([0xaf79257f].pack("V"))
-      if i
-        str = [ self.client.comm_timeout ].pack("V")
-        blob[i, str.length] = str
-      end
     end
 
     # Build the migration request
