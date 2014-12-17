@@ -26,7 +26,14 @@ print_status("Killing Countermeasures on the target...")
 avs = %W{
   AAWTray.exe
   Ad-Aware.exe
+  Ashwebsv.exe
+  AvastSvc.exe
+  Bdmcon.exe
+  Drwebscd.exe
   MSASCui.exe
+  Avgamsvr.exe
+  AVGCC.exe
+  AVGCTRL.exe
   _avp32.exe
   _avpcc.exe
   _avpm.exe
@@ -47,6 +54,9 @@ avs = %W{
   aplica32.exe
   apvxdwin.exe
   arr.exe
+  ashserv.exe
+  ashServ.exe
+  aswUpdSv.exe
   atcon.exe
   atguard.exe
   atro55en.exe
@@ -75,6 +85,7 @@ avs = %W{
   avkwctl9.exe
   avltmain.exe
   avnt.exe
+  av.exe
   avp.exe
   avp.exe
   avp32.exe
@@ -91,11 +102,15 @@ avs = %W{
   avwupd.exe
   avwupd32.exe
   avwupsrv.exe
+  avxinit.exe
+  avxlive.exe
   avxmonitor9x.exe
   avxmonitornt.exe
   avxquar.exe
+  avastUI.exe
   backweb.exe
   bargains.exe
+  bdagent.exe
   bd_professional.exe
   beagle.exe
   belt.exe
@@ -135,6 +150,7 @@ avs = %W{
   click.exe
   cmd.exe
   cmd32.exe
+  cmf.exe
   cmesys.exe
   cmgrdian.exe
   cmon016.exe
@@ -264,6 +280,7 @@ avs = %W{
   ldpro.exe
   ldpromenu.exe
   ldscan.exe
+  lmgui.exe
   lnetinfo.exe
   loader.exe
   localnet.exe
@@ -278,6 +295,9 @@ avs = %W{
   luinit.exe
   luspt.exe
   mapisvc32.exe
+  mbam.exe
+  mbamservice.exe
+  mbamgui.exe
   mcagent.exe
   mcmnhdlr.exe
   mcshield.exe
@@ -470,6 +490,7 @@ avs = %W{
   smss32.exe
   soap.exe
   sofi.exe
+  sp_clamsrv.exe
   sperm.exe
   spf.exe
   sphinx.exe
