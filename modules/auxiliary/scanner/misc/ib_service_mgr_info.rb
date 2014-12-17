@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 
       sock.put(buf)
 
-      response = sock.get_once
+      response = sock.get_once || ''
 
       # print(Rex::Text.to_hex_dump(response))
 
@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
 
       sock.put(buf)
 
-      response = sock.get_once
+      response = sock.get_once || ''
 
       res = response.unpack('x28Z*Z*')
 

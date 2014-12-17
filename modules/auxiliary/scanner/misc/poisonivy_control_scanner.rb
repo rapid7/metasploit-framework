@@ -66,9 +66,9 @@ class Metasploit3 < Msf::Auxiliary
             )
             r << [ip,port,"open",'Unknown']
             s.puts("\x00"*0x100,0) #Send 0x100 zeros, wait for answer
-            data = s.get_once(0x100)
+            data = s.get_once(0x100) || ''
             if data.length == 0x100
-              data = s.get_once(0x4)
+              data = s.get_once(0x4) || ''
               if data == "\xD0\x15\x00\x00" #Signature for PIVY C&C
                 print_status("#{ip}:#{port} - C&C Server Found")
                 r << [ip,port,"open",'Poison Ivy C&C']
