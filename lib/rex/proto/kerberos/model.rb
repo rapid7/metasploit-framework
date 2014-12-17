@@ -15,6 +15,7 @@ module Rex
         KRB_ERROR = 30
         TICKET = 1
         AUTHENTICATOR = 2
+        AP_REQ = 14
 
         # Encryption Message Id's
         ENC_KDC_REQUEST_BODY = 10
@@ -74,12 +75,13 @@ require 'rex/proto/kerberos/model/checksum'
 require 'rex/proto/kerberos/model/pre_auth_pac_request'
 require 'rex/proto/kerberos/model/pre_auth_enc_time_stamp'
 require 'rex/proto/kerberos/model/pre_auth_data'
-require 'rex/proto/kerberos/model/kdc_request_body'
-require 'rex/proto/kerberos/model/kdc_request'
+require 'rex/proto/kerberos/model/ap_req'
 require 'rex/proto/kerberos/model/krb_error'
 require 'rex/proto/kerberos/model/encryption_key'
 require 'rex/proto/kerberos/model/authenticator'
 require 'rex/proto/kerberos/model/ticket'
 require 'rex/proto/kerberos/model/last_request'
+require 'rex/proto/kerberos/model/kdc_request_body'
+require 'rex/proto/kerberos/model/kdc_request'
 require 'rex/proto/kerberos/model/enc_kdc_response'
 require 'rex/proto/kerberos/model/kdc_response'

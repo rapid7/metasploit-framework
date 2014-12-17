@@ -52,7 +52,7 @@ module Rex
 
           private
 
-          # Encodes the etype field
+          # Encodes the pvno field
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_pvno
