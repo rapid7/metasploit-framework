@@ -29,9 +29,9 @@ class Metasploit4 < Msf::Auxiliary
 
   def run_host(ip)
     connect
-    banner = sock.get_once
+    banner = sock.get_once || ''
     sock.put(banner + "\n" * 8)
-    response = sock.get_once
+    response = sock.get_once || ''
 
     if response =~ /(?:^Protocol mismatch\.\n$|bad packet length)/
       print_good("#{ip}:#{rport} - Kippo detected!")
