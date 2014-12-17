@@ -235,16 +235,16 @@ class ClientCore < Extension
       # Patch options into metsrv for reverse HTTP payloads
       #
       Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
-        :ssl  =>  client.ssl,
-        :url =>  self.client.url,
-        :expiration  => self.client.expiration,
-        :comm_timeout  =>  self.client.comm_timeout,
-        :ua  =>  client.exploit_datastore['MeterpreterUserAgent'],
-        :proxyhost =>  client.exploit_datastore['PROXYHOST'],
-        :proxyport =>  client.exploit_datastore['PROXYPORT'],
-        :proxy_type  =>  client.exploit_datastore['PROXY_TYPE'],
-        :proxy_username  =>  client.exploit_datastore['PROXY_USERNAME'],
-        :proxy_password  =>  client.exploit_datastore['PROXY_PASSWORD']
+        :ssl            =>  client.ssl,
+        :url            =>  self.client.url,
+        :expiration     => self.client.expiration,
+        :comm_timeout   =>  self.client.comm_timeout,
+        :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
+        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
+        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
+        :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
+        :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
+        :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
 
     end
 
