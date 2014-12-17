@@ -11,6 +11,8 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::LDAP
   include Msf::Post::Windows::Accounts
 
+  UAC_DISABLED = 0x02
+
   def initialize(info = {})
     super(update_info(
       info,
@@ -20,7 +22,10 @@ class Metasploit3 < Msf::Post
       them in the database.
       },
       'License'      => MSF_LICENSE,
-      'Author'       => [ 'Ben Campbell' ],
+      'Author'       => [
+        'Ben Campbell',
+        'Carlos Perez <carlos_perez[at]darkoperator.com>'
+      ],
       'Platform'     => [ 'win' ],
       'SessionTypes' => [ 'meterpreter' ]
     ))
@@ -31,7 +36,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    fields = ['sAMAccountName', 'userAccountControl']
+    fields = ['sAMAccountName', 'userAccountControl', 'lockoutTime', 'mail', 'primarygroupid', 'description']
     search_filter = '(&(objectCategory=person)(objectClass=user))'
     max_search = datastore['MAX_SEARCH']
     domain = datastore['DOMAIN'] || get_domain
@@ -69,7 +74,8 @@ class Metasploit3 < Msf::Post
 
       username = result.first[:value]
       uac = result[1][:value]
-      store_username(username, uac, domain, domain_ip)
+      lockout_time = result[2][:value]
+      store_username(username, uac, lockout_time, domain, domain_ip)
 
       results_table << row
     end
@@ -82,16 +88,15 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def parse_user_account_control(uac)
-    res = {}
-    disabled = (uac.to_i & 0x02) > 0
-    lockout = (uac.to_i & 0x10) > 0
-    res[:disabled] = disabled
-    res[:lockout] = lockout
-    res
+  def account_disabled?(uac)
+    disabled = (uac & UAC_DISABLED) > 0
   end
 
-  def store_username(username, uac, realm, domain_ip)
+  def account_locked?(lockout_time)
+    lockout_time > 0
+  end
+
+  def store_username(username, uac, lockout_time, realm, domain_ip)
     service_data = {
       address: domain_ip,
       port: 445,
@@ -114,11 +119,9 @@ class Metasploit3 < Msf::Post
     # Create the Metasploit::Credential::Core object
     credential_core = create_credential(credential_data)
 
-    user_account_control = parse_user_account_control(uac)
-
-    if user_account_control[:disabled]
+    if account_disabled?(uac.to_i)
       status = Metasploit::Model::Login::Status::DISABLED
-    elsif user_account_control[:lockout]
+    elsif account_locked?(lockout_time.to_i)
       status = Metasploit::Model::Login::Status::LOCKED_OUT
     else
       status = Metasploit::Model::Login::Status::UNTRIED
