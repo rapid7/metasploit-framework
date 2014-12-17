@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'	       => 'Windows Gather Active Directory Users',
+      'Name'         => 'Windows Gather Active Directory Users',
       'Description'  => %{
         This module will enumerate user accounts in the default Active Domain (AD) directory and stores
       them in the database.
@@ -35,15 +35,15 @@ class Metasploit3 < Msf::Post
       OptBool.new('EXCLUDE_LOCKED', [true, 'Exclude in search locked accounts..', false]),
       OptBool.new('EXCLUDE_DISABLED', [true, 'Exclude from search disabled accounts.', false]),
       OptEnum.new('UAC', [true, 'Filter on User Account Control Setting.', 'ANY',
-        [
-          'ANY',
-          'NO_PASSWORD',
-          'CHANGE_PASSWORD',
-          'NEVER_EXPIRES',
-          'SMARTCARD_REQUIRED',
-          'NEVER_LOGGEDON'
-        ]])
-      ], self.class)
+                          [
+                            'ANY',
+                            'NO_PASSWORD',
+                            'CHANGE_PASSWORD',
+                            'NEVER_EXPIRES',
+                            'SMARTCARD_REQUIRED',
+                            'NEVER_LOGGEDON'
+                          ]])
+    ], self.class)
   end
 
   def run
@@ -74,13 +74,14 @@ class Metasploit3 < Msf::Post
 
     begin
       q = query(search_filter, max_search, fields)
-      if q.nil? || q[:results].empty?
-        print_status('No results returned.')
-        return
-      end
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
+      return
+    end
+
+    if q.nil? || q[:results].empty?
+      print_status('No results returned.')
       return
     end
 
