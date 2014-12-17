@@ -39,7 +39,7 @@ The -p flag also supports "-" as a way to accept a custom payload:
 cat payload_file.bin | ./msfvenom -p - -a x86 --platform win -e x86/shikata_ga_nai -f raw
 ```
 
-This is an example of setting a custom variable for a C output:
+This is an example of setting a custom variable for a Java format output:
 
 ```
 echo AAAA | ./msfvenom -p - -a x86 --platform windows -v myVar -f java
