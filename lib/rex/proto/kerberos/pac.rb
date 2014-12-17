@@ -15,6 +15,8 @@ module Rex
         PAC_SERVER_CHECKSUM = 6
         PAC_PRIVSVR_CHECKSUM = 7
         PAC_CLIENT_INFO = 10
+
+        AD_WIN2K_PAC = 128
       end
     end
   end

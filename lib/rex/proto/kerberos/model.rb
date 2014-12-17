@@ -63,6 +63,8 @@ module Rex
 
         # From RFC-4757: The RC4-HMAC Kerberos Encryption Types Used by Microsoft Windows
         KERB_ETYPE_RC4_HMAC = 23
+
+        AD_IF_RELEVANT = 1
       end
     end
   end
@@ -77,6 +79,7 @@ require 'rex/proto/kerberos/model/pre_auth_enc_time_stamp'
 require 'rex/proto/kerberos/model/pre_auth_data'
 require 'rex/proto/kerberos/model/ap_req'
 require 'rex/proto/kerberos/model/krb_error'
+require 'rex/proto/kerberos/model/authorization_data'
 require 'rex/proto/kerberos/model/encryption_key'
 require 'rex/proto/kerberos/model/authenticator'
 require 'rex/proto/kerberos/model/ticket'
