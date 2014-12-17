@@ -31,20 +31,51 @@ class Metasploit3 < Msf::Post
     ))
 
     register_options([
-      OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false])
-    ], self.class)
+      OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
+      OptBool.new('EXCLUDE_LOCKED', [true, 'Exclude in search locked accounts..', false]),
+      OptBool.new('EXCLUDE_DISABLED', [true, 'Exclude from search disabled accounts.', false]),
+      OptEnum.new('UAC', [true, 'Filter on User Account Control Setting.', 'ANY',
+        [
+          'ANY',
+          'NO_PASSWORD',
+          'CHANGE_PASSWORD',
+          'NEVER_EXPIRES',
+          'SMARTCARD_REQUIRED',
+          'NEVER_LOGGEDON'
+        ]])
+      ], self.class)
   end
 
   def run
     fields = ['sAMAccountName', 'userAccountControl', 'lockoutTime', 'mail', 'primarygroupid', 'description']
-    search_filter = '(&(objectCategory=person)(objectClass=user))'
+    inner_filter = '(objectCategory=person)(objectClass=user)'
     max_search = datastore['MAX_SEARCH']
     domain = datastore['DOMAIN'] || get_domain
     domain_ip = client.net.resolve.resolve_host(domain)[:ip]
 
+    inner_filter = "#{inner_filter}(!(lockoutTime>=1))" if datastore['EXCLUDE_LOCKED']
+    inner_filter = "#{inner_filter}(!(userAccountControl:1.2.840.113556.1.4.803:=2))" if datastore['EXCLUDE_DISABLED']
+
+    case datastore['UAC']
+    when 'ANY'
+    when 'NO_PASSWORD'
+      inner_filter = "#{inner_filter}(userAccountControl:1.2.840.113556.1.4.803:=32)"
+    when 'CHANGE_PASSWORD'
+      inner_filter = "#{inner_filter}(!sAMAccountType=805306370)(pwdlastset=0)"
+    when 'NEVER_EXPIRES'
+      inner_filter = "#{inner_filter}(userAccountControl:1.2.840.113556.1.4.803:=65536)"
+    when 'SMARTCARD_REQUIRED'
+      inner_filter = "#{inner_filter}(userAccountControl:1.2.840.113556.1.4.803:=262144)"
+    when 'NEVER_LOGGEDON'
+      inner_filter = "#{inner_filter}(|(lastlogon=0)(!lastlogon=*))"
+    end
+
+    search_filter = "(&#{inner_filter})"
+
     begin
       q = query(search_filter, max_search, fields)
       if q.nil? || q[:results].empty?
+        print_status('No results returned.')
         return
       end
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
@@ -89,7 +120,7 @@ class Metasploit3 < Msf::Post
   end
 
   def account_disabled?(uac)
-    disabled = (uac & UAC_DISABLED) > 0
+    (uac & UAC_DISABLED) > 0
   end
 
   def account_locked?(lockout_time)
