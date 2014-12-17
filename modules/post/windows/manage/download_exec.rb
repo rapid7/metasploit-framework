@@ -79,8 +79,14 @@ class Metasploit3 < Msf::Post
     path = datastore['DOWNLOAD_PATH']
     if path.blank?
       path = session.sys.config.getenv('TEMP')
+      if path.blank?
+        fail_with(Failure::Unknown, "Unable to retrieve %TEMP%")
+      end
     else
       path = session.fs.file.expand_path(path)
+      if path.blank?
+        fail_with(Failure::Unknown, "Unable to retrieve #{path}")
+      end
     end
 
     outpath = path + '\\' + filename

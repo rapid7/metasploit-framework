@@ -146,6 +146,9 @@ puts hash.hexdigest
 
   def get_config_creds(salt)
     users = []
+    if expand_path("%AppData%").blank?
+      fail_with(Failure::Unknown, "Unable to retrieve %AppData%")
+    end
     appdatapath = expand_path("%AppData%") + "\\Skype"
     print_status ("Checking for config files in %APPDATA%")
     users = get_config_users(appdatapath)

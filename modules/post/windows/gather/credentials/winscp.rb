@@ -184,6 +184,9 @@ class Metasploit3 < Msf::Post
 
   def run
     print_status("Looking for WinSCP.ini file storage...")
+    if expand_path("%PROGRAMFILES%").blank?
+      fail_with(Failure::Unknown, "Unable to retrieve %PROGRAMFILES%")
+    end
     get_ini(expand_path("%PROGRAMFILES%\\WinSCP\\WinSCP.ini"))
     print_status("Looking for Registry Storage...")
     get_reg()
