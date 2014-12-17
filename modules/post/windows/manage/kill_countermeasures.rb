@@ -21,6 +21,8 @@ end
 
 print_status("Killing Countermeasures on the target...")
 
+#Added more Av's to list
+
 avs = %W{
   AAWTray.exe
   Ad-Aware.exe
