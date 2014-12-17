@@ -3,11 +3,6 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-#
-## Provided by: Jerome Athias
-#
-## Updated by: E-Goldstein 
-#
 
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h"  => [ false, "Help menu." ]
