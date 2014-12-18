@@ -192,6 +192,8 @@ module Rex
             res = Rex::Proto::Kerberos::Model::KrbError.decode(asn1)
           when Rex::Proto::Kerberos::Model::AS_REP
             res = Rex::Proto::Kerberos::Model::KdcResponse.decode(asn1)
+          when Rex::Proto::Kerberos::Model::TGS_REP
+            res = Rex::Proto::Kerberos::Model::KdcResponse.decode(asn1)
           else
             raise ::RuntimeError, 'Kerberos Client: Unknown response'
           end

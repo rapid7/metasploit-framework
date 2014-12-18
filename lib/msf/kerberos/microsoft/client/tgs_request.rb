@@ -27,7 +27,8 @@ module Msf
 
             subkey = Rex::Proto::Kerberos::Model::EncryptionKey.new(
               type: 23,
-              value: Rex::Text.rand_text(16)
+              #value: Rex::Text.rand_text(16)
+              value: "AAAABBBBCCCCDDDD"
             )
 
             opts.merge!({:subkey => subkey})
