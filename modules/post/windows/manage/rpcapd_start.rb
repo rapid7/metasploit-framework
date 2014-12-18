@@ -47,7 +47,11 @@ class Metasploit3 < Msf::Post
         print_status("Rpcap service found: #{serv['Name']}")
         reg=registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\Services\\rpcapd","Start")
         # TODO: check if this works on x64
-        prog=session.sys.config.getenv('ProgramFiles') << "\\winpcap\\rpcapd.exe"
+        pf = session.sys.config.getenv('ProgramFiles')
+        unless pf
+          fail_with(Failure::Unknown, "Unable to retrieve environment variable ProgramFiles")
+        end
+        prog =  "#{pf}\\winpcap\\rpcapd.exe"
         if reg != 2
           print_status("Setting rpcapd as 'auto' service")
           service_change_startup("rpcapd","auto")

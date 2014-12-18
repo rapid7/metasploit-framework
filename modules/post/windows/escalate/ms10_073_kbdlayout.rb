@@ -177,6 +177,9 @@ EOS
 
     # Create the malicious Keyboard Layout file...
     tmpdir = session.sys.config.getenv('TEMP')
+    unless tmpdir
+      fail_with(Failure::Unknown, "Unable to retrieve environment variable TEMP")
+    end
     fname = "p0wns.boom"
     dllpath = "#{tmpdir}\\#{fname}"
     fd = session.fs.file.new(dllpath, 'wb')

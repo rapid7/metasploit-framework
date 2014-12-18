@@ -160,6 +160,9 @@ class Metasploit3 < Msf::Post
   # Returns process PID
   def create_temp_proc(pay)
     windir = client.sys.config.getenv('windir')
+    unless
+      fail_with(Failure::Unknown, "Unable to retrieve environment variable windir")
+    end
     # Select path of executable to run depending the architecture
     if pay.arch.join == "x86" and client.platform =~ /x86/
       cmd = "#{windir}\\System32\\notepad.exe"

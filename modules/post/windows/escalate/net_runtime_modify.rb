@@ -42,6 +42,9 @@ class Metasploit3 < Msf::Post
     services = []
     vuln = ""
     @temp = session.sys.config.getenv('TEMP')
+    unless @temp
+      fail_with(Failure::Unknown, "Unable to retrieve environment variable TEMP")
+    end
 
     if init_railgun() == :error
       return

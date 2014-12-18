@@ -138,6 +138,9 @@ class Metasploit3 < Msf::Post
   # the MUICache registry key.
   def process_hive(sys_path, user, muicache, hive_file)
     user_home_path = expand_path(sys_path)
+    if user_home_path.blank?
+      fail_with(Failure::Unknown, "Unable to retrieve #{sys_path}")
+    end
     hive_path = user_home_path + hive_file
     ntuser_status = file_exist?(hive_path)
 

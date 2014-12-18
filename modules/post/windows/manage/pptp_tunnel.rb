@@ -78,6 +78,9 @@ class Metasploit3 < Msf::Post
 
   def create_pbk(mim,pbk_name)
     pbk_dir = expand_path("%TEMP%")
+    if pbk_dir.blank?
+      fail_with(Failure::Unknown, "Unable to retrieve %TEMP%")
+    end
     pbk_file = pbk_dir << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".pbk"
 
     conf_conn = "[#{pbk_name}]\r\n\r\n"
