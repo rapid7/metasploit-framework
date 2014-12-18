@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Post
     unless appdata
       fail_with(Failure::Unknown, "Unable to retrieve environment variable APPDATA")
     end
-    pac_file = appdata << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".pac"
+    pac_file = "#{appdata}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}.pac"
     conf_pac = ""
 
     if ::File.exists?(local_pac)

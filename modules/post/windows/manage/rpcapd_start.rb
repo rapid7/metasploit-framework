@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
         unless pf
           fail_with(Failure::Unknown, "Unable to retrieve environment variable ProgramFiles")
         end
-        prog = pf << "\\winpcap\\rpcapd.exe"
+        prog =  "#{pf}\\winpcap\\rpcapd.exe"
         if reg != 2
           print_status("Setting rpcapd as 'auto' service")
           service_change_startup("rpcapd","auto")
