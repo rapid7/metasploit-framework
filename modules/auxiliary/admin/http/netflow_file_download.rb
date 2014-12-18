@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module exploits an arbitrary file download vulnerability in CSVServlet
         on ManageEngine NetFlow Analyzer. This module has been tested on both Windows
-        and Linux with versions 8.6 to 10.2. Windows paths have to be escaped with 2
-        backslashes on the command line.
+        and Linux with versions 8.6 to 10.2. Note that when typing Windows paths, you
+        must escape the backslash with a backslash.
       },
       'Author'         =>
         [
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI',
           [ true, "The base path to NetFlow Analyzer", '/netflow' ]),
-        OptString.new('FILEPATH', [true, 'Path of the file to download (escape Windows paths with 2 back slashes)', '/etc/passwd']),
+        OptString.new('FILEPATH', [true, 'Path of the file to download', 'C:\\windows\\system.ini']),
       ], self.class)
   end
 
