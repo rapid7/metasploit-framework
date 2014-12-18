@@ -20,7 +20,7 @@ module Rex
           def encode
             encoded = ''
             encoded << encode_name_type
-            encoded << [components.length].pack('n')
+            encoded << [components.length].pack('N')
             encoded << encode_realm
             encoded << encode_components
 
@@ -31,19 +31,22 @@ module Rex
 
           def encode_name_type
             #NT_PRINCIPAL = 1
-            [name_type].pack('n')
+            [name_type].pack('N')
           end
 
           def encode_realm
-            encoded << [realm.length].pack('n')
+            encoded = ''
+            encoded << [realm.length].pack('N')
             encoded << realm
+
+            encoded
           end
 
           def encode_components
             encoded = ''
 
             components.each do |c|
-              encoded << [c.length].pack('n')
+              encoded << [c.length].pack('N')
               encoded << c
             end
 

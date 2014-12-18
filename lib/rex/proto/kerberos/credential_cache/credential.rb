@@ -35,7 +35,7 @@ module Rex
             encoded << encode_addrs
             encoded << encode_auth_data
             encoded << encode_ticket
-            encoded << second_ticket
+            encoded << encode_second_ticket
           end
 
           private

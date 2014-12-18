@@ -2,17 +2,14 @@ module Rex
   module Proto
     module Kerberos
       module CredentialCache
-=begin
-ccache {
-          uint16_t file_format_version; /* 0x0504 */
-          uint16_t headerlen;           /* only if version is 0x0504 */
-          header headers[];             /* only if version is 0x0504 */
-          principal primary_principal;
-          credential credentials[*];
-};
-=end
         class Cache < Element
+          # Fixnum
+          attr_accessor :version
+          # Array
+          attr_accessor :headers
+          # Principal
           attr_accessor :primary_principal
+          # Array
           attr_accessor :credentials
 
           def encode
@@ -26,14 +23,19 @@ ccache {
           private
 
           def encode_version
-            [0x0504].pack('n')
+            [version].pack('n')
           end
 
           def encode_headers
-            header = "\x00\x01\x00\x08\xff\xff\xff\xff\x00\x00\x00\x00"
+            headers_encoded = ''
+            headers_encoded << [headers.length].pack('n')
+            headers.each do |h|
+              headers_encoded << h
+            end
+
             encoded = ''
-            encoded << [header.length].pack('n')
-            encoded << header
+            encoded << [headers_encoded.length].pack('n')
+            encoded << headers_encoded
 
             encoded
           end
