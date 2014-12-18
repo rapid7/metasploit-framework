@@ -9,11 +9,13 @@ module Msf
         require 'msf/kerberos/microsoft/client/as_request'
         require 'msf/kerberos/microsoft/client/as_response'
         require 'msf/kerberos/microsoft/client/tgs_request'
+        require 'msf/kerberos/microsoft/client/cache_credential'
 
         include Msf::Kerberos::Microsoft::Client::Base
         include Msf::Kerberos::Microsoft::Client::AsRequest
         include Msf::Kerberos::Microsoft::Client::AsResponse
         include Msf::Kerberos::Microsoft::Client::TgsRequest
+        include Msf::Kerberos::Microsoft::Client::CacheCredential
 
         # @!attribute client
         #   @return [Rex::Proto::Kerberos::Client] The kerberos client
