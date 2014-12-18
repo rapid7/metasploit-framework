@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Microsoft SQL Server SUSER_SNAME Windows Domain Account Enumeration',
       'Description' => %q{
-        This module can be used to brute force RIDs associated with the domain of the SQL Server
+        This module can be used to bruteforce RIDs associated with the domain of the SQL Server
         using the SUSER_SNAME function. This is similar to the smb_lookupsid module, but executed
         through SQL Server queries as any user with the PUBLIC role (everyone). Information that
         can be enumerated includes Windows domain users, groups, and computer accounts. Enumerated

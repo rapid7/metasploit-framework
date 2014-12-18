@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data', 5]),
     ], self.class)
 
-    deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE', 'UDP_SECRET', 'GATEWAY', 'NETMASK')
+    deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE', 'SECRET', 'GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT')
   end
 
   def run_batch_size

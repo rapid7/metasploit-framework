@@ -109,10 +109,13 @@ class EncodedPayload
     if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
       encoders = pinst.compatible_encoders
 
-      # Fix encoding issue
+      # Make sure the encoder name from the user has the same String#encoding
+      # as the framework's list of encoder names so we can compare them later.
+      # This is important for when we get input from RPC.
       if reqs['Encoder']
         reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
       end
+
       # If the caller had a preferred encoder, use this encoder only
       if ((reqs['Encoder']) and (preferred = framework.encoders[reqs['Encoder']]))
         encoders = [ [reqs['Encoder'], preferred] ]
@@ -164,7 +167,7 @@ class EncodedPayload
         if (reqs['ForceSaveRegisters'] and
             reqs['EncoderOptions'] and
             (reqs['EncoderOptions']['SaveRegisters'].to_s.length > 0) and
-            (! self.encoder.preserves_registers?))
+            (! self.encoder.can_preserve_registers?))
           wlog("#{pinst.refname}: Encoder #{encoder.refname} does not preserve registers and the caller needs #{reqs['EncoderOptions']['SaveRegisters']} preserved.",
             'core', LEV_1)
           next
@@ -236,6 +239,7 @@ class EncodedPayload
         self.encoded = eout
         break
       }
+
       # If the encoded payload is nil, raise an exception saying that we
       # suck at life.
       if (self.encoded == nil)

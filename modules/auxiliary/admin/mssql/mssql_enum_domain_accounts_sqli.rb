@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -13,9 +13,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Microsoft SQL Server - SQLi SUSER_SNAME Domain Account Enumeration',
+      'Name'        => 'Microsoft SQL Server SQLi SUSER_SNAME Windows Domain Account Enumeration',
       'Description' => %q{
-        This module can be used to brute force RIDs associated with the domain of the SQL Server
+        This module can be used to bruteforce RIDs associated with the domain of the SQL Server
         using the SUSER_SNAME function via Error Based SQL injection. This is similar to the
         smb_lookupsid module, but executed through SQL Server queries as any user with the PUBLIC
         role (everyone). Information that can be enumerated includes Windows domain users, groups,

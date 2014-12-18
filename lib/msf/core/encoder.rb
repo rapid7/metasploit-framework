@@ -416,7 +416,7 @@ class Encoder < Module
   #
   # Determines whether the encoder can preserve registers at all
   #
-  def preserves_registers?
+  def can_preserve_registers?
     false
   end
 

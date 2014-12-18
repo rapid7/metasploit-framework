@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_login(user, pass, nsock=self.sock)
     nsock.put("USER #{user}\r\n")
-    res = nsock.get_once
+    res = nsock.get_once || ''
     unless res.start_with? "331"
       ret_msg = "Unexpected reply to the USER command: #{res}"
       return ret_msg

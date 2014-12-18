@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -26,7 +26,6 @@ class Metasploit3 < Msf::Post
     'company',
     'streetAddress',
     'sAMAccountName',
-    'userAccountControl',
     'comment',
     'description'
   ]
@@ -37,7 +36,7 @@ class Metasploit3 < Msf::Post
       'Description'  => %q{
         This module will gather information from the default Active Domain (AD) directory
         and use these words to seed a wordlist. By default it enumerates user accounts to
-        build the wordlist
+        build the wordlist.
       },
       'License'      => MSF_LICENSE,
       'Author'       => ['Thomas Ring'],
@@ -69,7 +68,7 @@ class Metasploit3 < Msf::Post
     @words_dict = {}
     q[:results].each do |result|
       result.each do |field|
-        search_words(field)
+        search_words(field[:value])
       end # result.each
     end # q.each
 
