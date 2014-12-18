@@ -6,6 +6,8 @@ module Rex
       module Model
         class AuthorizationData < Element
 
+          include Rex::Proto::Kerberos::Crypto::Rc4Hmac
+
           # @!attribute elements
           #   @return [Hash{Symbol => <Fixnum, String>}] The type of the authorization data
           #   @option [Fixnum] :type
@@ -34,6 +36,26 @@ module Rex
 
             seq.to_der
           end
+
+          # Encrypts the Rex::Proto::Kerberos::Model::AuthorizationData
+          #
+          # @param etype [Fixnum] the crypto schema to encrypt
+          # @param key [String] the key to encrypt
+          # @return [String] the encrypted result
+          def encrypt(etype, key)
+            data = self.encode
+
+            res = ''
+            case etype
+            when KERB_ETYPE_RC4_HMAC
+              res = encrypt_rc4_hmac(data, key, 5)
+            else
+              raise ::RuntimeError, 'EncryptedData schema is not supported'
+            end
+
+            res
+          end
+
 
           private
 

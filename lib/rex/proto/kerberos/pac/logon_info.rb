@@ -26,7 +26,7 @@ module Rex
           #   @return [String] The netbios name of the client's domain
           attr_accessor :logon_domain_name
           # @!attribute logon_domain_sid
-          #   @return [Fixnum] The SID of the client's domain
+          #   @return [String] The SID of the client's domain
           attr_accessor :logon_domain_id
 
           # Encodes the Rex::Proto::Kerberos::Pac::LogonInfo

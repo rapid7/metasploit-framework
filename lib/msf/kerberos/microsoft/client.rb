@@ -7,10 +7,12 @@ module Msf
       module Client
         require 'msf/kerberos/microsoft/client/base'
         require 'msf/kerberos/microsoft/client/as_request'
+        require 'msf/kerberos/microsoft/client/as_response'
         require 'msf/kerberos/microsoft/client/tgs_request'
 
         include Msf::Kerberos::Microsoft::Client::Base
         include Msf::Kerberos::Microsoft::Client::AsRequest
+        include Msf::Kerberos::Microsoft::Client::AsResponse
         include Msf::Kerberos::Microsoft::Client::TgsRequest
 
         # @!attribute client
@@ -105,7 +107,7 @@ module Msf
         # Sends a kerberos AS request and reads the response
         # @param opts [Hash]
         # @return [Rex::Proto::Kerberos::Model::KdcResponse]
-        def send_request_tgs
+        def send_request_tgs(opts = {})
           connect(opts)
           req = build_tgs_request(opts)
           res = client.send_recv(req)

@@ -5,6 +5,9 @@ module Rex
     module Kerberos
       module Model
         class KdcRequestBody < Element
+
+          include Rex::Proto::Kerberos::Crypto::RsaMd5
+
           # @!attribute options
           #   @return [Fixnum] The ticket flags
           attr_accessor :options
@@ -74,6 +77,24 @@ module Rex
             seq = OpenSSL::ASN1::Sequence.new(elems)
 
             seq.to_der
+          end
+
+          # Makes a checksum from the Rex::Proto::Kerberos::Model::KdcRequestBody
+          #
+          # @param etype [Fixnum] the crypto schema to checksum
+          # @return [String] the checksum
+          def checksum(etype)
+            data = self.encode
+
+            res = ''
+            case etype
+            when RSA_MD5
+              res = checksum_rsa_md5(data)
+            else
+              raise ::RuntimeError, 'EncryptedData schema is not supported'
+            end
+
+            res
           end
 
           private

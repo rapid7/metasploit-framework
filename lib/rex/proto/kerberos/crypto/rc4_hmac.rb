@@ -17,12 +17,13 @@ module Rex
               raise ::RuntimeError, 'RC4-HMAC decryption failed'
             end
 
-            my_key = OpenSSL::Digest.digest('MD4', Rex::Text.to_unicode(key))
+            #my_key = OpenSSL::Digest.digest('MD4', Rex::Text.to_unicode(key))
 
             checksum = cipher[0, 16]
             data = cipher[16, cipher.length - 1]
 
-            k1 = OpenSSL::HMAC.digest('MD5', my_key, [msg_type].pack('V'))
+            #k1 = OpenSSL::HMAC.digest('MD5', my_key, [msg_type].pack('V'))
+            k1 = OpenSSL::HMAC.digest('MD5', key, [msg_type].pack('V'))
             k3 = OpenSSL::HMAC.digest('MD5', k1, checksum)
 
             cipher = OpenSSL::Cipher::Cipher.new('rc4')
@@ -44,10 +45,13 @@ module Rex
           # @param msg_type [Fixnum] the message type
           # @return [String] the encrypted data
           def encrypt_rc4_hmac(data, key, msg_type)
-            my_key = OpenSSL::Digest.digest('MD4', Rex::Text.to_unicode(key))
-            k1 = OpenSSL::HMAC.digest('MD5', my_key, [msg_type].pack('V'))
+            #my_key = OpenSSL::Digest.digest('MD4', Rex::Text.to_unicode(key))
+            k1 = OpenSSL::HMAC.digest('MD5', key, [msg_type].pack('V'))
+
             data_encrypt = Rex::Text::rand_text(8) + data
+            #data_encrypt = "\x92\xc9\x72\xcf\xe3\x51\xcc\xbf" + data
             checksum = OpenSSL::HMAC.digest('MD5', k1, data_encrypt)
+
             k3 = OpenSSL::HMAC.digest('MD5', k1, checksum)
 
             cipher = OpenSSL::Cipher::Cipher.new('rc4')
@@ -56,7 +60,6 @@ module Rex
             encrypted = cipher.update(data_encrypt) + cipher.final
 
             res = checksum + encrypted
-
             res
           end
         end

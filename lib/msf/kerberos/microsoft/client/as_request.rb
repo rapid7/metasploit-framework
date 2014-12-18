@@ -22,9 +22,9 @@ module Msf
           # @return [Rex::Proto::Kerberos::Model::KdcRequest]
           def build_as_request(opts = {})
             options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
-            from = opts[:from] || Time.new('1970-01-01-01 00:00:00')
-            till = opts[:till] || Time.new('1970-01-01-01 00:00:00')
-            rtime = opts[:rtime] || Time.new('1970-01-01-01 00:00:00')
+            from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
+            till = opts[:till] || Time.utc('1970-01-01-01 00:00:00')
+            rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
             nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
             etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
             pa_data = opts[:pa_data] || build_as_pa_data(opts)
@@ -97,22 +97,6 @@ module Msf
             )
 
             pa_enc_time_stamp
-          end
-
-          # Builds a kerberos PA-PAC-REQUEST pre authenticated structure
-          #
-          # @param opts [Hash{Symbol => Boolean}]
-          # @option opts [Boolean] :pac_request_value
-          # @return [Rex::Proto::Kerberos::Model::Field::PreAuthData]
-          def build_pa_pac_request(opts = {})
-            value = opts[:pac_request_value] || false
-            pac_request = Rex::Proto::Kerberos::Model::PreAuthPacRequest.new(value: value)
-            pa_pac_request = Rex::Proto::Kerberos::Model::PreAuthData.new(
-                type: Rex::Proto::Kerberos::Model::PA_PAC_REQUEST,
-                value: pac_request.encode
-            )
-
-            pa_pac_request
           end
         end
       end

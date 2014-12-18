@@ -8,9 +8,9 @@ module Msf
         module TgsRequest
           def build_tgs_request(opts = {})
             options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
-            from = opts[:from] || Time.new('1970-01-01-01 00:00:00')
-            till = opts[:till] || Time.new('1970-01-01-01 00:00:00')
-            rtime = opts[:rtime] || Time.new('1970-01-01-01 00:00:00')
+            from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
+            till = opts[:till] || Time.utc('1970-01-01-01 00:00:00')
+            rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
             nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
             etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
             cname = build_client_name(opts)
@@ -19,9 +19,20 @@ module Msf
 
             pac = build_pac(opts)
 
-            opts.merge({:pac => pac})
+            opts.merge!({:pac => pac.encode})
 
-            build_authorization_data(opts)
+            auth_data = build_authorization_data(opts)
+
+            opts.merge!({:auth_data => auth_data})
+
+            subkey = Rex::Proto::Kerberos::Model::EncryptionKey.new(
+              type: 23,
+              value: Rex::Text.rand_text(16)
+            )
+
+            opts.merge!({:subkey => subkey})
+
+            enc_auth_data = build_enc_auth_data(opts)
 
             body = Rex::Proto::Kerberos::Model::KdcRequestBody.new(
               options: options,
@@ -32,8 +43,22 @@ module Msf
               till: till,
               rtime: rtime,
               nonce: nonce,
-              etype: etype
+              etype: etype,
+              enc_auth_data: enc_auth_data
             )
+
+            checksum_body = body.checksum(7)
+            checksum = Rex::Proto::Kerberos::Model::Checksum.new(
+              type: 7,
+              checksum: checksum_body
+            )
+            opts.merge!({:checksum => checksum})
+
+            # Finally authenticator and pa_data
+
+            authenticator = build_authenticator(opts)
+
+            opts.merge!({:authenticator => authenticator})
 
             pa_data = opts[:pa_data] || build_tgs_pa_data(opts)
 
@@ -47,19 +72,34 @@ module Msf
             request
           end
 
-          def build_authorization_data(opts)
-=begin
-        ad1 = AuthorizationData()
-        ad1[0] = None
-        ad1[0]['ad-type'] = authorization_data[0]
-        ad1[0]['ad-data'] = authorization_data[1]
-        ad = AuthorizationData()
-        ad[0] = None
-        ad[0]['ad-type'] = AD_IF_RELEVANT
-        ad[0]['ad-data'] = encode(ad1)
-        enc_ad = (subkey[0], encrypt(subkey[0], subkey[1], 5, encode(ad)))
-=end
+          def build_enc_auth_data(opts)
+            auth_data = opts[:auth_data]
+            key = opts[:subkey].value #|| ''
+            etype = opts[:subkey].type #|| Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC
+
+            encrypted = auth_data.encrypt(etype, key)
+
+            e_data = Rex::Proto::Kerberos::Model::EncryptedData.new(
+              etype: etype,
+              cipher: encrypted
+            )
+
+            e_data
           end
+
+          def build_authorization_data(opts)
+            pac = opts[:pac] || ''
+
+            pac_auth_data = Rex::Proto::Kerberos::Model::AuthorizationData.new(
+                elements: [{:type => Rex::Proto::Kerberos::Pac::AD_WIN2K_PAC, :data => pac}]
+            )
+            authorization_data = Rex::Proto::Kerberos::Model::AuthorizationData.new(
+                elements: [{:type => Rex::Proto::Kerberos::Model::AD_IF_RELEVANT, :data => pac_auth_data.encode}]
+            )
+
+            authorization_data
+          end
+
 
           def build_pac(opts)
             user_name = opts[:cname] || ''
@@ -67,8 +107,11 @@ module Msf
             primary_group_id = opts[:group_id] || 513
             group_ids = opts[:group_ids] || [513]
             domain_name = opts[:realm] || ''
-            domain_id = opts[:doman_id] || ''
-            logon_time = opts[:logon_time] || Time.now
+            domain_id = opts[:domain_id] || ''
+            logon_time = opts[:logon_time]
+            if logon_time.nil?
+              raise ::RuntimeError, 'logon_time not set on build pac'
+            end
             checksum_type = opts[:checksum_type] || Rex::Proto::Kerberos::Crypto::RsaMd5::RSA_MD5
 
             logon_info = Rex::Proto::Kerberos::Pac::LogonInfo.new(
@@ -120,23 +163,13 @@ module Msf
             pa_data
           end
 
-          # Builds a kerberos AP-REQ inside a pre authenticated structure
-          #
-          # @param opts[Hash]
-          # @option opts [Fixnum] :pvno
-          # @option opts [Fixnum] :msg_type
-          # @option opts [Fixnum] :ap_req_options
-          # @option opts [Rex::Proto::Kerberos::Model::Ticket] :ticket
-          # @option opts [Rex::Proto::Kerberos::Model::Authenticator] :authenticator
-          # @return [Rex::Proto::Kerberos::Model::PreAuthData]
-          #authenticator = build_authenticator(user_realm, user_name, chksum, subkey, current_time)#, ad)
-
           def build_pa_tgs_req(opts = {})
             pvno = opts[:pvno] || Rex::Proto::Kerberos::Model::VERSION
             msg_type = opts[:msg_type] || Rex::Proto::Kerberos::Model::AP_REQ
             options = opts[:ap_req_options] || 0
             ticket = opts[:ticket]
-            authenticator = opts[:authenticator] || build_authenticator(opts)
+            authenticator = opts[:authenticator]
+            session_key = opts[:session_key]
 
             if ticket.nil?
               raise ::RuntimeError, 'Building a AP-REQ without ticket not supported'
@@ -146,12 +179,17 @@ module Msf
               raise ::RuntimeError, 'Building an AP-REQ without authenticator not supporeted'
             end
 
+            enc_authenticator = Rex::Proto::Kerberos::Model::EncryptedData.new(
+              etype: session_key.type,
+              cipher: authenticator.encrypt(session_key.type, session_key.value)
+            )
+
             ap_req = Rex::Proto::Kerberos::Model::ApReq.new(
               pvno: pvno,
               msg_type: msg_type,
               options: options,
               ticket: ticket,
-              authenticator: authenticator
+              authenticator: enc_authenticator
             )
 
             pa_tgs_req = Rex::Proto::Kerberos::Model::PreAuthData.new(
@@ -167,6 +205,11 @@ module Msf
             realm = opts[:realm] || ''
             ctime = opts[:ctime] || Time.now
             cusec = opts[:cusec] || ctime.usec
+            checksum = opts[:checksum] || ''
+            subkey = opts[:subkey]
+
+            puts "#{checksum.class}"
+            puts "#{checksum.inspect}"
 
             Rex::Proto::Kerberos::Model::Authenticator.new(
               vno: 5,
@@ -175,7 +218,7 @@ module Msf
               checksum: checksum,
               cusec: cusec,
               ctime: ctime,
-              subkey: enc_key
+              subkey: subkey
             )
           end
         end
