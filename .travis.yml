@@ -1,14 +1,14 @@
+bundler_args: --without development coverage
 env:
-  - RAKE_TASK=cucumber
-# Commenting out the boot tests due to chronic timeouts.
-#  - RAKE_TASK=cucumber:boot
-  - RAKE_TASK=spec SPEC_OPTS="--tag content"
-  - RAKE_TASK=spec SPEC_OPTS="--tag ~content"
+  - RAKE_TASKS="cucumber cucumber:boot"
+  - RAKE_TASKS=spec SPEC_OPTS="--tag content"
+  - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
 
 language: ruby
 matrix:
   fast_finish: true
 before_install:
+  - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpcap-dev
@@ -25,7 +25,7 @@ before_script:
   - bundle exec rake db:migrate
 script:
   # fail build if db/schema.rb update is not committed
-  - git diff --exit-code && bundle exec rake $RAKE_TASK
+  - git diff --exit-code && bundle exec rake $RAKE_TASKS
 
 rvm:
   - '1.9.3'

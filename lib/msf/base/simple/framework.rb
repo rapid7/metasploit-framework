@@ -62,21 +62,29 @@ module Framework
       Msf::MODULE_POST    => Msf::Simple::Post,
     }
 
-  #
   # Create a simplified instance of the framework.  This routine takes a hash
   # of parameters as an argument.  This hash can contain:
   #
-  #   OnCreateProc => A callback procedure that is called once the framework
-  #   instance is created.
-  #
+  # @param opts [Hash{String => Object}]
+  # @option opts (see simplify)
+  # @return [Msf::Simple::Frameworkt s]
   def self.create(opts = {})
     framework = Msf::Framework.new(opts)
     return simplify(framework, opts)
   end
 
+  # @note If `opts['ConfigDirectory']` is set, then `Msf::Config::Defaults['ConfigDirectory']` will be updated to
+  #   `opts['ConfigDirectory']`.
   #
   # Extends a framework object that may already exist.
   #
+  # @param framework [Msf::Framework, Msf::Simple::Framework] framework to simplify
+  # @param opts [Hash{String => Object}]
+  # @option opts [#call] 'OnCreateProc' Proc to call after {#init_simplified}.  Will be passed `framework`.
+  # @option opts [String] 'ConfigDirectory'  Directory where configuration is saved.  The `~/.msf4` directory.
+  # @option opts [Boolean] 'DisableLogging' (false) `true` to disable `Msf::Logging.init`
+  # @option opts [Boolean] 'DeferModuleLoads' (false) `true` to disable `framework.init_module_paths`.
+  # @return [Msf::Simple::Framework] `framework`
   def self.simplify(framework, opts)
 
     # If the framework instance has not already been extended, do it now.

@@ -61,7 +61,7 @@ class Driver < Msf::Ui::Driver
     # Initialize attributes
 
     # Defer loading of modules until paths from opts can be added below
-    framework_create_options = {'DeferModuleLoads' => true}.merge(opts)
+    framework_create_options = opts.merge('DeferModuleLoads' => true)
     self.framework = opts['Framework'] || Msf::Simple::Framework.create(framework_create_options)
 
     if self.framework.datastore['Prompt']
@@ -187,10 +187,12 @@ class Driver < Msf::Ui::Driver
       # framework.db.active will be true if after_establish_connection ran directly when connection_established? was
       # already true or if framework.db.connect called after_establish_connection.
       if framework.db.active
-        self.framework.modules.refresh_cache_from_database
+        unless opts['DeferModuleLoads']
+          self.framework.modules.refresh_cache_from_database
 
-        if self.framework.modules.cache_empty?
-          print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
+          if self.framework.modules.cache_empty?
+            print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
+          end
         end
       elsif !framework.db.error.nil?
         if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
@@ -212,8 +214,8 @@ class Driver < Msf::Ui::Driver
       end
     end
 
-    # Initialize the module paths only if we didn't get passed a Framework instance
-    unless opts['Framework']
+    # Initialize the module paths only if we didn't get passed a Framework instance and 'DeferModuleLoads' is false
+    unless opts['Framework'] || opts['DeferModuleLoads']
       # Configure the framework module paths
       self.framework.init_module_paths
       self.framework.modules.add_module_path(opts['ModulePath']) if opts['ModulePath']
