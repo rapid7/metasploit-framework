@@ -2,21 +2,21 @@ module Rex
   module Proto
     module Kerberos
       module CredentialCache
-=begin
-          uint32_t name_type;           /* not present if version 0x0501 */
-          uint32_t num_components;      /* sub 1 if version 0x501 */
-          counted_octet_string realm;
-          counted_octet_string components[num_components];
-=end
+        # This class provides a representation of a Principal stored in the Kerberos Credential Cache.
         class Principal < Element
-          # Fixnum
+          # @!attribute name_type
+          #   @return [Fixnum]
           attr_accessor :name_type
-          # String
+          # @!attribute realm
+          #   @return [String]
           attr_accessor :realm
-          # Array<String>
+          # @!attribute components
+          #   @return [Array<String>]
           attr_accessor :components
 
-
+          # Encodes the Rex::Proto::Kerberos::CredentialCache::Principal into an String
+          #
+          # @return [String] encoded principal
           def encode
             encoded = ''
             encoded << encode_name_type
@@ -29,11 +29,16 @@ module Rex
 
           private
 
+          # Encodes the name_type field
+          #
+          # @return [String]
           def encode_name_type
-            #NT_PRINCIPAL = 1
             [name_type].pack('N')
           end
 
+          # Encodes the realm field
+          #
+          # @return [String]
           def encode_realm
             encoded = ''
             encoded << [realm.length].pack('N')
@@ -42,6 +47,9 @@ module Rex
             encoded
           end
 
+          # Encodes the components field
+          #
+          # @return [String]
           def encode_components
             encoded = ''
 

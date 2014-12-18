@@ -2,28 +2,42 @@ module Rex
   module Proto
     module Kerberos
       module CredentialCache
+        # This class provides a representation of a Credential stored in the Kerberos Credential Cache.
         class Credential < Element
-          # Principal
+          # @!attribute client
+          #   @return [Rex::Proto::Kerberos::CredentialCache::Principal]
           attr_accessor :client
-          # Principal
+          # @!attribute server
+          #   @return [Rex::Proto::Kerberos::CredentialCache::Principal]
           attr_accessor :server
-          # KeyBlock
+          # @!attribute key
+          #   @return [Rex::Proto::Kerberos::CredentialCache::KeyBlock]
           attr_accessor :key
-          # Time
+          # @!attribute time
+          #   @return [Rex::Proto::Kerberos::CredentialCache::Time]
           attr_accessor :time
-          # Fixnum
+          # @!attribute is_skey
+          #   @return [Fixnum]
           attr_accessor :is_skey
-          # Fixnum
+          # @!attribute tkt_flags
+          #   @return [Fixnum]
           attr_accessor :tkt_flags
-          # Array
+          # @!attribute addrs
+          #   @return [Array]
           attr_accessor :addrs
-          # Array
+          # @!attribute auth_data
+          #   @return [Array]
           attr_accessor :auth_data
-          # String
+          # @!attribute ticket
+          #   @return [String]
           attr_accessor :ticket
-          # String
+          # @!attribute second_ticket
+          #   @return [String]
           attr_accessor :second_ticket
 
+          # Encodes the Rex::Proto::Kerberos::CredentialCache::Credential into an String
+          #
+          # @return [String] encoded credential
           def encode
             encoded = ''
             encoded << encode_client
@@ -40,30 +54,51 @@ module Rex
 
           private
 
+          # Encodes the client field
+          #
+          # @return [String]
           def encode_client
             client.encode
           end
 
+          # Encodes the server field
+          #
+          # @return [String]
           def encode_server
             server.encode
           end
 
+          # Encodes the key field
+          #
+          # @return [String]
           def encode_key
             key.encode
           end
 
+          # Encodes the time field
+          #
+          # @return [String]
           def encode_time
             time.encode
           end
 
+          # Encodes the is_skey field
+          #
+          # @return [String]
           def encode_is_skey
             [is_skey].pack('C')
           end
 
+          # Encodes the tkt_flags field
+          #
+          # @return [String]
           def encode_tkt_flags
             [tkt_flags].pack('N')
           end
 
+          # Encodes the addrs field
+          #
+          # @return [String]
           def encode_addrs
             encoded = ''
             if addrs.length > 0
@@ -73,6 +108,9 @@ module Rex
             encoded
           end
 
+          # Encodes the auth_data field
+          #
+          # @return [String]
           def encode_auth_data
             encoded = ''
             if auth_data.length > 0
@@ -82,6 +120,9 @@ module Rex
             encoded
           end
 
+          # Encodes the ticket field
+          #
+          # @return [String]
           def encode_ticket
             encoded = ''
             encoded << [ticket.length].pack('N')
@@ -90,6 +131,9 @@ module Rex
             encoded
           end
 
+          # Encodes the second_ticket field
+          #
+          # @return [String]
           def encode_second_ticket
             encoded = ''
             encoded << [second_ticket.length].pack('N')

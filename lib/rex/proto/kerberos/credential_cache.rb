@@ -4,6 +4,7 @@ module Rex
   module Proto
     module Kerberos
       module CredentialCache
+        VERSION = 0x0504
       end
     end
   end

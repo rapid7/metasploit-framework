@@ -2,14 +2,22 @@ module Rex
   module Proto
     module Kerberos
       module CredentialCache
+
+        # This class provides a representation of a credential keys stored in the Kerberos Credential Cache.
         class KeyBlock < Element
-          #Fixnum
+          # @!attribute key_type
+          #   @return [Fixnum]
           attr_accessor :key_type
-          # Fixnum
+          # @!attribute e_type
+          #   @return [Fixnum]
           attr_accessor :e_type
-          # String
+          # @!attribute key_value
+          #   @return [String]
           attr_accessor :key_value
 
+          # Encodes the Rex::Proto::Kerberos::CredentialCache::KeyBlock into an String
+          #
+          # @return [String] encoded key
           def encode
             encoded = ''
             encoded << encode_key_type
@@ -21,14 +29,23 @@ module Rex
 
           private
 
+          # Encodes the key_type field
+          #
+          # @return [String]
           def encode_key_type
             [key_type].pack('n')
           end
 
+          # Encodes the e_type field
+          #
+          # @return [String]
           def encode_e_type
             [e_type].pack('n')
           end
 
+          # Encodes the key_value field
+          #
+          # @return [String]
           def encode_key_value
             encoded = ''
             encoded << [key_value.length].pack('n')

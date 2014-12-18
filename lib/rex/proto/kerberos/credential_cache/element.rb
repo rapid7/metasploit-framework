@@ -9,10 +9,12 @@ module Rex
             super(*vars)
           end
 
+          # Retrieves the element class fields
+          #
+          # @return [Array]
           def self.attributes
             @attributes
           end
-
 
           def initialize(options = {})
             self.class.attributes.each do |attr|
@@ -23,10 +25,16 @@ module Rex
             end
           end
 
+          # Retrieves the element instance fields
+          #
+          # @return [Array]
           def attributes
             self.class.attributes
           end
 
+          # Encodes the Rex::Proto::Kerberos::CredentialCache::Element into an String
+          #
+          # @return [String]
           def encode
             ''
           end
