@@ -26,8 +26,6 @@ module Rex
         attr_accessor :context
 
         def initialize(opts = {})
-          puts "rex"
-          pp opts
           self.host = opts[:host]
           self.port     = (opts[:port] || 88).to_i
           self.timeout  = (opts[:timeout] || 10).to_i

@@ -42,7 +42,6 @@ include Msf::Kerberos::Microsoft::Client
 		connect(:rhost => datastore['RHOST'])
     print_status("Sending AS-REQ...")
 		res = send_request_as(opts)
-		print_status("#{res.inspect}")
 
     unless res.msg_type == 11
       print_error("invalid response :(")
