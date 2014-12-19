@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     metasploit-framework (4.11.0.pre.dev)
-      actionpack (< 4.0.0)
-      activesupport (>= 3.0.0, < 4.0.0)
+      actionpack (>= 3.2.21, < 4.0.0)
+      activesupport (>= 3.2.21, < 4.0.0)
       bcrypt
       jsobfu (~> 0.2.0)
       json
@@ -21,7 +21,7 @@ PATH
       sqlite3
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
-      activerecord (< 4.0.0)
+      activerecord (>= 3.2.21, < 4.0.0)
       metasploit-credential (~> 0.13.8)
       metasploit-framework (= 4.11.0.pre.dev)
       metasploit_data_models (~> 0.21.1)

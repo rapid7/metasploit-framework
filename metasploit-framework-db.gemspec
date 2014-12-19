@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   # no files, just dependencies
   spec.files         = []
 
-  spec.add_runtime_dependency 'activerecord', Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
+  spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Metasploit::Credential database models
   spec.add_runtime_dependency 'metasploit-credential', '~> 0.13.8'
   # Database models shared between framework and Pro.
