@@ -33,6 +33,8 @@ class Metasploit3 < Msf::Auxiliary
       'PassiveActions' => [ 'WebServer' ],
       'References' =>
         [
+          # the patch, released against 4.3 AOSP in February 2014
+          ['URL', 'https://android.googlesource.com/platform/packages/apps/Browser/+/d2391b492dec778452238bc6d9d549d56d41c107%5E%21/#F0']
         ],
       'DefaultAction'  => 'WebServer'
     ))
