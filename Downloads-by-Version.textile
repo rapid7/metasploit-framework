@@ -90,6 +90,8 @@ h1. Metasploit Combined Installers
 h1. Metasploit Framework Source
 
 |Download Link|File Type|SHA1|PGP|
+
+| "framework-4.11.0.tar.bz2":http://downloads.metasploit.com/data/releases/framework-latest.tar.bz2 | Source Code | "SHA1":http://downloads.metasploit.com/data/releases/framework-latest.tar.bz2.sha1 | "PGP":http://downloads.metasploit.com/data/releases/framework-latest.tar.bz2.asc|
 | "framework-4.10.0.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.10.0.tar.bz2 | Source Code | "SHA1":http://downloads.metasploit.com/data/releases/archive/framework-4.10.0.tar.bz2.sha1 | "PGP":http://downloads.metasploit.com/data/releases/archive/framework-4.10.0.tar.bz2.asc|
 | "framework-4.9.3.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.9.3.tar.bz2 | Source Code | "SHA1":http://downloads.metasploit.com/data/releases/archive/framework-4.9.3.tar.bz2.sha1 | "PGP":http://downloads.metasploit.com/data/releases/archive/framework-4.9.3.tar.bz2.asc|
 | "framework-4.9.2.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.9.2.tar.bz2 | Source Code | "SHA1":http://downloads.metasploit.com/data/releases/archive/framework-4.9.2.tar.bz2.sha1 | "PGP":http://downloads.metasploit.com/data/releases/archive/framework-4.9.2.tar.bz2.asc|
