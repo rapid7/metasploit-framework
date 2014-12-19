@@ -12,6 +12,7 @@ end
 
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
+require 'metasploit/framework/rails_version_constraint'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
@@ -46,13 +47,11 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  # The Metasploit ecosystem is not ready for Rails 4 as it uses features of Rails 3.X that are removed in Rails 4.
-  rails_version_constraint = '< 4.0.0'
 
   # Need 3+ for ActiveSupport::Concern
-  spec.add_runtime_dependency 'activesupport', '>= 3.0.0', rails_version_constraint
+  spec.add_runtime_dependency 'activesupport', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for config.action_view for view plugin compatibility for Pro
-  spec.add_runtime_dependency 'actionpack', rails_version_constraint
+  spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
