@@ -4,6 +4,7 @@ module Rex
   module Proto
     module Kerberos
       module Pac
+        # @todo Make more fields user controllable, instead of constants.
         # This class provides a representation of a PAC_LOGON_INFO structure, which contains the
         # credential information for the client of the Kerberos ticket.
         class LogonInfo < Element
