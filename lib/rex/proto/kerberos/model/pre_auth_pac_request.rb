@@ -4,8 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # This class is a representation of a KERB-PA-PAC-REQUEST, it explicitly request
-        # to include or exclude a PAC in the ticket.
+        # This class is a representation of a KERB-PA-PAC-REQUEST, pre authenticated data to
+        # explicitly request to include or exclude a PAC in the ticket.
         class PreAuthPacRequest < Element
 
           # @!attribute value
@@ -24,7 +24,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode PreAuthData, invalid input'
+              raise ::RuntimeError, 'Failed to decode PreAuthPacRequest, invalid input'
             end
 
             self

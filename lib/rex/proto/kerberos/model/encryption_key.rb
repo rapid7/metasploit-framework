@@ -4,7 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # This class provides a representation of an Encryption Key
+        # This class provides a representation of a Kerberos EncryptionKey data
+        # definition
         class EncryptionKey < Element
 
           # @!attribute key
@@ -26,7 +27,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode Encryption Key, invalid input'
+              raise ::RuntimeError, 'Failed to decode EncryptionKey, invalid input'
             end
 
             self

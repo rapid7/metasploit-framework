@@ -4,6 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation of a Kerberos KDC-REQ-BODY (request body) data
+        # definition
         class KdcRequestBody < Element
 
           include Rex::Proto::Kerberos::Crypto::RsaMd5

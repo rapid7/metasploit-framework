@@ -4,6 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation for Kerberos pre authenticated
+        # data
         class PreAuthData < Element
 
           # @!attribute type

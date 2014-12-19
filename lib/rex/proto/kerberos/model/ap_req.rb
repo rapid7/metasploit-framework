@@ -4,12 +4,13 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation of a KRB_AP_REQ definition.
         class ApReq < Element
           # @!attribute pvno
           #   @return [Fixnum] The protocol version number
           attr_accessor :pvno
           # @!attribute msg_type
-          #   @return [Fixnum] The type of a protocol message
+          #   @return [Fixnum] The type of the protocol message
           attr_accessor :msg_type
           # @!attribute options
           #   @return [Fixnum] request options, affects processing
@@ -22,10 +23,16 @@ module Rex
           #   client's choice of a subkey
           attr_accessor :authenticator
 
+          # Rex::Proto::Kerberos::Model::ApReq decoding isn't supported
+          #
+          # @raise [RuntimeError]
           def decode(input)
             raise ::RuntimeError, 'AP-REQ decoding not supported'
           end
 
+          # Encodes the Rex::Proto::Kerberos::Model::ApReq into an ASN.1 String
+          #
+          # @return [String]
           def encode
             elems = []
             elems << OpenSSL::ASN1::ASN1Data.new([encode_pvno], 0, :CONTEXT_SPECIFIC)

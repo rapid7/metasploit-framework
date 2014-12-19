@@ -4,6 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation of a Kerberos AuthorizationData data
+        # definition.
         class AuthorizationData < Element
 
           include Rex::Proto::Kerberos::Crypto::Rc4Hmac
@@ -14,6 +16,9 @@ module Rex
           #   @option [String] :data
           attr_accessor :elements
 
+          # Rex::Proto::Kerberos::Model::AuthorizationData decoding isn't supported
+          #
+          # @raise [RuntimeError]
           def decode(input)
             raise ::RuntimeError, 'Authorization Data decoding not supported'
           end

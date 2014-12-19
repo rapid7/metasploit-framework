@@ -4,7 +4,7 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # This class provides a representation of a checksum.
+        # This class provides a representation of a Kerberos Checksum definition.
         class Checksum < Element
 
           # @!attribute type
@@ -14,6 +14,9 @@ module Rex
           #   @return [String] The checksum itself
           attr_accessor :checksum
 
+          # Rex::Proto::Kerberos::Model::Checksum decoding isn't supported
+          #
+          # @raise [RuntimeError]
           def decode(input)
             raise ::RuntimeError, 'Checksum decoding not supported'
           end
@@ -33,7 +36,7 @@ module Rex
 
           private
 
-          # Encodes the type
+          # Encodes the type field
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_type
@@ -43,7 +46,7 @@ module Rex
             int
           end
 
-          # Encodes the checksum
+          # Encodes the checksum field
           #
           # @return [OpenSSL::ASN1::OctetString]
           def encode_checksum

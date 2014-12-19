@@ -4,6 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation of a Kerberos KDC-REQ (request) data
+        # definition
         class KdcRequest < Element
           # @!attribute pvno
           #   @return [Fixnum] The protocol version number
@@ -31,7 +33,7 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KDC Request, invalid input'
+              raise ::RuntimeError, 'Failed to decode KdcRequest, invalid input'
             end
 
             self

@@ -4,7 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # This class is a representation of a PA-ENC-TIMESTAMP, an encrypted timestamp
+        # This class is a representation of a PA-ENC-TIMESTAMP, an encrypted timestamp sent
+        # as pre authenticated data
         class PreAuthEncTimeStamp < Element
 
           include Rex::Proto::Kerberos::Crypto::Rc4Hmac
@@ -30,7 +31,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode EncryptedData Name, invalid input'
+              raise ::RuntimeError, 'Failed to decode PreAuthEncTimeStamp, invalid input'
             end
 
             self

@@ -4,6 +4,9 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation of an Authenticator, sent with a
+        # ticket to the server to certify the client's knowledge of the encryption
+        # key in the ticket.
         class Authenticator < Element
           include Rex::Proto::Kerberos::Crypto::Rc4Hmac
 
@@ -18,7 +21,8 @@ module Rex
           #   identifier
           attr_accessor :cname
           # @!attribute checksum
-          #   @return [Rex::Proto::Kerberos::Model::Checksum]
+          #   @return [Rex::Proto::Kerberos::Model::Checksum] The checksum of the application data that
+          #   accompanies the KRB_AP_REQ.
           attr_accessor :checksum
           # @!attribute cusec
           #   @return [Fixnum] The microsecond part of the client's timestamp
@@ -31,10 +35,16 @@ module Rex
           #   key which is to be used to protect this specific application session
           attr_accessor :subkey
 
+          # Rex::Proto::Kerberos::Model::Authenticator decoding isn't supported
+          #
+          # @raise [RuntimeError]
           def decode(input)
             raise ::RuntimeError, 'Authenticator decoding not supported'
           end
 
+          # Encodes the Rex::Proto::Kerberos::Model::Authenticator into an ASN.1 String
+          #
+          # @return [String]
           def encode
             elems = []
             elems << OpenSSL::ASN1::ASN1Data.new([encode_vno], 0, :CONTEXT_SPECIFIC)
@@ -73,7 +83,7 @@ module Rex
 
           private
 
-          # Encodes the vno
+          # Encodes the vno field
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_vno
@@ -83,28 +93,28 @@ module Rex
             int
           end
 
-          # Encodes the crealm
+          # Encodes the crealm field
           #
           # @return [OpenSSL::ASN1::GeneralString]
           def encode_crealm
             OpenSSL::ASN1::GeneralString.new(crealm)
           end
 
-          # Encodes the cname
+          # Encodes the cname field
           #
           # @return [String]
           def encode_cname
             cname.encode
           end
 
-          # Encodes the checksum
+          # Encodes the checksum field
           #
           # @return [String]
           def encode_checksum
             checksum.encode
           end
 
-          # Encodes the cusec
+          # Encodes the cusec field
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_cusec
@@ -121,6 +131,9 @@ module Rex
             OpenSSL::ASN1::GeneralizedTime.new(ctime)
           end
 
+          # Encodes the subkey field
+          #
+          # @return [String]
           def encode_subkey
             subkey.encode
           end

@@ -4,6 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation of a Kerberos KDC-REQ (response) data
+        # definition
         class KdcResponse < Element
           # @!attribute pvno
           #   @return [Fixnum] The protocol version number
@@ -42,6 +44,9 @@ module Rex
             self
           end
 
+          # Rex::Proto::Kerberos::Model::KdcResponse encoding isn't supported
+          #
+          # @raise [RuntimeError]
           def encode
             raise ::RuntimeError, 'KdcResponse encoding not supported'
           end

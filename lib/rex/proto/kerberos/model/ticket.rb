@@ -4,6 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation of a Kerberos ticket that helps
+        # a client authenticate to a service.
         class Ticket < Element
           # @!attribute tkt_vno
           #   @return [Fixnum] The ticket version number
@@ -51,7 +53,7 @@ module Rex
 
           private
 
-          # Encodes the tkt_vno
+          # Encodes the tkt_vno field
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_tkt_vno
@@ -61,21 +63,21 @@ module Rex
             int
           end
 
-          # Encodes the realm
+          # Encodes the realm field
           #
           # @return [OpenSSL::ASN1::GeneralString]
           def encode_realm
             OpenSSL::ASN1::GeneralString.new(realm)
           end
 
-          # Encodes the sname
+          # Encodes the sname field
           #
           # @return [String]
           def encode_sname
             sname.encode
           end
 
-          # Encodes the enc_part
+          # Encodes the enc_part field
           #
           # @return [String]
           def encode_enc_part

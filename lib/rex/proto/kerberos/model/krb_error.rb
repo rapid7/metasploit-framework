@@ -4,6 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Model
+        # This class provides a representation of a Kerberos KRB-ERROR (response error)
+        # message definition.
         class KrbError < Element
           # @!attribute pvno
           #   @return [Fixnum] The protocol version number
@@ -54,12 +56,15 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KRB Error, invalid input'
+              raise ::RuntimeError, 'Failed to decode KrbError, invalid input'
             end
 
             self
           end
 
+          # Rex::Proto::Kerberos::Model::KrbError encoding isn't supported
+          #
+          # @raise [RuntimeError]
           def encode
             raise ::RuntimeError, 'KrbError encoding not supported'
           end
