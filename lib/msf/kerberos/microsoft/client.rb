@@ -29,7 +29,8 @@ module Msf
           register_options(
             [
               Opt::RHOST,
-              Opt::RPORT(88)
+              Opt::RPORT(88),
+              OptInt.new('Timeout', [true, 'The TCP timeout to establish connection and read data', 10])
             ], self.class
           )
         end
@@ -43,12 +44,19 @@ module Msf
 
         # Returns the remote port
         #
-        # @return [String]
+        # @return [Fixnum]
         def rport
           datastore['RPORT']
         end
 
-        # Returns the target peer
+        # Returns the TCP timeout
+        #
+        # @return [Fixnum]
+        def timeout
+          datastore['Timeout']
+        end
+
+        # Returns the kdc peer
         #
         # @return [String]
         def peer
@@ -62,10 +70,10 @@ module Msf
         # @option opts [<String, Fixnum>] :rport
         # @return [Rex::Proto::Kerberos::Client]
         def connect(opts={})
-          pp opts
           kerb_client = Rex::Proto::Kerberos::Client.new(
             host: opts[:rhost] || rhost,
             port: (opts[:rport] || rport).to_i,
+            timeout: (opts[:timeout] || timeout).to_i,
             context:
               {
                 'Msf'        => framework,
@@ -99,10 +107,10 @@ module Msf
         end
 
         # Sends a kerberos AS request and reads the response
+        #
         # @param opts [Hash]
         # @return [Rex::Proto::Kerberos::Model::KdcResponse]
         def send_request_as(opts = {})
-          pp opts
           connect(opts)
           req = build_as_request(opts)
           res = client.send_recv(req)
@@ -111,6 +119,7 @@ module Msf
         end
 
         # Sends a kerberos AS request and reads the response
+        #
         # @param opts [Hash]
         # @return [Rex::Proto::Kerberos::Model::KdcResponse]
         def send_request_tgs(opts = {})
