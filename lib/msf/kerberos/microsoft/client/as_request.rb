@@ -21,28 +21,9 @@ module Msf
           # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :sname
           # @return [Rex::Proto::Kerberos::Model::KdcRequest]
           def build_as_request(opts = {})
-            options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
-            from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
-            till = opts[:till] || Time.utc('1970-01-01-01 00:00:00')
-            rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
-            nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
-            etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
-            pa_data = opts[:pa_data] || build_as_pa_data(opts)
-            cname = build_client_name(opts)
-            realm = opts[:realm] || ''
-            sname = build_server_name(opts)
+            body = build_as_request_body(opts)
 
-            body = Rex::Proto::Kerberos::Model::KdcRequestBody.new(
-              options: options,
-              cname: cname,
-              realm: realm,
-              sname: sname,
-              from: from,
-              till: till,
-              rtime: rtime,
-              nonce: nonce,
-              etype: etype
-            )
+            pa_data = opts[:pa_data] || build_as_pa_data(opts)
 
             request = Rex::Proto::Kerberos::Model::KdcRequest.new(
               pvno: 5,
@@ -97,6 +78,32 @@ module Msf
             )
 
             pa_enc_time_stamp
+          end
+
+          def build_as_request_body(opts = {})
+            options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
+            from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
+            till = opts[:till] || Time.utc('1970-01-01-01 00:00:00')
+            rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
+            nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
+            etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
+            cname = build_client_name(opts)
+            realm = opts[:realm] || ''
+            sname = build_server_name(opts)
+
+            body = Rex::Proto::Kerberos::Model::KdcRequestBody.new(
+              options: options,
+              cname: cname,
+              realm: realm,
+              sname: sname,
+              from: from,
+              till: till,
+              rtime: rtime,
+              nonce: nonce,
+              etype: etype
+            )
+
+            body
           end
         end
       end
