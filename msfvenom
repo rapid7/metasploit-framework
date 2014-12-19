@@ -312,6 +312,9 @@ if __FILE__ == $0
     $stderr.puts e.message
   end
 
+  # No payload generated, no point to go on
+  exit(0) unless payload
+
   if generator_opts[:out]
     begin
       ::File.open(generator_opts[:out], 'wb') do |f|
