@@ -14,7 +14,6 @@ before_install:
   - sudo apt-get install -qq libpcap-dev
   # Uncomment when we have fewer shipping msftidy warnings.
   # Merge committers will still be checking, just not autofailing.
-  # See https://dev.metasploit.com/redmine/issues/8498
   # - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   # - ls -la ./.git/hooks
   # - ./.git/hooks/post-merge

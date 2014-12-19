@@ -4,23 +4,20 @@ Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.pn
 The Metasploit Framework is released under a BSD-style license. See
 COPYING for more details.
 
-The latest version of this software is available from http://metasploit.com/
+The latest version of this software is available from https://metasploit.com/
 
 Bug tracking and development information can be found at:
- https://dev.metasploit.com/redmine/projects/framework/
-
-The public GitHub source repository can be found at:
  https://github.com/rapid7/metasploit-framework
 
+API documentation for writing modules can be found at:
+  https://rapid7.github.io/metasploit-framework/api
+
 Questions and suggestions can be sent to:
- msfdev(at)metasploit.com
+  https://lists.sourceforge.net/lists/listinfo/metasploit-hackers
 
-The framework mailing list is the place to discuss features and ask for help.
-To subscribe, visit the following web page:
- https://mail.metasploit.com/mailman/listinfo/framework
-
-The mailing list archives are available from:
- https://mail.metasploit.com/pipermail/framework/
+An up-to-date list of useful Metasploit development resources is
+maintained at:
+  https://metasploit.github.io
 
 Installing
 --

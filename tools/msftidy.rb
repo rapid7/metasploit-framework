@@ -532,10 +532,8 @@ class Msftidy
         error("Writes to stdout", idx)
       end
 
-      # You should not change datastore in code. For reasons. See
-      # RM#8498 for discussion, starting at comment #16:
-      #
-      # https://dev.metasploit.com/redmine/issues/8498#note-16
+      # You should not change datastore in code. See
+      # https://github.com/rapid7/metasploit-framework/issues/3853
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*(=|<<)(?![=~>])/
         info("datastore is modified in code with '#{Regexp.last_match(1)}': #{ln}", idx)
       end
