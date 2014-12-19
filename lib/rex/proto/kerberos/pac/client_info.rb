@@ -4,11 +4,12 @@ module Rex
   module Proto
     module Kerberos
       module Pac
+        # This class provides a representation of a PAC-CLIENT-INFO structure, containing the client's name
+        # and authentication time. It's used to verify which the ticket's client is the PAC's owner.
         class ClientInfo < Element
 
           # @!attribute client_id
-          #   @return [Time] The auth_time field of the KDC response (the time of initial authentication
-          #   for the named principal)
+          #   @return [Time] The auth_time field of the Kerberos KDC-AS response.
           attr_accessor :client_id
           # @!attribute name
           #   @return [String] The client name from the ticket

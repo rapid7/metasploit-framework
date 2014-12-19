@@ -4,6 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Pac
+        # This class provides a representation of a PAC_TYPE structure, the topmost structure
+        # of the PAC.
         class Type < Element
 
           include Rex::Proto::Kerberos::Crypto::RsaMd5
@@ -55,14 +57,23 @@ module Rex
 
           private
 
+          # Encodes the number of buffers contained in the PAC
+          #
+          # @return [String]
           def encode_buffers_length
             [buffers.length].pack('V')
           end
 
+          # Encodes the PAC version
+          #
+          # @return [String]
           def encode_version
-            [0].pack('V')
+            [VERSION].pack('V')
           end
 
+          # Encodes the PAC_INFO_BUFFER data
+          #
+          # @return [String]
           def encode_pac_info_buffers
             offset = 8 + buffers.length * 16
             encoded = ''
@@ -89,6 +100,10 @@ module Rex
             encoded
           end
 
+          # Calculates the checksum for the PAC data
+          #
+          # @param data [String] the data to checksum
+          # @return [String] the checksum result
           def make_checksum(data)
             res = ''
             case checksum

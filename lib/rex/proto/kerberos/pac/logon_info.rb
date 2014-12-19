@@ -4,7 +4,8 @@ module Rex
   module Proto
     module Kerberos
       module Pac
-        # TODO: Allow more user provided attributes
+        # This class provides a representation of a PAC_LOGON_INFO structure, which contains the
+        # credential information for the client of the Kerberos ticket.
         class LogonInfo < Element
 
           # @!attribute logon_time
@@ -92,38 +93,62 @@ module Rex
 
           private
 
+          # Encodes the netlogon type
+          #
+          # @return [String]
           def encode_element_id
-            [0x20000].pack('V')
+            [NETLOGON_FLAG].pack('V')
           end
 
+          # Encodes the logon_time attribute
+          #
+          # @return [String]
           def encode_logon_time
-            file_time = (logon_time.to_i + 11644473600) * 10000000
+            file_time = (logon_time.to_i + SEC_TO_UNIX_EPOCH) * WINDOWS_TICK
             encoded = ''
             encoded << [file_time].pack('Q<')
 
             encoded
           end
 
+          # Encodes the logoff time (constant)
+          #
+          # @return [String]
           def encode_logoff_time
-            [0x7fffffffffffffff].pack('Q<')
+            [NEVER_EXPIRE].pack('Q<')
           end
 
+          # Encodes the kickoff time (constant)
+          #
+          # @return [String]
           def encode_kickoff_time
-            [0x7fffffffffffffff].pack('Q<')
+            [NEVER_EXPIRE].pack('Q<')
           end
 
+          # Encodes the password_last_set (constant)
+          #
+          # @return [String]
           def encode_password_last_set
             [0].pack('Q<')
           end
 
+          # Encodes the password_can_change (constant)
+          #
+          # @return [String]
           def encode_password_can_change
             [0].pack('Q<')
           end
 
+          # Encodes the password_must_change (constant)
+          #
+          # @return [String]
           def encode_password_must_change
-            [0x7fffffffffffffff].pack('Q<')
+            [NEVER_EXPIRE].pack('Q<')
           end
 
+          # Encodes the effective_name id field
+          #
+          # @return [String]
           def encode_effective_name
             unicode = Rex::Text.to_unicode(effective_name)
 
@@ -137,6 +162,9 @@ module Rex
             encoded
           end
 
+          # Encodes the effective_name info field
+          #
+          # @return [String]
           def encode_effective_name_info
             unicode = Rex::Text.to_unicode(effective_name)
 
@@ -148,6 +176,9 @@ module Rex
             encoded << unicode
           end
 
+          # Encodes the full_name id
+          #
+          # @return [String]
           def encode_full_name
             unicode = Rex::Text.to_unicode('')
             encoded = ''
@@ -160,6 +191,9 @@ module Rex
             encoded
           end
 
+          # Encodes the full_name_info (constant)
+          #
+          # @return [String]
           def encode_full_name_info
             unicode = Rex::Text.to_unicode('')
             encoded = ''
@@ -171,6 +205,9 @@ module Rex
             encoded
           end
 
+          # Encodes the logon_script id
+          #
+          # @return [String]
           def encode_logon_script
             unicode = Rex::Text.to_unicode('')
 
@@ -184,6 +221,9 @@ module Rex
             encoded
           end
 
+          # Encodes the logon_script info (constant)
+          #
+          # @return [String]
           def encode_logon_script_info
             unicode = Rex::Text.to_unicode('')
             encoded = ''
@@ -196,6 +236,9 @@ module Rex
             encoded
           end
 
+          # Encodes the profile_path id
+          #
+          # @return [String]
           def encode_profile_path
             unicode = Rex::Text.to_unicode('')
 
@@ -209,6 +252,9 @@ module Rex
             encoded
           end
 
+          # Encodes the profile_path info (constant)
+          #
+          # @return [String]
           def encode_profile_path_info
             unicode = Rex::Text.to_unicode('')
             encoded = ''
@@ -221,6 +267,9 @@ module Rex
             encoded
           end
 
+          # Encodes the home_directory id
+          #
+          # @return [String]
           def encode_home_directory
             unicode = Rex::Text.to_unicode('')
 
@@ -234,6 +283,9 @@ module Rex
             encoded
           end
 
+          # Encodes the home_directory info (constant)
+          #
+          # @return [String]
           def encode_home_directory_info
             unicode = Rex::Text.to_unicode('')
             encoded = ''
@@ -246,6 +298,9 @@ module Rex
             encoded
           end
 
+          # Encodes hte home_directory_drive id
+          #
+          # @return [String]
           def encode_home_directory_drive
             unicode = Rex::Text.to_unicode('')
 
@@ -258,6 +313,9 @@ module Rex
             encoded
           end
 
+          # Encodes the home_directory_drive info (constant)
+          #
+          # @return [String]
           def encode_home_directory_drive_info
             unicode = Rex::Text.to_unicode('')
             encoded = ''
@@ -270,26 +328,44 @@ module Rex
             encoded
           end
 
+          # Encodes the logon_count (constant)
+          #
+          # @return [String]
           def encode_logon_count
             [0].pack('v')
           end
 
+          # Encodes the bad_password_count (constant)
+          #
+          # @return [String]
           def encode_bad_password_count
             [0].pack('v')
           end
 
+          # Encodes the user_id field
+          #
+          # @return [String]
           def encode_user_id
             [user_id].pack('V')
           end
 
+          # Encodes the primary_group_id field
+          #
+          # @return [String]
           def encode_primary_group_id
             [primary_group_id].pack('V')
           end
 
+          # Encodes the group_count field
+          #
+          # @return [String]
           def encode_group_count
             [group_ids.length].pack('V')
           end
 
+          # Encodes the group_ids id
+          #
+          # @return [String]
           def encode_group_ids
             encoded = ''
             encoded << [0x2001c].pack('V')
@@ -297,6 +373,9 @@ module Rex
             encoded
           end
 
+          # Encodes the group_ids info
+          #
+          # @return [String]
           def encode_group_ids_info
             encoded = ''
             encoded << [group_ids.length].pack('V')
@@ -310,14 +389,23 @@ module Rex
             encoded
           end
 
+          # Encodes the user_flags (constant)
+          #
+          # @return [String]
           def encode_user_flags
             [0].pack('V')
           end
 
+          # Encodes the user_session_key (constant)
+          #
+          # @return [String]
           def encode_user_session_key
             [0, 0].pack('Q<Q<')
           end
 
+          # Encodes the logon_server id
+          #
+          # @return [String]
           def encode_logon_server
             unicode = Rex::Text.to_unicode('')
 
@@ -330,6 +418,9 @@ module Rex
             encoded
           end
 
+          # Encodes the logon_server info (constant)
+          #
+          # @return [String]
           def encode_logon_server_info
             unicode = Rex::Text.to_unicode('')
             encoded = ''
@@ -342,6 +433,9 @@ module Rex
             encoded
           end
 
+          # Encodes the logon_domain_name id
+          #
+          # @return [String]
           def encode_logon_domain_name
             unicode = Rex::Text.to_unicode(logon_domain_name)
 
@@ -355,6 +449,9 @@ module Rex
             encoded
           end
 
+          # Encodes the logon_domain_name info field
+          #
+          # @return [String]
           def encode_logon_domain_name_info
             unicode = Rex::Text.to_unicode(logon_domain_name)
             encoded = ''
@@ -367,6 +464,9 @@ module Rex
             encoded
           end
 
+          # Encodes the logon_domain_id id
+          #
+          # @return [String]
           def encode_logon_domain_id
             encoded = ''
             encoded << [0x20028].pack('V')
@@ -374,6 +474,9 @@ module Rex
             encoded
           end
 
+          # Encodes the logon_domain_id info field
+          #
+          # @return [String]
           def encode_logon_domain_id_info
             components = logon_domain_id.split('-')
             unless components[0] == 'S'
@@ -400,34 +503,58 @@ module Rex
             encoded
           end
 
+          # Encodes the reserved_one (constant)
+          #
+          # @return [String]
           def encode_reserved_one
             [0, 0].pack('VV')
           end
 
+          # Encodes the user_account_control (constant)
+          #
+          # @return [String]
           def encode_user_account_control
             [USER_NORMAL_ACCOUNT | USER_DONT_EXPIRE_PASSWORD].pack('V')
           end
 
+          # Encodes the reserved_three (constant)
+          #
+          # @return [String]
           def encode_reserved_three
             [0, 0, 0, 0, 0, 0, 0].pack('V*')
           end
 
+          # Encodes the sid_count (constant)
+          #
+          # @return [String]
           def encode_sid_count
             [0].pack('V')
           end
 
+          # Encodes the extra_sids (constant)
+          #
+          # @return [String]
           def encode_extra_sids
             [0].pack('V')
           end
 
+          # Encodes the resource_group_domain_sid (constant)
+          #
+          # @return [String]
           def encode_resource_group_domain_sid
             [0].pack('V')
           end
 
+          # Encodes the resource_group_count (constant)
+          #
+          # @return [String]
           def encode_resource_group_count
             [0].pack('V')
           end
 
+          # Encodes the resource_group_ids (constant)
+          #
+          # @return [String]
           def encode_resource_group_ids
             [0].pack('V')
           end
