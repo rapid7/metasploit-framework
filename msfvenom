@@ -313,7 +313,7 @@ if __FILE__ == $0
   end
 
   # No payload generated, no point to go on
-  exit(0) unless payload
+  exit(-1) unless payload
 
   if generator_opts[:out]
     begin
