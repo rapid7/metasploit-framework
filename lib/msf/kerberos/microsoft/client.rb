@@ -60,8 +60,9 @@ module Msf
         # @option opts [<String, Fixnum>] :rport
         # @return [Rex::Proto::Kerberos::Client]
         def connect(opts={})
+          pp opts
           kerb_client = Rex::Proto::Kerberos::Client.new(
-            hostname: opts[:rhost] || rhost,
+            host: opts[:rhost] || rhost,
             port: (opts[:rport] || rport).to_i,
             context:
               {
@@ -99,6 +100,7 @@ module Msf
         # @param opts [Hash]
         # @return [Rex::Proto::Kerberos::Model::KdcResponse]
         def send_request_as(opts = {})
+          pp opts
           connect(opts)
           req = build_as_request(opts)
           res = client.send_recv(req)
