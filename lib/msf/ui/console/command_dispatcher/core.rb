@@ -1705,12 +1705,14 @@ class Core
                   'Channelized' => true,
                   'Hidden'      => true
                 })
+              if process && process.channel
+                data = process.channel.read
+                print_line(data) if data
+              end
             rescue ::Rex::Post::Meterpreter::RequestError
               print_error("Failed: #{$!.class} #{$!}")
-            end
-            if process && process.channel
-              data = process.channel.read
-              print_line(data) if data
+            rescue Rex::TimeoutError
+              print_error("Operation timed out")
             end
           elsif session.type == 'shell'
             output = session.shell_command(cmd)
