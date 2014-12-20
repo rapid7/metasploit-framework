@@ -21,9 +21,8 @@ module Msf
           # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :sname
           # @return [Rex::Proto::Kerberos::Model::KdcRequest]
           def build_as_request(opts = {})
-            body = build_as_request_body(opts)
-
-            pa_data = opts[:pa_data] || build_as_pa_data(opts)
+            pa_data = opts[:pa_data]
+            body = opts[:body] || build_as_request_body(opts)
 
             request = Rex::Proto::Kerberos::Model::KdcRequest.new(
               pvno: 5,
@@ -33,19 +32,6 @@ module Msf
             )
 
             request
-          end
-
-          # Builds a kerberos pre authenticated information structure for an AS Request
-          #
-          # @param opts [Hash]
-          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>]
-          def build_as_pa_data(opts = {})
-            pa_data = []
-
-            pa_data << build_as_pa_time_stamp(opts)
-            pa_data << build_pa_pac_request(opts)
-
-            pa_data
           end
 
           # Builds a kerberos PA-ENC-TIMESTAMP pre authenticated structure
