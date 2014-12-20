@@ -72,7 +72,7 @@ class Metasploit4 < Msf::Auxiliary
       logon_time: logon_time,
     )
 
-    auth_data = build_authorization_data(pac: pac.encode)
+    auth_data = build_pac_authorization_data(pac: pac.encode)
 
     res = send_request_tgs(
       client_name: 'juan',

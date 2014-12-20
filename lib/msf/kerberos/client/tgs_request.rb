@@ -5,17 +5,8 @@ module Msf
   module Kerberos
     module Client
       module TgsRequest
-        def build_tgs_request(opts = {})
-          options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
-          from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
-          till = opts[:till] || Time.utc('1970-01-01-01 00:00:00')
-          rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
-          nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
-          etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
-          cname = opts[:cname] || build_client_name(opts)
-          realm = opts[:realm] || ''
-          sname = opts[:sname] || build_server_name(opts)
 
+        def build_tgs_request(opts = {})
           subkey = Rex::Proto::Kerberos::Model::EncryptionKey.new(
             type: 23,
             #value: Rex::Text.rand_text(16)
@@ -26,20 +17,10 @@ module Msf
 
           if opts[:auth_data]
             enc_auth_data = build_enc_auth_data(opts)
+            opts.merge!({:enc_auth_data => enc_auth_data})
           end
 
-          body = Rex::Proto::Kerberos::Model::KdcRequestBody.new(
-            options: options,
-            cname: cname,
-            realm: realm,
-            sname: sname,
-            from: from,
-            till: till,
-            rtime: rtime,
-            nonce: nonce,
-            etype: etype,
-            enc_auth_data: enc_auth_data
-          )
+          body = build_tgs_request_body(opts)
 
           checksum_body = body.checksum(7)
           checksum = Rex::Proto::Kerberos::Model::Checksum.new(
@@ -147,6 +128,33 @@ module Msf
             cusec: cusec,
             ctime: ctime,
             subkey: subkey
+          )
+        end
+
+        def build_tgs_request_body(opts = {})
+          options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
+          from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
+          till = opts[:till] || Time.utc('1970-01-01-01 00:00:00')
+          rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
+          nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
+          etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
+          cname = opts[:cname] || build_client_name(opts)
+          realm = opts[:realm] || ''
+          sname = opts[:sname] || build_server_name(opts)
+          enc_auth_data = opts[:enc_auth_data] || nil
+
+
+          Rex::Proto::Kerberos::Model::KdcRequestBody.new(
+            options: options,
+            cname: cname,
+            realm: realm,
+            sname: sname,
+            from: from,
+            till: till,
+            rtime: rtime,
+            nonce: nonce,
+            etype: etype,
+            enc_auth_data: enc_auth_data
           )
         end
       end
