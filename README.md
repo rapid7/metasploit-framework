@@ -1,4 +1,3 @@
-
 Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.png)](https://travis-ci.org/rapid7/metasploit-framework) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/rapid7/metasploit-framework)
 ==
 The Metasploit Framework is released under a BSD-style license. See
@@ -15,10 +14,6 @@ API documentation for writing modules can be found at:
 Questions and suggestions can be sent to:
   https://lists.sourceforge.net/lists/listinfo/metasploit-hackers
 
-An up-to-date list of useful Metasploit development resources is
-maintained at:
-  https://metasploit.github.io
-
 Installing
 --
 
@@ -31,10 +26,8 @@ Using Metasploit
 --
 Metasploit can do all sorts of things. The first thing you'll want to do
 is start `msfconsole`, but after that, you'll probably be best served by
-reading some of the great tutorials online:
-
-  * [Metasploit Unleashed][unleashed]
-  * [The official Metasploit wiki on Github][wiki-start]
+reading [Metasploit Unleashed][unleashed], the [great community
+resources](https://metasploit.github.io), or the [wiki].
 
 Contributing
 --
@@ -45,6 +38,7 @@ pull request. For slightly more info, see
 [Contributing](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md).
 
 
+[wiki]: https://github.com/rapid7/metasploit-framework/wiki
 [wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment "Metasploit Development Environment Setup"
 [wiki-start]: https://github.com/rapid7/metasploit-framework/wiki/ "Metasploit Wiki"
 [wiki-usage]: https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit "Using Metasploit"
