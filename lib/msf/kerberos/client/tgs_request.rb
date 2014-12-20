@@ -8,7 +8,6 @@ module Msf
 
         def build_tgs_request(opts = {})
           subkey = opts[:subkey] || build_subkey(opts)
-          #opts.merge!({:subkey => subkey})
 
           if opts[:enc_auth_data]
             enc_auth_data = opts[:enc_auth_data]
@@ -17,7 +16,6 @@ module Msf
               auth_data: opts[:auth_data],
               subkey: subkey
             )
-            #opts.merge!({:enc_auth_data => enc_auth_data})
           else
             enc_auth_data = nil
           end
@@ -27,10 +25,9 @@ module Msf
           ))
 
           checksum = opts[:checksum] || build_tgs_body_checksum(body)
-          #opts.merge!({:checksum => checksum})
 
           if opts[:auhtenticator]
-          authenticator = opts[:authenticator]
+            authenticator = opts[:authenticator]
           else
             authenticator = build_authenticator(opts.merge(
               subkey: subkey,
@@ -41,11 +38,16 @@ module Msf
           if opts[:ap_req]
             ap_req = opts[:ap_req]
           else
-            ap_req = build_pa_tgs_req(opts.merge(:authenticator => authenticator))
+            ap_req = build_ap_req(opts.merge(:authenticator => authenticator))
           end
 
+          pa_ap_req = Rex::Proto::Kerberos::Model::PreAuthData.new(
+            type: Rex::Proto::Kerberos::Model::PA_TGS_REQ,
+            value: ap_req.encode
+          )
+
           pa_data = []
-          pa_data.push(ap_req)
+          pa_data.push(pa_ap_req)
           if opts[:pa_data]
             opts[:pa_data].each { |pa| pa_data.push(pa) }
           end
@@ -75,7 +77,7 @@ module Msf
           e_data
         end
 
-        def build_pa_tgs_req(opts = {})
+        def build_ap_req(opts = {})
           pvno = opts[:pvno] || Rex::Proto::Kerberos::Model::VERSION
           msg_type = opts[:msg_type] || Rex::Proto::Kerberos::Model::AP_REQ
           options = opts[:ap_req_options] || 0
@@ -104,12 +106,7 @@ module Msf
             authenticator: enc_authenticator
           )
 
-          pa_tgs_req = Rex::Proto::Kerberos::Model::PreAuthData.new(
-            type: Rex::Proto::Kerberos::Model::PA_TGS_REQ,
-            value: ap_req.encode
-          )
-
-          pa_tgs_req
+          ap_req
         end
 
         def build_subkey(opts={})
@@ -133,7 +130,7 @@ module Msf
           checksum = opts[:checksum] || ''
           subkey = opts[:subkey]
 
-          Rex::Proto::Kerberos::Model::Authenticator.new(
+          authenticator = Rex::Proto::Kerberos::Model::Authenticator.new(
             vno: 5,
             crealm: realm,
             cname: cname,
@@ -142,6 +139,8 @@ module Msf
             ctime: ctime,
             subkey: subkey
           )
+
+          authenticator
         end
 
         def build_tgs_request_body(opts = {})
@@ -157,7 +156,7 @@ module Msf
           enc_auth_data = opts[:enc_auth_data] || nil
 
 
-          Rex::Proto::Kerberos::Model::KdcRequestBody.new(
+          body = Rex::Proto::Kerberos::Model::KdcRequestBody.new(
             options: options,
             cname: cname,
             realm: realm,
@@ -169,6 +168,8 @@ module Msf
             etype: etype,
             enc_auth_data: enc_auth_data
           )
+
+          body
         end
 
         def build_tgs_body_checksum(body)
@@ -177,6 +178,8 @@ module Msf
             type: 7,
             checksum: checksum_body
           )
+
+          checksum
         end
       end
     end
