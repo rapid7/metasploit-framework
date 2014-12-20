@@ -8,23 +8,44 @@ module Msf
 
         def build_tgs_request(opts = {})
           subkey = opts[:subkey] || build_subkey(opts)
-          opts.merge!({:subkey => subkey})
+          #opts.merge!({:subkey => subkey})
 
-          if opts[:auth_data] && !opts[:enc_auth_data]
-            enc_auth_data = build_enc_auth_data(opts)
-            opts.merge!({:enc_auth_data => enc_auth_data})
+          if opts[:enc_auth_data]
+            enc_auth_data = opts[:enc_auth_data]
+          elsif opts[:auth_data]
+            enc_auth_data = build_enc_auth_data(
+              auth_data: opts[:auth_data],
+              subkey: subkey
+            )
+            #opts.merge!({:enc_auth_data => enc_auth_data})
+          else
+            enc_auth_data = nil
           end
 
-          body = build_tgs_request_body(opts)
+          body = build_tgs_request_body(opts.merge(
+            enc_auth_data: enc_auth_data
+          ))
 
-          checksum = build_tgs_body_checksum(body)
-          opts.merge!({:checksum => checksum})
+          checksum = opts[:checksum] || build_tgs_body_checksum(body)
+          #opts.merge!({:checksum => checksum})
 
-          authenticator = build_authenticator(opts)
-          opts.merge!({:authenticator => authenticator})
+          if opts[:auhtenticator]
+          authenticator = opts[:authenticator]
+          else
+            authenticator = build_authenticator(opts.merge(
+              subkey: subkey,
+              checksum: checksum
+            ))
+          end
+
+          if opts[:ap_req]
+            ap_req = opts[:ap_req]
+          else
+            ap_req = build_pa_tgs_req(opts.merge(:authenticator => authenticator))
+          end
 
           pa_data = []
-          pa_data.push(build_pa_tgs_req(opts))
+          pa_data.push(ap_req)
           if opts[:pa_data]
             opts[:pa_data].each { |pa| pa_data.push(pa) }
           end
