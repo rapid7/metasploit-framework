@@ -8,12 +8,12 @@ module Msf
           # Builds a kerberos Client Name Principal
           #
           # @param opts [Hash{Symbol => <String, Fixnum>}]
-          # @option opts [String] :cname
-          # @option opts [Fixnum] :cname_type
+          # @option opts [String] :client_name the client's name
+          # @option opts [Fixnum] :client_type the client's name type
           # @return [Rex::Proto::Kerberos::Model::PrincipalName]
           def build_client_name(opts = {})
-            name = opts[:cname] || ''
-            name_type = opts[:cname_type] || Rex::Proto::Kerberos::Model::NT_PRINCIPAL
+            name = opts[:client_name] || ''
+            name_type = opts[:client_type] || Rex::Proto::Kerberos::Model::NT_PRINCIPAL
 
             Rex::Proto::Kerberos::Model::PrincipalName.new(
                 name_type: name_type,
@@ -24,12 +24,12 @@ module Msf
           # Builds a kerberos Server Name Principal
           #
           # @param opts [Hash{Symbol => <String, Fixnum>}]
-          # @option opts [String] :sname the name
-          # @option opts [Fixnum] :sname_type the name type
+          # @option opts [String] :server_name the server's name
+          # @option opts [Fixnum] :server_type the server's name type
           # @return [Rex::Proto::Kerberos::Model::PrincipalName]
           def build_server_name(opts = {})
-            name = opts[:sname] || ''
-            name_type = opts[:sname_type] || Rex::Proto::Kerberos::Model::NT_PRINCIPAL
+            name = opts[:server_name] || ''
+            name_type = opts[:server_type] || Rex::Proto::Kerberos::Model::NT_PRINCIPAL
 
             Rex::Proto::Kerberos::Model::PrincipalName.new(
                 name_type: name_type,

@@ -32,8 +32,8 @@ class Metasploit4 < Msf::Auxiliary
   def run
 
     opts = {
-      cname: 'juan',
-      sname: 'krbtgt/DEMO.LOCAL',
+      client_name: 'juan',
+      server_name: 'krbtgt/DEMO.LOCAL',
       realm: 'DEMO.LOCAL',
       key: OpenSSL::Digest.digest('MD4', Rex::Text.to_unicode('juan'))
     }
@@ -45,7 +45,7 @@ class Metasploit4 < Msf::Auxiliary
     pre_auth << build_as_pa_time_stamp(opts)
     pre_auth << build_pa_pac_request(opts)
     pre_auth
-    opts.merge!({:pa_data => pa_data})
+    opts.merge!({:pa_data => pre_auth})
 
     res = send_request_as(opts)
 

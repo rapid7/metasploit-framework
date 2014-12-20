@@ -13,9 +13,9 @@ module Msf
             rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
             nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
             etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
-            cname = build_client_name(opts)
+            cname = opts[:cname] || build_client_name(opts)
             realm = opts[:realm] || ''
-            sname = build_server_name(opts)
+            sname = opts[:sname] || build_server_name(opts)
 
             pac = build_pac(opts)
 
@@ -103,7 +103,7 @@ module Msf
 
 
           def build_pac(opts)
-            user_name = opts[:cname] || ''
+            user_name = opts[:client_name] || ''
             user_id = opts[:user_id] || 1000
             primary_group_id = opts[:group_id] || 513
             group_ids = opts[:group_ids] || [513]
@@ -202,15 +202,12 @@ module Msf
           end
 
           def build_authenticator(opts = {})
-            cname = build_client_name(opts)
+            cname = opts[:cname] || build_client_name(opts)
             realm = opts[:realm] || ''
             ctime = opts[:ctime] || Time.now
             cusec = opts[:cusec] || ctime.usec
             checksum = opts[:checksum] || ''
             subkey = opts[:subkey]
-
-            puts "#{checksum.class}"
-            puts "#{checksum.inspect}"
 
             Rex::Proto::Kerberos::Model::Authenticator.new(
               vno: 5,
