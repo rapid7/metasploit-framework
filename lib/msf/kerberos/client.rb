@@ -5,21 +5,21 @@ module Msf
   module Kerberos
     module Microsoft
       module Client
-        require 'msf/kerberos/microsoft/client/base'
-        require 'msf/kerberos/microsoft/client/as_request'
-        require 'msf/kerberos/microsoft/client/as_response'
-        require 'msf/kerberos/microsoft/client/tgs_request'
-        require 'msf/kerberos/microsoft/client/tgs_response'
-        require 'msf/kerberos/microsoft/client/pac'
-        require 'msf/kerberos/microsoft/client/cache_credential'
+        require 'msf/kerberos/client/base'
+        require 'msf/kerberos/client/as_request'
+        require 'msf/kerberos/client/as_response'
+        require 'msf/kerberos/client/tgs_request'
+        require 'msf/kerberos/client/tgs_response'
+        require 'msf/kerberos/client/pac'
+        require 'msf/kerberos/client/cache_credential'
 
-        include Msf::Kerberos::Microsoft::Client::Base
-        include Msf::Kerberos::Microsoft::Client::AsRequest
-        include Msf::Kerberos::Microsoft::Client::AsResponse
-        include Msf::Kerberos::Microsoft::Client::TgsRequest
-        include Msf::Kerberos::Microsoft::Client::TgsResponse
-        include Msf::Kerberos::Microsoft::Client::Pac
-        include Msf::Kerberos::Microsoft::Client::CacheCredential
+        include Msf::Kerberos::Client::Base
+        include Msf::Kerberos::Client::AsRequest
+        include Msf::Kerberos::Client::AsResponse
+        include Msf::Kerberos::Client::TgsRequest
+        include Msf::Kerberos::Client::TgsResponse
+        include Msf::Kerberos::Client::Pac
+        include Msf::Kerberos::Client::CacheCredential
 
         # @!attribute client
         #   @return [Rex::Proto::Kerberos::Client] The kerberos client

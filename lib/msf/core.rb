@@ -73,7 +73,7 @@ require 'msf/http/typo3'
 require 'msf/http/jboss'
 
 # Kerberos Support
-require 'msf/kerberos/microsoft/client'
+require 'msf/kerberos/client'
 
 # Drivers
 require 'msf/core/exploit_driver'
