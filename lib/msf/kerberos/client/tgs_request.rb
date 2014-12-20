@@ -16,9 +16,9 @@ module Msf
           realm = opts[:realm] || ''
           sname = opts[:sname] || build_server_name(opts)
 
-          pac = build_pac(opts)
+          #pac = build_pac(opts)
 
-          opts.merge!({:pac => pac.encode})
+          #opts.merge!({:pac => pac.encode})
 
           auth_data = build_authorization_data(opts)
 

