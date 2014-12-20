@@ -7,8 +7,7 @@ module Msf
       module TgsRequest
 
         def build_tgs_request(opts = {})
-          subkey = build_subkey(opts)
-
+          subkey = opts[:subkey] || build_subkey(opts)
           opts.merge!({:subkey => subkey})
 
           if opts[:auth_data] && !opts[:enc_auth_data]
@@ -18,20 +17,12 @@ module Msf
 
           body = build_tgs_request_body(opts)
 
-          checksum_body = body.checksum(7)
-          checksum = Rex::Proto::Kerberos::Model::Checksum.new(
-            type: 7,
-            checksum: checksum_body
-          )
+          checksum = build_tgs_body_checksum(body)
           opts.merge!({:checksum => checksum})
 
-          # Finally authenticator and pa_data
-
           authenticator = build_authenticator(opts)
-
           opts.merge!({:authenticator => authenticator})
 
-          #pa_data = opts[:pa_data] || build_tgs_pa_data(opts)
           pa_data = []
           pa_data.push(build_pa_tgs_req(opts))
           if opts[:pa_data]
@@ -76,7 +67,7 @@ module Msf
           end
 
           if authenticator.nil?
-            raise ::RuntimeError, 'Building an AP-REQ without authenticator not supporeted'
+            raise ::RuntimeError, 'Building an AP-REQ without authenticator not supported'
           end
 
           enc_authenticator = Rex::Proto::Kerberos::Model::EncryptedData.new(
@@ -156,6 +147,14 @@ module Msf
             nonce: nonce,
             etype: etype,
             enc_auth_data: enc_auth_data
+          )
+        end
+
+        def build_tgs_body_checksum(body)
+          checksum_body = body.checksum(7)
+          checksum = Rex::Proto::Kerberos::Model::Checksum.new(
+            type: 7,
+            checksum: checksum_body
           )
         end
       end
