@@ -7,15 +7,11 @@ module Msf
       module TgsRequest
 
         def build_tgs_request(opts = {})
-          subkey = Rex::Proto::Kerberos::Model::EncryptionKey.new(
-            type: 23,
-            #value: Rex::Text.rand_text(16)
-            value: "AAAABBBBCCCCDDDD"
-          )
+          subkey = build_subkey(opts)
 
           opts.merge!({:subkey => subkey})
 
-          if opts[:auth_data]
+          if opts[:auth_data] && !opts[:enc_auth_data]
             enc_auth_data = build_enc_auth_data(opts)
             opts.merge!({:enc_auth_data => enc_auth_data})
           end
@@ -35,7 +31,12 @@ module Msf
 
           opts.merge!({:authenticator => authenticator})
 
-          pa_data = opts[:pa_data] || build_tgs_pa_data(opts)
+          #pa_data = opts[:pa_data] || build_tgs_pa_data(opts)
+          pa_data = []
+          pa_data.push(build_pa_tgs_req(opts))
+          if opts[:pa_data]
+            opts[:pa_data].each { |pa| pa_data.push(pa) }
+          end
 
           request = Rex::Proto::Kerberos::Model::KdcRequest.new(
             pvno: 5,
@@ -60,19 +61,6 @@ module Msf
           )
 
           e_data
-        end
-
-        # Builds a kerberos pre authenticated information structure for an TGS request
-        #
-        # @param opts [Hash]
-        # @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>]
-        def build_tgs_pa_data(opts = {})
-          pa_data = []
-
-          pa_data << build_pa_tgs_req(opts)
-          pa_data << build_pa_pac_request(opts)
-
-          pa_data
         end
 
         def build_pa_tgs_req(opts = {})
@@ -110,6 +98,19 @@ module Msf
           )
 
           pa_tgs_req
+        end
+
+        def build_subkey(opts={})
+          subkey_type = opts[:subkey_type] || 23
+          subkey_value = opts[:subkey_value] || Rex::Text.rand_text(16)
+
+          subkey = Rex::Proto::Kerberos::Model::EncryptionKey.new(
+              type: subkey_type,
+              #value: Rex::Text.rand_text(16)
+              value: "AAAABBBBCCCCDDDD"
+          )
+
+          subkey
         end
 
         def build_authenticator(opts = {})

