@@ -16,14 +16,6 @@ module Msf
           realm = opts[:realm] || ''
           sname = opts[:sname] || build_server_name(opts)
 
-          #pac = build_pac(opts)
-
-          #opts.merge!({:pac => pac.encode})
-
-          auth_data = build_authorization_data(opts)
-
-          opts.merge!({:auth_data => auth_data})
-
           subkey = Rex::Proto::Kerberos::Model::EncryptionKey.new(
             type: 23,
             #value: Rex::Text.rand_text(16)
@@ -32,7 +24,9 @@ module Msf
 
           opts.merge!({:subkey => subkey})
 
-          enc_auth_data = build_enc_auth_data(opts)
+          if opts[:auth_data]
+            enc_auth_data = build_enc_auth_data(opts)
+          end
 
           body = Rex::Proto::Kerberos::Model::KdcRequestBody.new(
             options: options,
@@ -85,19 +79,6 @@ module Msf
           )
 
           e_data
-        end
-
-        def build_authorization_data(opts)
-          pac = opts[:pac] || ''
-
-          pac_auth_data = Rex::Proto::Kerberos::Model::AuthorizationData.new(
-              elements: [{:type => Rex::Proto::Kerberos::Pac::AD_WIN2K_PAC, :data => pac}]
-          )
-          authorization_data = Rex::Proto::Kerberos::Model::AuthorizationData.new(
-              elements: [{:type => Rex::Proto::Kerberos::Model::AD_IF_RELEVANT, :data => pac_auth_data.encode}]
-          )
-
-          authorization_data
         end
 
         # Builds a kerberos pre authenticated information structure for an TGS request

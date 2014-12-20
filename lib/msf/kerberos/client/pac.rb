@@ -69,6 +69,20 @@ module Msf
 
           pac_type
         end
+
+        def build_authorization_data(opts)
+          pac = opts[:pac] || ''
+
+          pac_auth_data = Rex::Proto::Kerberos::Model::AuthorizationData.new(
+              elements: [{:type => Rex::Proto::Kerberos::Pac::AD_WIN2K_PAC, :data => pac}]
+          )
+          authorization_data = Rex::Proto::Kerberos::Model::AuthorizationData.new(
+              elements: [{:type => Rex::Proto::Kerberos::Model::AD_IF_RELEVANT, :data => pac_auth_data.encode}]
+          )
+
+          authorization_data
+        end
+
       end
     end
   end
