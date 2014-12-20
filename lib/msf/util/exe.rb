@@ -1928,7 +1928,7 @@ to_linux_x86_elf(framework, code, exeopts)
   end
 
   #
-  # EICAR Canary: https://www.metasploit.com/redmine/projects/framework/wiki/EICAR
+  # EICAR Canary
   #
   def self.is_eicar_corrupted?
     path = ::File.expand_path(::File.join(

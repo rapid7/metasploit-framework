@@ -280,7 +280,7 @@ class ClientCore < Extension
         # good bet that migration failed and the remote side is hung.
         # Since we have the comm_mutex here, we *must* release it to
         # keep from hanging the packet dispatcher thread, which results
-        # in blocking the entire process. See Redmine #8794
+        # in blocking the entire process.
         begin
           Timeout.timeout(60) do
             # Renegotiate SSL over this socket

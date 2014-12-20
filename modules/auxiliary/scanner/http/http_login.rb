@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '1999-0502'] # Weak password
         ],
       'License'        => MSF_LICENSE,
-      # See https://dev.metasploit.com/redmine/issues/8814
+      # See https://github.com/rapid7/metasploit-framework/issues/3811
       #'DefaultOptions' => {
       #  'USERPASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt"),
       #  'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt"),
