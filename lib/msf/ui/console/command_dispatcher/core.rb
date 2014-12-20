@@ -45,7 +45,8 @@ class Core
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
     "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ])
+    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ],
+    "-t" => [ true,  "Set a response timeout (default: 15)"])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -1222,7 +1223,7 @@ class Core
       Rex::Socket::SwitchBoard.flush_routes
 
     when "print"
-      tbl =	Table.new(
+      tbl = Table.new(
         Table::Style::Default,
         'Header'  => "Active Routing Table",
         'Prefix'  => "\n",
@@ -1597,6 +1598,7 @@ class Core
     cmds    = []
     script  = nil
     reset_ring = false
+    response_timeout = 15
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1646,6 +1648,10 @@ class Core
       when "-h"
         cmd_sessions_help
         return false
+      when "-t"
+        if val.to_s =~ /^\d+$/
+          response_timeout = val.to_i
+        end
       else
         extra << val
       end
@@ -1684,6 +1690,7 @@ class Core
           session = verify_session(s)
           next unless session
           print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
+          session.response_timeout = response_timeout
 
           if session.type == 'meterpreter'
             # If session.sys is nil, dont even try..
@@ -1720,6 +1727,7 @@ class Core
       session_list.each do |sess_id|
         session = framework.sessions.get(sess_id)
         if session
+          session.response_timeout = response_timeout
           print_status("Killing session #{sess_id}")
           session.kill
         else
@@ -1730,7 +1738,10 @@ class Core
       print_status("Killing all sessions...")
       framework.sessions.each_sorted do |s|
         session = framework.sessions.get(s)
-        session.kill if session
+        if session
+          session.response_timeout = response_timeout
+          session.kill
+        end
       end
     when 'detach'
       print_status("Detaching the following session(s): #{session_list.join(', ')}")
@@ -1738,6 +1749,7 @@ class Core
         session = verify_session(sess_id)
         # if session is interactive, it's detachable
         if session
+          session.response_timeout = response_timeout
           print_status("Detaching session #{sess_id}")
           session.detach
         end
@@ -1745,6 +1757,7 @@ class Core
     when 'interact'
       session = verify_session(sid)
       if session
+        session.response_timeout = response_timeout
         print_status("Starting interaction with #{session.name}...\n") unless quiet
         self.active_session = session
         session.interact(driver.input.dup, driver.output)
@@ -1770,6 +1783,7 @@ class Core
           session = framework.sessions.get(sess_id)
         end
         if session
+          session.response_timeout = response_timeout
           if script_paths[session.type]
             print_status("Session #{sess_id} (#{session.session_host}):")
             print_status("Running script #{script} on #{session.type} session" +
@@ -1790,6 +1804,7 @@ class Core
       session_list.each do |sess_id|
         session = verify_session(sess_id)
         if session
+          session.response_timeout = response_timeout
           if session.type == 'shell'
             session.init_ui(driver.input, driver.output)
             session.execute_script('post/multi/manage/shell_to_meterpreter')
