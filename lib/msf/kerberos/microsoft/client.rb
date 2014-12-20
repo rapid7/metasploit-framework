@@ -10,6 +10,7 @@ module Msf
         require 'msf/kerberos/microsoft/client/as_response'
         require 'msf/kerberos/microsoft/client/tgs_request'
         require 'msf/kerberos/microsoft/client/tgs_response'
+        require 'msf/kerberos/microsoft/client/pac'
         require 'msf/kerberos/microsoft/client/cache_credential'
 
         include Msf::Kerberos::Microsoft::Client::Base
@@ -17,6 +18,7 @@ module Msf
         include Msf::Kerberos::Microsoft::Client::AsResponse
         include Msf::Kerberos::Microsoft::Client::TgsRequest
         include Msf::Kerberos::Microsoft::Client::TgsResponse
+        include Msf::Kerberos::Microsoft::Client::Pac
         include Msf::Kerberos::Microsoft::Client::CacheCredential
 
         # @!attribute client
