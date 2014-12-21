@@ -6,6 +6,8 @@ module Msf
     module Client
       module AsResponse
 
+        # Extracts the session key from a Kerberos AS Response
+        #
         # @param res [Rex::Proto::Kerberos::Model::KdcResponse]
         # @param key [String]
         # @return [Rex::Proto::Kerberos::Model::EncryptionKey]
@@ -16,6 +18,8 @@ module Msf
           enc_kdc_res.key
         end
 
+        # Extracts the logon time from a Kerberos AS Response
+        #
         # @param res [Rex::Proto::Kerberos::Model::KdcResponse]
         # @param key [String]
         # @return [Fixnum]

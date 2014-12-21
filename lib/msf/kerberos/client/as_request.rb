@@ -8,16 +8,9 @@ module Msf
 
         # Builds a kerberos AS request
         #
-        # @param opts [Hash]
-        # @option opts [Fixnum] :options
-        # @option opts [Time] :from
-        # @option opts [Time] :till
-        # @option opts [Fixnum] :nonce
-        # @option opts [Fixnum] :etype
+        # @param opts [Hash{Symbol => <Array<Rex::Proto::Kerberos::Model::PreAuthData>, Rex::Proto::Kerberos::Model::KdcRequestBody>}]
         # @option opts [Array<Rex::Proto::Kerberos::Model::PreAuthData>] :pa_data
-        # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :cname
-        # @option opts [String] :realm
-        # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :sname
+        # @option opts [Rex::Proto::Kerberos::Model::KdcRequestBody] :body
         # @return [Rex::Proto::Kerberos::Model::KdcRequest]
         def build_as_request(opts = {})
           pa_data = opts[:pa_data]
@@ -65,6 +58,19 @@ module Msf
           pa_enc_time_stamp
         end
 
+        # Builds a kerberos AS request body
+        #
+        # @param opts [Hash{Symbol => <Fixnum, Time, String>}]
+        # @option opts [Fixnum] :options
+        # @option opts [Time] :from
+        # @option opts [Time] :till
+        # @option opts [Time] :rtime
+        # @option opts [Fixnum] :nonce
+        # @option opts [Fixnum] :etype
+        # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :cname
+        # @option opts [String] :realm
+        # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :sname
+        # @return [Rex::Proto::Kerberos::Model::KdcRequestBody]
         def build_as_request_body(opts = {})
           options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
           from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
@@ -72,9 +78,9 @@ module Msf
           rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
           nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
           etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
-          cname = build_client_name(opts)
+          cname = opts[:cname] || build_client_name(opts)
           realm = opts[:realm] || ''
-          sname = build_server_name(opts)
+          sname = opts[:sname] || build_server_name(opts)
 
           body = Rex::Proto::Kerberos::Model::KdcRequestBody.new(
             options: options,

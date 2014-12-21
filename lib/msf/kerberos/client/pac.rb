@@ -5,6 +5,7 @@ module Msf
   module Kerberos
     module Client
       module Pac
+
         # Builds a kerberos PA-PAC-REQUEST pre authenticated structure
         #
         # @param opts [Hash{Symbol => Boolean}]
