@@ -5,6 +5,7 @@ module Rex
     module Kerberos
       module CredentialCache
         VERSION = 0x0504
+        HEADER = "\x00\x08\xff\xff\xff\xff\x00\x00\x00\x00"
       end
     end
   end

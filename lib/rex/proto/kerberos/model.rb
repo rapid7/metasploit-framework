@@ -17,7 +17,8 @@ module Rex
         AUTHENTICATOR = 2
         AP_REQ = 14
 
-        # Encryption Message Id's
+        # Encrypted Message Id's
+
         ENC_KDC_REQUEST_BODY = 10
         ENC_AS_RESPONSE = 8
         ENC_TGS_RESPONSE = 9

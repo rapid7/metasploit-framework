@@ -5,9 +5,18 @@ module Msf
   module Kerberos
     module Client
       module CacheCredential
+
+        # Builds a MIT Credential Cache
+        #
+        # @param opts [Hash{Symbol => <Fixnum, Array<String>, Rex::Proto::Kerberos::CredentialCache::Principal, Array<Rex::Proto::Kerberos::CredentialCache::Credential>>}]
+        # @option opts [Fixnum] :version
+        # @option opts [Array<String>] :headers
+        # @option opts [Rex::Proto::Kerberos::CredentialCache::Principal] :primary_principal
+        # @option opts [Array<Rex::Proto::Kerberos::CredentialCache::Credential>] :credentials
+        # @return [Rex::Proto::Kerberos::CredentialCache::Cache]
         def create_cache(opts = {})
-          version = opts[:version] || 0x0504
-          headers = opts[:headers] || ["\x00\x08\xff\xff\xff\xff\x00\x00\x00\x00"]
+          version = opts[:version] || Rex::Proto::Kerberos::CredentialCache::VERSION
+          headers = opts[:headers] || [Rex::Proto::Kerberos::CredentialCache::HEADER]
           primary_principal = opts[:primary_principal] || create_cache_principal(opts)
           credentials = opts[:credentials] || [create_cache_credential(opts)]
 
@@ -21,10 +30,17 @@ module Msf
           cache
         end
 
+        # Builds a MIT Credential Cache principal
+        #
+        # @param opts [Hash<{Symbol => <String, Array<String>}>]
+        # @option opts [String] :name_type
+        # @option opts [String] :realm
+        # @option opts [Array<String>] :components
+        # @return [Rex::Proto::Kerberos::CredentialCache::Principal]
         def create_cache_principal(opts = {})
-          name_type = opts[:name_type]
-          realm = opts[:realm]
-          components = opts[:components]
+          name_type = opts[:name_type] || ''
+          realm = opts[:realm] || ''
+          components = opts[:components] || ['']
 
           principal = Rex::Proto::Kerberos::CredentialCache::Principal.new(
             name_type: name_type,
@@ -35,10 +51,17 @@ module Msf
           principal
         end
 
+        # Builds a MIT Credential Cache key block
+        #
+        # @param opts [Hash<{Symbol => <Fixnum, String>}>]
+        # @option opts [Fixnum] :key_type
+        # @option opts [Fixnum] :e_type
+        # @option opts [String] :key_value
+        # @return [Rex::Proto::Kerberos::CredentialCache::KeyBlock]
         def create_cache_key_block(opts = {})
           key_type = opts[:key_type]
           e_type = opts[:e_type] || 0
-          key_value = opts[:key_value]
+          key_value = opts[:key_value] || ''
 
           key_block = Rex::Proto::Kerberos::CredentialCache::KeyBlock.new(
             key_type: key_type,
@@ -49,8 +72,16 @@ module Msf
           key_block
         end
 
+        # Builds a times structure linked to a credential in a MIT Credential Cache
+        #
+        # @param opts [Hash<{Symbol => Fixnum}>]
+        # @option opts [Fixnum] auth_time
+        # @option opts [Fixnum] start_time
+        # @option opts [Fixnum] end_time
+        # @option opts [Fixnum] renew_till
+        # @return [Rex::Proto::Kerberos::CredentialCache::Time]
         def create_cache_times(opts = {})
-          auth_time = opts[:auth_time]
+          auth_time = opts[:auth_time] || 0
           start_time = opts[:start_time] || 0
           end_time = opts[:end_time] || 0
           renew_till = opts[:renew_till] || 0
@@ -65,6 +96,20 @@ module Msf
           time
         end
 
+        # Builds a MIT Credential Cache credential
+        #
+        # @param opts [Hash<{Symbol => <>}>]
+        # @option opts [Rex::Proto::Kerberos::CredentialCache::Principal] client
+        # @option opts [Rex::Proto::Kerberos::CredentialCache::Principal] server
+        # @option opts [Rex::Proto::Kerberos::CredentialCache::KeyBlock] key
+        # @option opts [Rex::Proto::Kerberos::CredentialCache::Time] time
+        # @option opts [Fixnum] is_key
+        # @option opts [Fixnum] flags
+        # @option opts [Array] addrs
+        # @option opts [Array] auth_data
+        # @option opts [String] ticket
+        # @option opts [String] second_ticket
+        # @return [Rex::Proto::Kerberos::CredentialCache::Credential]
         def create_cache_credential(opts = {})
           client = opts[:client]
           server = opts[:server]
@@ -74,7 +119,7 @@ module Msf
           tkt_flags = opts[:flags]
           addrs = opts[:addrs] || []
           auth_data = opts[:auth_data] || []
-          ticket = opts[:ticket]
+          ticket = opts[:ticket]c
           second_ticket = opts[:second_ticket] || ''
 
           cred = Rex::Proto::Kerberos::CredentialCache::Credential.new(
