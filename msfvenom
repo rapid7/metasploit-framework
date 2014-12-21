@@ -117,8 +117,12 @@ require 'msf/core/payload_generator'
       opts[:keep] = true
     end
 
-    opt.on('-o', '--options', "List the payload's standard options") do
+    opt.on('--payload-options', "List the payload's standard options") do
       opts[:list_options] = true
+    end
+
+    opt.on('-o', '--out   <path>', 'Save the payload') do |x|
+      opts[:out] = x
     end
 
     opt.on('-v', '--var-name <name>', String, 'Specify a custom variable name to use for certain output formats') do |x|
@@ -308,8 +312,24 @@ if __FILE__ == $0
     $stderr.puts e.message
   end
 
-  output_stream = $stdout
-  output_stream.binmode
-  output_stream.write payload
+  # No payload generated, no point to go on
+  exit(-1) unless payload
+
+  if generator_opts[:out]
+    begin
+      ::File.open(generator_opts[:out], 'wb') do |f|
+        f.write(payload)
+      end
+      $stderr.puts "Saved as: #{generator_opts[:out]}"
+    rescue ::Exception => e
+      # If I can't save it, then I can't save it. I don't think it matters what error.
+      elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
+      $stderr.puts e.message
+    end
+  else
+    output_stream = $stdout
+    output_stream.binmode
+    output_stream.write payload
+  end
 
 end
