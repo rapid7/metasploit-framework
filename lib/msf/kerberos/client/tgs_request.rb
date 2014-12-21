@@ -6,6 +6,16 @@ module Msf
     module Client
       module TgsRequest
 
+        # Builds the encrypted Kerberos TGS request
+        #
+        # @param opts [Hash{Symbol => <Rex::Proto::Kerberos::Model::Element>}]
+        # @option opts [Rex::Proto::Kerberos::Model::AuthorizationData] :auth_data
+        # @option opts [Rex::Proto::Kerberos::Model::EncryptedData] :enc_auth_data
+        # @option opts [Rex::Proto::Kerberos::Model::EncryptionKey] :subkey
+        # @option opts [Rex::Proto::Kerberos::Model::Checksum] :checksum
+        # @option opts [Rex::Proto::Kerberos::Model::Authenticator] :auhtenticator
+        # @option opts [Array<Rex::Proto::Kerberos::Model::PreAuthData>] :pa_data
+        # @return [Rex::Proto::Kerberos::Model::KdcRequest]
         def build_tgs_request(opts = {})
           subkey = opts[:subkey] || build_subkey(opts)
 
@@ -62,6 +72,12 @@ module Msf
           request
         end
 
+        # Builds the encrypted TGS authorization data
+        #
+        # @param opts [Hash{Symbol => <Rex::Proto::Kerberos::Model::AuthorizationData, Rex::Proto::Kerberos::Model::EncryptionKey>}]
+        # @option opts [Rex::Proto::Kerberos::Model::AuthorizationData] :auth_data
+        # @option opts [Rex::Proto::Kerberos::Model::EncryptionKey] :subkey
+        # @return [Rex::Proto::Kerberos::Model::EncryptedData]
         def build_enc_auth_data(opts)
           auth_data = opts[:auth_data]
           key = opts[:subkey].value #|| ''
@@ -77,6 +93,16 @@ module Msf
           e_data
         end
 
+        # Builds a KRB_AP_REQ message
+        #
+        # @param opts [Hash{Symbol => <Fixnum, Rex::Proto::Kerberos::Model::Ticket, Rex::Proto::Kerberos::Model::EncryptedData, Rex::Proto::Kerberos::Model::EncryptionKey>}]
+        # @option opts [Fixnum] :pvno
+        # @option opts [Fixnum] :msg_type
+        # @option opts [Fixnum] :ap_req_options
+        # @option opts [Rex::Proto::Kerberos::Model::Ticket] :ticket
+        # @option opts [Rex::Proto::Kerberos::Model::EncryptedData] :authenticator
+        # @option opts [Rex::Proto::Kerberos::Model::EncryptionKey] :session_key
+        # @return [Rex::Proto::Kerberos::Model::EncryptionKey]
         def build_ap_req(opts = {})
           pvno = opts[:pvno] || Rex::Proto::Kerberos::Model::VERSION
           msg_type = opts[:msg_type] || Rex::Proto::Kerberos::Model::AP_REQ
@@ -109,6 +135,12 @@ module Msf
           ap_req
         end
 
+        # Builds an encryption key to protect the data sent in the TGS request.
+        #
+        # @param opts [Hash{Symbol => <Fixnum, String>}]
+        # @option opts [Fixnum] :subkey_type
+        # @option opts [String] :subkey_value
+        # @return [Rex::Proto::Kerberos::Model::EncryptionKey]
         def build_subkey(opts={})
           subkey_type = opts[:subkey_type] || 23
           subkey_value = opts[:subkey_value] || Rex::Text.rand_text(16)
@@ -122,12 +154,22 @@ module Msf
           subkey
         end
 
+        # Builds a kerberos authenticator for a TGS request
+        #
+        # @param opts [Hash{Symbol => <Rex::Proto::Kerberos::Model::PrincipalName, String, Time, Rex::Proto::Kerberos::Model::EncryptionKey>}]
+        # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :cname
+        # @option opts [String] :realm
+        # @option opts [Time] :ctime
+        # @option opts [Fixnum] :cusec
+        # @option opts [Rex::Proto::Kerberos::Model::Checksum] :checksum
+        # @option opts [Rex::Proto::Kerberos::Model::EncryptionKey] :subkey
+        # @return [Rex::Proto::Kerberos::Model::Authenticator]
         def build_authenticator(opts = {})
           cname = opts[:cname] || build_client_name(opts)
           realm = opts[:realm] || ''
           ctime = opts[:ctime] || Time.now
           cusec = opts[:cusec] || ctime.usec
-          checksum = opts[:checksum] || ''
+          checksum = opts[:checksum]
           subkey = opts[:subkey]
 
           authenticator = Rex::Proto::Kerberos::Model::Authenticator.new(
@@ -143,6 +185,20 @@ module Msf
           authenticator
         end
 
+        # Builds a kerberos TGS request body
+        #
+        # @param opts [Hash{Symbol => <Fixnum, Time, String, Rex::Proto::Kerberos::Model::PrincipalName, Rex::Proto::Kerberos::Model::EncryptedData>}]
+        # @option opts [Fixnum] :options
+        # @option opts [Time] :from
+        # @option opts [Time] :till
+        # @option opts [Time] :rtime
+        # @option opts [Fixnum] :nonce
+        # @option opts [Fixnum] :etype
+        # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :cname
+        # @option opts [String] :realm
+        # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :sname
+        # @option opts [Rex::Proto::Kerberos::Model::EncryptedData] :enc_auth_data
+        # @return [Rex::Proto::Kerberos::Model::KdcRequestBody]
         def build_tgs_request_body(opts = {})
           options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
           from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
@@ -172,6 +228,12 @@ module Msf
           body
         end
 
+        # Builds a Kerberos TGS Request body checksum
+        #
+        # @param opts [Hash{Symbol => <Rex::Proto::Kerberos::Model::KdcRequestBody, Fixnum>}]
+        # @option opts [Rex::Proto::Kerberos::Model::KdcRequestBody] :body
+        # @option opts [Fixnum] :checksum_type
+        # @return [Rex::Proto::Kerberos::Model::Checksum]
         def build_tgs_body_checksum(body)
           checksum_body = body.checksum(7)
           checksum = Rex::Proto::Kerberos::Model::Checksum.new(

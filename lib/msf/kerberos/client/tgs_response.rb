@@ -5,6 +5,13 @@ module Msf
   module Kerberos
     module Client
       module TgsResponse
+
+        # Extracts the Kerberos credentials, buildint a MIT Cache Credential,
+        # from a Kerberos TGS response.
+        #
+        # @param res [Rex::Proto::Kerberos::Model::KdcResponse]
+        # @param key [String]
+        # @return [Rex::Proto::Kerberos::CredentialCache::Cache]
         def extract_kerb_creds(res, key)
           decrypt_res = res.enc_part.decrypt(key, 9)
           enc_res = Rex::Proto::Kerberos::Model::EncKdcResponse.decode(decrypt_res)

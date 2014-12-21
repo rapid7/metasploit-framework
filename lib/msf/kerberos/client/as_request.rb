@@ -60,7 +60,7 @@ module Msf
 
         # Builds a kerberos AS request body
         #
-        # @param opts [Hash{Symbol => <Fixnum, Time, String>}]
+        # @param opts [Hash{Symbol => <Fixnum, Time, String, Rex::Proto::Kerberos::Model::PrincipalName>}]
         # @option opts [Fixnum] :options
         # @option opts [Time] :from
         # @option opts [Time] :till

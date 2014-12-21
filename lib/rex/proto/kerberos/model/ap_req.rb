@@ -4,7 +4,9 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # This class provides a representation of a KRB_AP_REQ definition.
+        # This class provides a representation of a KRB_AP_REQ definition, containing the Kerberos protocol version number,
+        # the message type KRB_AP_REQ, an options field to indicate any options in use, and the ticket and authenticator
+        # themselves
         class ApReq < Element
           # @!attribute pvno
           #   @return [Fixnum] The protocol version number
