@@ -12,9 +12,6 @@ describe Msf::Kerberos::Client::CacheCredential do
     mod
   end
 
-  let(:valid_subkey) { 'AAAABBBBCCCCDDDD' }
-  let(:invalid_subkey) { '1234567890123456' }
-
   describe "#create_cache_credential" do
     context "when no opts" do
       it "create a default Rex::Proto::Kerberos::CredentialCache::Credential" do
