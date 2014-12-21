@@ -11,6 +11,11 @@ module Msf
         # @param res [Rex::Proto::Kerberos::Model::KdcResponse]
         # @param key [String]
         # @return [Rex::Proto::Kerberos::Model::EncryptionKey]
+        # @see Rex::Proto::Kerberos::Model::KdcResponse
+        # @see Rex::Proto::Kerberos::Model::EncryptedData.decrypt
+        # @see Rex::Proto::Kerberos::Model::EncKdcResponse
+        # @see Rex::Proto::Kerberos::Model::EncKdcResponse.decode
+        # @see Rex::Proto::Kerberos::Model::EncryptionKey
         def extract_session_key(res, key)
           decrypt_res = res.enc_part.decrypt(key, 8)
           enc_kdc_res = Rex::Proto::Kerberos::Model::EncKdcResponse.decode(decrypt_res)
@@ -23,6 +28,10 @@ module Msf
         # @param res [Rex::Proto::Kerberos::Model::KdcResponse]
         # @param key [String]
         # @return [Fixnum]
+        # @see Rex::Proto::Kerberos::Model::KdcResponse
+        # @see Rex::Proto::Kerberos::Model::EncryptedData.decrypt
+        # @see Rex::Proto::Kerberos::Model::EncKdcResponse
+        # @see Rex::Proto::Kerberos::Model::EncKdcResponse.decode
         def extract_logon_time(res, key)
           decrypt_res = res.enc_part.decrypt(key, 8)
           enc_kdc_res = Rex::Proto::Kerberos::Model::EncKdcResponse.decode(decrypt_res)

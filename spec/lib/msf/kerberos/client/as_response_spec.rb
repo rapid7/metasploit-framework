@@ -139,7 +139,7 @@ describe Msf::Kerberos::Client::AsResponse do
   describe "#extract_session_key" do
     context "when extracting from an AS response" do
       context "when using a valid key" do
-        it "returns the extracted Rex::Proto::Kerberos::CredentialCache::Cache" do
+        it "returns the extracted Rex::Proto::Kerberos::Model::EncryptionKey" do
           response = Rex::Proto::Kerberos::Model::KdcResponse.decode(as_response)
           expect(subject.extract_session_key(response, valid_key)).to be_a(Rex::Proto::Kerberos::Model::EncryptionKey)
         end
@@ -163,6 +163,37 @@ describe Msf::Kerberos::Client::AsResponse do
       it "raises RuntimeError" do
         response = Rex::Proto::Kerberos::Model::KdcResponse.decode(tgs_response)
         expect { subject.extract_session_key(response, valid_key) }.to raise_error(RuntimeError)
+      end
+    end
+  end
+
+  describe "#extract_logon_time" do
+    context "when extracting from an AS response" do
+      context "when using a valid key" do
+        it "returns the extracted Rex::Proto::Kerberos::CredentialCache::Cache" do
+          response = Rex::Proto::Kerberos::Model::KdcResponse.decode(as_response)
+          expect(subject.extract_logon_time(response, valid_key)).to be_a(Fixnum)
+        end
+
+        it "extracts the correct time" do
+          response = Rex::Proto::Kerberos::Model::KdcResponse.decode(as_response)
+          time = subject.extract_logon_time(response, valid_key)
+          expect(time).to eq(1419128917)
+        end
+      end
+
+      context "when using an invalid key" do
+        it "raises RuntimeError" do
+          response = Rex::Proto::Kerberos::Model::KdcResponse.decode(as_response)
+          expect { subject.extract_logon_time(response, invalid_key) }.to raise_error(RuntimeError)
+        end
+      end
+    end
+
+    context "when extracting from a TGS response" do
+      it "raises RuntimeError" do
+        response = Rex::Proto::Kerberos::Model::KdcResponse.decode(tgs_response)
+        expect { subject.extract_logon_time(response, valid_key) }.to raise_error(RuntimeError)
       end
     end
   end
