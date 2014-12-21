@@ -119,7 +119,7 @@ module Msf
           tkt_flags = opts[:flags]
           addrs = opts[:addrs] || []
           auth_data = opts[:auth_data] || []
-          ticket = opts[:ticket]c
+          ticket = opts[:ticket]
           second_ticket = opts[:second_ticket] || ''
 
           cred = Rex::Proto::Kerberos::CredentialCache::Credential.new(
