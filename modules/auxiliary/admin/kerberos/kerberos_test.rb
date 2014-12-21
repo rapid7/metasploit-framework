@@ -8,7 +8,7 @@ require 'rex'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Kerberos::Microsoft::Client
+  include Msf::Kerberos::Client
 
   def initialize(info = {})
     super(update_info(info,
