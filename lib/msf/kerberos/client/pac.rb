@@ -11,6 +11,8 @@ module Msf
         # @param opts [Hash{Symbol => Boolean}]
         # @option opts [Boolean] :pac_request_value
         # @return [Rex::Proto::Kerberos::Model::Field::PreAuthData]
+        # @see Rex::Proto::Kerberos::Model::PreAuthPacRequest
+        # @see Rex::Proto::Kerberos::Model::PreAuthData
         def build_pa_pac_request(opts = {})
           value = opts[:pac_request_value] || false
           pac_request = Rex::Proto::Kerberos::Model::PreAuthPacRequest.new(value: value)
@@ -33,6 +35,11 @@ module Msf
         # @option opts [String] :domain_id the domain SID Ex: S-1-5-21-1755879683-3641577184-3486455962
         # @option opts [Time] :logon_time
         # @return [Rex::Proto::Kerberos::Pac::Type]
+        # @see Rex::Proto::Kerberos::Pac::LogonInfo
+        # @see Rex::Proto::Kerberos::Pac::ClientInfo
+        # @see Rex::Proto::Kerberos::Pac::ServerChecksum
+        # @see Rex::Proto::Kerberos::Pac::PrivSvrChecksum
+        # @see Rex::Proto::Kerberos::Pac::Type
         def build_pac(opts = {})
           user_name = opts[:client_name] || ''
           user_id = opts[:user_id] || 1000
@@ -84,6 +91,7 @@ module Msf
         # @param opts [Hash{Symbol => Rex::Proto::Kerberos::Pac::Type}]
         # @option opts [Rex::Proto::Kerberos::Pac::Type] :pac
         # @return [Rex::Proto::Kerberos::Model::AuthorizationData]
+        # @see Rex::Proto::Kerberos::Model::AuthorizationData
         def build_pac_authorization_data(opts = {})
           pac = opts[:pac] || build_pac(opts)
 
