@@ -1,2 +1,2 @@
-# Load a slightly tweaked METASM stub
-require 'metasm/metasm'
+# Load a submodule-tracked METASM
+require 'submodules/metasm/metasm'
