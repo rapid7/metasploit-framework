@@ -50,7 +50,6 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run
-
     print_status("#{peer} - Connecting with the KDC...")
     connect(:rhost => datastore['RHOST'])
 
