@@ -12,8 +12,11 @@ module Msf
         # @option opts [Array<Rex::Proto::Kerberos::Model::PreAuthData>] :pa_data
         # @option opts [Rex::Proto::Kerberos::Model::KdcRequestBody] :body
         # @return [Rex::Proto::Kerberos::Model::KdcRequest]
+        # @see [Rex::Proto::Kerberos::Model::KdcRequest]
+        # @see #build_as_pa_time_stamp
+        # @see #build_as_request_body
         def build_as_request(opts = {})
-          pa_data = opts[:pa_data]
+          pa_data = opts[:pa_data] || build_as_pa_time_stamp(opts)
           body = opts[:body] || build_as_request_body(opts)
 
           request = Rex::Proto::Kerberos::Model::KdcRequest.new(
@@ -34,6 +37,9 @@ module Msf
         # @option opts [Fixnum] :etype
         # @option opts [String] :key
         # @return [Rex::Proto::Kerberos::Model::PreAuthData]
+        # @see Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp
+        # @see Rex::Proto::Kerberos::Model::EncryptedData
+        # @see Rex::Proto::Kerberos::Model::PreAuthData
         def build_as_pa_time_stamp(opts = {})
           time_stamp = opts[:time_stamp] || Time.now
           pausec = opts[:pausec] || 0
@@ -71,6 +77,9 @@ module Msf
         # @option opts [String] :realm
         # @option opts [Rex::Proto::Kerberos::Model::PrincipalName] :sname
         # @return [Rex::Proto::Kerberos::Model::KdcRequestBody]
+        # @see #build_client_name
+        # @see #build_server_name
+        # @see Rex::Proto::Kerberos::Model::KdcRequestBody
         def build_as_request_body(opts = {})
           options = opts[:options] || 0x50800000 # Forwardable, Proxiable, Renewable
           from = opts[:from] || Time.utc('1970-01-01-01 00:00:00')
