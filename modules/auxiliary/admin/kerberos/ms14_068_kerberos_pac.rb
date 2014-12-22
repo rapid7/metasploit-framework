@@ -18,16 +18,21 @@ class Metasploit4 < Msf::Auxiliary
       },
       'Author' =>
         [
-					'juan vazquez'
+          'Tom Maddock', # Vulnerability discovery
+          'Sylvain Monne', # pykek framework and exploit
+					'juan vazquez' # Metasploit module
         ],
       'References' =>
         [
           ['CVE', '2014-6324'],
           ['MSB', 'MS14-068'],
-          ['URL', 'http://blogs.technet.com/b/srd/archive/2014/11/18/additional-information-about-cve-2014-6324.aspx']
+          ['OSVDB', '114751'],
+          ['URL', 'http://blogs.technet.com/b/srd/archive/2014/11/18/additional-information-about-cve-2014-6324.aspx'],
+          ['URL', 'https://labs.mwrinfosecurity.com/blog/2014/12/16/digging-into-ms14-068-exploitation-and-defence/'],
+          ['URL', 'https://github.com/bidord/pykek']
         ],
       'License' => MSF_LICENSE,
-      'DisclosureDate' => 'Dec 25 2014'
+      'DisclosureDate' => 'Nov 18 2014'
     ))
   end
 
