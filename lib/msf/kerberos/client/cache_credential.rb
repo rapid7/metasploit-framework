@@ -62,7 +62,7 @@ module Msf
         # @return [Rex::Proto::Kerberos::CredentialCache::KeyBlock]
         # @see Rex::Proto::Kerberos::CredentialCache::KeyBlock
         def create_cache_key_block(opts = {})
-          key_type = opts[:key_type] || 23
+          key_type = opts[:key_type] || Rex::Proto::Kerberos::Crypto::RC4_HMAC
           e_type = opts[:e_type] || 0
           key_value = opts[:key_value] || ''
 
