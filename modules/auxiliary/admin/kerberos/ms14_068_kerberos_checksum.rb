@@ -17,10 +17,10 @@ class Metasploit4 < Msf::Auxiliary
       'Description' => %q{
         This module exploits a vulnerability in the Microsoft Kerberos implementation. The problem
         exists in the verification of the Privilege Attribute Certificate (PAC) from a Kerberos TGS
-        request, allowing a domain user to forge a PAC with arbitrary privileges, including Domain
-        Administrator. This module outputs a MIT Kerberos Credential Cache with the privileged
-        ticket, which can be imported, for example, on Mimikatz. It has been tested successfully on
-        Windows 2008.
+        request, where a domain user is allowed to forge a PAC with arbitrary privileges, including
+        Domain Administrator. This module requests a TGT ticket with a forged PAC and exports it to
+        a MIT Kerberos Credential Cache file. It can be loaded on Windows systems with the Mimikatz
+        help. It has been tested successfully on Windows 2008.
       },
       'Author' =>
         [
