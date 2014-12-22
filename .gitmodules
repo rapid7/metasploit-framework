@@ -1,3 +1,6 @@
 [submodule "external/source/ReflectiveDLLInjection"]
 	path = external/source/ReflectiveDLLInjection
 	url = https://github.com/rapid7/ReflectiveDLLInjection.git
+[submodule "lib/submodules/metasm"]
+	path = lib/submodules/metasm
+	url = https://github.com/jjyg/metasm
