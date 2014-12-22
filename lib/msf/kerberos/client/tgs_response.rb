@@ -17,7 +17,7 @@ module Msf
         # @see Msf::Kerberos::Client::CacheCredential
         # @see Rex::Proto::Kerberos::CredentialCache::Cache
         def extract_kerb_creds(res, key)
-          decrypt_res = res.enc_part.decrypt(key, 9)
+          decrypt_res = res.enc_part.decrypt(key, Rex::Proto::Kerberos::Crypto::ENC_TGS_RESPONSE)
           enc_res = Rex::Proto::Kerberos::Model::EncKdcResponse.decode(decrypt_res)
 
           client = create_cache_principal(

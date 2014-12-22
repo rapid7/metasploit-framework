@@ -17,7 +17,7 @@ module Msf
         # @see Rex::Proto::Kerberos::Model::EncKdcResponse.decode
         # @see Rex::Proto::Kerberos::Model::EncryptionKey
         def extract_session_key(res, key)
-          decrypt_res = res.enc_part.decrypt(key, 8)
+          decrypt_res = res.enc_part.decrypt(key, Rex::Proto::Kerberos::Crypto::ENC_AS_RESPONSE)
           enc_kdc_res = Rex::Proto::Kerberos::Model::EncKdcResponse.decode(decrypt_res)
 
           enc_kdc_res.key
@@ -33,7 +33,7 @@ module Msf
         # @see Rex::Proto::Kerberos::Model::EncKdcResponse
         # @see Rex::Proto::Kerberos::Model::EncKdcResponse.decode
         def extract_logon_time(res, key)
-          decrypt_res = res.enc_part.decrypt(key, 8)
+          decrypt_res = res.enc_part.decrypt(key, Rex::Proto::Kerberos::Crypto::ENC_AS_RESPONSE)
           enc_kdc_res = Rex::Proto::Kerberos::Model::EncKdcResponse.decode(decrypt_res)
 
           auth_time = enc_kdc_res.auth_time

@@ -17,12 +17,6 @@ module Rex
         AUTHENTICATOR = 2
         AP_REQ = 14
 
-        # Encrypted Message Id's
-
-        ENC_KDC_REQUEST_BODY = 10
-        ENC_AS_RESPONSE = 8
-        ENC_TGS_RESPONSE = 9
-
         KDC_OPTION_RESERVED        = 0
         KDC_OPTION_FORWARDABLE     = 1
         KDC_OPTION_FORWARDED       = 2

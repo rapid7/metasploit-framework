@@ -129,7 +129,6 @@ describe Rex::Proto::Kerberos::Model::EncryptedData do
     "\x9f\x5e\xb7\xb8\x9b\x57\xc5\xc9\xc5\xea\x90\x89\xc3\x63\x58"
   end
   let(:msg_type) { 1 }
-  #let(:known_password) { 'juan' }
   let(:known_password) { OpenSSL::Digest.digest('MD4', Rex::Text.to_unicode('juan')) }
 
   describe "#decode" do

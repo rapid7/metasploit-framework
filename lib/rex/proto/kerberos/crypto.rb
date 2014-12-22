@@ -12,6 +12,9 @@ module Rex
 
         RSA_MD5 = 7
         RC4_HMAC = 23
+        ENC_KDC_REQUEST_BODY = 10
+        ENC_AS_RESPONSE = 8
+        ENC_TGS_RESPONSE = 9
       end
     end
   end
