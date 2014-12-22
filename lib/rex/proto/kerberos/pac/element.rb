@@ -6,6 +6,7 @@ module Rex
       module Pac
         class Element
 
+          include Rex::Proto::Kerberos::Crypto
           include Rex::Proto::Kerberos::Pac
 
           def self.attr_accessor(*vars)

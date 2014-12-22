@@ -48,7 +48,7 @@ module Msf
           domain_name = opts[:realm] || ''
           domain_id = opts[:domain_id] || 'S-1-1'
           logon_time = opts[:logon_time] || Time.now
-          checksum_type = opts[:checksum_type] || Rex::Proto::Kerberos::Crypto::RsaMd5::RSA_MD5
+          checksum_type = opts[:checksum_type] || Rex::Proto::Kerberos::Crypto::RSA_MD5
 
           logon_info = Rex::Proto::Kerberos::Pac::LogonInfo.new(
             logon_time: logon_time,

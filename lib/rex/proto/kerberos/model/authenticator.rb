@@ -8,8 +8,6 @@ module Rex
         # ticket to the server to certify the client's knowledge of the encryption
         # key in the ticket.
         class Authenticator < Element
-          include Rex::Proto::Kerberos::Crypto::Rc4Hmac
-
           # @!attribute vno
           #   @return [Fixnum] The authenticator version number
           attr_accessor :vno
@@ -71,7 +69,7 @@ module Rex
 
             res = ''
             case etype
-            when KERB_ETYPE_RC4_HMAC
+            when RC4_HMAC
               res = encrypt_rc4_hmac(data, key, 7)
             else
               raise ::RuntimeError, 'EncryptedData schema is not supported'

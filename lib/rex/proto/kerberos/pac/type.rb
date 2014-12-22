@@ -8,8 +8,6 @@ module Rex
         # of the PAC.
         class Type < Element
 
-          include Rex::Proto::Kerberos::Crypto::RsaMd5
-
           # @!attribute buffers
           #   @return [Array<Rex::Text::Proto::Kerberos::Pac::Element>] The array of PAC_INFO_BUFFER structures
           attr_accessor :buffers

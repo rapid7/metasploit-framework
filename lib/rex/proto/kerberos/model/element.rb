@@ -8,6 +8,7 @@ module Rex
         # workstation user or a network server) on a network.
         class Element
 
+          include Rex::Proto::Kerberos::Crypto
           include Rex::Proto::Kerberos::Model
 
           def self.attr_accessor(*vars)

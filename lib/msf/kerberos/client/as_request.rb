@@ -43,7 +43,7 @@ module Msf
         def build_as_pa_time_stamp(opts = {})
           time_stamp = opts[:time_stamp] || Time.now
           pausec = opts[:pausec] || 0
-          etype = opts[:etype] || Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC
+          etype = opts[:etype] || Rex::Proto::Kerberos::Crypto::RC4_HMAC
           key = opts[:key] || ''
 
           pa_time_stamp = Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp.new(
@@ -86,7 +86,7 @@ module Msf
           till = opts[:till] || Time.utc('1970-01-01-01 00:00:00')
           rtime = opts[:rtime] || Time.utc('1970-01-01-01 00:00:00')
           nonce = opts[:nonce] || Rex::Text.rand_text_numeric(6).to_i
-          etype = opts[:etype] || [Rex::Proto::Kerberos::Model::KERB_ETYPE_RC4_HMAC]
+          etype = opts[:etype] || [Rex::Proto::Kerberos::Crypto::RC4_HMAC]
           cname = opts[:cname] || build_client_name(opts)
           realm = opts[:realm] || ''
           sname = opts[:sname] || build_server_name(opts)

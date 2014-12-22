@@ -21,7 +21,7 @@ describe Msf::Kerberos::Client::Pac do
       :realm => 'DOMAIN',
       :domain_id => 'S-1-5-21-1755879683-3641577184-3486455962',
       :logon_time => Time.utc(2014),
-      :checksum_type => Rex::Proto::Kerberos::Crypto::RsaMd5::RSA_MD5
+      :checksum_type => Rex::Proto::Kerberos::Crypto::RSA_MD5
     }
   end
 
@@ -33,7 +33,7 @@ describe Msf::Kerberos::Client::Pac do
 
       it "creates a PAC-TYPE with default checksum type" do
         pac = subject.build_pac
-        expect(pac.checksum).to eq(Rex::Proto::Kerberos::Crypto::RsaMd5::RSA_MD5)
+        expect(pac.checksum).to eq(Rex::Proto::Kerberos::Crypto::RSA_MD5)
       end
 
       it "creates a PAC-TYPE with default data in buffers" do
@@ -49,7 +49,7 @@ describe Msf::Kerberos::Client::Pac do
 
       it "creates a PAC-TYPE with provided checksum type" do
         pac = subject.build_pac(pac_opts)
-        expect(pac.checksum).to eq(Rex::Proto::Kerberos::Crypto::RsaMd5::RSA_MD5)
+        expect(pac.checksum).to eq(Rex::Proto::Kerberos::Crypto::RSA_MD5)
       end
 
       it "creates a PAC-TYPE with provided data in buffers" do

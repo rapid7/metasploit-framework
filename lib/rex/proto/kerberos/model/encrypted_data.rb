@@ -6,9 +6,6 @@ module Rex
       module Model
         # This class provides a representation of an encrypted message.
         class EncryptedData < Element
-
-          include Rex::Proto::Kerberos::Crypto::Rc4Hmac
-
           # @!attribute name_type
           #   @return [Fixnum] The encryption algorithm
           attr_accessor :etype
@@ -71,7 +68,7 @@ module Rex
 
             res = ''
             case etype
-            when KERB_ETYPE_RC4_HMAC
+            when RC4_HMAC
               res = decrypt_rc4_hmac(cipher, key, msg_type)
               raise ::RuntimeError, 'EncryptedData failed to decrypt' if res.length < 8
               res = res[8, res.length - 1]
