@@ -23,7 +23,7 @@ describe Msf::Kerberos::Client::TgsRequest do
 
   let(:key_opts) do
     {
-      :key_value => 'AAAABBBBCCCCDDDD'
+      :subkey_value => 'AAAABBBBCCCCDDDD'
     }
   end
 
