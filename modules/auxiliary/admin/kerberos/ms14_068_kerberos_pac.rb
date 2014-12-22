@@ -22,7 +22,9 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'References' =>
         [
-          ['MSB', 'MS14-068']
+          ['CVE', '2014-6324'],
+          ['MSB', 'MS14-068'],
+          ['URL', 'http://blogs.technet.com/b/srd/archive/2014/11/18/additional-information-about-cve-2014-6324.aspx']
         ],
       'License' => MSF_LICENSE,
       'DisclosureDate' => 'Dec 25 2014'
