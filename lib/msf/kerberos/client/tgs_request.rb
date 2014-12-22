@@ -195,7 +195,7 @@ module Msf
         # @see Rex::Proto::Kerberos::Model::EncryptionKey
         def build_subkey(opts={})
           subkey_type = opts[:subkey_type] || Rex::Proto::Kerberos::Crypto::RC4_HMAC
-          subkey_value = opts[:subkey_value] || "AAAABBBBCCCCDDDD" #Rex::Text.rand_text(16)
+          subkey_value = opts[:subkey_value] || Rex::Text.rand_text(16)
 
           subkey = Rex::Proto::Kerberos::Model::EncryptionKey.new(
             type: subkey_type,
