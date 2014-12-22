@@ -111,6 +111,8 @@ module Msf
       #
       # @param opts [Hash]
       # @return [Rex::Proto::Kerberos::Model::KdcResponse]
+      # @see Msf::Kerberos::Client::AsRequest#build_as_request
+      # @see Rex::Proto::Kerberos::Model::KdcResponse
       def send_request_as(opts = {})
         connect(opts)
         req = build_as_request(opts)
@@ -123,6 +125,8 @@ module Msf
       #
       # @param opts [Hash]
       # @return [Rex::Proto::Kerberos::Model::KdcResponse]
+      # @see Msf::Kerberos::Client::TgsRequest#build_tgs_request
+      # @see Rex::Proto::Kerberos::Model::KdcResponse
       def send_request_tgs(opts = {})
         connect(opts)
         req = build_tgs_request(opts)

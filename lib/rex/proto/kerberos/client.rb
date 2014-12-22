@@ -168,7 +168,6 @@ module Rex
             raise ::RuntimeError, 'Kerberos Client: failed to read response'
           end
 
-          puts Rex::Text.to_hex(data)
           res = decode_kerb_response(data)
 
           res

