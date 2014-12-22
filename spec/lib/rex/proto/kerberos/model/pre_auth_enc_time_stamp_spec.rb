@@ -48,7 +48,7 @@ describe Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp do
 
   let(:msg_type) { 1 }
   let(:password) { 'juan' }
-  let(:enc_type) { 23 }
+  let(:enc_type) { Rex::Proto::Kerberos::Crypto::RC4_HMAC }
 
   describe "#decode" do
     it "returns the decoded Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp" do

@@ -259,7 +259,7 @@ module Msf
         # @see Rex::Proto::Kerberos::Model::Checksum
         def build_tgs_body_checksum(opts = {})
           body = opts[:body] || build_tgs_request_body(opts)
-          checksum_body = body.checksum(7)
+          checksum_body = body.checksum(Rex::Proto::Kerberos::Crypto::RSA_MD5)
           checksum = Rex::Proto::Kerberos::Model::Checksum.new(
             type: 7,
             checksum: checksum_body

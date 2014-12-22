@@ -479,7 +479,7 @@ describe Rex::Proto::Kerberos::Model::KdcRequestBody do
 
       it "decodes etype" do
         kdc_request_body.decode(sample_as_req)
-        expect(kdc_request_body.etype).to eq([23])
+        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::RC4_HMAC])
       end
 
       it "doesn't decode enc_auth_data" do
@@ -536,7 +536,7 @@ describe Rex::Proto::Kerberos::Model::KdcRequestBody do
 
       it "decodes etype" do
         kdc_request_body.decode(sample_tgs_req)
-        expect(kdc_request_body.etype).to eq([23])
+        expect(kdc_request_body.etype).to eq([Rex::Proto::Kerberos::Crypto::RC4_HMAC])
       end
 
       it "decodes enc_auth_data" do

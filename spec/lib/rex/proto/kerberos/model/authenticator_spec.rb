@@ -9,7 +9,7 @@ describe Rex::Proto::Kerberos::Model::Authenticator do
     described_class.new
   end
 
-  let(:rsa_md5) { 7 }
+  let(:rsa_md5) { Rex::Proto::Kerberos::Crypto::RSA_MD5 }
 
   let(:sample) do
     "\x62\x7c\x30\x7a\xa0\x03\x02\x01\x05\xa1\x0c\x1b\x0a\x44\x45\x4d\x4f\x2e\x4c\x4f" +
@@ -34,7 +34,7 @@ describe Rex::Proto::Kerberos::Model::Authenticator do
       )
 
       enc_key = Rex::Proto::Kerberos::Model::EncryptionKey.new(
-        type: 23,
+        type: Rex::Proto::Kerberos::Crypto::RC4_HMAC,
         value: "\x7d\x63\xdd\x79\x73\x67\xce\x86\xbb\x5f\x2b\x8a\xba\x58\xfd\x6e"
       )
 

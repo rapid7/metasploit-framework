@@ -79,7 +79,7 @@ describe Msf::Kerberos::Client::TgsRequest do
 
       it "creates a RSA-MD5 checksum" do
         body = mod.build_tgs_request_body(body_opts)
-        expect(mod.build_tgs_body_checksum(:body => body).type).to eq(7)
+        expect(mod.build_tgs_body_checksum(:body => body).type).to eq(Rex::Proto::Kerberos::Crypto::RSA_MD5)
       end
 
       it "calculates and stores the checksum" do
@@ -96,7 +96,7 @@ describe Msf::Kerberos::Client::TgsRequest do
 
       it "creates a RSA-MD5 checksum" do
         body = mod.build_tgs_request_body(body_opts)
-        expect(mod.build_tgs_body_checksum(:body => body).type).to eq(7)
+        expect(mod.build_tgs_body_checksum(:body => body).type).to eq(Rex::Proto::Kerberos::Crypto::RSA_MD5)
       end
 
       it "calculates and stores the checksum" do
@@ -113,7 +113,7 @@ describe Msf::Kerberos::Client::TgsRequest do
       end
 
       it "creates a RC4-HMAC key" do
-        expect(mod.build_subkey.type).to eq(23)
+        expect(mod.build_subkey.type).to eq(Rex::Proto::Kerberos::Crypto::RC4_HMAC)
       end
 
       it "creates a key" do

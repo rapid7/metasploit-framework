@@ -14,7 +14,7 @@ describe Rex::Proto::Kerberos::Model::Checksum do
     "\xe5\x16\x02\x32\xb1\xc3\x4e\xad\x83\x1d\x43"
   end
 
-  let(:rsa_md5) { 7 }
+  let(:rsa_md5) { Rex::Proto::Kerberos::Crypto::RSA_MD5 }
 
   describe "#encode" do
     it "encodes Rex::Proto::Kerberos::Model::Checksum correctly" do

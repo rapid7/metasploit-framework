@@ -409,7 +409,7 @@ describe Rex::Proto::Kerberos::Model::ApReq do
       ticket = Rex::Proto::Kerberos::Model::Ticket.decode(ticket_der)
 
       authenticator = Rex::Proto::Kerberos::Model::EncryptedData.new(
-        etype: 23,
+        etype: Rex::Proto::Kerberos::Crypto::RC4_HMAC,
         cipher: cipher
       )
 

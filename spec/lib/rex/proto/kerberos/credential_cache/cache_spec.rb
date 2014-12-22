@@ -39,7 +39,7 @@ describe Rex::Proto::Kerberos::CredentialCache::Cache do
       )
 
       key = Rex::Proto::Kerberos::CredentialCache::KeyBlock.new(
-          key_type: 23,
+          key_type: Rex::Proto::Kerberos::Crypto::RC4_HMAC,
           e_type: 0,
           key_value: "\xf5\x39\xcf\x42\x8a\x03\x2d\x97\x5b\x85\x04\x6e\xe7\xce\x67\x55"
       )
