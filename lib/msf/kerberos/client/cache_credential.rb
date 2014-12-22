@@ -32,13 +32,13 @@ module Msf
 
         # Builds a MIT Credential Cache principal
         #
-        # @param opts [Hash<{Symbol => <String, Array<String>}>]
-        # @option opts [String] :name_type
+        # @param opts [Hash<{Symbol => <Fixnum, String, Array<String>}>]
+        # @option opts [Fixnum] :name_type
         # @option opts [String] :realm
         # @option opts [Array<String>] :components
         # @return [Rex::Proto::Kerberos::CredentialCache::Principal]
         def create_cache_principal(opts = {})
-          name_type = opts[:name_type] || ''
+          name_type = opts[:name_type] || 0
           realm = opts[:realm] || ''
           components = opts[:components] || ['']
 
@@ -59,7 +59,7 @@ module Msf
         # @option opts [String] :key_value
         # @return [Rex::Proto::Kerberos::CredentialCache::KeyBlock]
         def create_cache_key_block(opts = {})
-          key_type = opts[:key_type]
+          key_type = opts[:key_type] || 23
           e_type = opts[:e_type] || 0
           key_value = opts[:key_value] || ''
 
@@ -111,15 +111,15 @@ module Msf
         # @option opts [String] second_ticket
         # @return [Rex::Proto::Kerberos::CredentialCache::Credential]
         def create_cache_credential(opts = {})
-          client = opts[:client]
-          server = opts[:server]
-          key = opts[:key]
-          time = opts[:time]
+          client = opts[:client] || create_cache_principal(opts)
+          server = opts[:server] || create_cache_principal(opts)
+          key = opts[:key] || create_cache_key_block(opts)
+          time = opts[:time] || create_cache_times(opts)
           is_skey = opts[:is_skey] || 0
-          tkt_flags = opts[:flags]
+          tkt_flags = opts[:flags] || 0
           addrs = opts[:addrs] || []
           auth_data = opts[:auth_data] || []
-          ticket = opts[:ticket]
+          ticket = opts[:ticket] || ''
           second_ticket = opts[:second_ticket] || ''
 
           cred = Rex::Proto::Kerberos::CredentialCache::Credential.new(
