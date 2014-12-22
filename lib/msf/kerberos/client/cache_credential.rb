@@ -14,6 +14,7 @@ module Msf
         # @option opts [Rex::Proto::Kerberos::CredentialCache::Principal] :primary_principal
         # @option opts [Array<Rex::Proto::Kerberos::CredentialCache::Credential>] :credentials
         # @return [Rex::Proto::Kerberos::CredentialCache::Cache]
+        # @see Rex::Proto::Kerberos::CredentialCache::Cache
         def create_cache(opts = {})
           version = opts[:version] || Rex::Proto::Kerberos::CredentialCache::VERSION
           headers = opts[:headers] || [Rex::Proto::Kerberos::CredentialCache::HEADER]
@@ -37,6 +38,7 @@ module Msf
         # @option opts [String] :realm
         # @option opts [Array<String>] :components
         # @return [Rex::Proto::Kerberos::CredentialCache::Principal]
+        # @see Rex::Proto::Kerberos::CredentialCache::Principal
         def create_cache_principal(opts = {})
           name_type = opts[:name_type] || 0
           realm = opts[:realm] || ''
@@ -58,6 +60,7 @@ module Msf
         # @option opts [Fixnum] :e_type
         # @option opts [String] :key_value
         # @return [Rex::Proto::Kerberos::CredentialCache::KeyBlock]
+        # @see Rex::Proto::Kerberos::CredentialCache::KeyBlock
         def create_cache_key_block(opts = {})
           key_type = opts[:key_type] || 23
           e_type = opts[:e_type] || 0
@@ -80,6 +83,7 @@ module Msf
         # @option opts [Fixnum] end_time
         # @option opts [Fixnum] renew_till
         # @return [Rex::Proto::Kerberos::CredentialCache::Time]
+        # @see Rex::Proto::Kerberos::CredentialCache::Time
         def create_cache_times(opts = {})
           auth_time = opts[:auth_time] || 0
           start_time = opts[:start_time] || 0
@@ -110,6 +114,7 @@ module Msf
         # @option opts [String] ticket
         # @option opts [String] second_ticket
         # @return [Rex::Proto::Kerberos::CredentialCache::Credential]
+        # @see Rex::Proto::Kerberos::CredentialCache::Credential
         def create_cache_credential(opts = {})
           client = opts[:client] || create_cache_principal(opts)
           server = opts[:server] || create_cache_principal(opts)
