@@ -42,11 +42,11 @@ module Msf
         # @see Rex::Proto::Kerberos::Pac::Type
         def build_pac(opts = {})
           user_name = opts[:client_name] || ''
-          user_id = opts[:user_id] || 1000
-          primary_group_id = opts[:group_id] || 513
-          group_ids = opts[:group_ids] || [513]
+          user_id = opts[:user_id] || Rex::Proto::Kerberos::Pac::DEFAULT_USER_SID
+          primary_group_id = opts[:group_id] || Rex::Proto::Kerberos::Pac::DOMAIN_USERS
+          group_ids = opts[:group_ids] || [Rex::Proto::Kerberos::Pac::DOMAIN_USERS]
           domain_name = opts[:realm] || ''
-          domain_id = opts[:domain_id] || 'S-1-1'
+          domain_id = opts[:domain_id] || Rex::Proto::Kerberos::Pac::NT_AUTHORITY_SID
           logon_time = opts[:logon_time] || Time.now
           checksum_type = opts[:checksum_type] || Rex::Proto::Kerberos::Crypto::RSA_MD5
 
