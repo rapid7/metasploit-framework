@@ -86,7 +86,7 @@ module Rex
           # @return [OpenSSL::ASN1::Integer]
           def encode_etype
             bn = OpenSSL::BN.new(etype)
-            int = OpenSSL::ASN1::Integer(bn)
+            int = OpenSSL::ASN1::Integer.new(bn)
 
             int
           end
@@ -96,7 +96,7 @@ module Rex
           # @raise [RuntimeError]
           def encode_kvno
             bn = OpenSSL::BN.new(kvno)
-            int = OpenSSL::ASN1::Integer(bn)
+            int = OpenSSL::ASN1::Integer.new(bn)
 
             int
           end

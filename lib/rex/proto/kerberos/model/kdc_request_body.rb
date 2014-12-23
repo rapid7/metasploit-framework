@@ -152,7 +152,7 @@ module Rex
           # @return [OpenSSL::ASN1::Integer]
           def encode_nonce
             bn = OpenSSL::BN.new(nonce)
-            int = OpenSSL::ASN1::Integer(bn)
+            int = OpenSSL::ASN1::Integer.new(bn)
 
             int
           end
@@ -164,7 +164,7 @@ module Rex
             encoded_types = []
             etype.each do |member|
               bn = OpenSSL::BN.new(member)
-              int = OpenSSL::ASN1::Integer(bn)
+              int = OpenSSL::ASN1::Integer.new(bn)
               encoded_types << int
             end
 
