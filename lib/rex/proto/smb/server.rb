@@ -85,11 +85,29 @@ class Server
   end
 
   #
+  # Closes the connection to the remote server.
+  #
+  def close
+    if (self.listener)
+      self.listener.stop
+      self.listener.close
+    end
+    
+    self.listener = nil
+  end
+    
+  #
   # Terminates the monitor thread and turns off the listener.
   #
   def stop
-    self.listener.stop
-    self.listener.close
+    close
+  end
+
+  #
+  # Returns whether or not the conn is valid.
+  #
+  def conn?
+    listener != nil
   end
 
   #
