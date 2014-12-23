@@ -85,7 +85,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_vno
-            bn = OpenSSL::BN.new(vno.to_s)
+            bn = OpenSSL::BN.new(vno)
             int = OpenSSL::ASN1::Integer.new(bn)
 
             int
@@ -116,7 +116,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_cusec
-            bn = OpenSSL::BN.new(cusec.to_s)
+            bn = OpenSSL::BN.new(cusec)
             int = OpenSSL::ASN1::Integer.new(bn)
 
             int
