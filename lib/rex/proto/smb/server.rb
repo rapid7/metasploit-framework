@@ -57,8 +57,8 @@ class Server
   # Debugging
   #
   def dprint(msg)
-    #$stdout.puts "#{msg}"
-    dlog("#{msg}", 'rex', LEV_3)
+    $stdout.puts "#{msg}"
+    #dlog("#{msg}", 'rex', LEV_3)
   end
 
   #
@@ -115,14 +115,14 @@ class Server
   #
   ##
   def register(unc, contents, file_name, hi, lo)
-    @unc = unc
-    @file_name = file_name.gsub(/\//, '\\').split('\\').last
-    # All but last
-    @path_name = file_name.split('/')[0..-2].join('\\').gsub(/\/\/\/\//, '\\').gsub(/\\\\/, '\\')
-    @hi = hi
-    @lo = lo
-    @exe = contents
-    @flags2 = 0xc807 # e807 or c807 or c001
+      @unc = unc
+      @file_name = file_name.gsub(/\//, '\\').split('\\').last
+      # All but last
+      @path_name = file_name.split('/')[0..-2].join('\\').gsub(/\/\/\/\//, '\\').gsub(/\\\\/, '\\')
+      @hi = hi
+      @lo = lo
+      @exe = contents
+      @flags2 = 0xc807 # e807 or c807 or c001
   end
 
 protected
@@ -341,6 +341,7 @@ protected
     case sub_command
       when 0x24 # QUERY_FILE_INFO
         dprint("[query_file_info_24]")
+        # path info works here
         smb_cmd_trans_query_path_info_standard(c, buff)
       when 0x7 # QUERY_FILE_INFO
         dprint("[query_file_info_7]")
@@ -1042,18 +1043,28 @@ protected
       payext = payload
     end
 
+    pkt = CONST::SMB_TRANS_RES_PKT.make_struct
+    smb_set_defaults(c, pkt)
+
     if (payext and payext.downcase.eql?(fileext.downcase)) or payload.length.to_s.eql?('4')
       dprint("[smb_cmd_trans_find_first2] Sending file response #{file}")
       data = file_name
       length = [@exe.length].pack("V")
+      ea = "\x00\x00"
+      alloc = "\x00\x00\x10\x00\x00\x00\x00\x00" # Allocation Size = 1048576 || 1Mb
+      attrib = "\x80\x00\x00\x00" # File
+      search = "\x01\x00"
     else
       dprint("[smb_cmd_trans_find_first2] Sending directory response #{path}")
       data = path
       length = "\x00\x00\x00\x00" 
+      ea = "\x21\x00"
+      alloc = "\x00\x00\x00\x00\x00\x00\x00\x00" # 0Mb
+      attrib = "\x10\x00\x00\x00" # Dir
+      pkt['Payload'].v['SetupCount'] = 0
+      search = "\x00\x01"
     end
 
-    pkt = CONST::SMB_TRANS_RES_PKT.make_struct
-    smb_set_defaults(c, pkt)
     pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
     pkt['Payload']['SMB'].v['Flags1'] = 0x88
     pkt['Payload']['SMB'].v['Flags2'] = @flags2
@@ -1068,9 +1079,9 @@ protected
      "\x00" + # Padding
      # FIND_FIRST2 Parameters
      "\xfd\xff" + # Search ID
-     "\x01\x00" + # Search count
-     "\x01\x00" + # End Of Search
-     "\x00\x00" + # EA Error Offset
+     search + # Search count
+     search + # End Of Search
+     ea + # EA Error Offset
      "\x00\x00" + # Last Name Offset
      "\x00\x00" + # Padding
      #QUERY_PATH_INFO Data
@@ -1081,8 +1092,8 @@ protected
      [@lo, @hi].pack("VV") + # Last Write
      [@lo, @hi].pack("VV") + # Change
      length + "\x00\x00\x00\x00" + # End Of File
-     "\x00\x00\x10\x00\x00\x00\x00\x00" + # Allocation Size = 1048576 || 1Mb
-     "\x80\x00\x00\x00" + # File attributes => directory
+     alloc + 
+     attrib + 
      [data.length].pack("V") + # File name len
      "\x00\x00\x00\x00" + # EA List Length
      "\x00" + # Short file length
@@ -1102,7 +1113,7 @@ protected
 
     pkt.from_s(buff)
 
-    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '\\').chomp.strip
+    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '\\').chomp.strip.split('\\').last
     file = @file_name
     file_name = Rex::Text.to_unicode(@file_name)
     path = Rex::Text.to_unicode(@path_name)
@@ -1139,6 +1150,9 @@ protected
       payext = payload
     end
 
+    pkt = CONST::SMB_TRANS_RES_PKT.make_struct
+    smb_set_defaults(c, pkt)
+
     if (payext and payext.downcase.eql?(fileext.downcase)) or payload.length.to_s.eql?('4')
       dprint("[smb_cmd_trans_find_first2_file] Sending file response #{file}")
       data = file_name
@@ -1148,8 +1162,6 @@ protected
     end
 
     # If its asking for a file, return file
-    pkt = CONST::SMB_TRANS_RES_PKT.make_struct
-    smb_set_defaults(c, pkt)
     pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
     pkt['Payload']['SMB'].v['Flags1'] = 0x88
     pkt['Payload']['SMB'].v['Flags2'] = @flags2
@@ -1169,7 +1181,7 @@ protected
       "\x00\x00" + # EA Error Offset
       "\x00\x00" + # Last Name Offset
       "\x00\x00" + # Padding
-      #QUERY_PATH_INFO Data
+      # QUERY_PATH_INFO Data
       [14 + data.length].pack("V") + # Next Entry Offset
       "\x00\x00\x00\x00" + # File Index
       [data.length].pack("V") + # File Name Len
