@@ -22,7 +22,7 @@ class Server
 # Read Write
   attr_accessor :listen_port, :listen_host, :context
   attr_accessor :listener
-  attr_accessor :process_id, :name, :ip, :port, :data
+  attr_accessor :process_id, :name, :ip, :port, :data, :file_id, :dir_id
   attr_accessor :user_id, :tree_id, :multiplex_id
 
 # Read Only
@@ -41,6 +41,8 @@ class Server
     self.listener     = nil
     self.multiplex_id = rand(0xffff)
     self.process_id   = rand(0xffff)
+    self.file_id      = 0xdead
+    self.dir_id       = 0xbeef
     @state = {}
   end
 
@@ -113,14 +115,14 @@ class Server
   #
   ##
   def register(unc, contents, file_name, hi, lo)
-      @unc = unc
-      @file_name = file_name.gsub(/\//, '\\').split('\\').last
-      # All but last
-      @path_name = file_name.split('/')[0..-2].join('\\').gsub(/\/\/\/\//, '\\').gsub(/\\\\/, '\\')
-      @hi = hi
-      @lo = lo
-      @exe = contents
-      @flags2 = 0xc807 # e807 or c807 or c001
+    @unc = unc
+    @file_name = file_name.gsub(/\//, '\\').split('\\').last
+    # All but last
+    @path_name = file_name.split('/')[0..-2].join('\\').gsub(/\/\/\/\//, '\\').gsub(/\\\\/, '\\')
+    @hi = hi
+    @lo = lo
+    @exe = contents
+    @flags2 = 0xc807 # e807 or c807 or c001
   end
 
 protected
@@ -129,7 +131,7 @@ protected
   # Handler to register new connections from the client
   #
   def on_client_connect(client)
-    dprint("New SMB connection from #{client.peerhost}:#{client.peerport}")
+    #dprint("New SMB connection from #{client.peerhost}:#{client.peerport}")
     smb_conn(client)
   end
 
@@ -137,7 +139,7 @@ protected
   # Handler to receieve and dispatch data received from the client
   #
   def on_client_data(client)
-    dprint("New data from #{client.peerhost}:#{client.peerport}")
+    #dprint("New data from #{client.peerhost}:#{client.peerport}")
     smb_recv(client)
     true
   end
@@ -179,7 +181,7 @@ protected
       pkt_nbs = CONST::NBRAW_PKT.make_struct
       pkt_nbs.from_s(buff)
 
-      dprint("NetBIOS request from #{smb[:name]} #{pkt_nbs.v['Type']} #{pkt_nbs.v['Flags']} #{buff.inspect}")
+      #dprint("NetBIOS request from #{smb[:name]} #{pkt_nbs.v['Type']} #{pkt_nbs.v['Flags']} #{buff.inspect}")
 
       # Check for a NetBIOS name request
       if (pkt_nbs.v['Type'] == 0x81)
@@ -191,7 +193,7 @@ protected
         smb[:nbdst] = host_dst
         smb[:nbsrc] = host_src
 
-        dprint("NetBIOS session request from #{smb[:name]} (asking for #{host_dst} from #{host_src})")
+        #dprint("NetBIOS session request from #{smb[:name]} (asking for #{host_dst} from #{host_src})")
         c.write("\x82\x00\x00\x00")
         next
       end
@@ -298,6 +300,111 @@ protected
       else
         dprint("SMB Capture - Ignoring request from #{smb[:name]} - #{smb[:ip]} (#{cmd})")
         smb_error(cmd, c, CONST::SMB_STATUS_SUCCESS)
+    end
+  end
+
+  #
+  # Responds to a client CLOSE request
+  #
+  def smb_cmd_close(c, buff)
+    pkt = CONST::SMB_CLOSE_PKT.make_struct
+    pkt.from_s(buff)
+
+    pkt = CONST::SMB_CLOSE_RES_PKT.make_struct
+    smb_set_defaults(c, pkt)
+
+    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_CLOSE
+    pkt['Payload']['SMB'].v['Flags1'] = 0x88
+    pkt['Payload']['SMB'].v['Flags2'] = @flags2
+    pkt['Payload']['SMB'].v['WordCount'] = 0
+
+    c.put(pkt.to_s)
+  end
+
+  #
+  # Responds to client TRANSACTION2 requests and dispatches the request off to
+  # other functions dependent on what the sub_command is. Commands supported
+  # include:
+  #  QUERY_FILE_INFO (Basic, Standard and Internal)
+  #  QUERY_PATH_INFO (Basic and Standard)
+  #
+  def smb_cmd_trans(c, buff)
+    # Client socket is c
+    pkt = CONST::SMB_TRANS2_PKT.make_struct
+    pkt.from_s(buff)
+
+    sub_command = pkt['Payload'].v['SetupData'].unpack("v").first
+    dprint("Command is: #{sub_command.to_s}")
+    ar = Rex::Text.to_hex(buff, '').to_s
+    mdc = ar[86..89]
+
+    case sub_command
+      when 0x24 # QUERY_FILE_INFO
+        dprint("[query_file_info_24]")
+        smb_cmd_trans_query_path_info_standard(c, buff)
+      when 0x7 # QUERY_FILE_INFO
+        dprint("[query_file_info_7]")
+        loi = ar[148..151]
+        dprint("LOI is: #{loi}")
+        case loi
+         when 'ed03' # Query Path Standard Info
+          smb_cmd_trans_query_path_info_standard(c, buff)
+         else
+          smb_cmd_trans_query_file_info_standard(c, buff)
+         end
+      when 0x5 # QUERY_PATH_INFO
+       dprint("[query_path_info]")
+       dprint("MDC is: #{mdc}")
+       loi = ar[144..147]
+       dprint("LOI is: #{loi}")
+       case mdc # MAX DATA COUNT
+        when '2800'
+          # Basic is MDC = 40 / 2800 hex
+          case loi
+           when '0101' # Query File Basic Info
+            dprint("[query_file_info_basic]")
+            smb_cmd_trans_query_file_info_basic(c, buff)
+           else
+            dprint("[query_path_info_basic]")
+            smb_cmd_trans_query_path_info_basic(c, buff)
+           end
+        when '1800', '0201'
+          # Standard is MDC = 24 / 1800 hex or 258 / 0201 hex
+          dprint("[query_path_info_standard]")
+          smb_cmd_trans_query_path_info_standard(c, buff)
+        when '0800'
+          # Internal File info is MDC = 8 / 0800 hex
+          dprint("[query_file_info_basic]")
+          smb_cmd_trans_query_file_info_standard(c, buff)
+        when '3800'
+          # Query file network open info
+          dprint("[query_file_info_network]")
+          smb_cmd_trans_query_file_info_network(c, buff)
+        else
+          dprint("Unknown MDC - Sending to [query_path_info_standard]: #{mdc.to_s}")
+          smb_cmd_trans_query_path_info_standard(c, buff)
+        end
+      when 0x1 # FIND_FIRST2
+        dprint("find_first2")
+        loi = ar[156..159]
+        dprint("MDC is: #{mdc}")
+        dprint("LOI is: #{loi}")
+        case loi
+          when '0301' # Find File Names Info # 259
+            smb_cmd_trans_find_first2_file(c, buff)
+          when '0401' # Find File Both Directory Info # 260
+            smb_cmd_trans_find_first2(c, buff)
+          else
+            smb_cmd_trans_find_first2(c, buff)
+          end
+      else
+        pkt = CONST::SMB_TRANS_RES_PKT.make_struct
+        smb_set_defaults(c, pkt)
+        pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
+        pkt['Payload']['SMB'].v['Flags1'] = 0x88
+        pkt['Payload']['SMB'].v['Flags2'] = @flags2
+        pkt['Payload']['SMB'].v['ErrorClass'] = 0xc0000225 # NT_STATUS_NOT_FOUND
+        c.put(pkt.to_s)
     end
   end
 
@@ -451,98 +558,60 @@ protected
     pkt.from_s(buff)
 
     # Tries to do CREATE and X
-    payload = pkt['Payload'].v['Payload'].gsub(/\x00/, '').gsub(/.*\\/, '\\').chomp.strip
-    length = pkt['Payload'].v['Payload'].length
+    payload = pkt['Payload'].v['Payload'].gsub(/\x00/, '').gsub(/.*\\/, '\\').chomp.strip.split('\\').last
     dprint("[smb_cmd_create] Payload is: #{payload}")
-    dprint("[smb_cmd_create] Payload length is: #{payload.length.to_s}")
     file = @file_name
     path = @path_name
 
-    if path.nil? || path == 0
-      dprint("[smb_cmd_create] Path is empty")
-      path = '\\'
-    else
-      dprint("[smb_cmd_create] Path is: #{path}")
+    if payload.nil?
+      payload = file
     end
 
-    begin
-      fileext = file.split('.').last
-    rescue
-      fileext = file
-    end
-
-    begin
-      payext = payload.split('.').last
-    rescue
-      payext = payload
-    end
-
-    if payext and payext.downcase.eql?(fileext)
-      # Asks for file with correct extension
-      dprint("[smb_cmd_create] Sending file response: #{file} with length: #{@exe.length.to_s}")
-      pkt = CONST::SMB_CREATE_RES_PKT.make_struct
-      smb_set_defaults(c, pkt)
-      pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_CREATE_ANDX
-      pkt['Payload']['SMB'].v['Flags1'] = 0x88
-      pkt['Payload']['SMB'].v['Flags2'] = @flags2
-      pkt['Payload']['SMB'].v['WordCount'] = 42
-      pkt['Payload'].v['AndX'] = 0xff # no further commands
-      pkt['Payload'].v['OpLock'] = 0x3 # Grant Oplock on File
-      # No need to track fid here, we're just offering one file
-      pkt['Payload'].v['FileID'] = rand(0x7fff) + 1 # To avoid fid = 0
-      pkt['Payload'].v['Action'] = 0x1 # The file existed and was opened
-      pkt['Payload'].v['CreateTimeLow'] = @lo
-      pkt['Payload'].v['CreateTimeHigh'] = @hi
-      pkt['Payload'].v['AccessTimeLow'] = @lo
-      pkt['Payload'].v['AccessTimeHigh'] = @hi
-      pkt['Payload'].v['WriteTimeLow'] = @lo
-      pkt['Payload'].v['WriteTimeHigh'] = @hi
-      pkt['Payload'].v['ChangeTimeLow'] = @lo
-      pkt['Payload'].v['ChangeTimeHigh'] = @hi
-      #pkt['Payload'].v['Attributes'] = 0x20 # Not an archive
-      #pkt['Payload'].v['AllocLow'] = 1048576 # 1Mb
-      pkt['Payload'].v['Attributes'] = 0x80 # File Attributes
-      pkt['Payload'].v['AllocLow'] = 0x100000
-      pkt['Payload'].v['AllocHigh'] = 0
-      pkt['Payload'].v['EOFLow'] = @exe.length
-      pkt['Payload'].v['EOFHigh'] = 0
-      pkt['Payload'].v['FileType'] = 0
-      pkt['Payload'].v['IPCState'] = 0x7
-      pkt['Payload'].v['IsDirectory'] = 0
-    elsif payload.length.to_s.eql?('1') or payload.eql?(path)
-      # Asks for '\'
+    if payload.length.to_s.eql?('1') or payload.eql?(path)
       dprint("[smb_cmd_create] Sending directory response")
-      pkt = CONST::SMB_CREATE_RES_PKT.make_struct
-      smb_set_defaults(c, pkt)
-      pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_CREATE_ANDX
-      pkt['Payload']['SMB'].v['Flags1'] = 0x88
-      pkt['Payload']['SMB'].v['Flags2'] = @flags2
-      pkt['Payload']['SMB'].v['WordCount'] = 42
-      pkt['Payload'].v['AndX'] = 0xff # no further commands
-      pkt['Payload'].v['OpLock'] = 0 # Deny OpLock on Directory
-      # No need to track fid here, we're just offering one file
-      pkt['Payload'].v['FileID'] = rand(0x7fff) + 1 # To avoid fid = 0
-      pkt['Payload'].v['Action'] = 0x1 # The file existed and was opened
-      pkt['Payload'].v['CreateTimeLow'] = @lo
-      pkt['Payload'].v['CreateTimeHigh'] = @hi
-      pkt['Payload'].v['AccessTimeLow'] = @lo
-      pkt['Payload'].v['AccessTimeHigh'] = @hi
-      pkt['Payload'].v['WriteTimeLow'] = @lo
-      pkt['Payload'].v['WriteTimeHigh'] = @hi
-      pkt['Payload'].v['ChangeTimeLow'] = @lo
-      pkt['Payload'].v['ChangeTimeHigh'] = @hi
-      pkt['Payload'].v['Attributes'] = 0x10 # Ordinary dir
-      pkt['Payload'].v['AllocLow'] = 0
-      pkt['Payload'].v['AllocHigh'] = 0
-      pkt['Payload'].v['EOFLow'] = 0
-      pkt['Payload'].v['EOFHigh'] = 0
-      pkt['Payload'].v['FileType'] = 0
-      pkt['Payload'].v['IPCState'] = 0x7
-      pkt['Payload'].v['IsDirectory'] = 1
+      fid = self.dir_id.to_i
+      attribs = 0x10 # Ordinary Dir
+      eof = 0
+      isdir = 1
+    else
+      dprint("[smb_cmd_create] Sending file response")
+      fid = self.file_id.to_i
+      attribs = 0x80 # File Attributes
+      eof = @exe.length
+      isdir = 0
     end
+
+    pkt = CONST::SMB_CREATE_RES_PKT.make_struct
+    smb_set_defaults(c, pkt)
+    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_CREATE_ANDX
+    pkt['Payload']['SMB'].v['Flags1'] = 0x88
+    pkt['Payload']['SMB'].v['Flags2'] = @flags2
+    pkt['Payload']['SMB'].v['WordCount'] = 42
+    pkt['Payload'].v['AndX'] = 0xff # no further commands
+    pkt['Payload'].v['OpLock'] = 0x3 # Grant Oplock on File
+    pkt['Payload'].v['FileID'] = fid
+    pkt['Payload'].v['Action'] = 0x1 # The file existed and was opened
+    pkt['Payload'].v['CreateTimeLow'] = @lo
+    pkt['Payload'].v['CreateTimeHigh'] = @hi
+    pkt['Payload'].v['AccessTimeLow'] = @lo
+    pkt['Payload'].v['AccessTimeHigh'] = @hi
+    pkt['Payload'].v['WriteTimeLow'] = @lo
+    pkt['Payload'].v['WriteTimeHigh'] = @hi
+    pkt['Payload'].v['ChangeTimeLow'] = @lo
+    pkt['Payload'].v['ChangeTimeHigh'] = @hi
+    #pkt['Payload'].v['Attributes'] = 0x20 # Not an archive
+    #pkt['Payload'].v['AllocLow'] = 1048576 # 1Mb
+    pkt['Payload'].v['Attributes'] = attribs
+    pkt['Payload'].v['AllocLow'] = 0x100000
+    pkt['Payload'].v['AllocHigh'] = 0
+    pkt['Payload'].v['EOFLow'] = eof
+    pkt['Payload'].v['EOFHigh'] = 0
+    pkt['Payload'].v['FileType'] = 0
+    pkt['Payload'].v['IPCState'] = 0x7
+    pkt['Payload'].v['IsDirectory'] = isdir
 
     # As above, if payload is a file or "\" send found response
-    if ( payext and payext.downcase.eql?(fileext) ) or payload.length.to_s.eql?('1') or payload.eql?(path)
+    if (payload.downcase.eql?(file.downcase)) or payload.length.to_s.eql?('1') or payload.eql?(path)
       dprint("[smb_cmd_create] Sending response")
       connect_response = ""
       # GUID
@@ -573,24 +642,6 @@ protected
       pkt['Payload']['SMB'].v['Flags2'] = @flags2
       c.put(pkt.to_s)
     end
-  end
-
-  #
-  # Responds to a client CLOSE request
-  #
-  def smb_cmd_close(c, buff)
-    pkt = CONST::SMB_CLOSE_PKT.make_struct
-    pkt.from_s(buff)
-
-    pkt = CONST::SMB_CLOSE_RES_PKT.make_struct
-    smb_set_defaults(c, pkt)
-
-    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_CLOSE
-    pkt['Payload']['SMB'].v['Flags1'] = 0x88
-    pkt['Payload']['SMB'].v['Flags2'] = @flags2
-    pkt['Payload']['SMB'].v['WordCount'] = 0
-
-    c.put(pkt.to_s)
   end
 
   #
@@ -627,101 +678,13 @@ protected
   end
 
   #
-  # Responds to client TRANSACTION2 requests and dispatches the request off to
-  # other functions dependent on what the sub_command is. Commands supported
-  # include:
-  #  QUERY_FILE_INFO (Basic, Standard and Internal)
-  #  QUERY_PATH_INFO (Basic and Standard)
-  #
-  def smb_cmd_trans(c, buff)
-    # Client socket is c
-    pkt = CONST::SMB_TRANS2_PKT.make_struct
-    pkt.from_s(buff)
-
-    sub_command = pkt['Payload'].v['SetupData'].unpack("v").first
-    dprint("Command is: #{sub_command.to_s}")
-    ar = Rex::Text.to_hex(buff, '').to_s
-    mdc = ar[86..89]
-
-    case sub_command
-      when 0x24 # QUERY_FILE_INFO
-        dprint("[query_file_info_24]")
-        # path info works here
-        smb_cmd_trans_query_path_info_standard(c, buff)
-      when 0x7 # QUERY_FILE_INFO
-        dprint("[query_file_info_7]")
-        loi = ar[148..151]
-        dprint("LOI is: #{loi}")
-        case loi
-         when 'ed03' # Query Path Standard Info
-          smb_cmd_trans_query_path_info_standard(c, buff)
-         else
-          smb_cmd_trans_query_file_info_standard(c, buff)
-         end
-      when 0x5 # QUERY_PATH_INFO
-       dprint("[query_path_info]")
-       dprint("MDC is: #{mdc}")
-       loi = ar[144..147]
-       dprint("LOI is: #{loi}")
-       case mdc # MAX DATA COUNT
-        when '2800'
-          # Basic is MDC = 40 / 2800 hex
-          case loi
-           when '0101' # Query File Basic Info
-            dprint("[query_file_info_basic]")
-            smb_cmd_trans_query_file_info_basic(c, buff)
-           else
-            dprint("[query_path_info_basic]")
-            smb_cmd_trans_query_path_info_basic(c, buff)
-           end
-        when '1800', '0201'
-          # Standard is MDC = 24 / 1800 hex or 258 / 0201 hex
-          dprint("[query_path_info_standard]")
-          smb_cmd_trans_query_path_info_standard(c, buff)
-        when '0800'
-          # Internal File info is MDC = 8 / 0800 hex
-          dprint("[query_file_info_basic]")
-          smb_cmd_trans_query_file_info_standard(c, buff)
-        when '3800'
-          # Query file network open info
-          dprint("[query_file_info_network]")
-          smb_cmd_trans_query_file_info_network(c, buff)
-        else
-          dprint("Unknown MDC - Sending to [query_path_info_standard]: #{mdc.to_s}")
-          smb_cmd_trans_query_path_info_standard(c, buff)
-        end
-      when 0x1 # FIND_FIRST2
-        dprint("find_first2")
-        loi = ar[156..159]
-        dprint("MDC is: #{mdc}")
-        dprint("LOI is: #{loi}")
-        case loi
-          when '0301' # Find File Names Info # 259
-            smb_cmd_trans_find_first2_file(c, buff)
-          when '0401' # Find File Both Directory Info # 260
-            smb_cmd_trans_find_first2(c, buff)
-          else
-            smb_cmd_trans_find_first2(c, buff)
-          end
-      else
-        pkt = CONST::SMB_TRANS_RES_PKT.make_struct
-        smb_set_defaults(c, pkt)
-        pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
-        pkt['Payload']['SMB'].v['Flags1'] = 0x88
-        pkt['Payload']['SMB'].v['Flags2'] = @flags2
-        pkt['Payload']['SMB'].v['ErrorClass'] = 0xc0000225 # NT_STATUS_NOT_FOUND
-        c.put(pkt.to_s)
-    end
-  end
-
-  #
   # Responds to QUERY_FILE_INFO (Network) requests
   #
   def smb_cmd_trans_query_file_info_network(c, buff)
     pkt = CONST::SMB_TRANS2_PKT.make_struct
     pkt.from_s(buff)
 
-    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '').strip
+    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '').chomp.strip
     dprint("[smb_cmd_trans_query_file_info_network] Payload length: #{payload.length.to_s}")
     dprint("[smb_cmd_trans_query_file_info_network] Payload is : #{payload.to_s}")
 
@@ -749,7 +712,7 @@ protected
       # QUERY_PATH_INFO Parameters
       "\x00\x00" + # EA Error Offset
       "\x00\x00" + # Padding
-      #QUERY_PATH_INFO Data
+      # QUERY_PATH_INFO Data
       [@lo, @hi].pack("VV") + # Created
       [@lo, @hi].pack("VV") + # Last Access
       [@lo, @hi].pack("VV") + # Last Write
@@ -774,7 +737,7 @@ protected
     pkt = CONST::SMB_TRANS2_PKT.make_struct
     pkt.from_s(buff)
 
-    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '').strip
+    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '').chomp.strip
     file = Rex::Text.to_unicode(@file_name)
 
     pkt = CONST::SMB_TRANS_RES_PKT.make_struct
@@ -813,39 +776,22 @@ protected
     pkt = CONST::SMB_TRANS2_PKT.make_struct
     pkt.from_s(buff)
 
-    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '\\').chomp.strip
-    length = pkt['Payload'].v['SetupData'].length
-    dprint("[smb_cmd_trans_query_path_info_standard] Payload is : #{payload.to_s}")
-    dprint("[smb_cmd_trans_query_path_info_standard] Payload length: #{payload.length.to_s}")
-    dprint("[smb_cmd_trans_query_path_info_standard] File name length: #{@file_name.length.to_s}")
-    file = @file_name
+    ar = Rex::Text.to_hex(buff, '').to_s
+    fid = ar[146..147] + ar[144..145]
+    dprint("[smb_cmd_trans_query_path_info_standard] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
 
-    begin
-      fileext = file.split('.').last
-    rescue
-      fileext = file
-    end
-
-    begin
-      payext = payload.split('.').last
-    rescue
-      payext = payload
+    # If FileID matches, send the file
+    if ( fid.hex.eql?(self.file_id.to_i) )
+        attrib2 = "\x00" # IsFile
+        dprint("[smb_cmd_trans_query_path_info_standard] Sending file response")
+    else
+        # Otherwise return a Directory answer
+        attrib2 = "\x01" # IsDir
+        dprint("[smb_cmd_trans_query_path_info_standard] Sending directory response")
     end
 
     pkt = CONST::SMB_TRANS_RES_PKT.make_struct
     smb_set_defaults(c, pkt)
-
-    #if (payext and payext.downcase.eql?(fileext)) or payload.length.to_s.eql?('1') or payload.length.to_s.eql?('6')
-    if (payext and payext.downcase.eql?(fileext)) or payload.length >= 1
-        dprint("[smb_cmd_trans_query_path_info_standard] Ext: #{payext.to_s}")
-        attrib2 = "\x00" # IsFile
-        dprint("[smb_cmd_trans_query_path_info_standard] Sending file response: #{file} with length: #{@exe.length.to_s}")
-    else
-        # if QUERY_PATH_INFO_PARAMETERS doesn't include a file name,
-        # return a Directory answer
-        attrib2 = "\x01" # IsDir
-        dprint("[smb_cmd_trans_query_path_info_standard] Sending directory response")
-    end
 
     pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
     pkt['Payload']['SMB'].v['Flags1'] = 0x88
@@ -858,17 +804,17 @@ protected
     pkt['Payload'].v['DataCount'] = 24
     pkt['Payload'].v['DataOffset'] = 60
     pkt['Payload'].v['Payload'] =
-        "\x00" + # Padding
-        # QUERY_PATH_INFO Parameters
-        "\x00\x00" + # EA Error Offset
-        "\x00\x00" + # Padding
-        # QUERY_PATH_INFO Data
-        "\x00\x00\x10\x00\x00\x00\x00\x00" + # Allocation Size = 1048576 || 1Mb
-        [@exe.length].pack("V") + "\x00\x00\x00\x00" + # End Of File
-        "\x01\x00\x00\x00" + # Link Count
-        "\x00" + # Delete Pending
-        attrib2 +
-        "\x00\x00" # Unknown
+      "\x00" + # Padding
+      # QUERY_PATH_INFO Parameters
+      "\x00\x00" + # EA Error Offset
+      "\x00\x00" + # Padding
+      # QUERY_PATH_INFO Data
+      "\x00\x00\x10\x00\x00\x00\x00\x00" + # Allocation Size = 1048576 || 1Mb
+      [@exe.length].pack("V") + "\x00\x00\x00\x00" + # End Of File
+      "\x01\x00\x00\x00" + # Link Count
+      "\x00" + # Delete Pending
+      attrib2 +
+      "\x00\x00" # Unknown
     c.put(pkt.to_s)
   end
 
@@ -885,6 +831,24 @@ protected
     dprint("[smb_cmd_trans_query_file_info_basic] Payload is: #{payload} with length: #{@exe.length.to_s}")
     dprint("[smb_cmd_trans_query_file_info_basic] Payload length: #{payload.length.to_s}")
     dprint("[smb_cmd_trans_query_file_info_basic] File name length: #{@file_name.length.to_s}")
+
+    ar = Rex::Text.to_hex(buff, '').to_s
+    dprint("[smb_cmd_trans_query_file_info_basic] ar is : #{ar}")
+    fid = ar[146..147] + ar[144..145]
+    dprint("[smb_cmd_trans_query_file_info_basic] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
+    if ( fid.hex.eql?(self.file_id.to_i) )
+      dprint("File match")
+    end
+    if ( fid.hex.eql?(self.dir_id.to_i) )
+      dprint("Dir match")
+    end
+
+    if path.nil? || path == 0
+      dprint("[smb_cmd_trans_query_file_info_basic] Path is empty")
+      path = '\\'
+    else
+      dprint("[smb_cmd_trans_query_file_info_basic] Path is: #{path}")
+    end
 
     if path.nil? || path == 0
       dprint("[smb_cmd_trans_query_file_info_basic] Path is empty")
@@ -909,7 +873,7 @@ protected
     smb_set_defaults(c, pkt)
 
     # If payload contains our file extension, send file response
-    if payext and payext.downcase.eql?(fileext)
+    if payext and payext.downcase.eql?(fileext.downcase)
       #attrib = "\x20\x00\x00\x00" # File attributes => archive: file has been modified
       attrib = "\x80\x00\x00\x00" # File attributes => file
       dprint("[smb_cmd_trans_query_file_info_basic] Sending file response: #{file} with length: #{@exe.length.to_s}")
@@ -920,7 +884,7 @@ protected
       dprint("[smb_cmd_trans_query_file_info_basic] Sending directory response")
     end
 
-    if (payext and payext.downcase.eql?(fileext)) or payload.length.to_s.eql?('1') or payload.length.to_s.eql?('4') or payload.eql?(path)
+    if (payext and payext.downcase.eql?(fileext.downcase)) or payload.length.to_s.eql?('1') or payload.length.to_s.eql?('4') or payload.eql?(path)
       pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
       pkt['Payload']['SMB'].v['Flags1'] = 0x88
       pkt['Payload']['SMB'].v['Flags2'] = @flags2
@@ -961,73 +925,41 @@ protected
     pkt = CONST::SMB_TRANS2_PKT.make_struct
     pkt.from_s(buff)
 
-    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '\\').chomp.strip
+    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '\\').chomp.strip.split('\\').last
     file = @file_name
-    path = @path_name
-
-    if path.nil? || path == 0
-      dprint("[smb_cmd_trans_query_path_info_basic] Path is empty")
-      path = '\\'
-    else
-      dprint("[smb_cmd_trans_query_path_info_basic] Path is: #{path}")
-    end
 
     dprint("[smb_cmd_trans_query_path_info_basic] Payload is: #{payload}")
     dprint("[smb_cmd_trans_query_path_info_basic] Payload length: #{payload.length.to_s}")
-    dprint("[smb_cmd_trans_query_path_info_basic] File name : #{@file_name.to_s}")
-    dprint("[smb_cmd_trans_query_path_info_basic] File name length: #{@file_name.length.to_s}")
-
-    begin
-      fileext = file.split('.').last
-      filename = file.split('.').first
-    rescue
-      fileext = file
-    end
-
-    begin
-      payext = payload.split('.').last
-      payname = payload.split('.').first.split('\\').last
-    rescue
-      payext = payload
-    end
-
-    dprint("[smb_cmd_trans_query_path_info_basic] Payext: #{payext.to_s}")
-    dprint("[smb_cmd_trans_query_path_info_basic] Fileext: #{fileext.to_s}")
-    dprint("[smb_cmd_trans_query_path_info_basic] Payname: #{payname.to_s}")
-    dprint("[smb_cmd_trans_query_path_info_basic] Filename: #{filename.to_s}")
+    dprint("[smb_cmd_trans_query_path_info_basic] File name : #{file.to_s}")
+    dprint("[smb_cmd_trans_query_path_info_basic] File name length: #{file.length.to_s}")
 
     pkt = CONST::SMB_TRANS_RES_PKT.make_struct
     smb_set_defaults(c, pkt)
 
-    if payname and payname.ascii_only?
-      if payname.to_s.eql?(filename)
-        fileistrue = true
-      else
-        fileistrue = false
-      end
-    else
-      fileistrue = false
-    end
-
-    # If payload contains our file extension send a file response
-    #if (payext and payext.downcase.eql?(fileext)) or payload.length.to_s.eql?('1') or payload.length.to_s.eql?('4') or fileistrue
-    if (payext and payext.downcase.eql?(fileext)) or fileistrue
+    # If payload contains our file, send a file response
+    # For MS13-071, payload is an empty unicode request (4 bytes)
+    if payload.downcase.eql?(file.downcase) or payload.length.to_s.eql?('4')
       if payload.length.to_s.eql?('4')
-        attrib = "\x20\x00\x00\x00" # File attributes => archive: file has been modified
+        attrib = "\x10\x00\x00\x00" # File attributes => directory 
+        dprint("[smb_cmd_trans_query_path_info_basic] Sending directory response")
+        #attrib = "\x20\x00\x00\x00" # File attributes => archive: file has been modified
       else
         attrib = "\x80\x00\x00\x00" # File attributes => file
+        dprint("[smb_cmd_trans_query_path_info_basic] Sending file response")
       end
-      dprint("[smb_cmd_trans_query_path_info_basic] Sending file response: #{file} with length: #{@exe.length.to_s}")
     else
-      # else if QUERY_PATH_INFO_PARAMETERS doesn't include a file name,
-      # return a Directory answer
-      attrib = "\x10\x00\x00\x00" # File attributes => directory
-      dprint("[smb_cmd_trans_query_path_info_basic] Sending directory response")
+      if payload.downcase.include?(file.downcase)
+        attrib = "\x80\x00\x00\x00" # File attributes => file
+        dprint("[smb_cmd_trans_query_path_info_basic] Sending file response")
+      else
+        # QUERY_PATH_INFO_PARAMETERS doesn't include a file name, return a Directory answer
+        attrib = "\x10\x00\x00\x00" # File attributes => directory
+        dprint("[smb_cmd_trans_query_path_info_basic] Sending directory response")
+      end
     end
 
-    # If payload contains our file extension or is just 4 chars long (empty
-    # unicode filename) send a response
-    if (payext and payext.downcase.eql?(fileext)) or payload.eql?(path) or payload.length.to_s.eql?('1') or payload.length.to_s.eql?('4') or fileistrue
+    # If payload contains our file, send the response 
+    if payload.downcase.eql?(file.downcase) or payload.length.to_s.eql?('4') or payload.downcase.include?(file.downcase)
       pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
       pkt['Payload']['SMB'].v['Flags1'] = 0x88
       pkt['Payload']['SMB'].v['Flags2'] = @flags2
@@ -1080,6 +1012,17 @@ protected
     dprint("[smb_cmd_trans_find_first2] Payload is: #{payload}")
     dprint("[smb_cmd_trans_find_first2] Payload length: #{payload.length.to_s}")
 
+    ar = Rex::Text.to_hex(buff, '').to_s
+    dprint("[smb_cmd_trans_find_first2] ar is : #{ar}")
+    fid = ar[146..147] + ar[144..145]
+    dprint("[smb_cmd_trans_find_first2] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
+    if ( fid.hex.eql?(self.file_id.to_i) )
+      dprint("File match")
+    end
+    if ( fid.hex.eql?(self.dir_id.to_i) )
+      dprint("Dir match")
+    end
+
     if path.nil? || path == 0
       dprint("[smb_cmd_trans_find_first2] Path is empty")
       path = '\\'
@@ -1099,90 +1042,54 @@ protected
       payext = payload
     end
 
-    if (payext and payext.downcase.eql?(fileext)) or payload.length.to_s.eql?('4')
-      pkt = CONST::SMB_TRANS_RES_PKT.make_struct
-      smb_set_defaults(c, pkt)
+    if (payext and payext.downcase.eql?(fileext.downcase)) or payload.length.to_s.eql?('4')
       dprint("[smb_cmd_trans_find_first2] Sending file response #{file}")
-      pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
-      pkt['Payload']['SMB'].v['Flags1'] = 0x88
-      pkt['Payload']['SMB'].v['Flags2'] = @flags2
-      pkt['Payload']['SMB'].v['WordCount'] = 10
-      pkt['Payload'].v['ParamCountTotal'] = 10
-      pkt['Payload'].v['DataCountTotal'] = 94 + file_name.length
-      pkt['Payload'].v['ParamCount'] = 10
-      pkt['Payload'].v['ParamOffset'] = 56
-      pkt['Payload'].v['DataCount'] = 94 + file_name.length
-      pkt['Payload'].v['DataOffset'] = 68
-      pkt['Payload'].v['Payload'] =
-       "\x00" + # Padding
-       # FIND_FIRST2 Parameters
-       "\xfd\xff" + # Search ID
-       "\x01\x00" + # Search count
-       "\x01\x00" + # End Of Search
-       "\x00\x00" + # EA Error Offset
-       "\x00\x00" + # Last Name Offset
-       "\x00\x00" + # Padding
-       #QUERY_PATH_INFO Data
-       [94 + file_name.length].pack("V") + # Next Entry Offset
-       "\x00\x00\x00\x00" + # File Index
-       [@lo, @hi].pack("VV") + # Created
-       [@lo, @hi].pack("VV") + # Last Access
-       [@lo, @hi].pack("VV") + # Last Write
-       [@lo, @hi].pack("VV") + # Change
-       [@exe.length].pack("V") + "\x00\x00\x00\x00" + # End Of File
-       "\x00\x00\x10\x00\x00\x00\x00\x00" + # Allocation Size = 1048576 || 1Mb
-       "\x80\x00\x00\x00" + # File attributes => directory
-       [file_name.length].pack("V") + # File name len
-       "\x00\x00\x00\x00" + # EA List Length
-       "\x00" + # Short file length
-       "\x00" + # Reserved
-       ("\x00" * 24) +
-       file_name
-
-      c.put(pkt.to_s)
+      data = file_name
+      length = [@exe.length].pack("V")
     else
       dprint("[smb_cmd_trans_find_first2] Sending directory response #{path}")
-      pkt = CONST::SMB_TRANS_RES_PKT.make_struct
-      smb_set_defaults(c, pkt)
-      pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
-      pkt['Payload']['SMB'].v['Flags1'] = 0x88
-      pkt['Payload']['SMB'].v['Flags2'] = @flags2
-      pkt['Payload']['SMB'].v['WordCount'] = 10
-      pkt['Payload'].v['ParamCountTotal'] = 10
-      pkt['Payload'].v['DataCountTotal'] = 94 + path.length
-      pkt['Payload'].v['ParamCount'] = 10
-      pkt['Payload'].v['ParamOffset'] = 56
-      pkt['Payload'].v['DataCount'] = 94 + path.length
-      pkt['Payload'].v['DataOffset'] = 68
-      pkt['Payload'].v['SetupCount'] = 0
-      pkt['Payload'].v['Payload'] =
-       "\x00" + # Padding
-       # FIND_FIRST2 Parameters
-       "\xfd\xff" + # Search ID
-       "\x00\x01" + # Search count
-       "\x00\x01" + # End Of Search
-       "\x21\x00" + # EA Error Offset
-       "\x00\x00" + # Last Name Offset
-       "\x00\x00" + # Padding
-       #QUERY_PATH_INFO Data
-       [94 + path.length].pack("V") + # Next Entry Offset
-       "\x00\x00\x00\x00" + # File Index
-       [@lo, @hi].pack("VV") + # Created
-       [@lo, @hi].pack("VV") + # Last Access
-       [@lo, @hi].pack("VV") + # Last Write
-       [@lo, @hi].pack("VV") + # Change
-       "\x00\x00\x00\x00" + "\x00\x00\x00\x00" + # End Of File
-       "\x00\x00\x00\x00\x00\x00\x00\x00" + # Allocation Size
-       "\x10\x00\x00\x00" + # File attributes => directory
-       [path.length].pack("V") + # File name len
-       "\x00\x00\x00\x00" + # EA List Length
-       "\x00" + # Short file length
-       "\x00" + # Reserved
-       ("\x00" * 24) +
-       path
-
-      c.put(pkt.to_s)
+      data = path
+      length = "\x00\x00\x00\x00" 
     end
+
+    pkt = CONST::SMB_TRANS_RES_PKT.make_struct
+    smb_set_defaults(c, pkt)
+    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
+    pkt['Payload']['SMB'].v['Flags1'] = 0x88
+    pkt['Payload']['SMB'].v['Flags2'] = @flags2
+    pkt['Payload']['SMB'].v['WordCount'] = 10
+    pkt['Payload'].v['ParamCountTotal'] = 10
+    pkt['Payload'].v['DataCountTotal'] = 94 + data.length
+    pkt['Payload'].v['ParamCount'] = 10
+    pkt['Payload'].v['ParamOffset'] = 56
+    pkt['Payload'].v['DataCount'] = 94 + data.length
+    pkt['Payload'].v['DataOffset'] = 68
+    pkt['Payload'].v['Payload'] =
+     "\x00" + # Padding
+     # FIND_FIRST2 Parameters
+     "\xfd\xff" + # Search ID
+     "\x01\x00" + # Search count
+     "\x01\x00" + # End Of Search
+     "\x00\x00" + # EA Error Offset
+     "\x00\x00" + # Last Name Offset
+     "\x00\x00" + # Padding
+     #QUERY_PATH_INFO Data
+     [94 + data.length].pack("V") + # Next Entry Offset
+     "\x00\x00\x00\x00" + # File Index
+     [@lo, @hi].pack("VV") + # Created
+     [@lo, @hi].pack("VV") + # Last Access
+     [@lo, @hi].pack("VV") + # Last Write
+     [@lo, @hi].pack("VV") + # Change
+     length + "\x00\x00\x00\x00" + # End Of File
+     "\x00\x00\x10\x00\x00\x00\x00\x00" + # Allocation Size = 1048576 || 1Mb
+     "\x80\x00\x00\x00" + # File attributes => directory
+     [data.length].pack("V") + # File name len
+     "\x00\x00\x00\x00" + # EA List Length
+     "\x00" + # Short file length
+     "\x00" + # Reserved
+     ("\x00" * 24) +
+    data 
+    c.put(pkt.to_s)
   end
 
   #
@@ -1201,6 +1108,17 @@ protected
     path = Rex::Text.to_unicode(@path_name)
     dprint("[smb_cmd_trans_find_first2_file] Payload is: #{payload}")
     dprint("[smb_cmd_trans_find_first2_file] Payload length: #{payload.length.to_s}")
+
+    ar = Rex::Text.to_hex(buff, '').to_s
+    dprint("[smb_cmd_trans_find_first2_file] ar is : #{ar}")
+    fid = ar[146..147] + ar[144..145]
+    dprint("[smb_cmd_trans_find_first2_file] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
+    if ( fid.hex.eql?(self.file_id.to_i) )
+      dprint("File match")
+    end
+    if ( fid.hex.eql?(self.dir_id.to_i) )
+      dprint("Dir match")
+    end
 
     if path.nil? || path == 0
       dprint("[smb_cmd_trans_find_first2_file] Path is empty")
@@ -1221,68 +1139,43 @@ protected
       payext = payload
     end
 
-    if (payext and payext.downcase.eql?(fileext)) or payload.length.to_s.eql?('4')
+    if (payext and payext.downcase.eql?(fileext.downcase)) or payload.length.to_s.eql?('4')
       dprint("[smb_cmd_trans_find_first2_file] Sending file response #{file}")
-      # If its asking for a file, return file
-      pkt = CONST::SMB_TRANS_RES_PKT.make_struct
-      smb_set_defaults(c, pkt)
-      pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
-      pkt['Payload']['SMB'].v['Flags1'] = 0x88
-      pkt['Payload']['SMB'].v['Flags2'] = @flags2
-      pkt['Payload']['SMB'].v['WordCount'] = 10
-      pkt['Payload'].v['ParamCountTotal'] = 10
-      pkt['Payload'].v['DataCountTotal'] = 14 + file_name.length
-      pkt['Payload'].v['ParamCount'] = 10
-      pkt['Payload'].v['ParamOffset'] = 56
-      pkt['Payload'].v['DataCount'] = 14 + file_name.length
-      pkt['Payload'].v['DataOffset'] = 68
-      pkt['Payload'].v['Payload'] =
-        "\x00" + # Padding
-        # FIND_FIRST2 Parameters
-        "\xfd\xff" + # Search ID
-        "\x01\x00" + # Search count
-        "\x01\x00" + # End Of Search
-        "\x00\x00" + # EA Error Offset
-        "\x00\x00" + # Last Name Offset
-        "\x00\x00" + # Padding
-        #QUERY_PATH_INFO Data
-        [14 + file_name.length].pack("V") + # Next Entry Offset
-        "\x00\x00\x00\x00" + # File Index
-        [file_name.length].pack("V") + # File Name Len
-        file_name +
-        "\x00\x00" # Padding
-      c.put(pkt.to_s)
+      data = file_name
     else
       dprint("[smb_cmd_trans_find_first2_file] Sending directory response #{path}")
-      pkt = CONST::SMB_TRANS_RES_PKT.make_struct
-      smb_set_defaults(c, pkt)
-      pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
-      pkt['Payload']['SMB'].v['Flags1'] = 0x88
-      pkt['Payload']['SMB'].v['Flags2'] = @flags2
-      pkt['Payload']['SMB'].v['WordCount'] = 10
-      pkt['Payload'].v['ParamCountTotal'] = 10
-      pkt['Payload'].v['DataCountTotal'] = 14 + path.length
-      pkt['Payload'].v['ParamCount'] = 10
-      pkt['Payload'].v['ParamOffset'] = 56
-      pkt['Payload'].v['DataCount'] = 14 + path.length
-      pkt['Payload'].v['DataOffset'] = 68
-      pkt['Payload'].v['Payload'] =
-        "\x00" + # Padding
-        # FIND_FIRST2 Parameters
-        "\xfd\xff" + # Search ID
-        "\x01\x00" + # Search count
-        "\x01\x00" + # End Of Search
-        "\x00\x00" + # EA Error Offset
-        "\x00\x00" + # Last Name Offset
-        "\x00\x00" + # Padding
-        #QUERY_PATH_INFO Data
-        [14 + path.length].pack("V") + # Next Entry Offset
-        "\x00\x00\x00\x00" + # File Index
-        [path.length].pack("V") + # File Name Len
-        path +
-        "\x00\x00" # Padding
-      c.put(pkt.to_s)
+      data = path
     end
+
+    # If its asking for a file, return file
+    pkt = CONST::SMB_TRANS_RES_PKT.make_struct
+    smb_set_defaults(c, pkt)
+    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
+    pkt['Payload']['SMB'].v['Flags1'] = 0x88
+    pkt['Payload']['SMB'].v['Flags2'] = @flags2
+    pkt['Payload']['SMB'].v['WordCount'] = 10
+    pkt['Payload'].v['ParamCountTotal'] = 10
+    pkt['Payload'].v['DataCountTotal'] = 14 + data.length
+    pkt['Payload'].v['ParamCount'] = 10
+    pkt['Payload'].v['ParamOffset'] = 56
+    pkt['Payload'].v['DataCount'] = 14 + data.length
+    pkt['Payload'].v['DataOffset'] = 68
+    pkt['Payload'].v['Payload'] =
+      "\x00" + # Padding
+      # FIND_FIRST2 Parameters
+      "\xfd\xff" + # Search ID
+      "\x01\x00" + # Search count
+      "\x01\x00" + # End Of Search
+      "\x00\x00" + # EA Error Offset
+      "\x00\x00" + # Last Name Offset
+      "\x00\x00" + # Padding
+      #QUERY_PATH_INFO Data
+      [14 + data.length].pack("V") + # Next Entry Offset
+      "\x00\x00\x00\x00" + # File Index
+      [data.length].pack("V") + # File Name Len
+      data +
+      "\x00\x00" # Padding
+    c.put(pkt.to_s)
  end
 
 end # End Class
