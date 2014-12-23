@@ -15,7 +15,8 @@ Options:
     -c, --add-code   <path>          Specify an additional win32 shellcode file to include
     -x, --template   <path>          Specify a custom executable file to use as a template
     -k, --keep                       Preserve the template behavior and inject the payload as a new thread
-    -o, --options                    List the payload's standard options
+        --payload-options            List the payload's standard options
+    -o, --out   <path>               Save the payload
     -v, --var-name <name>            Specify a custom variable name to use for certain output formats
     -h, --help                       Show this message
         --help-formats               List available formats
