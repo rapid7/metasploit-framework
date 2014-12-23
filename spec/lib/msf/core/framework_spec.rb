@@ -17,7 +17,7 @@ describe Msf::Framework do
   end
 
   describe "#version" do
-    CURRENT_VERSION = "4.10.1-dev"
+    CURRENT_VERSION = "4.11.0-dev"
 
     subject(:framework) do
       described_class.new

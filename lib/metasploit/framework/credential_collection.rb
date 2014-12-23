@@ -107,7 +107,7 @@ class Metasploit::Framework::CredentialCollection
       File.open(user_file, 'r:binary') do |user_fd|
         user_fd.each_line do |user_from_file|
           user_from_file.chomp!
-          if password
+          if password.present?
             yield Metasploit::Framework::Credential.new(public: user_from_file, private: password, realm: realm, private_type: private_type(password) )
           end
           if user_as_pass

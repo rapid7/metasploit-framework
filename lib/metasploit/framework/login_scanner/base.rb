@@ -30,6 +30,9 @@ module Metasploit
           # @!attribute stop_on_success
           #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
           attr_accessor :stop_on_success
+          # @!attribute bruteforce_speed
+          #   @return [Fixnum] The desired speed, with 5 being 'fast' and 0 being 'slow.'
+          attr_accessor :bruteforce_speed
 
           validates :connection_timeout,
                     presence: true,
@@ -52,6 +55,14 @@ module Metasploit
 
           validates :stop_on_success,
                     inclusion: { in: [true, false] }
+
+          validates :bruteforce_speed,
+                    presence: false,
+                    numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 0,
+                      less_than_or_equal_to:    5
+                    }
 
           validate :host_address_must_be_valid
 
@@ -84,6 +95,34 @@ module Metasploit
           #   this scanner can't run
           def check_setup
             false
+          end
+
+          # @note Override this to set a timeout that makes more sense for
+          # your particular protocol. Telnet already usually takes a really
+          # long time, while MSSQL is often lickety-split quick. If
+          # overridden, the override should probably do something sensible
+          # with {#bruteforce_speed}
+          #
+          # @return [Fixnum] a number of seconds to sleep between attempts
+          def sleep_time
+            case bruteforce_speed
+              when 0; 60 * 5
+              when 1; 15
+              when 2; 1
+              when 3; 0.5
+              when 4; 0.1
+              else; 0
+            end
+          end
+
+          # A threadsafe sleep method
+          #
+          # @param time [Fixnum] number of seconds (can be a Float), defaults
+          # to {#sleep_time}
+          #
+          # @return [void]
+          def sleep_between_attempts(time=self.sleep_time)
+            ::IO.select(nil,nil,nil,time) unless sleep_time.zero?
           end
 
           def each_credential
@@ -148,6 +187,7 @@ module Metasploit
             total_error_count = 0
 
             successful_users = Set.new
+            first_attempt = true
 
             each_credential do |credential|
               # Skip users for whom we've have already found a password
@@ -159,6 +199,12 @@ module Metasploit
                   credential.parent.save!
                 end
                 next
+              end
+
+              if first_attempt
+                first_attempt = false
+              else
+                sleep_between_attempts
               end
 
               result = attempt_login(credential)

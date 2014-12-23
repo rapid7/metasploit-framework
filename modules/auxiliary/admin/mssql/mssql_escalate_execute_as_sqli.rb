@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft SQL Server - SQLi Escalate Execute As',
+      'Name'           => 'Microsoft SQL Server SQLi Escalate Execute AS',
       'Description'    => %q{
         This module can be used escalate privileges if the IMPERSONATION privilege has been
         assigned to the user via error based SQL injection.  In most cases, this results in

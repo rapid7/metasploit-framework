@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{rhost}:#{rport} - Identified #{full_match[1]}")
       report_service(:host => (this_host || ip), :port => rport, :proto => 'tcp', :name => 'https', :info => full_match[1])
     end
-    
+
     if os_match and ver_match and build_match
       if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
         # Report a fingerprint match for OS identification

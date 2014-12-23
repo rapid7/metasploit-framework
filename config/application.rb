@@ -9,6 +9,7 @@ all_environments = [
 
 Bundler.require(
     *Rails.groups(
+        coverage: [:test],
         db: all_environments,
         pcap: all_environments
     )

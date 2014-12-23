@@ -1,7 +1,9 @@
 # -*- coding: binary -*-
 ENV['RAILS_ENV'] = 'test'
 
-require 'simplecov'
+unless Bundler.settings.without.include?(:coverage)
+  require 'simplecov'
+end
 
 # @note must be before loading config/environment because railtie needs to be loaded before
 #   `Metasploit::Framework::Application.initialize!` is called.

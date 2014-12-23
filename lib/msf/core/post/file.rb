@@ -310,7 +310,7 @@ module Msf::Post::File
   def rm_f(*remote_files)
     remote_files.each do |remote|
       if session.type == "meterpreter"
-        session.fs.file.delete(remote)
+        session.fs.file.delete(remote) if exist?(remote)
       else
         if session.platform =~ /win/
           cmd_exec("del /q /f #{remote}")

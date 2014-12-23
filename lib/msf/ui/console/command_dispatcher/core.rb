@@ -873,7 +873,7 @@ class Core
       return @@jobs_opts.fmt.keys
     end
 
-    if @@jobs_opts.fmt[words[1]][0] and (words.length == 2)
+    if words.length == 2 and (@@jobs_opts.fmt[words[1]] || [false])[0]
       return framework.jobs.keys
     end
 
@@ -1025,7 +1025,7 @@ class Core
       return @@threads_opts.fmt.keys
     end
 
-    if @@threads_opts.fmt[words[1]][0] and (words.length == 2)
+    if words.length == 2 and (@@threads_opts.fmt[words[1]] || [false])[0]
       return framework.threads.each_index.map{ |idx| idx.to_s }
     end
 
