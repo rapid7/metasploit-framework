@@ -44,6 +44,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         OptString.new('USER', [ true, 'The Domain User' ]),
+        OptInt.new('USER_SID', [ true, 'The Domain User SID, Ex: 1000']),
         OptString.new('PASSWORD', [ true, 'The Domain User password' ]),
         OptString.new('DOMAIN', [ true, 'The Domain Ex: DEMO.LOCAL' ]),
         OptString.new('DOMAIN_SID', [ true, 'The Domain SID Ex: S-1-5-21-1755879683-3641577184-3486455962' ])
@@ -97,6 +98,7 @@ class Metasploit4 < Msf::Auxiliary
       client_name: datastore['USER'],
       group_ids: groups,
       domain_id: datastore['DOMAIN_SID'],
+      user_id: datastore['USER_SID'],
       realm: datastore['DOMAIN'],
       logon_time: logon_time,
       checksum_type: Rex::Proto::Kerberos::Crypto::RSA_MD5
