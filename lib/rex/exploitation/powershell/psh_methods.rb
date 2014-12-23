@@ -64,6 +64,15 @@ module Powershell
     def self.get_last_login(user)
       %Q^ Get-QADComputer -ComputerRole DomainController | foreach { (Get-QADUser -Service $_.Name -SamAccountName "#{user}").LastLogon} | Measure-Latest^
     end
+
+    #
+    # Disable SSL Certificate verification
+    #
+    # @return [String] Powershell code to disable SSL verification
+    #   checks.
+    def self.ignore_ssl_certificate
+      '[System.Net.ServicePointManager]::ServerCertificateValidationCallback={$true};'
+    end
   end
 end
 end
