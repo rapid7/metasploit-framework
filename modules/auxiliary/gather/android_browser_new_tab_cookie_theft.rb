@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
      register_options([
       OptString.new('COOKIE_FILE', [
         true,
-        'The cookie file on the device.',
+        'The cookie file (on older 2.x devices this is "webview.db")',
         'webviewCookiesChromium.db'
       ])
     ], self.class)
