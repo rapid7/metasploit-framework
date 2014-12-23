@@ -57,7 +57,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_tkt_vno
-            bn = OpenSSL::BN.new(tkt_vno)
+            bn = OpenSSL::BN.new(tkt_vno.to_s)
             int = OpenSSL::ASN1::Integer.new(bn)
 
             int

@@ -58,7 +58,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_pvno
-            bn = OpenSSL::BN.new(pvno)
+            bn = OpenSSL::BN.new(pvno.to_s)
             int = OpenSSL::ASN1::Integer.new(bn)
 
             int
@@ -68,7 +68,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_msg_type
-            bn = OpenSSL::BN.new(msg_type)
+            bn = OpenSSL::BN.new(msg_type.to_s)
             int = OpenSSL::ASN1::Integer.new(bn)
 
             int
