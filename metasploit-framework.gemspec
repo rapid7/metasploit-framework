@@ -55,6 +55,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'jsobfu', '~> 0.2.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
+  # Metasm compiler/decompiler/assembler
+  spec.add_runtime_dependency 'metasm', '~> 1.0.2'
   # Metasploit::Concern hooks
   spec.add_runtime_dependency 'metasploit-concern', '1.0.0'
   # Things that would normally be part of the database model, but which
