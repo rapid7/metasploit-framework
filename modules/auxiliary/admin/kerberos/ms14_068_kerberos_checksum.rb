@@ -43,10 +43,10 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USER', [ true, 'The Domain User', 'juan']),
-        OptString.new('PASSWORD', [ true, 'The Domain User password', 'juan']),
-        OptString.new('DOMAIN', [ true, 'The Domain Ex: DEMO.LOCAL', 'DEMO.LOCAL']),
-        OptString.new('DOMAIN_SID', [ true, 'The Domain SID Ex: S-1-5-21-1755879683-3641577184-3486455962', 'S-1-5-21-1755879683-3641577184-3486455962'])
+        OptString.new('USER', [ true, 'The Domain User' ]),
+        OptString.new('PASSWORD', [ true, 'The Domain User password' ]),
+        OptString.new('DOMAIN', [ true, 'The Domain Ex: DEMO.LOCAL' ]),
+        OptString.new('DOMAIN_SID', [ true, 'The Domain SID Ex: S-1-5-21-1755879683-3641577184-3486455962' ])
       ], self.class)
   end
 
