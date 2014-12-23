@@ -79,7 +79,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_pausec
-            int_bn = OpenSSL::BN.new(pausec)
+            int_bn = OpenSSL::BN.new(pausec.to_s)
             int = OpenSSL::ASN1::Integer.new(int_bn)
 
             int

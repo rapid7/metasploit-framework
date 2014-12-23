@@ -50,7 +50,7 @@ module Rex
           #
           # @return [OpenSSL::ASN1::Integer]
           def encode_type
-            int_bn = OpenSSL::BN.new(type)
+            int_bn = OpenSSL::BN.new(type.to_s)
             int = OpenSSL::ASN1::Integer.new(int_bn)
 
             int
