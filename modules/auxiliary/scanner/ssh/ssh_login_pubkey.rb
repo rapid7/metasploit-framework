@@ -1,18 +1,20 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'net/ssh'
 require 'metasploit/framework/login_scanner/ssh'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
+
+  include Msf::Auxiliary::Scanner
 
   attr_accessor :ssh_socket, :good_key
 
@@ -47,6 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
+        Opt::Proxies,
         OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
         OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
@@ -196,12 +199,16 @@ class Metasploit3 < Msf::Auxiliary
       username: datastore['USERNAME'],
     )
 
-    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys"
+    keys = prepend_db_keys(keys)
+
+    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys from #{datastore['KEY_PATH']}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       host: ip,
       port: rport,
       cred_details: keys,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      proxies: datastore['Proxies'],
       connection_timeout: datastore['SSH_TIMEOUT'],
     )
 
@@ -220,12 +227,16 @@ class Metasploit3 < Msf::Auxiliary
           session_setup(result, scanner.ssh_socket)
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+          end
           scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
           invalidate_login(credential_data)
           :abort
         when Metasploit::Model::Login::Status::INCORRECT
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          end
           invalidate_login(credential_data)
           scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         else
@@ -236,14 +247,12 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  class KeyCollection
+  class KeyCollection < Metasploit::Framework::CredentialCollection
     attr_accessor :key_data
+    attr_accessor :key_path
 
     def initialize(opts={})
-      @username = opts[:username]
-      @user_file = opts[:user_file]
-      @key_path = opts.fetch(:key_path)
-
+      super
       valid!
     end
 
@@ -272,6 +281,8 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     def each
+      prepended_creds.each { |c| yield c }
+
       if @user_file.present?
         File.open(@user_file, 'rb') do |user_fd|
           user_fd.each_line do |user_from_file|

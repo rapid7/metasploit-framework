@@ -12,6 +12,7 @@ end
 
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
+require 'metasploit/framework/rails_version_constraint'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
@@ -46,22 +47,24 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  # The Metasploit ecosystem is not ready for Rails 4 as it uses features of Rails 3.X that are removed in Rails 4.
-  rails_version_constraint = '< 4.0.0'
 
   # Need 3+ for ActiveSupport::Concern
-  spec.add_runtime_dependency 'activesupport', '>= 3.0.0', rails_version_constraint
+  spec.add_runtime_dependency 'activesupport', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for config.action_view for view plugin compatibility for Pro
-  spec.add_runtime_dependency 'actionpack', rails_version_constraint
+  spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
+  # Needed for Javascript obfuscation
+  spec.add_runtime_dependency 'jsobfu', '~> 0.2.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
+  # Metasploit::Concern hooks
+  spec.add_runtime_dependency 'metasploit-concern', '~> 0.3.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model', '~> 0.26.1'
+  spec.add_runtime_dependency 'metasploit-model', '~> 0.28.0'
   # Needed for Meterpreter on Windows, soon others.
-  spec.add_runtime_dependency 'meterpreter_bins', '0.0.7'
+  spec.add_runtime_dependency 'meterpreter_bins', '0.0.12'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler
@@ -70,8 +73,16 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'packetfu', '1.1.9'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
-  # Needed by JSObfu
-  spec.add_runtime_dependency 'rkelly-remix', '0.0.6'
+  # required for OS fingerprinting
+  spec.add_runtime_dependency 'recog', '~> 1.0'
+
+  # rb-readline doesn't work with Ruby Installer due to error with Fiddle:
+  #   NoMethodError undefined method `dlopen' for Fiddle:Module
+  unless Gem.win_platform?
+    # Command line editing, history, and tab completion in msfconsole
+    spec.add_runtime_dependency 'rb-readline'
+  end
+
   # Needed by anemone crawler
   spec.add_runtime_dependency 'robots'
   # Needed by some modules

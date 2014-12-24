@@ -669,6 +669,7 @@ class Db
     print_line
     print_line "General options"
     print_line "  -h,--help             Show this help information"
+    print_line "  -o <file>             Send output to a file in csv format"
     print_line
     print_line "Filter options for listing"
     print_line "  -P,--password <regex> List passwords that match this regex"
@@ -900,7 +901,14 @@ class Db
         end
       end
 
-      print_line(tbl.to_s)
+      if output_file.nil?
+        print_line(tbl.to_s)
+      else
+        # create the output file
+        ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+        print_status("Wrote creds to #{output_file}")
+      end
+      
       print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
   end
@@ -1109,8 +1117,9 @@ class Db
         end
       end
       if (note.service)
-        name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
-        msg << " service=#{name}"
+        msg << " service=#{note.service.name}" if note.service.name
+        msg << " port=#{note.service.port}" if note.service.port
+        msg << " protocol=#{note.service.proto}" if note.service.proto
       end
       msg << " type=#{note.ntype} data=#{note.data.inspect}"
       print_status(msg)
@@ -1454,7 +1463,7 @@ class Db
           print_error("Please note that there were #{warnings} warnings") if warnings > 1
           print_error("Please note that there was one warning") if warnings == 1
 
-        rescue DBImportError
+        rescue Msf::DBImportError
           print_error("Failed to import #{filename}: #{$!}")
           elog("Failed to import #{filename}: #{$!.class}: #{$!}")
           dlog("Call stack: #{$@.join("\n")}", LEV_3)

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -49,13 +49,13 @@ class Metasploit4 < Msf::Auxiliary
 
     if id
       print_good("#{ip}:#{rport} - #{id}")
-      report_service({
+      report_service(
         :host => ip,
         :port => rport,
         :proto => "tcp",
         :name => "jetdirect",
         :info => id
-      })
+      )
     end
   end
 

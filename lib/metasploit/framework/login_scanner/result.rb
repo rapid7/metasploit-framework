@@ -21,7 +21,7 @@ module Metasploit
         #   @return [Fixnum] the port number of the service for this result
         attr_accessor :port
         # @!attribute proof
-        #   @return [String,nil] the proof that the login was successful
+        #   @return [#to_s] the proof of the login's success or failure
         attr_accessor :proof
         # @!attribute protocol
         #   @return [String] the transport protocol used for this result (tcp/udp)

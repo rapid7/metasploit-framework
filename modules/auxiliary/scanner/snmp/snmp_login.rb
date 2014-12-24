@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -60,6 +60,7 @@ class Metasploit3 < Msf::Auxiliary
           port: rport,
           cred_details: collection,
           stop_on_success: datastore['STOP_ON_SUCCESS'],
+          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
           connection_timeout: 2
       )
 
@@ -74,10 +75,10 @@ class Metasploit3 < Msf::Auxiliary
           credential_data[:core] = credential_core
           create_credential_login(credential_data)
 
-          print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+          print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential} (Access level: #{result.access_level})"
         else
           invalidate_login(credential_data)
-          print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+          vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
         end
       end
     end

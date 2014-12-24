@@ -63,7 +63,7 @@ module Metasploit
 
           rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE => e
             result_options.merge!(
-              proof: e.message,
+              proof: e,
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             )
           end

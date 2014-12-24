@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -22,7 +22,8 @@ class Metasploit3 < Msf::Encoder
       },
       'Author'           => 'egypt',
       'Arch'             => ARCH_CMD,
-      'Platform'         => 'unix')
+      'Platform'         => 'unix',
+      'EncoderType'      => Msf::Encoder::Type::CmdUnixIfs)
   end
 
 
@@ -30,6 +31,16 @@ class Metasploit3 < Msf::Encoder
   # Encodes the payload
   #
   def encode_block(state, buf)
+    # Skip encoding for empty badchars
+    if state.badchars.length == 0
+      return buf
+    end
+
+    # Skip encoding unless space is a badchar
+    unless state.badchars.include?(" ")
+      return buf
+    end
+
     buf.gsub!(/\s/, '${IFS}')
     return buf
   end

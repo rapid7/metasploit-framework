@@ -17,7 +17,7 @@ describe Msf::HTTP::JBoss::BeanShellScripts do
       it { expect(subject.generate_bsh(:create, {})).to include('String jboss_home = System.getProperty("jboss.server.home.dir");') }
     end
 
-    context "when :create type is used" do
+    context "when :delete type is used" do
       it { expect(subject.generate_bsh(:delete, {})).to include('String jboss_home = System.getProperty("jboss.server.home.dir");') }
     end
 

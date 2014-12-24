@@ -527,6 +527,10 @@ class OptRegexp < OptBase
     return Regexp.compile(value)
   end
 
+  def default
+    @default.to_s
+  end
+
   def display_value(value)
     if value.kind_of?(Regexp)
       return value.source

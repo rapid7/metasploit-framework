@@ -9,6 +9,7 @@ require 'active_support'
 require 'bcrypt'
 require 'json'
 require 'msgpack'
+require 'metasploit/concern'
 require 'metasploit/model'
 require 'nokogiri'
 require 'packetfu'
@@ -31,6 +32,11 @@ module Metasploit
   # works in compatible manner with activerecord's rake tasks and other
   # railties.
   module Framework
+    extend ActiveSupport::Autoload
+
+    autoload :Spec
+    autoload :ThreadFactoryProvider
+
     # Returns the root of the metasploit-framework project.  Use in place of
     # `Rails.root`.
     #

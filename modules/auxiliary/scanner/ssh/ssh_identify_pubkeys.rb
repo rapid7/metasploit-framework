@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Auxiliary
 
         ::Timeout.timeout(1) { ssh_socket.close if ssh_socket } rescue nil
 
-      rescue Rex::ConnectionError, Rex::AddressInUse
+      rescue Rex::ConnectionError
         return :connection_error
       rescue Net::SSH::Disconnect, ::EOFError
         return :connection_disconnect

@@ -6,9 +6,10 @@ describe Metasploit::Framework::LoginScanner::POP3 do
 
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: false, has_default_realm: false
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
+  it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
   context "#attempt_login" do
-    
+
     let(:pub_blank) do
       Metasploit::Framework::Credential.new(
         paired: true,
@@ -41,10 +42,10 @@ describe Metasploit::Framework::LoginScanner::POP3 do
         expect(result.status).to eq(Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
       end
     end
-    
+
     context "Open Connection" do
       let(:sock) {double('socket')}
-      
+
       before(:each) do
         sock.stub(:shutdown)
         sock.stub(:close)
@@ -53,30 +54,30 @@ describe Metasploit::Framework::LoginScanner::POP3 do
         scanner.stub(:sock).and_return(sock)
         scanner.should_receive(:select).with([sock],nil,nil,0.4)
       end
-      
+
       it "Server returns +OK" do
         expect(sock).to receive(:get_once).exactly(3).times.and_return("+OK")
         expect(sock).to receive(:put).with("USER public\r\n").once.ordered
         expect(sock).to receive(:put).with("PASS \r\n").once.ordered
-        
+
         result = scanner.attempt_login(pub_blank)
 
         expect(result).to be_kind_of(Metasploit::Framework::LoginScanner::Result)
         expect(result.status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
-        
+
       end
-      
+
       it "Server Returns Something Else" do
         sock.stub(:get_once).and_return("+ERROR")
-        
+
         result = scanner.attempt_login(pub_blank)
 
         expect(result).to be_kind_of(Metasploit::Framework::LoginScanner::Result)
         expect(result.status).to eq(Metasploit::Model::Login::Status::INCORRECT)
         expect(result.proof).to eq("+ERROR")
-        
+
       end
     end
-    
+
   end
 end

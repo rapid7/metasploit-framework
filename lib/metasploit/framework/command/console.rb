@@ -7,11 +7,26 @@ require 'metasploit/framework/command/base'
 
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::Base
+
+  def spinner
+    return if $msf_spinner_thread
+    $msf_spinner_thread = Thread.new do
+      $stderr.print "[*] Starting the Metasploit Framework console..."
+      loop do
+        %q{/-\|}.each_char do |c|
+          $stderr.print c
+          $stderr.print "\b"
+        end
+      end
+    end
+  end
+
   def start
     case parsed_options.options.subcommand
     when :version
       $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
     else
+      spinner unless parsed_options.options.console.quiet
       driver.run
     end
   end
@@ -46,6 +61,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['DatabaseEnv'] = options.environment
       driver_options['DatabaseMigrationPaths'] = options.database.migrations_paths
       driver_options['DatabaseYAML'] = options.database.config
+      driver_options['DeferModuleLoads'] = options.modules.defer_loads
       driver_options['Defanged'] = options.console.defanged
       driver_options['DisableBanner'] = options.console.quiet
       driver_options['DisableDatabase'] = options.database.disable

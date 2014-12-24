@@ -101,7 +101,7 @@ module NTP
       n.payload_size = payload.size
       n.payload = payload
     end
-    n.to_s
+    n
   end
 
   def self.ntp_private(version, implementation, request_code, payload = nil)
@@ -110,14 +110,14 @@ module NTP
     n.implementation = implementation
     n.request_code = request_code
     n.payload = payload if payload
-    n.to_s
+    n
   end
 
   def self.ntp_generic(version, mode)
     n = NTPGeneric.new
     n.version = version
     n.mode = mode
-    n.to_s
+    n
   end
 
   # Parses the given message and provides a description about the NTP message inside

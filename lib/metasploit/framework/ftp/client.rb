@@ -4,6 +4,7 @@ module Metasploit
   module Framework
     module Ftp
       module Client
+        extend ActiveSupport::Concern
         include Metasploit::Framework::Tcp::Client
 
         #

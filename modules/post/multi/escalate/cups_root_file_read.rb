@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -137,9 +137,17 @@ class Metasploit3 < Msf::Post
 
   private
 
-  def prev_error_log_path; datastore['ERROR_LOG']; end
-  def ctl_path; @ctl_path ||= whereis("cupsctl"); end
-  def strip_http_headers(http); http.gsub(/\A(^.*\r\n)*/, ''); end
+  def prev_error_log_path
+    datastore['ERROR_LOG']
+  end
+
+  def ctl_path
+    @ctl_path ||= whereis("cupsctl")
+  end
+
+  def strip_http_headers(http)
+    http.gsub(/\A(^.*\r\n)*/, '')
+  end
 
   def whereis(exe)
     line = cmd_exec("whereis #{exe}")

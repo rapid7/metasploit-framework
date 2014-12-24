@@ -33,43 +33,43 @@ xml_serv = '
 
 xml_ms = '
 <?xml version="1.0" encoding="utf-8"?>
-<Groups   clsid="{3125E937-EB16-4b4c-9934-544FC6D24D26}" 
+<Groups   clsid="{3125E937-EB16-4b4c-9934-544FC6D24D26}"
           disabled="1">
-  <User   clsid="{DF5F1855-51E5-4d24-8B1A-D9BDE98BA1D1}" 
-          name="DbAdmin" 
-          image="2" 
-          changed="2007-07-06 20:45:20" 
+  <User   clsid="{DF5F1855-51E5-4d24-8B1A-D9BDE98BA1D1}"
+          name="DbAdmin"
+          image="2"
+          changed="2007-07-06 20:45:20"
           uid="{253F4D90-150A-4EFB-BCC8-6E894A9105F7}">
-    <Properties 
-          action="U" 
-          newName="" 
-          fullName="Database Admin" 
-          description="Local Database Admin" 
-          cpassword="demo" 
-          changeLogon="0" 
-          noChange="0" 
-          neverExpires="0" 
-          acctDisabled="1" 
+    <Properties
+          action="U"
+          newName=""
+          fullName="Database Admin"
+          description="Local Database Admin"
+          cpassword="demo"
+          changeLogon="0"
+          noChange="0"
+          neverExpires="0"
+          acctDisabled="1"
           userName="DbAdmin"/>
   </User>
-  <Group  clsid="{6D4A79E4-529C-4481-ABD0-F5BD7EA93BA7}" 
-          name="Database Admins" 
-          image="2" 
-          changed="2007-07-06 20:46:21" 
+  <Group  clsid="{6D4A79E4-529C-4481-ABD0-F5BD7EA93BA7}"
+          name="Database Admins"
+          image="2"
+          changed="2007-07-06 20:46:21"
           uid="{C5FB3901-508A-4A9E-9171-60D4FC2B404B}">
-    <Properties 
-          action="U" 
-          newName="" 
-          description="Local Database Admins" 
-          userAction="REMOVE" 
-          deleteAllUsers="1" 
-          deleteAllGroups="1" 
-          removeAccounts="0" 
+    <Properties
+          action="U"
+          newName=""
+          description="Local Database Admins"
+          userAction="REMOVE"
+          deleteAllUsers="1"
+          deleteAllGroups="1"
+          removeAccounts="0"
           groupName="Database Admins">
       <Members>
-        <Member 
-          name="domain\sampleuser" 
-          action="ADD" 
+        <Member
+          name="domain\sampleuser"
+          action="ADD"
           sid=""/>
       </Members>
     </Properties>
@@ -89,12 +89,12 @@ cpassword_bad = "blah"
 
 describe Rex::Parser::GPP do
   GPP = Rex::Parser::GPP
-  
+
   ##
   # Decrypt
   ##
   it "Decrypt returns Local*P4ssword! for normal cpassword" do
-    result = GPP.decrypt(cpassword_normal) 
+    result = GPP.decrypt(cpassword_normal)
     result.should eq("Local*P4ssword!")
   end
 
@@ -102,7 +102,7 @@ describe Rex::Parser::GPP do
     result = GPP.decrypt(cpassword_bad)
     result.should eq("")
   end
-  
+
   it "Decrypt returns blank for nil cpassword" do
     result = GPP.decrypt(nil)
     result.should eq("")
@@ -132,7 +132,7 @@ describe Rex::Parser::GPP do
   it "Parse returns results for xml_datasrc, and attributes, and password is test1" do
     results = GPP.parse(xml_datasrc)
     results.should_not be_empty
-    results[0].include?(:ATTRIBUTES).should be_true
+    results[0].include?(:ATTRIBUTES).should be_truthy
     results[0][:ATTRIBUTES].should_not be_empty
     results[0][:PASS].should eq("test")
   end
