@@ -16,9 +16,9 @@ module Rex
 
           # Rex::Proto::Kerberos::Model::Checksum decoding isn't supported
           #
-          # @raise [RuntimeError]
+          # @raise [NotImplementedError]
           def decode(input)
-            raise ::RuntimeError, 'Checksum decoding not supported'
+            raise ::NotImplementedError, 'Checksum decoding not supported'
           end
 
           # Encodes a Rex::Proto::Kerberos::Model::Checksum into an ASN.1 String

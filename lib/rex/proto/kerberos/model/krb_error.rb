@@ -64,9 +64,9 @@ module Rex
 
           # Rex::Proto::Kerberos::Model::KrbError encoding isn't supported
           #
-          # @raise [RuntimeError]
+          # @raise [NotImplementedError]
           def encode
-            raise ::RuntimeError, 'KrbError encoding not supported'
+            raise ::NotImplementedError, 'KrbError encoding not supported'
           end
 
           private

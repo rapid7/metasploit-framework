@@ -27,9 +27,9 @@ module Rex
 
           # Rex::Proto::Kerberos::Model::ApReq decoding isn't supported
           #
-          # @raise [RuntimeError]
+          # @raise [NotImplementedError]
           def decode(input)
-            raise ::RuntimeError, 'AP-REQ decoding not supported'
+            raise ::NotImplementedError, 'AP-REQ decoding not supported'
           end
 
           # Encodes the Rex::Proto::Kerberos::Model::ApReq into an ASN.1 String

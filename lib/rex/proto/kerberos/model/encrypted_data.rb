@@ -61,6 +61,7 @@ module Rex
           # @param msg_type [Fixnum] the message type
           # @return [String] the decrypted `cipher`
           # @raise [RuntimeError] if decryption doesn't succeed
+          # @raise [NotImplementedError] if encryption isn't supported
           def decrypt(key, msg_type)
             if cipher.nil? || cipher.empty?
               return ''
@@ -73,7 +74,7 @@ module Rex
               raise ::RuntimeError, 'EncryptedData failed to decrypt' if res.length < 8
               res = res[8, res.length - 1]
             else
-              raise ::RuntimeError, 'EncryptedData schema is not supported'
+              raise ::NotImplementedError, 'EncryptedData schema is not supported'
             end
 
             res

@@ -101,10 +101,11 @@ module Rex
           # Encodes the addrs field
           #
           # @return [String]
+          # @raise [NotImplementedError] if there are addresses to encode
           def encode_addrs
             encoded = ''
             if addrs.length > 0
-              raise ::RuntimeError, 'CredentialCache: Credential addresses encoding not supported'
+              raise ::NotImplementedError, 'CredentialCache: Credential addresses encoding not supported'
             end
             encoded << [addrs.length].pack('N')
             encoded

@@ -102,13 +102,14 @@ module Rex
           #
           # @param data [String] the data to checksum
           # @return [String] the checksum result
+          # @raise [NotImplementedError] if checksum schema isn't supported
           def make_checksum(data)
             res = ''
             case checksum
             when RSA_MD5
               res = checksum_rsa_md5(data)
             else
-              raise ::RuntimeError, 'PAC-TYPE checksum not supported'
+              raise ::NotImplementedError, 'PAC-TYPE checksum not supported'
             end
 
             res

@@ -52,6 +52,7 @@ module Rex
           # @param etype [Fixnum] the crypto schema to encrypt
           # @param key [String] the key to encrypt
           # @return [String] the encrypted result
+          # @raise [NotImplementedError] if encryption schema isn't supported
           def encrypt(etype, key)
             data = self.encode
 
@@ -60,7 +61,7 @@ module Rex
             when RC4_HMAC
               res = encrypt_rc4_hmac(data, key, CRYPTO_MSG_TYPE)
             else
-              raise ::RuntimeError, 'EncryptedData schema is not supported'
+              raise ::NotImplementedError, 'EncryptedData schema is not supported'
             end
 
             res

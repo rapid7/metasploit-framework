@@ -82,6 +82,7 @@ module Rex
           #
           # @param etype [Fixnum] the crypto schema to checksum
           # @return [String] the checksum
+          # @raise [NotImplementedError] if the encryption schema isn't supported
           def checksum(etype)
             data = self.encode
 
@@ -90,7 +91,7 @@ module Rex
             when RSA_MD5
               res = checksum_rsa_md5(data)
             else
-              raise ::RuntimeError, 'EncryptedData schema is not supported'
+              raise ::NotImplementedError, 'EncryptedData schema is not supported'
             end
 
             res

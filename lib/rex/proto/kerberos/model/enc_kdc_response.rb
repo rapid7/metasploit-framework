@@ -65,9 +65,9 @@ module Rex
 
           # Rex::Proto::Kerberos::Model::EncKdcResponse encoding isn't supported
           #
-          # @raise [RuntimeError]
+          # @raise [NotImplementedError]
           def encode
-            raise ::RuntimeError, 'EncKdcResponse encoding not supported'
+            raise ::NotImplementedError, 'EncKdcResponse encoding not supported'
           end
 
           private

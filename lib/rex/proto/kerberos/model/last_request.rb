@@ -34,9 +34,9 @@ module Rex
 
           # Rex::Proto::Kerberos::Model::LastRequest encoding isn't supported
           #
-          # @raise [RuntimeError]
+          # @raise [NotImplementedError]
           def encode
-            raise ::RuntimeError, 'LastRequest encoding not supported'
+            raise ::NotImplementedError, 'LastRequest encoding not supported'
           end
 
           private

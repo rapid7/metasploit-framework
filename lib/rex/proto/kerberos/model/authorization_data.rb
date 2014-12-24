@@ -15,9 +15,9 @@ module Rex
 
           # Rex::Proto::Kerberos::Model::AuthorizationData decoding isn't supported
           #
-          # @raise [RuntimeError]
+          # @raise [NotImplementedError]
           def decode(input)
-            raise ::RuntimeError, 'Authorization Data decoding not supported'
+            raise ::NotImplementedError, 'Authorization Data decoding not supported'
           end
 
           # Encodes a Rex::Proto::Kerberos::Model::AuthorizationData into an ASN.1 String
@@ -44,6 +44,7 @@ module Rex
           # @param etype [Fixnum] the crypto schema to encrypt
           # @param key [String] the key to encrypt
           # @return [String] the encrypted result
+          # @raise [NotImplementedError] if encryption schema isn't supported
           def encrypt(etype, key)
             data = self.encode
 
@@ -52,7 +53,7 @@ module Rex
             when RC4_HMAC
               res = encrypt_rc4_hmac(data, key, 5)
             else
-              raise ::RuntimeError, 'EncryptedData schema is not supported'
+              raise ::NotImplementedError, 'EncryptedData schema is not supported'
             end
 
             res

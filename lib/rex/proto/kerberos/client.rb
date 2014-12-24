@@ -44,7 +44,7 @@ module Rex
           when 'tcp'
             self.connection = create_tcp_connection
           when 'udp'
-            raise ::RuntimeError, 'Kerberos Client: UDP not supported'
+            raise ::NotImplementedError, 'Kerberos Client: UDP not supported'
           else
             raise ::RuntimeError, 'Kerberos Client: unknown transport protocol'
           end
@@ -66,7 +66,8 @@ module Rex
         #
         # @param req [Rex::Proto::Kerberos::Model::KdcRequest] the request to send
         # @return [Fixnum] the number of bytes sent
-        # @raise [RuntimeError] if the transport protocol is unknown or not supported
+        # @raise [RuntimeError] if the transport protocol is unknown
+        # @raise [NotImplementedError] if the transport protocol isn't supported
         def send_request(req)
           connect
 
@@ -89,6 +90,7 @@ module Rex
         #   response message
         # @raise [RuntimeError] if the connection isn't established, the transport protocol is unknown, not supported
         #   or the response can't be parsed
+        # @raise [NotImplementedError] if the transport protocol isn't supported
         def recv_response
           if connection.nil?
             raise ::RuntimeError, 'Kerberos Client: connection not established'
@@ -111,7 +113,8 @@ module Rex
         #
         # @param req [Rex::Proto::Kerberos::Model::KdcRequest] the request to send
         # @return [<Rex::Proto::Kerberos::Model::KrbError, Rex::Proto::Kerberos::Model::KdcResponse>] The kerberos message
-        # @raise [RuntimeError] if the transport protocol is unknown, not supported, or the response can't be parsed.
+        # @raise [RuntimeError] if the transport protocol is unknown or the response can't be parsed.
+        # @raise [NotImplementedError] if the transport protocol isn't supported
         def send_recv(req)
           send_request(req)
           res = recv_response
@@ -146,9 +149,9 @@ module Rex
 
         # UDP isn't supported
         #
-        # @raise [RuntimeError]
+        # @raise [NotImplementedError]
         def send_request_udp(req)
-          raise ::RuntimeError, 'Kerberos Client: UDP unsupported'
+          raise ::NotImplementedError, 'Kerberos Client: UDP unsupported'
         end
 
         # Receives a Kerberos Response over a tcp connection
@@ -175,9 +178,9 @@ module Rex
 
         # UDP isn't supported
         #
-        # @raise [RuntimeError]
+        # @raise [NotImplementedError]
         def recv_response_udp
-          raise ::RuntimeError, 'Kerberos Client: UDP unsupported'
+          raise ::NotImplementedError, 'Kerberos Client: UDP unsupported'
         end
 
         private
