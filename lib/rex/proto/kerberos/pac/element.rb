@@ -15,6 +15,9 @@ module Rex
             super(*vars)
           end
 
+          # Retrieves the element class fields
+          #
+          # @return [Array]
           def self.attributes
             @attributes
           end
@@ -28,12 +31,19 @@ module Rex
             end
           end
 
+          # Retrieves the element instance fields
+          #
+          # @return [Array]
           def attributes
             self.class.attributes
           end
 
+          # Encodes the Rex::Proto::Kerberos::Pac::Element into an String. This
+          # method has been designed to be overridden by subclasses.
+          #
+          # @raise [NoMethodError]
           def encode
-            ''
+            raise ::NoMethodError, 'Method designed to be overridden'
           end
         end
       end

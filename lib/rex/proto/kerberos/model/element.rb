@@ -17,6 +17,9 @@ module Rex
             super(*vars)
           end
 
+          # Retrieves the element class fields
+          #
+          # @return [Array]
           def self.attributes
             @attributes
           end
@@ -35,16 +38,27 @@ module Rex
             end
           end
 
+          # Retrieves the element instance fields
+          #
+          # @return [Array]
           def attributes
             self.class.attributes
           end
 
+          # Decodes the Rex::Proto::Kerberos::Model::Element from the input. This
+          # method has been designed to be overridden by subclasses.
+          #
+          # @raise [NoMethodError]
           def decode(input)
-            self
+            raise ::NoMethodError, 'Method designed to be overridden'
           end
 
+          # Encodes the Rex::Proto::Kerberos::Model::Element into an ASN.1 String. This
+          # method has been designed to be overridden by subclasses.
+          #
+          # @raise [NoMethodError]
           def encode
-            ''
+            raise ::NoMethodError, 'Method designed to be overridden'
           end
         end
       end
