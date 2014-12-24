@@ -66,9 +66,6 @@ class Metasploit4 < Msf::Auxiliary
     domain_sid = user_sid_arr[0, user_sid_arr.length - 1].join('-')
     user_rid = user_sid_arr[user_sid_arr.length - 1].to_i
 
-    print_status("#{peer} - Connecting with the KDC...")
-    connect
-
     unicode_password = Rex::Text.to_unicode(datastore['PASSWORD'])
     password_digest = OpenSSL::Digest.digest('MD4', unicode_password)
 
