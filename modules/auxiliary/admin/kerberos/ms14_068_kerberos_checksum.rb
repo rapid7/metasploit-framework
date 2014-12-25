@@ -84,6 +84,7 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     unless res.msg_type == Rex::Proto::Kerberos::Model::AS_REP
+      vprint_warning("#{peer} - #{warn_error(res)}") if res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
       print_error("#{peer} - Invalid AS-REP, aborting...")
       return
     end
@@ -132,6 +133,7 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     unless res.msg_type == Rex::Proto::Kerberos::Model::TGS_REP
+      vprint_warning("#{peer} - #{warn_error(res)}") if res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
       print_error("#{peer} - Invalid TGS-REP, aborting...")
       return
     end
@@ -142,6 +144,19 @@ class Metasploit4 < Msf::Auxiliary
 
     path = store_loot('windows.kerberos', 'application/octet-stream', rhost, cache.encode)
     print_good("#{peer} - MIT Credential Cache saved on #{path}")
+  end
+
+  def warn_error(res)
+    msg = ''
+
+    if Rex::Proto::Kerberos::Model::ERROR_CODES.has_key?(res.error_code)
+      error_info = Rex::Proto::Kerberos::Model::ERROR_CODES[res.error_code]
+      msg = "#{error_info[0]} - #{error_info[1]}"
+    else
+      msg = 'Unknown error'
+    end
+
+    msg
   end
 end
 
