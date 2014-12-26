@@ -84,7 +84,7 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     unless res.msg_type == Rex::Proto::Kerberos::Model::AS_REP
-      vprint_warning("#{peer} - #{warn_error(res)}") if res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
+      print_warning("#{peer} - #{warn_error(res)}") if res.msg_type == Rex::Proto::Kerberos::Model::KRB_ERROR
       print_error("#{peer} - Invalid AS-REP, aborting...")
       return
     end
