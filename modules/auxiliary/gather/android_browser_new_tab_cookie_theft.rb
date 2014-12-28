@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Android Browser "Open in New Tab" Cookie Theft',
       'Description' => %q{
-        In Android (AOSP)'s Browser application and WebView component the  
+        In Android (AOSP)'s Browser application and WebView component the
         "open in new tab" functionality allows a file URL to be opened. On
         versions of Android before 4.4, the path to the sqlite cookie
         database could be specified. By saving a cookie containing a <script>
