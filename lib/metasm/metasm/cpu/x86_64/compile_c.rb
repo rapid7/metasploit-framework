@@ -879,19 +879,20 @@ class CCompiler < C::Compiler
       r = c_cexpr_inner(expr.rexpr)
       r = make_volatile(r, expr.type) if r.kind_of? ModRM and l.kind_of? ModRM
       r = make_volatile(r, expr.type) if r.kind_of?(ModRM) and r.sz != l.sz
-      l = make_volatile(l, expr.type) if l.kind_of?(ModRM)
+      l = make_volatile(l, expr.type) if l.kind_of?(ModRM) and r.kind_of?(Reg) and r.sz != l.sz
       if l.kind_of? Expression
         o = { :< => :>, :> => :<, :>= => :<=, :<= => :>= }[o] || o
         l, r = r, l
       end
-      unuse l, r
       if expr.lexpr.type.integral? or expr.lexpr.type.pointer?
-        r = Reg.new(r.val, l.sz) if r.kind_of? Reg and r.sz != l.sz	# XXX
-        instr 'cmp', l, i_to_i32(r)
+        rr = i_to_i32(r)
+        rr = Reg.new(rr.val, l.sz) if rr.kind_of? Reg and rr.sz != l.sz	# XXX
+        instr 'cmp', l, rr
       elsif expr.lexpr.type.float?
         raise 'float unhandled'
       else raise 'bad comparison ' + expr.to_s
       end
+      unuse l, r
       op = 'j' + getcc(o, expr.lexpr.type)
       instr op, Expression[target]
     when :'!'

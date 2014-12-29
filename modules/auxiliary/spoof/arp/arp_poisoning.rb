@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
       OptBool.new(  'BROADCAST',    	[true, 'If set, the module will send replies on the broadcast address witout consideration of DHOSTS', false])
     ], self.class)
 
-    deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE','RHOST','UDP_SECRET','GATEWAY','NETMASK')
+    deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST','GATEWAY_PROBE_PORT')
   end
 
   def run

@@ -146,7 +146,7 @@ module BindTcp
         # to implement the Stream interface.
         conn_threads << framework.threads.spawn("BindTcpHandlerSession", false, client) { |client_copy|
           begin
-            handle_connection(wrap_aes_socket(client_copy))
+            handle_connection(wrap_aes_socket(client_copy), { datastore: datastore })
           rescue
             elog("Exception raised from BindTcp.handle_connection: #{$!}")
           end

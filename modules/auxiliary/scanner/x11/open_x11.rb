@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -45,8 +45,11 @@ class Metasploit3 < Msf::Auxiliary
 
       disconnect
 
-      if(response)
+      if response
         success = response[0,1].unpack('C')[0]
+      else
+        print_error("No response received due to a timeout")
+        return
       end
 
 

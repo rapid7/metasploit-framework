@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(7181), # Also 7180 can be used
-        OptString.new('FILEPATH', [true, 'The name of the file to download', '/boot.ini']),
+        OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
         OptInt.new('DEPTH', [true, 'Traversal depth if absolute is set to false', 10])
       ], self.class)
   end

