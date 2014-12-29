@@ -34,7 +34,8 @@ class Metasploit3 < Msf::Auxiliary
       'References' =>
         [
           # the patch, released against 4.3 AOSP in February 2014
-          ['URL', 'https://android.googlesource.com/platform/packages/apps/Browser/+/d2391b492dec778452238bc6d9d549d56d41c107%5E%21/#F0']
+          ['URL', 'https://android.googlesource.com/platform/packages/apps/Browser/+/d2391b492dec778452238bc6d9d549d56d41c107%5E%21/#F0'],
+          ['URL', 'http://www.rafayhackingarticles.net/2014/12/android-browser-cross-scheme-data.html']
         ],
       'DefaultAction'  => 'WebServer'
     ))
