@@ -1669,6 +1669,8 @@ class Core
       end
     end
 
+    last_known_timeout = nil
+
     # Now, perform the actual method
     case method
     when 'cmd'
@@ -1690,8 +1692,10 @@ class Core
           session = verify_session(s)
           next unless session
           print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
 
           begin
             if session.type == 'meterpreter'
@@ -1722,7 +1726,7 @@ class Core
             end
           ensure
             # Restore timeout for each session
-            session.response_timeout = last_known_timeout
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
           # If the session isn't a meterpreter or shell type, it
           # could be a VNC session (which can't run commands) or
@@ -1735,13 +1739,15 @@ class Core
       session_list.each do |sess_id|
         session = framework.sessions.get(sess_id)
         if session
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
           print_status("Killing session #{sess_id}")
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1752,12 +1758,14 @@ class Core
       framework.sessions.each_sorted do |s|
         session = framework.sessions.get(s)
         if session
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
           begin
             session.kill
           ensure
-            session.response_timeout = last_known_timeout
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         end
       end
@@ -1767,21 +1775,25 @@ class Core
         session = verify_session(sess_id)
         # if session is interactive, it's detachable
         if session
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
           print_status("Detaching session #{sess_id}")
           begin
             session.detach
           ensure
-            session.response_timeout = last_known_timeout
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         end
       end
     when 'interact'
       session = verify_session(sid)
       if session
-        last_known_timeout = session.response_timeout
-        session.response_timeout = response_timeout
+        if session.respond_to?(:response_timeout)
+          last_known_timeout = session.response_timeout
+          session.response_timeout = response_timeout
+        end
         print_status("Starting interaction with #{session.name}...\n") unless quiet
         begin
           self.active_session = session
@@ -1789,7 +1801,7 @@ class Core
           self.active_session = nil
           driver.input.reset_tab_completion if driver.input.supports_readline
         ensure
-          session.response_timeout = last_known_timeout
+          session.response_timeout = last_known_timeout if last_known_timeout
         end
       end
     when 'scriptall'
@@ -1811,8 +1823,10 @@ class Core
           session = framework.sessions.get(sess_id)
         end
         if session
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
           begin
             if script_paths[session.type]
               print_status("Session #{sess_id} (#{session.session_host}):")
@@ -1825,7 +1839,7 @@ class Core
               end
             end
           ensure
-            session.response_timeout = last_known_timeout
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1837,8 +1851,10 @@ class Core
       session_list.each do |sess_id|
         session = verify_session(sess_id)
         if session
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
           begin
             if session.type == 'shell'
               session.init_ui(driver.input, driver.output)
@@ -1849,7 +1865,7 @@ class Core
               next
             end
           ensure
-            session.response_timeout = last_known_timeout
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         end
 
