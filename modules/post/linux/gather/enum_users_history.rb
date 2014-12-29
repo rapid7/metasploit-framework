@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Post
         'Name'         => 'Linux Gather User History',
         'Description'  => %q{
           This module gathers user specific information.
-          User list, bash history, mysql history, vim history,
-          lastlog and sudoers.
+          User list, shell history, mysql history,
+          postgresql history, vim history, lastlog and sudoers.
         },
         'License'      => MSF_LICENSE,
         'Author'       =>
