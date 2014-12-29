@@ -157,6 +157,9 @@ class UI < Rex::Post::UI
     # include the x64 screenshot dll if the host OS is x64
     if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
       screenshot_path = MeterpreterBinaries.path('screenshot','x64.dll')
+      if screenshot_path == nil
+        raise RuntimeError, "screenshot.x64.dll not found", caller
+      end
       screenshot_path = ::File.expand_path( screenshot_path )
       screenshot_dll  = ''
       ::File.open( screenshot_path, 'rb' ) do |f|
@@ -165,8 +168,11 @@ class UI < Rex::Post::UI
       request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
       request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH, screenshot_dll.length )
     end
-    # but allways include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
+    # but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
     screenshot_path = MeterpreterBinaries.path('screenshot','x86.dll')
+    if screenshot_path == nil
+      raise RuntimeError, "screenshot.x86.dll not found", caller
+    end
     screenshot_path = ::File.expand_path( screenshot_path )
     screenshot_dll  = ''
     ::File.open( screenshot_path, 'rb' ) do |f|

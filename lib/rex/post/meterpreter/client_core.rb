@@ -159,6 +159,10 @@ class ClientCore < Extension
       path = opts['ExtensionPath']
     end
 
+    if path == nil
+      raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
+    end
+
     path = ::File.expand_path(path)
 
     # Load the extension DLL
@@ -225,7 +229,12 @@ class ClientCore < Extension
 
     # Create the migrate stager
     migrate_stager = c.new()
-    migrate_stager.datastore['DLL'] = MeterpreterBinaries.path('metsrv',binary_suffix)
+
+    dll = MeterpreterBinaries.path('metsrv',binary_suffix)
+    if dll == nil
+      raise RuntimeError, "metsrv.#{binary_suffix} not found", caller
+    end
+    migrate_stager.datastore['DLL'] = dll
 
     blob = migrate_stager.stage_payload
 
