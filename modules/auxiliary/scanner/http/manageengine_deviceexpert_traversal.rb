@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(6060),
         OptBool.new('SSL',   [true, 'Use SSL', true]),
-        OptString.new('FILEPATH', [true, 'The name of the file to download', 'boot.ini'])
+        OptString.new('FILEPATH', [true, 'The name of the file to download', 'windows\\win.ini'])
       ], self.class)
 
     deregister_options('RHOST')

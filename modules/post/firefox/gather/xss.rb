@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Post
         };
 
         setTimeout(evt, 200);
-      })(send);
+      })(this.send);
 
     |.strip
   end

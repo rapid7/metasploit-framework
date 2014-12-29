@@ -16,23 +16,25 @@ module Msf::Module::HasActions
 
   def action
     sa = datastore['ACTION']
-    sa ? find_action(sa) : find_action(default_action)
+    return find_action(default_action) if not sa
+    return find_action(sa)
   end
 
   def find_action(name)
-    if name
-      actions.each do |a|
-        return a if a.name == name
-      end
+    return nil if not name
+    actions.each do |a|
+      return a if a.name == name
     end
+    return nil
   end
 
   #
   # Returns a boolean indicating whether this module should be run passively
   #
   def passive?
-    act = action
-    act ? passive_action?(act.name) : self.passive
+    act = action()
+    return passive_action?(act.name) if act
+    return self.passive
   end
 
   #

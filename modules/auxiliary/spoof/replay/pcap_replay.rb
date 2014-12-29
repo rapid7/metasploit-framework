@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('PKT_DELAY', [true, "the delay in millisecond between each packet",0]),
     ], self.class)
 
-    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','TIMEOUT','UDP_SECRET','GATEWAY','NETMASK')
+    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','TIMEOUT','SECRET','GATEWAY_PROBE_HOST','GATEWAY_PROBE_PORT')
   end
 
   def run

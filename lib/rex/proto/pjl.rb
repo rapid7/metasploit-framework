@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # https://en.wikipedia.org/wiki/Printer_Job_Language
 # See external links for PJL spec
 

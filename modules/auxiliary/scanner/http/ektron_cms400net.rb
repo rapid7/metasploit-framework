@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
           eventvalidation = ""
         end
 
-        GetVersion()
+        get_version
 
         print_status "Testing passwords at #{target_url}"
         each_user_pass { |user, pass|
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def GetVersion
+  def get_version
       #Attempt to retrieve the version of CMS400.NET installed.
       #Not always possible based on version/config.
       payload = "http://#{vhost}:#{rport}/WorkArea/java/ektron.site-data.js.ashx"
