@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptString.new("QSERVICE" , [true, "Service (keyname) to query", "winmgmt"]),
-        OptString.new("NSERVICE" , [true, "New Service (keyname) to create/del", "testes"]),
+        OptString.new("NSERVICE" , [true, "New Service (keyname) to create/del", "test"]),
         OptString.new("SSERVICE" , [true, "Service (keyname) to start/stop", "W32Time"]),
         OptString.new("DNAME" , [true, "Display name used for create test", "Cool display name"]),
         OptString.new("BINPATH" , [true, "Binary path for create test", "C:\\WINDOWS\\system32\\svchost.exe -k netsvcs"]),
@@ -69,7 +69,18 @@ class Metasploit3 < Msf::Post
 
       ret &&= results.kind_of? Array
       ret &&= results.length > 0
-      ret &&= results.include? datastore["QSERVICE"]
+
+      # Adjust the QSERVICE to match the case of the service name. This is used
+      # later in test_info, which is case-sensitive.
+      found = false
+      results.each do |service|
+        if service.downcase == datastore["QSERVICE"].downcase
+          datastore["QSERVICE"] = service.to_s
+          found = true
+          break
+        end
+      end
+      ret &&= found
 
       ret
     end
@@ -83,7 +94,8 @@ class Metasploit3 < Msf::Post
       ret &&= results.kind_of? Hash
       if ret
         ret &&= results.has_key? "Name"
-        ret &&= (results["Name"] == "Windows Management Instrumentation")
+        ret &&= ([results["Name"]] &
+          ["Windows Management Instrumentation", "@%Systemroot%\\system32\\wbem\\\wmisvc.dll,-205"]).any?
         ret &&= results.has_key? "Startup"
         ret &&= results.has_key? "Command"
         ret &&= results.has_key? "Credentials"
