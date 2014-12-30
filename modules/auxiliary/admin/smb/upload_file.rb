@@ -11,7 +11,9 @@ class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB
+  include Msf::Exploit::Remote::SMB::Authenticated
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -45,25 +47,35 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def run
-
-    data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']))
-    print_status("Read #{data.length} bytes from #{datastore['LPATH']}...")
-
-    print_status("Connecting to the server...")
-    connect()
-    smb_login()
-
-    print_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
-    self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
-
-    print_status("Trying to upload #{datastore['RPATH']}...")
-
-    fd = simple.open("\\#{datastore['RPATH']}", 'rwct')
-    fd.write(data)
-    fd.close
-
-    print_status("The file has been uploaded to #{datastore['RPATH']}...")
+  def peer
+    "#{rhost}:#{rport}"
   end
 
+  def setup
+    @data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']))
+    vprint_status("#{peer}: Read #{@data.length} bytes from #{datastore['LPATH']}...")
+  end
+
+  def run_host(_ip)
+    begin
+      vprint_status("#{peer}: Connecting to the server...")
+      connect()
+      smb_login()
+
+      vprint_status("#{peer}: Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+      self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
+
+      vprint_status("#{peer}: Trying to upload #{datastore['RPATH']}...")
+
+      fd = simple.open("\\#{datastore['RPATH']}", 'rwct')
+      fd.write(@data)
+      fd.close
+
+      print_good("#{peer}: The file has been uploaded to #{datastore['RPATH']}...")
+    rescue Rex::Proto::SMB::Exceptions::LoginError => e
+      print_error("#{peer} Unable to login: #{e.message}")
+    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+      print_error("#{peer} Unable to upload the file: #{e.message}")
+    end
+  end
 end

@@ -11,6 +11,7 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB
   include Msf::Exploit::Remote::SMB::Authenticated
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -40,15 +41,19 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
   def smb_download
-    print_status("Connecting to the #{rhost}:#{rport}...")
+    vprint_status("#{peer}: Connecting...")
     connect()
     smb_login()
 
-    print_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
+    vprint_status("#{peer}: Mounting the remote share \\\\#{rhost}\\#{datastore['SMBSHARE']}'...")
     self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
-    print_status("Trying to download #{datastore['RPATH']}...")
+    vprint_status("#{peer}: Trying to download #{datastore['RPATH']}...")
 
     data = ''
     fd = simple.open("\\#{datastore['RPATH']}", 'ro')
@@ -60,16 +65,16 @@ class Metasploit3 < Msf::Auxiliary
 
     fname = datastore['RPATH'].split("\\")[-1]
     path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
-    print_good("#{fname} saved as: #{path}")
+    print_good("#{peer}: #{fname} saved as: #{path}")
   end
 
-  def run
+  def run_host(ip)
     begin
       smb_download
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
-      print_error("Unable to login: #{e.message}")
+      print_error("#{peer} Unable to login: #{e.message}")
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      print_error("Unable to download the file: #{e.message}")
+      print_error("#{peer} Unable to download the file: #{e.message}")
     end
   end
 
