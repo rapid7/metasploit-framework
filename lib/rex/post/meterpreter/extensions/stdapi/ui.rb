@@ -157,7 +157,7 @@ class UI < Rex::Post::UI
     # include the x64 screenshot dll if the host OS is x64
     if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
       screenshot_path = MeterpreterBinaries.path('screenshot','x64.dll')
-      if screenshot_path == nil
+      if screenshot_path.nil?
         raise RuntimeError, "screenshot.x64.dll not found", caller
       end
       screenshot_path = ::File.expand_path( screenshot_path )
@@ -170,7 +170,7 @@ class UI < Rex::Post::UI
     end
     # but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
     screenshot_path = MeterpreterBinaries.path('screenshot','x86.dll')
-    if screenshot_path == nil
+    if screenshot_path.nil?
       raise RuntimeError, "screenshot.x86.dll not found", caller
     end
     screenshot_path = ::File.expand_path( screenshot_path )
