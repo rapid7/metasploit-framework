@@ -265,7 +265,7 @@ module Auxiliary::Report
       if service and service.kind_of?(::Mdm::Service)
         conf[:service] = service if service
       end
-
+      conf[:uuid] = self.uuid
       framework.db.report_loot(conf)
     end
 
