@@ -10,6 +10,7 @@ class Metasploit3 < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB
   include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::RemotePaths
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -35,10 +36,8 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$']),
-      OptString.new('RPATH', [true, 'The name of the remote file relative to the share'])
+      OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$'])
     ], self.class)
-
   end
 
   def peer
@@ -53,19 +52,25 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer}: Mounting the remote share \\\\#{rhost}\\#{datastore['SMBSHARE']}'...")
     self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
-    vprint_status("#{peer}: Trying to download #{datastore['RPATH']}...")
+    remote_paths.each do |remote_path|
+      begin
+        vprint_status("#{peer}: Trying to download #{remote_path}...")
 
-    data = ''
-    fd = simple.open("\\#{datastore['RPATH']}", 'ro')
-    begin
-      data = fd.read
-    ensure
-      fd.close
+        data = ''
+        fd = simple.open("\\#{remote_path}", 'ro')
+        begin
+          data = fd.read
+        ensure
+          fd.close
+        end
+
+        fname = remote_path.split("\\")[-1]
+        path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
+        print_good("#{peer}: #{remote_path} saved as: #{path}")
+      rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+        print_error("#{peer} Unable to download #{remote_path}: #{e.message}")
+      end
     end
-
-    fname = datastore['RPATH'].split("\\")[-1]
-    path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
-    print_good("#{peer}: #{fname} saved as: #{path}")
   end
 
   def run_host(ip)
@@ -73,8 +78,6 @@ class Metasploit3 < Msf::Auxiliary
       smb_download
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
       print_error("#{peer} Unable to login: #{e.message}")
-    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      print_error("#{peer} Unable to download the file: #{e.message}")
     end
   end
 
