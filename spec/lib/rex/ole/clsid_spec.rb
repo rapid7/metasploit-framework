@@ -4,6 +4,9 @@ require 'spec_helper'
 require 'rex/ole'
 
 describe Rex::OLE::CLSID do
+  before(:each) do
+    Rex::OLE::Util.set_endian(Rex::OLE::LITTLE_ENDIAN)
+  end
 
   let(:sample_clsid) { "\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff" }
 
@@ -35,7 +38,6 @@ describe Rex::OLE::CLSID do
 
   describe "#to_s" do
     it "returns printable clsid" do
-      Rex::OLE::Util.set_endian(Rex::OLE::LITTLE_ENDIAN)
       expect(clsid.to_s).to eq('33221100-5544-7766-8899-aabbccddeeff')
     end
 
