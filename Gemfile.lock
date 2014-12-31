@@ -1,3 +1,41 @@
+GIT
+  remote: git://github.com/rapid7/metasploit-credential.git
+  revision: 00954f33ad4d2449fb73b345d819ce96f395b1ef
+  ref: 00954f33ad4d2449fb73b345d819ce96f395b1ef
+  specs:
+    metasploit-credential (0.13.10.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (= 0.29.0.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      metasploit_data_models (= 0.21.4.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      pg
+      railties (< 4.0.0)
+      rubyntlm
+      rubyzip (~> 1.1)
+
+GIT
+  remote: git://github.com/rapid7/metasploit-model.git
+  revision: ee4d06009811c21c36ace781b27509f816ef7fee
+  ref: ee4d06009811c21c36ace781b27509f816ef7fee
+  specs:
+    metasploit-model (0.29.0.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      activesupport
+      railties (< 4.0.0)
+
+GIT
+  remote: git://github.com/rapid7/metasploit_data_models.git
+  revision: f29efd129b3843c55289add6affb5465b2969446
+  ref: f29efd129b3843c55289add6affb5465b2969446
+  specs:
+    metasploit_data_models (0.21.4.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      activerecord (>= 3.2.13, < 4.0.0)
+      activesupport
+      arel-helpers
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (= 0.29.0.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      pg
+      railties (< 4.0.0)
+      recog (~> 1.0)
+
 PATH
   remote: .
   specs:
@@ -8,7 +46,7 @@ PATH
       jsobfu (~> 0.2.0)
       json
       metasploit-concern (~> 0.3.0)
-      metasploit-model (~> 0.28.0)
+      metasploit-model (= 0.29.0.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
       meterpreter_bins (= 0.0.12)
       msgpack
       nokogiri
@@ -22,9 +60,9 @@ PATH
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 3.2.21, < 4.0.0)
-      metasploit-credential (~> 0.13.8)
+      metasploit-credential (= 0.13.10.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
       metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (~> 0.21.3)
+      metasploit_data_models (= 0.21.4.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
@@ -112,26 +150,6 @@ GEM
     metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.13.8)
-      metasploit-concern (~> 0.3.0)
-      metasploit-model (~> 0.28.0)
-      metasploit_data_models (~> 0.21.0)
-      pg
-      railties (< 4.0.0)
-      rubyntlm
-      rubyzip (~> 1.1)
-    metasploit-model (0.28.0)
-      activesupport
-      railties (< 4.0.0)
-    metasploit_data_models (0.21.3)
-      activerecord (>= 3.2.13, < 4.0.0)
-      activesupport
-      arel-helpers
-      metasploit-concern (~> 0.3.0)
-      metasploit-model (~> 0.28.0)
-      pg
-      railties (< 4.0.0)
-      recog (~> 1.0)
     meterpreter_bins (0.0.12)
     method_source (0.8.2)
     mime-types (1.25.1)
@@ -172,10 +190,10 @@ GEM
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
     rake (10.4.2)
-    rb-readline (0.5.1)
+    rb-readline (0.5.2)
     rdoc (3.12.2)
       json (~> 1.4)
-    recog (1.0.6)
+    recog (1.0.7)
       nokogiri
     redcarpet (3.1.2)
     rkelly-remix (0.0.6)
@@ -233,9 +251,12 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
+  metasploit-credential!
   metasploit-framework!
   metasploit-framework-db!
   metasploit-framework-pcap!
+  metasploit-model!
+  metasploit_data_models!
   pry
   rake (>= 10.0.0)
   redcarpet
