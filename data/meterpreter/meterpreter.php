@@ -920,7 +920,7 @@ function read($resource, $len=null) {
         # whole php process will block waiting for data that may never come.
         # Unfortunately, selecting on pipes created with proc_open on Windows
         # always returns immediately.  Basically, shell interaction in Windows
-        # is hosed until this gets figured out.  See https://dev.metasploit.com/redmine/issues/2232
+        # is hosed until this gets figured out.
         $r = Array($resource);
         my_print("Calling select to see if there's data on $resource");
         while (true) {

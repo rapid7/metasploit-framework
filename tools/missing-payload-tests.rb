@@ -62,15 +62,15 @@ File.open('log/untested-payloads.log') { |f|
          $stderr.puts
          $stderr.puts "  context '#{reference_name}' do\n" \
                       "    it_should_behave_like 'payload can be instantiated',\n" \
-                      "                          ancestor_reference_name: ["
+                      "                          ancestor_reference_names: ["
 
          ancestor_reference_names = options[:ancestor_reference_names]
 
          if ancestor_reference_names.length == 1
            $stderr.puts "                            '#{ancestor_reference_names[0]}'"
          else
-           $stderr.puts "                            '#{ancestor_reference_names[0]}',"
-           $stderr.puts "                            '#{ancestor_reference_names[1]}'"
+           $stderr.puts "                            '#{ancestor_reference_names[1]}',"
+           $stderr.puts "                            '#{ancestor_reference_names[0]}'"
          end
 
          $stderr.puts "                          ],\n" \

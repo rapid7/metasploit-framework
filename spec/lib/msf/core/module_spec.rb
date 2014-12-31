@@ -45,4 +45,50 @@ describe Msf::Module do
     it { is_expected.to respond_to :cached? }
     it { is_expected.to respond_to :is_usable }
   end
+
+  describe "cloning modules into replicants" do
+    module MsfExtensionTestFoo; def my_test1; true; end; end;
+    module MsfExtensionTestBar; def my_test2; true; end; end;
+
+    describe "#perform_extensions" do
+      describe "when there are extensions registered" do
+        before(:each) do
+          msf_module.register_extensions(MsfExtensionTestFoo, MsfExtensionTestBar)
+        end
+
+        it 'should extend the module replicant with the constants referenced in the datastore' do
+          expect(msf_module.replicant).to respond_to(:my_test1)
+          expect(msf_module.replicant).to respond_to(:my_test2)
+        end
+      end
+
+      describe "when the datastore key has invalid data" do
+        before(:each) do
+          msf_module.datastore[Msf::Module::REPLICANT_EXTENSION_DS_KEY] = "invalid"
+        end
+
+        it 'should raise an exception' do
+          expect{msf_module.replicant}.to raise_error(RuntimeError)
+        end
+      end
+    end
+
+    describe "#register_extensions" do
+      describe "with single module" do
+        it 'should place the named module in the datastore' do
+          msf_module.register_extensions(MsfExtensionTestFoo)
+          expect(msf_module.replicant.datastore[Msf::Module::REPLICANT_EXTENSION_DS_KEY]).to eql([MsfExtensionTestFoo])
+        end
+      end
+
+      describe "with multiple modules" do
+        it 'should place the named modules in the datastore' do
+          msf_module.register_extensions(MsfExtensionTestFoo, MsfExtensionTestBar)
+          expect(msf_module.replicant.datastore[Msf::Module::REPLICANT_EXTENSION_DS_KEY]).to eql([MsfExtensionTestFoo, MsfExtensionTestBar])
+        end
+      end
+
+    end
+  end
+
 end

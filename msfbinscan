@@ -220,7 +220,7 @@ files.each do |file|
     when "jump"
       worker = Rex::ElfScan::Scanner::JmpRegScanner
     when "pop"
-      worker = Rex::Elfscan::Scanner::PopPopRetScanner
+      worker = Rex::ElfScan::Scanner::PopPopRetScanner
     when "regex"
       worker = Rex::ElfScan::Scanner::RegexScanner
     when "analyze-address"

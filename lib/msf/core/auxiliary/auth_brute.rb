@@ -52,7 +52,8 @@ module Auxiliary::AuthBrute
   # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing NTLMHashes
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
-  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  #   the credential collection to add to
   # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
   def prepend_db_hashes(cred_collection)
     if datastore['DB_ALL_CREDS'] && framework.db.active
@@ -67,7 +68,8 @@ module Auxiliary::AuthBrute
   # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing SSHKeys
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
-  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  #    the credential collection to add to
   # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
   def prepend_db_keys(cred_collection)
     if datastore['DB_ALL_CREDS'] && framework.db.active
@@ -82,7 +84,8 @@ module Auxiliary::AuthBrute
   # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing Password Credentials
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
-  # @param [Metasploit::Framework::CredentialCollection]  the credential collection to add to
+  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  #    the credential collection to add to
   # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
   def prepend_db_passwords(cred_collection)
     if datastore['DB_ALL_CREDS'] && framework.db.active

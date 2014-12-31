@@ -96,7 +96,7 @@ module PacketDispatcher
 
     # If the first 4 bytes are "RECV", return the oldest packet from the outbound queue
     if req.body[0,4] == "RECV"
-      rpkt = send_queue.pop
+      rpkt = send_queue.shift
       resp.body = rpkt || ''
       begin
         cli.send_response(resp)
@@ -356,7 +356,7 @@ module PacketDispatcher
           begin
           if ! dispatch_inbound_packet(pkt)
             # Only requeue packets newer than the timeout
-            if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
+            if (::Time.now.to_i - pkt.created_at.to_i > PacketTimeout)
               incomplete << pkt
             end
           end

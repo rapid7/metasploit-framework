@@ -51,10 +51,9 @@ try_connect:
   jz short connected
 
 port_bump:
-  xor eax, eax
   mov word ax, [esi+2]
   xchg ah,al
-  inc ax
+  inc eax
   xchg ah,al
   mov word [esi+2], ax
   jmp short try_connect

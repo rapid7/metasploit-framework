@@ -449,7 +449,6 @@ class Payload < Msf::Module
   #
   def on_session(session)
 
-
     # If this payload is associated with an exploit, inform the exploit
     # that a session has been created and potentially shut down any
     # open sockets. This allows active exploits to continue hammering
