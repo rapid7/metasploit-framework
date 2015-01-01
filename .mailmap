@@ -1,36 +1,46 @@
 bcook-r7 <bcook-r7@github>         Brent Cook <bcook@rapid7.com>
 bturner-r7 <bturner-r7@github>     Brandon Turner <brandon_turner@rapid7.com>
+cdoughty-r7 <cdoughty-r7@github>   Chris Doughty <chris_doughty@rapid7.com>
 dheiland-r7 <dheiland-r7@github>   Deral Heiland <dh@layereddefense.com>
-dmaloney-r7 <dmaloney-r7@github>   David Maloney <DMaloney@rapid7.com>
 dmaloney-r7 <dmaloney-r7@github>   David Maloney <David_Maloney@rapid7.com>
+dmaloney-r7 <dmaloney-r7@github>   David Maloney <DMaloney@rapid7.com>
 dmaloney-r7 <dmaloney-r7@github>   dmaloney-r7 <DMaloney@rapid7.com>
 ecarey-r7 <ecarey-r7@github>       Erran Carey <e@ipwnstuff.com>
 farias-r7 <farias-r7@github>       Fernando Arias <fernando_arias@rapid7.com>
 hmoore-r7 <hmoore-r7@github>       HD Moore <hd_moore@rapid7.com>
 hmoore-r7 <hmoore-r7@github>       HD Moore <hdm@digitaloffense.net>
 jhart-r7 <jhart-r7@github>         Jon Hart <jon_hart@rapid7.com>
-jlee-r7 <jlee-r7@github>           James Lee <James_Lee@rapid7.com>
-jlee-r7 <jlee-r7@github>           James Lee <egypt@metasploit.com> # aka egypt
 jlee-r7 <jlee-r7@github>           egypt <egypt@metasploit.com> # aka egypt
+jlee-r7 <jlee-r7@github>           James Lee <egypt@metasploit.com> # aka egypt
+jlee-r7 <jlee-r7@github>           James Lee <James_Lee@rapid7.com>
 joev-r7 <joev-r7@github>           Joe Vennix <Joe_Vennix@rapid7.com>
+joev-r7 <joev-r7@github>           Joe Vennix <joev@metasploit.com>
 joev-r7 <joev-r7@github>           joev <joev@metasploit.com>
+joev-r7 <joev-r7@github>           jvennix-r7 <Joe_Vennix@rapid7.com>
+joev-r7 <joev-r7@github>           jvennix-r7 <joev@metasploit.com>
 jvazquez-r7 <jvazquez-r7@github>   jvazquez-r7 <juan.vazquez@metasploit.com>
 jvazquez-r7 <jvazquez-r7@github>   jvazquez-r7 <juan_vazquez@rapid7.com>
+kgray-r7 <kgray-r7@github>         Kyle Gray <kyle_gray@rapid7.com>
 limhoff-r7 <limhoff-r7@github>     Luke Imhoff <luke_imhoff@rapid7.com>
-lsanchez-r7 <lsanchez-r7@github>   Lance Sanchez <lance.sanchez+github@gmail.com>
 lsanchez-r7 <lsanchez-r7@github>   darkbushido <lance.sanchez@gmail.com>
+lsanchez-r7 <lsanchez-r7@github>   Lance Sanchez <lance.sanchez+github@gmail.com>
+lsanchez-r7 <lsanchez-r7@github>   Lance Sanchez <lance.sanchez@rapid7.com>
+lsanchez-r7 <lsanchez-r7@github>   Lance Sanchez <lance@aus-mac-1041.aus.rapid7.com>
+lsanchez-r7 <lsanchez-r7@github>   Lance Sanchez <lance@AUS-MAC-1041.local>
 mbuck-r7 <mbuck-r7@github>         Matt Buck <Matthew_Buck@rapid7.com>
 mbuck-r7 <mbuck-r7@github>         Matt Buck <techpeace@gmail.com>
+mschloesser-r7 <mschloesser-r7@github> Mark Schloesser <mark_schloesser@rapid7.com>
+mschloesser-r7 <mschloesser-r7@github> mschloesser-r7 <mark_schloesser@rapid7.com>
 parzamendi-r7 <parzamendi-r7@github> parzamendi-r7 <peter_arzamendi@rapid7.com>
 shuckins-r7 <shuckins-r7@github>   Samuel Huckins <samuel_huckins@rapid7.com>
 todb-r7 <todb-r7@github>           Tod Beardsley <tod_beardsley@rapid7.com>
 todb-r7 <todb-r7@github>           Tod Beardsley <todb@metasploit.com>
 todb-r7 <todb-r7@github>           Tod Beardsley <todb@packetfu.com>
-trosen-r7 <trosen-r7@github>       Trevor Rosen <Trevor_Rosen@rapid7.com>
 trosen-r7 <trosen-r7@github>       Trevor Rosen <trevor@catapult-creative.com>
-wchen-r7 <wchen-r7@github>         Wei Chen <Wei_Chen@rapid7.com>
+trosen-r7 <trosen-r7@github>       Trevor Rosen <Trevor_Rosen@rapid7.com>
 wchen-r7 <wchen-r7@github>         sinn3r <msfsinn3r@gmail.com> # aka sinn3r
 wchen-r7 <wchen-r7@github>         sinn3r <wei_chen@rapid7.com>
+wchen-r7 <wchen-r7@github>         Wei Chen <Wei_Chen@rapid7.com>
 wvu-r7 <wvu-r7@github>             William Vu <William_Vu@rapid7.com>
 wvu-r7 <wvu-r7@github>             William Vu <wvu@metasploit.com>
 wvu-r7 <wvu-r7@github>             William Vu <wvu@nmt.edu>
@@ -44,10 +54,13 @@ wvu-r7 <wvu-r7@github>             wvu-r7 <William_Vu@rapid7.com>
 # let todb@metasploit.com know.
 
 bannedit <bannedit@github>             David Rude <bannedit0@gmail.com>
-Brandon Perry <brandonprry@github>     Brandon Perry <bperry.volatile@gmail.com>
-Brandon Perry <brandonprry@github>     Brandon Perry <bperry@bperry-rapid7.(none)>
-Brian Wallace <bwall@github>           (B)rian (Wall)ace <nightstrike9809@gmail.com>
-Brian Wallace <bwall@github>           Brian Wallace <bwall@openbwall.com>
+bcoles <bcoles@github>                 bcoles <bcoles@gmail.com>
+bcoles <bcoles@github>                 Brendan Coles <bcoles@gmail.com>
+brandonprry <brandonprry@github>       Brandon Perry <bperry.volatile@gmail.com>
+brandonprry <brandonprry@github>       Brandon Perry <bperry@bperry-rapid7.(none)>
+brandonprry <brandonprry@github>       Brandon Perry <brandon.perry@zenimaxonline.com>
+bwall <bwall@github>                   (B)rian (Wall)ace <nightstrike9809@gmail.com>
+bwall <bwall@github>                   Brian Wallace <bwall@openbwall.com>
 ceballosm <ceballosm@github>           Mario Ceballos <mc@metasploit.com>
 Chao-mu <Chao-Mu@github>               Chao Mu <chao.mu@minorcrash.com>
 Chao-mu <Chao-Mu@github>               chao-mu <chao.mu@minorcrash.com>
@@ -69,11 +82,13 @@ jduck <jduck@github>                   Joshua Drake <github.jdrake@qoop.org>
 jgor <jgor@github>                     jgor <jgor@indiecom.org>
 kernelsmith <kernelsmith@github>       Joshua Smith <kernelsmith@kernelsmith.com>
 kernelsmith <kernelsmith@github>       kernelsmith <kernelsmith@kernelsmith>
+kernelsmith <kernelsmith@github>       Joshua Smith <kernelsmith@metasploit.com>
 kost <kost@github>                     Vlatko Kosturjak <kost@linux.hr>
 kris <kris@???>                        kris <>
 m-1-k-3 <m-1-k-3@github>               m-1-k-3 <github@s3cur1ty.de>
 m-1-k-3 <m-1-k-3@github>               m-1-k-3 <m1k3@s3cur1ty.de>
 m-1-k-3 <m-1-k-3@github>               m-1-k-3 <michael.messner@integralis.com>
+m-1-k-3 <m-1-k-3@github>               Michael Messner <devnull@s3cur1ty.de>
 Meatballs1 <Meatballs1@github>         Ben Campbell <eat_meatballs@hotmail.co.uk>
 Meatballs1 <Meatballs1@github>         Meatballs <eat_meatballs@hotmail.co.uk>
 Meatballs1 <Meatballs1@github>         Meatballs1 <eat_meatballs@hotmail.co.uk>
@@ -83,8 +98,8 @@ nmonkee <nmonkee@github>               nmonkee <dave@northern-monkee.co.uk>
 nullbind <nullbind@github>             nullbind <scott.sutherland@nullbind.com>
 nullbind <nullbind@github>             Scott Sutherland <scott.sutherland@nullbind.com>
 ohdae <ohdae@github>                   ohdae <bindshell@live.com>
-OJ <oj@github>                         OJ <oj@buffered.io>
-OJ <oj@github>                         OJ Reeves <oj@buffered.io>
+oj <oj@github>                         OJ <oj@buffered.io>
+oj <oj@github>                         OJ Reeves <oj@buffered.io>
 r3dy <r3dy@github>                     Royce Davis <r3dy@Royces-MacBook-Pro.local>
 r3dy <r3dy@github>                     Royce Davis <royce.e.davis@gmail.com>
 Rick Flores <0xnanoquetz9l@gmail.com>  Rick Flores (nanotechz9l) <0xnanoquetz9l@gmail.com>
@@ -96,12 +111,15 @@ skape <skape@???>                      Matt Miller <mmiller@hick.org>
 spoonm <spoonm@github>                 Spoon M <spoonm@gmail.com>
 swtornio <swtornio@github>             Steve Tornio <swtornio@gmail.com>
 Tasos Laskos <Tasos_Laskos@rapid7.com> Tasos Laskos <Tasos_Laskos@rapid7.com>
+timwr <timwr@github>                   Tim <timrlw@gmail.com>
 timwr <timwr@github>                   Tim Wright <timrlw@gmail.com>
+TomSellers <TomSellers@github>         Tom Sellers <tom@fadedcode.net>
 TrustedSec <davek@trustedsec.com>      trustedsec <davek@trustedsec.com>
 zeroSteiner <zeroSteiner@github>       Spencer McIntyre <zeroSteiner@gmail.com>
 
 # Aliases for utility author names. Since they're fake, typos abound
 
-Tab Assassin <tabassassin@metasploit.com> Tabasssassin <tabassassin@metasploit.com>
 Tab Assassin <tabassassin@metasploit.com> Tabassassin <tabassassin@metasploit.com>
 Tab Assassin <tabassassin@metasploit.com> TabAssassin <tabasssassin@metasploit.com>
+Tab Assassin <tabassassin@metasploit.com> Tabasssassin <tabassassin@metasploit.com>
+Tab Assassin <tabassassin@metasploit.com> URI Assassin <tabassassin@metasploit.com>
