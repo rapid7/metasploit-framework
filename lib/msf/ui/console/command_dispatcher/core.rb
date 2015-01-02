@@ -112,6 +112,8 @@ class Core
       "color"    => "Toggle color",
       "exit"     => "Exit the console",
       "edit"     => "Edit the current module with $VISUAL or $EDITOR",
+      "get"      => "Gets the value of a variable",
+      "getg"     => "Gets the value of a global variable",
       "go_pro"   => "Launch Metasploit web GUI",
       "grep"     => "Grep the output of another command",
       "help"     => "Help menu",
@@ -2294,6 +2296,86 @@ class Core
     framework.plugins.each { |k| tabs.push(k.name) }
     return tabs
   end
+
+ def cmd_get_help
+    print_line "Usage: get var1 var2 var3"
+    print_line
+    print_line "The get command is used to get the value of one or more variables."
+    print_line
+  end
+
+  #
+  # Gets a value if it's been set.
+  #
+  def cmd_get(*args)
+
+    # Figure out if these are global variables
+    global = false
+
+    if (args[0] == '-g')
+      args.shift
+      global = true
+    end
+
+    # Determine which data store we're operating on
+    if (active_module and global == false)
+      datastore = active_module.datastore
+    else
+      datastore = framework.datastore
+    end
+
+    # No arguments?  No cookie.
+    if (args.length == 0)
+      cmd_get_help
+      return false
+    end
+
+    while ((val = args.shift))
+      print_line("#{val} => #{datastore[val]}")
+    end
+  end
+
+  #
+  # Tab completion for the get command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_get_tabs(str, words)
+    datastore = active_module ? active_module.datastore : self.framework.datastore
+    datastore.keys
+  end
+
+
+  def cmd_getg_help
+    print_line "Usage: getg var1 [var2 ...]"
+    print_line
+    print_line "Exactly like get -g, get global variables"
+    print_line
+  end
+
+  #
+  # Gets variables in the global data store.
+  #
+  def cmd_getg(*args)
+    args.unshift('-g')
+
+    cmd_get(*args)
+  end
+
+  #
+  # Tab completion for the getg command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_getg_tabs(str, words)
+    self.framework.datastore.keys
+  end
+
+  alias cmd_getg_help cmd_get_help
 
   def cmd_unset_help
     print_line "Usage: unset [-g] var1 var2 var3 ..."

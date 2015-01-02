@@ -19,6 +19,8 @@ Feature: Help command
           connect       Communicate with a host
           edit          Edit the current module with $VISUAL or $EDITOR
           exit          Exit the console
+          get           Gets the value of a variable
+          getg          Gets the value of a global variable
           go_pro        Launch Metasploit web GUI
           grep          Grep the output of another command
           help          Help menu
