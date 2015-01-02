@@ -1088,13 +1088,13 @@ class Db
             end
           elsif term == "output"
             orderlist << make_sortable(note.data["output"])
-          elsif note.respond_to?(term)
+          elsif note.respond_to?(term, true)
             orderlist << make_sortable(note.send(term))
-          elsif note.respond_to?(term.to_sym)
+          elsif note.respond_to?(term.to_sym, true)
             orderlist << make_sortable(note.send(term.to_sym))
-          elsif note.respond_to?("data") && note.send("data").respond_to?(term)
+          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term, true)
             orderlist << make_sortable(note.send("data").send(term))
-          elsif note.respond_to?("data") && note.send("data").respond_to?(term.to_sym)
+          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term.to_sym, true)
             orderlist << make_sortable(note.send("data").send(term.to_sym))
           else
             orderlist << ""
@@ -1682,7 +1682,7 @@ class Db
       end
     end
     meth = "db_connect_#{framework.db.driver}"
-    if(self.respond_to?(meth))
+    if(self.respond_to?(meth, true))
       self.send(meth, *args)
       if framework.db.active and not framework.db.modules_cached
         print_status("Rebuilding the module cache in the background...")
