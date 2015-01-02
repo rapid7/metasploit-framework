@@ -129,6 +129,13 @@ describe Msf::HTTP::Wordpress::Version do
       it { expect(subject.send(:check_version_from_readme, :plugin, 'name', wp_fixed_version, wp_introd_version)).to be(Msf::Exploit::CheckCode::Safe) }
     end
 
+    context 'when installed version is newer (text in version number)' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.5.3' }
+      let(:wp_body) { 'Stable tag: 2.0.0-beta1' }
+      it { expect(subject.send(:check_version_from_readme, :plugin, 'name', wp_fixed_version)).to be(Msf::Exploit::CheckCode::Safe) }
+    end
+
   end
 
 end
