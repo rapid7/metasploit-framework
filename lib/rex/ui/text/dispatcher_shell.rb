@@ -105,7 +105,7 @@ module DispatcherShell
       print_error "The #{cmd} command is DEPRECATED"
       if cmd == "db_autopwn"
         print_error "See http://r-7.co/xY65Zr instead"
-      elsif method and self.respond_to?("cmd_#{method}")
+      elsif method and self.respond_to?("cmd_#{method}", true)
         print_error "Use #{method} instead"
         self.send("cmd_#{method}", *args)
       end
@@ -116,7 +116,7 @@ module DispatcherShell
       print_error "The #{cmd} command is DEPRECATED"
       if cmd == "db_autopwn"
         print_error "See http://r-7.co/xY65Zr instead"
-      elsif method and self.respond_to?("cmd_#{method}_help")
+      elsif method and self.respond_to?("cmd_#{method}_help", true)
         print_error "Use 'help #{method}' instead"
         self.send("cmd_#{method}_help")
       end
@@ -150,9 +150,9 @@ module DispatcherShell
           next if (dispatcher.commands.nil?)
           next if (dispatcher.commands.length == 0)
 
-          if dispatcher.respond_to?("cmd_#{cmd}")
+          if dispatcher.respond_to?("cmd_#{cmd}", true)
             cmd_found = true
-            break unless dispatcher.respond_to? "cmd_#{cmd}_help"
+            break unless dispatcher.respond_to?("cmd_#{cmd}_help", true)
             dispatcher.send("cmd_#{cmd}_help")
             help_found = true
             break
