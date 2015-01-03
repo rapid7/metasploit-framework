@@ -79,33 +79,84 @@ module ACPP
     attr_accessor :status
 
     def initialize
-      @message_checksum = 0
       @payload = ''
       @type = 0
       @status = 0
-      @password = 'public'
+      @password = ''
     end
 
-    def encode
+    # Get this Message as a String
+    #
+    # @return [String] the string representation of this Message
+    def to_s
       'acpp' + [
         1, # unknown1
-        @message_checksum,
-        Zlib::adler32(@payload),
+        message_checksum,
+        payload_checksum,
         @payload.size,
         0, 0, # unknown2
         @type,
         @status,
-        0,0,0 # unknown3
+        0, 0, 0 # unknown3
       ].pack('NNNNN2NNN3') +
-      Rex::Encoding::Xor::Generic.encode([@password].pack('a32'), XOR_KEY).first +
+      Rex::Encoding::Xor::Generic.encode([@password].pack('a32').slice(0, 32), XOR_KEY).first +
       ([0] * 12).pack('N12') + # unknown4
       payload
     end
 
-    def to_s
-      @message_checksum = 0
-      @message_checksum = Zlib::adler32(encode)
-      encode
+    # Compares this Message and another Message for equality
+    #
+    # @param other [Message] the Message to compare
+    # @return [Boolean] true iff the two messages have equal String representations, false otherwise
+    def ==(other)
+      to_s == other.to_s
+    end
+
+    private
+
+    # compute the 32-bit checksum of the payload
+    def payload_checksum
+      Zlib::adler32(@payload)
+    end
+
+    # compute the 32-bit checksum of the entire message and payload
+    def message_checksum
+      Zlib::adler32(
+        'acpp' + [
+        1, # unknown1
+        0, # message checksum is set to 0 during checksum calculation
+        payload_checksum,
+        @payload.size,
+        0, 0, # unknown2
+        @type,
+        @status,
+        0, 0, 0 # unknown3
+        ].pack('NNNNN2NNN3') +
+        Rex::Encoding::Xor::Generic.encode([@password].pack('a32').slice(0, 32), XOR_KEY).first +
+        ([0] * 12).pack('N12') + # unknown4
+        payload
+      )
+    end
+
+    def self.decode(data, validate_checksum = true)
+      fail "Incorrect ACPP message size #{data.size}" unless data.size == 128
+      fail 'Unexpected header' unless 'acpp' == data.slice!(0, 4)
+      unknown1 = data.slice!(0, 4)
+      read_message_checksum = data.slice!(0, 4).unpack('N').first
+      read_payload_checksum = data.slice!(0, 4).unpack('N').first
+      read_payload_size = data.slice!(0, 4).unpack('N').first
+      unknown2 = data.slice!(0, 8)
+      type = data.slice!(0, 4).unpack('N').first
+      status = data.slice!(0, 4).unpack('N').first
+      unknown3 = data.slice!(0, 12)
+      password = Rex::Encoding::Xor::Generic.encode(data.slice!(0, 32), XOR_KEY).first.strip
+      unknown4 = data.slice!(0, 48)
+      m = self.new
+      m.type = type
+      m.password = password
+      m.status = status
+      m.payload = data
+      m
     end
   end
 end
