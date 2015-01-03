@@ -1,0 +1,113 @@
+# -*- coding: binary -*-
+require 'pry'
+module Rex
+module Proto
+module ACPP
+
+  # From what I've been able to gather from the very limited findings on the
+  # web about this protocol, playing with it against a real Airport device and
+  # referencing the airport-utils package in Debian/Ubuntu, the format of (at
+  # least) the login message is:
+  #
+  # acpp            # the header tag, always exactly acpp (4 bytes)
+  # unknown1        # unknown 4-byte field.  Almost always 0x00000001
+  # messageChecksum # checksum of the message, 4 bytes
+  # payloadChecksum # checksum of the payload, 4 bytes
+  # payloadSize     # size of the payload, 4 bytes
+  # unknown2        # unknown 8-byte field.  probably some sort of
+  #                   request/response identifier.  generally 0 for requests, 1 for replies
+  # messageType     # the type of message, 4 bytes.  see below.
+  # status          # the status of this message, 4 bytes.
+  #                   generally 0 for success and !0 for failure.
+  # unknown3        # unknown 12-byte field, seemingly always 0.  Probably 'reserved'
+  # password        # 32-byte password, 'encrypted' by XOR'ing it with a 256-byte static key (see XOR_KEY)
+  # unknown4        # unknown 48-byte field, always 0.
+  #
+  # There are several possible message types:
+  #
+  #   * 20 -- retrieve settings (payload is some list of settings to obtain)
+  #   * 21 -- update setttings (and if the 'acRB' setting is set, it reboots)
+  #   * 3  -- Upload firmware
+  #
+  # TODO: if you find more, add them above.
+  #
+  # When the message type is anything other than 20 or 3, payloadSize is set to -1 and
+  # payloadChecksum is set to 1.  It may be a bug that 21 doesn't look at the
+  # checksum.  Adler32 is used to compute the checksum.
+  #
+  # The message payload is a bit of an unknown right now, as it *seems* like
+  # the payload always comes in a subsequent request.
+
+
+  # This was taken from airport-util's AirportInforRecord for ease of copying, but can
+  # also be obtained by XOR'ing the null-padded known plain text with the appropriate 32-byte
+  # ciphertext from an airport-util request
+  XOR_KEY = [
+         14, 57, -8, 5, -60, 1, 85, 79, 12, -84,
+        -123, 125, -122, -118, -75, 23, 62, 9, -56, 53,
+        -12, 49, 101, 127, 60, -100, -75, 109, -106, -102,
+        -91, 7, 46, 25, -40, 37, -28, 33, 117, 111,
+        44, -116, -91, -99, 102, 106, 85, -9, -34, -23,
+        40, -43, 20, -47, -123, -97, -36, 124, 85, -115,
+        118, 122, 69, -25, -50, -7, 56, -59, 4, -63,
+        -107, -113, -52, 108, 69, -67, 70, 74, 117, -41,
+        -2, -55, 8, -11, 52, -15, -91, -65, -4, 92,
+        117, -83, 86, 90, 101, -57, -18, -39, 24, -27,
+        36, -31, -75, -81, -20, 76, 101, -35, 38, 42,
+        21, -73, -98, -87, 104, -107, 84, -111, -59, -33,
+        -100, 60, 21, -51, 54, 58, 5, -89, -114, -71,
+        120, -123, 68, -127, -43, -49, -116, 44, 5, -3,
+        6, 10, 53, -105, -66, -119, 72, -75, 116, -79,
+        -27, -1, -68, 28, 53, -19, 22, 26, 37, -121,
+        -82, -103, 88, -91, 100, -95, -11, -17, -84, 12,
+        37, 29, -26, -22, -43, 119, 94, 105, -88, 85,
+        -108, 81, 5, 31, 92, -4, -43, 13, -10, -6,
+        -59, 103, 78, 121, -72, 69, -124, 65, 21, 15,
+        76, -20, -59, 61, -58, -54, -11, 87, 126, 73,
+        -120, 117, -76, 113, 37, 63, 124, -36, -11, 45,
+        -42, -38, -27, 71, 110, 89, -104, 101, -92, 97,
+        53, 47, 108, -52, -27, 93, -90, -86, -107, 55,
+        30, 41, -24, 21, -44, 17, 69, 95, 28, -68,
+        -107, 77, -74, -70, -123, 39
+  ].pack("C*")
+
+  class Message
+
+    attr_accessor :type
+    attr_accessor :password
+    attr_accessor :payload
+    attr_accessor :status
+
+    def initialize
+      @message_checksum = 0
+      @payload = ''
+      @type = 0
+      @status = 0
+      @password = 'public'
+    end
+
+    def encode
+      'acpp' + [
+        1, # unknown1
+        @message_checksum,
+        Zlib::adler32(@payload),
+        @payload.size,
+        0, 0, # unknown2
+        @type,
+        @status,
+        0,0,0 # unknown3
+      ].pack('NNNNN2NNN3') +
+      Rex::Encoding::Xor::Generic.encode([@password].pack('a32'), XOR_KEY).first +
+      ([0] * 12).pack('N12') + # unknown4
+      payload
+    end
+
+    def to_s
+      @message_checksum = 0
+      @message_checksum = Zlib::adler32(encode)
+      encode
+    end
+  end
+end
+end
+end
