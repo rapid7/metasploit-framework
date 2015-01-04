@@ -89,57 +89,23 @@ module ACPP
     #
     # @return [String] the string representation of this Message
     def to_s
-      'acpp' + [
-        1, # unknown1
-        message_checksum,
-        payload_checksum,
-        @payload.size,
-        0, 0, # unknown2
-        @type,
-        @status,
-        0, 0, 0 # unknown3
-      ].pack('NNNNN2NNN3') +
-      Rex::Encoding::Xor::Generic.encode([@password].pack('a32').slice(0, 32), XOR_KEY).first +
-      ([0] * 12).pack('N12') + # unknown4
-      payload
+      return with_checksum(Zlib::adler32(with_checksum(0)))
     end
 
     # Compares this Message and another Message for equality
     #
     # @param other [Message] the Message to compare
-    # @return [Boolean] true iff the two messages have equal String representations, false otherwise
+    # @return [Boolean] true iff the two messages are equal, false otherwise
     def ==(other)
-      to_s == other.to_s
-    end
-
-    private
-
-    # compute the 32-bit checksum of the payload
-    def payload_checksum
-      Zlib::adler32(@payload)
-    end
-
-    # compute the 32-bit checksum of the entire message and payload
-    def message_checksum
-      Zlib::adler32(
-        'acpp' + [
-        1, # unknown1
-        0, # message checksum is set to 0 during checksum calculation
-        payload_checksum,
-        @payload.size,
-        0, 0, # unknown2
-        @type,
-        @status,
-        0, 0, 0 # unknown3
-        ].pack('NNNNN2NNN3') +
-        Rex::Encoding::Xor::Generic.encode([@password].pack('a32').slice(0, 32), XOR_KEY).first +
-        ([0] * 12).pack('N12') + # unknown4
-        payload
-      )
+      other.type == @type &&
+      other.status == @status &&
+      other.password == @password &&
+      other.payload == @payload
     end
 
     def self.decode(data, validate_checksum = true)
-      fail "Incorrect ACPP message size #{data.size}" unless data.size == 128
+      data = data.dup
+      fail "Incorrect ACPP message size #{data.size} -- must be 128" unless data.size == 128
       fail 'Unexpected header' unless 'acpp' == data.slice!(0, 4)
       unknown1 = data.slice!(0, 4)
       read_message_checksum = data.slice!(0, 4).unpack('N').first
@@ -151,12 +117,45 @@ module ACPP
       unknown3 = data.slice!(0, 12)
       password = Rex::Encoding::Xor::Generic.encode(data.slice!(0, 32), XOR_KEY).first.strip
       unknown4 = data.slice!(0, 48)
+      payload = data
       m = self.new
       m.type = type
       m.password = password
       m.status = status
-      m.payload = data
+      m.payload = payload
+
+      # we can now validate the checksums if desired
+      if validate_checksum
+        actual_message_checksum = Zlib::adler32(m.with_checksum(0))
+        if actual_message_checksum != read_message_checksum
+          fail "Invalid message checksum (expected #{read_message_checksum}, got #{actual_message_checksum})"
+        end
+        # I'm not sure this can ever happen -- if the payload checksum is wrong, then the
+        # message checksum will also be wrong.  So, either I misunderstand the protocol
+        # or having two checksums is useless
+        actual_payload_checksum = Zlib::adler32(payload)
+        if actual_payload_checksum != read_payload_checksum
+          fail "Invalid payload checksum (expected #{read_payload_checksum}, got #{actual_payload_checksum})"
+        end
+      end
       m
+      m
+    end
+
+    def with_checksum(message_checksum)
+        'acpp' + [
+        1, # unknown1
+        message_checksum,
+        Zlib::adler32(payload),
+        @payload.size,
+        0, 0, # unknown2
+        @type,
+        @status,
+        0, 0, 0 # unknown3
+        ].pack('NNNNN2NNN3') +
+        Rex::Encoding::Xor::Generic.encode([@password].pack('a32').slice(0, 32), XOR_KEY).first +
+        ([0] * 12).pack('N12') + # unknown4
+        payload
     end
   end
 end
