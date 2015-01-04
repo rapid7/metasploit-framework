@@ -27,9 +27,9 @@ v7 onwards.
       'References' =>
         [
           [ 'CVE', '2014-7862' ],
-          [ 'OSVDB', 'TODO' ],
+          [ 'OSVDB', '116554' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_dc9_admin.txt' ],
-          [ 'URL', 'TODO_FULLDISC_URL' ]
+          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Jan/2' ]
         ],
       'DisclosureDate' => 'Dec 31 2014'))
 
