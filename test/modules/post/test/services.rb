@@ -94,12 +94,16 @@ class Metasploit3 < Msf::Post
   def test_create
     it "should create a service  #{datastore["NSERVICE"]}" do
       mode = case datastore["MODE"]
-        when "disable"; 4
-        when "manual"; 3
-        when "auto"; 2
-        else; 2
+        when "disable"; START_TYPE_DISABLED
+        when "manual"; START_TYPE_MANUAL
+        when "auto"; START_TYPE_AUTO
+        else; START_TYPE AUTO
         end
-      ret = service_create(datastore['NSERVICE'],datastore['DNAME'],datastore['BINPATH'],mode)
+
+      ret = service_create(datastore['NSERVICE'],
+                           display: datastore['DNAME'],
+                           path: datastore['BINPATH'],
+                           starttype: mode)
 
       ret == Windows::Error::SUCCESS
     end
@@ -148,7 +152,11 @@ class Metasploit3 < Msf::Post
     it "should modify config on a given service #{service_name}" do
       ret = true
 
-      results = service_create(service_name,display_name,datastore['BINPATH'],START_TYPE_DISABLED)
+      results = service_create(service_name,
+                           display: display_name,
+                           path: datastore['BINPATH'],
+                           starttype: START_TYPE_DISABLED)
+
       ret &&= (results == Windows::Error::SUCCESS)
       results = service_status(service_name)
       ret &&= results.kind_of? Hash
@@ -174,7 +182,10 @@ class Metasploit3 < Msf::Post
 
     it "should start a disabled service #{service_name}" do
       ret = true
-      results = service_create(service_name,display_name,datastore['BINPATH'],START_TYPE_DISABLED)
+      results = service_create(service_name,
+                           display: display_name,
+                           path: datastore['BINPATH'],
+                           starttype: START_TYPE_DISABLED)
 
       ret &&= (results == Windows::Error::SUCCESS)
       if ret
