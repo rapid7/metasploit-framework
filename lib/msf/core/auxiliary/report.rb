@@ -125,6 +125,19 @@ module Auxiliary::Report
     framework.db.report_note(opts)
   end
 
+  # This Legacy method is responsible for creating credentials from data supplied
+  # by a module. This method is deprecated and the new Metasploit::Credential methods
+  # should be used directly instead.
+  #
+  # @param :opts [Hash] the option hash
+  # @option opts [String] :host the address of the host (also takes a {Mdm::Host})
+  # @option opts [Fixnum] :port the port of the connected service
+  # @option opts [Mdm::Service] :service an optional Service object to build the cred for
+  # @option opts [String] :type What type of private credential this is (e.g. "password", "hash", "ssh_key")
+  # @option opts [String] :proto Which transport protocol the service uses
+  # @option opts [String] :sname The 'name' of the service
+  # @option opts [String] :user The username for the cred
+  # @option opts [String] :pass The private part of the credential (e.g. password)
   def report_auth_info(opts={})
     return if not db
     raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
