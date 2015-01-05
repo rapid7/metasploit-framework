@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,11 +14,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'ManageEngine Desktop Central Administrator Account Creation',
       'Description' => %q{
-This module exploits an administrator account creation vulnerability in Desktop Central
-from v7 onwards by sending a crafted request to DCPluginServelet.
-It has been tested in several versions of Desktop Central (including MSP) from
-v7 onwards.
-},
+        This module exploits an administrator account creation vulnerability in Desktop Central
+        from v7 onwards by sending a crafted request to DCPluginServelet. It has been tested in
+        several versions of Desktop Central (including MSP) from v7 onwards.
+      },
       'Author' =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and MSF module
@@ -26,17 +25,17 @@ v7 onwards.
       'License' => MSF_LICENSE,
       'References' =>
         [
-          [ 'CVE', '2014-7862' ],
-          [ 'OSVDB', '116554' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_dc9_admin.txt' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Jan/2' ]
+          ['CVE', '2014-7862'],
+          ['OSVDB', '116554'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_dc9_admin.txt'],
+          ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/2']
         ],
       'DisclosureDate' => 'Dec 31 2014'))
 
     register_options(
       [
         OptPort.new('RPORT', [true, 'The target port', 8020]),
-        OptString.new('TARGETURI', [ true,  "Desktop Central URI", '/']),
+        OptString.new('TARGETURI', [ true,  'ManageEngine Desktop Central URI', '/']),
         OptString.new('USERNAME', [true, 'The username for the new admin account', 'msf']),
         OptString.new('PASSWORD', [true, 'The password for the new admin account', 'password']),
         OptString.new('EMAIL', [true, 'The email for the new admin account', 'msf@email.loc'])
