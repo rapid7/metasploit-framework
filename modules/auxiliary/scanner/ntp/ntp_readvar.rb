@@ -1,4 +1,6 @@
-##
+#####
+
+
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
@@ -19,8 +21,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'NTP Clock Variables Disclosure',
 			'Description'    => %q{
-				This module reads the system internal NTP variables. These variables contain potentially
-				sensitive information, such as the NTP software version, operating system version, peers, and more..
+				This module reads the system internal NTP variables. These variables contain potentially sensitive 
+				information, such as the NTP software version, operating system version, peers, and more..
 			},
 			'Author'         => 'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>',
 			'License'        => MSF_LICENSE,
@@ -44,21 +46,20 @@ class Metasploit3 < Msf::Auxiliary
 		readvar = "\x16\x02\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00" #readvar command
 		print_status("Connecting target #{rhost}:#{rport}...")
 
-		print_status("Sending command...")
+		print_status("Sending command")
 		udp_sock.put(readvar)
 		reply = udp_sock.recvfrom(65535, 0.1)
 		p_reply =( reply[0].split(","))
 		arr_count = 0
 				while ( arr_count < p_reply.size)
 						if arr_count == 0
-						print_good ("#{rhost}:#{rport} " + p_reply[arr_count].slice(12,p_reply[arr_count].size)) #12 is the adjustment of packet garbage
+							print_good (p_reply[arr_count].slice(12,p_reply[arr_count].size)) #12 is the adjustment of packet garbage
 							arr_count =  arr_count + 1
 						else
-							print_good ("#{rhost}:#{rport} "+ p_reply[arr_count].strip)
+							print_good (p_reply[arr_count].strip)
 							arr_count =  arr_count + 1
 						end
 				end
-
 		disconnect_udp
 
 	end
