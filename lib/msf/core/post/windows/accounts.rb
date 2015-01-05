@@ -176,10 +176,8 @@ module Accounts
       # A reference to the SID data structure. Generally needed when working with sids
 
       # http://msdn.microsoft.com/en-us/library/aa379166(v=vs.85).aspx
-      lp_name = nil
-      cch_name = 0
-      lp_referenced_domain_name = nil
-      cch_referenced_domain_name = 0
+      lp_name = lp_referenced_domain_name = 100
+      cch_name = cch_referenced_domain_name = 100
       lookup = adv.LookupAccountSidA(system_name,
                                     psid,
                                     lp_name,
@@ -199,13 +197,10 @@ module Accounts
                                       lp_referenced_domain_name,
                                       cch_referenced_domain_name,
                                       1)
-      else
+      elsif !lookup['return']
         print_error "Unexpected windows error #{lookup['GetLastError']}"
         return nil
       end
-
-
-
     ensure
       # We no longer need the sid so free it.
       adv.FreeSid(psid)

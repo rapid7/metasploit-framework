@@ -130,13 +130,10 @@ class Metasploit3 < Msf::Post
   def lookup_domain_sid(domain)
     string_sid = nil
 
-    cb_sid = 0
-    cch_referenced_domain_name = 0
-    sid_buffer = nil
-    referenced_domain_name_buffer = nil
+    cb_sid = sid_buffer = 100
+    cch_referenced_domain_name = referenced_domain_name_buffer = 100
 
-    # Send 0 length buffers so we get the correct buffer sizes from the out values
-    buffers = client.railgun.advapi32.LookupAccountNameA(
+    res = client.railgun.advapi32.LookupAccountNameA(
                                nil,
                                domain,
                                sid_buffer,
@@ -145,9 +142,9 @@ class Metasploit3 < Msf::Post
                                cch_referenced_domain_name,
                                1)
 
-    if !buffers['return'] && buffers['GetLastError'] == INSUFFICIENT_BUFFER
-      sid_buffer = cb_sid = buffers['cbSid']
-      referenced_domain_name_buffer = cch_referenced_domain_name = buffers['cchReferencedDomainName']
+    if !res['return'] && res['GetLastError'] == INSUFFICIENT_BUFFER
+      sid_buffer = cb_sid = res['cbSid']
+      referenced_domain_name_buffer = cch_referenced_domain_name = res['cchReferencedDomainName']
 
       res = client.railgun.advapi32.LookupAccountNameA(
           nil,
@@ -157,7 +154,7 @@ class Metasploit3 < Msf::Post
           referenced_domain_name_buffer,
           cch_referenced_domain_name,
           1)
-    else
+    elsif !res['return']
       return nil
     end
 
