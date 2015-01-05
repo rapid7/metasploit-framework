@@ -58,6 +58,9 @@ class Metasploit3 < Msf::Auxiliary
 							arr_count =  arr_count + 1
 						end
 				end
+
 		disconnect_udp
+
 	end
+
 end
