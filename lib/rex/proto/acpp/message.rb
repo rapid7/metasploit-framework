@@ -84,6 +84,10 @@ module ACPP
       @type = 0
       @status = 0
       @password = ''
+      @unknown1 = 1
+      @unknown2 = ''
+      @unknown3 = ''
+      @unknown4 = ''
     end
 
     # Get this Message as a String
@@ -135,14 +139,14 @@ module ACPP
       if validate_checksum
         actual_message_checksum = Zlib::adler32(m.with_checksum(0))
         if actual_message_checksum != read_message_checksum
-          fail "Invalid message checksum (expected #{read_message_checksum}, got #{actual_message_checksum})"
+          fail "Invalid message checksum (expected #{read_message_checksum}, calculated #{actual_message_checksum})"
         end
         # I'm not sure this can ever happen -- if the payload checksum is wrong, then the
         # message checksum will also be wrong.  So, either I misunderstand the protocol
         # or having two checksums is useless
         actual_payload_checksum = Zlib::adler32(payload)
         if actual_payload_checksum != read_payload_checksum
-          fail "Invalid payload checksum (expected #{read_payload_checksum}, got #{actual_payload_checksum})"
+          fail "Invalid payload checksum (expected #{read_payload_checksum}, calculated #{actual_payload_checksum})"
         end
       end
       m
@@ -150,18 +154,21 @@ module ACPP
 
     def with_checksum(message_checksum)
         'acpp' + [
-        1, # unknown1
+        @unknown1,
         message_checksum,
         Zlib::adler32(@payload),
         @payload.size,
-        0, 0, # unknown2
+        @unknown2,
         @type,
         @status,
-        0, 0, 0 # unknown3
-        ].pack('NNNNN2NNN3') +
-        Rex::Encoding::Xor::Generic.encode([@password].pack('a32').slice(0, 32), XOR_KEY).first +
-        ([0] * 12).pack('N12') + # unknown4
+        @unknown3,
+        Rex::Encoding::Xor::Generic.encode([@password].pack('a32').slice(0, 32), XOR_KEY).first,
+        @unknown4,
         payload
+        ].pack('NNNNa8NNa12a32a48a*')
+        #Rex::Encoding::Xor::Generic.encode([@password].pack('a32').slice(0, 32), XOR_KEY).first +
+        #([0] * 12).pack('N12') + # unknown4
+        #payload
     end
   end
 end
