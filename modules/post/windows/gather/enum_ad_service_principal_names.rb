@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Post
     row = []
 
     0.upto(fields.length-1) do |i|
-      field = (result[i].nil? ? "" : result[i])
+      field = (result[i][:value].nil? ? "" : result[i][:value])
 
       if fields[i] == 'servicePrincipalName'
         break if field.blank?

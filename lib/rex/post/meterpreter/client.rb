@@ -42,9 +42,9 @@ class Client
   @@ext_hash = {}
 
   #
-  # Cached SSL certificate (required to scale)
+  # Cached auto-generated SSL certificate
   #
-  @@ssl_ctx = nil
+  @@ssl_cached_cert = nil
 
   #
   # Mutex to synchronize class-wide operations
@@ -106,7 +106,6 @@ class Client
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
 
-
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
@@ -116,8 +115,20 @@ class Client
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
     self.send_keepalives  = true
+
+    # TODO: Clarify why we don't allow unicode to be set in initial options
     # self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
     self.encode_unicode = false
+
+    # The SSL certificate is being passed down as a file path
+    if opts[:ssl_cert]
+      if ! ::File.exists? opts[:ssl_cert]
+        elog("SSL certificate at #{opts[:ssl_cert]} does not exist and will be ignored")
+      else
+        # Load the certificate the same way that SslTcpServer does it
+        self.ssl_cert = ::File.read(opts[:ssl_cert])
+      end
+    end
 
     if opts[:passive_dispatcher]
       initialize_passive_dispatcher
@@ -200,68 +211,43 @@ class Client
   end
 
   def generate_ssl_context
-    @@ssl_mutex.synchronize do
-    if not @@ssl_ctx
 
-    wlog("Generating SSL certificate for Meterpreter sessions")
+    ctx = nil
+    ssl_cert_info = nil
 
-    key  = OpenSSL::PKey::RSA.new(1024){ }
-    cert = OpenSSL::X509::Certificate.new
-    cert.version = 2
-    cert.serial  = rand(0xFFFFFFFF)
+    loop do
 
-    # Depending on how the socket was created, getsockname will
-    # return either a struct sockaddr as a String (the default ruby
-    # Socket behavior) or an Array (the extend'd Rex::Socket::Tcp
-    # behavior). Avoid the ambiguity by always picking a random
-    # hostname. See #7350.
-    subject_cn = Rex::Text.rand_hostname
+      # Load a custom SSL certificate if one has been specified
+      if self.ssl_cert
+        wlog("Loading custom SSL certificate for Meterpreter session")
+        ssl_cert_info = Rex::Socket::SslTcpServer.ssl_parse_pem(self.ssl_cert)
+        wlog("Loaded custom SSL certificate for Meterpreter session")
+        break
+      end
 
-    subject = OpenSSL::X509::Name.new([
-        ["C","US"],
-        ['ST', Rex::Text.rand_state()],
-        ["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
-        ["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-        ["CN", subject_cn],
-      ])
-    issuer = OpenSSL::X509::Name.new([
-        ["C","US"],
-        ['ST', Rex::Text.rand_state()],
-        ["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
-        ["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-        ["CN", Rex::Text.rand_text_alpha(rand(20) + 10)],
-      ])
+      # Generate a certificate if necessary and cache it
+      if ! @@ssl_cached_cert
+        @@ssl_mutex.synchronize do
+          wlog("Generating SSL certificate for Meterpreter sessions")
+          @@ssl_cached_cert = Rex::Socket::SslTcpServer.ssl_generate_certificate
+          wlog("Generated SSL certificate for Meterpreter sessions")
+        end
+      end
 
-    cert.subject = subject
-    cert.issuer = issuer
-    cert.not_before = Time.now - (3600 * 365) + rand(3600 * 14)
-    cert.not_after = Time.now + (3600 * 365) + rand(3600 * 14)
-    cert.public_key = key.public_key
-    ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
-    cert.extensions = [
-      ef.create_extension("basicConstraints","CA:FALSE"),
-      ef.create_extension("subjectKeyIdentifier","hash"),
-      ef.create_extension("extendedKeyUsage","serverAuth"),
-      ef.create_extension("keyUsage","keyEncipherment,dataEncipherment,digitalSignature")
-    ]
-    ef.issuer_certificate = cert
-    cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
-    cert.sign(key, OpenSSL::Digest::SHA1.new)
+      # Use the cached certificate
+      ssl_cert_info = @@ssl_cached_cert
+      break
+    end
 
-    ctx = OpenSSL::SSL::SSLContext.new(:SSLv3)
-    ctx.key = key
-    ctx.cert = cert
-
+    # Create a new context for each session
+    ctx = OpenSSL::SSL::SSLContext.new()
+    ctx.key = ssl_cert_info[0]
+    ctx.cert = ssl_cert_info[1]
+    ctx.extra_chain_cert = ssl_cert_info[2]
+    ctx.options = 0
     ctx.session_id_context = Rex::Text.rand_text(16)
 
-    wlog("Generated SSL certificate for Meterpreter sessions")
-
-    @@ssl_ctx = ctx
-
-    end # End of if not @ssl_ctx
-    end # End of mutex.synchronize
-
-    @@ssl_ctx
+    ctx
   end
 
   ##
@@ -452,6 +438,10 @@ class Client
   # Use SSL (HTTPS)
   #
   attr_accessor :ssl
+  #
+  # Use this SSL Certificate (unified PEM)
+  #
+  attr_accessor :ssl_cert
   #
   # The Session Expiration Timeout
   #

@@ -1,10 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'metasploit/framework/login_scanner/pop3'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -62,37 +63,44 @@ class Metasploit3 < Msf::Auxiliary
       user_as_pass: datastore['USER_AS_PASS'],
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::POP3.new(
       host: ip,
       port: rport,
       ssl: datastore['SSL'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      max_send_size: datastore['TCP::max_send_size'],
+      send_delay: datastore['TCP::send_delay'],
     )
 
     scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-        do_report(result)
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
         next
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+        end
       when Metasploit::Model::Login::Status::INCORRECT
-        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', '#{result.proof.to_s.chomp}'"
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', '#{result.proof.to_s.chomp}'"
+        end
       end
 
       # If we got here, it didn't work
-      invalidate_login(
-        address: ip,
-        port: rport,
-        protocol: 'tcp',
-        public: result.credential.public,
-        private: result.credential.private,
-        realm_key: result.credential.realm_key,
-        realm_value: result.credential.realm,
-        status: result.status
-      )
+      invalidate_login(credential_data)
     end
   end
 
@@ -100,32 +108,6 @@ class Metasploit3 < Msf::Auxiliary
     datastore['SSL'] ? 'pop3s' : 'pop3'
   end
 
-  def do_report(result)
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: service_name,
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
 
-    credential_data = {
-      module_fullname: self.fullname,
-      origin_type: :service,
-      private_data: result.credential.private,
-      private_type: :password,
-      username: result.credential.public,
-    }.merge(service_data)
-
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
-      last_attempted_at: DateTime.now,
-      status: result.status
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
 
 end

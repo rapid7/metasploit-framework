@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 module Msf::Post::Windows
   require 'msf/core/post/windows/error'

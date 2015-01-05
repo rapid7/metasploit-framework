@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@ module Metasploit3
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Python Meterpreter',
-      'Description'    => %q{
-        Run a meterpreter server in Python. Supported Python versions
-        are 2.5 - 2.7 and 3.1 - 3.4.
-      },
+      'Description'   => 'Run a meterpreter server in Python (2.5-2.7 & 3.1-3.4)',
       'Author'        => 'Spencer McIntyre',
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,
@@ -25,18 +22,18 @@ module Metasploit3
       'Session'       => Msf::Sessions::Meterpreter_Python_Python
     ))
     register_advanced_options([
-      OptBool.new('DEBUGGING', [ true, "Enable debugging for the Python meterpreter", false ])
+      OptBool.new('PythonMeterpreterDebug', [ true, "Enable debugging for the Python meterpreter", false ])
     ], self.class)
   end
 
   def generate_stage
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.py")
+    file = ::File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.py")
 
-    met = File.open(file, "rb") {|f|
+    met = ::File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
 
-    if datastore['DEBUGGING']
+    if datastore['PythonMeterpreterDebug']
       met = met.sub("DEBUGGING = False", "DEBUGGING = True")
     end
 

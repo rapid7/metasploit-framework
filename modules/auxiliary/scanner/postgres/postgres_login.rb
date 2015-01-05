@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -34,6 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_userpass.txt") ]),
         OptPath.new('USER_FILE',      [ false, "File containing users, one per line",
@@ -60,58 +61,33 @@ class Metasploit3 < Msf::Auxiliary
         realm: datastore['DATABASE']
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::Postgres.new(
       host: ip,
       port: rport,
       proxies: datastore['PROXIES'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 30
     )
 
-    service_data = {
-      address: ip,
-      port: rport,
-      service_name: 'postgres',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
     scanner.scan! do |result|
-      if result.success?
-        credential_data = {
+      credential_data = result.to_h
+      credential_data.merge!(
           module_fullname: self.fullname,
-          origin_type: :service,
-          private_data: result.credential.private,
-          private_type: :password,
-          realm_key: Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
-          realm_value: result.credential.realm,
-          username: result.credential.public
-        }
-        credential_data.merge!(service_data)
-
+          workspace_id: myworkspace_id
+      )
+      if result.success?
         credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
 
-        login_data = {
-            core: credential_core,
-            last_attempted_at: DateTime.now,
-            status: Metasploit::Model::Login::Status::SUCCESSFUL
-        }
-        login_data.merge!(service_data)
-
-        create_credential_login(login_data)
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
-            realm_value: result.credential.realm,
-            status: result.status)
-        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        invalidate_login(credential_data)
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
 

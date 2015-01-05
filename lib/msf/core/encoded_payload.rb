@@ -109,10 +109,13 @@ class EncodedPayload
     if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
       encoders = pinst.compatible_encoders
 
-      # Fix encoding issue
+      # Make sure the encoder name from the user has the same String#encoding
+      # as the framework's list of encoder names so we can compare them later.
+      # This is important for when we get input from RPC.
       if reqs['Encoder']
         reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
       end
+
       # If the caller had a preferred encoder, use this encoder only
       if ((reqs['Encoder']) and (preferred = framework.encoders[reqs['Encoder']]))
         encoders = [ [reqs['Encoder'], preferred] ]
@@ -154,6 +157,18 @@ class EncodedPayload
             (reqs['Encoder'].nil?) and
             (self.encoder.rank == ManualRanking))
           wlog("#{pinst.refname}: Encoder #{encoder.refname} is manual ranked and was not defined as a preferred encoder.",
+            'core', LEV_1)
+          next
+        end
+
+        # If the caller explictly requires register preservation, make sure
+        # that the module in question can handle it. This is mostly used by
+        # the stage encoder path.
+        if (reqs['ForceSaveRegisters'] and
+            reqs['EncoderOptions'] and
+            (reqs['EncoderOptions']['SaveRegisters'].to_s.length > 0) and
+            (! self.encoder.can_preserve_registers?))
+          wlog("#{pinst.refname}: Encoder #{encoder.refname} does not preserve registers and the caller needs #{reqs['EncoderOptions']['SaveRegisters']} preserved.",
             'core', LEV_1)
           next
         end
@@ -229,7 +244,6 @@ class EncodedPayload
       # suck at life.
       if (self.encoded == nil)
         self.encoder = nil
-
         raise NoEncodersSucceededError,
           "#{pinst.refname}: All encoders failed to encode.",
           caller
@@ -402,6 +416,15 @@ class EncodedPayload
     return pinst.generate_war(opts) if pinst.respond_to? :generate_war
 
     Msf::Util::EXE.to_jsp_war(encoded_exe(opts), opts)
+  end
+
+  #
+  # An array containing the architecture(s) that this payload was made to run on
+  #
+  def arch
+    if pinst
+      pinst.arch
+    end
   end
 
   #

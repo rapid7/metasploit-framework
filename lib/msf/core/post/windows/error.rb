@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 module Msf::Post::Windows::Error
   SUCCESS = 0x0000

@@ -3,6 +3,8 @@
 module Msf::Post::Common
 
   def rhost
+    return nil unless session
+
     case session.type
     when 'meterpreter'
       session.sock.peerhost
@@ -111,7 +113,13 @@ module Msf::Post::Common
         o << d
       end
       o.chomp! if o
-      process.channel.close
+
+      begin
+        process.channel.close
+      rescue IOError => e
+        # Channel was already closed, but we got the cmd output, so let's soldier on.
+      end
+
       process.close
     when /shell/
       o = session.shell_command_token("#{cmd} #{args}", time_out)

@@ -39,8 +39,14 @@ module Metasploit
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
           result_options = {
-              credential: credential
+              credential: credential,
+              host: host,
+              port: port,
+              protocol: 'tcp',
+              service_name: 'vnc'
           }
+
+          credential.public = nil
 
           begin
             # Make our initial socket to the target
@@ -49,7 +55,6 @@ module Metasploit
 
             # Create our VNC client overtop of the socket
             vnc = Rex::Proto::RFB::Client.new(sock, :allow_none => false)
-
 
             if vnc.handshake
               if vnc_auth(vnc,credential.private)
@@ -66,11 +71,13 @@ module Metasploit
                 status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
               )
             end
-          rescue ::EOFError, Errno::ENOTCONN, Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ENOTCONN, Rex::ConnectionError, ::Timeout::Error => e
             result_options.merge!(
                 proof: e.message,
                 status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             )
+          ensure
+            disconnect
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

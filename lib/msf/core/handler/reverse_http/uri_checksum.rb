@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 module Msf
   module Handler
     module ReverseHttp
@@ -7,8 +8,9 @@ module Msf
         # Define 8-bit checksums for matching URLs
         # These are based on charset frequency
         #
-        URI_CHECKSUM_INITW = 92
-        URI_CHECKSUM_INITJ = 88
+        URI_CHECKSUM_INITW = 92 # Windows
+        URI_CHECKSUM_INITP = 80 # Python
+        URI_CHECKSUM_INITJ = 88 # Java
         URI_CHECKSUM_CONN  = 98
 
         #
@@ -60,6 +62,8 @@ module Msf
           case uri_check
             when URI_CHECKSUM_INITW
               uri_match = "/INITM"
+            when URI_CHECKSUM_INITP
+              uri_match = "/INITPY"
             when URI_CHECKSUM_INITJ
               uri_match = "/INITJM"
             when URI_CHECKSUM_CONN

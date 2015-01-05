@@ -50,8 +50,9 @@ end
 
 changed_files.each_line do |fname|
   fname.strip!
-  next unless File.exist?(fname) and File.file?(fname)
-  next unless fname =~ /modules.+\.rb/
+  next unless File.exist?(fname)
+  next unless File.file?(fname)
+  next unless fname =~ /^modules.+\.rb/
   files_to_check << fname
 end
 

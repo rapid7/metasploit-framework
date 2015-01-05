@@ -49,10 +49,14 @@ module Metasploit
       #
       # @return [void]
       def self.optionally_active_record_railtie
-        optionally(
+        if ::File.exist?(Rails.application.config.paths['config/database'].first)
+          optionally(
             'active_record/railtie',
             'activerecord not in the bundle, so database support will be disabled.'
-        )
+          )
+        else
+          warn 'Could not find database.yml, so database support will be disabled.'
+        end
       end
 
       # Tries to `require 'metasploit/credential/creation'` and include it in the `including_module`.
@@ -65,6 +69,28 @@ module Metasploit
             "metasploit-credential not in the bundle, so Metasploit::Credential creation will fail for #{including_module.name}",
         ) do
           including_module.send(:include, Metasploit::Credential::Creation)
+        end
+      end
+
+      # Tries to require gems necessary for using a database with the framework.
+      #
+      # @example
+      #   Metasploit::Framework::Require.optionally_require_metasploit_db_gems
+      #
+      # @return [void]
+      def self.optionally_require_metasploit_db_gem_engines
+        optionally(
+            'metasploit/credential',
+            'metasploit-credential not in the bundle',
+        ) do
+          require 'metasploit/credential/engine'
+        end
+
+        optionally(
+          'metasploit_data_models',
+          'metasploit_data_models not in the bundle'
+        ) do
+          require 'metasploit_data_models/engine'
         end
       end
 

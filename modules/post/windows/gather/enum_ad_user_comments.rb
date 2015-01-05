@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -65,10 +65,11 @@ class Metasploit3 < Msf::Post
 
       report = {}
       result.each do |field|
-        if field.nil?
+        if field[:value].nil?
           row << ""
         else
-          row << field
+          row << field[:value]
+
         end
       end
 

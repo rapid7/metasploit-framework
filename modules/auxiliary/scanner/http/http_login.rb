@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '1999-0502'] # Weak password
         ],
       'License'        => MSF_LICENSE,
-      # See https://dev.metasploit.com/redmine/issues/8814
+      # See https://github.com/rapid7/metasploit-framework/issues/3811
       #'DefaultOptions' => {
       #  'USERPASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt"),
       #  'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt"),
@@ -54,8 +54,17 @@ class Metasploit3 < Msf::Auxiliary
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
   end
 
-  def find_auth_uri
+  def to_uri(uri)
+    begin
+      # In case TARGETURI is empty, at least we default to '/'
+      uri = "/" if uri.blank?
+      URI(uri)
+    rescue ::URI::InvalidURIError
+      raise RuntimeError, "Invalid URI: #{uri}"
+    end
+  end
 
+  def find_auth_uri
     if datastore['AUTH_URI'].present?
       paths = [datastore['AUTH_URI']]
     else
@@ -69,8 +78,20 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     paths.each do |path|
+      uri = ''
+
+      begin
+        uri = to_uri(path)
+      rescue RuntimeError => e
+        # Bad URI so we will not try to request it
+        print_error(e.message)
+        next
+      end
+
+      uri = normalize_uri(uri.path)
+
       res = send_request_cgi({
-        'uri'     => path,
+        'uri'     => uri,
         'method'  => datastore['REQUESTTYPE'],
         'username' => '',
         'password' => ''
@@ -129,6 +150,8 @@ class Metasploit3 < Msf::Auxiliary
       user_as_pass: datastore['USER_AS_PASS'],
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::HTTP.new(
       host: ip,
       port: rport,
@@ -137,74 +160,46 @@ class Metasploit3 < Msf::Auxiliary
       proxies: datastore["PROXIES"],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 5,
+      user_agent: datastore['UserAgent'],
+      vhost: datastore['VHOST']
     )
 
+    msg = scanner.check_setup
+    if msg
+      print_brute :level => :error, :ip => ip, :msg => "Verification failed: #{msg}"
+      return
+    end
+
     scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
-        do_report(ip, rport, result)
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-        )
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        end
+        invalidate_login(credential_data)
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
-        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-        )
-      when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
-        print_brute :level => :error, :ip => ip, :msg => "Failed: '#{result.credential}'"
-        break
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        end
+        invalidate_login(credential_data)
       end
     end
 
   end
 
-  def do_report(ip, port, result)
-    service_data = {
-      address: ip,
-      port: port,
-      service_name: 'http',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      module_fullname: self.fullname,
-      origin_type: :service,
-      private_data: result.credential.private,
-      private_type: :password,
-      username: result.credential.public,
-    }.merge(service_data)
-
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
-      last_attempted_at: DateTime.now,
-      status: result.status
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
 
 end

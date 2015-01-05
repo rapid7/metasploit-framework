@@ -60,11 +60,6 @@ class Metasploit::Framework::Command::Base
     # the configuration from the parsed options.
     parsed_options.configure(Rails.application)
 
-    # support disabling the database
-    unless parsed_options.options.database.disable
-      Metasploit::Framework::Require.optionally_active_record_railtie
-    end
-
     Rails.application.require_environment!
 
     parsed_options

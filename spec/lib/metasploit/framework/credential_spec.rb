@@ -7,6 +7,12 @@ describe Metasploit::Framework::Credential do
     described_class.new
   }
 
+  let(:public) { "public" }
+  let(:private) { "private" }
+  let(:realm) { "realm" }
+  let(:realm_type) { Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN }
+  let(:private_type) { :password }
+
   it { should respond_to :paired }
   it { should respond_to :private }
   it { should respond_to :private_type }
@@ -16,7 +22,7 @@ describe Metasploit::Framework::Credential do
 
   describe "#paired" do
     it "defaults to true" do
-      expect(cred_detail.paired).to be_true
+      expect(cred_detail.paired).to be_truthy
     end
   end
 
@@ -76,10 +82,7 @@ describe Metasploit::Framework::Credential do
 
   end
 
-  describe ".to_credential" do
-    let(:public) { "public" }
-    let(:private) { "private" }
-    let(:realm) { "realm" }
+  describe "#to_credential" do
     subject(:cred_detail) do
       described_class.new(public: public, private: private, realm: realm)
     end
@@ -137,6 +140,22 @@ describe Metasploit::Framework::Credential do
       specify do
         expect(other).not_to eq(cred_detail)
       end
+    end
+  end
+
+  describe '#to_h' do
+    subject(:cred_detail) do
+      described_class.new(public: public, private: private, realm: realm, realm_key: realm_type, private_type: private_type)
+    end
+    it 'returns a hash in the format expect for create_credential' do
+      cred_hash = {
+          private_data: private,
+          private_type: private_type,
+          username: public,
+          realm_key: realm_type,
+          realm_value: realm
+      }
+      expect(cred_detail.to_h).to eq cred_hash
     end
   end
 end

@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'metasploit/framework/api/version'
 require 'metasploit/framework/core/version'
 

@@ -30,6 +30,9 @@ module Metasploit
           # @!attribute stop_on_success
           #   @return [Boolean] Whether the scanner should stop when it has found one working Credential
           attr_accessor :stop_on_success
+          # @!attribute bruteforce_speed
+          #   @return [Fixnum] The desired speed, with 5 being 'fast' and 0 being 'slow.'
+          attr_accessor :bruteforce_speed
 
           validates :connection_timeout,
                     presence: true,
@@ -52,6 +55,14 @@ module Metasploit
 
           validates :stop_on_success,
                     inclusion: { in: [true, false] }
+
+          validates :bruteforce_speed,
+                    presence: false,
+                    numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 0,
+                      less_than_or_equal_to:    5
+                    }
 
           validate :host_address_must_be_valid
 
@@ -77,28 +88,77 @@ module Metasploit
             raise NotImplementedError
           end
 
+          # @note Override this to detect that the service is up, is the right
+          #   version, etc.
+          # @return [false] Indicates there were no errors
+          # @return [String] a human-readable error message describing why
+          #   this scanner can't run
+          def check_setup
+            false
+          end
+
+          # @note Override this to set a timeout that makes more sense for
+          # your particular protocol. Telnet already usually takes a really
+          # long time, while MSSQL is often lickety-split quick. If
+          # overridden, the override should probably do something sensible
+          # with {#bruteforce_speed}
+          #
+          # @return [Fixnum] a number of seconds to sleep between attempts
+          def sleep_time
+            case bruteforce_speed
+              when 0; 60 * 5
+              when 1; 15
+              when 2; 1
+              when 3; 0.5
+              when 4; 0.1
+              else; 0
+            end
+          end
+
+          # A threadsafe sleep method
+          #
+          # @param time [Fixnum] number of seconds (can be a Float), defaults
+          # to {#sleep_time}
+          #
+          # @return [void]
+          def sleep_between_attempts(time=self.sleep_time)
+            ::IO.select(nil,nil,nil,time) unless sleep_time.zero?
+          end
 
           def each_credential
             cred_details.each do |raw_cred|
+
               # This could be a Credential object, or a Credential Core, or an Attempt object
               # so make sure that whatever it is, we end up with a Credential.
               credential = raw_cred.to_credential
 
               if credential.realm.present? && self.class::REALM_KEY.present?
+                # The class's realm_key will always be the right thing for the
+                # service it knows how to login to. Override the credential's
+                # realm_key if one exists for the class. This can happen for
+                # example when we have creds for DB2 and want to try them
+                # against Postgres.
                 credential.realm_key = self.class::REALM_KEY
                 yield credential
               elsif credential.realm.blank? && self.class::REALM_KEY.present? && self.class::DEFAULT_REALM.present?
+                # XXX: This is messing up the display for mssql when not using
+                # Windows authentication, e.g.:
+                #   [+] 10.0.0.53:1433 - LOGIN SUCCESSFUL: WORKSTATION\sa:msfadmin
+                # Realm gets ignored in that case, so it still functions, it
+                # just gives the user bogus info
                 credential.realm_key = self.class::REALM_KEY
                 credential.realm     = self.class::DEFAULT_REALM
                 yield credential
               elsif credential.realm.present? && self.class::REALM_KEY.blank?
                 second_cred = credential.dup
-                # Strip the realm off here, as we don't want it
+                # This service has no realm key, so the realm will be
+                # meaningless. Strip it off.
                 credential.realm = nil
                 credential.realm_key = nil
                 yield credential
                 # Some services can take a domain in the username like this even though
                 # they do not explicitly take a domain as part of the protocol.
+                # e.g., telnet
                 second_cred.public = "#{second_cred.realm}\\#{second_cred.public}"
                 second_cred.realm = nil
                 second_cred.realm_key = nil
@@ -127,15 +187,24 @@ module Metasploit
             total_error_count = 0
 
             successful_users = Set.new
+            first_attempt = true
 
             each_credential do |credential|
-              # For Pro bruteforce Reuse and Guess we need to note that we skipped an attempt.
+              # Skip users for whom we've have already found a password
               if successful_users.include?(credential.public)
+                # For Pro bruteforce Reuse and Guess we need to note that we
+                # skipped an attempt.
                 if credential.parent.respond_to?(:skipped)
                   credential.parent.skipped = true
                   credential.parent.save!
                 end
                 next
+              end
+
+              if first_attempt
+                first_attempt = false
+              else
+                sleep_between_attempts
               end
 
               result = attempt_login(credential)

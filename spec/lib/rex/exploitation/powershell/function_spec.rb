@@ -62,16 +62,16 @@ describe Rex::Exploitation::Powershell::Function do
       function = Rex::Exploitation::Powershell::Function.new(function_name, example_function_without_params)
       function.name.should eq function_name
       function.code.should eq example_function_without_params
-      function.to_s.include?("function #{function_name} #{example_function_without_params}").should be_true
+      function.to_s.include?("function #{function_name} #{example_function_without_params}").should be_truthy
       function.params.should be_kind_of Array
-      function.params.empty?.should be_true
+      function.params.empty?.should be_truthy
     end
 
     it 'should handle a function with params' do
       function = Rex::Exploitation::Powershell::Function.new(function_name, example_function_with_params)
       function.name.should eq function_name
       function.code.should eq example_function_with_params
-      function.to_s.include?("function #{function_name} #{example_function_with_params}").should be_true
+      function.to_s.include?("function #{function_name} #{example_function_with_params}").should be_truthy
       function.params.should be_kind_of Array
       function.params.length.should be == 5
       function.params[0].klass.should eq 'Type[]'

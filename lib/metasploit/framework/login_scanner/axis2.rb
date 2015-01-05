@@ -17,12 +17,23 @@ module Metasploit
         # (see Base#attempt_login)
         def attempt_login(credential)
           http_client = Rex::Proto::Http::Client.new(
-            host, port, {}, ssl, ssl_version
+            host, port, {}, ssl, ssl_version, proxies
           )
 
+          http_client = config_client(http_client)
+
           result_opts = {
-              credential: credential
+              credential: credential,
+              host: host,
+              port: port,
+              protocol: 'tcp'
           }
+          if ssl
+            result_opts[:service_name] = 'https'
+          else
+            result_opts[:service_name] = 'http'
+          end
+
           begin
             http_client.connect
             body = "userName=#{Rex::Text.uri_encode(credential.public)}&password=#{Rex::Text.uri_encode(credential.private)}&submit=+Login+"
@@ -38,8 +49,8 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: response)
             end
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
           Result.new(result_opts)
