@@ -146,7 +146,6 @@ module ACPP
         end
       end
       m
-      m
     end
 
     def with_checksum(message_checksum)

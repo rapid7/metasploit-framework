@@ -5,4 +5,5 @@
 # so I'm calling it ACPP because that is the protocol header.
 #
 
+require 'rex/proto/acpp/client'
 require 'rex/proto/acpp/message'
