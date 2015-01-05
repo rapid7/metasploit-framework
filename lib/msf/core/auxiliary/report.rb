@@ -127,11 +127,86 @@ module Auxiliary::Report
 
   def report_auth_info(opts={})
     return if not db
-    opts = {
-        :workspace => myworkspace,
-        :task => mytask
-    }.merge(opts)
-    framework.db.report_auth_info(opts)
+    raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
+    raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
+
+    if opts[:host].kind_of?(::Mdm::Host)
+      host = opts[:host].address
+    else
+      host = opts[:host]
+    end
+
+    type = :password
+    case opts[:type]
+      when "password"
+        type = :password
+      when "hash"
+        type = :nonreplayable_hash
+      when "ssh_key"
+        type = :ssh_key
+    end
+
+    case opts[:proto]
+      when "tcp"
+        proto = "tcp"
+      when "udp"
+        proto = "udp"
+      else
+        proto = "tcp"
+    end
+
+    if opts[:service] && opts[:service].kind_of?(Mdm::Service)
+      port         = opts[:service].port
+      proto        = opts[:service].proto
+      service_name = opts[:service].name
+      host         = opts[:service].host.address
+    else
+      port         = opts.fetch(:port)
+      service_name = opts.fetch(:sname, nil)
+    end
+
+    username = opts.fetch(:user, nil)
+    private  = opts.fetch(:pass, nil)
+
+    service_data = {
+      address: host,
+      port: port,
+      service_name: service_name,
+      protocol: proto,
+      workspace_id: myworkspace_id
+    }
+
+    if self.type == "post"
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname
+      }
+    else
+      credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname
+      }
+      credential_data.merge!(service_data)
+    end
+
+    unless private.nil?
+      credential_data[:private_type] = type
+      credential_data[:private_data] = private
+    end
+
+    unless username.nil?
+      credential_data[:username] = username
+    end
+
+    credential_core = create_credential(credential_data)
+
+    login_data ={
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
   end
 
   def report_vuln(opts={})
