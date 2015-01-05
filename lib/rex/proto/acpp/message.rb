@@ -36,8 +36,9 @@ module ACPP
   # checksum.  Adler32 is used to compute the checksum.
   #
   # The message payload is a bit of an unknown right now, as it *seems* like
-  # the payload always comes in a subsequent request.
-
+  # the payload always comes in a subsequent request.  Simply appending
+  # a payload to the existing message does not appear to work (but this needs
+  # more testing)
 
   # This was taken from airport-util's AirportInforRecord for ease of copying, but can
   # also be obtained by XOR'ing the null-padded known plain text with the appropriate 32-byte
@@ -103,6 +104,12 @@ module ACPP
       other.payload == @payload
     end
 
+    # Decodes the provided data into a Message
+    #
+    # @param data [String] the data to parse as a Message
+    # @param validate_checksum [Boolean] true to validate the message and
+    #   payload checksums, false to not.  Defaults to true.
+    # @return [Message] the decoded Message
     def self.decode(data, validate_checksum = true)
       data = data.dup
       fail "Incorrect ACPP message size #{data.size} -- must be 128" unless data.size == 128
@@ -146,7 +153,7 @@ module ACPP
         'acpp' + [
         1, # unknown1
         message_checksum,
-        Zlib::adler32(payload),
+        Zlib::adler32(@payload),
         @payload.size,
         0, 0, # unknown2
         @type,

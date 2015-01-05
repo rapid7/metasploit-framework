@@ -60,10 +60,11 @@ describe Rex::Proto::ACPP::Message do
     it 'decodes properly when the non-required checksum is correct' do
       expect(retrieve_public_message).to eq(described_class.decode(retrieve_public_bin, false))
     end
-    it 'fails to decode the required message checksum is incorrect' do
+    it 'decodes properly when the message checksum is incorrect' do
       retrieve_public_bin[7,4] = "\x01\x02\x03\x04"
       expect { described_class.decode(retrieve_public_bin) }.to raise_error(/message checksum/i)
       expect { described_class.decode(retrieve_public_bin, true) }.to raise_error(/message checksum/i)
+      expect(retrieve_public_message).to eq(described_class.decode(retrieve_public_bin, false))
     end
   end
 end
