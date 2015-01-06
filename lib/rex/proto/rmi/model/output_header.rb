@@ -27,7 +27,7 @@ module Rex
           def decode_signature(io)
             signature = read_string(io, 4)
             unless signature == SIGNATURE
-              raise ::RuntimeError, 'Failed to decode OutputStream signature'
+              raise ::RuntimeError, 'Failed to decode OutputHeader signature'
             end
 
             signature
@@ -53,7 +53,7 @@ module Rex
             protocol = read_byte(io)
 
             unless valid_protocols.include?(protocol)
-              raise ::RuntimeError, 'Failed to decode OutputStream protocol'
+              raise ::RuntimeError, 'Failed to decode OutputHeader protocol'
             end
 
             protocol

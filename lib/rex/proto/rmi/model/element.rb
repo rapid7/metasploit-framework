@@ -106,6 +106,21 @@ module Rex
             raw.unpack('n')[0]
           end
 
+          # Reads a four bytes int from an IO
+          #
+          # @param io [IO] the IO to read from
+          # @return [Fixnum]
+          # @raise [RuntimeError] if the int can't be read from io
+          def read_int(io)
+            raw = io.read(4)
+
+            unless raw && raw.length == 4
+              raise ::RuntimeError, 'Failed to read short'
+            end
+
+            raw.unpack('N')[0]
+          end
+
           # Reads an string from an IO
           #
           # @param io [IO] the IO to read from
