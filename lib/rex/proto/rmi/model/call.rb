@@ -30,7 +30,7 @@ module Rex
             message_id
           end
 
-          # Reads the call data from the IO
+          # Reads and deserializes the call data from the IO
           #
           # @param io [IO] the IO to read from
           # @return [Rex::Java::Serialization::Model::Stream]
