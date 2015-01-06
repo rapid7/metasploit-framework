@@ -23,3 +23,4 @@ end
 require 'rex/proto/rmi/model/element'
 require 'rex/proto/rmi/model/output_header'
 require 'rex/proto/rmi/model/protocol_ack'
+require 'rex/proto/rmi/model/continuation'
