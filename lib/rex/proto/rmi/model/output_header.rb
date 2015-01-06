@@ -5,7 +5,7 @@ module Rex
     module Rmi
       module Model
         # This class provides a representation of an RMI output stream header
-        class OutputStream < Element
+        class OutputHeader < Element
 
           # @!attribute signature
           #   @return [String] the Java RMI header signature

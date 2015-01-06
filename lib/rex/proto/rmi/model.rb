@@ -21,4 +21,4 @@ module Rex
 end
 
 require 'rex/proto/rmi/model/element'
-require 'rex/proto/rmi/model/output_stream'
+require 'rex/proto/rmi/model/output_header'
