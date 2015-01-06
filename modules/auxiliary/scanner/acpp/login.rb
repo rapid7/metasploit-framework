@@ -17,39 +17,32 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'ACPP Authentication Scanner',
-      'Description' => %q{
-      },
+      'Name'        => 'Apple Airport ACPP Authentication Scanner',
+      'Description' => %q(
+        This module attempts to authenticate to an Apple Airport using its
+        proprietary and largely undocumented protocol known only as ACPP.
+      ),
       'Author'      =>
         [
-          'carstein <carstein.sec[at]gmail.com>',
-          'jduck'
+          'Jon Hart <jon_hart[at]rapid7.com>'
         ],
       'References'     =>
         [
-          [ 'CVE', '1999-0506'] # Weak password
+          %w(CVE 2003-0270) # Fixed XOR key used to encrypt password
         ],
       'License'     => MSF_LICENSE
     )
 
     register_options(
       [
-        Opt::Proxies,
         Opt::RPORT(5009),
-        OptString.new('PASSWORD', [ false, 'The password to test' ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
-
-        #We need to set the following options to make sure BLANK_PASSWORDS functions properly
-        OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
-        OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
       ], self.class)
 
     register_autofilter_ports([5009])
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Starting ACPP login sweep")
+    vprint_status("#{ip}:#{rport} - Starting ACPP login sweep")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
         blank_passwords: datastore['BLANK_PASSWORDS'],
@@ -85,11 +78,10 @@ class Metasploit3 < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good("#{ip}:#{rport} - ACPP LOGIN SUCCESSFUL: #{result.credential}")
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error("#{ip}:#{rport} - ACPP LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
       end
     end
 

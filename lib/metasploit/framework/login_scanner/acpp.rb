@@ -17,9 +17,12 @@ module Metasploit
         #
         # CONSTANTS
         #
+        DEFAULT_PORT         = 5009
         LIKELY_PORTS         = [ 5009 ]
         LIKELY_SERVICE_NAMES = [ 'acpp' ]
+        PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil
+
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with
@@ -38,13 +41,18 @@ module Metasploit
             disconnect if self.sock
             connect
 
-            acpp = Rex::Proto::ACPP::Client.new(sock)
+            client = Rex::Proto::ACPP::Client.new(sock)
 
-            if acpp.authenticate(credential.private)
-              result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+            auth_response = client.authenticate(credential.private)
+            if auth_response.successful?
+              status = Metasploit::Model::Login::Status::SUCCESSFUL
             else
-              result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
+              status = Metasploit::Model::Login::Status::INCORRECT
             end
+            result_options.merge!(
+              proof: "Status code #{auth_response.status}",
+              status: status
+            )
           rescue ::EOFError, Errno::ENOTCONN, Rex::ConnectionError, ::Timeout::Error => e
             result_options.merge!(
               proof: e.message,
