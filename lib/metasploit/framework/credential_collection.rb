@@ -208,7 +208,7 @@ class Metasploit::Framework::CredentialCollection
   # @yieldparam credential [Metasploit::Framework::Credential]
   # @return [void]
   def each
-    @credentials.each { |c| yield c }
+    credentials.each { |c| yield c }
   end
 
   private
