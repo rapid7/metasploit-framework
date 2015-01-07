@@ -45,6 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       # Turn on KoreLogic rules if the user asked for it
       if datastore['KoreLogic']
         cracker_instance.rules = 'KoreLogicRules'
+        print_status "Applying KoreLogic ruleset..."
       end
       cracker_instance.crack do |line|
         print_status line.chomp
