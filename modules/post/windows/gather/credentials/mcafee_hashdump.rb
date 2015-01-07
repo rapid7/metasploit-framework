@@ -79,9 +79,9 @@ class Metasploit3 < Msf::Post
 	    origin_type: :session,
 		private_type: :password,
 		private_data: mcafee_hash,
-	    session_id: session_db_id,
+	    	session_id: session_db_id,
 		jtr_format: hashtype,
-		orkspace_id: myworkspace_id,
+		workspace_id: myworkspace_id,
 		username: "null"
       }	  
 	  
