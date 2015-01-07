@@ -6,13 +6,13 @@ module Msf::HTTP::Wordpress::Login
   # @param user [String] Username
   # @param pass [String] Password
   # @return [String,nil] the session cookies as a single string on successful login, nil otherwise
-  def wordpress_login(user, pass)
+  def wordpress_login(user, pass, timeout = 20)
     redirect = "#{target_uri}#{Rex::Text.rand_text_alpha(8)}"
-    res = send_request_cgi(
+    res = send_request_cgi({
         'method' => 'POST',
         'uri' => wordpress_url_login,
         'vars_post' => wordpress_helper_login_post_data(user, pass, redirect)
-    )
+    }, timeout)
     if res && res.redirect? && res.redirection && res.redirection.to_s == redirect
       cookies = res.get_cookies
       # Check if a valid wordpress cookie is returned
