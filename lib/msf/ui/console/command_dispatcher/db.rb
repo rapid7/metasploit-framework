@@ -676,6 +676,7 @@ class Db
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
+    print_line "  -t,--type <type>      List creds that match the following types: (password,ntlm,hash)"
 
     print_line
     print_line "Examples, listing:"
@@ -683,6 +684,7 @@ class Db
     print_line "  creds 1.2.3.4/24    # nmap host specification"
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
+    print_line "  creds -t ntlm       # All NTLM creds"
     print_line
 
     print_line
@@ -822,6 +824,17 @@ class Db
       pass_regex = Regexp.compile(pass)
     end
 
+    if ptype
+      type = case ptype
+             when 'password'
+               Metasploit::Credential::Password
+             when 'hash'
+               Metasploit::Credential::PasswordHash
+             when 'ntlm'
+               Metasploit::Credential::NTLMHash
+             end
+    end
+
     # normalize
     ports = port_ranges.flatten.uniq
     svcs.flatten!
@@ -838,6 +851,9 @@ class Db
       )
 
       query.each do |core|
+
+        # Exclude creds that don't match the given type
+        next if type.present? && !core.private.kind_of?(type)
 
         # Exclude creds that don't match the given user
         if user_regex.present? && !core.public.username.match(user_regex)
