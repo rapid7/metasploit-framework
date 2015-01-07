@@ -48,6 +48,10 @@ class Metasploit3 < Msf::Auxiliary
       cracker_instance = cracker.dup
       cracker_instance.format = format
       print_status "Cracking #{format} hashes in normal wordlist mode..."
+      # Turn on KoreLogic rules if the user asked for it
+      if datastore['KoreLogic']
+        cracker_instance.rules = 'KoreLogicRules'
+      end
       cracker_instance.crack do |line|
         print_status line.chomp
       end
