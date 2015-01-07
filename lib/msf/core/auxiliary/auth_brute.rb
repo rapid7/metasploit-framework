@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+
+require 'metasploit/framework/credential_collection'
+
 module Msf
 
 ###
@@ -90,6 +93,28 @@ module Auxiliary::AuthBrute
     (datastore['DB_ALL_CREDS'] || datastore['DB_ALL_PASS'] || datastore['DB_ALL_USERS']) && framework.db.active
   end
 
+  # Returns a CredentialCollection of Passwords that is available for use by
+  # all AuthBrute modules that is made up of the currently configured and
+  # hopefully-relevant options.
+  #
+  # XXX: As of this writing, this collection is unused.  Future work,
+  # including new AuthBrute modules, should be done to ensure usage of this
+  # when necessary as well as keeping it updated with the most useful and
+  # common defaults.
+  def default_password_collection
+    @default_password_collection ||= prepend_db_passwords(
+      Metasploit::Framework::CredentialCollection.new(
+        blank_passwords: datastore['BLANK_PASSWORDS'],
+        pass_file: datastore['PASS_FILE'],
+        password: datastore['PASSWORD'],
+        user_file: datastore['USER_FILE'],
+        userpass_file: datastore['USERPASS_FILE'],
+        username: datastore['USERNAME'],
+        user_as_pass: datastore['USER_AS_PASS']
+      )
+    )
+  end
+
   # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing NTLMHashes
   # from the database. This allows the users to use the DB_ALL_CREDS option.
   #
@@ -149,6 +174,9 @@ module Auxiliary::AuthBrute
     cred_collection.add_public(msf_cred.public) if datastore['DB_ALL_USERS']
   end
 
+  def credentials
+    @credentials ||= adjust_credentials_by_max_user(build_credentials_array())
+  end
 
   # Checks all three files for usernames and passwords, and combines them into
   # one credential list to apply against the supplied block. The block (usually
@@ -168,12 +196,8 @@ module Auxiliary::AuthBrute
 
     # This should kinda halfway be in setup, halfway in run... need to
     # revisit this.
-    unless credentials ||= false # Assignment and comparison!
-      credentials ||= build_credentials_array()
-      credentials = adjust_credentials_by_max_user(credentials)
-      this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
-      initialize_class_variables(this_service,credentials)
-    end
+    this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
+    initialize_class_variables(this_service,credentials)
 
     credentials.each do |u, p|
       # Explicitly be able to set a blank (zero-byte) username by setting the
