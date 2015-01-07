@@ -2834,73 +2834,72 @@ class Core
     res = []
     res << o.default.to_s if o.default
 
-    case o.class.to_s
-
-      when 'Msf::OptAddress'
-        case o.name.upcase
-          when 'RHOST'
-            option_values_target_addrs().each do |addr|
-              res << addr
-            end
-          when 'LHOST'
-            rh = self.active_module.datastore["RHOST"]
-            if rh and not rh.empty?
-              res << Rex::Socket.source_address(rh)
-            else
-              res << Rex::Socket.source_address()
-            end
-          else
+    case o
+    when Msf::OptAddress
+      case o.name.upcase
+      when 'RHOST'
+        option_values_target_addrs().each do |addr|
+          res << addr
         end
-
-      when 'Msf::OptAddressRange'
-        case str
-          when /^file:(.*)/
-            files = tab_complete_filenames($1, words)
-            res += files.map { |f| "file:" + f } if files
-          when /\/$/
-            res << str+'32'
-            res << str+'24'
-            res << str+'16'
-          when /\-$/
-            res << str+str[0, str.length - 1]
-          else
-            option_values_target_addrs().each do |addr|
-              res << addr+'/32'
-              res << addr+'/24'
-              res << addr+'/16'
-            end
+      when 'LHOST'
+        rh = self.active_module.datastore["RHOST"]
+        if rh and not rh.empty?
+          res << Rex::Socket.source_address(rh)
+        else
+          res << Rex::Socket.source_address()
         end
+      else
+      end
 
-      when 'Msf::OptPort'
-        case o.name.upcase
-          when 'RPORT'
-          option_values_target_ports().each do |port|
-            res << port
-          end
+    when Msf::OptAddressRange
+      case str
+      when /^file:(.*)/
+        files = tab_complete_filenames($1, words)
+        res += files.map { |f| "file:" + f } if files
+      when /\/$/
+        res << str+'32'
+        res << str+'24'
+        res << str+'16'
+      when /\-$/
+        res << str+str[0, str.length - 1]
+      else
+        option_values_target_addrs().each do |addr|
+          res << addr+'/32'
+          res << addr+'/24'
+          res << addr+'/16'
         end
+      end
 
-        if (res.empty?)
-          res << (rand(65534)+1).to_s
+    when Msf::OptPort
+      case o.name.upcase
+      when 'RPORT'
+        option_values_target_ports().each do |port|
+          res << port
         end
+      end
 
-      when 'Msf::OptEnum'
-        o.enums.each do |val|
-          res << val
-        end
+      if (res.empty?)
+        res << (rand(65534)+1).to_s
+      end
 
-      when 'Msf::OptPath'
-        files = tab_complete_filenames(str, words)
-        res += files if files
+    when Msf::OptEnum
+      o.enums.each do |val|
+        res << val
+      end
 
-      when 'Msf::OptBool'
-        res << 'true'
-        res << 'false'
+    when Msf::OptPath
+      files = tab_complete_filenames(str, words)
+      res += files if files
 
-      when 'Msf::OptString'
-        if (str =~ /^file:(.*)/)
-          files = tab_complete_filenames($1, words)
-          res += files.map { |f| "file:" + f } if files
-        end
+    when Msf::OptBool
+      res << 'true'
+      res << 'false'
+
+    when Msf::OptString
+      if (str =~ /^file:(.*)/)
+        files = tab_complete_filenames($1, words)
+        res += files.map { |f| "file:" + f } if files
+      end
     end
 
     return res

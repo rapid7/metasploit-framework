@@ -1291,7 +1291,7 @@ class Site
     xml << ' <ScanTriggers>'
     @site_config.scanConfig.scanTriggers.each do |s|
 
-      if (s.class.to_s == "Nexpose::AutoUpdate")
+      if s.kind_of?(Nexpose::AutoUpdate)
         xml << ' <autoUpdate enabled="' + s.enabled + '" incremental="' + s.incremental + '"/>'
       end
     end
