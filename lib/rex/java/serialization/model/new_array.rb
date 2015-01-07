@@ -109,6 +109,11 @@ module Rex
 
             desc = array_description.description
 
+            if desc.class == Reference
+              ref = desc.handle - BASE_WIRE_HANDLE
+              desc = stream.references[ref]
+            end
+
             unless desc.class_name.contents[0] == '[' # Array
               raise ::RuntimeError, 'Unsupported NewArray description'
             end
