@@ -112,7 +112,7 @@ module Auxiliary::AuthBrute
   #    the credential collection to add to
   # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
   def prepend_db_keys(cred_collection)
-    if datastore['DB_ALL_CREDS'] && framework.db.active
+    if prepend_db_creds?
       each_ssh_cred do |cred|
         process_cred_for_collection(cred_collection,cred)
       end
@@ -127,7 +127,7 @@ module Auxiliary::AuthBrute
   #    the credential collection to add to
   # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
   def prepend_db_passwords(cred_collection)
-    if datastore['DB_ALL_CREDS'] && framework.db.active
+    if prepend_db_creds?
       each_password_cred do |cred|
         process_cred_for_collection(cred_collection,cred)
       end
