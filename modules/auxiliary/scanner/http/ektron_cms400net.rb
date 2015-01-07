@@ -124,11 +124,11 @@ class Metasploit3 < Msf::Auxiliary
       end
   end
 
-  def do_login(user=nil, pass=nil, viewstate=viewstate, eventvalidation=eventvalidation)
+  def do_login(user=nil, pass=nil, viewstate_arg=viewstate, eventvalidation_arg=eventvalidation)
     vprint_status("#{target_url} - Trying: username:'#{user}' with password:'#{pass}'")
 
-    post_data =  "__VIEWSTATE=#{Rex::Text.uri_encode(viewstate.to_s)}"
-    post_data << "&__EVENTVALIDATION=#{Rex::Text.uri_encode(eventvalidation.to_s)}"
+    post_data =  "__VIEWSTATE=#{Rex::Text.uri_encode(viewstate_arg.to_s)}"
+    post_data << "&__EVENTVALIDATION=#{Rex::Text.uri_encode(eventvalidation_arg.to_s)}"
     post_data << "&username=#{Rex::Text.uri_encode(user.to_s)}"
     post_data << "&password=#{Rex::Text.uri_encode(pass.to_s)}"
 
