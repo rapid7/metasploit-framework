@@ -21,6 +21,7 @@ describe Msf::Auxiliary::AuthBrute do
   describe '::setup' do
     it 'should create a useful-but-empty default password collection by default' do
       expect(subject.default_password_collection).not_to be_nil
+      expect(subject.default_password_collection.credentials).to be_empty
       expect(subject.credentials).to be_empty
     end
   end
