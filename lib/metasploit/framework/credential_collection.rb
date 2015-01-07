@@ -2,6 +2,18 @@ require 'metasploit/framework/credential'
 
 class Metasploit::Framework::CredentialCollection
 
+  # @!attribute additional_privates
+  #   Additional privates to be combined
+  #
+  #   @return [Array<String>]
+  attr_accessor :additional_privates
+
+  # @!attribute additional_publics
+  #   Additional public to be combined
+  #
+  #   @return [Array<String>]
+  attr_accessor :additional_publics
+
   # @!attribute blank_passwords
   #   Whether each username should be tried with a blank password
   #   @return [Boolean]
@@ -60,6 +72,24 @@ class Metasploit::Framework::CredentialCollection
       public_send("#{attribute}=", value)
     end
     self.prepended_creds ||= []
+  end
+
+  # Adds a string as an addition private credential
+  # to be combined in the collection.
+  #
+  # @param [String] :private_str the string to use as a private
+  # @return [void]
+  def add_private(private_str='')
+    additional_privates << private_str
+  end
+
+  # Adds a string as an addition public credential
+  # to be combined in the collection.
+  #
+  # @param [String] :public_str the string to use as a public
+  # @return [void]
+  def add_public(public_str='')
+    additional_publics << public_str
   end
 
   # Add {Credential credentials} that will be yielded by {#each}
