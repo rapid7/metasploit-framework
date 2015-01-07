@@ -885,7 +885,6 @@ class Db
             core.private ? core.private.class.model_name.human : "",
           ]
         else
-          rhosts = []
           core.logins.each do |login|
             if svcs.present? && !svcs.include?(login.service.name)
               next
