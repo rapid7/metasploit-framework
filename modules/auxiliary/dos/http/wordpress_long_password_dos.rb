@@ -102,8 +102,9 @@ class Metasploit3 < Msf::Auxiliary
         ubound = [rlimit - (starting_thread - 1), thread_count].min
         print_status("#{peer} - Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
 
-        threads = (1..ubound).map do |i|
-          Thread.new(i) do |i|
+        threads = []
+        1.upto(ubound) do |i|
+          threads << framework.threads.spawn("Module(#{self.refname})-request#{(starting_thread - 1) + i}", false, i) do |i|
             begin
               wordpress_login(username, Rex::Text.rand_text_alpha(plength), timeout)
             rescue => e
