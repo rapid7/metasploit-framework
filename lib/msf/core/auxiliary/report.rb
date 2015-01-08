@@ -12,6 +12,38 @@ module Auxiliary::Report
 
   optionally_include_metasploit_credential_creation
 
+  def create_cracked_credential(opts={})
+    if active_db?
+      super(opts)
+    else
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential(opts={})
+    if active_db?
+      super(opts)
+    else
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential_login(opts={})
+    if active_db?
+      super(opts)
+    else
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def invalidate_login(opts={})
+    if active_db?
+      super(opts)
+    else
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
   # This method overrides the method from Metasploit::Credential to check for an active db
   def active_db?
     framework.db.active
