@@ -16,7 +16,7 @@ module Auxiliary::Report
     if active_db?
       super(opts)
     else
-      print_error "There does not appear to be a functioning DB, Credential Data will not be saved!"
+      vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
 
@@ -24,7 +24,7 @@ module Auxiliary::Report
     if active_db?
       super(opts)
     else
-      print_error "There does not appear to be a functioning DB, Credential Data will not be saved!"
+      vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
 
@@ -32,7 +32,7 @@ module Auxiliary::Report
     if active_db?
       super(opts)
     else
-      print_error "There does not appear to be a functioning DB, Credential Data will not be saved!"
+      vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
 
@@ -40,7 +40,7 @@ module Auxiliary::Report
     if active_db?
       super(opts)
     else
-      print_error "There does not appear to be a functioning DB, Credential Data will not be saved!"
+      vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
 
