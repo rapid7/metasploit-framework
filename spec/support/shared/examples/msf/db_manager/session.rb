@@ -21,6 +21,8 @@ shared_examples_for 'Msf::DBManager::Session' do
         end
 
         context 'with Msf::Session' do
+          include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
           let(:exploit_datastore) do
             Msf::ModuleDataStore.new(module_instance).tap do |datastore|
               datastore['ParentModule'] = parent_module_fullname

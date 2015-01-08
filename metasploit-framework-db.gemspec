@@ -12,6 +12,7 @@ end
 
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
+require 'metasploit/framework/rails_version_constraint'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework-db'
@@ -26,13 +27,11 @@ Gem::Specification.new do |spec|
   # no files, just dependencies
   spec.files         = []
 
-  rails_version_constraint = ['>= 4.0.9', '< 4.1.0']
-
-  spec.add_runtime_dependency 'activerecord', rails_version_constraint
+  spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Metasploit::Credential database models
-  #spec.add_runtime_dependency 'metasploit-credential'
+  #spec.add_runtime_dependency 'metasploit-credential', '~> 0.13.11'
   # Database models shared between framework and Pro.
-  #spec.add_runtime_dependency 'metasploit_data_models'
+  #spec.add_runtime_dependency 'metasploit_data_models', '~> 0.21.3'
   # depend on metasploit-framewrok as the optional gems are useless with the actual code
   spec.add_runtime_dependency 'metasploit-framework', "= #{spec.version}"
   # Needed for module caching in Mdm::ModuleDetails

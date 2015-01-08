@@ -126,7 +126,9 @@ class Metasploit3 < Msf::Post
   end
 
   # @return [String] hostname
-  def host; session.session_host; end
+  def host
+    session.session_host
+  end
 
   # @return [Bool] system version is 10.7
   def lion?

@@ -7,6 +7,8 @@ shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
   end
 
   context 'with cached module in Msf::ModuleSet' do
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
     let(:module_set) do
       framework.exploits
     end

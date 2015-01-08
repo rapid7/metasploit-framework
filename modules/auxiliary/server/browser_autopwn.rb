@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
       }
 
       function bodyOnLoad() {
-        var detected_version = window.os_detect.getVersion();
+        var detected_version = os_detect.getVersion();
         //#{js_debug('detected_version')}
         report_and_get_exploits(detected_version);
       } // function bodyOnLoad
@@ -851,7 +851,7 @@ class Metasploit3 < Msf::Auxiliary
       return !! client_str.match(module_spec)
     when ::Array
       return !! exploit_spec.map{ |spec|
-        client_matches_module_spec?(client_str, spec) 
+        client_matches_module_spec?(client_str, spec)
       }.include?(true)
     end
 
@@ -935,7 +935,6 @@ class Metasploit3 < Msf::Auxiliary
         detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
         print_status("JavaScript Report: #{detected_version}")
 
-    
         (os_name, os_vendor, os_flavor, os_device, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
         if framework.db.active
@@ -947,7 +946,7 @@ class Metasploit3 < Msf::Auxiliary
           note_data['os.version']   = os_sp     if os_sp != 'undefined'
           note_data['os.language']  = os_lang   if os_lang != 'undefined'
           note_data['os.arch']      = arch      if arch != 'undefined'
-          note_data['os.certainty'] = '0.7' 
+          note_data['os.certainty'] = '0.7'
           print_status("Reporting: #{note_data.inspect}")
 
           # Reporting stuff isn't really essential since we store all

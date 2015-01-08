@@ -25,6 +25,12 @@ class Metasploit3 < Msf::Auxiliary
       OptBool.new('RANDOMIZE_PORTS', [false, 'Randomize the order the ports are probed', true])
     ], self.class)
 
+    # RPORT is required by UDPScanner but not used in this module since it
+    # works with multiple ports.
+    # TODO: update this module to simply use Scanner or update UDPScanner to support
+    # multiple ports.
+    deregister_options('RPORT')
+
     # Intialize the probes array
     @probes = []
 

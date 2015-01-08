@@ -125,7 +125,7 @@ class Metasploit3 < Msf::Post
         print_good("Account Found:")
         print_status("     Type: #{type}")
         print_status("     User Display Name: #{displayname}")
-        print_status("     User E-mail Address: #{email}")
+        print_status("     User Email Address: #{email}")
 
         if type == "POP3"
           pop3_pw = get_valdata(k, 'POP3 Password')

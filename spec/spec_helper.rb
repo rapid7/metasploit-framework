@@ -1,7 +1,9 @@
 # -*- coding: binary -*-
 ENV['RAILS_ENV'] = 'test'
 
-require 'simplecov'
+unless Bundler.settings.without.include?(:coverage)
+  require 'simplecov'
+end
 
 # @note must be before loading config/environment because railtie needs to be loaded before
 #   `Metasploit::Framework::Application.initialize!` is called.
@@ -19,6 +21,8 @@ require 'rspec/rails/extensions'
 require 'rspec/rails/fixture_support'
 require 'rspec/rails/matchers'
 require 'rspec/rails/mocks'
+
+require 'metasploit/framework/spec'
 
 FILE_FIXTURES_PATH = File.expand_path(File.dirname(__FILE__)) + '/file_fixtures/'
 
@@ -55,3 +59,6 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 end
+
+Metasploit::Framework::Spec::Constants::Suite.configure!
+Metasploit::Framework::Spec::Threads::Suite.configure!

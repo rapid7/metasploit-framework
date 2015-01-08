@@ -12,6 +12,7 @@ end
 
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
+require 'metasploit/framework/rails_version_constraint'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
@@ -46,12 +47,11 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  rails_version_constraints = ['>= 4.0.9', '< 4.1.0']
 
   # Need 3+ for ActiveSupport::Concern
-  spec.add_runtime_dependency 'activesupport', *rails_version_constraints
+  spec.add_runtime_dependency 'activesupport', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for config.action_view for view plugin compatibility for Pro
-  spec.add_runtime_dependency 'actionpack', *rails_version_constraints
+  spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
@@ -64,7 +64,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   #spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter on Windows, soon others.
-  spec.add_runtime_dependency 'meterpreter_bins', '0.0.11'
+  spec.add_runtime_dependency 'meterpreter_bins', '0.0.12'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # Needed by anemone crawler
