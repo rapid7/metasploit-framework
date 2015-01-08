@@ -12,7 +12,7 @@ module Msf::Post::Windows::Runas
   def shell_execute_exe(filename = nil, path = nil)
     exe_payload = generate_payload_exe
     payload_filename = filename || Rex::Text.rand_text_alpha((rand(8) + 6)) + '.exe'
-    payload_path = path || expand_path('%TEMP%')
+    payload_path = path || get_env('TEMP')
     cmd_location = "#{payload_path}\\#{payload_filename}"
     print_status("Uploading #{payload_filename} - #{exe_payload.length} bytes to the filesystem...")
     write_file(cmd_location, exe_payload)
