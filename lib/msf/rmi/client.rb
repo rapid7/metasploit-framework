@@ -38,10 +38,8 @@ module Msf
       def send_header(opts = {})
         nsock = opts[:sock] || sock
         stream = build_header(opts)
-        nsock.put(stream.encode)
-        res = nsock.get_once
-        res_io = StringIO.new(res)
-        ack = Rex::Proto::Rmi::Model::ProtocolAck.decode(res_io)
+        nsock.put(stream.encode + "\x00\x00\x00\x00\x00\x00")
+        ack = Rex::Proto::Rmi::Model::ProtocolAck.decode(nsock)
 
         ack
       end
@@ -49,15 +47,13 @@ module Msf
       # Sends a RMI CALL stream and reads the ReturnData
       #
       # @param opts [Hash]
-      # @return [Rex::Java::Serialization::Model::Stream]
-      # @raise [RuntimeError]
+      # @return [Rex::Java::Serialization::Model::Stream] the call return value
+      # @raise [RuntimeError] when the response can't be decoded
       def send_call(opts = {})
         nsock = opts[:sock] || sock
         stream = build_call(opts)
         nsock.put(stream.encode)
-        res = nsock.get_once
-        res_io = StringIO.new(res)
-        return_data = Rex::Proto::Rmi::Model::ReturnData.decode(res_io)
+        return_data = Rex::Proto::Rmi::Model::ReturnData.decode(nsock)
 
         return_data.return_value
       end
