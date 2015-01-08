@@ -7,6 +7,9 @@ module Msf
   module Rmi
     module Client
 
+      require 'msf/rmi/client/streams'
+
+      include Msf::Rmi::Client::Streams
       include Exploit::Remote::Tcp
 
       # Returns the target host
