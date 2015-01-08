@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
     jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
     jar_url = "file:RMIClassLoaderSecurityTest/" + jar
     begin
-      return_data = send_call(call_data: build_gc_call(jar_url))
+      return_data = send_call(call_data: build_gc_call_data(jar_url))
     rescue ::RuntimeError
       print_error("#{peer} - Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
