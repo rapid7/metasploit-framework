@@ -908,7 +908,7 @@ class Db
         ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
         print_status("Wrote creds to #{output_file}")
       end
-      
+
       print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
   end
@@ -1138,7 +1138,7 @@ class Db
   end
 
   def make_sortable(input)
-    case input.class
+    case input
     when String
       input = input.downcase
     when Fixnum
