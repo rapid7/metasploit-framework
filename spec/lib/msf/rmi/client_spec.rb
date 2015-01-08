@@ -11,7 +11,7 @@ class MyStringIO < StringIO
     write(data)
   end
 
-  def get_once
+  def get_once(length = -1, timeout = 10)
     read
   end
 end
