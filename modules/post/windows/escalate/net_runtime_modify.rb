@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Post
 
   require 'msf/core/module/deprecated'
   include Msf::Module::Deprecated
-  deprecated Date.new(2014, 6, 17), 'exploit/windows/local/service_permissions'
+  deprecated Date.new(2015, 1, 8), 'exploit/windows/local/service_permissions'
 
   include Msf::Post::Windows::Services
 
