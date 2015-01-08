@@ -12,7 +12,7 @@ module Msf::Post::File
     if session.type == "meterpreter"
       session.fs.dir.chdir(e_path)
     else
-      session.shell_command_token("cd '#{e_path}'")
+      session.shell_command_token("cd \"#{e_path}\"")
     end
   end
 
@@ -67,7 +67,7 @@ module Msf::Post::File
       if session.platform =~ /win/
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
       else
-        f = session.shell_command_token("test -d '#{path}' && echo true")
+        f = session.shell_command_token("test -d \"#{path}\" && echo true")
       end
 
       return false if f.nil? or f.empty?
@@ -104,7 +104,7 @@ module Msf::Post::File
           f = cmd_exec("cmd.exe /C IF exist \"#{path}\\\\\" ( echo false ) ELSE ( echo true )")
         end
       else
-        f = session.shell_command_token("test -f '#{path}' && echo true")
+        f = session.shell_command_token("test -f \"#{path}\" && echo true")
       end
 
       return false if f.nil? or f.empty?
@@ -127,7 +127,7 @@ module Msf::Post::File
       if session.platform =~ /win/
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
       else
-        f = cmd_exec("test -e '#{path}' && echo true")
+        f = cmd_exec("test -e \"#{path}\" && echo true")
       end
 
       return false if f.nil? or f.empty?
@@ -261,7 +261,7 @@ module Msf::Post::File
       if session.platform =~ /win/
         data = session.shell_command_token("type \"#{file_name}\"")
       else
-        data = session.shell_command_token("cat \'#{file_name}\'")
+        data = session.shell_command_token("cat \"#{file_name}\"")
       end
 
     end
@@ -340,7 +340,7 @@ module Msf::Post::File
         if session.platform =~ /win/
           cmd_exec("del /q /f \"#{remote}\"")
         else
-          cmd_exec("rm -f '#{remote}'")
+          cmd_exec("rm -f \"#{remote}\"")
         end
       end
     end
@@ -522,7 +522,7 @@ protected
     # The first command needs to use the provided redirection for either
     # appending or truncating.
     cmd = command.sub("CONTENTS") { chunks.shift }
-    session.shell_command_token("#{cmd} #{redirect} '#{file_name}'")
+    session.shell_command_token("#{cmd} #{redirect} \"#{file_name}\"")
 
     # After creating/truncating or appending with the first command, we
     # need to append from here on out.
