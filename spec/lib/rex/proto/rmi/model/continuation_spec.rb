@@ -19,7 +19,7 @@ describe Rex::Proto::Rmi::Model::Continuation do
 
   describe "#decode" do
     it "returns the Rex::Proto::Rmi::Model::Continuation decoded" do
-      expect(continuation.decode(sample_io)).to eq(protocol_ack)
+      expect(continuation.decode(sample_io)).to eq(continuation)
     end
 
     it "decodes length correctly" do
@@ -41,7 +41,7 @@ describe Rex::Proto::Rmi::Model::Continuation do
   describe "#encode" do
     it "encodes the Continuation correctly" do
       continuation.address = '172.16.158.132'
-      continuation.length = protocol_ack.address.length
+      continuation.length = continuation.address.length
       continuation.port = 0
 
       expect(continuation.encode).to eq(sample)
