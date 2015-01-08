@@ -7,12 +7,29 @@ require 'msf/rmi/client'
 
 class MyStringIO < StringIO
 
-  DEFAULT_HEADER         = "JRMI\x00\x02\x4b\x00\x00\x00\x00\x00\x00"
-  MULTIPLEX_HEADER       = "JRMI\x00\x02\x4d\x00\x00\x00\x00\x00\x00"
-  PROTOCOL_ACK           = "\x4e\x00\x0e\x31\x37\x32\x2e\x31\x36\x2e\x31\x35\x38\x2e\x31\x33\x32\x00\x00\x06\xea"
-  PROTOCOL_NOT_SUPPORTED = "\x4f"
-  DEFAULT_CALL           = "\x50\xac\xed\x00\x05"
-  RETURN_DATA            =
+  def put(data)
+    write(data)
+  end
+
+  def get_once
+    read
+  end
+end
+
+describe Msf::Rmi::Client do
+  subject(:mod) do
+    mod = ::Msf::Exploit.new
+    mod.extend ::Msf::Rmi::Client
+    mod.send(:initialize)
+    mod
+  end
+
+  let(:io) { MyStringIO.new('', 'w+b') }
+  let(:protocol_not_supported) { "\x4f" }
+  let(:protocol_not_supported_io) { MyStringIO.new(protocol_not_supported) }
+  let(:protocol_ack) { "\x4e\x00\x0e\x31\x37\x32\x2e\x31\x36\x2e\x31\x35\x38\x2e\x31\x33\x32\x00\x00\x06\xea" }
+  let(:protocol_ack_io) { MyStringIO.new(protocol_ack) }
+  let(:return_data) do
     "\x51\xac\xed\x00\x05\x77\x0f\x01\xd2\x4f\xdf\x47\x00\x00\x01\x49" +
     "\xb5\xe4\x92\x78\x80\x15\x73\x72\x00\x12\x6a\x61\x76\x61\x2e\x72" +
     "\x6d\x69\x2e\x64\x67\x63\x2e\x4c\x65\x61\x73\x65\xb0\xb5\xe2\x66" +
@@ -31,61 +48,46 @@ class MyStringIO < StringIO
     "\x36\x4f\x12\x02\x00\x03\x53\x00\x05\x63\x6f\x75\x6e\x74\x4a\x00" +
     "\x04\x74\x69\x6d\x65\x49\x00\x06\x75\x6e\x69\x71\x75\x65\x70\x78" +
     "\x70\x80\x01\x00\x00\x01\x49\xb5\xf8\x00\xea\xe9\x62\xc1\xc0"
-
-  def put(data)
-    case data
-    when DEFAULT_HEADER
-      seek(0)
-      write(PROTOCOL_ACK)
-      seek(0)
-    when MULTIPLEX_HEADER
-      seek(0)
-      write(PROTOCOL_NOT_SUPPORTED)
-      seek(0)
-    when DEFAULT_CALL
-      seek(0)
-      write(RETURN_DATA)
-      seek(0)
-    else
-      write(data)
-    end
   end
-
-  def get_once(length, timeout = 10)
-    read(length)
-  end
-end
-
-describe Msf::Rmi::Client do
-  subject(:mod) do
-    mod = ::Msf::Exploit.new
-    mod.extend ::Msf::Rmi::Client
-    mod.send(:initialize)
-    mod
-  end
-
-  let(:io) { MyStringIO.new('', 'w+b') }
+  let(:return_io) { MyStringIO.new(return_data) }
 
   describe "#send_header" do
-    context "when end point returns protocol ack" do
-      it "returns a Rex::Proto::Rmi::Model::ProtocolAck" do
-        expect(mod.send_header(sock: io)).to be_a(Rex::Proto::Rmi::Model::ProtocolAck)
-      end
-    end
-
-    context "when end point returns protocol not supported" do
-      it "raises RuntimeError" do
-        expect do
-          mod.send_header(sock: io, protocol: Rex::Proto::Rmi::Model::MULTIPLEX_PROTOCOL)
-        end.to raise_error(::RuntimeError)
-      end
+    it "returns the number of bytes sent" do
+      expect(mod.send_header(sock: io)).to eq(13)
     end
   end
 
   describe "#send_call" do
+    it "returns the number of bytes sent" do
+      expect(mod.send_call(sock: io)).to eq(5)
+    end
+  end
+
+
+  describe "#recv_protocol_ack" do
+    context "when end point returns protocol ack" do
+      it "returns a Rex::Proto::Rmi::Model::ProtocolAck" do
+        expect(mod.recv_protocol_ack(sock: protocol_ack_io)).to be_a(Rex::Proto::Rmi::Model::ProtocolAck)
+      end
+    end
+
+    context "when end point returns protocol not supported" do
+      it "return nil" do
+        expect(mod.recv_protocol_ack(sock: protocol_not_supported_io)).to be_nil
+      end
+    end
+  end
+
+  describe "#recv_return" do
     context "when end point returns a value to the call" do
       it "returns a Rex::Java::Serialization::Model::Stream" do
-        expect(mod.send_call(sock: io)).to be_a(Rex::Java::Serialization::Model::Stream)
+        expect(mod.recv_return(sock: return_io)).to be_a(Rex::Java::Serialization::Model::Stream)
+      end
+    end
+
+    context "when end point doesn't return a value to the call" do
+      it "returns nil" do
+        expect(mod.recv_return(sock: io)).to be_nil
       end
     end
   end
