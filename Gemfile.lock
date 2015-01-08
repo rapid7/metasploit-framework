@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: 1e5a5af75e9a8f431c7202160863aafa97d4dbe4
+  revision: 33551619d0f0504d4640e7b5dd9135fdeda71670
   branch: staging/rails-4.0
   specs:
-    metasploit-credential (1.0.0.pre.rails.pre.4.0)
+    metasploit-credential (1.0.11.pre.rails.pre.4.0)
       metasploit-concern
       metasploit-model
       metasploit_data_models
@@ -52,8 +52,8 @@ PATH
   remote: .
   specs:
     metasploit-framework (4.11.0.pre.dev)
-      actionpack (>= 4.0.0, < 4.1.0)
-      activesupport (>= 4.0.0, < 4.1.0)
+      actionpack (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
       bcrypt
       jsobfu (~> 0.2.0)
       json
@@ -69,7 +69,7 @@ PATH
       sqlite3
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
-      activerecord (>= 4.0.0, < 4.1.0)
+      activerecord (>= 4.0.9, < 4.1.0)
       metasploit-framework (= 4.11.0.pre.dev)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
