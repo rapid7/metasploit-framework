@@ -13,33 +13,33 @@ module Auxiliary::Report
   optionally_include_metasploit_credential_creation
 
   def create_cracked_credential(opts={})
-    begin
+    if active_db?
       super(opts)
-    rescue NoMethodError => e
+    else
       print_error "There does not appear to be a functioning DB, Credential Data will not be saved!"
     end
   end
 
   def create_credential(opts={})
-    begin
+    if active_db?
       super(opts)
-    rescue NoMethodError => e
+    else
       print_error "There does not appear to be a functioning DB, Credential Data will not be saved!"
     end
   end
 
   def create_credential_login(opts={})
-    begin
+    if active_db?
       super(opts)
-    rescue NoMethodError => e
+    else
       print_error "There does not appear to be a functioning DB, Credential Data will not be saved!"
     end
   end
 
   def invalidate_login(opts={})
-    begin
+    if active_db?
       super(opts)
-    rescue NoMethodError => e
+    else
       print_error "There does not appear to be a functioning DB, Credential Data will not be saved!"
     end
   end
