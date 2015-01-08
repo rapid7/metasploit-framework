@@ -101,7 +101,12 @@ module Msf
       # @return [String]
       def safe_get_once(nsock = sock)
         data = ''
-        res = nsock.get_once
+        begin
+          res = nsock.get_once
+        rescue ::EOFError
+          res = nil
+        end
+
         until res.nil? || res.length < 1448
           data << res
           begin
