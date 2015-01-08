@@ -62,9 +62,9 @@ module Msf
         nsock = opts[:sock] || sock
         stream = build_call(opts)
         nsock.put(stream.encode)
-        return_data = Rex::Proto::Rmi::Model::ReturnData.decode(nsock)
+        #return_data = Rex::Proto::Rmi::Model::ReturnData.decode(nsock)
 
-        return_data.return_value
+        #return_data.return_value
       end
     end
   end
