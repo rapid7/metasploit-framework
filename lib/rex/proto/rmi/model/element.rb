@@ -27,7 +27,7 @@ module Rex
           # @return [Rex::Proto::Rmi::Model::Element]
           def self.decode(io)
             elem = self.new
-            elem.decode(input)
+            elem.decode(io)
 
             elem
           end
