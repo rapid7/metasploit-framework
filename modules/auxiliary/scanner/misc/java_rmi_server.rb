@@ -37,9 +37,10 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(target_host)
     vprint_status("#{peer} - Sending RMI Header...")
     connect
-    begin
-      send_header
-    rescue ::RuntimeError
+
+    send_header
+    ack = recv_protocol_ack
+    if ack.nil?
       print_error("#{peer} - Filed to negotiate RMI protocol")
       disconnect
       return
@@ -49,15 +50,15 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer} - Sending RMI Call...")
     jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
     jar_url = "file:RMIClassLoaderSecurityTest/" + jar
-    begin
-      return_data = send_call(call_data: build_gc_call_data(jar_url))
-    rescue ::RuntimeError
+
+    send_call(call_data: build_gc_call_data(jar_url))
+    return_data = recv_return
+
+    if return_data.nil?
       print_error("#{peer} - Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
-      disconnect
       return
     end
-    disconnect
 
     if loader_enabled?(return_data)
       print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
@@ -73,22 +74,16 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
     end
-
   end
 
   def loader_enabled?(stream)
     stream.contents.each do |content|
       if content.class == Rex::Java::Serialization::Model::NewObject &&
           content.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
-          content.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'
-
-        if content.class_data[0].class == Rex::Java::Serialization::Model::NullReference &&
-            content.class_data[1].contents.include?('RMI class loader disabled')
-          return false
-        else
+          content.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
+          content.class_data[0].class == Rex::Java::Serialization::Model::NullReference &&
+          !content.class_data[1].contents.include?('RMI class loader disabled')
           return true
-        end
-
       end
     end
 

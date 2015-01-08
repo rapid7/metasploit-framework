@@ -33,38 +33,86 @@ module Msf
         "#{rhost}:#{rport}"
       end
 
-      # Sends a RMI header stream and reads the Protocol Ack
+      # Sends a RMI header stream
       #
       # @param opts [Hash]
       # @option opts [Rex::Socket::Tcp] :sock
-      # @return [Rex::Proto::Rmi::Model::ProtocolAck]
-      # @raise [RuntimeError]
-      # @see #build_header
-      # @see Rex::Proto::Rmi::Model::ProtocolAck.decode
+      # @return [Fixnum] the number of bytes sent
+      # @see Msf::Rmi::Client::Streams#build_header
       def send_header(opts = {})
         nsock = opts[:sock] || sock
         stream = build_header(opts)
         nsock.put(stream.encode + "\x00\x00\x00\x00\x00\x00")
-        ack = Rex::Proto::Rmi::Model::ProtocolAck.decode(nsock)
-
-        ack
       end
 
-      # Sends a RMI CALL stream and reads the ReturnData
+      # Sends a RMI CALL stream
       #
       # @param opts [Hash]
       # @option opts [Rex::Socket::Tcp] :sock
-      # @return [Rex::Java::Serialization::Model::Stream] the call return value
-      # @raise [RuntimeError] when the response can't be decoded
-      # @see #build_call
-      # @see Rex::Proto::Rmi::Model::ReturnData.decode
+      # @return [Fixnum] the number of bytes sent
+      # @see Msf::Rmi::Client::Streams#build_call
       def send_call(opts = {})
         nsock = opts[:sock] || sock
         stream = build_call(opts)
         nsock.put(stream.encode)
-        #return_data = Rex::Proto::Rmi::Model::ReturnData.decode(nsock)
+      end
 
-        #return_data.return_value
+      # Reads the Protocol Ack
+      #
+      # @param opts [Hash]
+      # @option opts [Rex::Socket::Tcp] :sock
+      # @return [Rex::Proto::Rmi::Model::ProtocolAck]
+      # @see Rex::Proto::Rmi::Model::ProtocolAck.decode
+      def recv_protocol_ack(opts = {})
+        nsock = opts[:sock] || sock
+        data = safe_get_once(nsock)
+        begin
+          ack = Rex::Proto::Rmi::Model::ProtocolAck.decode(StringIO.new(data))
+        rescue ::RuntimeError
+          return nil
+        end
+
+        ack
+      end
+
+      # Reads a ReturnData message and returns the java serialized stream
+      # with the return data value.
+      #
+      # @param opts [Hash]
+      # @option opts [Rex::Socket::Tcp] :sock
+      # @return [Rex::Java::Serialization::Stream]
+      # @see Rex::Proto::Rmi::Model::ReturnData.decode
+      def recv_return(opts = {})
+        nsock = opts[:sock] || sock
+        data = safe_get_once(nsock)
+        begin
+          return_data = Rex::Proto::Rmi::Model::ReturnData.decode(StringIO.new(data))
+        rescue ::RuntimeError
+          return nil
+        end
+
+        return_data.return_value
+      end
+
+      # Helper method to read fragmented data from a ```Rex::Socket::Tcp```
+      #
+      # @param opts [Hash]
+      # @option opts [Rex::Socket::Tcp] :sock
+      # @return [String]
+      def safe_get_once(nsock = sock)
+        data = ''
+        res = nsock.get_once
+        until res.nil? || res.length < 1448
+          data << res
+          begin
+            res = nsock.get_once
+          rescue ::EOFError
+            res = nil
+          end
+        end
+
+        data << res if res
+        data
       end
     end
   end
