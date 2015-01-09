@@ -68,6 +68,10 @@ class Db
     ]
   end
 
+  def allowed_cred_types
+    %w(password ntlm hash)
+  end
+
   #
   # Returns true if the db is connected, prints an error and returns
   # false if not.
@@ -676,7 +680,7 @@ class Db
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
-    print_line "  -t,--type <type>      List creds that match the following types: (password,ntlm,hash)"
+    print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 
     print_line
@@ -838,6 +842,9 @@ class Db
                Metasploit::Credential::PasswordHash
              when 'ntlm'
                Metasploit::Credential::NTLMHash
+             else
+               print_error("Unrecognized credential type #{ptype} -- must be one of #{allowed_cred_types.join(',')}")
+               return
              end
     end
 
