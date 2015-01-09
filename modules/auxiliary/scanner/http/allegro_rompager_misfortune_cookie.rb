@@ -34,6 +34,12 @@ class Metasploit4 < Msf::Auxiliary
       'DisclosureDate' => 'Dec 17 2014',
       'License' => MSF_LICENSE
     ))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'URI to test', '/'])
+      ], Exploit::Remote::HttpClient
+    )
   end
 
   def check_host(_ip)
