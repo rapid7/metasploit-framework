@@ -47,8 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     uri = normalize_uri(target_uri.to_s)
-    mac = Rex::Text.uri_encode(datastore["MAC"])
-    forward_to = Rex::Text.uri_encode(datastore["FORWARDTO"])
+    mac = datastore["MAC"]
+    forward_to = datastore["FORWARDTO"]
 
     print_status("#{peer} - Getting fintnumbers and display names of the IP phone")
 
