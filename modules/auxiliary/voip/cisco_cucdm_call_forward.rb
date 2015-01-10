@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'Viproy CUCDM IP Phone XML Services - Call Forwarding Tool',
       'Description' => %q{
         The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager
-        (CDM) in CDM 10 does not properly implement access control, which allows remote attackers
-        to modify user information. This module exploits the vulnerability for unauthorized call
-        forwarding.
+        (CDM) 10 does not properly implement access control, which allows remote attackers to
+        modify user information. This module exploits the vulnerability for configure unauthorized
+        call forwarding.
       },
       'Author'      => 'fozavci',
       'References'  =>

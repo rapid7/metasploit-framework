@@ -14,11 +14,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'          => 'Viproy CUCDM IP Phone XML Services - Speed Dial Attack Tool',
       'Description'   => %q{
-        The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager (CDM)
-        in Unified CDM Application Software before 10 does not properly implement access control,
-        which allows remote attackers to modify user information. This vulnerability can be exploited
-        for unauthorised speeddial manipulation using this module. This tool can be tested with the fake
-        voss-xmlservice component of Viproy.
+        The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager
+        (CDM), before version 10, doesn't implement access control properly, which allows remote
+        attackers to modify user information. This module exploits the vulnerability to make
+        unauthorized speeddial manipulations.
       },
       'Author'        => 'fozavci',
       'References'    =>
