@@ -3,10 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
 require 'rexml/document'
-
 
 class Metasploit3 < Msf::Auxiliary
 

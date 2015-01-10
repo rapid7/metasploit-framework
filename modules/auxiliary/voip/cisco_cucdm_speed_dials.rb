@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -24,8 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     =>
           [
               ['CVE', '2014-3300'],
-              ['BID', '68331'],
-              ['Viproy Fake CUCDM Service', 'https://github.com/fozavci/viproy-voipkit/raw/master/external/voss-xmlservice.rb']
+              ['BID', '68331']
           ],
       'License'     => MSF_LICENSE,
       'Actions'     =>
