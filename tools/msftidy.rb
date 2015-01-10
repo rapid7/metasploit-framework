@@ -593,7 +593,7 @@ class Msftidy
   # This module then got copied and committed 20+ times and is used in numerous other places.
   # This ensures that this stops.
   def check_invalid_url_scheme
-    test = @source.scan(/^#.+http\/\/metasploit.com/)
+    test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
     unless test.empty?
       test.each { |item|
         info("Invalid URL: #{item}")
