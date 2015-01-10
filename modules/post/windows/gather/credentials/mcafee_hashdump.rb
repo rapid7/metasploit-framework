@@ -28,8 +28,11 @@ class Metasploit3 < Msf::Post
       ),
       'License'       => MSF_LICENSE,
       'Author'        => [
-        'Mike Manzotti <michelemanzotti[at]gmail.com>', # Metasploit module?
-        'Maurizio inode Agazzini' # original research?
+        'Mike Manzotti <mike.manzotti[at]dionach.com>', # Metasploit module
+        'Maurizio inode Agazzini' # original research
+      ],
+      'References'    => [
+        ['URL', 'https://www.dionach.com/blog/disabling-mcafee-on-access-scanning']
       ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
@@ -44,7 +47,7 @@ class Metasploit3 < Msf::Post
       'HKLM\\Software\\McAfee\\DesktopProtection' # 32-bit
     ].each do |key|
       subkeys = registry_enumkeys(key)
-      keys << key unless subkeys.empty?
+      keys << key unless subkeys.nil?
     end
     keys
   end
