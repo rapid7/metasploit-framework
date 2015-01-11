@@ -65,7 +65,7 @@ class Metasploit4 < Msf::Auxiliary
     vprint_status("#{peer} locating suitable canary URI")
     0.upto(4) do
       canary = '/' + Rex::Text.rand_text_alpha(16)
-      res = send_request_cgi('uri' => normalize_uri(canary), 'method' => 'GET')
+      res = send_request_raw('uri' => normalize_uri(canary), 'method' => 'GET', 'headers' => headers)
       # in most cases, the canary URI will not exist and will return a 404, but if everything under
       # TARGETURI is protected by auth, that may be fine too
       return canary if res.code == 401 || res.code == 404
@@ -73,10 +73,17 @@ class Metasploit4 < Msf::Auxiliary
     nil
   end
 
+  def headers
+    {
+      'Referer' => datastore['SSL'] ? 'https' : 'http' + "://#{rhost}:#{rport}"
+    }
+  end
+
   def requires_auth?
-    res = send_request_cgi(
+    res = send_request_raw(
       'uri' => normalize_uri(target_uri.path.to_s),
-      'method' => 'GET'
+      'method' => 'GET',
+      'headers' => headers
     )
     return false unless res
 
@@ -101,10 +108,10 @@ class Metasploit4 < Msf::Auxiliary
 
     # Make a request containing a malicious cookie with the canary value.
     # If that canary shows up in the *body*, they are vulnerable
-    res = send_request_cgi(
+    res = send_request_raw(
       'uri' => normalize_uri(target_uri.path.to_s),
       'method' => 'GET',
-      'headers' => { 'Cookie' => "C107373883=#{canary}" }
+      'headers' => headers.merge('Cookie' => "C107373883=#{canary}")
     )
 
     unless res
