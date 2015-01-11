@@ -40,6 +40,12 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'URI to test', '/'])
       ], Exploit::Remote::HttpClient
     )
+
+    register_advanced_options(
+      [
+        OptBool.new('REQUIRE_AUTH', [true, 'Require that the tested URI require authentication', false])
+      ], self.class
+    )
   end
 
   def check_host(_ip)
@@ -98,7 +104,9 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def test_misfortune
-    return Exploit::CheckCode::Unknown unless requires_auth?
+    if datastore['REQUIRE_AUTH']
+      return Exploit::CheckCode::Unknown unless requires_auth?
+    end
 
     # find a usable canary URI (one that 401/404s already)
     unless canary = find_canary_uri
