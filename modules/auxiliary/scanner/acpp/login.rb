@@ -38,6 +38,8 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(5009),
       ], self.class)
 
+    deregister_options(%w(USERNAME USER_FILE USER_AS_PASS))
+
     register_autofilter_ports([5009])
   end
 
@@ -50,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
         password: datastore['PASSWORD'],
         user_file: datastore['USER_FILE'],
         userpass_file: datastore['USERPASS_FILE'],
-        username: datastore['USERNAME'],
+        username: '<BLANK>',
         user_as_pass: datastore['USER_AS_PASS']
     )
 

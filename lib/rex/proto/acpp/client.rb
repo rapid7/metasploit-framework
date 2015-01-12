@@ -21,8 +21,7 @@ class Client
     login.type = 20
     @sock.put(login.to_s)
     # TODO: the checksum never validates here
-    resp =  Message.decode(@sock.get_once(128), false)
-    return resp.type == login.type && resp.status == 0
+    Message.decode(@sock.get_once(128), false)
   end
 end
 end

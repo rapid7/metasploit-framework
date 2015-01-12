@@ -90,6 +90,10 @@ module ACPP
       @unknown4 = ''
     end
 
+    def successful?
+      @status == 0
+    end
+
     # Get this Message as a String
     #
     # @return [String] the string representation of this Message
