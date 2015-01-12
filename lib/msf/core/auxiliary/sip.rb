@@ -935,6 +935,39 @@ module Auxiliary::SIP
   end
 
 
+  # Parse the authentication
+  def parse_auth(data)
+    result={}
+    str=""
+    var = nil
+    quote = 0
+    data.each_char { |c|
+      quote += 1 if c == '"'
+      if c == "="
+        var = str
+        val = nil
+        str = ""
+      else
+        case quote
+          when 0
+            if c != ","
+              str << c
+            else
+              result[var]=str
+              var = nil
+              str = ""
+            end
+          when 1
+            str << c if c != '"'
+          when 2
+            quote = 0
+        end
+      end
+    }
+    return result
+  end
+
+
   #
   # Parse Response
   #
@@ -982,8 +1015,7 @@ module Auxiliary::SIP
       t=header.split(" ")[0]
       type=t.downcase
       data="#{header.strip.gsub("#{t} ","")}"
-      rdata[type] = {}
-      data.split(",").each { |d| rdata[type][d.split("=")[0].gsub(" ","")]=d.split("=")[1].gsub("\"",'')}
+      rdata[type] = parse_auth(data)
       rdata[type]["authtype"]="www"
     end
     if(rawdata =~ /^Proxy-Authenticate:\s*(.*)$/i)
@@ -991,8 +1023,7 @@ module Auxiliary::SIP
       t=header.split(" ")[0]
       type=t.downcase
       data="#{header.strip.gsub("#{t} ","")}"
-      rdata[type] = {}
-      data.split(",").each { |d| rdata[type][d.split("=")[0].gsub(" ","")]=d.split("=")[1].gsub("\"",'')}
+      rdata[type] = parse_auth(data)
       rdata[type]["authtype"]="proxy"
     end
     if(rawdata =~ /^From:\s+(.*)$/)
