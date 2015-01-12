@@ -38,8 +38,16 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(5009),
       ], self.class)
 
-    deregister_options(%w(USERNAME USER_FILE USER_AS_PASS))
-
+    deregister_options(
+      'BLANK_PASSWORDS',
+      # there is no username, so remove all of these options
+      'DB_ALL_USERS',
+      'DB_ALL_CREDS',
+      'USERNAME',
+      'USERPASS_FILE',
+      'USER_FILE',
+      'USER_AS_PASS'
+    )
     register_autofilter_ports([5009])
   end
 
@@ -47,13 +55,13 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{ip}:#{rport} - Starting ACPP login sweep")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
+       # blank_passwords: datastore['BLANK_PASSWORDS'],
         pass_file: datastore['PASS_FILE'],
         password: datastore['PASSWORD'],
-        user_file: datastore['USER_FILE'],
-        userpass_file: datastore['USERPASS_FILE'],
+        #user_file: datastore['USER_FILE'],
+        #userpass_file: datastore['USERPASS_FILE'],
         username: '<BLANK>',
-        user_as_pass: datastore['USER_AS_PASS']
+        #user_as_pass: datastore['USER_AS_PASS']
     )
 
     cred_collection = prepend_db_passwords(cred_collection)
