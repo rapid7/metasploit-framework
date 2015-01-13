@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
       datastore['DOS_COUNT'].times do
         results = send_invite(
             'login' 	      => login,
-            'loginmethod'  	=> datastore['LOGINMETHOD'],
+            'loginmethod'  	=> datastore['LOGINMETHOD'].upcase,
             'user'  	      => user,
             'password'	    => password,
             'realm' 	      => realm,
