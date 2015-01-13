@@ -63,6 +63,11 @@ describe Msf::Rmi::Client do
     end
   end
 
+  describe "#send_dgc_ack" do
+    it "returns the number of bytes sent" do
+      expect(mod.send_dgc_ack(sock: io)).to eq(15)
+    end
+  end
 
   describe "#recv_protocol_ack" do
     context "when end point returns protocol ack" do
