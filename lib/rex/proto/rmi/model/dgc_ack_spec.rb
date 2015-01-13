@@ -7,7 +7,7 @@ module Rex
         # This class provides a representation of an RMI DbgACK stream. It is an acknowledgement
         # directed to a server's distributed garbage collector that indicates that remote objects
         # in a return value from a server have been received by the client.
-        class DbgAck < Element
+        class DgcAck < Element
 
           # @!attribute stream_id
           #   @return [Fixnum] the input stream id

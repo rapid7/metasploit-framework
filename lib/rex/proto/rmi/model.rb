@@ -10,7 +10,7 @@ module Rex
         MULTIPLEX_PROTOCOL     = 0x4d
         CALL_MESSAGE           = 0x50
         PING_MESSAGE           = 0x52
-        DBG_ACK_MESSAGE        = 0x54
+        DGC_ACK_MESSAGE        = 0x54
         PROTOCOL_ACK           = 0x4e
         PROTOCOL_NOT_SUPPORTED = 0x4f
         RETURN_DATA            = 0x51
@@ -26,6 +26,6 @@ require 'rex/proto/rmi/model/protocol_ack'
 require 'rex/proto/rmi/model/continuation'
 require 'rex/proto/rmi/model/call'
 require 'rex/proto/rmi/model/return_data'
-require 'rex/proto/rmi/model/dbg_ack'
+require 'rex/proto/rmi/model/dgc_ack'
 require 'rex/proto/rmi/model/ping'
 require 'rex/proto/rmi/model/ping_ack'
