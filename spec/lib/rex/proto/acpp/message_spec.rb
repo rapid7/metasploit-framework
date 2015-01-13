@@ -67,4 +67,17 @@ describe Rex::Proto::ACPP::Message do
       expect(retrieve_public_message).to eq(described_class.decode(retrieve_public_bin, false))
     end
   end
+
+  describe '#successful?' do
+    it 'is successful when 0' do
+      message = described_class.new
+      message.status = 0
+      expect(message.successful?).to be true
+    end
+    it 'is successful when !0' do
+      message = described_class.new
+      message.status = 1
+      expect(message.successful?).to be false
+    end
+  end
 end
