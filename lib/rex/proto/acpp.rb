@@ -7,3 +7,11 @@
 
 require 'rex/proto/acpp/client'
 require 'rex/proto/acpp/message'
+
+module Rex
+  module Proto
+    module ACPP
+      DEFAULT_PORT = 5009
+    end
+  end
+end

@@ -17,8 +17,8 @@ module Metasploit
         #
         # CONSTANTS
         #
-        DEFAULT_PORT         = 5009
-        LIKELY_PORTS         = [ 5009 ]
+        DEFAULT_PORT         = Rex::Proto::ACPP::DEFAULT_PORT
+        LIKELY_PORTS         = [ DEFAULT_PORT ]
         LIKELY_SERVICE_NAMES = [ 'acpp' ]
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil

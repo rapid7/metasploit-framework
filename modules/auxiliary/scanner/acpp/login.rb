@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(5009)
+        Opt::RPORT(Rex::Proto::ACPP::DEFAULT_PORT)
       ], self.class)
 
     deregister_options(
