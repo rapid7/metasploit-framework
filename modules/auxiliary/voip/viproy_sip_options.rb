@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('TO',   [ true, "The destination username to probe at each host", "100"]),
       OptString.new('FROM',   [ true, "The source username to probe at each host", "100"]),
       OptString.new('PROTO',   [ true, "Protocol for SIP service (UDP|TCP|TLS)", "UDP"]),
-      Opt::RPORT(5060),
+      OptString.new('RPORTS', [true, 'Port Range (5060-5065)', "5060"]),
     ], self.class)
 
     register_advanced_options(
@@ -43,24 +43,27 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(dest_addr)
-    sockinfo={}
-    sockinfo["listen_addr"] = datastore['CHOST']
-    sockinfo["listen_port"] = datastore['CPORT']
-    sockinfo["dest_addr"] = dest_addr
-    sockinfo["dest_port"] = datastore['RPORT']
-    sockinfo["proto"] = datastore['PROTO'].downcase
-    sockinfo["vendor"] = datastore['VENDOR'].downcase
-    sockinfo["macaddress"] = datastore['MACADDRESS']
+    rports = Rex::Socket.portspec_crack(datastore['RPORTS'])
+    rports.each { |rport|
+      sockinfo={}
+      sockinfo["listen_addr"] = datastore['CHOST']
+      sockinfo["listen_port"] = datastore['CPORT']
+      sockinfo["dest_addr"] = dest_addr
+      sockinfo["dest_port"] = rport
+      sockinfo["proto"] = datastore['PROTO'].downcase
+      sockinfo["vendor"] = datastore['VENDOR'].downcase
+      sockinfo["macaddress"] = datastore['MACADDRESS']
 
-    # sending options
-    sipsocket_start(sockinfo)
-    sipsocket_connect
-    results = send_options(
-      'realm'		  => datastore['REALM'],
-      'from'    	=> datastore['FROM'],
-      'to'    	  => datastore['TO']
-    )
-    printresults(results)
-    sipsocket_stop
+      # sending options
+      sipsocket_start(sockinfo)
+      sipsocket_connect
+      results = send_options(
+        'realm'		  => datastore['REALM'],
+        'from'    	=> datastore['FROM'],
+        'to'    	  => datastore['TO']
+      )
+      printresults(results)
+      sipsocket_stop
+    }
   end
 end
