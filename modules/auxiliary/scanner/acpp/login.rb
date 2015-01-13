@@ -80,14 +80,23 @@ class Metasploit3 < Msf::Auxiliary
         module_fullname: fullname,
         workspace_id: myworkspace_id
       )
+      password = result.credential.private
       if result.success?
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        print_good("#{ip}:#{rport} - ACPP LOGIN SUCCESSFUL: #{result.credential.private}")
+        print_good("#{ip}:#{rport} - ACPP LOGIN SUCCESSFUL: #{password}")
+        report_vuln(
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          name: 'Fixed XOR key use to encrypt passwords',
+          info: "Successful authentication with '#{password}'",
+          refs: references
+        )
       else
         invalidate_login(credential_data)
-        vprint_error("#{ip}:#{rport} - ACPP LOGIN FAILED: #{result.credential.private} (#{result.status}: #{result.proof})")
+        vprint_error("#{ip}:#{rport} - ACPP LOGIN FAILED: #{password} (#{result.status}: #{result.proof})")
       end
     end
   end
