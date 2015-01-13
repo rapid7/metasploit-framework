@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
           host: ip,
           port: rport,
           proto: 'tcp',
-          name: 'Fixed XOR key use to encrypt passwords',
+          name: 'Fixed XOR key used to encrypt passwords',
           info: "Successful authentication with '#{password}'",
           refs: references
         )
