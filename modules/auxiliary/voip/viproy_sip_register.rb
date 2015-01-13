@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('FROM',   [ false, "The source username to probe at each host", "1000"]),
       OptBool.new('LOGIN', [false, 'Login Using Credentials', false]),
       OptString.new('PROTO',   [ true, "Protocol for SIP service (UDP|TCP|TLS)", "UDP"]),
-      Opt::RPORT(5060),
+      OptString.new('RPORTS', [true, 'Port Range (5060-5065)', "5060"]),
     ], self.class)
 
     register_advanced_options(
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       Opt::CPORT(5065),
       OptString.new('USERAGENT',   [ false, "SIP user agent" ]),
       OptString.new('REALM',   [ false, "The login realm to probe at each host", nil]),
-      OptBool.new('DEREGISTER', [false, 'De-Register After Successful Login', false]),
+      OptString.new('DEREGISTER', [false, 'De-Register the user (AFTER, BEFORE, BOTH, ONLY)', nil]),
       OptString.new('MACADDRESS',   [ false, "MAC Address for Vendor", "000000000000"]),
       OptString.new('VENDOR',   [ true, "Vendor (GENERIC|CISCODEVICE|CISCOGENERIC|MSLYNC)", "GENERIC"]),
       OptString.new('CISCODEVICE',   [ true, "Cisco device type for authentication (585, 7940)", "7940"]),
@@ -48,69 +48,89 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(dest_addr)
-    # Login parameters
-    user = datastore['USERNAME']
-    password = datastore['PASSWORD']
-    realm = datastore['REALM']
-    from = datastore['FROM']
-    to = datastore['TO']
+    rports = Rex::Socket.portspec_crack(datastore['RPORTS'])
+    rports.each { |rport|
+      # Login parameters
+      user = datastore['USERNAME']
+      password = datastore['PASSWORD']
+      realm = datastore['REALM']
+      from = datastore['FROM']
+      to = datastore['TO']
+      login = datastore['LOGIN']
+      deregister = datastore['DEREGISTER'].upcase
 
-    sockinfo={}
-    # Protocol parameters
-    sockinfo["proto"] = datastore['PROTO'].downcase
-    sockinfo["vendor"] = datastore['VENDOR'].downcase
-    sockinfo["macaddress"] = datastore['MACADDRESS']
+      sockinfo={}
+      # Protocol parameters
+      sockinfo["proto"] = datastore['PROTO'].downcase
+      sockinfo["vendor"] = datastore['VENDOR'].downcase
+      sockinfo["macaddress"] = datastore['MACADDRESS']
 
-    # Socket parameters
-    sockinfo["listen_addr"] = datastore['CHOST']
-    sockinfo["listen_port"] = datastore['CPORT']
-    sockinfo["dest_addr"] =datastore['RHOST']
-    sockinfo["dest_port"] = datastore['RPORT']
+      # Socket parameters
+      sockinfo["listen_addr"] = datastore['CHOST']
+      sockinfo["listen_port"] = datastore['CPORT']
+      sockinfo["dest_addr"] = dest_addr
+      sockinfo["dest_port"] = rport
 
-    sipsocket_start(sockinfo)
-    sipsocket_connect
+      sipsocket_start(sockinfo)
+      sipsocket_connect
 
-    if vendor == 'mslync'
-      results = send_negotiate(
-          'realm'		  => datastore['REALM'],
-          'from'    	=> datastore['FROM'],
-          'to'    	  => datastore['TO']
+      context = {
+          "method"    => "register",
+          "user"      => user,
+          "password"  => password
+      }
+
+      case deregister
+        when "ONLY"
+          # Sending de-register
+          deregister(login,user,password,realm,from,to,context)
+          return
+        when /BEFORE|BOTH/
+          # Sending de-register
+          deregister(login,user,password,realm,from,to,context)
+      end
+
+      if vendor == 'mslync'
+        results = send_negotiate(
+            'realm'		  => datastore['REALM'],
+            'from'    	=> datastore['FROM'],
+            'to'    	  => datastore['TO']
+        )
+        printresults(results) if datastore['DEBUG'] == true
+      end
+
+      vprint_status("Register request is sending.")
+
+      results = send_register(
+          'login'  	    => login,
+          'user'      	=> user,
+          'password'	  => password,
+          'realm'		    => realm,
+          'from'    	  => from,
+          'to'    	    => to
       )
-      printresults(results) if datastore['DEBUG'] == true
-    end
 
-    results = send_register(
-        'login'  	    => datastore['LOGIN'],
-        'user'      	=> user,
-        'password'	  => password,
-        'realm'		    => realm,
-        'from'    	  => from,
-        'to'    	    => to
-    )
+      printresults(results,context)
 
-    context = {
-        "method"    => "register",
-        "user"      => user,
-        "password"  => password
+      # Sending de-register
+      deregister(login,user,password,realm,from,to,context) if deregister =~ /AFTER|BOTH/
+
+      sipsocket_stop
     }
-
-    printresults(results,context)
-
+  end
+  def deregister(login,user,password,realm,from,to,context)
+    vprint_status("De-register request is sending.")
     # Sending de-register
-    if datastore['DEREGISTER'] ==true
-      #De-Registering User
-      send_register(
-          'login'  	  => datastore['LOGIN'],
-          'user'     	=> user,
-          'password'	=> password,
-          'realm'     => realm,
-          'from'    	=> from,
-          'to'    	  => to,
-          'expire'    => 0
-      )
-    end
-
-    sipsocket_stop
+    results = send_register(
+        'login'     => login,
+        'user'      => user,
+        'password'  => password,
+        'realm'     => realm,
+        'from'      => from,
+        'to'        => to,
+        'expire'    => 0
+    )
+    printresults(results,context)
   end
 end
 
