@@ -12,7 +12,7 @@ module Msf
 module Auxiliary::SIP
   attr_accessor :listen_addr, :listen_port, :context, :logfile, :customheaders
   attr_accessor :sock, :thread, :dest_addr, :dest_port, :proto, :vendor, :macaddress
-  attr_accessor :prxclient_port, :prxclient_ip, :client_port, :client_ip
+  attr_accessor :prxclient_port, :prxclient_ip, :client_port, :client_ip, :expire
   attr_accessor :prxserver_port, :prxserver_ip, :server_port, :server_ip
 
   include Msf::Auxiliary::Report
@@ -27,6 +27,7 @@ module Auxiliary::SIP
     self.dest_addr = sockinfo["dest_addr"]
     self.dest_port = sockinfo["dest_port"].to_i || 5060
     self.proto = sockinfo["proto"].downcase
+    self.expire = 3600
     if vendor
       self.vendor = sockinfo["vendor"].downcase
     else
@@ -243,6 +244,7 @@ module Auxiliary::SIP
   #
   def send_register(req_options={})
     login = req_options["login"] || false
+    self.expire = req_options["expire"] || 3600
     results=generic_request("REGISTER",req_options)
     if results["status"] == :received and results["rdata"] != nil
       case results["rdata"]["resp"]
@@ -775,7 +777,7 @@ module Auxiliary::SIP
       if self.vendor != 'mslync'
         data << "Supported: 100rel,replaces\r\n" if req_type != "OPTIONS"
         data << "Allow: PRACK, INVITE ,ACK, BYE, CANCEL, UPDATE, SUBSCRIBE,NOTIFY, REFER, MESSAGE, OPTIONS\r\n"
-        data << "Expires: 3600\r\n"
+        data << "Expires: #{self.expire}\r\n"
       end
     end
 
