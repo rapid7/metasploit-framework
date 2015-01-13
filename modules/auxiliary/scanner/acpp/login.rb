@@ -9,7 +9,6 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/acpp'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -35,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(5009),
+        Opt::RPORT(5009)
       ], self.class)
 
     deregister_options(
@@ -47,6 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       'USER_FILE',
       'USER_AS_PASS'
     )
+
     register_autofilter_ports([5009])
   end
 
@@ -71,13 +71,13 @@ class Metasploit3 < Msf::Auxiliary
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: datastore['ConnectTimeout'],
       max_send_size: datastore['TCP::max_send_size'],
-      send_delay: datastore['TCP::send_delay'],
+      send_delay: datastore['TCP::send_delay']
     )
 
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-        module_fullname: self.fullname,
+        module_fullname: fullname,
         workspace_id: myworkspace_id
       )
       if result.success?
@@ -90,6 +90,5 @@ class Metasploit3 < Msf::Auxiliary
         vprint_error("#{ip}:#{rport} - ACPP LOGIN FAILED: #{result.credential.private} (#{result.status}: #{result.proof})")
       end
     end
-
   end
 end
