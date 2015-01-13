@@ -57,6 +57,18 @@ module Msf
         nsock.put(stream.encode)
       end
 
+      # Sends a RMI DGCACK stream
+      #
+      # @param opts [Hash]
+      # @option opts [Rex::Socket::Tcp] :sock
+      # @return [Fixnum] the number of bytes sent
+      # @see Msf::Rmi::Client::Streams#build_dgc_ack
+      def send_dgc_ack(opts = {})
+        nsock = opts[:sock] || sock
+        stream = build_dgc_ack(opts)
+        nsock.put(stream.encode)
+      end
+
       # Reads the Protocol Ack
       #
       # @param opts [Hash]

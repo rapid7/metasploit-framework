@@ -45,6 +45,24 @@ module Msf
           call
         end
 
+        # Builds a RMI dgc ack stream
+        #
+        # @param opts [Hash{Symbol => <Fixnum, String>}]
+        # @option opts [Fixnum] :stream_id
+        # @option opts [String] :unique_identifier
+        # @return [Rex::Proto::Rmi::Model::DgcAck]
+        def build_dgc_ack(opts = {})
+          stream_id = opts[:stream_id] || Rex::Proto::Rmi::Model::DGC_ACK_MESSAGE
+          unique_identifier = opts[:unique_identifier] || "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+
+          dgc_ack = Rex::Proto::Rmi::Model::DgcAck.new(
+              stream_id: stream_id,
+              unique_identifier: unique_identifier
+          )
+
+          dgc_ack
+        end
+
         # Builds a call data (serializated) stream) as used by Michael Schierl (@mihi42)
         # to achieve arbitrary code execution through the RMI garbage collector loading
         # arbitrary classes

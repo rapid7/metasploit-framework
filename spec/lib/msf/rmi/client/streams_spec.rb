@@ -30,6 +30,14 @@ describe Msf::Rmi::Client::Streams do
   end
   let(:opts_call) { "\x52\xac\xed\x00\x05" }
 
+  let(:default_dgc_ack) { "\x54\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" }
+  let(:dgc_ack_opts) do
+    {
+      :unique_identifier => "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x05\x04\x03\x02\x01"
+    }
+  end
+  let(:opts_dgc_ack) { "\x54\x00\x00\x00\x00\x00\x00\x00\x00\x00\x05\x04\x03\x02\x01" }
+
   let(:file_jar) { 'file:RMIClassLoaderSecurityTest/test.jar' }
 
   let(:call_gc) do
@@ -85,13 +93,35 @@ describe Msf::Rmi::Client::Streams do
         expect(mod.build_call(call_opts)).to be_a(Rex::Proto::Rmi::Model::Call)
       end
 
-      it "creates a OutputHeader with data from opts" do
+      it "creates a Call with data from opts" do
         expect(mod.build_call(call_opts).encode).to eq(opts_call)
       end
     end
   end
 
-  describe "#build_call" do
+  describe "#build_dgc_ack" do
+    context "when no opts" do
+      it "creates a Rex::Proto::Rmi::Model::DgcAck" do
+        expect(mod.build_dgc_ack).to be_a(Rex::Proto::Rmi::Model::DgcAck)
+      end
+
+      it "creates a default Call" do
+        expect(mod.build_dgc_ack.encode).to eq(default_dgc_ack)
+      end
+    end
+
+    context "when opts" do
+      it "creates a Rex::Proto::Rmi::Model::DgcAck" do
+        expect(mod.build_dgc_ack(dgc_ack_opts)).to be_a(Rex::Proto::Rmi::Model::DgcAck)
+      end
+
+      it "creates a DgcAck with data from opts" do
+        expect(mod.build_dgc_ack(dgc_ack_opts).encode).to eq(opts_dgc_ack)
+      end
+    end
+  end
+
+  describe "#build_gc_call_data" do
     context "when using test file: jar" do
       it "creates a correct stream" do
         expect(mod.build_gc_call_data(file_jar).encode).to eq(call_gc)
