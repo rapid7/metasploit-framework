@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
       # Socket parameters
       sockinfo["listen_addr"] = datastore['CHOST']
       sockinfo["listen_port"] = datastore['CPORT']
-      sockinfo["dest_addr"] =datastore['RHOST']
+      sockinfo["dest_addr"] = dest_addr
       sockinfo["dest_port"] = rport
 
       sipsocket_start(sockinfo)
