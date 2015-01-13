@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       from = datastore['FROM']
       to = datastore['TO']
       login = datastore['LOGIN']
-      deregister = datastore['DEREGISTER'].upcase
+      deregister = datastore['DEREGISTER'].upcase if datastore['DEREGISTER']
 
       sockinfo={}
       # Protocol parameters
