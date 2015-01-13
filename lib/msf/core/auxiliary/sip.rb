@@ -114,7 +114,7 @@ module Auxiliary::SIP
   #
   def printresults(results,context={})
 
-    return if results["rdata"] == nil
+    return if results.nil? or results["rdata"].nil?
     status = results["status"]
     rdata = results["rdata"]
     rdebug = results["rdebug"]
