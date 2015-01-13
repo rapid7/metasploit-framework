@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
       'USER_AS_PASS'
     )
 
-    register_autofilter_ports([5009])
+    register_autofilter_ports([Rex::Proto::ACPP::DEFAULT_PORT])
   end
 
   def run_host(ip)
