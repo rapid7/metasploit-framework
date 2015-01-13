@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       Opt::CPORT(5065),
       OptString.new('USERAGENT',   [ false, "SIP user agent" ]),
       OptString.new('REALM',   [ false, "The login realm to probe at each host", nil]),
-      OptString.new('DEREGISTER', [false, 'De-Register the user (AFTER, BEFORE, BOTH, ONLY)', nil]),
+      OptString.new('DEREGISTER', [false, 'De-Register the user (AFTER, BEFORE, BOTH, ONLY)']),
       OptString.new('MACADDRESS',   [ false, "MAC Address for Vendor", "000000000000"]),
       OptString.new('VENDOR',   [ true, "Vendor (GENERIC|CISCODEVICE|CISCOGENERIC|MSLYNC)", "GENERIC"]),
       OptString.new('CISCODEVICE',   [ true, "Cisco device type for authentication (585, 7940)", "7940"]),
