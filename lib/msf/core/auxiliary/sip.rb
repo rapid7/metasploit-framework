@@ -129,6 +129,7 @@ module Auxiliary::SIP
     report << "\tWarning \t: #{rdata['warning']}\n" if rdata['warning']
     report << "\tUser-Agent \t: #{rdata['agent']}\n"	if rdata['agent']
     report << "\tRealm \t\t: #{rdata['digest']['realm']}\n" if rdata['digest']
+    report << "\tContact\t\t: #{rdata['contact']}\n" if rdata['resp_msg'].split(" ")[1] == "301"
 
     printdebug(results) if datastore["DEBUG"] == true
 
@@ -218,6 +219,8 @@ module Auxiliary::SIP
         return "User is Busy"
       when :succeed
         return "Request Succeed"
+      when :moved
+        return "Moved Permanently"
       when :not_found
         return "Not Found"
       when :failed
@@ -266,6 +269,8 @@ module Auxiliary::SIP
           end
         when /^60/
           results["status"]=:decline_error
+        when /^301/
+          results["status"]=:moved
         else
           results["status"]=:protocol_error
       end
@@ -445,6 +450,8 @@ module Auxiliary::SIP
         result=:ringing
       when "100"
         result=:trying
+      when "301"
+        result=:moved
       when /^404/
         result=:not_found
       when /^40/
@@ -527,9 +534,13 @@ module Auxiliary::SIP
         results["status"] = :succeed
       when "/^48/"
         results["status"] = :succeed
+      when "/^183/"
+        results["status"] = :trying
       when "/^18/"
         results["status"] = :succeed
       when /^40/
+        results["status"] = :failed
+      when /^301/
         results["status"] = :failed
       else
         results["status"] = :authorization_error
@@ -566,7 +577,7 @@ module Auxiliary::SIP
   # Response Check
   #
   def resp_get(method,rdebug=[])
-    possible= /^18|^20|^40|^48|^60|^50/
+    possible= /^18|^20|^30|^40|^48|^60|^50/
     rdata,rawdata=recv_data
     rdebug << rdata
 
