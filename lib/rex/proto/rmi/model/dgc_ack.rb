@@ -25,8 +25,8 @@ module Rex
           # @raise [RuntimeError] if fails to decode stream id
           def decode_stream_id(io)
             stream_id = read_byte(io)
-            unless stream_id == DBG_ACK_MESSAGE
-              raise ::RuntimeError, 'Failed to decode DbgAck stream id'
+            unless stream_id == DGC_ACK_MESSAGE
+              raise ::RuntimeError, 'Failed to decode DgcAck stream id'
             end
 
             stream_id

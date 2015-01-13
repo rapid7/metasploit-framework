@@ -6,7 +6,7 @@ require 'rex/proto/rmi'
 
 describe Rex::Proto::Rmi::Model::DgcAck do
 
-  subject(:dbg_ack) do
+  subject(:dgc_ack) do
     described_class.new
   end
 
@@ -18,26 +18,26 @@ describe Rex::Proto::Rmi::Model::DgcAck do
 
   describe "#decode" do
     it "returns the Rex::Proto::Rmi::Model::DgcAck decoded" do
-      expect(dbg_ack.decode(sample_io)).to eq(dbg_ack)
+      expect(dgc_ack.decode(sample_io)).to eq(dgc_ack)
     end
 
     it "decodes stream_id correctly" do
-      dbg_ack.decode(sample_io)
-      expect(dbg_ack.stream_id).to eq(Rex::Proto::Rmi::Model::DGC_ACK_MESSAGE)
+      dgc_ack.decode(sample_io)
+      expect(dgc_ack.stream_id).to eq(Rex::Proto::Rmi::Model::DGC_ACK_MESSAGE)
     end
 
     it "decodes address correctly" do
-      dbg_ack.decode(sample_io)
-      expect(dbg_ack.unique_identifier).to eq("\xd2\x4f\xdf\x47\x00\x00\x01\x49\xb5\xe4\x92\x78\x80\x17")
+      dgc_ack.decode(sample_io)
+      expect(dgc_ack.unique_identifier).to eq("\xd2\x4f\xdf\x47\x00\x00\x01\x49\xb5\xe4\x92\x78\x80\x17")
     end
   end
 
   describe "#encode" do
     it "encodes the DbgAck correctly" do
-      dbg_ack.stream_id = Rex::Proto::Rmi::Model::DGC_ACK_MESSAGE
-      dbg_ack.unique_identifier = "\xd2\x4f\xdf\x47\x00\x00\x01\x49\xb5\xe4\x92\x78\x80\x17"
+      dgc_ack.stream_id = Rex::Proto::Rmi::Model::DGC_ACK_MESSAGE
+      dgc_ack.unique_identifier = "\xd2\x4f\xdf\x47\x00\x00\x01\x49\xb5\xe4\x92\x78\x80\x17"
 
-      expect(dbg_ack.encode).to eq(sample)
+      expect(dgc_ack.encode).to eq(sample)
     end
   end
 end
