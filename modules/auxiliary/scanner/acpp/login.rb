@@ -39,7 +39,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
 
     deregister_options(
-      'BLANK_PASSWORDS',
       # there is no username, so remove all of these options
       'DB_ALL_USERS',
       'DB_ALL_CREDS',
@@ -55,43 +54,40 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{ip}:#{rport} - Starting ACPP login sweep")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
-       # blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file: datastore['PASS_FILE'],
-        password: datastore['PASSWORD'],
-        #user_file: datastore['USER_FILE'],
-        #userpass_file: datastore['USERPASS_FILE'],
-        username: '<BLANK>',
-        #user_as_pass: datastore['USER_AS_PASS']
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      username: '<BLANK>'
     )
 
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::ACPP.new(
-        host: ip,
-        port: rport,
-        proxies: datastore['PROXIES'],
-        cred_details: cred_collection,
-        stop_on_success: datastore['STOP_ON_SUCCESS'],
-        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-        connection_timeout: datastore['ConnectTimeout'],
-        max_send_size: datastore['TCP::max_send_size'],
-        send_delay: datastore['TCP::send_delay'],
+      host: ip,
+      port: rport,
+      proxies: datastore['PROXIES'],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      connection_timeout: datastore['ConnectTimeout'],
+      max_send_size: datastore['TCP::max_send_size'],
+      send_delay: datastore['TCP::send_delay'],
     )
 
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: self.fullname,
+        workspace_id: myworkspace_id
       )
       if result.success?
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        print_good("#{ip}:#{rport} - ACPP LOGIN SUCCESSFUL: #{result.credential}")
+        print_good("#{ip}:#{rport} - ACPP LOGIN SUCCESSFUL: #{result.credential.private}")
       else
         invalidate_login(credential_data)
-        vprint_error("#{ip}:#{rport} - ACPP LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
+        vprint_error("#{ip}:#{rport} - ACPP LOGIN FAILED: #{result.credential.private} (#{result.status}: #{result.proof})")
       end
     end
 
