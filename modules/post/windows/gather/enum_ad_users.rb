@@ -48,30 +48,9 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    fields = ['sAMAccountName', 'userAccountControl', 'lockoutTime', 'mail', 'primarygroupid', 'description']
-    inner_filter = '(objectCategory=person)(objectClass=user)'
     max_search = datastore['MAX_SEARCH']
     domain = datastore['DOMAIN'] || get_domain
     domain_ip = client.net.resolve.resolve_host(domain)[:ip]
-
-    inner_filter = "#{inner_filter}(!(lockoutTime>=1))" if datastore['EXCLUDE_LOCKED']
-    inner_filter = "#{inner_filter}(!(userAccountControl:1.2.840.113556.1.4.803:=2))" if datastore['EXCLUDE_DISABLED']
-
-    case datastore['UAC']
-    when 'ANY'
-    when 'NO_PASSWORD'
-      inner_filter = "#{inner_filter}(userAccountControl:1.2.840.113556.1.4.803:=32)"
-    when 'CHANGE_PASSWORD'
-      inner_filter = "#{inner_filter}(!sAMAccountType=805306370)(pwdlastset=0)"
-    when 'NEVER_EXPIRES'
-      inner_filter = "#{inner_filter}(userAccountControl:1.2.840.113556.1.4.803:=65536)"
-    when 'SMARTCARD_REQUIRED'
-      inner_filter = "#{inner_filter}(userAccountControl:1.2.840.113556.1.4.803:=262144)"
-    when 'NEVER_LOGGEDON'
-      inner_filter = "#{inner_filter}(|(lastlogon=0)(!lastlogon=*))"
-    end
-
-    search_filter = "(&#{inner_filter})"
 
     begin
       q = query(search_filter, max_search, USER_FIELDS)
@@ -127,6 +106,30 @@ class Metasploit3 < Msf::Post
 
   def account_locked?(lockout_time)
     lockout_time > 0
+  end
+
+  # Builds the LDAP query 'filter' used to find our User Accounts based on
+  # criteria set by user in the Datastore.
+  #
+  # @return [String] the LDAP query string
+  def search_filter
+    inner_filter = '(objectCategory=person)(objectClass=user)'
+    inner_filter << '(!(lockoutTime>=1))' if datastore['EXCLUDE_LOCKED']
+    inner_filter << '(!(userAccountControl:1.2.840.113556.1.4.803:=2))' if datastore['EXCLUDE_DISABLED']
+    case datastore['UAC']
+      when 'ANY'
+      when 'NO_PASSWORD'
+        inner_filter << '(userAccountControl:1.2.840.113556.1.4.803:=32)'
+      when 'CHANGE_PASSWORD'
+        inner_filter << '(!sAMAccountType=805306370)(pwdlastset=0)'
+      when 'NEVER_EXPIRES'
+        inner_filter << '(userAccountControl:1.2.840.113556.1.4.803:=65536)'
+      when 'SMARTCARD_REQUIRED'
+        inner_filter << '(userAccountControl:1.2.840.113556.1.4.803:=262144)'
+      when 'NEVER_LOGGEDON'
+        inner_filter << '(|(lastlogon=0)(!lastlogon=*))'
+    end
+    "(&#{inner_filter})"
   end
 
   def store_username(username, uac, lockout_time, realm, domain_ip)
