@@ -51,22 +51,26 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    case check_host(ip)
+    status = check_host(ip)
+    case status
     when Exploit::CheckCode::Appears
-      print_good("#{peer} is vulnerable")
     when Exploit::CheckCode::Detected
-      print_good("#{peer} uses a vulnerable version")
+    when Exploit::CheckCode::Vulnerable
+      print_good("#{peer} #{status.last}")
     else
       vprint_status("#{peer} is not vulnerable")
     end
   end
 
+  # Fingerprints the provided HTTP response and returns
+  # Exploit::CheckCode::Appears if it is a vulnerable version of RomPager,
+  # otherwise returns the provided fall-back status.
   def check_response_fingerprint(res, fallback_status)
     fp = http_fingerprint(response: res)
     if /RomPager\/(?<version>[\d\.]+)/ =~ fp
       vprint_status("#{peer} is RomPager #{version}")
       if Gem::Version.new(version) < Gem::Version.new('4.34')
-        return Exploit::CheckCode::Detected
+        return Exploit::CheckCode::Appears
       end
     end
     fallback_status
@@ -84,7 +88,7 @@ class Metasploit4 < Msf::Auxiliary
       # in most cases, the canary URI will not exist and will return a 404, but
       # if everything under TARGETURI is protected by auth, that may be fine
       # too
-      return canary if res.code == 401 || res.code == 404
+      return canary if res && (res.code == 401 || res.code == 404)
     end
     nil
   end
@@ -127,12 +131,12 @@ class Metasploit4 < Msf::Auxiliary
 
     unless res.code == 404
       vprint_status("#{full_uri} unexpected HTTP code #{res.code} response")
-      return check_response_fingerprint(res, Exploit::CheckCode::Unknown)
+      return check_response_fingerprint(res, Exploit::CheckCode::Detected)
     end
 
     unless res.body
       vprint_status("#{full_uri} HTTP code #{res.code} had no body")
-      return check_response_fingerprint(res, Exploit::CheckCode::Unknown)
+      return check_response_fingerprint(res, Exploit::CheckCode::Detected)
     end
 
     # If that canary *value* shows up in the *body*, then there are two possibilities:
@@ -140,14 +144,14 @@ class Metasploit4 < Msf::Auxiliary
     # 1) If the canary cookie *name* is also in the *body*, it is likely that
     # the endpoint is puppeting back our request to some extent and therefore
     # it is expected that the canary cookie *value* would also be there.
-    # return Exploit::CheckCode::Unknown
+    # return Exploit::CheckCode::Detected
     #
     # 2) If the canary cookie *name* is *not* in the *body*, return
-    # Exploit::CheckCode::Appears
+    # Exploit::CheckCode::Vulnerable
     if res.body.include?(canary_value)
       if res.body.include?(canary_cookie_name)
         vprint_status("#{full_uri} HTTP code #{res.code} response contained test cookie name #{canary_cookie_name}")
-        return check_response_fingerprint(res, Exploit::CheckCode::Unknown)
+        return check_response_fingerprint(res, Exploit::CheckCode::Detected)
       else
         vprint_good("#{full_uri} HTTP code #{res.code} response contained canary cookie value #{canary_value} as URI")
         report_vuln(
@@ -156,7 +160,7 @@ class Metasploit4 < Msf::Auxiliary
           name: name,
           refs: references
         )
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Vulnerable
       end
     end
 
