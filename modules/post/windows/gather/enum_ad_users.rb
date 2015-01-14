@@ -49,8 +49,6 @@ class Metasploit3 < Msf::Post
 
   def run
     max_search = datastore['MAX_SEARCH']
-    domain = datastore['DOMAIN'] || get_domain
-    domain_ip = client.net.resolve.resolve_host(domain)[:ip]
 
     begin
       q = query(search_filter, max_search, USER_FIELDS)
@@ -62,18 +60,43 @@ class Metasploit3 < Msf::Post
 
     if q.nil? || q[:results].empty?
       print_status('No results returned.')
-      return
-    end
+    else
+      results_table = parse_results(q[:results])
+      print_line results_table.to_s
 
+      if datastore['STORE_LOOT']
+        stored_path = store_loot('ad.users', 'text/plain', session, results_table.to_csv)
+        print_status("Results saved to: #{stored_path}")
+      end
+    end
+  end
+
+  def account_disabled?(uac)
+    (uac & UAC_DISABLED) > 0
+  end
+
+  def account_locked?(lockout_time)
+    lockout_time > 0
+  end
+
+  # Takes the results of LDAP query, parses them into a table
+  # and records and usernames as {Metasploit::Credential::Core}s in
+  # the database.
+  #
+  # @param [Array<Array<Hash>>] the LDAP query results to parse
+  # @return [Rex::Ui::Text::Table] the table containing all the result data
+  def parse_results(results)
+    domain = datastore['DOMAIN'] || get_domain
+    domain_ip = client.net.resolve.resolve_host(domain)[:ip]
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
-        'Header'     => "Domain Users",
-        'Indent'     => 1,
-        'SortIndex'  => -1,
-        'Columns'    => USER_FIELDS
-      )
+      'Header'     => "Domain Users",
+      'Indent'     => 1,
+      'SortIndex'  => -1,
+      'Columns'    => USER_FIELDS
+    )
 
-    q[:results].each do |result|
+    results.each do |result|
       row = []
 
       result.each do |field|
@@ -91,22 +114,9 @@ class Metasploit3 < Msf::Post
 
       results_table << row
     end
-
-    print_line results_table.to_s
-
-    if datastore['STORE_LOOT']
-      stored_path = store_loot('ad.users', 'text/plain', session, results_table.to_csv)
-      print_status("Results saved to: #{stored_path}")
-    end
+    results_table
   end
 
-  def account_disabled?(uac)
-    (uac & UAC_DISABLED) > 0
-  end
-
-  def account_locked?(lockout_time)
-    lockout_time > 0
-  end
 
   # Builds the LDAP query 'filter' used to find our User Accounts based on
   # criteria set by user in the Datastore.
