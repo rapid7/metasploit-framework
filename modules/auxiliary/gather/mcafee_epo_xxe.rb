@@ -38,8 +38,11 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'References'     =>
         [
+          ['CVE', '2015-0921'],
+          ['CVE', '2015-0922'],
+          ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/8']
         ],
-      'DisclosureDate' => ''
+      'DisclosureDate' => 'Jan 6 2015'
     ))
 
     register_options(
