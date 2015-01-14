@@ -270,7 +270,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         FactoryGirl.create(:mdm_service, :host => host, :port => 1026)
       end
       it "should list services that are not on a given port" do
-        skip("refs redmine ticket #4821") {
+        skip {
           db.cmd_services "-np", "1024"
 
           @output.should =~ [

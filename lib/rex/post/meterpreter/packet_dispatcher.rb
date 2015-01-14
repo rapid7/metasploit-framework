@@ -356,7 +356,7 @@ module PacketDispatcher
           begin
           if ! dispatch_inbound_packet(pkt)
             # Only requeue packets newer than the timeout
-            if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
+            if (::Time.now.to_i - pkt.created_at.to_i > PacketTimeout)
               incomplete << pkt
             end
           end

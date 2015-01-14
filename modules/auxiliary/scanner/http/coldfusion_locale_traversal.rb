@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       else
         next if (res.code == 500 or res.code == 404 or res.code == 302)
-        print_error("#{ip} #{res.inspect}")
+        print_error("#{ip} #{res.to_s}")
       end
     end
 

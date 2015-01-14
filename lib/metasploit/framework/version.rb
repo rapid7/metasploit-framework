@@ -2,8 +2,8 @@ module Metasploit
   module Framework
     module Version
       MAJOR = 4
-      MINOR = 10
-      PATCH = 1
+      MINOR = 11
+      PATCH = 0
       PRERELEASE = 'dev'
     end
 

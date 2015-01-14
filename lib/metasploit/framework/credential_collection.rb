@@ -2,6 +2,18 @@ require 'metasploit/framework/credential'
 
 class Metasploit::Framework::CredentialCollection
 
+  # @!attribute additional_privates
+  #   Additional privates to be combined
+  #
+  #   @return [Array<String>]
+  attr_accessor :additional_privates
+
+  # @!attribute additional_publics
+  #   Additional public to be combined
+  #
+  #   @return [Array<String>]
+  attr_accessor :additional_publics
+
   # @!attribute blank_passwords
   #   Whether each username should be tried with a blank password
   #   @return [Boolean]
@@ -59,7 +71,27 @@ class Metasploit::Framework::CredentialCollection
     opts.each do |attribute, value|
       public_send("#{attribute}=", value)
     end
-    self.prepended_creds ||= []
+    self.prepended_creds     ||= []
+    self.additional_privates ||= []
+    self.additional_publics  ||= []
+  end
+
+  # Adds a string as an addition private credential
+  # to be combined in the collection.
+  #
+  # @param [String] :private_str the string to use as a private
+  # @return [void]
+  def add_private(private_str='')
+    additional_privates << private_str
+  end
+
+  # Adds a string as an addition public credential
+  # to be combined in the collection.
+  #
+  # @param [String] :public_str the string to use as a public
+  # @return [void]
+  def add_public(public_str='')
+    additional_publics << public_str
   end
 
   # Add {Credential credentials} that will be yielded by {#each}
@@ -101,6 +133,9 @@ class Metasploit::Framework::CredentialCollection
         end
         pass_fd.seek(0)
       end
+      additional_privates.each do |add_private|
+        yield Metasploit::Framework::Credential.new(public: username, private: add_private, realm: realm, private_type: private_type(add_private))
+      end
     end
 
     if user_file.present?
@@ -123,6 +158,9 @@ class Metasploit::Framework::CredentialCollection
             end
             pass_fd.seek(0)
           end
+          additional_privates.each do |add_private|
+            yield Metasploit::Framework::Credential.new(public: user_from_file, private: add_private, realm: realm, private_type: private_type(add_private))
+          end
         end
       end
     end
@@ -138,6 +176,28 @@ class Metasploit::Framework::CredentialCollection
           end
           yield Metasploit::Framework::Credential.new(public: user, private: pass, realm: realm)
         end
+      end
+    end
+
+    additional_publics.each do |add_public|
+      if password.present?
+        yield Metasploit::Framework::Credential.new(public: add_public, private: password, realm: realm, private_type: private_type(password) )
+      end
+      if user_as_pass
+        yield Metasploit::Framework::Credential.new(public: add_public, private: user_from_file, realm: realm, private_type: :password)
+      end
+      if blank_passwords
+        yield Metasploit::Framework::Credential.new(public: add_public, private: "", realm: realm, private_type: :password)
+      end
+      if pass_fd
+        pass_fd.each_line do |pass_from_file|
+          pass_from_file.chomp!
+          yield Metasploit::Framework::Credential.new(public: add_public, private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
+        end
+        pass_fd.seek(0)
+      end
+      additional_privates.each do |add_private|
+        yield Metasploit::Framework::Credential.new(public: add_public, private: add_private, realm: realm, private_type: private_type(add_private))
       end
     end
 

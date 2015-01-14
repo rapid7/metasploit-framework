@@ -86,7 +86,7 @@ class Client
       typ = self.config_types[var] || 'string'
 
       # These are enum types
-      if(typ.class.to_s == 'Array')
+      if typ.is_a?(Array)
         if not typ.include?(val)
           raise RuntimeError, "The specified value for #{var} is not one of the valid choices"
         end
@@ -719,4 +719,3 @@ end
 end
 end
 end
-

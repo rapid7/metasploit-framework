@@ -45,7 +45,8 @@ class Core
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
     "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ])
+    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ],
+    "-t" => [ true,  "Set a response timeout (default: 15)"])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -873,7 +874,7 @@ class Core
       return @@jobs_opts.fmt.keys
     end
 
-    if @@jobs_opts.fmt[words[1]][0] and (words.length == 2)
+    if words.length == 2 and (@@jobs_opts.fmt[words[1]] || [false])[0]
       return framework.jobs.keys
     end
 
@@ -1025,7 +1026,7 @@ class Core
       return @@threads_opts.fmt.keys
     end
 
-    if @@threads_opts.fmt[words[1]][0] and (words.length == 2)
+    if words.length == 2 and (@@threads_opts.fmt[words[1]] || [false])[0]
       return framework.threads.each_index.map{ |idx| idx.to_s }
     end
 
@@ -1222,7 +1223,7 @@ class Core
       Rex::Socket::SwitchBoard.flush_routes
 
     when "print"
-      tbl =	Table.new(
+      tbl = Table.new(
         Table::Style::Default,
         'Header'  => "Active Routing Table",
         'Prefix'  => "\n",
@@ -1597,6 +1598,7 @@ class Core
     cmds    = []
     script  = nil
     reset_ring = false
+    response_timeout = 15
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1646,6 +1648,10 @@ class Core
       when "-h"
         cmd_sessions_help
         return false
+      when "-t"
+        if val.to_s =~ /^\d+$/
+          response_timeout = val.to_i
+        end
       else
         extra << val
       end
@@ -1662,6 +1668,8 @@ class Core
         return false
       end
     end
+
+    last_known_timeout = nil
 
     # Now, perform the actual method
     case method
@@ -1684,30 +1692,41 @@ class Core
           session = verify_session(s)
           next unless session
           print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
 
-          if session.type == 'meterpreter'
-            # If session.sys is nil, dont even try..
-            unless session.sys
-              print_error("Session #{s} does not have stdapi loaded, skipping...")
-              next
+          begin
+            if session.type == 'meterpreter'
+              # If session.sys is nil, dont even try..
+              unless session.sys
+                print_error("Session #{s} does not have stdapi loaded, skipping...")
+                next
+              end
+              c, c_args = cmd.split(' ', 2)
+              begin
+                process = session.sys.process.execute(c, c_args,
+                  {
+                    'Channelized' => true,
+                    'Hidden'      => true
+                  })
+                if process && process.channel
+                  data = process.channel.read
+                  print_line(data) if data
+                end
+              rescue ::Rex::Post::Meterpreter::RequestError
+                print_error("Failed: #{$!.class} #{$!}")
+              rescue Rex::TimeoutError
+                print_error("Operation timed out")
+              end
+            elsif session.type == 'shell'
+              output = session.shell_command(cmd)
+              print_line(output) if output
             end
-            c, c_args = cmd.split(' ', 2)
-            begin
-              process = session.sys.process.execute(c, c_args,
-                {
-                  'Channelized' => true,
-                  'Hidden'      => true
-                })
-            rescue ::Rex::Post::Meterpreter::RequestError
-              print_error("Failed: #{$!.class} #{$!}")
-            end
-            if process && process.channel
-              data = process.channel.read
-              print_line(data) if data
-            end
-          elsif session.type == 'shell'
-            output = session.shell_command(cmd)
-            print_line(output) if output
+          ensure
+            # Restore timeout for each session
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
           # If the session isn't a meterpreter or shell type, it
           # could be a VNC session (which can't run commands) or
@@ -1720,8 +1739,16 @@ class Core
       session_list.each do |sess_id|
         session = framework.sessions.get(sess_id)
         if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
           print_status("Killing session #{sess_id}")
-          session.kill
+          begin
+            session.kill
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
+          end
         else
           print_error("Invalid session identifier: #{sess_id}")
         end
@@ -1730,7 +1757,17 @@ class Core
       print_status("Killing all sessions...")
       framework.sessions.each_sorted do |s|
         session = framework.sessions.get(s)
-        session.kill if session
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
+          begin
+            session.kill
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
+          end
+        end
       end
     when 'detach'
       print_status("Detaching the following session(s): #{session_list.join(', ')}")
@@ -1738,18 +1775,34 @@ class Core
         session = verify_session(sess_id)
         # if session is interactive, it's detachable
         if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
           print_status("Detaching session #{sess_id}")
-          session.detach
+          begin
+            session.detach
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
+          end
         end
       end
     when 'interact'
       session = verify_session(sid)
       if session
+        if session.respond_to?(:response_timeout)
+          last_known_timeout = session.response_timeout
+          session.response_timeout = response_timeout
+        end
         print_status("Starting interaction with #{session.name}...\n") unless quiet
-        self.active_session = session
-        session.interact(driver.input.dup, driver.output)
-        self.active_session = nil
-        driver.input.reset_tab_completion if driver.input.supports_readline
+        begin
+          self.active_session = session
+          session.interact(driver.input.dup, driver.output)
+          self.active_session = nil
+          driver.input.reset_tab_completion if driver.input.supports_readline
+        ensure
+          session.response_timeout = last_known_timeout if last_known_timeout
+        end
       end
     when 'scriptall'
       unless script
@@ -1770,15 +1823,23 @@ class Core
           session = framework.sessions.get(sess_id)
         end
         if session
-          if script_paths[session.type]
-            print_status("Session #{sess_id} (#{session.session_host}):")
-            print_status("Running script #{script} on #{session.type} session" +
-                          " #{sess_id} (#{session.session_host})")
-            begin
-              session.execute_file(script_paths[session.type], extra)
-            rescue ::Exception => e
-              log_error("Error executing script: #{e.class} #{e}")
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
+          begin
+            if script_paths[session.type]
+              print_status("Session #{sess_id} (#{session.session_host}):")
+              print_status("Running script #{script} on #{session.type} session" +
+                            " #{sess_id} (#{session.session_host})")
+              begin
+                session.execute_file(script_paths[session.type], extra)
+              rescue ::Exception => e
+                log_error("Error executing script: #{e.class} #{e}")
+              end
             end
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         else
           print_error("Invalid session identifier: #{sess_id}")
@@ -1790,13 +1851,21 @@ class Core
       session_list.each do |sess_id|
         session = verify_session(sess_id)
         if session
-          if session.type == 'shell'
-            session.init_ui(driver.input, driver.output)
-            session.execute_script('post/multi/manage/shell_to_meterpreter')
-            session.reset_ui
-          else
-            print_error("Session #{sess_id} is not a command shell session, skipping...")
-            next
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
+          begin
+            if session.type == 'shell'
+              session.init_ui(driver.input, driver.output)
+              session.execute_script('post/multi/manage/shell_to_meterpreter')
+              session.reset_ui
+            else
+              print_error("Session #{sess_id} is not a command shell session, skipping...")
+              next
+            end
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         end
 
@@ -2765,73 +2834,72 @@ class Core
     res = []
     res << o.default.to_s if o.default
 
-    case o.class.to_s
-
-      when 'Msf::OptAddress'
-        case o.name.upcase
-          when 'RHOST'
-            option_values_target_addrs().each do |addr|
-              res << addr
-            end
-          when 'LHOST'
-            rh = self.active_module.datastore["RHOST"]
-            if rh and not rh.empty?
-              res << Rex::Socket.source_address(rh)
-            else
-              res << Rex::Socket.source_address()
-            end
-          else
+    case o
+    when Msf::OptAddress
+      case o.name.upcase
+      when 'RHOST'
+        option_values_target_addrs().each do |addr|
+          res << addr
         end
-
-      when 'Msf::OptAddressRange'
-        case str
-          when /^file:(.*)/
-            files = tab_complete_filenames($1, words)
-            res += files.map { |f| "file:" + f } if files
-          when /\/$/
-            res << str+'32'
-            res << str+'24'
-            res << str+'16'
-          when /\-$/
-            res << str+str[0, str.length - 1]
-          else
-            option_values_target_addrs().each do |addr|
-              res << addr+'/32'
-              res << addr+'/24'
-              res << addr+'/16'
-            end
+      when 'LHOST'
+        rh = self.active_module.datastore["RHOST"]
+        if rh and not rh.empty?
+          res << Rex::Socket.source_address(rh)
+        else
+          res << Rex::Socket.source_address()
         end
+      else
+      end
 
-      when 'Msf::OptPort'
-        case o.name.upcase
-          when 'RPORT'
-          option_values_target_ports().each do |port|
-            res << port
-          end
+    when Msf::OptAddressRange
+      case str
+      when /^file:(.*)/
+        files = tab_complete_filenames($1, words)
+        res += files.map { |f| "file:" + f } if files
+      when /\/$/
+        res << str+'32'
+        res << str+'24'
+        res << str+'16'
+      when /\-$/
+        res << str+str[0, str.length - 1]
+      else
+        option_values_target_addrs().each do |addr|
+          res << addr+'/32'
+          res << addr+'/24'
+          res << addr+'/16'
         end
+      end
 
-        if (res.empty?)
-          res << (rand(65534)+1).to_s
+    when Msf::OptPort
+      case o.name.upcase
+      when 'RPORT'
+        option_values_target_ports().each do |port|
+          res << port
         end
+      end
 
-      when 'Msf::OptEnum'
-        o.enums.each do |val|
-          res << val
-        end
+      if (res.empty?)
+        res << (rand(65534)+1).to_s
+      end
 
-      when 'Msf::OptPath'
-        files = tab_complete_filenames(str, words)
-        res += files if files
+    when Msf::OptEnum
+      o.enums.each do |val|
+        res << val
+      end
 
-      when 'Msf::OptBool'
-        res << 'true'
-        res << 'false'
+    when Msf::OptPath
+      files = tab_complete_filenames(str, words)
+      res += files if files
 
-      when 'Msf::OptString'
-        if (str =~ /^file:(.*)/)
-          files = tab_complete_filenames($1, words)
-          res += files.map { |f| "file:" + f } if files
-        end
+    when Msf::OptBool
+      res << 'true'
+      res << 'false'
+
+    when Msf::OptString
+      if (str =~ /^file:(.*)/)
+        files = tab_complete_filenames($1, words)
+        res += files.map { |f| "file:" + f } if files
+      end
     end
 
     return res

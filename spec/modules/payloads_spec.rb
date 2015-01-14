@@ -3255,4 +3255,144 @@ describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/reverse_tcp'
   end
+
+  context 'windows/dllinject/bind_hidden_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_tcp',
+                            'stages/windows/dllinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/dllinject/bind_hidden_tcp'
+  end
+
+  context 'windows/meterpreter/bind_hidden_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_tcp',
+                            'stages/windows/meterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/bind_hidden_tcp'
+  end
+
+  context 'windows/patchupdllinject/bind_hidden_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_tcp',
+                            'stages/windows/patchupdllinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/patchupdllinject/bind_hidden_tcp'
+  end
+
+  context 'windows/patchupmeterpreter/bind_hidden_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_tcp',
+                            'stages/windows/patchupmeterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/patchupmeterpreter/bind_hidden_tcp'
+  end
+
+  context 'windows/shell/bind_hidden_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_tcp',
+                            'stages/windows/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/shell/bind_hidden_tcp'
+  end
+
+  context 'windows/upexec/bind_hidden_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_tcp',
+                            'stages/windows/upexec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/upexec/bind_hidden_tcp'
+  end
+
+  context 'windows/vncinject/bind_hidden_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_tcp',
+                            'stages/windows/vncinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/vncinject/bind_hidden_tcp'
+  end
+
+  context 'windows/dllinject/bind_hidden_ipknock_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_ipknock_tcp',
+                            'stages/windows/dllinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/dllinject/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/meterpreter/bind_hidden_ipknock_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_ipknock_tcp',
+                            'stages/windows/meterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/patchupdllinject/bind_hidden_ipknock_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_ipknock_tcp',
+                            'stages/windows/patchupdllinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/patchupdllinject/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/patchupmeterpreter/bind_hidden_ipknock_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_ipknock_tcp',
+                            'stages/windows/patchupmeterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/patchupmeterpreter/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/shell/bind_hidden_ipknock_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_ipknock_tcp',
+                            'stages/windows/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/shell/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/upexec/bind_hidden_ipknock_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_ipknock_tcp',
+                            'stages/windows/upexec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/upexec/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/vncinject/bind_hidden_ipknock_tcp' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_hidden_ipknock_tcp',
+                            'stages/windows/vncinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/vncinject/bind_hidden_ipknock_tcp'
+  end
 end

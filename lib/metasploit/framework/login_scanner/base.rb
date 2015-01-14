@@ -57,8 +57,8 @@ module Metasploit
                     inclusion: { in: [true, false] }
 
           validates :bruteforce_speed,
-                    presence: false,
                     numericality: {
+                      allow_nil: true,
                       only_integer:             true,
                       greater_than_or_equal_to: 0,
                       less_than_or_equal_to:    5
