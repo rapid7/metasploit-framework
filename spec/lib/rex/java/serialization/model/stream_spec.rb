@@ -131,6 +131,17 @@ describe Rex::Java::Serialization::Model::Stream do
     "\x44\x70\x2e\x6a\x61\x72\x78\x70\x77\x01\x00"
   end
 
+  let(:mbean_call) do
+    "\xac\xed\x00\x05\x77\x22\x7b\xb5\x91\x73\x69\x12\x77\xcb\x4a\x7d" +
+    "\x3f\x10\x00\x00\x01\x4a\xe3\xed\x2f\x53\x81\x03\xff\xff\xff\xff" +
+    "\x60\x73\xb3\x36\x1f\x37\xbd\xc2\x73\x72\x00\x1b\x6a\x61\x76\x61" +
+    "\x78\x2e\x6d\x61\x6e\x61\x67\x65\x6d\x65\x6e\x74\x2e\x4f\x62\x6a" +
+    "\x65\x63\x74\x4e\x61\x6d\x65\x0f\x03\xa7\x1b\xeb\x6d\x15\xcf\x03" +
+    "\x00\x00\x70\x78\x70\x74\x00\x1d\x4d\x4c\x65\x74\x43\x6f\x6d\x70" +
+    "\x72\x6f\x6d\x69\x73\x65\x3a\x6e\x61\x6d\x65\x3d\x65\x76\x69\x6c" +
+    "\x2c\x69\x64\x3d\x31\x78\x70"
+  end
+
   describe ".new" do
     it "Rex::Java::Serialization::Model::Stream" do
       expect(stream).to be_a(Rex::Java::Serialization::Model::Stream)
@@ -334,6 +345,43 @@ describe Rex::Java::Serialization::Model::Stream do
         stream.contents << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00")
 
         expect(stream.encode).to eq(rmi_call)
+      end
+    end
+
+    context "when serializing a MBeanServerConnection.getObjectInstance call data" do
+      it "serializes the stream correctly" do
+        block_data = Rex::Java::Serialization::Model::BlockData.new
+        block_data.contents = "\x7b\xb5\x91\x73\x69\x12\x77\xcb\x4a\x7d\x3f\x10\x00\x00\x01\x4a\xe3\xed\x2f\x53\x81\x03"
+        block_data.contents << "\xff\xff\xff\xff\x60\x73\xb3\x36\x1f\x37\xbd\xc2"
+        block_data.length = block_data.contents.length
+
+        stream.contents << block_data
+
+        new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
+        new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'javax.management.ObjectName')
+        new_class_desc.serial_version = 0xf03a71beb6d15cf
+        new_class_desc.flags = 3
+        new_class_desc.fields = []
+        new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
+        new_class_desc.class_annotation.contents = [
+            Rex::Java::Serialization::Model::NullReference.new,
+            Rex::Java::Serialization::Model::EndBlockData.new
+        ]
+        new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
+        new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
+
+        new_object = Rex::Java::Serialization::Model::NewObject.new
+        new_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
+        new_object.class_desc.description = new_class_desc
+        new_object.class_data = []
+
+        stream.contents << new_object
+        stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, 'MLetCompromise:name=evil,id=1')
+        stream.contents << Rex::Java::Serialization::Model::EndBlockData.new
+        stream.contents << Rex::Java::Serialization::Model::NullReference.new
+
+        expect(stream.encode).to eq(mbean_call)
+
       end
     end
   end
