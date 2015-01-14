@@ -12,6 +12,7 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Accounts
 
   UAC_DISABLED = 0x02
+  USER_FIELDS = ['sAMAccountName', 'userAccountControl', 'lockoutTime', 'mail', 'primarygroupid', 'description'].freeze
 
   def initialize(info = {})
     super(update_info(
@@ -73,7 +74,7 @@ class Metasploit3 < Msf::Post
     search_filter = "(&#{inner_filter})"
 
     begin
-      q = query(search_filter, max_search, fields)
+      q = query(search_filter, max_search, USER_FIELDS)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
@@ -90,7 +91,7 @@ class Metasploit3 < Msf::Post
         'Header'     => "Domain Users",
         'Indent'     => 1,
         'SortIndex'  => -1,
-        'Columns'    => fields
+        'Columns'    => USER_FIELDS
       )
 
     q[:results].each do |result|
