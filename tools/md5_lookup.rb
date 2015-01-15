@@ -23,6 +23,7 @@
 #
 # Load our MSF API
 #
+
 msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
@@ -38,11 +39,12 @@ require 'optparse'
 # Basic prints we can't live without
 #
 
+# Prints with [*] that represents the message is a status
 def print_status(msg='')
   $stdout.puts "[*] #{msg}"
 end
 
-
+# Prints with [-] that represents the message is an error
 def print_error(msg='')
   $stdout.puts "[-] #{msg}"
 end
@@ -139,7 +141,7 @@ module Md5LookupUtility
     # database values that md5cracker.org will recognize
     DATABASES =
         {
-          :all           => nil, # If all, this is shifted
+          :all           => nil, # This is shifted before being passed to Md5Lookup
           :authsecu      => 'authsecu',
           :i337          => 'i337.net',
           :md5_my_addr   => 'md5.my-addr.com',
@@ -155,12 +157,37 @@ module Md5LookupUtility
 
     # Parses the user inputs
     # @param args [Array] This should be Ruby's ARGV
+    # @raise [OptionParser::InvalidOption] Invalid option
+    # @raise [OptionParser::MissingArgument] Missing arguments
     # @return [Array] The normalized options
     def self.parse(args)
+      parser, options = get_parsed_options
+
+      # Set the optional datation argument (--database)
+      if !options[:databases]
+        options[:databases] = get_database_names
+      end
+
+      # Now let's parse it
+      # This may raise OptionParser::InvalidOption
+      parser.parse!(args)
+
+      # Final checks
+      if options.empty?
+        raise OptionParser::MissingArgument, 'No options set, try -h for usage'
+      end
+
+      options
+    end
+
+    private
+
+
+    # Returns the parsed options from ARGV
+    # @return [Array] The OptionParser object and an array of options
+    def self.get_parsed_options
       options = {}
-
-      opts = OptionParser.new do |opt|
-
+      parser = OptionParser.new do |opt|
         opt.banner = "Usage: #{__FILE__} [options]"
         opt.separator ''
         opt.separator 'Specific options:'
@@ -186,27 +213,8 @@ module Md5LookupUtility
           exit
         end
       end
-
-      if !options[:databases]
-        options[:databases] = get_database_names
-      end
-
-      begin
-        opts.parse!(args)
-      rescue OptionParser::InvalidOption
-        print_error("Invallid option, try -h for usage")
-        exit
-      end
-
-      if options.empty?
-        print_error("No options set, try -h for usage")
-        exit
-      end
-
-      options
+      return parser, options
     end
-
-    private
 
 
     # Returns the actual database names based on what the user wants
@@ -229,11 +237,13 @@ module Md5LookupUtility
 
 
     # Returns a list of all of the supported database symbols
+    # @return [Array] Database symbols
     def self.get_database_symbols
       DATABASES.keys
     end
 
     # Returns a list of all the original database values recognized by md5cracker.org
+    # @return [Array] Original database values
     def self.get_database_names
       new_db_list = DATABASES.values
       new_db_list.shift #Get rid of the 'all' option
@@ -245,7 +255,12 @@ module Md5LookupUtility
   # This class is the driver
   class Driver
     def initialize
-      @opts = OptsConsole.parse(ARGV)
+      begin
+        @opts = OptsConsole.parse(ARGV)
+      rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
+        print_error("#{e.message} (please see -h)")
+        exit
+      end
     end
 
     def run
