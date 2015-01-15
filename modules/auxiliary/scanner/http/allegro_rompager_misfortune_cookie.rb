@@ -98,7 +98,7 @@ class Metasploit4 < Msf::Auxiliary
       # in most cases, the canary URI will not exist and will return a 404, but
       # if everything under TARGETURI is protected by auth, a 401 may be OK too.
       # but, regardless, respect the configuration set for this module
-      return canary if res && res.code.to_s =~ @status_codes_regex
+      return [canary, res.code] if res && res.code.to_s =~ @status_codes_regex
     end
     nil
   end
@@ -118,7 +118,10 @@ class Metasploit4 < Msf::Auxiliary
   # vulnerable.
   def test_misfortune
     # find a usable canary URI (one that returns an acceptable status code already)
-    unless (canary_value = find_canary)
+    if canary = find_canary
+      canary_value, canary_code = canary
+      vprint_status("#{peer} canary URI #{canary_value} with code #{canary_code}")
+    else
       vprint_error("#{peer} Unable to find a suitable canary URI")
       return Exploit::CheckCode::Unknown
     end
