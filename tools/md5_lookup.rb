@@ -157,7 +157,6 @@ module Md5LookupUtility
 
     # Parses the user inputs
     # @param args [Array] This should be Ruby's ARGV
-    # @raise [OptionParser::InvalidOption] Invalid option
     # @raise [OptionParser::MissingArgument] Missing arguments
     # @return [Array] The normalized options
     def self.parse(args)
@@ -175,6 +174,8 @@ module Md5LookupUtility
       # Final checks
       if options.empty?
         raise OptionParser::MissingArgument, 'No options set, try -h for usage'
+      elsif options[:input].blank?
+        raise OptionParser::MissingArgument, '-i is a required argument'
       end
 
       options
@@ -184,6 +185,7 @@ module Md5LookupUtility
 
 
     # Returns the parsed options from ARGV
+    # raise [OptionParser::InvalidOption] Invalid option found
     # @return [Array] The OptionParser object and an array of options
     def self.get_parsed_options
       options = {}
@@ -192,21 +194,19 @@ module Md5LookupUtility
         opt.separator ''
         opt.separator 'Specific options:'
 
-        opt.on('-i', '--input <file>', 'The file that contains all the MD5 hashes') do |v|
+        opt.on('-i', '--input <file>',
+          'The file that contains all the MD5 hashes (one line per hash)') do |v|
           if v && !::File.exists?(v)
-            print_error("Invalid input file: #{v}")
-            exit
+            raise OptionParser::InvalidOption, "Invalid input file: #{v}"
           end
 
           options[:input] = v
         end
 
-        opt.on('-d','--databases <list>', "Select databases: #{get_database_symbols * ", "}") do |v|
+        opt.on('-d','--databases <names>',
+          "(Optional) Select databases: #{get_database_symbols * ", "} (Default=all)") do |v|
           options[:databases] = extract_db_names(v)
         end
-
-        opt.separator ''
-        opt.separator 'Common options:'
 
         opt.on_tail('-h', '--help', 'Show this message') do
           $stdout.puts opt
