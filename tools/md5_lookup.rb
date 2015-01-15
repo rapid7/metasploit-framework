@@ -67,7 +67,7 @@ module Md5LookupUtility
     #  @return [String] The output file path (to save the cracked MD5 results)
     attr_accessor :out_file
 
-    def initialize
+    def initialize(opts={})
       self.rhost      = 'md5cracker.org'
       self.rport      = 80
       self.target_uri = '/api/api.cracker.php'
@@ -76,12 +76,38 @@ module Md5LookupUtility
     end
   end
 
+
+  # This class is basically an auxiliary module without relying on msfconsole
   class Md5Lookup < Msf::Auxiliary
 
     include Msf::Exploit::Remote::HttpClient
 
     def initialize(opts={})
-      super
+      super(
+        'DefaultOptions' =>
+          {
+            'SSL'   => false, # Doesn't look like md5cracker.org supports HTTPS
+            'RHOST' => resolve_host(Md5LookupUtility::Config.rhost),
+            'RPORT' => Md5LookupUtility::Config.rport
+          }
+      )
+    end
+
+
+    # Returns the look up HTTP response
+    # @param md5_hash [String] The MD5 hash to lookup
+    # @param db_names [String] The databases check
+    # @raise [RuntimeError] If the MD5 hash is bullshit
+    def lookup(md5_hash, db_names)
+      if !is_md5_format?(md5_hash)
+        raise RuntimeError, "Not a valid MD5 hash: #{md5_hash}"
+      end
+
+      send_request_cgi({
+        'uri' => Md5LookupUtility::Config.target_uri,
+        'method' => 'GET',
+        'vars_get' => {'database'=> db_names, 'hash'=>md5_hash}
+      })
     end
 
     private
@@ -92,6 +118,14 @@ module Md5LookupUtility
     # @return [String] IP address
     def resolve_host(host)
       Rex::Socket.resolv_to_dotted(host) rescue '144.76.226.137'
+    end
+
+
+    # Checks if the hash format is MD5 or not
+    # @param md5_hash [String] The MD5 hash (hex)
+    # @return [TrueClass/FlaseClass] True if the format is valid, otherwise false
+    def is_md5_format?(md5_hash)
+      (md5_hash =~ /^[a-f0-9]{32}$/i) ? true : false
     end
 
   end
@@ -211,9 +245,11 @@ module Md5LookupUtility
   # This class is the driver
   class Driver
     def initialize
-      opts = {}
-      options = OptsConsole.parse(ARGV)
-      puts options.inspect
+      @opts = OptsConsole.parse(ARGV)
+    end
+
+    def run
+
     end
   end
 
@@ -226,6 +262,7 @@ end
 if __FILE__ == $PROGRAM_NAME
   begin
     driver = Md5LookupUtility::Driver.new
+    driver.run
   rescue Interrupt
     $stdout.puts
     $stdout.puts "Good bye"
