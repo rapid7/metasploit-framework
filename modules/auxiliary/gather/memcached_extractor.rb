@@ -83,7 +83,6 @@ class Metasploit3 < Msf::Auxiliary
       keys = enumerate_keys
       print_good("Found #{keys.size} keys")
       data = data_for_keys(keys)
-      puts data
       rhost = 'localhost.memcached' if %w(localhost 127.0.0.1).include?(rhost)
       store_loot('memcached.dump', 'text/plain', rhost, data, 'memcached.txt', 'Memcached extractor')
       print_good("Loot stored!")
