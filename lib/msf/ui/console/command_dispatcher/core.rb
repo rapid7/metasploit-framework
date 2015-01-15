@@ -2326,7 +2326,7 @@ class Core
 
     # No arguments?  No cookie.
     if (args.length == 0)
-      cmd_get_help
+      global ? cmd_getg_help : cmd_get_help
       return false
     end
 
@@ -2346,7 +2346,6 @@ class Core
     datastore = active_module ? active_module.datastore : self.framework.datastore
     datastore.keys
   end
-
 
   def cmd_getg_help
     print_line "Usage: getg var1 [var2 ...]"
@@ -2374,8 +2373,6 @@ class Core
   def cmd_getg_tabs(str, words)
     self.framework.datastore.keys
   end
-
-  alias cmd_getg_help cmd_get_help
 
   def cmd_unset_help
     print_line "Usage: unset [-g] var1 var2 var3 ..."
