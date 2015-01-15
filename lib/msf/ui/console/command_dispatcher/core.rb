@@ -2318,21 +2318,19 @@ class Core
     end
 
     # Determine which data store we're operating on
-    if (active_module and global == false)
+    if (active_module && !global)
       datastore = active_module.datastore
     else
       datastore = framework.datastore
     end
 
     # No arguments?  No cookie.
-    if (args.length == 0)
+    if args.empty?
       global ? cmd_getg_help : cmd_get_help
       return false
     end
 
-    while ((val = args.shift))
-      print_line("#{val} => #{datastore[val]}")
-    end
+    args.each { |var| print_line("#{var} => #{datastore[var]}") }
   end
 
   #
