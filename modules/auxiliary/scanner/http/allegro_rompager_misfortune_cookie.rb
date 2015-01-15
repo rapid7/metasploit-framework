@@ -79,7 +79,7 @@ class Metasploit4 < Msf::Auxiliary
   def find_canary
     vprint_status("#{peer} locating suitable canary URI")
     0.upto(4) do
-      canary = '/' + Rex::Text.rand_text_alpha(16)
+      canary = target_uri.path.to_s + '/' + Rex::Text.rand_text_alpha(16)
       res = send_request_raw(
         'uri' => normalize_uri(canary),
         'method' => 'GET',
