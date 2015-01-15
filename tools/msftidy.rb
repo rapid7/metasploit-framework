@@ -601,6 +601,18 @@ class Msftidy
     end
   end
 
+  # This checks looks for extranous commas
+  # Stuff with comments should match too: , #metasploit module ]
+  # but it should not match interpolation #{
+  def check_comma
+    test = @source.scan(/[^\n]+,(?:\s*#[^{][^\n]+)?\s*[\]\}]/)
+    unless test.empty?
+      test.each { |item|
+        info("Extra comma: #{item}")
+      }
+    end
+  end
+
   private
 
   def load_file(file)
@@ -650,6 +662,7 @@ def run_checks(full_filepath)
   tidy.check_sock_get
   tidy.check_udp_sock_get
   tidy.check_invalid_url_scheme
+  tidy.check_comma
   return tidy
 end
 
