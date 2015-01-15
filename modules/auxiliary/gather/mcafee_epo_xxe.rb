@@ -250,11 +250,11 @@ class Metasploit3 < Msf::Auxiliary
 
     passphrase = passphrase.gsub('\\\\=', '=').gsub("\\u002f", "/").gsub("\\u002b", "+")
 
-    print_status("Base64 encoded encrypted passphrase: " + passphrase)
+    print_status("Base64 encoded encrypted passphrase: #{passphrase}")
 
     passphrase = aes.update(Rex::Text.decode_base64(passphrase)) + aes.final
 
-    print_good("The decrypted password for the keystore, 'sa' SQL user (if using local instance), and possibly 'admin' is: " + passphrase)
+    print_good("The decrypted password for the keystore, 'sa' SQL user (if using local instance), and possibly 'admin' is: #{passphrase}")
   end
 end
 
