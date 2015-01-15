@@ -1418,7 +1418,7 @@ class Plugin::Wmap < Msf::Plugin
             inipath = '/'
           end
 
-          #site.web_forms.find_all_by_path(target.path).each do |form|
+          #site.web_forms.where(path: target.path).each do |form|
             ckey = [ site.vhost, host.address, serv.port, inipath].join("|")
 
             if not self.targets[ckey]

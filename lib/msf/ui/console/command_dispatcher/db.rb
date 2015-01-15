@@ -1332,7 +1332,7 @@ class Db
 
     # Handle hostless loot
     if host_ranges.compact.empty? # Wasn't a host search
-      hostless_loot = framework.db.loots.find_all_by_host_id(nil)
+      hostless_loot = framework.db.loots.where(host_id: nil)
       hostless_loot.each do |loot|
         row = []
         row.push("")
