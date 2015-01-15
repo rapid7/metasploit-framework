@@ -43,7 +43,8 @@ class Metasploit4 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptString.new('STATUS_CODES_REGEX', [true, 'Ensure that canary pages and probe responses have status codes that match this regex', '^4\d{3}$'])
+        OptString.new('CANARY_URI', [false, 'Try overwriting the requested URI with this canary value (empty for random)']),
+        OptString.new('STATUS_CODES_REGEX', [true, 'Ensure that canary pages and probe responses have status codes that match this regex', '^4\d{2}$'])
       ], self.class
     )
   end
@@ -88,8 +89,15 @@ class Metasploit4 < Msf::Auxiliary
 
   def find_canary
     vprint_status("#{peer} locating suitable canary URI")
-    0.upto(4) do
-      canary = target_uri.path.to_s + '/' + Rex::Text.rand_text_alpha(16)
+    canaries = []
+    if datastore['CANARY_URI']
+      canaries << datastore['CANARY_URI']
+    else
+      # several random URIs in the hopes that one, generally the first, will be usable
+      0.upto(4) { canaries << '/' + Rex::Text.rand_text_alpha(16) }
+    end
+
+    canaries.each do |canary|
       res = send_request_raw(
         'uri' => normalize_uri(canary),
         'method' => 'GET',
@@ -120,7 +128,7 @@ class Metasploit4 < Msf::Auxiliary
     # find a usable canary URI (one that returns an acceptable status code already)
     if canary = find_canary
       canary_value, canary_code = canary
-      vprint_status("#{peer} canary URI #{canary_value} with code #{canary_code}")
+      vprint_status("#{peer} found canary URI #{canary_value} with code #{canary_code}")
     else
       vprint_error("#{peer} Unable to find a suitable canary URI")
       return Exploit::CheckCode::Unknown
