@@ -95,4 +95,25 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
       end
     end
   end
+
+  it { is_expected.to respond_to :cmd_get }
+  it { is_expected.to respond_to :cmd_getg }
+
+  describe "#cmd_get" do
+    describe "without arguments" do
+      it "should show a help message" do
+        core.cmd_get
+        @output.join.should =~ /Usage: get /
+      end
+    end
+  end
+
+  describe "#cmd_getg" do
+    describe "without arguments" do
+      it "should show a help message" do
+        core.cmd_getg
+        @output.join.should =~ /Usage: getg /
+      end
+    end
+  end
 end
