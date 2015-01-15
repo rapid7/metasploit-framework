@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
       break if data =~ /^END/
     end
     slab_ids.flatten!
-    slab_ids.uniq!
+    slab_ids.uniq! || []
   end
 
   def data_for_keys(keys = [])
@@ -66,6 +66,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       all_data[key] = data
     end
+    all_data
   end
 
   def determine_version
@@ -82,8 +83,10 @@ class Metasploit3 < Msf::Auxiliary
       keys = enumerate_keys
       print_good("Found #{keys.size} keys")
       data = data_for_keys(keys)
-      #store_loot('memcached.dump', 'text/plain', datastore['RHOST'], data, 'memcached.text', 'Memcached extractor')
-      #print_good("Loot stored!")
+      puts data
+      rhost = 'localhost.memcached' if %w(localhost 127.0.0.1).include?(rhost)
+      store_loot('memcached.dump', 'text/plain', rhost, data, 'memcached.txt', 'Memcached extractor')
+      print_good("Loot stored!")
     else
       print_error("Could not connect to memcached server! #{e}")
       return
