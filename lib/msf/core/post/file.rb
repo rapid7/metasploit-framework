@@ -3,20 +3,26 @@
 module Msf::Post::File
 
   #
-  # Change directory in the remote session to +path+
+  # Change directory in the remote session to +path+, which may be relative or
+  # absolute.
   #
+  # @return [void]
   def cd(path)
+    e_path = expand_path(path) rescue path
     if session.type == "meterpreter"
-      e_path = session.fs.file.expand_path(path) rescue path
       session.fs.dir.chdir(e_path)
     else
-      session.shell_command_token("cd '#{path}'")
+      session.shell_command_token("cd \"#{e_path}\"")
     end
   end
 
   #
   # Returns the current working directory in the remote session
   #
+  # @note This may be inaccurate on shell sessions running on Windows before
+  #   XP/2k3
+  #
+  # @return [String]
   def pwd
     if session.type == "meterpreter"
       return session.fs.dir.getwd
@@ -51,6 +57,7 @@ module Msf::Post::File
   #
   # See if +path+ exists on the remote system and is a directory
   #
+  # @param path [String] Remote filename to check
   def directory?(path)
     if session.type == "meterpreter"
       stat = session.fs.file.stat(path) rescue nil
@@ -60,7 +67,7 @@ module Msf::Post::File
       if session.platform =~ /win/
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
       else
-        f = session.shell_command_token("test -d '#{path}' && echo true")
+        f = session.shell_command_token("test -d \"#{path}\" && echo true")
       end
 
       return false if f.nil? or f.empty?
@@ -72,6 +79,7 @@ module Msf::Post::File
   #
   # Expand any environment variables to return the full path specified by +path+.
   #
+  # @return [String]
   def expand_path(path)
     if session.type == "meterpreter"
       return session.fs.file.expand_path(path)
@@ -83,6 +91,7 @@ module Msf::Post::File
   #
   # See if +path+ exists on the remote system and is a regular file
   #
+  # @param path [String] Remote filename to check
   def file?(path)
     if session.type == "meterpreter"
       stat = session.fs.file.stat(path) rescue nil
@@ -95,7 +104,7 @@ module Msf::Post::File
           f = cmd_exec("cmd.exe /C IF exist \"#{path}\\\\\" ( echo false ) ELSE ( echo true )")
         end
       else
-        f = session.shell_command_token("test -f '#{path}' && echo true")
+        f = session.shell_command_token("test -f \"#{path}\" && echo true")
       end
 
       return false if f.nil? or f.empty?
@@ -109,15 +118,16 @@ module Msf::Post::File
   #
   # Check for existence of +path+ on the remote file system
   #
+  # @param path [String] Remote filename to check
   def exist?(path)
     if session.type == "meterpreter"
       stat = session.fs.file.stat(path) rescue nil
       return !!(stat)
     else
       if session.platform =~ /win/
-         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
+        f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
       else
-        f = session.shell_command_token("test -e '#{path}' && echo true")
+        f = cmd_exec("test -e \"#{path}\" && echo true")
       end
 
       return false if f.nil? or f.empty?
@@ -127,30 +137,18 @@ module Msf::Post::File
   end
 
   #
-  # Remove a remote file
-  #
-  def file_rm(file)
-    if session.type == "meterpreter"
-      session.fs.file.rm(file)
-    else
-      if session.platform =~ /win/
-        session.shell_command_token("del \"#{file}\"")
-      else
-        session.shell_command_token("rm -f '#{file}'")
-      end
-    end
-  end
-
-  #
   # Writes a given string to a given local file
   #
-  def file_local_write(file2wrt, data2wrt)
-    if not ::File.exists?(file2wrt)
-      ::FileUtils.touch(file2wrt)
+  # @param local_file_name [String]
+  # @param data [String]
+  # @return [void]
+  def file_local_write(local_file_name, data)
+    unless ::File.exists?(local_file_name)
+      ::FileUtils.touch(local_file_name)
     end
 
-    output = ::File.open(file2wrt, "a")
-    data2wrt.each_line do |d|
+    output = ::File.open(local_file_name, "a")
+    data.each_line do |d|
       output.puts(d)
     end
     output.close
@@ -159,22 +157,27 @@ module Msf::Post::File
   #
   # Returns a MD5 checksum of a given local file
   #
-  def file_local_digestmd5(file2md5)
-    if not ::File.exists?(file2md5)
-      raise "File #{file2md5} does not exists!"
-    else
+  # @param local_file_name [String] Local file name
+  # @return [String] Hex digest of file contents
+  def file_local_digestmd5(local_file_name)
+    if ::File.exists?(local_file_name)
       require 'digest/md5'
       chksum = nil
-      chksum = Digest::MD5.hexdigest(::File.open(file2md5, "rb") { |f| f.read})
+      chksum = Digest::MD5.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
       return chksum
+    else
+      raise "File #{local_file_name} does not exists!"
     end
   end
 
   #
   # Returns a MD5 checksum of a given remote file
   #
-  def file_remote_digestmd5(file2md5)
-    data = read_file(file2md5)
+  # @note THIS DOWNLOADS THE FILE
+  # @param file_name [String] Remote file name
+  # @return [String] Hex digest of file contents
+  def file_remote_digestmd5(file_name)
+    data = read_file(file_name)
     chksum = nil
     if data
       chksum = Digest::MD5.hexdigest(data)
@@ -185,22 +188,27 @@ module Msf::Post::File
   #
   # Returns a SHA1 checksum of a given local file
   #
-  def file_local_digestsha1(file2sha1)
-    if not ::File.exists?(file2sha1)
-      raise "File #{file2sha1} does not exists!"
-    else
+  # @param local_file_name [String] Local file name
+  # @return [String] Hex digest of file contents
+  def file_local_digestsha1(local_file_name)
+    if ::File.exists?(local_file_name)
       require 'digest/sha1'
       chksum = nil
-      chksum = Digest::SHA1.hexdigest(::File.open(file2sha1, "rb") { |f| f.read})
+      chksum = Digest::SHA1.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
       return chksum
+    else
+      raise "File #{local_file_name} does not exists!"
     end
   end
 
   #
   # Returns a SHA1 checksum of a given remote file
   #
-  def file_remote_digestsha1(file2sha1)
-    data = read_file(file2sha1)
+  # @note THIS DOWNLOADS THE FILE
+  # @param file_name [String] Remote file name
+  # @return [String] Hex digest of file contents
+  def file_remote_digestsha1(file_name)
+    data = read_file(file_name)
     chksum = nil
     if data
       chksum = Digest::SHA1.hexdigest(data)
@@ -211,22 +219,27 @@ module Msf::Post::File
   #
   # Returns a SHA256 checksum of a given local file
   #
-  def file_local_digestsha2(file2sha2)
-    if not ::File.exists?(file2sha2)
-      raise "File #{file2sha2} does not exists!"
-    else
+  # @param local_file_name [String] Local file name
+  # @return [String] Hex digest of file contents
+  def file_local_digestsha2(local_file_name)
+    if ::File.exists?(local_file_name)
       require 'digest/sha2'
       chksum = nil
-      chksum = Digest::SHA256.hexdigest(::File.open(file2sha2, "rb") { |f| f.read})
+      chksum = Digest::SHA256.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
       return chksum
+    else
+      raise "File #{local_file_name} does not exists!"
     end
   end
 
   #
   # Returns a SHA2 checksum of a given remote file
   #
-  def file_remote_digestsha2(file2sha2)
-    data = read_file(file2sha2)
+  # @note THIS DOWNLOADS THE FILE
+  # @param file_name [String] Remote file name
+  # @return [String] Hex digest of file contents
+  def file_remote_digestsha2(file_name)
+    data = read_file(file_name)
     chksum = nil
     if data
       chksum = Digest::SHA256.hexdigest(data)
@@ -238,6 +251,8 @@ module Msf::Post::File
   # Platform-agnostic file read.  Returns contents of remote file +file_name+
   # as a String.
   #
+  # @param file_name [String] Remote file name to read
+  # @return [String] Contents of the file
   def read_file(file_name)
     data = nil
     if session.type == "meterpreter"
@@ -246,19 +261,20 @@ module Msf::Post::File
       if session.platform =~ /win/
         data = session.shell_command_token("type \"#{file_name}\"")
       else
-        data = session.shell_command_token("cat \'#{file_name}\'")
+        data = session.shell_command_token("cat \"#{file_name}\"")
       end
 
     end
     data
   end
 
-  #
   # Platform-agnostic file write. Writes given object content to a remote file.
-  # Returns Boolean true if successful
   #
   # NOTE: *This is not binary-safe on Windows shell sessions!*
   #
+  # @param file_name [String] Remote file name to write
+  # @param data [String] Contents to put in the file
+  # @return [void]
   def write_file(file_name, data)
     if session.type == "meterpreter"
       fd = session.fs.file.new(file_name, "wb")
@@ -281,6 +297,9 @@ module Msf::Post::File
   #
   # NOTE: *This is not binary-safe on Windows shell sessions!*
   #
+  # @param file_name [String] Remote file name to write
+  # @param data [String] Contents to put in the file
+  # @return [void]
   def append_file(file_name, data)
     if session.type == "meterpreter"
       fd = session.fs.file.new(file_name, "ab")
@@ -300,6 +319,9 @@ module Msf::Post::File
   # Read a local file +local+ and write it as +remote+ on the remote file
   # system
   #
+  # @param remote [String] Destination file name on the remote filesystem
+  # @param local [String] Local file whose contents will be uploaded
+  # @return (see #write_file)
   def upload_file(remote, local)
     write_file(remote, ::File.read(local))
   end
@@ -307,38 +329,54 @@ module Msf::Post::File
   #
   # Delete remote files
   #
+  # @param remote_files [Array<String>] List of remote filenames to
+  #   delete
+  # @return [void]
   def rm_f(*remote_files)
     remote_files.each do |remote|
       if session.type == "meterpreter"
         session.fs.file.delete(remote) if exist?(remote)
       else
         if session.platform =~ /win/
-          cmd_exec("del /q /f #{remote}")
+          cmd_exec("del /q /f \"#{remote}\"")
         else
-          cmd_exec("rm -f #{remote}")
+          cmd_exec("rm -f \"#{remote}\"")
         end
       end
     end
   end
 
+  alias :file_rm :rm_f
+
   #
   # Rename a remote file.
   #
+  # @param old_file [String] Remote file name to move
+  # @param new_file [String] The new name for the remote file
   def rename_file(old_file, new_file)
-    if session.respond_to? :commands and session.commands.include?("stdapi_fs_file_move")
-      session.fs.file.mv(old_file, new_file)
+    if session.respond_to? :commands && session.commands.include?("stdapi_fs_file_move")
+      return (session.fs.file.mv(old_file, new_file).result == 0)
     else
-        if session.platform =~ /win/
-          cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|)
+      if session.platform =~ /win/
+        if cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|) =~ /moved/
+          return true
         else
-          cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|)
+          return false
         end
+      else
+        if cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|).empty?
+          return true
+        else
+          return false
+        end
+      end
     end
   end
   alias :move_file :rename_file
   alias :mv_file :rename_file
 
 protected
+
   #
   # Meterpreter-specific file read.  Returns contents of remote file
   # +file_name+ as a String or nil if there was an error
@@ -346,11 +384,12 @@ protected
   # You should never call this method directly.  Instead, call {#read_file}
   # which will call this if it is appropriate for the given session.
   #
+  # @return [String]
   def _read_file_meterpreter(file_name)
     begin
       fd = session.fs.file.new(file_name, "rb")
     rescue ::Rex::Post::Meterpreter::RequestError => e
-      print_error("Failed to open file: #{file_name}")
+      print_error("Failed to open file: #{file_name}: #{e}")
       return nil
     end
 
@@ -370,10 +409,11 @@ protected
   #
   # Truncates if +append+ is false, appends otherwise.
   #
-  # You should never call this method directly.  Instead, call #write_file or
-  # #append_file which will call this if it is appropriate for the given
+  # You should never call this method directly.  Instead, call {#write_file}
+  # or {#append_file} which will call this if it is appropriate for the given
   # session.
   #
+  # @return [void]
   def _write_file_unix_shell(file_name, data, append=false)
     redirect = (append ? ">>" : ">")
 
@@ -482,7 +522,7 @@ protected
     # The first command needs to use the provided redirection for either
     # appending or truncating.
     cmd = command.sub("CONTENTS") { chunks.shift }
-    session.shell_command_token("#{cmd} #{redirect} '#{file_name}'")
+    session.shell_command_token("#{cmd} #{redirect} \"#{file_name}\"")
 
     # After creating/truncating or appending with the first command, we
     # need to append from here on out.
@@ -499,6 +539,7 @@ protected
   #
   # Calculate the maximum line length for a unix shell.
   #
+  # @return [Fixnum]
   def _unix_max_line_length
     # Based on autoconf's arg_max calculator, see
     # http://www.in-ulm.de/~mascheck/various/argmax/autoconf_check.html

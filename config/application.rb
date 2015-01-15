@@ -34,6 +34,7 @@ module Metasploit
     class Application < Rails::Application
       include Metasploit::Framework::CommonEngine
 
+      config.paths['log']             = "#{Msf::Config.log_directory}/#{Rails.env}.log"
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
     end
   end

