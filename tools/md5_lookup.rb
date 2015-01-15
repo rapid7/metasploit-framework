@@ -69,16 +69,11 @@ module Md5LookupUtility
     #  @return [String] The output file path (to save the cracked MD5 results)
     attr_accessor :out_file
 
-    # @!attribute databases
-    #  @return [Array] The database names recognized by md5cracker.org
-    attr_accessor :databases
-
     def initialize(opts={})
       self.rhost      = 'md5cracker.org'
       self.rport      = 80
       self.target_uri = '/api/api.cracker.php'
       self.out_file   = opts[:out_file] || 'results.txt'
-      self.databases  = opts[:databases]
     end
   end
 
@@ -89,14 +84,14 @@ module Md5LookupUtility
     include Msf::Exploit::Remote::HttpClient
 
     def initialize(opts={})
-      config = Md5LookupUtility::Config.new
+      @config = Md5LookupUtility::Config.new
 
       super(
         'DefaultOptions' =>
           {
             'SSL'   => false, # Doesn't look like md5cracker.org supports HTTPS
-            'RHOST' => resolve_host(config.rhost),
-            'RPORT' => config.rport
+            'RHOST' => resolve_host(@config.rhost),
+            'RPORT' => @config.rport
           }
       )
     end
@@ -280,9 +275,11 @@ module Md5LookupUtility
 
     # Extracts all the MD5 hashes one by one
     def extract_hashes(input_file)
-      ::File.open(input_file, 'rb').each_line do |hash|
-        next if !is_md5_format?(hash)
-        yield hash.strip # Make sure no newlines
+      ::File.open(input_file, 'rb') do |f|
+        f.each_line do |hash|
+          next if !is_md5_format?(hash)
+          yield hash.strip # Make sure no newlines
+        end
       end
     end
 
