@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 
     #This vuln requires a bit of setup before we can exploit it
 
-    print_status("Setting up some things...")
+    print_status("Setting up environment for exploitation")
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'core', 'orionNavigationLogin.do'),
