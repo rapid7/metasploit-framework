@@ -78,7 +78,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     print_status("#{rhost}:#{rport} - Connecting to memcached server...")
-    if connect
+    begin
+      connect
       print_good("Connected to memcached #{determine_version}")
       keys = enumerate_keys
       print_good("Found #{keys.size} keys")
@@ -86,9 +87,8 @@ class Metasploit3 < Msf::Auxiliary
       rhost = 'localhost.memcached' if %w(localhost 127.0.0.1).include?(rhost)
       store_loot('memcached.dump', 'text/plain', rhost, data, 'memcached.txt', 'Memcached extractor')
       print_good("Loot stored!")
-    else
-      print_error("Could not connect to memcached server! #{e}")
-      return
+    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
+      print_error("Could not connect to memcached server!")
     end
   end
 end
