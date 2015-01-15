@@ -40,6 +40,12 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'URI to test', '/'])
       ], Exploit::Remote::HttpClient
     )
+
+    register_advanced_options(
+      [
+        OptString.new('STATUS_CODES_REGEX', [true, 'Ensure that canary pages and probe responses have status codes that match this regex', '^4\d{3}$'])
+      ], self.class
+    )
   end
 
   def check_host(_ip)
@@ -60,6 +66,10 @@ class Metasploit4 < Msf::Auxiliary
     else
       vprint_status("#{peer} is not vulnerable")
     end
+  end
+
+  def setup
+    @status_codes_regex = Regexp.new(datastore['STATUS_CODES_REGEX'])
   end
 
   # Fingerprints the provided HTTP response and returns
@@ -86,9 +96,9 @@ class Metasploit4 < Msf::Auxiliary
         'headers' => headers
       )
       # in most cases, the canary URI will not exist and will return a 404, but
-      # if everything under TARGETURI is protected by auth, that may be fine
-      # too
-      return canary if res && (res.code == 401 || res.code == 404)
+      # if everything under TARGETURI is protected by auth, a 401 may be OK too.
+      # but, regardless, respect the configuration set for this module
+      return canary if res && res.code.to_s =~ @status_codes_regex
     end
     nil
   end
@@ -107,7 +117,7 @@ class Metasploit4 < Msf::Auxiliary
   # overwrote RomPager's concept of the requested URI, indicating that it is
   # vulnerable.
   def test_misfortune
-    # find a usable canary URI (one that returns a 404 already)
+    # find a usable canary URI (one that returns an acceptable status code already)
     unless (canary_value = find_canary)
       vprint_error("#{peer} Unable to find a suitable canary URI")
       return Exploit::CheckCode::Unknown
@@ -129,7 +139,7 @@ class Metasploit4 < Msf::Auxiliary
       return Exploit::CheckCode::Unknown
     end
 
-    unless res.code == 404
+    unless res.code.to_s =~ @status_codes_regex
       vprint_status("#{full_uri} unexpected HTTP code #{res.code} response")
       return check_response_fingerprint(res, Exploit::CheckCode::Detected)
     end
