@@ -2298,7 +2298,7 @@ class Core
   end
 
  def cmd_get_help
-    print_line "Usage: get var1 var2 var3"
+    print_line "Usage: get var1 [var2 ...]"
     print_line
     print_line "The get command is used to get the value of one or more variables."
     print_line
