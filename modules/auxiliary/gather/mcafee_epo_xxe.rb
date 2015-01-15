@@ -53,7 +53,6 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [true, "The username to authenticate with", "username"]),
         OptString.new('PASSWORD', [true, "The password to authenticate with", "password"])
       ], self.class)
-
   end
 
   def run
@@ -256,5 +255,5 @@ class Metasploit3 < Msf::Auxiliary
 
     print_good("The decrypted password for the keystore, 'sa' SQL user (if using local instance), and possibly 'admin' is: #{passphrase}")
   end
+  
 end
-
