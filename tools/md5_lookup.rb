@@ -115,6 +115,8 @@ module Md5LookupUtility
 
 
     # Parses the cracked result from a JSON input
+    # @param res [Rex::Proto::Http::Response] The Rex HTTP response
+    # @return [String] The found MD5 result
     def get_json_result(res)
       result = ''
 
