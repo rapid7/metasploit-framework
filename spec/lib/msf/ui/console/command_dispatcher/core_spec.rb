@@ -106,13 +106,51 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
         @output.join.should =~ /Usage: get /
       end
     end
-  end
 
-  describe "#cmd_getg" do
-    describe "without arguments" do
-      it "should show a help message" do
-        core.cmd_getg
-        @output.join.should =~ /Usage: getg /
+    describe "with arguments" do
+      let(:name) { ::Rex::Text.rand_text_alpha(10).upcase }
+
+      context "with an active module" do
+        let(:mod) do
+          mod = ::Msf::Module.new
+          mod.send(:initialize, {})
+          mod
+        end
+
+        it "should show an empty value if not set in the framework or module" do
+          allow(core).to receive(:active_module).and_return(mod)
+          allow(driver).to receive(:on_variable_set).and_return(true)
+          core.cmd_get(name)
+          @output.join.should =~ /^#{name} => $/
+        end
+
+        it "should show no value when only the framework has this variable" do
+          allow(core).to receive(:active_module).and_return(mod)
+          allow(driver).to receive(:on_variable_set).and_return(true)
+          core.cmd_setg(name, 'FRAMEWORK')
+          @output = []
+          core.cmd_get(name)
+          @output.join.should =~ /^#{name} => $/
+        end
+
+        it "should show the module's value when only the module has this variable" do
+          allow(core).to receive(:active_module).and_return(mod)
+          allow(driver).to receive(:on_variable_set).and_return(true)
+          core.cmd_set(name, 'MODULE')
+          @output = []
+          core.cmd_get(name)
+          @output.join.should =~ /^#{name} => MODULE$/
+        end
+
+        it "should show the module's value when both the module and the framework have this variable" do
+          allow(core).to receive(:active_module).and_return(mod)
+          allow(driver).to receive(:on_variable_set).and_return(true)
+          core.cmd_setg(name, 'FRAMEWORK')
+          core.cmd_set(name, 'MODULE')
+          @output = []
+          core.cmd_get(name)
+          @output.join.should =~ /^#{name} => MODULE$/
+        end
       end
     end
   end
