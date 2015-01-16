@@ -68,6 +68,10 @@ class Db
     ]
   end
 
+  def allowed_cred_types
+    %w(password ntlm hash)
+  end
+
   #
   # Returns true if the db is connected, prints an error and returns
   # false if not.
@@ -676,6 +680,8 @@ class Db
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
+    print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 
     print_line
     print_line "Examples, listing:"
@@ -683,6 +689,7 @@ class Db
     print_line "  creds 1.2.3.4/24    # nmap host specification"
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
+    print_line "  creds -t ntlm       # All NTLM creds"
     print_line
 
     print_line
@@ -760,6 +767,9 @@ class Db
     host_ranges = []
     port_ranges = []
     svcs        = []
+    rhosts      = []
+
+    set_rhosts = false
 
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
     cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
@@ -806,6 +816,8 @@ class Db
         end
       when "-d"
         mode = :delete
+      when '-R', '--rhosts'
+        set_rhosts = true
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -820,6 +832,20 @@ class Db
     end
     if pass
       pass_regex = Regexp.compile(pass)
+    end
+
+    if ptype
+      type = case ptype
+             when 'password'
+               Metasploit::Credential::Password
+             when 'hash'
+               Metasploit::Credential::PasswordHash
+             when 'ntlm'
+               Metasploit::Credential::NTLMHash
+             else
+               print_error("Unrecognized credential type #{ptype} -- must be one of #{allowed_cred_types.join(',')}")
+               return
+             end
     end
 
     # normalize
@@ -838,6 +864,9 @@ class Db
       )
 
       query.each do |core|
+
+        # Exclude creds that don't match the given type
+        next if type.present? && !core.private.kind_of?(type)
 
         # Exclude creds that don't match the given user
         if user_regex.present? && !core.public.username.match(user_regex)
@@ -880,6 +909,7 @@ class Db
               next
             end
             row = [ login.service.host.address ]
+            rhosts << login.service.host.address
             if login.service.name.present?
               row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
             else
@@ -908,7 +938,8 @@ class Db
         ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
         print_status("Wrote creds to #{output_file}")
       end
-      
+
+      set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
       print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
   end

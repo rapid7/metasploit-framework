@@ -9,7 +9,7 @@ PATH
       json
       metasploit-concern (~> 0.3.0)
       metasploit-model (~> 0.28.0)
-      meterpreter_bins (= 0.0.12)
+      meterpreter_bins (= 0.0.13)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
@@ -101,7 +101,7 @@ GEM
     gherkin (2.11.6)
       json (>= 1.7.6)
     hike (1.2.3)
-    i18n (0.6.11)
+    i18n (0.7.0)
     journey (1.0.4)
     jsobfu (0.2.1)
       rkelly-remix (= 0.0.6)
@@ -132,10 +132,10 @@ GEM
       pg
       railties (< 4.0.0)
       recog (~> 1.0)
-    meterpreter_bins (0.0.12)
+    meterpreter_bins (0.0.13)
     method_source (0.8.2)
     mime-types (1.25.1)
-    mini_portile (0.6.1)
+    mini_portile (0.6.2)
     msgpack (0.5.9)
     multi_json (1.0.4)
     network_interface (0.0.1)
@@ -175,7 +175,7 @@ GEM
     rb-readline (0.5.1)
     rdoc (3.12.2)
       json (~> 1.4)
-    recog (1.0.6)
+    recog (1.0.7)
       nokogiri
     redcarpet (3.1.2)
     rkelly-remix (0.0.6)
