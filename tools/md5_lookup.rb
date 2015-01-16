@@ -174,12 +174,12 @@ module Md5LookupUtility
       parser, options = get_parsed_options
 
       # Set the optional datation argument (--database)
-      if !options[:databases]
+      unless options[:databases]
         options[:databases] = get_database_names
       end
 
       # Set the optional output argument (--out)
-      if !options[:outfile]
+      unless options[:outfile]
         options[:outfile] = DEFAULT_OUTFILE
       end
 
@@ -346,14 +346,14 @@ module Md5LookupUtility
       extract_hashes(input) do |hash|
         dbs.each do |db|
           cracked_hash = search_engine.lookup(hash, db)
-          if !cracked_hash.empty?
+          unless cracked_hash.empty?
             result = { :hash => hash, :cracked_hash => cracked_hash, :credit => db }
             yield result
           end
 
           # Awright, we already found one cracked, we don't need to keep looking,
           # Let's move on to the next hash!
-          break if !cracked_hash.empty?
+          break unless cracked_hash.empty?
         end
       end
     end
@@ -366,7 +366,7 @@ module Md5LookupUtility
     def extract_hashes(input_file)
       ::File.open(input_file, 'rb') do |f|
         f.each_line do |hash|
-          next if !is_md5_format?(hash)
+          next unless is_md5_format?(hash)
           yield hash.strip # Make sure no newlines
         end
       end
