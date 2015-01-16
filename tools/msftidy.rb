@@ -595,9 +595,9 @@ class Msftidy
   def check_invalid_url_scheme
     test = @source.scan(/^#.+http\/\/metasploit.com/)
     unless test.empty?
-      test.each { |item|
+      test.each do |item|
         info("Invalid URL: #{item}")
-      }
+      end
     end
   end
 
@@ -607,9 +607,9 @@ class Msftidy
   def check_comma
     test = @source.scan(/[^\n]+,(?:\s*#[^{][^\n]+)?\s*[\]\}]/)
     unless test.empty?
-      test.each { |item|
-        info("Extra comma: #{item}")
-      }
+      test.each do |item|
+        info("Extraneous comma: #{item}")
+      end
     end
   end
 
