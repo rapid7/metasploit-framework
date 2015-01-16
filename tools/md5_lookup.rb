@@ -221,7 +221,8 @@ module Md5LookupUtility
           options[:databases] = extract_db_names(v)
         end
 
-        opt.on('-o', '--out <filepath>', "Save the results to a file (Default=#{DEFAULT_OUTFILE})") do |v|
+        opt.on('-o', '--out <filepath>',
+          "(Optional) Save the results to a file (Default=#{DEFAULT_OUTFILE})") do |v|
           options[:outfile] = v
         end
 
