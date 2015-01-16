@@ -90,32 +90,45 @@ module Md5LookupUtility
         'DefaultOptions' =>
           {
             'SSL'   => false, # Doesn't look like md5cracker.org supports HTTPS
-            'RHOST' => resolve_host(@config.rhost),
+            'RHOST' => @config.rhost,
             'RPORT' => @config.rport
           }
       )
     end
 
 
-    # Returns the look up HTTP response
+    # Returns the found cracked MD5 hash
+    #
     # @param md5_hash [String] The MD5 hash to lookup
-    # @param db_names [String] The databases check
-    def lookup(md5_hash, db_names)
-      send_request_cgi({
-        'uri' => Md5LookupUtility::Config.target_uri,
+    # @param db [String] The specific database to check against
+    # @return [String] Found cracked MD5 hash
+    def lookup(md5_hash, db)
+      res = send_request_cgi({
+        'uri' => @config.target_uri,
         'method' => 'GET',
-        'vars_get' => {'database'=> db_names, 'hash'=>md5_hash}
+        'vars_get' => {'database'=> db, 'hash'=>md5_hash}
       })
+      get_json_result(res)
     end
 
     private
 
-    # Returns the resolved md5cracker.org host.
-    # If for some reason the method cannot resolve the DNS, return the default one: 144.76.226.137
-    # @param host [String] The md5cracker.org host
-    # @return [String] IP address
-    def resolve_host(host)
-      Rex::Socket.resolv_to_dotted(host) rescue '144.76.226.137'
+
+    # Parses the cracked result from a JSON input
+    def get_json_result(res)
+      result = ''
+
+      # Hmm, no proper response :-(
+      return result if !res || res.code != 200
+
+      begin
+        json = JSON.parse(res.body)
+        result = json['result'] if json['status']
+      rescue JSON::ParserError
+        # No json?
+      end
+
+      result
     end
 
   end
@@ -143,7 +156,11 @@ module Md5LookupUtility
           :tmto          => 'tmto'
         }
 
-    # Parses the user inputs
+    # The default file path to save the results to
+    DEFAULT_OUTFILE = 'md5_results.txt'
+
+    # Returns the normalized user inputs
+    #
     # @param args [Array] This should be Ruby's ARGV
     # @raise [OptionParser::MissingArgument] Missing arguments
     # @return [Array] The normalized options
@@ -153,6 +170,11 @@ module Md5LookupUtility
       # Set the optional datation argument (--database)
       if !options[:databases]
         options[:databases] = get_database_names
+      end
+
+      # Set the optional output argument (--out)
+      if !options[:outfile]
+        options[:outfile] = DEFAULT_OUTFILE
       end
 
       # Now let's parse it
@@ -173,8 +195,9 @@ module Md5LookupUtility
 
 
     # Returns the parsed options from ARGV
+    #
     # raise [OptionParser::InvalidOption] Invalid option found
-    # @return [Array] The OptionParser object and an array of options
+    # @return [OptionParser, Hash] The OptionParser object and an hash containg the options
     def self.get_parsed_options
       options = {}
       parser = OptionParser.new do |opt|
@@ -196,6 +219,10 @@ module Md5LookupUtility
           options[:databases] = extract_db_names(v)
         end
 
+        opt.on('-o', '--out <filepath>', "Save the results to a file (Default=#{DEFAULT_OUTFILE})") do |v|
+          options[:outfile] = v
+        end
+
         opt.on_tail('-h', '--help', 'Show this message') do
           $stdout.puts opt
           exit
@@ -206,8 +233,9 @@ module Md5LookupUtility
 
 
     # Returns the actual database names based on what the user wants
+    #
     # @param list [String] A list of user-supplied database names
-    # @return [Array] All the matched database names
+    # @return [Array<String>] All the matched database names
     def self.extract_db_names(list)
       new_db_list = []
 
@@ -225,13 +253,15 @@ module Md5LookupUtility
 
 
     # Returns a list of all of the supported database symbols
-    # @return [Array] Database symbols
+    #
+    # @return [Array<Symbol>] Database symbols
     def self.get_database_symbols
       DATABASES.keys
     end
 
     # Returns a list of all the original database values recognized by md5cracker.org
-    # @return [Array] Original database values
+    #
+    # @return [Array<String>] Original database values
     def self.get_database_names
       new_db_list = DATABASES.values
       new_db_list.shift #Get rid of the 'all' option
@@ -249,31 +279,73 @@ module Md5LookupUtility
         print_error("#{e.message} (please see -h)")
         exit
       end
+
+      @output_handle = nil
+      begin
+        @output_handle = ::File.open(@opts[:outfile], 'wb')
+      rescue
+        # Not end of the world, but if this happens we won't be able to save the results.
+        # The user will just have to copy and paste from the screen.
+        print_error("Unable to create file handle, results will not be saved to #{@opts[:output]}")
+      end
     end
 
 
     # Main function
+    #
+    # @return [void]
     def run
       input = @opts[:input]
       dbs   = @opts[:databases]
 
-      get_hash_results(input) do |result|
+      get_hash_results(input, dbs) do |result|
         original_hash = result[:hash]
         cracked_hash  = result[:cracked_hash]
+        credit_db     = result[:credit]
+
+        print_status("Found: #{original_hash} = #{cracked_hash} (from #{credit_db})")
+
+        save_result(result) if @output_handle
       end
+    end
+
+    def cleanup
+      @output_handle.close if @output_handle
     end
 
     private
 
+    # Saves the MD5 result to file
+    # @return [void]
+    def save_result(result)
+      @output_handle.puts "#{result[:hash]} = #{result[:cracked_hash]}"
+    end
+
     # Returns the hash results by actually invoking Md5Lookup
-    def get_hash_results(input)
+    #
+    # @param input [String] The path of the input file (MD5 hashes)
+    # @return [void]
+    def get_hash_results(input, dbs)
       search_engine = Md5LookupUtility::Md5Lookup.new
       extract_hashes(input) do |hash|
-        $stderr.puts hash.inspect
+        dbs.each do |db|
+          cracked_hash = search_engine.lookup(hash, db)
+          if !cracked_hash.empty?
+            result = { :hash => hash, :cracked_hash => cracked_hash, :credit => db }
+            yield result
+          end
+
+          # Awright, we already found one cracked, we don't need to keep looking,
+          # Let's move on to the next hash!
+          break if !cracked_hash.empty?
+        end
       end
     end
 
     # Extracts all the MD5 hashes one by one
+    #
+    # @param input_file [String] The path of the input file (MD5 hashes)
+    # @return [void]
     def extract_hashes(input_file)
       ::File.open(input_file, 'rb') do |f|
         f.each_line do |hash|
@@ -284,6 +356,7 @@ module Md5LookupUtility
     end
 
     # Checks if the hash format is MD5 or not
+    #
     # @param md5_hash [String] The MD5 hash (hex)
     # @return [TrueClass/FlaseClass] True if the format is valid, otherwise false
     def is_md5_format?(md5_hash)
@@ -298,11 +371,13 @@ end
 # main
 #
 if __FILE__ == $PROGRAM_NAME
+  driver = Md5LookupUtility::Driver.new
   begin
-    driver = Md5LookupUtility::Driver.new
     driver.run
   rescue Interrupt
     $stdout.puts
     $stdout.puts "Good bye"
+  ensure
+    driver.cleanup
   end
 end
