@@ -8,11 +8,14 @@
 ###
 #
 # This script will look up a collection of MD5 hashes (from a file) against the following databases
-# via md5cracker.org:
+# via md5cracker.org. It currently supports the following databases (sources):
 # authsecu, i337.net, md5.my-addr.com, md5.net, md5crack, md5cracker.org, md5decryption.com,
 # md5online.net, md5pass, netmd5crack, tmto.
-# This was originally ported from:
+# This msf tool script was originally ported from:
 # https://github.com/hasherezade/metasploit_modules/blob/master/md5_lookup.rb
+#
+# To-do:
+# Maybe as a msf plugin one day and grab hashes directly from the workspace.
 #
 # Authors:
 # * hasherezade (http://hasherezade.net, @hasherezade)
@@ -40,58 +43,58 @@ require 'optparse'
 #
 
 # Prints with [*] that represents the message is a status
+#
+# @param msg [String] The message to print
+# @return [void]
 def print_status(msg='')
   $stdout.puts "[*] #{msg}"
 end
 
 # Prints with [-] that represents the message is an error
+#
+# @param msg [String] The message to print
+# @return [void]
 def print_error(msg='')
   $stdout.puts "[-] #{msg}"
 end
 
 module Md5LookupUtility
 
-  # This class provides the basic settings required for the utility
-  class Config
-    # @!attribute rhost
-    #  @return [String] Should be md5cracker.org
-    attr_accessor :rhost
-
-    # @!attribute rport
-    #  @return [Fixnum] The port number
-    attr_accessor :rport
-
-    # @!attribute target_uri
-    #  @return [String] The URI
-    attr_accessor :target_uri
-
-    # @!attribute out_file
-    #  @return [String] The output file path (to save the cracked MD5 results)
-    attr_accessor :out_file
-
-    def initialize(opts={})
-      self.rhost      = 'md5cracker.org'
-      self.rport      = 80
-      self.target_uri = '/api/api.cracker.php'
-      self.out_file   = opts[:out_file] || 'results.txt'
-    end
-  end
-
-
   # This class is basically an auxiliary module without relying on msfconsole
   class Md5Lookup < Msf::Auxiliary
 
     include Msf::Exploit::Remote::HttpClient
 
+    # @!attribute rhost
+    #  @return [String] Should be md5cracker.org
+    attr_accessor :rhost
+
+    # @!attribute rport
+    #  @return [Fixnum] The port number to md5cracker.org
+    attr_accessor :rport
+
+    # @!attribute target_uri
+    #  @return [String] The URI (API)
+    attr_accessor :target_uri
+
+    # @!attribute ssl
+    #  @return [FalseClass] False because doesn't look like md5cracker.org supports HTTPS
+    attr_accessor :ssl
+
     def initialize(opts={})
-      @config = Md5LookupUtility::Config.new
+      # The user should not be able to modify these settings, otherwise
+      # the we can't guarantee results.
+      self.rhost      = 'md5cracker.org'
+      self.rport      = 80
+      self.target_uri = '/api/api.cracker.php'
+      self.ssl        = false
 
       super(
         'DefaultOptions' =>
           {
-            'SSL'   => false, # Doesn't look like md5cracker.org supports HTTPS
-            'RHOST' => @config.rhost,
-            'RPORT' => @config.rport
+            'SSL'   => self.ssl,
+            'RHOST' => self.rhost,
+            'RPORT' => self.rport
           }
       )
     end
@@ -104,19 +107,20 @@ module Md5LookupUtility
     # @return [String] Found cracked MD5 hash
     def lookup(md5_hash, db)
       res = send_request_cgi({
-        'uri' => @config.target_uri,
-        'method' => 'GET',
-        'vars_get' => {'database'=> db, 'hash'=>md5_hash}
+        'uri'      => self.target_uri,
+        'method'   => 'GET',
+        'vars_get' => {'database' => db, 'hash' => md5_hash}
       })
       get_json_result(res)
     end
+
 
     private
 
 
     # Parses the cracked result from a JSON input
     # @param res [Rex::Proto::Http::Response] The Rex HTTP response
-    # @return [String] The found MD5 result
+    # @return [String] Found cracked MD5 hash
     def get_json_result(res)
       result = ''
 
@@ -165,7 +169,7 @@ module Md5LookupUtility
     #
     # @param args [Array] This should be Ruby's ARGV
     # @raise [OptionParser::MissingArgument] Missing arguments
-    # @return [Array] The normalized options
+    # @return [Hash] The normalized options
     def self.parse(args)
       parser, options = get_parsed_options
 
@@ -192,6 +196,7 @@ module Md5LookupUtility
 
       options
     end
+
 
     private
 
@@ -242,11 +247,13 @@ module Md5LookupUtility
     def self.extract_db_names(list)
       new_db_list = []
 
-      if list.split(',').include?('all')
+      list_copy = list.split(',')
+
+      if list_copy.include?('all')
         return get_database_names
       end
 
-      list.split(',').each do |item|
+      list_copy.each do |item|
         item = item.strip.to_sym
         new_db_list << DATABASES[item] if DATABASES[item]
       end
@@ -275,6 +282,7 @@ module Md5LookupUtility
 
   # This class decides how this process works
   class Driver
+
     def initialize
       begin
         @opts = OptsConsole.parse(ARGV)
@@ -319,6 +327,10 @@ module Md5LookupUtility
     private
 
     # Saves the MD5 result to file
+    #
+    # @param result [Hash] The result that contains the MD5 information
+    # @option result :hash [String] The original MD5 hash
+    # @option result :cracked_hash [String] The cracked MD5 hash
     # @return [void]
     def save_result(result)
       @output_handle.puts "#{result[:hash]} = #{result[:cracked_hash]}"
@@ -327,6 +339,7 @@ module Md5LookupUtility
     # Returns the hash results by actually invoking Md5Lookup
     #
     # @param input [String] The path of the input file (MD5 hashes)
+    # @yield [result] Gives a hash as the found result
     # @return [void]
     def get_hash_results(input, dbs)
       search_engine = Md5LookupUtility::Md5Lookup.new
@@ -348,6 +361,7 @@ module Md5LookupUtility
     # Extracts all the MD5 hashes one by one
     #
     # @param input_file [String] The path of the input file (MD5 hashes)
+    # @yield [hash] The original MD5 hash
     # @return [void]
     def extract_hashes(input_file)
       ::File.open(input_file, 'rb') do |f|
@@ -381,6 +395,6 @@ if __FILE__ == $PROGRAM_NAME
     $stdout.puts
     $stdout.puts "Good bye"
   ensure
-    driver.cleanup
+    driver.cleanup # Properly close resources
   end
 end
