@@ -3,7 +3,7 @@
 module Msf
   module Jmx
     module Handshake
-      def build_handshake(id)
+      def handshake_stream(id)
         stream = Rex::Java::Serialization::Model::Stream.new
 
         block_data = Rex::Java::Serialization::Model::BlockData.new
@@ -16,7 +16,7 @@ module Msf
           username = datastore['USERNAME']
           password = datastore['PASSWORD'] || ''
 
-          stream.contents << build_array_auth(username, password)
+          stream.contents << auth_array_stream(username, password)
         else
           stream.contents << Rex::Java::Serialization::Model::NullReference.new
         end
@@ -24,7 +24,7 @@ module Msf
         stream
       end
 
-      def build_array_auth(username, password)
+      def auth_array_stream(username, password)
         auth_array_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
         auth_array_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[Ljava.lang.String;')
         auth_array_class_desc.serial_version = 0xadd256e7e91d7b47

@@ -5,7 +5,7 @@ module Msf
     module MBean
       module ServerConnection
 
-        def build_create_instance(id, name)
+        def create_mbean_stream(id, name)
           stream = Rex::Java::Serialization::Model::Stream.new
 
           block_data = Rex::Java::Serialization::Model::BlockData.new
@@ -21,7 +21,7 @@ module Msf
           stream
         end
 
-        def build_get_instance(id, name)
+        def get_object_instance_stream(id, name)
           stream = Rex::Java::Serialization::Model::Stream.new
 
           block_data = Rex::Java::Serialization::Model::BlockData.new
@@ -57,7 +57,7 @@ module Msf
           stream
         end
 
-        def build_invoke(id, object_name, method_name, arguments)
+        def invoke_stream(id, object_name, method_name, arguments)
           stream = Rex::Java::Serialization::Model::Stream.new
 
           block_data = Rex::Java::Serialization::Model::BlockData.new
@@ -138,7 +138,7 @@ module Msf
           data_binary.array_description = Rex::Java::Serialization::Model::ClassDesc.new
           data_binary.array_description.description = data_binary_class_desc
           data_binary.type = 'byte'
-          data_binary.values = marshalled_argument(arguments).encode.unpack('C*')
+          data_binary.values = invoke_arguments_stream(arguments).encode.unpack('C*')
 
           marshall_object = Rex::Java::Serialization::Model::NewObject.new
           marshall_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
@@ -180,7 +180,7 @@ module Msf
           stream
         end
 
-        def marshalled_argument(arguments)
+        def invoke_arguments_stream(arguments)
           stream = Rex::Java::Serialization::Model::Stream.new
 
           new_array_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new

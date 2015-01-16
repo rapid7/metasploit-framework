@@ -3,7 +3,7 @@
 module Msf
   module Jmx
     module Discovery
-      def build_discovery
+      def discovery_stream
         stream = Rex::Java::Serialization::Model::Stream.new
 
         block_data = Rex::Java::Serialization::Model::BlockData.new
