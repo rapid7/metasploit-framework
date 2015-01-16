@@ -247,7 +247,7 @@ module Md5LookupUtility
       end
 
       list.split(',').each do |item|
-        item = item.strip..to_sym
+        item = item.strip.to_sym
         new_db_list << DATABASES[item] if DATABASES[item]
       end
 
