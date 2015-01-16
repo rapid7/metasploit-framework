@@ -769,7 +769,7 @@ class Metasploit3 < Msf::Auxiliary
               url = page_uri + url
             end
             if url.to_s.starts_with? '//'
-              url = "#{page_uri.scheme}:"+url
+              url = "#{page_uri.scheme}:#{url}"
             end
             io = open(url)
           rescue URI::InvalidURIError, OpenURI::HTTPError
