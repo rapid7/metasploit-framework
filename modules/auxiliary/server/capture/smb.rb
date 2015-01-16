@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
     case cmd
     when CONST::SMB_COM_NEGOTIATE
       #client set extended security negotiation
-      if (pkt['Payload']['SMB'].v['Flags2'] & 0x800 != 0)
+      if pkt['Payload']['SMB'].v['Flags2'] & 0x800 != 0
         smb_cmd_negotiate(c, buff, true)
       else
         smb_cmd_negotiate(c, buff, false)
@@ -178,13 +178,13 @@ class Metasploit3 < Msf::Auxiliary
     pkt['Payload'].v['ServerTimeZone'] = 0x0
     pkt['Payload'].v['SessionKey'] = 0
 
-    if c_esn && @s_smb_esn then
+    if c_esn && @s_smb_esn
       pkt['Payload']['SMB'].v['Flags2'] = 0xc801
       pkt['Payload'].v['Capabilities'] = 0x8000e3fd
       pkt['Payload'].v['KeyLength'] = 0
       pkt['Payload'].v['Payload'] = @s_GUID
 
-      if @s_gss_neg then
+      if @s_gss_neg
         pkt['Payload'].v['Payload'] += NTLM_UTILS::make_simple_negotiate_secblob_resp
       end
 
@@ -232,7 +232,7 @@ class Metasploit3 < Msf::Auxiliary
       when NTLM_MESSAGE::Type1
         #Send Session Setup AndX Response NTLMSSP_CHALLENGE response packet
 
-        if (ntlm_message.flag & NTLM_CONST::NEGOTIATE_NTLM2_KEY != 0)
+        if (ntlm_message.flag & NTLM_CONST::NEGOTIATE_NTLM2_KEY) != 0
           c_ntlm_esn = true
         else
           c_ntlm_esn = false
@@ -413,11 +413,11 @@ class Metasploit3 < Msf::Auxiliary
     nt_cli_challenge = arg[:nt_cli_challenge]
 
     # Clean up the data for logging
-    if (smb[:username] == "")
+    if smb[:username] == ""
       smb[:username] = nil
     end
 
-    if (smb[:domain] == "")
+    if smb[:domain] == ""
       smb[:domain] = nil
     end
 
@@ -436,7 +436,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("SMB Capture - NLMv1 Hash correspond to an empty password, ignoring ... #{smb[:ip]}")
         return
       end
-      if (lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/ ) then
+      if lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/
         lm_hash_message = "Disabled"
       elsif NTLM_CRYPT::is_hash_from_empty_pwd?(
         {
@@ -568,7 +568,7 @@ class Metasploit3 < Msf::Auxiliary
 
     return unless smb[:username]
 
-    if(datastore['CAINPWFILE'] and smb[:username])
+    if datastore['CAINPWFILE'] and smb[:username]
       if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE or ntlm_ver == NTLM_CONST::NTLM_2_SESSION_RESPONSE
         File.open(datastore['CAINPWFILE'], "ab") do |fd|
           fd.puts(
