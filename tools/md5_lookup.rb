@@ -15,7 +15,7 @@
 # https://github.com/hasherezade/metasploit_modules/blob/master/md5_lookup.rb
 #
 # Authors:
-# * hasherezade (original work)
+# * hasherezade (http://hasherezade.net, @hasherezade)
 # * sinn3r (ported the module as a standalone msf tool)
 #
 ###
