@@ -8,7 +8,7 @@
 ###
 #
 # This script will look up a collection of MD5 hashes (from a file) against the following databases
-# via md5cracker.org. It currently supports the following databases (sources):
+# via md5cracker.org:
 # authsecu, i337.net, md5.my-addr.com, md5.net, md5crack, md5cracker.org, md5decryption.com,
 # md5online.net, md5pass, netmd5crack, tmto.
 # This msf tool script was originally ported from:
