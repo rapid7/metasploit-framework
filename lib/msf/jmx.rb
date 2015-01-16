@@ -44,5 +44,31 @@ module Msf
       end
 
       new_object.class_desc.description.class_name.contents
-    end  end
+    end
+
+    def extract_string(io)
+      raw_length = io.read(2)
+      unless raw_length && raw_length.length == 2
+        return nil
+      end
+      length = raw_length.unpack('n')[0]
+
+      string = io.read(length)
+      unless string && string.length == length
+        return nil
+      end
+
+      string
+    end
+
+    def extract_int(io)
+      int_raw = io.read(4)
+      unless int_raw && int_raw.length == 4
+        return nil
+      end
+      int = int_raw.unpack('N')[0]
+
+      int
+    end
+  end
 end

@@ -50,51 +50,17 @@ module Msf
         auth_array
       end
 
-      def extract_rmi_connection_stub(stream)
-        stub = false
-        stub_index = 0
-        stream.contents.each do |content|
-          if content.class == Rex::Java::Serialization::Model::NewObject && content.class_desc.description.class_name.contents == 'javax.management.remote.rmi.RMIConnectionImpl_Stub'
-            stub = true
-            break
-          end
-          stub_index = stub_index + 1
-        end
-
-        unless stub
-          return nil
-        end
-
-        block_data = stream.contents[stub_index + 1]
+      def extract_rmi_connection_stub(block_data)
         data_io = StringIO.new(block_data.contents)
 
-        ref_length = data_io.read(2)
-        unless ref_length && ref_length.length == 2
-          return nil
-        end
-        ref_length = ref_length.unpack('n')[0]
+        ref = extract_string(data_io)
+        return nil unless ref && ref == 'UnicastRef'
 
-        ref = data_io.read(ref_length)
-        unless ref && ref.length == ref_length && ref == 'UnicastRef'
-          return nil
-        end
+        address = extract_string(data_io)
+        return nil unless address
 
-        address_length = data_io.read(2)
-        unless address_length && address_length.length == 2
-          return nil
-        end
-        address_length = address_length.unpack('n')[0]
-
-        address = data_io.read(address_length)
-        unless address && address.length == address_length
-          return nil
-        end
-
-        port = data_io.read(4)
-        unless port && port.length == 4
-          return nil
-        end
-        port = port.unpack('N')[0]
+        port = extract_int(data_io)
+        return nil unless port
 
         id = data_io.read
 
