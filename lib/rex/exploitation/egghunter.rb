@@ -23,7 +23,6 @@ module Exploitation
 # Startreg code added by corelanc0d3r
 # Added routine to disable DEP for discovered egg (for win, added by corelanc0d3r)
 # Added support for searchforward option (true or false)
-# Added support for heap-only search option (true or false)
 #
 ###
 class Egghunter
@@ -71,12 +70,10 @@ class Egghunter
         flippage = "\n\tor dx,0xfff"
         edxdirection = "\n\tinc edx"
 
-        if searchforward
-          if searchforward.to_s.downcase == 'false'
-            # go backwards
-            flippage = "\n\txor dl,dl"
-            edxdirection = "\n\tdec edx"
-          end
+        if searchforward == false
+          # go backwards
+          flippage = "\n\txor dl,dl"
+          edxdirection = "\n\tdec edx"
         end
 
         # other vars
