@@ -118,9 +118,9 @@ class Metasploit3 < Msf::Post
 
       create_credential(credential_data)
 
-      # TODO: store_loot the file in the appropriate format, which likely means
-      # iterating over hashes_and_versions differently so that they are grouped
-      # by version (because john can only crack one format at a time)
+      # Store McAfee password hash as loot
+      loot_path = store_loot('mcafee.hash', 'text/plain', session, 'mcafee:'+hash, 'mcafee_hashdump.txt', 'McAfee Password Hash')
+      print_status("McAfee password hash saved in: #{loot_path}")
     end
   end
 end
