@@ -2298,7 +2298,7 @@ class Core
   end
 
  def cmd_get_help
-    print_line "Usage: get var1 var2 var3"
+    print_line "Usage: get var1 [var2 ...]"
     print_line
     print_line "The get command is used to get the value of one or more variables."
     print_line
@@ -2317,22 +2317,20 @@ class Core
       global = true
     end
 
+    # No arguments?  No cookie.
+    if args.empty?
+      global ? cmd_getg_help : cmd_get_help
+      return false
+    end
+
     # Determine which data store we're operating on
-    if (active_module and global == false)
+    if (active_module && !global)
       datastore = active_module.datastore
     else
       datastore = framework.datastore
     end
 
-    # No arguments?  No cookie.
-    if (args.length == 0)
-      cmd_get_help
-      return false
-    end
-
-    while ((val = args.shift))
-      print_line("#{val} => #{datastore[val]}")
-    end
+    args.each { |var| print_line("#{var} => #{datastore[var]}") }
   end
 
   #
@@ -2346,7 +2344,6 @@ class Core
     datastore = active_module ? active_module.datastore : self.framework.datastore
     datastore.keys
   end
-
 
   def cmd_getg_help
     print_line "Usage: getg var1 [var2 ...]"
@@ -2374,8 +2371,6 @@ class Core
   def cmd_getg_tabs(str, words)
     self.framework.datastore.keys
   end
-
-  alias cmd_getg_help cmd_get_help
 
   def cmd_unset_help
     print_line "Usage: unset [-g] var1 var2 var3 ..."
