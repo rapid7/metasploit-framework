@@ -58,11 +58,6 @@ class Egghunter
           else
             startstub = "\n\tjmp next_addr"
           end
-        # search only in heap?
-        elsif opts[:heaponly]
-          startstub  = "\n\tpush 0x30\n\tpop edx\n\tmov edx,fs:[edx]"
-          startstub << "\n\tadd dl,0x90\n\tmov edx,[edx]"
-          startstub << "\n\tmov edx,[edx]\n\tjmp next_addr"
         end
         startstub << "\n\t" if startstub.length > 0
 
