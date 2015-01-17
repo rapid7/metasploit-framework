@@ -113,7 +113,7 @@ module Parser
       return if not in_tag("result")
       @state[:has_text] = true
       @text = nil
-    when "count"
+    else
       @text = nil
     end
     @state[:current_tag].delete name
