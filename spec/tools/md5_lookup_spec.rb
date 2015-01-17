@@ -161,7 +161,7 @@ describe Md5LookupUtility do
         it 'prints a \'found\' message' do
           allow(subject).to receive(:get_hash_results).and_yield(expected_result)
           output = get_stdout { subject.run }
-          expect (output).should include('Found:')
+          expect(output).to include('Found:')
         end
       end
     end
