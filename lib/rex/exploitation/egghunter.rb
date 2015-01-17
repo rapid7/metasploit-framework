@@ -70,7 +70,7 @@ class Egghunter
         flippage = "\n\tor dx,0xfff"
         edxdirection = "\n\tinc edx"
 
-        if searchforward == false
+        if searchforward.to_s.downcase == 'false'
           # go backwards
           flippage = "\n\txor dl,dl"
           edxdirection = "\n\tdec edx"
