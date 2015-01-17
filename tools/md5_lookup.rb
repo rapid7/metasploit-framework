@@ -293,7 +293,7 @@ module Md5LookupUtility
 
       @output_handle = nil
       begin
-        @output_handle = ::File.open(@opts[:outfile], 'wb')
+        @output_handle = ::File.new(@opts[:outfile], 'wb')
       rescue
         # Not end of the world, but if this happens we won't be able to save the results.
         # The user will just have to copy and paste from the screen.
