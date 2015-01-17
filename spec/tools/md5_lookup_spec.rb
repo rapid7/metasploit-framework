@@ -53,10 +53,6 @@ describe Md5LookupUtility do
     }
   end
 
-  before(:each) do
-    Md5LookupUtility::OptsConsole.stub(:parse).with(any_args).and_return(options)
-  end
-
   subject do
     Md5LookupUtility::Md5Lookup.new
   end
@@ -133,6 +129,7 @@ describe Md5LookupUtility do
     }
 
     before(:each) do
+      Md5LookupUtility::OptsConsole.stub(:parse).with(any_args).and_return(options)
       allow(File).to receive(:open).with(input_file, 'rb').and_yield(StringIO.new(input_data))
       allow(File).to receive(:new).with(output_file, 'wb').and_return(StringIO.new)
     end
@@ -226,22 +223,70 @@ describe Md5LookupUtility do
 
 
   describe Md5LookupUtility::OptsConsole do
-    let(:argv) {}
+    let(:valid_argv) { "-i #{input_file} -d all -o #{output_file}".split }
+
+    let(:invalid_argv) { "".split }
+
+    subject do
+      Md5LookupUtility::OptsConsole
+    end
 
     describe '.parse' do
+      context 'when valid arguments are passed' do
+        let(:opts) { subject.parse(valid_argv) }
+
+        before(:each) do
+          allow(File).to receive(:exists?).and_return(true)
+        end
+
+        it 'returns the input file path' do
+          expect(opts[:input]).to eq(input_file)
+        end
+
+        it 'returns the output file path' do
+          expect(opts[:outfile]).to eq(output_file)
+        end
+
+        it 'returns the databases in an array' do
+          expect(opts[:databases]).to be_a(Array)
+          expect(opts[:databases]).to include(db_source)
+        end
+      end
+
+      context 'when the required input file is not set' do
+        before(:each) do
+          allow(File).to receive(:exists?).and_return(false)
+        end
+
+        it 'raises an OptionParser::MissingArgument error' do
+          expect{subject.parse(invalid_argv)}.to raise_error(OptionParser::MissingArgument)
+        end
+      end
 
     end
 
-    describe '.get_parsed_options' do
-    end
 
     describe '.extract_db_names' do
+      let(:list) {'i337,invalid'}
+      context 'when database symbols \'i337\' and \'invalid\' are given' do
+        it 'returns i337.net in an array' do
+          db_names = subject.extract_db_names(list)
+          expect(db_names).to be_a(Array)
+          expect(db_names).to include(db_source)
+        end
+      end
     end
 
     describe '.get_database_symbols' do
+      it 'returns an array' do
+        expect(subject.get_database_symbols).to be_a(Array)
+      end
     end
 
     describe '.get_database_names' do
+      it 'returns an array' do
+        expect(subject.get_database_names).to be_a(Array)
+      end
     end
   end
 
