@@ -333,7 +333,7 @@ module Md5LookupUtility
     # @option result :cracked_hash [String] The cracked MD5 hash
     # @return [void]
     def save_result(result)
-      @output_handle.puts "#{result[:hash]} = #{result[:cracked_hash]}" if @output_handle
+      @output_handle.puts "#{result[:hash]} = #{result[:cracked_hash]}"
     end
 
     # Returns the hash results by actually invoking Md5Lookup
