@@ -3,36 +3,17 @@
 module Msf
   module Jmx
     module Util
-      def get_instance_answer(stream)
+
+      def extract_object(stream, id)
         new_object = nil
 
-        if stream.contents[1]
-          new_object = stream.contents[1]
+        if stream.contents[id]
+          new_object = stream.contents[id]
         else
-          vprint_error("getObjectInstance returned an incorrect answer")
           return nil
         end
 
         unless new_object.class == Rex::Java::Serialization::Model::NewObject
-          vprint_error("getObjectInstance didn't return a new object")
-          return nil
-        end
-
-        new_object.class_desc.description.class_name.contents
-      end
-
-      def get_mbean_from_url_answer(stream)
-        new_object = nil
-
-        if stream.contents[3]
-          new_object = stream.contents[3]
-        else
-          vprint_error("getMBeansFromURL returned an incorrect answer")
-          return nil
-        end
-
-        unless new_object.class == Rex::Java::Serialization::Model::NewObject
-          vprint_error("getMBeansFromURL didn't return a new object")
           return nil
         end
 
