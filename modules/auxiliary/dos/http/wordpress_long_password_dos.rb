@@ -13,9 +13,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'WordPress Long Password DoS',
-      'Description'     => %q{WordPress before 3.7.5, 3.8.x before 3.8.5, 3.9.x before 3.9.3, and 4.x 
-                              before 4.0.1 allows remote attackers to cause a denial of service 
-                              (CPU consumption) via a long password that is improperly handled 
+      'Description'     => %q{WordPress before 3.7.5, 3.8.x before 3.8.5, 3.9.x before 3.9.3, and 4.x
+                              before 4.0.1 allows remote attackers to cause a denial of service
+                              (CPU consumption) via a long password that is improperly handled
                               during hashing.},
       'License'         => MSF_LICENSE,
       'Author'          =>
