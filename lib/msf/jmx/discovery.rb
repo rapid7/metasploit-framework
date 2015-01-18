@@ -17,31 +17,7 @@ module Msf
         stream
       end
 
-      def extract_mbean_server(stream)
-        my_block = false
-        stub = false
-        i = 0
-        stub_index = 0
-        stream.contents.each do |content|
-          if content.class == Rex::Java::Serialization::Model::BlockData && i == 0
-            my_block = true
-          end
-
-          if content.class == Rex::Java::Serialization::Model::NewObject && content.class_desc.description.class_name.contents == 'javax.management.remote.rmi.RMIServerImpl_Stub'
-            stub = true
-            stub_index = i
-            break
-          end
-          i = i + 1
-        end
-
-        unless my_block && stub
-          return nil
-        end
-
-        my_block_id = stream.contents[0].contents[1..-1]
-
-        block_data = stream.contents[stub_index + 1]
+      def extract_mbean_server(block_data)
         data_io = StringIO.new(block_data.contents)
 
         ref_length = data_io.read(2)
