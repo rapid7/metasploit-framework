@@ -478,8 +478,7 @@ class PythonMeterpreter(object):
 			pkt_length, pkt_type = struct.unpack('>II', packet)
 			pkt_length -= 8
 			packet = bytes()
-			while len(packet) < pkt_length:
-				packet += self.socket.recv(4096)
+			packet += self.socket.recv(pkt_length)
 		return packet
 
 	def send_packet_tcp(self, packet):
