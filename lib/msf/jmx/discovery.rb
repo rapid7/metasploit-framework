@@ -12,7 +12,6 @@ module Msf
         block_data.length = block_data.contents.length
 
         stream.contents << block_data
-
         stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, 'jmxrmi')
 
         stream
@@ -75,7 +74,7 @@ module Msf
 
         id = data_io.read
 
-        { address: address, port: port, id: id, my_id: my_block_id }
+        { address: address, port: port, id: id }
       end
     end
   end

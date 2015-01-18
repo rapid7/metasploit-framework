@@ -32,8 +32,8 @@ module Msf
         auth_array_class_desc.fields = []
         auth_array_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
         auth_array_class_desc.class_annotation.contents = [
-            Rex::Java::Serialization::Model::NullReference.new,
-            Rex::Java::Serialization::Model::EndBlockData.new
+          Rex::Java::Serialization::Model::NullReference.new,
+          Rex::Java::Serialization::Model::EndBlockData.new
         ]
         auth_array_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
         auth_array_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
@@ -43,8 +43,8 @@ module Msf
         auth_array.array_description.description = auth_array_class_desc
         auth_array.type = 'java.lang.String;'
         auth_array.values = [
-            Rex::Java::Serialization::Model::Utf.new(nil, username),
-            Rex::Java::Serialization::Model::Utf.new(nil, password)
+          Rex::Java::Serialization::Model::Utf.new(nil, username),
+          Rex::Java::Serialization::Model::Utf.new(nil, password)
         ]
 
         auth_array

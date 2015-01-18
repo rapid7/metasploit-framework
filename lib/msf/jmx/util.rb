@@ -9,12 +9,12 @@ module Msf
         if stream.contents[1]
           new_object = stream.contents[1]
         else
-          print_error("#{peer} - getObjectInstance returned an incorrect answer")
+          vprint_error("getObjectInstance returned an incorrect answer")
           return nil
         end
 
         unless new_object.class == Rex::Java::Serialization::Model::NewObject
-          print_error("#{peer} - getObjectInstance didn't return a new object")
+          vprint_error("getObjectInstance didn't return a new object")
           return nil
         end
 
@@ -27,12 +27,12 @@ module Msf
         if stream.contents[3]
           new_object = stream.contents[3]
         else
-          print_error("#{peer} - getMBeansFromURL returned an incorrect answer")
+          vprint_error("getMBeansFromURL returned an incorrect answer")
           return nil
         end
 
         unless new_object.class == Rex::Java::Serialization::Model::NewObject
-          print_error("#{peer} - getMBeansFromURL didn't return a new object")
+          vprint_error("getMBeansFromURL didn't return a new object")
           return nil
         end
 

@@ -74,8 +74,8 @@ module Msf
           new_class_desc.fields = []
           new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
           new_class_desc.class_annotation.contents = [
-              Rex::Java::Serialization::Model::NullReference.new,
-              Rex::Java::Serialization::Model::EndBlockData.new
+            Rex::Java::Serialization::Model::NullReference.new,
+            Rex::Java::Serialization::Model::EndBlockData.new
           ]
           new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
           new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
@@ -96,9 +96,9 @@ module Msf
           marshall_object_class_desc.serial_version = 0x7cbd1e97ed63fc3e
           marshall_object_class_desc.flags = 2
           marshall_object_class_desc.fields = [
-              Rex::Java::Serialization::Model::Field.new,
-              Rex::Java::Serialization::Model::Field.new,
-              Rex::Java::Serialization::Model::Field.new
+            Rex::Java::Serialization::Model::Field.new,
+            Rex::Java::Serialization::Model::Field.new,
+            Rex::Java::Serialization::Model::Field.new
           ]
 
           marshall_object_class_desc.fields[0].type = 'int'
@@ -114,8 +114,8 @@ module Msf
 
           marshall_object_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
           marshall_object_class_desc.class_annotation.contents = [
-              Rex::Java::Serialization::Model::NullReference.new,
-              Rex::Java::Serialization::Model::EndBlockData.new
+            Rex::Java::Serialization::Model::NullReference.new,
+            Rex::Java::Serialization::Model::EndBlockData.new
           ]
           marshall_object_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
           marshall_object_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
@@ -128,8 +128,8 @@ module Msf
           data_binary_class_desc.fields = []
           data_binary_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
           data_binary_class_desc.class_annotation.contents = [
-              Rex::Java::Serialization::Model::NullReference.new,
-              Rex::Java::Serialization::Model::EndBlockData.new
+            Rex::Java::Serialization::Model::NullReference.new,
+            Rex::Java::Serialization::Model::EndBlockData.new
           ]
           data_binary_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
           data_binary_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
@@ -144,9 +144,9 @@ module Msf
           marshall_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
           marshall_object.class_desc.description = marshall_object_class_desc
           marshall_object.class_data = [
-              ["int", 1919492550],
-              Rex::Java::Serialization::Model::NullReference.new,
-              data_binary
+            ["int", 1919492550],
+            Rex::Java::Serialization::Model::NullReference.new,
+            data_binary
           ]
 
           stream.contents << marshall_object
@@ -158,8 +158,8 @@ module Msf
           new_array_class_desc.fields = []
           new_array_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
           new_array_class_desc.class_annotation.contents = [
-              Rex::Java::Serialization::Model::NullReference.new,
-              Rex::Java::Serialization::Model::EndBlockData.new
+            Rex::Java::Serialization::Model::NullReference.new,
+            Rex::Java::Serialization::Model::EndBlockData.new
           ]
           new_array_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
           new_array_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
@@ -190,7 +190,7 @@ module Msf
           new_array_class_desc.fields = []
           new_array_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
           new_array_class_desc.class_annotation.contents = [
-              Rex::Java::Serialization::Model::EndBlockData.new
+            Rex::Java::Serialization::Model::EndBlockData.new
           ]
           new_array_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
           new_array_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
