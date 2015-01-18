@@ -20,33 +20,16 @@ module Msf
       def extract_mbean_server(block_data)
         data_io = StringIO.new(block_data.contents)
 
-        ref_length = data_io.read(2)
-        unless ref_length && ref_length.length == 2
-          return nil
-        end
-        ref_length = ref_length.unpack('n')[0]
-
-        ref = data_io.read(ref_length)
-        unless ref && ref.length == ref_length && ref == 'UnicastRef'
+        ref = extract_string(data_io)
+        unless ref && ref == 'UnicastRef'
           return nil
         end
 
-        address_length = data_io.read(2)
-        unless address_length && address_length.length == 2
-          return nil
-        end
-        address_length = address_length.unpack('n')[0]
+        address = extract_string(data_io)
+        return nil unless address
 
-        address = data_io.read(address_length)
-        unless address && address.length == address_length
-          return nil
-        end
-
-        port = data_io.read(4)
-        unless port && port.length == 4
-          return nil
-        end
-        port = port.unpack('N')[0]
+        port = extract_int(data_io)
+        return nil unless port
 
         id = data_io.read
 
