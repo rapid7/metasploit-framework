@@ -3395,4 +3395,54 @@ describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_hidden_ipknock_tcp'
   end
+
+  context 'windows/dllinject/reverse_winhttp_http' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_winhttp_http',
+                            'stages/windows/dllinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/dllinject/reverse_winhttp_http'
+  end
+
+  context 'windows/meterpreter/reverse_winhttp_http' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_winhttp_http',
+                            'stages/windows/meterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/reverse_winhttp_http'
+  end
+
+  context 'windows/shell/reverse_winhttp_http' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_winhttp_http',
+                            'stages/windows/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/shell/reverse_winhttp_http'
+  end
+
+  context 'windows/upexec/reverse_winhttp_http' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_winhttp_http',
+                            'stages/windows/upexec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/upexec/reverse_winhttp_http'
+  end
+
+  context 'windows/vncinject/reverse_winhttp_http' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_winhttp_http',
+                            'stages/windows/vncinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/vncinject/reverse_winhttp_http'
+  end
 end
