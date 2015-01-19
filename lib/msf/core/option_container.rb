@@ -808,7 +808,7 @@ module Opt
     'LPORT' => [ OptPort,    'nil',   true,  '"The listen port"' ],
     'CPORT' => [ OptPort,    'nil',   false, '"The local client port"' ],
     'CHOST' => [ OptAddress, 'nil',   false, '"The local client address"' ],
-    'Proxies' => [ OptString, 'nil',  'false', '"Use a proxy chain"']
+    'Proxies' => [ OptString, 'nil',  'false', '"A proxy chain of format type:host:port[,type:host:port][...]"']
   }
 
 #
