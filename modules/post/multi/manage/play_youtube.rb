@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Post
   def win_start_video(id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
-      session.sys.process.execute(iexplore_path, "-k k http://youtube.com/embed/#{id}?autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0")
+      session.sys.process.execute(iexplore_path, "-k http://youtube.com/embed/#{id}?autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0")
     rescue Rex::Post::Meterpreter::RequestError => e
       return false
     end
