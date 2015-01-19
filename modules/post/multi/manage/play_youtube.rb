@@ -9,7 +9,7 @@ class Metasploit3 < Msf::Post
 
   include Msf::Post::File
 
-  PLAY_OPTIONS = 'sautoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0'
+  PLAY_OPTIONS = 'autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0'
 
   def initialize(info={})
     super( update_info( info,
