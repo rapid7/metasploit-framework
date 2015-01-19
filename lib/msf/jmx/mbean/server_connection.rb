@@ -22,6 +22,7 @@ module Msf
         end
 
         def get_object_instance_stream(id, name)
+          builder = Rex::Java::Serialization::Builder.new
           stream = Rex::Java::Serialization::Model::Stream.new
 
           block_data = Rex::Java::Serialization::Model::BlockData.new
@@ -31,19 +32,11 @@ module Msf
 
           stream.contents << block_data
 
-          new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-          new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'javax.management.ObjectName')
-          new_class_desc.serial_version = 0xf03a71beb6d15cf
-          new_class_desc.flags = 3
-          new_class_desc.fields = []
-          new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
-          new_class_desc.class_annotation.contents = [
-              Rex::Java::Serialization::Model::NullReference.new,
-              Rex::Java::Serialization::Model::EndBlockData.new
-          ]
-          new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
-          new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
-
+          new_class_desc = builder.new_class(
+            name: 'javax.management.ObjectName',
+            serial: 0xf03a71beb6d15cf,
+            flags: 3
+          )
           new_object = Rex::Java::Serialization::Model::NewObject.new
           new_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
           new_object.class_desc.description = new_class_desc
@@ -58,6 +51,7 @@ module Msf
         end
 
         def invoke_stream(id, object_name, method_name, arguments)
+          builder = Rex::Java::Serialization::Builder.new
           stream = Rex::Java::Serialization::Model::Stream.new
 
           block_data = Rex::Java::Serialization::Model::BlockData.new
@@ -67,19 +61,11 @@ module Msf
 
           stream.contents << block_data
 
-          new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-          new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'javax.management.ObjectName')
-          new_class_desc.serial_version = 0xf03a71beb6d15cf
-          new_class_desc.flags = 3
-          new_class_desc.fields = []
-          new_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
-          new_class_desc.class_annotation.contents = [
-            Rex::Java::Serialization::Model::NullReference.new,
-            Rex::Java::Serialization::Model::EndBlockData.new
-          ]
-          new_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
-          new_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
-
+          new_class_desc = builder.new_class(
+            name: 'javax.management.ObjectName',
+            serial: 0xf03a71beb6d15cf,
+            flags: 3
+          )
           new_object = Rex::Java::Serialization::Model::NewObject.new
           new_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
           new_object.class_desc.description = new_class_desc
@@ -88,51 +74,22 @@ module Msf
           stream.contents << new_object
           stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, object_name)
           stream.contents << Rex::Java::Serialization::Model::EndBlockData.new
-
           stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, method_name)
 
-          marshall_object_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-          marshall_object_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'java.rmi.MarshalledObject')
-          marshall_object_class_desc.serial_version = 0x7cbd1e97ed63fc3e
-          marshall_object_class_desc.flags = 2
-          marshall_object_class_desc.fields = [
-            Rex::Java::Serialization::Model::Field.new,
-            Rex::Java::Serialization::Model::Field.new,
-            Rex::Java::Serialization::Model::Field.new
-          ]
+          marshall_object_class_desc = builder.new_class(
+            name: 'java.rmi.MarshalledObject',
+            serial: 0x7cbd1e97ed63fc3e,
+            fields: [
+              ['int', 'hash'],
+              ['array', 'locBytes', '[B'],
+              ['array', 'objBytes', '[B']
+            ]
+          )
 
-          marshall_object_class_desc.fields[0].type = 'int'
-          marshall_object_class_desc.fields[0].name = Rex::Java::Serialization::Model::Utf.new(nil, 'hash')
-
-          marshall_object_class_desc.fields[1].type = 'array'
-          marshall_object_class_desc.fields[1].name = Rex::Java::Serialization::Model::Utf.new(nil, 'locBytes')
-          marshall_object_class_desc.fields[1].field_type = Rex::Java::Serialization::Model::Utf.new(nil, '[B')
-
-          marshall_object_class_desc.fields[2].type = 'array'
-          marshall_object_class_desc.fields[2].name = Rex::Java::Serialization::Model::Utf.new(nil, 'objBytes')
-          marshall_object_class_desc.fields[2].field_type = Rex::Java::Serialization::Model::Utf.new(nil, '[B')
-
-          marshall_object_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
-          marshall_object_class_desc.class_annotation.contents = [
-            Rex::Java::Serialization::Model::NullReference.new,
-            Rex::Java::Serialization::Model::EndBlockData.new
-          ]
-          marshall_object_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
-          marshall_object_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
-
-
-          data_binary_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-          data_binary_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[B')
-          data_binary_class_desc.serial_version = 0xacf317f8060854e0
-          data_binary_class_desc.flags = 2
-          data_binary_class_desc.fields = []
-          data_binary_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
-          data_binary_class_desc.class_annotation.contents = [
-            Rex::Java::Serialization::Model::NullReference.new,
-            Rex::Java::Serialization::Model::EndBlockData.new
-          ]
-          data_binary_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
-          data_binary_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
+          data_binary_class_desc = builder.new_class(
+            name: '[B',
+            serial: 0xacf317f8060854e0
+          )
 
           data_binary = Rex::Java::Serialization::Model::NewArray.new
           data_binary.array_description = Rex::Java::Serialization::Model::ClassDesc.new
@@ -151,18 +108,10 @@ module Msf
 
           stream.contents << marshall_object
 
-          new_array_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-          new_array_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[Ljava.lang.String;')
-          new_array_class_desc.serial_version = 0xadd256e7e91d7b47
-          new_array_class_desc.flags = 2
-          new_array_class_desc.fields = []
-          new_array_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
-          new_array_class_desc.class_annotation.contents = [
-            Rex::Java::Serialization::Model::NullReference.new,
-            Rex::Java::Serialization::Model::EndBlockData.new
-          ]
-          new_array_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
-          new_array_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
+          new_array_class_desc = builder.new_class(
+            name: '[Ljava.lang.String;',
+            serial: 0xadd256e7e91d7b47
+          )
 
           new_array = Rex::Java::Serialization::Model::NewArray.new
           new_array.array_description = Rex::Java::Serialization::Model::ClassDesc.new
@@ -181,19 +130,13 @@ module Msf
         end
 
         def invoke_arguments_stream(arguments)
+          builder = Rex::Java::Serialization::Builder.new
           stream = Rex::Java::Serialization::Model::Stream.new
-
-          new_array_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
-          new_array_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, '[Ljava.lang.Object;')
-          new_array_class_desc.serial_version = 0x90ce589f1073296c
-          new_array_class_desc.flags = 2
-          new_array_class_desc.fields = []
-          new_array_class_desc.class_annotation = Rex::Java::Serialization::Model::Annotation.new
-          new_array_class_desc.class_annotation.contents = [
-            Rex::Java::Serialization::Model::EndBlockData.new
-          ]
-          new_array_class_desc.super_class = Rex::Java::Serialization::Model::ClassDesc.new
-          new_array_class_desc.super_class.description = Rex::Java::Serialization::Model::NullReference.new
+          new_array_class_desc = builder.new_class(
+            name: '[Ljava.lang.Object;',
+            serial: 0x90ce589f1073296c,
+            annotations: [Rex::Java::Serialization::Model::EndBlockData.new]
+          )
 
           new_array = Rex::Java::Serialization::Model::NewArray.new
           new_array.array_description = Rex::Java::Serialization::Model::ClassDesc.new
