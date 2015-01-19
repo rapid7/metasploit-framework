@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
   # The OSX version uses an apple script to do this
   #
   def osx_start_video(id)
-    url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1"
+    url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0"
     script = ''
     script << %Q|osascript -e 'tell application "Safari" to open location "#{url}"' |
     script << %Q|-e 'activate application "Safari"' |
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Post
   def win_start_video(id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
-      session.sys.process.execute(iexplore_path, "-k http://youtube.com/embed/#{id}?autoplay=1")
+      session.sys.process.execute(iexplore_path, "-k k http://youtube.com/embed/#{id}?autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0")
     rescue Rex::Post::Meterpreter::RequestError => e
       return false
     end
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
       write_file("/tmp/#{profile_name}/prefs.js", s)
 
       # Start the video
-      url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1"
+      url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0"
       data_js = %Q|"data:text/html,<script>window.open('#{url}','','width:100000px;height:100000px');</script>"|
       joe = "firefox --display :0 -p #{profile_name} #{data_js} &"
       cmd_exec("/bin/sh -c #{joe.shellescape}")
