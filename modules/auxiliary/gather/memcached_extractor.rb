@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{peer} - memcached loot stored as #{path}")
       end
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
-      print_error("#{peer} - Could not connect to memcached server!")
+      vprint_error("#{peer} - Could not connect to memcached server!")
     end
   end
 end
