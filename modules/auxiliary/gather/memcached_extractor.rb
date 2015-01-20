@@ -80,9 +80,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def determine_version
-    sock.send("stats\r\n", 0)
+    sock.send("version\r\n", 0)
     stats = sock.recv(4096)
-    if /^STAT version (?<version>[\d\.]+)/ =~ stats
+    if /^VERSION (?<version>[\d\.]+)/ =~ stats
       version
     else
       nil
