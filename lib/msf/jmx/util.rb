@@ -61,6 +61,10 @@ module Msf
         int
       end
 
+      # Extracts an UnicastRef (endpoint) information from an IO
+      #
+      # @param io [IO] the io to extract the int from
+      # @return [Hash, nil] the extracted int if success, nil otherwise
       def extract_unicast_ref(io)
         ref = extract_string(io)
         unless ref && ref == 'UnicastRef'
