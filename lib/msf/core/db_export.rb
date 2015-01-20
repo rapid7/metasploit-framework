@@ -343,7 +343,7 @@ class Export
 
       # Service sub-elements
       report_file.write("    <services>\n")
-      @services.find_all_by_host_id(host_id).each do |e|
+      @services.where(host_id: host_id).each do |e|
         report_file.write("      <service>\n")
         e.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
@@ -355,7 +355,7 @@ class Export
 
       # Notes sub-elements
       report_file.write("    <notes>\n")
-      @notes.find_all_by_host_id(host_id).each do |e|
+      @notes.where(host_id: host_id).each do |e|
         report_file.write("      <note>\n")
         e.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
@@ -367,7 +367,7 @@ class Export
 
       # Vulns sub-elements
       report_file.write("    <vulns>\n")
-      @vulns.find_all_by_host_id(host_id).each do |e|
+      @vulns.where(host_id: host_id).each do |e|
         report_file.write("      <vuln>\n")
         e.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
