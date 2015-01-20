@@ -9,9 +9,9 @@ module Msf
         stream = Rex::Java::Serialization::Model::Stream.new
         stream.contents << block_data
 
-        if datastore['USERNAME']
-          username = datastore['USERNAME']
-          password = datastore['PASSWORD'] || ''
+        if jmx_role
+          username = jmx_role
+          password = jmx_password || ''
 
           stream.contents << auth_array_stream(username, password)
         else

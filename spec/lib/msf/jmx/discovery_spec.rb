@@ -5,7 +5,7 @@ require 'stringio'
 require 'rex/java'
 require 'msf/jmx'
 
-describe Msf::Jmx::Util do
+describe Msf::Jmx::Discovery do
   subject(:mod) do
     mod = ::Msf::Exploit.new
     mod.extend ::Msf::Jmx
@@ -42,7 +42,6 @@ describe Msf::Jmx::Util do
     end
 
     it "builds a valid stream to discover an jmxrmi endpoing" do
-      require 'rex/text'
       expect(mod.discovery_stream.encode).to eq(stream_discovery)
     end
   end
