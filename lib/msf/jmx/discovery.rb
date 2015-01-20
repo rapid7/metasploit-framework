@@ -6,11 +6,11 @@ module Msf
       def discovery_stream
         stream = Rex::Java::Serialization::Model::Stream.new
 
-        block_data = Rex::Java::Serialization::Model::BlockData.new
-        block_data.contents = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        block_data.contents << "\x00\x00\x00\x02\x44\x15\x4d\xc9\xd4\xe6\x3b\xdf"
-        block_data.length = block_data.contents.length
-
+        block_data = Rex::Java::Serialization::Model::BlockData.new(
+          nil,
+          "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+              "\x00\x00\x00\x02\x44\x15\x4d\xc9\xd4\xe6\x3b\xdf"
+        )
         stream.contents << block_data
         stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, 'jmxrmi')
 

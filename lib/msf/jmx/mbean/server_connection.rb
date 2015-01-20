@@ -8,10 +8,13 @@ module Msf
         def create_mbean_stream(id, name)
           stream = Rex::Java::Serialization::Model::Stream.new
 
+=begin
           block_data = Rex::Java::Serialization::Model::BlockData.new
           block_data.contents << id
           block_data.contents << "\xff\xff\xff\xff\x22\xd7\xfd\x4a\x90\x6a\xc8\xe6"
           block_data.length = block_data.contents.length
+=end
+          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x22\xd7\xfd\x4a\x90\x6a\xc8\xe6")
 
           stream.contents << block_data
           stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, name)
@@ -25,10 +28,7 @@ module Msf
           builder = Rex::Java::Serialization::Builder.new
           stream = Rex::Java::Serialization::Model::Stream.new
 
-          block_data = Rex::Java::Serialization::Model::BlockData.new
-          block_data.contents = id
-          block_data.contents << "\xff\xff\xff\xff\x60\x73\xb3\x36\x1f\x37\xbd\xc2"
-          block_data.length = block_data.contents.length
+          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x60\x73\xb3\x36\x1f\x37\xbd\xc2")
 
           stream.contents << block_data
 
@@ -49,11 +49,7 @@ module Msf
           builder = Rex::Java::Serialization::Builder.new
           stream = Rex::Java::Serialization::Model::Stream.new
 
-          block_data = Rex::Java::Serialization::Model::BlockData.new
-          block_data.contents = id
-          block_data.contents  << "\xff\xff\xff\xff\x13\xe7\xd6\x94\x17\xe5\xda\x20"
-          block_data.length = block_data.contents.length
-
+          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x13\xe7\xd6\x94\x17\xe5\xda\x20")
           stream.contents << block_data
 
           new_object = builder.new_object(

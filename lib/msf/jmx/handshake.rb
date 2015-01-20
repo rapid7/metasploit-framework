@@ -6,10 +6,7 @@ module Msf
       def handshake_stream(id)
         stream = Rex::Java::Serialization::Model::Stream.new
 
-        block_data = Rex::Java::Serialization::Model::BlockData.new
-        block_data.contents = id + "\xff\xff\xff\xff\xf0\xe0\x74\xea\xad\x0c\xae\xa8"
-        block_data.length = block_data.contents.length
-
+        block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\xf0\xe0\x74\xea\xad\x0c\xae\xa8")
         stream.contents << block_data
 
         if datastore['USERNAME']
