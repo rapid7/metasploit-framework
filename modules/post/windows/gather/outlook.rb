@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
     base_script = File.read(File.join(Msf::Config.data_directory, "post", "powershell", "outlook.ps1"))
     psh_script = base_script << command
     compressed_script = compress_script(psh_script)
-    cmd_out, runnings_pids, open_channels = execute_script(compressed_script)
+    cmd_out, runnings_pids, open_channels = execute_script(compressed_script, 120)
     while(d = cmd_out.channel.read)
       print ("#{d}")
     end
