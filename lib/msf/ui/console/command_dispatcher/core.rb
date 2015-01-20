@@ -2419,11 +2419,11 @@ class Core
 
     begin
       mod = framework.modules.create(mod_name)
-      if mod.nil?
+      unless mod
         # Try one more time; see #4549
         sleep 3
         mod = framework.modules.create(mod_name)
-        if mod.nil?
+        unless mod
           print_error("Failed to load module: #{mod_name}")
           return false
         end
