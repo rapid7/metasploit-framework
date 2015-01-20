@@ -82,8 +82,11 @@ class Metasploit3 < Msf::Auxiliary
   def determine_version
     sock.send("stats\r\n", 0)
     stats = sock.recv(4096)
-    matches = /^STAT (?<version>version (\.|\d)*)/.match(stats)
-    matches[:version] || 'unkown version'
+    if /^STAT version (?<version>[\d\.]+)/ =~ stats
+      version
+    else
+      nil
+    end
   end
 
   def run_host(ip)
@@ -91,9 +94,21 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer} - Connecting to memcached server...")
     begin
       connect
-      vprint_good("#{peer} Connected to memcached #{determine_version}")
+      if version = determine_version
+        vprint_good("#{peer} - Connected to memcached version #{version}")
+        report_service(
+          host: ip,
+          name: 'memcached',
+          port: rport,
+          proto: 'tcp',
+          info: version
+        )
+      else
+        print_error("#{peer} - unable to determine memcached protocol version")
+        return
+      end
       keys = enumerate_keys
-      print_good("#{peer} Found #{keys.size} keys")
+      print_good("#{peer} - Found #{keys.size} keys")
       return if keys.size == 0
 
       data = data_for_keys(keys)
