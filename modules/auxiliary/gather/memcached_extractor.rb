@@ -11,7 +11,8 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
+    super(update_info(
+      info,
       'Name'          => 'Memcached Extractor',
       'Description'   => %q(
         This module extracts the slabs from a memcached instance.  It then
@@ -33,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptInt.new('MAXKEYS', [ true, 'Maximum number of keys to be pulled from a slab', 100] )
+        OptInt.new('MAXKEYS', [true, 'Maximum number of keys to be pulled from a slab', 100])
       ], self.class
     )
   end
@@ -104,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("#{peer} - Connecting to memcached server...")
     begin
       connect
-      if version = determine_version
+      if (version = determine_version)
         vprint_good("#{peer} - Connected to memcached version #{version}")
         report_service(
           host: ip,
