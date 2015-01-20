@@ -10,8 +10,23 @@ module Registry
 
   include Msf::Post::Windows::CliParse
 
+  #
+  # This is the default view. It reflects what the remote process would see
+  # natively. So, if you are using a remote 32-bit meterpreter session, you
+  # will see 32-bit registry keys and values.
+  #
   REGISTRY_VIEW_NATIVE = 0
+
+  #
+  # Access 32-bit registry keys and values regardless of whether the session is
+  # 32 or 64-bit.
+  #
   REGISTRY_VIEW_32_BIT = 1
+
+  #
+  # Access 64-bit registry keys and values regardless of whether the session is
+  # 32 or 64-bit.
+  #
   REGISTRY_VIEW_64_BIT = 2
 
   #
@@ -160,7 +175,7 @@ protected
 
   def shell_registry_cmd_result(suffix, view = REGISTRY_VIEW_NATIVE)
     results = shell_registry_cmd(suffix, view);
-    results =~ /The operation completed successfully/
+    results.include?('The operation completed successfully')
   end
 
   #
@@ -216,7 +231,7 @@ protected
     reg_data_types << 'REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR'
     bslashes = key.count('\\')
     results = shell_registry_cmd("query \"#{key}\"", view)
-    if results !=~ /^Error:/
+    unless results.include?('Error')
       results.each_line do |line|
         # now let's keep the ones that have a count = bslashes+1
         # feels like there's a smarter way to do this but...
@@ -239,7 +254,7 @@ protected
     reg_data_types << 'REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR'
     # REG QUERY KeyName [/v ValueName | /ve] [/s]
     results = shell_registry_cmd("query \"#{key}\"", view)
-    if results !=~ /^Error:/
+    unless results.include?('Error')
       if values = results.scan(/^ +.*[#{reg_data_types}].*/)
         # yanked the lines with legit REG value types like REG_SZ
         # now let's parse out the names (first field basically)
