@@ -44,7 +44,7 @@ class Metasploit4 < Msf::Auxiliary
     register_advanced_options(
       [
         OptString.new('CANARY_URI', [false, 'Try overwriting the requested URI with this canary value (empty for random)']),
-        OptString.new('STATUS_CODES_REGEX', [true, 'Ensure that canary pages and probe responses have status codes that match this regex', '^4\d{2}$'])
+        OptString.new('STATUS_CODES_REGEX', [true, 'Ensure that canary pages and probe responses have status codes that match this regex', '^40[134]$'])
       ], self.class
     )
   end
