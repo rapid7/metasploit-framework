@@ -2418,9 +2418,15 @@ class Core
     mod_name = args[0]
 
     begin
-      if ((mod = framework.modules.create(mod_name)) == nil)
-        print_error("Failed to load module: #{mod_name}")
-        return false
+      mod = framework.modules.create(mod_name)
+      if mod.nil?
+        # Try one more time; see #4549
+        sleep 3
+        mod = framework.modules.create(mod_name)
+        if mod.nil?
+          print_error("Failed to load module: #{mod_name}")
+          return false
+        end
       end
     rescue Rex::AmbiguousArgumentError => info
       print_error(info.to_s)
