@@ -8,7 +8,7 @@ describe Rex::Java::Serialization::Builder do
     described_class.new
   end
 
-  let(:opts) do
+  let(:class_opts) do
     {
       name: 'java.rmi.MarshalledObject',
       serial: 0x7cbd1e97ed63fc3e,
@@ -17,6 +17,12 @@ describe Rex::Java::Serialization::Builder do
         ['array', 'locBytes', '[B'],
         ['array', 'objBytes', '[B']
       ]
+    }
+  end
+
+  let(:object_opts) do
+    {
+      data: [["int", 1]]
     }
   end
 
@@ -59,19 +65,41 @@ describe Rex::Java::Serialization::Builder do
 
     context "when options" do
       it "returns a Rex::Java::Serialization::Model::NewClassDesc" do
-        expect(builder.new_class(opts)).to be_a(Rex::Java::Serialization::Model::NewClassDesc)
+        expect(builder.new_class(class_opts)).to be_a(Rex::Java::Serialization::Model::NewClassDesc)
       end
 
       it "sets the class name from options" do
-        expect(builder.new_class(opts).class_name.contents).to eq(opts[:name])
+        expect(builder.new_class(class_opts).class_name.contents).to eq(class_opts[:name])
       end
 
       it "sets serial version from options" do
-        expect(builder.new_class(opts).serial_version).to eq(opts[:serial])
+        expect(builder.new_class(class_opts).serial_version).to eq(class_opts[:serial])
       end
 
       it "sets fields from options" do
-        expect(builder.new_class(opts).fields.length).to eq(3)
+        expect(builder.new_class(class_opts).fields.length).to eq(3)
+      end
+    end
+  end
+
+  describe "#new_object" do
+    context "when no options" do
+      it "returns a Rex::Java::Serialization::Model::NewObject" do
+        expect(builder.new_object).to be_a(Rex::Java::Serialization::Model::NewObject)
+      end
+
+      it "sets empty data" do
+        expect(builder.new_object.class_data).to eq([])
+      end
+    end
+
+    context "when options" do
+      it "returns a Rex::Java::Serialization::Model::NewClassDesc" do
+        expect(builder.new_object(object_opts)).to be_a(Rex::Java::Serialization::Model::NewObject)
+      end
+
+      it "sets data from options" do
+        expect(builder.new_object(object_opts).class_data[0][1]).to eq(1)
       end
     end
   end
