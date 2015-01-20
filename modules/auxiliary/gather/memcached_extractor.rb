@@ -34,13 +34,22 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptInt.new('MAXKEYS', [true, 'Maximum number of keys to be pulled from a slab', 100])
+        OptInt.new('MAXKEYS', [true, 'Maximum number of keys to be pulled from each slab', 100]),
+        OptInt.new('PRINTKEYS', [true, 'Number of keys shown in preview table for each instance', 10])
       ], self.class
     )
   end
 
   def max_keys
     datastore['MAXKEYS'].to_i
+  end
+
+  def print_keys
+    datastore['PRINTKEYS'].to_i
+  end
+
+  def localhost?(ip)
+    %w(localhost 127.0.0.1).include?(ip)
   end
 
   # Returns array of keys for all slabs
@@ -107,13 +116,15 @@ class Metasploit3 < Msf::Auxiliary
       connect
       if (version = determine_version)
         vprint_good("#{peer} - Connected to memcached version #{version}")
-        report_service(
-          host: ip,
-          name: 'memcached',
-          port: rport,
-          proto: 'tcp',
-          info: version
-        )
+        unless localhost?(ip)
+          report_service(
+            host: ip,
+            name: 'memcached',
+            port: rport,
+            proto: 'tcp',
+            info: version
+          )
+        end
       else
         print_error("#{peer} - unable to determine memcached protocol version")
         return
@@ -123,18 +134,17 @@ class Metasploit3 < Msf::Auxiliary
       return if keys.size == 0
 
       data = data_for_keys(keys)
-      if %w(localhost 127.0.0.1).include?(ip)
-        result_table = Rex::Ui::Text::Table.new(
-          'Header'  => "Keys/Values Found for #{ip}:#{rport}",
-          'Indent'  => 1,
-          'Columns' => [ 'Key', 'Value' ]
-        )
-        data.take(10).each { |r| result_table << r }
-        print_line
-        print_line("#{result_table}")
-      else
+      result_table = Rex::Ui::Text::Table.new(
+        'Header'  => "Keys/Values Found for #{peer}",
+        'Indent'  => 1,
+        'Columns' => [ 'Key', 'Value' ]
+      )
+      data.take(print_keys).each { |r| result_table << r }
+      print_line
+      print_line("#{result_table}")
+      unless localhost?(ip)
         path = store_loot('memcached.dump', 'text/plain', ip, data, 'memcached.txt', 'Memcached extractor')
-        print_good("#{peer} - memcached loot stored as #{path}")
+        print_good("#{peer} - memcached loot stored at #{path}")
       end
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
       vprint_error("#{peer} - Could not connect to memcached server!")
