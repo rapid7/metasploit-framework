@@ -18,7 +18,11 @@ class Metasploit3 < Msf::Auxiliary
         finds the keys and values stored in those slabs.
       ),
       'Author'        => [ 'Paul Deardorff <paul_deardorff[at]rapid7.com>' ],
-      'License'       => MSF_LICENSE
+      'License'       => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'https://github.com/memcached/memcached/blob/master/doc/protocol.txt']
+        ]
     ))
 
     register_options(
