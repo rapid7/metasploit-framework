@@ -26,6 +26,13 @@ describe Rex::Java::Serialization::Builder do
     }
   end
 
+  let(:array_opts) do
+    {
+      values_type: 'byte',
+      values: [0x41, 0x42, 0x43, 0x44]
+    }
+  end
+
   describe ".new" do
     it "returns a Rex::Java::Serialization::Builder" do
       expect(builder).to be_a(Rex::Java::Serialization::Builder)
@@ -94,12 +101,42 @@ describe Rex::Java::Serialization::Builder do
     end
 
     context "when options" do
-      it "returns a Rex::Java::Serialization::Model::NewClassDesc" do
+      it "returns a Rex::Java::Serialization::Model::NewObject" do
         expect(builder.new_object(object_opts)).to be_a(Rex::Java::Serialization::Model::NewObject)
       end
 
       it "sets data from options" do
         expect(builder.new_object(object_opts).class_data[0][1]).to eq(1)
+      end
+    end
+  end
+
+  describe "#new_array" do
+    context "when no options" do
+      it "returns a Rex::Java::Serialization::Model::NewArray" do
+        expect(builder.new_array).to be_a(Rex::Java::Serialization::Model::NewArray)
+      end
+
+      it "sets empty values type" do
+        expect(builder.new_array.type).to eq('')
+      end
+
+      it "sets empty values array" do
+        expect(builder.new_array.values).to eq([])
+      end
+    end
+
+    context "when options" do
+      it "returns a Rex::Java::Serialization::Model::NewArray" do
+        expect(builder.new_array(array_opts)).to be_a(Rex::Java::Serialization::Model::NewArray)
+      end
+
+      it "sets empty values type" do
+        expect(builder.new_array(array_opts).type).to eq(array_opts[:values_type])
+      end
+
+      it "sets empty values array" do
+        expect(builder.new_array(array_opts).values).to eq(array_opts[:values])
       end
     end
   end
