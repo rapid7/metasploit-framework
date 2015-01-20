@@ -4,9 +4,9 @@ module Msf
   module Jmx
     module Handshake
       def handshake_stream(id)
-        stream = Rex::Java::Serialization::Model::Stream.new
-
         block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\xf0\xe0\x74\xea\xad\x0c\xae\xa8")
+
+        stream = Rex::Java::Serialization::Model::Stream.new
         stream.contents << block_data
 
         if datastore['USERNAME']

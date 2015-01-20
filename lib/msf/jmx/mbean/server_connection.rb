@@ -6,16 +6,9 @@ module Msf
       module ServerConnection
 
         def create_mbean_stream(id, name)
-          stream = Rex::Java::Serialization::Model::Stream.new
-
-=begin
-          block_data = Rex::Java::Serialization::Model::BlockData.new
-          block_data.contents << id
-          block_data.contents << "\xff\xff\xff\xff\x22\xd7\xfd\x4a\x90\x6a\xc8\xe6"
-          block_data.length = block_data.contents.length
-=end
           block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x22\xd7\xfd\x4a\x90\x6a\xc8\xe6")
 
+          stream = Rex::Java::Serialization::Model::Stream.new
           stream.contents << block_data
           stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, name)
           stream.contents << Rex::Java::Serialization::Model::NullReference.new
@@ -26,17 +19,17 @@ module Msf
 
         def get_object_instance_stream(id, name)
           builder = Rex::Java::Serialization::Builder.new
-          stream = Rex::Java::Serialization::Model::Stream.new
 
           block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x60\x73\xb3\x36\x1f\x37\xbd\xc2")
-
-          stream.contents << block_data
 
           new_object = builder.new_object(
             name: 'javax.management.ObjectName',
             serial: 0xf03a71beb6d15cf,
             flags: 3
           )
+
+          stream = Rex::Java::Serialization::Model::Stream.new
+          stream.contents << block_data
           stream.contents << new_object
           stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, name)
           stream.contents << Rex::Java::Serialization::Model::EndBlockData.new
@@ -47,21 +40,14 @@ module Msf
 
         def invoke_stream(id, object_name, method_name, arguments)
           builder = Rex::Java::Serialization::Builder.new
-          stream = Rex::Java::Serialization::Model::Stream.new
 
           block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x13\xe7\xd6\x94\x17\xe5\xda\x20")
-          stream.contents << block_data
 
           new_object = builder.new_object(
             name: 'javax.management.ObjectName',
             serial: 0xf03a71beb6d15cf,
             flags: 3
           )
-
-          stream.contents << new_object
-          stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, object_name)
-          stream.contents << Rex::Java::Serialization::Model::EndBlockData.new
-          stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, method_name)
 
           data_binary = builder.new_array(
             name: '[B',
@@ -84,7 +70,6 @@ module Msf
               data_binary
             ]
           )
-          stream.contents << marshall_object
 
           new_array = builder.new_array(
             name: '[Ljava.lang.String;',
@@ -93,8 +78,14 @@ module Msf
             values: arguments.keys.collect { |k| Rex::Java::Serialization::Model::Utf.new(nil, k) }
           )
 
+          stream = Rex::Java::Serialization::Model::Stream.new
+          stream.contents << block_data
+          stream.contents << new_object
+          stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, object_name)
+          stream.contents << Rex::Java::Serialization::Model::EndBlockData.new
+          stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, method_name)
+          stream.contents << marshall_object
           stream.contents << new_array
-
           stream.contents << Rex::Java::Serialization::Model::NullReference.new
 
           stream
@@ -102,7 +93,6 @@ module Msf
 
         def invoke_arguments_stream(arguments)
           builder = Rex::Java::Serialization::Builder.new
-          stream = Rex::Java::Serialization::Model::Stream.new
 
           new_array = builder.new_array(
             name: '[Ljava.lang.Object;',
@@ -111,6 +101,8 @@ module Msf
             values_type: 'java.lang.Object;',
             values: arguments.values.collect { |arg| Rex::Java::Serialization::Model::Utf.new(nil, arg) }
           )
+
+          stream = Rex::Java::Serialization::Model::Stream.new
           stream.contents << new_array
 
           stream
