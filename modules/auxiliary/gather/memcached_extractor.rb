@@ -23,9 +23,15 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(11211),
+        Opt::RPORT(11211)
+      ], self.class
+    )
+
+    register_advanced_options(
+      [
         OptInt.new('MAXKEYS', [ true, 'Maximum number of keys to be pulled from a slab', 100] )
-      ], self.class)
+      ], self.class
+    )
   end
 
   def max_keys
