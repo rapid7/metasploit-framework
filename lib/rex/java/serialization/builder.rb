@@ -19,6 +19,15 @@ module Rex
         end
 
         def new_object(opts = {})
+          class_desc = opts[:description] || new_class(opts)
+          data = opts[:data] || []
+
+          object = Rex::Java::Serialization::Model::NewObject.new
+          object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
+          object.class_desc.description = class_desc
+          object.class_data = data
+
+          object
         end
 
         def new_class(opts = {})

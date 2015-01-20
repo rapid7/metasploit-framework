@@ -32,16 +32,11 @@ module Msf
 
           stream.contents << block_data
 
-          new_class_desc = builder.new_class(
+          new_object = builder.new_object(
             name: 'javax.management.ObjectName',
             serial: 0xf03a71beb6d15cf,
             flags: 3
           )
-          new_object = Rex::Java::Serialization::Model::NewObject.new
-          new_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
-          new_object.class_desc.description = new_class_desc
-          new_object.class_data = []
-
           stream.contents << new_object
           stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, name)
           stream.contents << Rex::Java::Serialization::Model::EndBlockData.new
@@ -61,30 +56,16 @@ module Msf
 
           stream.contents << block_data
 
-          new_class_desc = builder.new_class(
+          new_object = builder.new_object(
             name: 'javax.management.ObjectName',
             serial: 0xf03a71beb6d15cf,
             flags: 3
           )
-          new_object = Rex::Java::Serialization::Model::NewObject.new
-          new_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
-          new_object.class_desc.description = new_class_desc
-          new_object.class_data = []
 
           stream.contents << new_object
           stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, object_name)
           stream.contents << Rex::Java::Serialization::Model::EndBlockData.new
           stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, method_name)
-
-          marshall_object_class_desc = builder.new_class(
-            name: 'java.rmi.MarshalledObject',
-            serial: 0x7cbd1e97ed63fc3e,
-            fields: [
-              ['int', 'hash'],
-              ['array', 'locBytes', '[B'],
-              ['array', 'objBytes', '[B']
-            ]
-          )
 
           data_binary = builder.new_array(
             name: '[B',
@@ -93,15 +74,20 @@ module Msf
             values: invoke_arguments_stream(arguments).encode.unpack('C*')
           )
 
-          marshall_object = Rex::Java::Serialization::Model::NewObject.new
-          marshall_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
-          marshall_object.class_desc.description = marshall_object_class_desc
-          marshall_object.class_data = [
-            ["int", 1919492550],
-            Rex::Java::Serialization::Model::NullReference.new,
-            data_binary
-          ]
-
+          marshall_object = builder.new_object(
+            name: 'java.rmi.MarshalledObject',
+            serial: 0x7cbd1e97ed63fc3e,
+            fields: [
+              ['int', 'hash'],
+              ['array', 'locBytes', '[B'],
+              ['array', 'objBytes', '[B']
+            ],
+            data: [
+              ["int", 1919492550],
+              Rex::Java::Serialization::Model::NullReference.new,
+              data_binary
+            ]
+          )
           stream.contents << marshall_object
 
           new_array = builder.new_array(
