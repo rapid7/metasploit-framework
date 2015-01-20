@@ -65,7 +65,7 @@ class Metasploit4 < Msf::Auxiliary
     when Exploit::CheckCode::Vulnerable
       print_good("#{peer} #{status.last}")
     else
-      vprint_status("#{peer} is not vulnerable")
+      vprint_status("#{peer} #{status.last}")
     end
   end
 
@@ -171,7 +171,7 @@ class Metasploit4 < Msf::Auxiliary
     # Exploit::CheckCode::Vulnerable
     if res.body.include?(canary_value)
       if res.body.include?(canary_cookie_name)
-        vprint_status("#{full_uri} HTTP code #{res.code} response contained test cookie name #{canary_cookie_name}")
+        vprint_status("#{full_uri} HTTP code #{res.code} response contained canary cookie name #{canary_cookie_name}")
         return check_response_fingerprint(res, Exploit::CheckCode::Detected)
       else
         vprint_good("#{full_uri} HTTP code #{res.code} response contained canary cookie value #{canary_value} as URI")
