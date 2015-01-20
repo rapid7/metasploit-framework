@@ -86,16 +86,12 @@ module Msf
             ]
           )
 
-          data_binary_class_desc = builder.new_class(
+          data_binary = builder.new_array(
             name: '[B',
-            serial: 0xacf317f8060854e0
+            serial: 0xacf317f8060854e0,
+            values_type: 'byte',
+            values: invoke_arguments_stream(arguments).encode.unpack('C*')
           )
-
-          data_binary = Rex::Java::Serialization::Model::NewArray.new
-          data_binary.array_description = Rex::Java::Serialization::Model::ClassDesc.new
-          data_binary.array_description.description = data_binary_class_desc
-          data_binary.type = 'byte'
-          data_binary.values = invoke_arguments_stream(arguments).encode.unpack('C*')
 
           marshall_object = Rex::Java::Serialization::Model::NewObject.new
           marshall_object.class_desc = Rex::Java::Serialization::Model::ClassDesc.new
@@ -108,19 +104,12 @@ module Msf
 
           stream.contents << marshall_object
 
-          new_array_class_desc = builder.new_class(
+          new_array = builder.new_array(
             name: '[Ljava.lang.String;',
-            serial: 0xadd256e7e91d7b47
+            serial: 0xadd256e7e91d7b47,
+            values_type: 'java.lang.String;',
+            values: arguments.keys.collect { |k| Rex::Java::Serialization::Model::Utf.new(nil, k) }
           )
-
-          new_array = Rex::Java::Serialization::Model::NewArray.new
-          new_array.array_description = Rex::Java::Serialization::Model::ClassDesc.new
-          new_array.array_description.description = new_array_class_desc
-          new_array.type = 'java.lang.String;'
-          new_array.values = []
-          arguments.keys.each do |k|
-            new_array.values << Rex::Java::Serialization::Model::Utf.new(nil, k)
-          end
 
           stream.contents << new_array
 
@@ -132,20 +121,14 @@ module Msf
         def invoke_arguments_stream(arguments)
           builder = Rex::Java::Serialization::Builder.new
           stream = Rex::Java::Serialization::Model::Stream.new
-          new_array_class_desc = builder.new_class(
+
+          new_array = builder.new_array(
             name: '[Ljava.lang.Object;',
             serial: 0x90ce589f1073296c,
-            annotations: [Rex::Java::Serialization::Model::EndBlockData.new]
+            annotations: [Rex::Java::Serialization::Model::EndBlockData.new],
+            values_type: 'java.lang.Object;',
+            values: arguments.values.collect { |arg| Rex::Java::Serialization::Model::Utf.new(nil, arg) }
           )
-
-          new_array = Rex::Java::Serialization::Model::NewArray.new
-          new_array.array_description = Rex::Java::Serialization::Model::ClassDesc.new
-          new_array.array_description.description = new_array_class_desc
-          new_array.type = 'java.lang.Object;'
-          new_array.values = [ ]
-          arguments.values.each do |v|
-            new_array.values << Rex::Java::Serialization::Model::Utf.new(nil, v)
-          end
           stream.contents << new_array
 
           stream

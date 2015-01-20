@@ -5,7 +5,17 @@ module Rex
     module Serialization
       class Builder
         def new_array(opts = {})
+          class_desc = opts[:description] || new_class(opts)
+          type = opts[:values_type] || ''
+          values = opts[:values] || []
 
+          array = Rex::Java::Serialization::Model::NewArray.new
+          array.array_description = Rex::Java::Serialization::Model::ClassDesc.new
+          array.array_description.description = class_desc
+          array.type = type
+          array.values = values
+
+          array
         end
 
         def new_object(opts = {})

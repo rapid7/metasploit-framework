@@ -26,19 +26,16 @@ module Msf
 
       def auth_array_stream(username, password)
         builder = Rex::Java::Serialization::Builder.new
-        auth_array_class_desc = builder.new_class(
-          name: '[Ljava.lang.String;',
-          serial: 0xadd256e7e91d7b47
-        )
 
-        auth_array = Rex::Java::Serialization::Model::NewArray.new
-        auth_array.array_description = Rex::Java::Serialization::Model::ClassDesc.new
-        auth_array.array_description.description = auth_array_class_desc
-        auth_array.type = 'java.lang.String;'
-        auth_array.values = [
-          Rex::Java::Serialization::Model::Utf.new(nil, username),
-          Rex::Java::Serialization::Model::Utf.new(nil, password)
-        ]
+        auth_array = builder.new_array(
+          name: '[Ljava.lang.String;',
+          serial: 0xadd256e7e91d7b47,
+          values_type: 'java.lang.String;',
+          values: [
+            Rex::Java::Serialization::Model::Utf.new(nil, username),
+            Rex::Java::Serialization::Model::Utf.new(nil, password)
+          ]
+        )
 
         auth_array
       end
