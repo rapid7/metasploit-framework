@@ -60,6 +60,24 @@ module Msf
 
         int
       end
+
+      def extract_unicast_ref(io)
+        ref = extract_string(io)
+        unless ref && ref == 'UnicastRef'
+          return nil
+        end
+
+        address = extract_string(io)
+        return nil unless address
+
+        port = extract_int(io)
+        return nil unless port
+
+        id = io.read
+
+        { address: address, port: port, id: id }
+      end
+
     end
   end
 end

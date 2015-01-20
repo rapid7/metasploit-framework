@@ -16,25 +16,6 @@ module Msf
 
         stream
       end
-
-      def extract_mbean_server(block_data)
-        data_io = StringIO.new(block_data.contents)
-
-        ref = extract_string(data_io)
-        unless ref && ref == 'UnicastRef'
-          return nil
-        end
-
-        address = extract_string(data_io)
-        return nil unless address
-
-        port = extract_int(data_io)
-        return nil unless port
-
-        id = data_io.read
-
-        { address: address, port: port, id: id }
-      end
     end
   end
 end

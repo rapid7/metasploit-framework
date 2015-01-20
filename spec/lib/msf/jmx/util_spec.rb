@@ -31,6 +31,24 @@ describe Msf::Jmx::Util do
   end
   let(:stream) { Rex::Java::Serialization::Model::Stream.decode(StringIO.new(stream_raw)) }
 
+  let(:contents_unicast_ref) do
+    "\x00\x0a\x55\x6e\x69\x63\x61\x73\x74\x52\x65\x66\x00\x0e\x31\x37" +
+    "\x32\x2e\x31\x36\x2e\x31\x35\x38\x2e\x31\x33\x31\x00\x00\x0b\xf1" +
+    "\x54\x74\xc4\x27\xb7\xa3\x4e\x9b\x51\xb5\x25\xf9\x00\x00\x01\x4a" +
+    "\xdf\xd4\x57\x7e\x80\x01\x01"
+  end
+  let(:unicast_ref_io) do
+    StringIO.new(Rex::Java::Serialization::Model::BlockData.new(nil, contents_unicast_ref).contents)
+  end
+  let(:unicast_ref) do
+    {
+      :address => '172.16.158.131',
+      :id => "\x54\x74\xc4\x27\xb7\xa3\x4e\x9b\x51\xb5\x25\xf9\x00\x00\x01\x4a\xdf\xd4\x57\x7e\x80\x01\x01",
+      :port => 3057
+    }
+  end
+
+
   describe "#extract_string" do
     context "when io contains a valid string" do
       it "returns the string" do
@@ -82,5 +100,22 @@ describe Msf::Jmx::Util do
     end
   end
 
+  describe "#extract_unicast_ref" do
+    context "when empty io" do
+      it "returns nil" do
+        expect(mod.extract_unicast_ref(empty_io)). to be_nil
+      end
+    end
+
+    context "when valid io" do
+      it "returns a hash" do
+        expect(mod.extract_unicast_ref(unicast_ref_io)).to be_a(Hash)
+      end
+
+      it "returns a hash containing the UnicastRef information" do
+        expect(mod.extract_unicast_ref(unicast_ref_io)).to eq(unicast_ref)
+      end
+    end
+  end
 end
 

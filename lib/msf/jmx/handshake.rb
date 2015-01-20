@@ -36,23 +36,6 @@ module Msf
 
         auth_array
       end
-
-      def extract_rmi_connection_stub(block_data)
-        data_io = StringIO.new(block_data.contents)
-
-        ref = extract_string(data_io)
-        return nil unless ref && ref == 'UnicastRef'
-
-        address = extract_string(data_io)
-        return nil unless address
-
-        port = extract_int(data_io)
-        return nil unless port
-
-        id = data_io.read
-
-        { address: address, port: port, :id => id }
-      end
     end
   end
 end
