@@ -36,7 +36,7 @@ module Msf
         # @option opts [String] :obj_id the jmx endpoint ObjId
         # @option opts [String] :name the name of the MBean
         # @return [Rex::Java::Serialization::Model::Stream]
-        def get_object_instance_stream(opts)
+        def get_object_instance_stream(opts = {})
           obj_id = opts[:obj_id] || "\x00" * 22
           name = opts[:name] || ''
 
@@ -69,7 +69,7 @@ module Msf
         # @option opts [String] :method the method name to invoke
         # @option opts [String] :args the arguments of the method to invoke
         # @return [Rex::Java::Serialization::Model::Stream]
-        def invoke_stream(opts)
+        def invoke_stream(opts = {})
           obj_id = opts[:obj_id] || "\x00" * 22
           object_name = opts[:object] || ''
           method_name = opts[:method] || ''
@@ -131,7 +131,7 @@ module Msf
         #
         # @param args [Hash] the arguments of the method to invoke
         # @return [Rex::Java::Serialization::Model::Stream]
-        def invoke_arguments_stream(args)
+        def invoke_arguments_stream(args = {})
           builder = Rex::Java::Serialization::Builder.new
 
           new_array = builder.new_array(
