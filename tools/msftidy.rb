@@ -14,13 +14,13 @@ CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
 TITLE_WHITELIST = %w{
   a an and as at avserve callmenum configdir connect debug docbase dtspcd
-  execve file for from getinfo goaway gsad hetro historysearch htpasswd
-  ibstat id in inetd iseemedia jhot libxslt lmgrd lnk load main map
-  migrate mimencode multisort name net netcat nodeid ntpd nttrans of
-  on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
-  popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
-  sadmind say sblistpack spamd sreplace tagprinter the tnftp to twikidraw
-  udev uplay user username via welcome with ypupdated zsudo
+  execve file for from getinfo goaway gsad hetro historysearch htpasswd ibstat
+  id in inetd iseemedia jhot libxslt lmgrd lnk load main map migrate mimencode
+  multisort name net netcat nodeid ntpd nttrans of on onreadystatechange or
+  ovutil path pbot pfilez pgpass pingstr pls popsubfolders prescan readvar
+  relfile rev rexec rlogin rsh rsyslog sa sadmind say sblistpack spamd
+  sreplace tagprinter the tnftp to twikidraw udev uplay user username via
+  welcome with ypupdated zsudo
 }
 
 if CHECK_OLD_RUBIES
