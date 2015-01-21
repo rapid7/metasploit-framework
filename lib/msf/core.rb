@@ -78,6 +78,9 @@ require 'msf/kerberos/client'
 # Java RMI Support
 require 'msf/rmi/client'
 
+# Java JMX Support
+require 'msf/jmx'
+
 # Drivers
 require 'msf/core/exploit_driver'
 
