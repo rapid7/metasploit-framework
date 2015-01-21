@@ -2,7 +2,12 @@
 
 module Msf
   module Jmx
+    # This module provides methods which help to handle JMX end points discovery
     module Discovery
+      # Builds a Rex::Java::Serialization::Model::Stream to discover
+      # an JMX RMI endpoint
+      #
+      # @return [Rex::Java::Serialization::Model::Stream]
       def discovery_stream
         block_data = Rex::Java::Serialization::Model::BlockData.new(
           nil,
