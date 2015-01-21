@@ -103,8 +103,17 @@ module Msf
           "nessus_index" => "Manually generates a search index for exploits.",
           "nessus_template_list" => "List all the templates on the server.",
           "nessus_db_scan" => "Create a scan of all ips in db_hosts.",
-          "nessus_save" => "Save username/passowrd/server/port details."
+          "nessus_save" => "Save username/passowrd/server/port details.",
+          "nessus_folder_list" => "List folders configured on the Nessus server"
           }
+      end
+
+      def cmd_nessus_folder_list
+         if !nessus_verify_token
+          return
+        end
+        list = @n.list_folders
+        puts JSON.pretty_generate(list)
       end
 
       def cmd_nessus_index
@@ -193,9 +202,15 @@ module Msf
 
       def cmd_nessus_logout
         @token = nil
-        print_status("Logged out")
-        system("rm #{@nessus_yaml}")
-        print_good("#{@nessus_yaml} removed.")
+        puts "Inside cmd_nessus_logout"
+        logout = @n.user_logout
+        if logout
+           print_status("Logged out")
+           system("rm #{@nessus_yaml}")
+           print_good("#{@nessus_yaml} removed.")
+        else
+           print_status("There was some problem in logging out the user #{@user}")
+        end
         return
       end
 
@@ -343,24 +358,12 @@ module Msf
         if args[0] == "-h"
           print_status("%redYou must do this before any other commands.%clr")
           print_status("Usage: ")
-          print_status("       nessus_connect username:password@hostname:port <ssl ok>")
-          print_status(" Example:> nessus_connect msf:msf@192.168.1.10:8834 ok")
-          print_status("		OR")
-          print_status("       nessus_connect username@hostname:port <ssl ok>")
-          print_status(" Example:> nessus_connect msf@192.168.1.10:8834 ok")
-          print_status("		OR")
-          print_status("       nessus_connect hostname:port <ssl ok>")
-          print_status(" Example:> nessus_connect 192.168.1.10:8834 ok")
-          print_status("          OR")
-          print_status("       nessus_connect")
-          print_status(" Example:> nessus_connect")
-          print_status("This only works after you have saved creds with nessus_save")
-          print_status()
+          print_status("nessus_connect username:password@hostname:port <ssl_verify/ssl_ignore>")
           print_status("%bldusername%clr and %bldpassword%clr are the ones you use to login to the nessus web front end")
-          print_status("%bldhostname%clr can be an ip address or a dns name of the web front end.")
-          print_status("%bldport%clr is the standard that the nessus web front end runs on : 8834.  This is NOT 1241.")
-          print_status("The \"ok\" on the end is important.  It is a way of letting you")
-          print_status("know that nessus used a self signed cert and the risk that presents.")
+          print_status("%bldhostname%clr can be an IP address or a DNS name of the Nessus server.")
+          print_status("%bldport%clr is the RPC port that the Nessus web front end runs on. By default it is TCP port 8834.")
+          print_status("The \"ssl_verify\" to verify the SSL certificate used by the Nessus front end. By default the server")
+          print_status("use a self signed certificate, therefore, users should use ssl_ignore.")
           return
         end
 
@@ -404,14 +407,6 @@ module Msf
           return
         end
 
-        if(@host != "localhost" and @host != "127.0.0.1" and @sslv != "ok")
-          print_error("Warning: SSL connections are not verified in this release, it is possible for an attacker")
-          print_error("         with the ability to man-in-the-middle the Nessus traffic to capture the Nessus")
-          print_error("         credentials. If you are running this on a trusted network, please pass in 'ok'")
-          print_error("         as an additional parameter to this command.")
-          return
-        end
-
         if ! @user
           print_error("Missing Username")
           ncusage
@@ -438,13 +433,13 @@ module Msf
           ncusage
           return
         end
-
+        puts "The ssl option is #{@sslv}"
         @url = "https://#{@host}:#{@port}/"
         print_status("Connecting to #{@url} as #{@user}")
-        @n=NessusXMLRPC::NessusXMLRPC.new(@url,@user,@pass)
-        @token=@n.login(@user,@pass)
-        if @n.logged_in
-          print_status("Authenticated")
+        @n = Nessus::Client.new(@url, @user, @pass,@sslv)
+        if @n.authenticated
+          print_status("User #{@user} authenticated successfully.")
+          @token = 1
         else
           print_error("Error connecting/logging to the server!")
           return
@@ -679,22 +674,21 @@ module Msf
           print_status("Your Nessus user is not an admin")
         end
 
-        list=@n.users_list
-        print_good("There are #{list.length} users")
+        list=@n.list_users
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
+            'ID',
             'Name',
-            'Is Admin?',
-            'Last Login'
+            'Username',
+            'Type',
+            'Email',
+            'Permissions'
           ])
-
-        list.each {|user|
-          t = Time.at(user['lastlogin'].to_i)
-          tbl << [ user['name'], user['admin'], t.strftime("%H:%M %b %d %Y") ]
-        }
-        print_good("Nessus users")
-        print_good "\n"
-        print_line tbl.to_s
+       list.each { |user|
+       tbl << [ user["id"], user["name"], user["username"], user["type"], user["email"], user["permissions"] ]
+       }
+       #print_status(JSON.pretty_generate(list))
+       print_line tbl.to_s
       end
 
       def cmd_nessus_server_status(*args)
@@ -708,16 +702,7 @@ module Msf
           return
         end
         #Auth
-        if ! nessus_verify_token
-          return
-        end
-
-        #Check if we are an admin
-        if ! @n.is_admin
-          print_status("You need to be an admin for this.")
-          return
-        end
-
+        
         #Versions
         cmd_nessus_server_feed
 
@@ -768,28 +753,6 @@ module Msf
           return
         end
 
-        if ! nessus_verify_token
-          return
-        end
-
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Family Name',
-            'Total Plugins'
-          ])
-        list=@n.plugins_list
-        total = Array.new
-        list.each {|plugin|
-          total.push(plugin['num'].to_i)
-          tbl << [ plugin['name'], plugin['num'] ]
-        }
-        plugins = total.sum
-        tbl << [ '', '']
-        tbl << [ 'Total Plugins', plugins ]
-        print_good("Plugins By Family")
-        print_good "\n"
-        print_line tbl.to_s
-        print_status("List plugins for a family : nessus_plugin_family <family name>")
       end
 
       def check_policy(*args)
@@ -814,11 +777,8 @@ module Msf
       def cmd_nessus_scan_new(*args)
 
         if args[0] == "-h"
-          print_status("Usage: ")
-          print_status("       nessus_scan_new <policy id> <scan name> <targets>")
-          print_status(" Example:> nessus_scan_new 1 \"My Scan\" 192.168.1.250")
-          print_status()
-          print_status("Creates a scan based on a policy id and targets.")
+          print_status("Usage")
+          print_status("nessus_scan_new <UUID of Policy> <Scan name> <Folder ID> <Scanner ID> <Launch> <Targets> <ACLs of Scan>")
           print_status("use nessus_policy_list to list all available policies")
           return
         end
@@ -828,14 +788,18 @@ module Msf
         end
 
         case args.length
-        when 3
-          pid = args[0].to_i
-          name = args[1]
-          tgts = args[2]
+        when 7
+          uuid = args[0]
+          scan_name = args[1]
+          folder_id = args[2]
+          scanner_id = args[3]
+          launch = args[4]
+          targets = args[5]
+          acls = args[6]
         else
           print_status("Usage: ")
-          print_status("       nessus_scan_new <policy id> <scan name> <targets>")
-          print_status("       use nessus_policy_list to list all available policies")
+          print_status("nessus_scan_new <UUID of Policy> <Scan name> <Folder ID> <Scanner ID> <Launch> <Targets> <ACLs of Scan>")
+          print_status("use nessus_policy_list to list all available policies")
           return
         end
 
@@ -844,12 +808,12 @@ module Msf
           return
         end
 
-        print_status("Creating scan from policy number #{pid}, called \"#{name}\" and scanning #{tgts}")
+        print_status("Creating scan from policy number #{uuid}, called \"#{scan_name}\" and scanning #{targets}")
 
-        scan = @n.scan_new(pid, name, tgts)
+        scan = @n.scan_new(uuid, scan_name, folder_id, scanner_id, launch, targets, acls)
 
         if scan
-          print_status("Scan started.  uid is #{scan}")
+          print_status("Scan started.  UUID is #{scan}")
         end
       end
 
@@ -1227,48 +1191,41 @@ module Msf
       def cmd_nessus_user_add(*args)
 
         if args[0] == "-h"
-          print_status("Usage: ")
-          print_status("       nessus_user_add <username> <password>")
-          print_status(" Example:> nessus_user_add msf msf")
-          print_status()
-          print_status("Only adds non admin users. Must be an admin to add users.")
+          print_status("Usage")
+          print_status("nessus_user_add <username> <password> <permissions> <type>")
+          print_status("Permissions are 32, 64, and 128")
+          print_status("Type can be either local or LDAP")
+          print_status("Example:> nessus_user_add msf msf 16 local")
+          print_status("You need to be an admin in order to add accounts")
           print_status("use nessus_user_list to list all users")
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
-        if ! @n.is_admin
+        if !@n.is_admin
           print_error("Your Nessus user is not an admin")
           return
         end
 
         case args.length
-        when 2
+        when 4
           user = args[0]
           pass = args[1]
+          permissions = args[2]
+          type = args[3]
         else
-          print_status("Usage: ")
-          print_status("       nessus_user_add <username> <password>")
-          print_status("       Only adds non admin users")
+          print_status("Usage")
+          print_status("nessus_user_add <username> <password> <permissions> <type>")
           return
         end
-
-        u = @n.users_list
-        u.each { |stuff|
-          if stuff['name'] == user
-            print_error("That user exists")
-            return
-          end
-        }
-        add = @n.user_add(user,pass)
-        status = add.root.elements['status'].text if add
-        if status == "OK"
-          print_good("#{user} has been added")
+        add = @n.user_add(user,pass,permissions,type)
+        if add["id"]
+           puts "#{user} created successfully"
         else
-          print_error("#{user} was not added")
+           puts add.to_s
         end
       end
 
@@ -1433,19 +1390,17 @@ module Msf
         if ! nessus_verify_token
           return
         end
-
+        list=@n.list_policies
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
-            'ID',
+            'UUID',
             'Name',
-            'Comments'
+            'Description',
+            'Owner'
           ])
-        list=@n.policy_list_hash
-        list.each {|policy|
-          tbl << [ policy['id'], policy['name'], policy['comments'] ]
+        list.each { |policy| 
+        tbl << [ policy["template_uuid"], policy["name"],policy["description"], policy["owner"] ]
         }
-        print_good("Nessus Policy List")
-        print_good "\n"
         print_line tbl.to_s
       end
 
