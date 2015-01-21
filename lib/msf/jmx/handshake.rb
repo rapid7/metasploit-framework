@@ -2,9 +2,16 @@
 
 module Msf
   module Jmx
+    # This module provides methods which help to handle a JMX handshake
     module Handshake
-      def handshake_stream(id)
-        block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\xf0\xe0\x74\xea\xad\x0c\xae\xa8")
+
+      # Builds a Rex::Java::Serialization::Model::Stream to make
+      # a JMX handshake with an endpoint
+      #
+      # @param id [String] The endpoint UnicastRef ObjId
+      # @return [Rex::Java::Serialization::Model::Stream]
+      def handshake_stream(obj_id)
+        block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{obj_id}\xff\xff\xff\xff\xf0\xe0\x74\xea\xad\x0c\xae\xa8")
 
         stream = Rex::Java::Serialization::Model::Stream.new
         stream.contents << block_data
@@ -21,6 +28,12 @@ module Msf
         stream
       end
 
+      # Builds a Rex::Java::Serialization::Model::NewArray with credentials
+      # to make an authenticated handshake
+      #
+      # @param username [String] The username (role) to authenticate with
+      # @param password [String] The password to authenticate with
+      # @return [Rex::Java::Serialization::Model::NewArray]
       def auth_array_stream(username, password)
         builder = Rex::Java::Serialization::Builder.new
 
