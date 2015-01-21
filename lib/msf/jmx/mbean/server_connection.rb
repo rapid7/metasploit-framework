@@ -5,8 +5,14 @@ module Msf
     module MBean
       module ServerConnection
 
-        def create_mbean_stream(id, name)
-          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x22\xd7\xfd\x4a\x90\x6a\xc8\xe6")
+        # Builds a Rex::Java::Serialization::Model::Stream to simulate a call
+        # to the createMBean (javax.management.MBeanServerConnection) method.
+        #
+        # @param obj_id [String] the jmx endpoint ObjId
+        # @param name [String] the name of the MBean
+        # @return [Rex::Java::Serialization::Model::Stream]
+        def create_mbean_stream(obj_id, name)
+          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{obj_id}\xff\xff\xff\xff\x22\xd7\xfd\x4a\x90\x6a\xc8\xe6")
 
           stream = Rex::Java::Serialization::Model::Stream.new
           stream.contents << block_data
@@ -17,10 +23,16 @@ module Msf
           stream
         end
 
-        def get_object_instance_stream(id, name)
+        # Builds a Rex::Java::Serialization::Model::Stream to simulate a call to the
+        # Java getObjectInstance (javax.management.MBeanServerConnection) method.
+        #
+        # @param obj_id [String] the jmx endpoint ObjId
+        # @param name [String] the name of the MBean
+        # @return [Rex::Java::Serialization::Model::Stream]
+        def get_object_instance_stream(obj_id, name)
           builder = Rex::Java::Serialization::Builder.new
 
-          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x60\x73\xb3\x36\x1f\x37\xbd\xc2")
+          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{obj_id}\xff\xff\xff\xff\x60\x73\xb3\x36\x1f\x37\xbd\xc2")
 
           new_object = builder.new_object(
             name: 'javax.management.ObjectName',
@@ -38,10 +50,18 @@ module Msf
           stream
         end
 
-        def invoke_stream(id, object_name, method_name, arguments)
+        # Builds a Rex::Java::Serialization::Model::Stream to simulate a call
+        # to the Java invoke (javax.management.MBeanServerConnection) method.
+        #
+        # @param obj_id [String] the jmx endpoint ObjId
+        # @param object_name [String] the object whose method we want to call
+        # @param method_name [Sting] the method name to invoke
+        # @param arguments [Hash] the arguments of the method to invoke
+        # @return [Rex::Java::Serialization::Model::Stream]
+        def invoke_stream(obj_id, object_name, method_name, arguments)
           builder = Rex::Java::Serialization::Builder.new
 
-          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{id}\xff\xff\xff\xff\x13\xe7\xd6\x94\x17\xe5\xda\x20")
+          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{obj_id}\xff\xff\xff\xff\x13\xe7\xd6\x94\x17\xe5\xda\x20")
 
           new_object = builder.new_object(
             name: 'javax.management.ObjectName',
@@ -91,6 +111,12 @@ module Msf
           stream
         end
 
+        # Builds a Rex::Java::Serialization::Model::Stream with the arguments to
+        # simulate a call to the Java invoke (javax.management.MBeanServerConnection)
+        # method.
+        #
+        # @param arguments [Hash] the arguments of the method to invoke
+        # @return [Rex::Java::Serialization::Model::Stream]
         def invoke_arguments_stream(arguments)
           builder = Rex::Java::Serialization::Builder.new
 
