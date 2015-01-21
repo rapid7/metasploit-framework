@@ -101,6 +101,9 @@ class Core
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
 
+  # Constant for a retry timeout on using modules before they're loaded
+  CMD_USE_TIMEOUT = 3
+
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
@@ -2418,9 +2421,15 @@ class Core
     mod_name = args[0]
 
     begin
-      if ((mod = framework.modules.create(mod_name)) == nil)
-        print_error("Failed to load module: #{mod_name}")
-        return false
+      mod = framework.modules.create(mod_name)
+      unless mod
+        # Try one more time; see #4549
+        sleep CMD_USE_TIMEOUT
+        mod = framework.modules.create(mod_name)
+        unless mod
+          print_error("Failed to load module: #{mod_name}")
+          return false
+        end
       end
     rescue Rex::AmbiguousArgumentError => info
       print_error(info.to_s)
