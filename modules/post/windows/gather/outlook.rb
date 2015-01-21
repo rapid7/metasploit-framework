@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
       OptString.new('FOLDER', [ false, 'The e-mailfolder to read (e.g. Inbox)' ]),
       OptString.new('KEYWORD', [ false, 'Search e-mails by the keyword specified here' ]),
       OptString.new('A_TRANSLATION', [ false, 'Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
-      OptString.new('ACF_TRANSLATION', [ false, 'Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ]),
+      OptString.new('ACF_TRANSLATION', [ false, 'Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ])
     ], self.class)
 
     register_advanced_options(
