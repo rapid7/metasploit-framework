@@ -2,7 +2,7 @@
 
 module Msf
   module Jmx
-    module MBean
+    module Mbean
       # This module provides methods which help to handle with MBean related calls.
       # Specially, simulating calls with the Java javax.management.MBeanServerConnection
       # class

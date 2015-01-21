@@ -2,10 +2,10 @@
 
 module Msf
   module Jmx
-    module MBean
+    module Mbean
       require 'msf/jmx/mbean/server_connection'
 
-      include Msf::Jmx::MBean::ServerConnection
+      include Msf::Jmx::Mbean::ServerConnection
     end
   end
 end

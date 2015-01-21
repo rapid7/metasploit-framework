@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rex/java'
 require 'msf/jmx'
 
-describe Msf::Jmx::MBean::ServerConnection do
+describe Msf::Jmx::Mbean::ServerConnection do
   subject(:mod) do
     mod = ::Msf::Exploit.new
     mod.extend ::Msf::Jmx

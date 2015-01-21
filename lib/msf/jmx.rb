@@ -12,7 +12,7 @@ module Msf
     include Msf::Jmx::Util
     include Msf::Jmx::Discovery
     include Msf::Jmx::Handshake
-    include Msf::Jmx::MBean
+    include Msf::Jmx::Mbean
 
     def initialize(info = {})
       super
