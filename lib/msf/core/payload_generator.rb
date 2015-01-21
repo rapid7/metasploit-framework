@@ -177,6 +177,7 @@ module Msf
       shellcode = shellcode.dup
       encoder_list = get_encoders
       if encoder_list.empty?
+        cli_print "No encoder or badchars specified, outputting raw payload"
         shellcode
       else
         cli_print "Found #{encoder_list.count} compatible encoders"
