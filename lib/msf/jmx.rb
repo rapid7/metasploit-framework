@@ -19,8 +19,8 @@ module Msf
 
       register_options(
         [
-          Msf::OptString.new('JMX_ROLE', [false, 'The role to interact with an authenticated JMX endpoint', '/']),
-          Msf::OptString.new('JMX_PASSWORD', [false, 'The password to interact with an authenticated JMX endpoint', '/'])
+          Msf::OptString.new('JMX_ROLE', [false, 'The role to interact with an authenticated JMX endpoint']),
+          Msf::OptString.new('JMX_PASSWORD', [false, 'The password to interact with an authenticated JMX endpoint'])
         ], HTTP::Wordpress
       )
     end
