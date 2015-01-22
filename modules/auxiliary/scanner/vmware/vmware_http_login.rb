@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
           :host  => ip,
           :ntype => 'fingerprint.match',
           :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
-        )      
+        )
       end
       return true
     else

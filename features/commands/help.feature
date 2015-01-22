@@ -1,12 +1,9 @@
 Feature: Help command
-  
+
   Background:
-    Given I run `msfconsole` interactively
-    And I wait for stdout to contain "Free Metasploit Pro trial: http://r-7.co/trymsp"
-    
+    Given I run `msfconsole --defer-module-loads -x help -x exit`
+
   Scenario: The 'help' command's output
-    When I type "help"
-    And I type "exit"
     Then the output should contain:
       """
       Core Commands
@@ -75,4 +72,4 @@ Feature: Help command
           vulns             List all vulnerabilities in the database
           workspace         Switch between database workspaces
       """
-  
+

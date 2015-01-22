@@ -39,10 +39,10 @@ module Metasploit
                 result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
               end
             end
-          rescue ::Rex::ConnectionError, ::Rex::ConnectionTimeout, ::Rex::Proto::DRDA::RespError,::Timeout::Error  => e
+          rescue ::Rex::ConnectionError, ::Rex::Proto::DRDA::RespError, ::Timeout::Error => e
             result_options.merge!({
               status:  Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
-              proof: e.message
+              proof: e,
             })
           end
 
@@ -106,7 +106,7 @@ module Metasploit
           self.max_send_size      ||= 0
           self.send_delay         ||= 0
 
-          self.ssl = false  if self.ssl.nil?
+          self.ssl = false if self.ssl.nil?
         end
 
         # This method takes a response packet and checks to see

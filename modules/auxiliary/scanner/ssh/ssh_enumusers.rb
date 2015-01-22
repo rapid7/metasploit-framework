@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        Opt::Proxies,
         Opt::RPORT(22),
         OptPath.new('USER_FILE',
                     [true, 'File containing usernames, one per line', nil]),
@@ -98,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
         Net::SSH.start(ip, user, opt_hash)
       end
-    rescue Rex::ConnectionError, Rex::AddressInUse
+    rescue Rex::ConnectionError
       return :connection_error
     rescue Net::SSH::Disconnect, ::EOFError
       return :success

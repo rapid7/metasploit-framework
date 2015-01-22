@@ -140,6 +140,42 @@ public
     invalidate_login(opts)
   end
 
+  def rpc_creds(xopts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      ret = {}
+      ret[:creds] = []
+      opts, wspace = init_db_opts_workspace(xopts)
+      limit = opts.delete(:limit) || 100
+      offset = opts.delete(:offset) || 0
+      query = Metasploit::Credential::Core.where(
+        workspace_id: wspace
+      ).offset(offset).limit(limit)
+      query.each do |cred|
+        host = ''
+        port = 0
+        proto = ''
+        sname = ''
+        unless cred.logins.empty?
+          login = cred.logins.first
+          host = login.service.host.address.to_s
+          sname = login.service.name.to_s if login.service.name.present?
+          port = login.service.port.to_i
+          proto = login.service.proto.to_s
+        end
+        ret[:creds] << {
+                :user => cred.public.username.to_s,
+                :pass => cred.private.data.to_s,
+                :updated_at => cred.private.updated_at.to_i,
+                :type => cred.private.type.to_s,
+                :host => host,
+                :port => port,
+                :proto => proto,
+                :sname => sname}
+      end
+      ret
+    }
+  end
+
   def rpc_hosts(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -181,7 +217,7 @@ public
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions[:state] = [ServiceState::Open] if opts[:only_up]
+    conditions[:state] = [Msf::ServiceState::Open] if opts[:only_up]
     conditions[:proto] = opts[:proto] if opts[:proto]
     conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
     conditions[:port] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
@@ -249,6 +285,7 @@ public
     res[:workspaces] = []
     self.framework.db.workspaces.each do |j|
       ws = {}
+      ws[:id] = j.id
       ws[:name] = j.name
       ws[:created_at] = j.created_at.to_i
       ws[:updated_at] = j.updated_at.to_i
@@ -259,7 +296,7 @@ public
 
   def rpc_current_workspace
     db_check
-    { "workspace" => self.framework.db.workspace.name }
+    { "workspace" => self.framework.db.workspace.name, "workspace_id" => self.framework.db.workspace.id }
   end
 
   def rpc_get_workspace(wspace)
@@ -270,6 +307,7 @@ public
     if(wspace)
       w = {}
       w[:name] = wspace.name
+      w[:id] = wspace.id
       w[:created_at] = wspace.created_at.to_i
       w[:updated_at] = wspace.updated_at.to_i
       ret[:workspace] << w
@@ -381,7 +419,7 @@ public
       sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
     elsif(opts[:proto] && opts[:port])
       conditions = {}
-      conditions[:state] = [ServiceState::Open] if opts[:up]
+      conditions[:state] = [Msf::ServiceState::Open] if opts[:up]
       conditions[:proto] = opts[:proto] if opts[:proto]
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]

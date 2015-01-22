@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -37,9 +37,16 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
   # Generates the shikata decoder stub.
   #
   def decoder_stub(state)
+
     # If the decoder stub has not already been generated for this state, do
     # it now.  The decoder stub method may be called more than once.
     if (state.decoder_stub == nil)
+
+      # Sanity check that saved_registers doesn't overlap with modified_registers
+      if (modified_registers & saved_registers).length > 0
+        raise BadGenerateError
+      end
+
       # Shikata will only cut off the last 1-4 bytes of it's own end
       # depending on the alignment of the original buffer
       cutoff = 4 - (state.buf.length & 3)
@@ -59,6 +66,27 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
     end
 
     state.decoder_stub
+  end
+
+  # Indicate that this module can preserve some registers
+  def can_preserve_registers?
+    true
+  end
+
+  # A list of registers always touched by this encoder
+  def modified_registers
+    # ESP is assumed and is handled through preserves_stack?
+    [
+      # The counter register is hardcoded
+      Rex::Arch::X86::ECX,
+      # These are modified by div and mul operations
+      Rex::Arch::X86::EAX, Rex::Arch::X86::EDX
+    ]
+  end
+
+  # Always blacklist these registers in our block generation
+  def block_generator_register_blacklist
+    [Rex::Arch::X86::ESP, Rex::Arch::X86::ECX] | saved_registers
   end
 
 protected
@@ -251,13 +279,16 @@ protected
     loop_inst.depends_on(loop_block)
 
     begin
-      # Generate a permutation saving the ECX and ESP registers
-      loop_inst.generate([
-        Rex::Arch::X86::ESP,
-        Rex::Arch::X86::ECX ], nil, state.badchars)
+      # Generate a permutation saving the ECX, ESP, and user defined registers
+      loop_inst.generate(block_generator_register_blacklist, nil, state.badchars)
     rescue RuntimeError => e
       raise EncodingError
     end
+  end
+
+  # Convert the SaveRegisters to an array of x86 register constants
+  def saved_registers
+    Rex::Arch::X86.register_names_to_ids(datastore['SaveRegisters'])
   end
 
   def sub_immediate(regnum, imm)

@@ -37,8 +37,10 @@ and Metasploit's [Common Coding Mistakes](https://github.com/rapid7/metasploit-f
 ## Code Contributions
 
 * **Do** stick to the [Ruby style guide](https://github.com/bbatsov/ruby-style-guide).
-* *Do* get [Rubocop](https://rubygems.org/search?query=rubocop) relatively quiet against the code you are adding or modifying.
+* **Do** get [Rubocop](https://rubygems.org/search?query=rubocop) relatively quiet against the code you are adding or modifying.
 * **Do** follow the [50/72 rule](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for Git commit messages.
+* **Don't** use the default merge messages when merging from other
+   branches.
 * **Do** create a [topic branch](http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches) to work on instead of working directly on `master`.
 
 ### Pull Requests
@@ -55,7 +57,7 @@ Pull requests [#2940](https://github.com/rapid7/metasploit-framework/pull/2940) 
 #### New Modules
 
 * **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up. Even better would be to set up `msftidy.rb` as a [pre-commit hook](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb).
-* **Do** use the [many module mixin APIs](https://dev.metasploit.com/api/). Wheel improvements are welcome; wheel reinventions, not so much.
+* **Do** use the [many module mixin APIs](https://rapid7.github.io/metasploit-framework/api/). Wheel improvements are welcome; wheel reinventions, not so much.
 * **Don't** include more than one module per pull request.
 
 #### Library Code

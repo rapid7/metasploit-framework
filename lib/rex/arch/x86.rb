@@ -520,6 +520,22 @@ module X86
     return nil
   end
 
+  #
+  # Parse a list of registers as a space or command delimited
+  # string and return the internal register IDs as an array
+  #
+  def self.register_names_to_ids(str)
+    register_ids = []
+    str.to_s.strip.split(/[,\s]/).
+      map    {|reg| reg.to_s.strip.upcase }.
+      select {|reg| reg.length > 0        }.
+      uniq.each do |reg|
+        next unless self.const_defined?(reg.intern)
+        register_ids << self.const_get(reg.intern)
+      end
+    register_ids
+  end
+
 end
 
 end end

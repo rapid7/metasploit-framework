@@ -69,7 +69,7 @@ class Console::CommandDispatcher::Core
     # whatever reason it is not adding core_migrate to its list of commands.
     # Use a dumb platform til it gets sorted.
     #if client.commands.include? "core_migrate"
-    if client.platform =~ /win/
+    if client.platform =~ /win/ || client.platform =~ /linux/
       c["migrate"] = "Migrate the server to another process"
     end
 
@@ -321,7 +321,11 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_migrate_help
-    print_line "Usage: migrate <pid>"
+    if client.platform =~ /linux/
+      print_line "Usage: migrate <pid> [writable_path]"
+    else
+      print_line "Usage: migrate <pid>"
+    end
     print_line
     print_line "Migrates the server instance to another process."
     print_line "NOTE: Any open channels or other dynamic state will be lost."
@@ -331,7 +335,8 @@ class Console::CommandDispatcher::Core
   #
   # Migrates the server to the supplied process identifier.
   #
-  # @param args [Array<String>] Commandline arguments, only -h or a pid
+  # @param args [Array<String>] Commandline arguments, -h or a pid. On linux
+  #   platforms a path for the unix domain socket used for IPC.
   # @return [void]
   def cmd_migrate(*args)
     if ( args.length == 0 or args.include?("-h") )
@@ -343,6 +348,10 @@ class Console::CommandDispatcher::Core
     if(pid == 0)
       print_error("A process ID must be specified, not a process name")
       return
+    end
+
+    if client.platform =~ /linux/
+      writable_dir = (args.length >= 2) ? args[1] : nil
     end
 
     begin
@@ -385,7 +394,11 @@ class Console::CommandDispatcher::Core
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
     # Do this thang.
-    client.core.migrate(pid)
+    if client.platform =~ /linux/
+      client.core.migrate(pid, writable_dir)
+    else
+      client.core.migrate(pid)
+    end
 
     print_status("Migration completed successfully.")
 

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -48,7 +48,6 @@ class Metasploit3 < Msf::Post
       addr = [mem].pack("V")
       len = [data.length].pack("V")
       ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
-      #print_status("#{ret.inspect}")
       len, addr = ret["pDataOut"].unpack("V2")
     else
       addr = [mem].pack("Q")

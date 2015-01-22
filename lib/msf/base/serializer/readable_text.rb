@@ -20,18 +20,18 @@ class ReadableText
   # @return [String] formatted text output of the dump.
   def self.dump_module(mod, indent = "  ")
     case mod.type
-      when MODULE_PAYLOAD
+      when Msf::MODULE_PAYLOAD
         return dump_payload_module(mod, indent)
-      when MODULE_NOP
+      when Msf::MODULE_NOP
         return dump_basic_module(mod, indent)
-      when MODULE_ENCODER
+      when Msf::MODULE_ENCODER
         return dump_basic_module(mod, indent)
-      when MODULE_EXPLOIT
+      when Msf::MODULE_EXPLOIT
         return dump_exploit_module(mod, indent)
-      when MODULE_AUX
+      when Msf::MODULE_AUX
         return dump_auxiliary_module(mod, indent)
-      when MODULE_POST
-        return dump_basic_module(mod, indent)
+      when Msf::MODULE_POST
+        return dump_post_module(mod, indent)
       else
         return dump_generic_module(mod, indent)
     end
@@ -168,6 +168,7 @@ class ReadableText
     output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
@@ -223,6 +224,7 @@ class ReadableText
     output << "     Module: #{mod.fullname}\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
@@ -231,6 +233,58 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
+
+    # Actions
+    if mod.action
+      output << "Available actions:\n"
+      output << dump_module_actions(mod, indent)
+    end
+
+    # Options
+    if (mod.options.has_options?)
+      output << "Basic options:\n"
+      output << dump_options(mod, indent)
+      output << "\n"
+    end
+
+    # Description
+    output << "Description:\n"
+    output << word_wrap(Rex::Text.compress(mod.description))
+    output << "\n"
+
+    # References
+    output << dump_references(mod, indent)
+
+    return output
+  end
+
+  # Dumps information about a post module.
+  #
+  # @param mod [Msf::Post] the post module.
+  # @param indent [String] the indentation to use.
+  # @return [String] the string form of the information.
+  def self.dump_post_module(mod, indent = '')
+    output  = "\n"
+    output << "       Name: #{mod.name}\n"
+    output << "     Module: #{mod.fullname}\n"
+    output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
+    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
+    output << "\n"
+
+    # Authors
+    output << "Provided by:\n"
+    mod.each_author { |author|
+      output << indent + author.to_s + "\n"
+    }
+    output << "\n"
+
+    # Actions
+    if mod.action
+      output << "Available actions:\n"
+      output << dump_module_actions(mod, indent)
+    end
 
     # Options
     if (mod.options.has_options?)

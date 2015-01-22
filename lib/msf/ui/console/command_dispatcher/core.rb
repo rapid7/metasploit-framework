@@ -41,15 +41,16 @@ class Core
     "-v" => [ false, "List verbose fields"                            ],
     "-q" => [ false, "Quiet mode"                                     ],
     "-d" => [ true,  "Detach an interactive session"                  ],
-    "-k" => [ true,  "Terminate session"                              ],
+    "-k" => [ true,  "Terminate sessions by session ID and/or range"  ],
     "-K" => [ false, "Terminate all sessions"                         ],
     "-s" => [ true,  "Run a script on the session given with -i, or all"],
     "-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
-    "-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
+    "-u" => [ true,  "Upgrade a shell to a meterpreter session on many platforms" ],
+    "-t" => [ true,  "Set a response timeout (default: 15)"])
 
   @@jobs_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
-    "-k" => [ true,  "Terminate the specified job name."              ],
+    "-k" => [ true,  "Terminate jobs by job ID and/or range."         ],
     "-K" => [ false, "Terminate all running jobs."                    ],
     "-i" => [ true,  "Lists detailed information about a running job."],
     "-l" => [ false, "List all running jobs."                         ],
@@ -99,6 +100,9 @@ class Core
 
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
+
+  # Constant for a retry timeout on using modules before they're loaded
+  CMD_USE_TIMEOUT = 3
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -205,6 +209,16 @@ class Core
     end
     print_status("Reloading modules from all module paths...")
     framework.modules.reload_modules
+
+    # Check for modules that failed to load
+    if framework.modules.module_load_error_by_path.length > 0
+      print_error("WARNING! The following modules could not be loaded!")
+
+      framework.modules.module_load_error_by_path.each do |path, error|
+        print_error("\t#{path}: #{error}")
+      end
+    end
+
     cmd_banner()
   end
 
@@ -778,9 +792,7 @@ class Core
   def cmd_jobs(*args)
     # Make the default behavior listing all jobs if there were no options
     # or the only option is the verbose flag
-    if (args.length == 0 or args == ["-v"])
-      args.unshift("-l")
-    end
+    args.unshift("-l") if args.length == 0 || args == ["-v"]
 
     verbose = false
     dump_list = false
@@ -788,20 +800,27 @@ class Core
     job_id = nil
 
     # Parse the command options
-    @@jobs_opts.parse(args) { |opt, idx, val|
+    @@jobs_opts.parse(args) do |opt, idx, val|
       case opt
         when "-v"
           verbose = true
         when "-l"
           dump_list = true
-
-        # Terminate the supplied job name
+        # Terminate the supplied job ID(s)
         when "-k"
-          if (not framework.jobs.has_key?(val))
-            print_error("No such job")
-          else
-            print_line("Stopping job: #{val}...")
-            framework.jobs.stop_job(val)
+          job_list = build_range_array(val)
+          if job_list.blank?
+            print_error("Please specify valid job identifier(s)")
+            return false
+          end
+          print_status("Stopping the following job(s): #{job_list.join(', ')}")
+          job_list.map(&:to_s).each do |job|
+            if framework.jobs.has_key?(job)
+              print_status("Stopping job #{job}")
+              framework.jobs.stop_job(job)
+            else
+              print_error("Invalid job identifier: #{job}")
+            end
           end
         when "-K"
           print_line("Stopping all jobs...")
@@ -817,28 +836,28 @@ class Core
           cmd_jobs_help
           return false
       end
-    }
-
-    if (dump_list)
-      print("\n" + Serializer::ReadableText.dump_jobs(framework, verbose) + "\n")
     end
-    if (dump_info)
-      if (job_id and framework.jobs[job_id.to_s])
+
+    if dump_list
+      print("\n#{Serializer::ReadableText.dump_jobs(framework, verbose)}\n")
+    end
+    if dump_info
+      if job_id && framework.jobs[job_id.to_s]
         job = framework.jobs[job_id.to_s]
         mod = job.ctx[0]
 
-        output  = "\n"
+        output  = '\n'
         output += "Name: #{mod.name}"
         output += ", started at #{job.start_time}" if job.start_time
         print_line(output)
 
-        if (mod.options.has_options?)
-          show_options(mod)
-        end
+        show_options(mod) if mod.options.has_options?
 
-        if (verbose)
+        if verbose
           mod_opt = Serializer::ReadableText.dump_advanced_options(mod,'   ')
-          print_line("\nModule advanced options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+          if mod_opt && mod_opt.length > 0
+            print_line("\nModule advanced options:\n\n#{mod_opt}\n")
+          end
         end
       else
         print_line("Invalid Job ID")
@@ -858,7 +877,7 @@ class Core
       return @@jobs_opts.fmt.keys
     end
 
-    if @@jobs_opts.fmt[words[1]][0] and (words.length == 2)
+    if words.length == 2 and (@@jobs_opts.fmt[words[1]] || [false])[0]
       return framework.jobs.keys
     end
 
@@ -1010,7 +1029,7 @@ class Core
       return @@threads_opts.fmt.keys
     end
 
-    if @@threads_opts.fmt[words[1]][0] and (words.length == 2)
+    if words.length == 2 and (@@threads_opts.fmt[words[1]] || [false])[0]
       return framework.threads.each_index.map{ |idx| idx.to_s }
     end
 
@@ -1207,7 +1226,7 @@ class Core
       Rex::Socket::SwitchBoard.flush_routes
 
     when "print"
-      tbl =	Table.new(
+      tbl = Table.new(
         Table::Style::Default,
         'Header'  => "Active Routing Table",
         'Prefix'  => "\n",
@@ -1563,7 +1582,11 @@ class Core
     print_line "Usage: sessions [options]"
     print_line
     print_line "Active session manipulation and interaction."
-    print(@@sessions_opts.usage())
+    print(@@sessions_opts.usage)
+    print_line
+    print_line "Many options allow specifying session ranges using commas and dashes."
+    print_line "For example:  sessions -s checkvm -i 1,3-5  or  sessions -k 1-2,5,6"
+    print_line
   end
 
   #
@@ -1578,107 +1601,109 @@ class Core
     cmds    = []
     script  = nil
     reset_ring = false
+    response_timeout = 15
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
     extra   = []
 
     # Parse the command options
-    @@sessions_opts.parse(args) { |opt, idx, val|
+    @@sessions_opts.parse(args) do |opt, idx, val|
       case opt
-        when "-q"
-          quiet = true
-
-        # Run a command on all sessions, or the session given with -i
-        when "-c"
-          method = 'cmd'
-          if (val)
-            cmds << val
-          end
-
-        when "-v"
-          verbose = true
-
-        # Do something with the supplied session identifier instead of
-        # all sessions.
-        when "-i"
-          sid = val
-
-        # Display the list of active sessions
-        when "-l"
-          method = 'list'
-
-        when "-k"
-          method = 'kill'
-          sid = val if val
-          if not sid
-            print_error("Specify a session to kill")
-            return false
-          end
-
-        when "-K"
-          method = 'killall'
-
-        when "-d"
-          method = 'detach'
-          sid = val
-
-        # Run a script on all meterpreter sessions
-        when "-s"
-          if  not script
-            method = 'scriptall'
-            script = val
-          end
-
-        # Upload and exec to the specific command session
-        when "-u"
-          method = 'upexec'
-          sid = val
-
-        # Reset the ring buffer read pointer
-        when "-r"
-          reset_ring = true
-          method = 'reset_ring'
-
-        # Display help banner
-        when "-h"
-          cmd_sessions_help
-          return false
-        else
-          extra << val
+      when "-q"
+        quiet = true
+      # Run a command on all sessions, or the session given with -i
+      when "-c"
+        method = 'cmd'
+        cmds << val if val
+      when "-v"
+        verbose = true
+      # Do something with the supplied session identifier instead of
+      # all sessions.
+      when "-i"
+        sid = val
+      # Display the list of active sessions
+      when "-l"
+        method = 'list'
+      when "-k"
+        method = 'kill'
+        sid = val || false
+      when "-K"
+        method = 'killall'
+      when "-d"
+        method = 'detach'
+        sid = val || false
+      # Run a script on all meterpreter sessions
+      when "-s"
+        unless script
+          method = 'scriptall'
+          script = val
+        end
+      # Upload and exec to the specific command session
+      when "-u"
+        method = 'upexec'
+        sid = val || false
+      # Reset the ring buffer read pointer
+      when "-r"
+        reset_ring = true
+        method = 'reset_ring'
+      # Display help banner
+      when "-h"
+        cmd_sessions_help
+        return false
+      when "-t"
+        if val.to_s =~ /^\d+$/
+          response_timeout = val.to_i
+        end
+      else
+        extra << val
       end
-    }
-
-    if sid and not framework.sessions.get(sid)
-      print_error("Invalid session id")
-      return false
     end
 
-    if method.nil? and sid
+    if !method && sid
       method = 'interact'
     end
 
+    unless sid.nil? || method == 'interact'
+      session_list = build_range_array(sid)
+      if session_list.blank?
+        print_error("Please specify valid session identifier(s)")
+        return false
+      end
+    end
+
+    last_known_timeout = nil
+
     # Now, perform the actual method
     case method
-
-      when 'cmd'
-        if (cmds.length < 1)
-          print_error("No command specified!")
+    when 'cmd'
+      if cmds.length < 1
+        print_error("No command specified!")
+        return false
+      end
+      cmds.each do |cmd|
+        if sid
+          sessions = session_list
+        else
+          sessions = framework.sessions.keys.sort
+        end
+        if sessions.blank?
+          print_error("Please specify valid session identifier(s) using -i")
           return false
         end
-        cmds.each do |cmd|
-          if sid
-            sessions = [ sid ]
-          else
-            sessions = framework.sessions.keys.sort
+        sessions.each do |s|
+          session = verify_session(s)
+          next unless session
+          print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
           end
-          sessions.each do |s|
-            session = framework.sessions.get(s)
-            print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
 
-            if (session.type == "meterpreter")
+          begin
+            if session.type == 'meterpreter'
               # If session.sys is nil, dont even try..
-              if not (session.sys)
+              unless session.sys
                 print_error("Session #{s} does not have stdapi loaded, skipping...")
                 next
               end
@@ -1689,133 +1714,181 @@ class Core
                     'Channelized' => true,
                     'Hidden'      => true
                   })
+                if process && process.channel
+                  data = process.channel.read
+                  print_line(data) if data
+                end
               rescue ::Rex::Post::Meterpreter::RequestError
                 print_error("Failed: #{$!.class} #{$!}")
+              rescue Rex::TimeoutError
+                print_error("Operation timed out")
               end
-              if process and process.channel and (data = process.channel.read)
-                print_line(data)
-              end
-            elsif session.type == "shell"
-              if (output = session.shell_command(cmd))
-                print_line(output)
-              end
+            elsif session.type == 'shell'
+              output = session.shell_command(cmd)
+              print_line(output) if output
             end
-            # If the session isn't a meterpreter or shell type, it
-            # could be a VNC session (which can't run commands) or
-            # something custom (which we don't know how to run
-            # commands on), so don't bother.
+          ensure
+            # Restore timeout for each session
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
+          # If the session isn't a meterpreter or shell type, it
+          # could be a VNC session (which can't run commands) or
+          # something custom (which we don't know how to run
+          # commands on), so don't bother.
         end
-
-      when 'kill'
-        if ((session = framework.sessions.get(sid)))
-          print_status("Killing session #{sid}")
-          session.kill
-        else
-          print_error("Invalid session identifier: #{sid}")
-        end
-
-      when 'killall'
-        print_status("Killing all sessions...")
-        framework.sessions.each_sorted do |s|
-          if ((session = framework.sessions.get(s)))
+      end
+    when 'kill'
+      print_status("Killing the following session(s): #{session_list.join(', ')}")
+      session_list.each do |sess_id|
+        session = framework.sessions.get(sess_id)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
+          print_status("Killing session #{sess_id}")
+          begin
             session.kill
-          end
-        end
-
-      when 'detach'
-        if ((session = framework.sessions.get(sid)))
-          print_status("Detaching session #{sid}")
-          if (session.interactive?)
-            session.detach()
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         else
-          print_error("Invalid session identifier: #{sid}")
+          print_error("Invalid session identifier: #{sess_id}")
         end
-
-      when 'interact'
-        if ((session = framework.sessions.get(sid)))
-          if (session.interactive?)
-            print_status("Starting interaction with #{session.name}...\n") if (quiet == false)
-
-            self.active_session = session
-
-            session.interact(driver.input.dup, driver.output)
-
-            self.active_session = nil
-
-            if (driver.input.supports_readline)
-              driver.input.reset_tab_completion
-            end
-
-          else
-            print_error("Session #{sid} is non-interactive.")
+      end
+    when 'killall'
+      print_status("Killing all sessions...")
+      framework.sessions.each_sorted do |s|
+        session = framework.sessions.get(s)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
           end
-        else
-          print_error("Invalid session identifier: #{sid}")
+          begin
+            session.kill
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
+          end
         end
-
-      when 'scriptall'
-        if (script.nil?)
-          print_error("No script specified!")
-          return false
+      end
+    when 'detach'
+      print_status("Detaching the following session(s): #{session_list.join(', ')}")
+      session_list.each do |sess_id|
+        session = verify_session(sess_id)
+        # if session is interactive, it's detachable
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
+          print_status("Detaching session #{sess_id}")
+          begin
+            session.detach
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
+          end
         end
-
-        script_paths = {}
-        script_paths['meterpreter'] = Msf::Sessions::Meterpreter.find_script_path(script)
-        script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
-
-        if sid
-          print_status("Running script #{script} on session #{sid}...")
-          sessions = [ sid ]
-        else
-          print_status("Running script #{script} on all sessions...")
-          sessions = framework.sessions.keys.sort
+      end
+    when 'interact'
+      session = verify_session(sid)
+      if session
+        if session.respond_to?(:response_timeout)
+          last_known_timeout = session.response_timeout
+          session.response_timeout = response_timeout
         end
+        print_status("Starting interaction with #{session.name}...\n") unless quiet
+        begin
+          self.active_session = session
+          session.interact(driver.input.dup, driver.output)
+          self.active_session = nil
+          driver.input.reset_tab_completion if driver.input.supports_readline
+        ensure
+          session.response_timeout = last_known_timeout if last_known_timeout
+        end
+      end
+    when 'scriptall'
+      unless script
+        print_error("No script specified!")
+        return false
+      end
+      script_paths = {}
+      script_paths['meterpreter'] = Msf::Sessions::Meterpreter.find_script_path(script)
+      script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
 
-        sessions.each do |s|
-          if ((session = framework.sessions.get(s)))
-            if (script_paths[session.type])
-              print_status("Session #{s} (#{session.session_host}):")
+      sessions = sid ? session_list : framework.sessions.keys.sort
+
+      sessions.each do |sess_id|
+        session = verify_session(sess_id, true)
+        # @TODO: Not interactive sessions can or cannot have scripts run on them?
+        if session == false # specifically looking for false
+          # if verify_session returned false, sess_id is valid, but not interactive
+          session = framework.sessions.get(sess_id)
+        end
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
+          begin
+            if script_paths[session.type]
+              print_status("Session #{sess_id} (#{session.session_host}):")
+              print_status("Running script #{script} on #{session.type} session" +
+                            " #{sess_id} (#{session.session_host})")
               begin
                 session.execute_file(script_paths[session.type], extra)
               rescue ::Exception => e
                 log_error("Error executing script: #{e.class} #{e}")
               end
             end
-          end
-        end
-
-      when 'upexec'
-        if ((session = framework.sessions.get(sid)))
-          if (session.interactive?)
-            if (session.type == "shell") # XXX: check for windows?
-              session.init_ui(driver.input, driver.output)
-              session.execute_script('spawn_meterpreter', nil)
-              session.reset_ui
-            else
-              print_error("Session #{sid} is not a command shell session.")
-            end
-          else
-            print_error("Session #{sid} is non-interactive.")
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
           end
         else
-          print_error("Invalid session identifier: #{sid}")
+          print_error("Invalid session identifier: #{sess_id}")
+        end
+      end
+    when 'upexec'
+      print_status("Executing 'post/multi/manage/shell_to_meterpreter' on " +
+                    "session(s): #{session_list}")
+      session_list.each do |sess_id|
+        session = verify_session(sess_id)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
+          begin
+            if session.type == 'shell'
+              session.init_ui(driver.input, driver.output)
+              session.execute_script('post/multi/manage/shell_to_meterpreter')
+              session.reset_ui
+            else
+              print_error("Session #{sess_id} is not a command shell session, skipping...")
+              next
+            end
+          ensure
+            session.response_timeout = last_known_timeout if last_known_timeout
+          end
         end
 
-      when 'reset_ring'
-        sessions = sid ? [ sid ] : framework.sessions.keys
-        sessions.each do |sidx|
-          s = framework.sessions[sidx]
-          next if not (s and s.respond_to?(:ring_seq))
-          s.reset_ring_sequence
-          print_status("Reset the ring buffer pointer for Session #{sidx}")
+        if session_list.count > 1
+          print_status("Sleeping 5 seconds to allow the previous handler to finish..")
+          sleep(5)
         end
-
-      when 'list',nil
-        print_line
-        print(Serializer::ReadableText.dump_sessions(framework, :verbose => verbose))
-        print_line
+      end
+    when 'reset_ring'
+      sessions = sid ? [sid] : framework.sessions.keys
+      sessions.each do |sidx|
+        s = framework.sessions[sidx]
+        next unless (s && s.respond_to?(:ring_seq))
+        s.reset_ring_sequence
+        print_status("Reset the ring buffer pointer for Session #{sidx}")
+      end
+    when 'list',nil
+      print_line
+      print(Serializer::ReadableText.dump_sessions(framework, :verbose => verbose))
+      print_line
     end
 
     rescue IOError, EOFError, Rex::StreamClosedError
@@ -1829,7 +1902,7 @@ class Core
     # Reset the active session
     self.active_session = nil
 
-    return true
+    true
   end
 
   #
@@ -2348,9 +2421,15 @@ class Core
     mod_name = args[0]
 
     begin
-      if ((mod = framework.modules.create(mod_name)) == nil)
-        print_error("Failed to load module: #{mod_name}")
-        return false
+      mod = framework.modules.create(mod_name)
+      unless mod
+        # Try one more time; see #4549
+        sleep CMD_USE_TIMEOUT
+        mod = framework.modules.create(mod_name)
+        unless mod
+          print_error("Failed to load module: #{mod_name}")
+          return false
+        end
       end
     rescue Rex::AmbiguousArgumentError => info
       print_error(info.to_s)
@@ -2364,17 +2443,17 @@ class Core
     dispatcher = nil
 
     case mod.type
-      when MODULE_ENCODER
+      when Msf::MODULE_ENCODER
         dispatcher = Msf::Ui::Console::CommandDispatcher::Encoder
-      when MODULE_EXPLOIT
+      when Msf::MODULE_EXPLOIT
         dispatcher = Msf::Ui::Console::CommandDispatcher::Exploit
-      when MODULE_NOP
+      when Msf::MODULE_NOP
         dispatcher = Msf::Ui::Console::CommandDispatcher::Nop
-      when MODULE_PAYLOAD
+      when Msf::MODULE_PAYLOAD
         dispatcher = Msf::Ui::Console::CommandDispatcher::Payload
-      when MODULE_AUX
+      when Msf::MODULE_AUX
         dispatcher = Msf::Ui::Console::CommandDispatcher::Auxiliary
-      when MODULE_POST
+      when Msf::MODULE_POST
         dispatcher = Msf::Ui::Console::CommandDispatcher::Post
       else
         print_error("Unsupported module type: #{mod.type}")
@@ -2764,73 +2843,72 @@ class Core
     res = []
     res << o.default.to_s if o.default
 
-    case o.class.to_s
-
-      when 'Msf::OptAddress'
-        case o.name.upcase
-          when 'RHOST'
-            option_values_target_addrs().each do |addr|
-              res << addr
-            end
-          when 'LHOST'
-            rh = self.active_module.datastore["RHOST"]
-            if rh and not rh.empty?
-              res << Rex::Socket.source_address(rh)
-            else
-              res << Rex::Socket.source_address()
-            end
-          else
+    case o
+    when Msf::OptAddress
+      case o.name.upcase
+      when 'RHOST'
+        option_values_target_addrs().each do |addr|
+          res << addr
         end
-
-      when 'Msf::OptAddressRange'
-        case str
-          when /^file:(.*)/
-            files = tab_complete_filenames($1, words)
-            res += files.map { |f| "file:" + f } if files
-          when /\/$/
-            res << str+'32'
-            res << str+'24'
-            res << str+'16'
-          when /\-$/
-            res << str+str[0, str.length - 1]
-          else
-            option_values_target_addrs().each do |addr|
-              res << addr+'/32'
-              res << addr+'/24'
-              res << addr+'/16'
-            end
+      when 'LHOST'
+        rh = self.active_module.datastore["RHOST"]
+        if rh and not rh.empty?
+          res << Rex::Socket.source_address(rh)
+        else
+          res << Rex::Socket.source_address()
         end
+      else
+      end
 
-      when 'Msf::OptPort'
-        case o.name.upcase
-          when 'RPORT'
-          option_values_target_ports().each do |port|
-            res << port
-          end
+    when Msf::OptAddressRange
+      case str
+      when /^file:(.*)/
+        files = tab_complete_filenames($1, words)
+        res += files.map { |f| "file:" + f } if files
+      when /\/$/
+        res << str+'32'
+        res << str+'24'
+        res << str+'16'
+      when /\-$/
+        res << str+str[0, str.length - 1]
+      else
+        option_values_target_addrs().each do |addr|
+          res << addr+'/32'
+          res << addr+'/24'
+          res << addr+'/16'
         end
+      end
 
-        if (res.empty?)
-          res << (rand(65534)+1).to_s
+    when Msf::OptPort
+      case o.name.upcase
+      when 'RPORT'
+        option_values_target_ports().each do |port|
+          res << port
         end
+      end
 
-      when 'Msf::OptEnum'
-        o.enums.each do |val|
-          res << val
-        end
+      if (res.empty?)
+        res << (rand(65534)+1).to_s
+      end
 
-      when 'Msf::OptPath'
-        files = tab_complete_filenames(str, words)
-        res += files if files
+    when Msf::OptEnum
+      o.enums.each do |val|
+        res << val
+      end
 
-      when 'Msf::OptBool'
-        res << 'true'
-        res << 'false'
+    when Msf::OptPath
+      files = tab_complete_filenames(str, words)
+      res += files if files
 
-      when 'Msf::OptString'
-        if (str =~ /^file:(.*)/)
-          files = tab_complete_filenames($1, words)
-          res += files.map { |f| "file:" + f } if files
-        end
+    when Msf::OptBool
+      res << 'true'
+      res << 'false'
+
+    when Msf::OptString
+      if (str =~ /^file:(.*)/)
+        files = tab_complete_filenames($1, words)
+        res += files.map { |f| "file:" + f } if files
+      end
     end
 
     return res
@@ -2988,6 +3066,33 @@ class Core
   end
 
   protected
+
+  #
+  # verifies that a given session_id is valid and that the session is interactive.
+  # The various return values allow the caller to make better decisions on what
+  # action can & should be taken depending on the capabilities of the session
+  # and the caller's objective while making it simple to use in the nominal case
+  # where the caller needs session_id to match an interactive session
+  #
+  # @param session_id [String] A session id, which is an integer as a string
+  # @param quiet [Boolean] True means the method will produce no error messages
+  # @return [session] if the given session_id is valid and session is interactive
+  # @return [false] if the given session_id is valid, but not interactive
+  # @return [nil] if the given session_id is not valid at all
+  def verify_session(session_id, quiet = false)
+    session = framework.sessions.get(session_id)
+    if session
+      if session.interactive?
+        session
+      else
+        print_error("Session #{session_id} is non-interactive.") unless quiet
+        false
+      end
+    else
+      print_error("Invalid session identifier: #{session_id}") unless quiet
+      nil
+    end
+  end
 
   #
   # Go_pro methods -- these are used to start and connect to
@@ -3340,9 +3445,39 @@ class Core
     start = line_num - before
     start = 0 if start < 0
     finish = line_num + after
-    return all_lines.slice(start..finish)
+    all_lines.slice(start..finish)
   end
-end
 
+  #
+  # Generate an array of job or session IDs from a given range String.
+  # Always returns an Array.
+  #
+  # @param id_list [String] Range or list description such as 1-5 or 1,3,5 etc
+  # @return [Array<String>] Representing the range
+  def build_range_array(id_list)
+    item_list = []
+    unless id_list.blank?
+      temp_list = id_list.split(',')
+      temp_list.each do |ele|
+        return if ele.count('-') > 1
+        return if ele.first == '-' || ele[-1] == '-'
+        return if ele.first == '.' || ele[-1] == '.'
+
+        if ele.include? '-'
+          temp_array = (ele.split("-").inject { |s, e| s.to_i..e.to_i }).to_a
+          item_list.concat(temp_array)
+        elsif ele.include? '..'
+          temp_array = (ele.split("..").inject { |s, e| s.to_i..e.to_i }).to_a
+          item_list.concat(temp_array)
+        else
+          item_list.push(ele.to_i)
+        end
+      end
+    end
+
+    item_list.uniq.sort
+  end
+
+end
 
 end end end end

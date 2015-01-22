@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
         else
           print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized #{res.code} response")
-          print_error(res.inspect)
+          print_error(res.to_s)
           return :abort
 
         end

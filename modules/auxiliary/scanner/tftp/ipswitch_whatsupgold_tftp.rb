@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -29,7 +29,8 @@ class Metasploit3 < Msf::Auxiliary
           ['OSVDB', '77455'],
           ['BID', '50890'],
           ['EDB', '18189'],
-          ['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt']
+          ['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt'],
+          ['CVE', '2011-4722']
         ],
       'DisclosureDate' => "Dec 12 2011"
     ))

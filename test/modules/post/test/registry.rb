@@ -1,6 +1,6 @@
 
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -54,6 +54,13 @@ class Metasploit3 < Msf::Post
       ret &&= !!(valinfo["Type"])
 
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP")
+      ret &&= !!(valinfo["Data"] == valdata)
+
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_NATIVE)
+      ret &&= !!(valinfo["Data"] == valdata)
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_32_BIT)
+      ret &&= !!(valinfo["Data"] == valdata)
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_64_BIT)
       ret &&= !!(valinfo["Data"] == valdata)
 
       ret

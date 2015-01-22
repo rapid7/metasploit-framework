@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -82,6 +82,7 @@ class Metasploit3 < Msf::Auxiliary
       proxies:            datastore["PROXIES"],
       cred_details:       @cred_collection,
       stop_on_success:    datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 5
     )
 
@@ -125,7 +126,9 @@ class Metasploit3 < Msf::Auxiliary
         do_report(ip, rport, result)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        end
         invalidate_login(
             address: ip,
             port: rport,
@@ -138,7 +141,9 @@ class Metasploit3 < Msf::Auxiliary
         )
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
-        print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        end
         invalidate_login(
             address: ip,
             port: rport,

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -217,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Report a fingerprint.match for OS fingerprinting support, tied to this service
     report_note(:host => rhost, :port => rport, :proto => 'tcp', :ntype => 'fingerprint.match', :data => fprint)
-    
+
     # Report a jenkins information note for future analysis, tied to this service
     report_note(:host => rhost, :port => rport, :proto => 'tcp', :ntype => 'jenkins.info', :data => jinfo)
 

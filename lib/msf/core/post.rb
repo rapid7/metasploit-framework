@@ -19,7 +19,12 @@ class Msf::Post < Msf::Module
 
   include Msf::PostMixin
 
-  def setup; end
+  def setup
+    m = replicant
+    if m.actions.length > 0 && !m.action
+      raise Msf::MissingActionError, "Please use: #{m.actions.collect {|e| e.name} * ", "}"
+    end
+  end
 
   def type
     Msf::MODULE_POST
