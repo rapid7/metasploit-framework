@@ -9,7 +9,7 @@ Unstable modules have their own special directory structure -- they should **not
 1. First, get unstable up to date with upstream/master: `git checkout unstable; git merge upstream/master; push upstream`
 1. Create a local branch off of the PR: `git checkout -b temp-pr1234 --track upstream/pr/1234`
 1. Create a local branch off of unstable: `git checkout -b unstable-pr1234-modulename --track upstream/unstable`
-1. Find the module paths: `git diff upstream/master...upstream/pr/1234`
+1. Find the module paths: `git diff upstream/master...upstream/pr/1234 --name-only`
 1. Git checkout the module(s) in question: `git checkout temp-pr1234 modules/exploits/path/to/module.rb`
 1. Move the files to the appropriate directory: `git mv modules/exploits/path/to/module.rb unstable-modules/exploits/incomplete`
 1. Commit the result: `git commit`
