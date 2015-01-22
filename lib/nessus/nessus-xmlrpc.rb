@@ -88,9 +88,13 @@ module Nessus
 
       def user_logout
          resp = connection.delete '/session'
-         resp = JSON.parse(resp.body)
-         puts "Respose of session deletion is #{resp}"
-         return true
+         if resp.body.length > 1
+            resp = JSON.parse(resp.body)
+            puts "Respose of session deletion is #{resp}"
+            return true
+         else
+            return false
+         end
       end
 
       def list_policies
@@ -107,7 +111,7 @@ module Nessus
 
       def list_folders
          resp = connection.get '/folders'
-         resp = JSON.parse(resp.body)
+         resp = JSON.parse(resp.body)["folders"]
          return resp
       end
     
@@ -119,6 +123,24 @@ module Nessus
          else
             return false
          end
+      end
+
+      def server_properties
+         resp = connection.get '/server/properties'
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def server_status
+         resp = connection.get '/server/status'
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def scan_list
+         resp = connection.get '/scans'
+         resp = JSON.parse(resp.body)["scans"]
+         return resp
       end
 
    end
