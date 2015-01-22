@@ -121,8 +121,12 @@ class JavaDeserializer
   # @param [Fixnum] level the indentation level when printing super classes
   def print_array(arr, level = 0)
     prefix = "  " * level
-    puts "#{prefix}Array Description"
-    print_class(arr.array_description.description, 1)
+    if arr.array_description.description.class == Rex::Java::Serialization::Model::NewClassDesc
+      puts "#{prefix}Array Description"
+      print_class(arr.array_description.description, 1)
+    else
+      puts "#{prefix}Array Description: #{arr.array_description.description}"
+    end
     puts "#{prefix}Array Type: #{arr.type}"
     puts "#{prefix}Array Values ##{arr.values.length}"
     arr.values.each do |v|
