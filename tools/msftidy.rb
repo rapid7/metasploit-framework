@@ -594,21 +594,9 @@ class Msftidy
   def check_invalid_url_scheme
     test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
     unless test.empty?
-      test.each do |item|
+      test.each { |item|
         info("Invalid URL: #{item}")
-      end
-    end
-  end
-
-  # This checks looks for extranous commas
-  # Stuff with comments should match too: , #metasploit module ]
-  # but it should not match interpolation #{
-  def check_comma
-    test = @source.scan(/[^\n]+,(?:\s*#[^{][^\n]+)?\s*[\]\}]/)
-    unless test.empty?
-      test.each do |item|
-        info("Extraneous comma: #{item}")
-      end
+      }
     end
   end
 
@@ -661,7 +649,6 @@ def run_checks(full_filepath)
   tidy.check_sock_get
   tidy.check_udp_sock_get
   tidy.check_invalid_url_scheme
-  tidy.check_comma
   return tidy
 end
 
