@@ -82,7 +82,7 @@ module Msf
           "nessus_report_hosts" => "Get list of hosts from a report.",
           "nessus_report_host_ports" => "Get list of open ports from a host from a report.",
           "nessus_report_host_detail" => "Detail from a report item on a host.",
-          "nessus_scan_status" => "List all currently running Nessus scans.",
+          "nessus_scan_list" => "List all currently running Nessus scans.",
           "nessus_scan_new" => "Create new Nessus Scan.",
           "nessus_scan_pause" => "Pause a Nessus Scan.",
           "nessus_scan_pause_all" => "Pause all Nessus Scans.",
@@ -112,8 +112,18 @@ module Msf
          if !nessus_verify_token
           return
         end
-        list = @n.list_folders
-        puts JSON.pretty_generate(list)
+        list = @n.list_folders      
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            "ID",
+            "Name",
+            "Type"
+          ]
+        )
+        list.each { |folder|
+        tbl << [ folder["id"], folder["name"], folder["type"] ]
+        }
+        print_line tbl.to_s
       end
 
       def cmd_nessus_index
@@ -201,13 +211,9 @@ module Msf
       end
 
       def cmd_nessus_logout
-        @token = nil
-        puts "Inside cmd_nessus_logout"
         logout = @n.user_logout
         if logout
            print_status("Logged out")
-           system("rm #{@nessus_yaml}")
-           print_good("#{@nessus_yaml} removed.")
         else
            print_status("There was some problem in logging out the user #{@user}")
         end
@@ -287,19 +293,18 @@ module Msf
           return
         end
 
-        if nessus_verify_token
-          @feed, @version, @web_version = @n.feed
-          tbl = Rex::Ui::Text::Table.new(
-            'Columns' => [
-              'Feed',
-              'Nessus Version',
-              'Nessus Web Version'
-            ])
-          tbl << [@feed, @version, @web_version]
-          print_good("Nessus Status")
-          print_good "\n"
-          print_line tbl.to_s
-        end
+        resp = @n.server_properties
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            'Feed',
+            'Type',
+            'Nessus Version',
+            'Nessus Web Version',
+            'Plugin Set',
+            'Server UUID'
+        ])
+        tbl << [ resp["feed"], resp["nessus_type"], resp["server_version"], resp["nessus_ui_version"], resp["loaded_plugin_set"], resp["server_uuid"]  ]
+        print_line tbl.to_s
       end
 
       def nessus_verify_token
@@ -433,7 +438,6 @@ module Msf
           ncusage
           return
         end
-        puts "The ssl option is #{@sslv}"
         @url = "https://#{@host}:#{@port}/"
         print_status("Connecting to #{@url} as #{@user}")
         @n = Nessus::Client.new(@url, @user, @pass,@sslv)
@@ -562,7 +566,7 @@ module Msf
         print_good("Done")
       end
 
-      def cmd_nessus_scan_status(*args)
+      def cmd_nessus_scan_list(*args)
 
         if args[0] == "-h"
           print_status("Usage: ")
@@ -573,41 +577,33 @@ module Msf
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
-        list=@n.scan_list_hash
+        list=@n.scan_list
         if list.empty?
           print_status("No Scans Running.")
           print_status("You can:")
           print_status("        List of completed scans:     	nessus_report_list")
           print_status("        Create a scan:           		nessus_scan_new <policy id> <scan name> <target(s)>")
           return
+        else
+           tbl = Rex::Ui::Text::Table.new(
+              'Columns' => [
+               'Folder ID',
+               'Name',
+               'Owner',
+               'Started',
+               'Status',
+               'Folder'
+             ])
+        
+           list.each {|scan|
+           tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
+           }
+           print_line tbl.to_s
         end
-
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Scan ID',
-            'Name',
-            'Owner',
-            'Started',
-            'Status',
-            'Current Hosts',
-            'Total Hosts'
-          ])
-
-        list.each {|scan|
-          t = Time.at(scan['start'].to_i)
-          tbl << [ scan['id'], scan['name'], scan['owner'], t.strftime("%H:%M %b %d %Y"), scan['status'], scan['current'], scan['total'] ]
-        }
-        print_good("Running Scans")
-        print_good "\n"
-        print_line tbl.to_s
-        print_good "\n"
-        print_status("You can:")
-        print_good("		Import Nessus report to database : 	nessus_report_get <reportid>")
-        print_good("		Pause a nessus scan : 			nessus_scan_pause <scanid>")
       end
 
       def cmd_nessus_template_list(*args)
@@ -701,45 +697,16 @@ module Msf
           print_status("Returns some status items for the server..")
           return
         end
-        #Auth
-        
-        #Versions
-        cmd_nessus_server_feed
-
+         
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
-            'Users',
-            'Policies',
-            'Running Scans',
-            'Reports',
-            'Plugins'
-          ])
-        #Count how many users the server has.
-        list=@n.users_list
-        users = list.length
-
-        #Count how many policies
-        list=@n.policy_list_hash
-        policies = list.length
-
-        #Count how many running scans
-        list=@n.scan_list_uids
-        scans = list.length
-
-        #Count how many reports are available
-        list=@n.report_list_hash
-        reports = list.length
-
-        #Count how many plugins
-        list=@n.plugins_list
-        total = Array.new
-        list.each {|plugin|
-          total.push(plugin['num'].to_i)
-        }
-        plugins = total.sum
-        tbl << [users, policies, scans, reports, plugins]
-        print_good "\n"
+            'Status',
+            'Progress'
+        ])
+        list = @n.server_status
+        tbl << [ list["progress"], list["status"] ]
         print_line tbl.to_s
+        
       end
 
       def cmd_nessus_plugin_list(*args)
