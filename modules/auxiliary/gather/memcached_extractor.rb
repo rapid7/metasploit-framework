@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
         data << data_part
         break if data_part =~ /^END/
       end
-      all_data[key] = data
+      all_data[key] = data.join
     end
     all_data
   end
@@ -139,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
         'Indent'  => 1,
         'Columns' => [ 'Key', 'Value' ]
       )
-      data.take(print_keys).each { |r| result_table << r }
+      data.take(print_keys).each { |key, value| result_table << [key, value.inspect] }
       print_line
       print_line("#{result_table}")
       unless localhost?(ip)
