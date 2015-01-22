@@ -13,7 +13,6 @@
 # openssl before rubygems mac os
 require 'msf/core'
 require 'openssl'
-require 'rubygems'
 require 'rinda/tuplespace'
 require 'pathname'
 require 'uri'
