@@ -222,7 +222,13 @@ os_detect.getVersion = function(){
 		// Thanks to developer.mozilla.org "Firefox for developers" series for most
 		// of these.
 		// Release changelogs: http://www.mozilla.org/en-US/firefox/releases/
-		if ('copyWithin' in Array.prototype) {
+		if ('closest' in Element.prototype) {
+			ua_version = '35.0';
+		} else if ('matches' in Element.prototype) {
+			ua_version = '34.0';
+		} else if ('RadioNodeList' in window) {
+			ua_version = '33.0';
+		} else if ('copyWithin' in Array.prototype) {
 			ua_version = '32.0';
 		} else if ('fill' in Array.prototype) {
 			ua_version = '31.0';
