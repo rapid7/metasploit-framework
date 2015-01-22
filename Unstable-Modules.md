@@ -6,6 +6,7 @@ Luckily, git makes it easy to be a pack rat for these unfinished modules. We hav
 
 Unstable modules have their own special directory structure -- they should **not** hit the regular `modules/` subdirectory, since we don't want to conflict with existing or future modules. We also want to make it easy to spot which modules are unstable. So, new modules should get landed there with the following procedure.
 
+1. First, get unstable up to date with upstream/master: `git checkout unstable; git merge upstream/master; push upstream`
 1. Create a local branch off of the PR: `git checkout -b temp-pr1234 --track upstream/pr/1234`
 1. Create a local branch off of unstable: `git checkout -b unstable-pr1234-modulename --track upstream/unstable`
 1. Find the module paths: `git diff upstream/master...upstream/pr/1234`
