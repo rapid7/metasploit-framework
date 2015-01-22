@@ -96,8 +96,8 @@ class Metasploit3 < Msf::Post
         hash =  Rex::Text.to_hex(Rex::Text.decode_base64(hash), "")
         hashtype = 'dynamic_1405'
         version_name = 'v8'
-        if !(version >= VERSION_8 && version < VERSION_9)
-          print_warning("Unknown McAfee version #{version_name} - Assuming v8")
+        unless version >= VERSION_8 && version < VERSION_9
+          print_warning("Unknown McAfee version #{version} - Assuming v8")
         end
       end
 
@@ -110,13 +110,13 @@ class Metasploit3 < Msf::Post
         private_data: hash,
         session_id: session_db_id,
         jtr_format: hashtype,
-        workspace_id: myworkspace_id,
+        workspace_id: myworkspace_id
       }
 
       create_credential(credential_data)
 
       # Store McAfee password hash as loot
-      loot_path = store_loot('mcafee.hash', 'text/plain', session, 'mcafee:'+hash, 'mcafee_hashdump.txt', 'McAfee Password Hash')
+      loot_path = store_loot('mcafee.hash', 'text/plain', session, "mcafee:#{hash}", 'mcafee_hashdump.txt', 'McAfee Password Hash')
       print_status("McAfee password hash saved in: #{loot_path}")
     end
   end
