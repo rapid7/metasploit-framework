@@ -4,9 +4,6 @@
 ##
 
 require 'msf/core'
-require 'rex'
-require 'msf/core/auxiliary/report'
-require 'rex/proto/rfb'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Registry
