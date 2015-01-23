@@ -266,7 +266,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_router_mac_filter_info
-
     res = send_request_raw(
       {
         'method'  => 'GET',
@@ -277,83 +276,21 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status('---===[ MAC Filter Information ]===---')
+    print_status('MAC Filter Information')
 
-    # Grabbing the WifiMacFilterStatus
-    if res.body.match(/<WifiMacFilterStatus>(.*)<\/WifiMacFilterStatus>/i)
-      wifimacfilterstatus = $1
-      print_status("Wifi MAC Filter Status: #{(wifimacfilterstatus == '1') ? 'ENABLED' : 'DISABLED'}" )
-    end
+    resp_body = res.body.to_s
 
-    # Grabbing the WifiMacFilterMac0
-    if res.body.match(/<WifiMacFilterMac0>(.*)<\/WifiMacFilterMac0>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
+    if resp_body.match(/<WifiMacFilterStatus>(.*)<\/WifiMacFilterStatus>/i)
+      wifi_mac_filter_status = $1
+      print_status("Wifi MAC Filter Status: #{(wifi_mac_filter_status == '1') ? 'ENABLED' : 'DISABLED'}" )
     end
 
-    # Grabbing the WifiMacFilterMac1
-    if res.body.match(/<WifiMacFilterMac1>(.*)<\/WifiMacFilterMac1>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac2
-    if res.body.match(/<WifiMacFilterMac2>(.*)<\/WifiMacFilterMac2>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac3
-    if res.body.match(/<WifiMacFilterMac3>(.*)<\/WifiMacFilterMac3>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac4
-    if res.body.match(/<WifiMacFilterMac4>(.*)<\/WifiMacFilterMac4>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac5
-    if res.body.match(/<WifiMacFilterMac5>(.*)<\/WifiMacFilterMac5>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac6
-    if res.body.match(/<WifiMacFilterMac6>(.*)<\/WifiMacFilterMac6>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac7
-    if res.body.match(/<WifiMacFilterMac7>(.*)<\/WifiMacFilterMac7>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac8
-    if res.body.match(/<WifiMacFilterMac8>(.*)<\/WifiMacFilterMac8>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac9
-    if res.body.match(/<WifiMacFilterMac9>(.*)<\/WifiMacFilterMac9>/i)
-      wifimacfiltermac = $1
-      unless wifimacfiltermac == ''
-        print_status("Mac: #{wifimacfiltermac}")
+    (0..9).each do |i|
+      if resp_body.match(/<WifiMacFilterMac#{i}>(.*)<\/WifiMacFilterMac#{i}>/i)
+        wifi_mac_filter = $1
+        unless wifi_mac_filter.empty?
+          print_status("Mac: #{wifi_mac_filter}")
+        end
       end
     end
   end
