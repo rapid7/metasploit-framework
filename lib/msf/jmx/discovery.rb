@@ -9,10 +9,11 @@ module Msf
       #
       # @return [Rex::Java::Serialization::Model::Stream]
       def discovery_stream
+        obj_id = "\x00" * 22 # Padding since there isn't an UnicastRef ObjId to use still
+
         block_data = Rex::Java::Serialization::Model::BlockData.new(
           nil,
-          "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
-              "\x00\x00\x00\x02\x44\x15\x4d\xc9\xd4\xe6\x3b\xdf"
+          "#{obj_id}\x00\x00\x00\x02\x44\x15\x4d\xc9\xd4\xe6\x3b\xdf"
         )
 
         stream = Rex::Java::Serialization::Model::Stream.new
