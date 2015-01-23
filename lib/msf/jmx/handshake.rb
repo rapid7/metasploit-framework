@@ -39,7 +39,7 @@ module Msf
 
         auth_array = builder.new_array(
           name: '[Ljava.lang.String;',
-          serial: 0xadd256e7e91d7b47,
+          serial: 0xadd256e7e91d7b47, # serialVersionUID
           values_type: 'java.lang.String;',
           values: [
             Rex::Java::Serialization::Model::Utf.new(nil, username),

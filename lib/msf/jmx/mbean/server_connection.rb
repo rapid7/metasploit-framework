@@ -46,7 +46,7 @@ module Msf
 
           new_object = builder.new_object(
             name: 'javax.management.ObjectName',
-            serial: 0xf03a71beb6d15cf,
+            serial: 0xf03a71beb6d15cf, # serialVersionUID
             flags: 3
           )
 
@@ -80,20 +80,20 @@ module Msf
 
           new_object = builder.new_object(
             name: 'javax.management.ObjectName',
-            serial: 0xf03a71beb6d15cf,
+            serial: 0xf03a71beb6d15cf, # serialVersionUID
             flags: 3
           )
 
           data_binary = builder.new_array(
             name: '[B',
-            serial: 0xacf317f8060854e0,
+            serial: 0xacf317f8060854e0, # serialVersionUID
             values_type: 'byte',
             values: invoke_arguments_stream(arguments).encode.unpack('C*')
           )
 
           marshall_object = builder.new_object(
             name: 'java.rmi.MarshalledObject',
-            serial: 0x7cbd1e97ed63fc3e,
+            serial: 0x7cbd1e97ed63fc3e, # serialVersionUID
             fields: [
               ['int', 'hash'],
               ['array', 'locBytes', '[B'],
@@ -108,7 +108,7 @@ module Msf
 
           new_array = builder.new_array(
             name: '[Ljava.lang.String;',
-            serial: 0xadd256e7e91d7b47,
+            serial: 0xadd256e7e91d7b47, # serialVersionUID
             values_type: 'java.lang.String;',
             values: arguments.keys.collect { |k| Rex::Java::Serialization::Model::Utf.new(nil, k) }
           )
@@ -136,7 +136,7 @@ module Msf
 
           new_array = builder.new_array(
             name: '[Ljava.lang.Object;',
-            serial: 0x90ce589f1073296c,
+            serial: 0x90ce589f1073296c, # serialVersionUID
             annotations: [Rex::Java::Serialization::Model::EndBlockData.new],
             values_type: 'java.lang.Object;',
             values: args.values.collect { |arg| Rex::Java::Serialization::Model::Utf.new(nil, arg) }
