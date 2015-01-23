@@ -207,27 +207,18 @@ class Metasploit3 < Msf::Auxiliary
       })
 
     #check whether we got any response from server and proceed.
-    unless res
-      print_error('Failed to get any response from server!!!')
-      return
+    unless is_target?(res)
+      return nil
     end
 
-    #Is it a HTTP OK
-    unless res.code == 200
-      print_error('Did not get HTTP 200, URL was not found. Exiting!')
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
-      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
-      return
-    end
+    resp_body = res.body.to_s
 
     # Grabbing the Wifi SSID
-    if res.body.match(/<WifiSsid>(.*)<\/WifiSsid>/i)
+    if resp_body.match(/<WifiSsid>(.*)<\/WifiSsid>/i)
       return $1
     end
+
+    nil
   end
 
   def get_router_mac_filter_info
