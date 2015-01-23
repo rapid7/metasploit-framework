@@ -528,7 +528,7 @@ class OptRegexp < OptBase
   end
 
   def default
-    @default.to_s
+    @default
   end
 
   def display_value(value)
