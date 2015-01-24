@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -30,6 +30,6 @@ module Metasploit3
   end
 
   def library_path
-    File.join(Msf::Config.data_directory, "vncdll.dll")
+    File.join(Msf::Config.data_directory, "vncdll.x86.dll")
   end
 end

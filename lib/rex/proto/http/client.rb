@@ -86,7 +86,7 @@ class Client
       typ = self.config_types[var] || 'string'
 
       # These are enum types
-      if(typ.class.to_s == 'Array')
+      if typ.is_a?(Array)
         if not typ.include?(val)
           raise RuntimeError, "The specified value for #{var} is not one of the valid choices"
         end
@@ -180,15 +180,15 @@ class Client
     timeout = (t.nil? or t == -1) ? 0 : t
 
     self.conn = Rex::Socket::Tcp.create(
-      'PeerHost'  => self.hostname,
-      'PeerPort'  => self.port.to_i,
-      'LocalHost' => self.local_host,
-      'LocalPort' => self.local_port,
-      'Context'   => self.context,
-      'SSL'       => self.ssl,
-      'SSLVersion'=> self.ssl_version,
-      'Proxies'   => self.proxies,
-      'Timeout'   => timeout
+      'PeerHost'   => self.hostname,
+      'PeerPort'   => self.port.to_i,
+      'LocalHost'  => self.local_host,
+      'LocalPort'  => self.local_port,
+      'Context'    => self.context,
+      'SSL'        => self.ssl,
+      'SSLVersion' => self.ssl_version,
+      'Proxies'    => self.proxies,
+      'Timeout'    => timeout
     )
   end
 
@@ -198,7 +198,7 @@ class Client
   def close
     if (self.conn)
       self.conn.shutdown
-      self.conn.close
+      self.conn.close unless self.conn.closed?
     end
 
     self.conn = nil
@@ -480,7 +480,7 @@ class Client
     opts['headers']||= {}
 
     ntlmssp_flags = ::Rex::Proto::NTLM::Utils.make_ntlm_flags(ntlm_options)
-    workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
+    workstation_name = Rex::Text.rand_text_alpha(rand(8)+6)
     domain_name = self.config['domain']
 
     b64_blob = Rex::Text::encode_base64(
@@ -703,7 +703,6 @@ class Client
   # Auth
   attr_accessor :username, :password
 
-
   # When parsing the request, thunk off the first response from the server, since junk
   attr_accessor :junk_pipeline
 
@@ -720,4 +719,3 @@ end
 end
 end
 end
-

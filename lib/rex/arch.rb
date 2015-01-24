@@ -48,8 +48,8 @@ module Arch
     case arch
       when ARCH_X86
         [addr].pack('V')
-      when ARCH_X86_64
-        [addr].pack('Q')
+      when ARCH_X86_64, ARCH_X64
+        [addr].pack('Q<')
       when ARCH_MIPS # ambiguous
         [addr].pack('N')
       when ARCH_MIPSBE

@@ -29,6 +29,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/netware'
   require 'msf/core/payload/java'
   require 'msf/core/payload/dalvik'
+  require 'msf/core/payload/firefox'
 
   ##
   #
@@ -101,14 +102,14 @@ class Payload < Msf::Module
   # Returns MODULE_PAYLOAD to indicate that this is a payload module.
   #
   def self.type
-    return MODULE_PAYLOAD
+    return Msf::MODULE_PAYLOAD
   end
 
   #
   # Returns MODULE_PAYLOAD to indicate that this is a payload module.
   #
   def type
-    return MODULE_PAYLOAD
+    return Msf::MODULE_PAYLOAD
   end
 
   #
@@ -413,7 +414,7 @@ class Payload < Msf::Module
     encoders = []
 
     framework.encoders.each_module_ranked(
-      'Arch' => self.arch) { |name, mod|
+      'Arch' => self.arch, 'Platform' => self.platform) { |name, mod|
       encoders << [ name, mod ]
     }
 
@@ -447,7 +448,6 @@ class Payload < Msf::Module
   # control to the user.
   #
   def on_session(session)
-
 
     # If this payload is associated with an exploit, inform the exploit
     # that a session has been created and potentially shut down any

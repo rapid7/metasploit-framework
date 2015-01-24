@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -76,6 +76,10 @@ class Metasploit3 < Msf::Auxiliary
     pcap = self.capture
 
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
+
+    if ports.empty?
+      raise Msf::OptionValidateError.new(['PORTS'])
+    end
 
     ports.each_with_index do |port,i|
       p.tcp_dst = port

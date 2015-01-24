@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -26,6 +26,11 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'License'	=> MSF_LICENSE
     )
+
+    register_options([
+      OptEnum.new('PROTOCOL', [ true, 'The protocol to use', 'udp', ['udp', 'tcp']])
+    ])
+
   end
 
   def run_host(ip)
@@ -35,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
       progver		= 1
       procedure	= 5
 
-      sunrpc_create('udp', program, progver)
+      sunrpc_create(datastore['PROTOCOL'], program, progver)
       sunrpc_authnull()
       resp = sunrpc_call(procedure, "")
 
@@ -44,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 
       report_service(
         :host  => ip,
-        :proto => 'udp',
+        :proto => datastore['PROTOCOL'],
         :port  => 2049,
         :name  => 'nfsd',
         :info  => "NFS Daemon #{program} v#{progver}"
@@ -64,18 +69,19 @@ class Metasploit3 < Msf::Auxiliary
         end
         report_note(
           :host => ip,
-          :proto => 'udp',
+          :proto => datastore['PROTOCOL'],
           :port => 2049,
           :type => 'nfs.exports',
           :data => { :exports => shares },
           :update => :unique_data
         )
       elsif(exports == 0x00)
-        print_status("#{ip} - No exported directories")
+        vprint_status("#{ip} - No exported directories")
       end
 
       sunrpc_destroy
-    rescue ::Rex::Proto::SunRPC::RPCTimeout
+    rescue ::Rex::Proto::SunRPC::RPCTimeout, ::Rex::Proto::SunRPC::RPCError => e
+      vprint_error(e.to_s)
     end
   end
 

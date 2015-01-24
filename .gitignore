@@ -1,20 +1,28 @@
 .bundle
+Gemfile.local
+Gemfile.local.lock
 # Rubymine project directory
 .idea
 # Sublime Text project directory (not created by ST by default)
 .sublime-project
 # RVM control file, keep this to avoid backdooring Metasploit
 .rvmrc
+# Allow for a local choice of (unsupported / semi-supported) ruby versions
+# See PR #4136 for usage, but example usage for rvm:
+#   rvm --create --versions-conf use 2.1.4@metasploit-framework
+# Because rbenv doesn't use .versions.conf, to achieve this same functionality, run:
+#   rbenv shell 2.1.4
+.versions.conf
 # YARD cache directory
 .yardoc
 # Mac OS X files
 .DS_Store
 # database config for testing
 config/database.yml
+# target config file for testing
+features/support/targets.yml
 # simplecov coverage data
 coverage
-data/meterpreter/ext_server_pivot.x86.dll
-data/meterpreter/ext_server_pivot.x64.dll
 doc/
 external/source/meterpreter/java/bin
 external/source/meterpreter/java/build
@@ -48,6 +56,34 @@ tags
 *.opensdf
 *.user
 
+# Rails log directory
+/log
+# Rails tmp directory
+/tmp
+
 # ignore release/debug folders for exploits
 external/source/exploits/**/Debug
 external/source/exploits/**/Release
+
+# Avoid checking in Meterpreter binaries. These are supplied upstream by
+# the meterpreter_bins gem.
+data/meterpreter/elevator.*.dll
+data/meterpreter/ext_server_espia.*.dll
+data/meterpreter/ext_server_extapi.*.dll
+data/meterpreter/ext_server_incognito.*.dll
+data/meterpreter/ext_server_kiwi.*.dll
+data/meterpreter/ext_server_lanattacks.*.dll
+data/meterpreter/ext_server_mimikatz.*.dll
+data/meterpreter/ext_server_priv.*.dll
+data/meterpreter/ext_server_stdapi.*.dll
+data/meterpreter/metsrv.*.dll
+data/meterpreter/screenshot.*.dll
+
+# Avoid checking in Meterpreter libs that are built from
+# private source. If you're interested in this functionality,
+# check out Metasploit Pro: http://metasploit.com/download
+data/meterpreter/ext_server_pivot.*.dll
+
+# Avoid checking in metakitty, the source for
+# https://rapid7.github.io/metasploit-framework. It's an orphan branch.
+/metakitty

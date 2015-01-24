@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -25,6 +25,12 @@ class Metasploit3 < Msf::Auxiliary
       OptBool.new('RANDOMIZE_PORTS', [false, 'Randomize the order the ports are probed', true])
     ], self.class)
 
+    # RPORT is required by UDPScanner but not used in this module since it
+    # works with multiple ports.
+    # TODO: update this module to simply use Scanner or update UDPScanner to support
+    # multiple ports.
+    deregister_options('RPORT')
+
     # Intialize the probes array
     @probes = []
 
@@ -41,6 +47,7 @@ class Metasploit3 < Msf::Auxiliary
     @probes << 'probe_pkt_citrix'
     @probes << 'probe_pkt_pca_st'
     @probes << 'probe_pkt_pca_nq'
+    @probes << 'probe_chargen'
   end
 
   def setup
@@ -152,6 +159,12 @@ class Metasploit3 < Msf::Auxiliary
     return if @results[hkey]
 
     case sport
+
+      when 19
+        app = 'chargen'
+        ver = nil
+        return unless chargen_parse(data)
+        @results[hkey] = true
 
       when 53
         app = 'DNS'
@@ -307,6 +320,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   #
+  # Validate a chargen packet.
+  #
+  def chargen_parse(data)
+    data =~ /ABCDEFGHIJKLMNOPQRSTUVWXYZ|0123456789/i
+  end
+
+  #
   # Parse a db2disco packet.
   #
   def db2disco_parse(data)
@@ -348,6 +368,11 @@ class Metasploit3 < Msf::Auxiliary
   #
   # The probe definitions
   #
+
+  def probe_chargen(ip)
+    pkt = Rex::Text.rand_text_alpha_lower(1)
+    return [pkt, 19]
+  end
 
   def probe_pkt_dns(ip)
     data = [rand(0xffff)].pack('n') +

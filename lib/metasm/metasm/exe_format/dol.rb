@@ -26,6 +26,7 @@ class Dol < ExeFormat
 
   def decode_word(edata = @encoded) edata.decode_imm(:u32, @endianness) end
   def encode_word(w) Expression[w].encode(:u32, @endianness) end
+  def sizeof_word ; 4 ; end
 
   def initialize(cpu = nil)
     @endianness = :big

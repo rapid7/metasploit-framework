@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -218,7 +218,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put("\x00#{luser}\x00#{user}\x00#{datastore['TERM']}/#{datastore['SPEED']}\x00")
 
     # Read the expected nul byte response.
-    buf = sock.get_once(1)
+    buf = sock.get_once(1) || ''
     return :abort if buf != "\x00"
 
     # NOTE: We report this here, since we are awfully convinced now that this is really

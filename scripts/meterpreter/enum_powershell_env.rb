@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 #Meterpreter script for enumerating Microsoft Powershell settings.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 @client = client
@@ -22,7 +29,7 @@ def enum_users
   users = []
   user = @client.sys.config.getuid
   path4users = ""
-  sysdrv = @client.fs.file.expand_path("%SystemDrive%")
+  sysdrv = @client.sys.config.getenv('SystemDrive')
 
   if os =~ /Windows 7|Vista|2008/
     path4users = sysdrv + "\\Users\\"
@@ -43,7 +50,7 @@ def enum_users
     end
   else
     userinfo = {}
-    uservar = @client.fs.file.expand_path("%USERNAME%")
+    uservar = @client.sys.config.getenv('USERNAME')
     userinfo['username'] = uservar
     userinfo['userappdata'] = path4users + uservar + profilepath
     users << userinfo
@@ -83,7 +90,7 @@ def enum_powershell
     end
     if powershell_version =~ /2./
       print_status("Powershell Modules:")
-      powershell_module_path = @client.fs.file.expand_path("%PSModulePath%")
+      powershell_module_path = @client.sys.config.getenv('PSModulePath')
       @client.fs.dir.foreach(powershell_module_path) do |m|
         next if m =~ /^(\.|\.\.)$/
         print_status("\t#{m}")

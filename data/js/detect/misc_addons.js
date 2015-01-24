@@ -1,9 +1,102 @@
-window.misc_addons_detect = { };
+var misc_addons_detect = { };
+
+
+/**
+ * Detects whether the browser supports Silverlight or not
+ **/
+misc_addons_detect.hasSilverlight = function () {
+	var found = false;
+
+	//
+	// When on IE, we can use AgControl.AgControl to actually detect the version too.
+	// But this ability is specific to IE, so we fall back to just true/false response
+	//
+	try {
+		var ax = new ActiveXObject('AgControl.AgControl');
+		found = true;
+	} catch(e) {}
+
+	//
+	// ActiveX didn't get anything, try looking in MIMEs
+	//
+	if (!found) {
+		var mimes = window.navigator.mimeTypes;
+		for (var i=0; i < mimes.length; i++) {
+			if (/x\-silverlight/.test(mimes[i].type)) {
+				found = true;
+				break;
+			}
+		}
+	}
+
+	//
+	// MIMEs didn't work either. Try navigator.
+	//
+	if (!found) {
+		var count = navigator.plugins.length;
+		for (var i=0; i < count; i++) {
+			var pluginName = navigator.plugins[i].name;
+			if (/Silverlight Plug\-In/.test(pluginName)) {
+				found = true;
+				break;
+			}
+		}
+	}
+
+	return found;
+}
+
+/**
+ * Returns the Adobe Flash version
+**/
+misc_addons_detect.getFlashVersion = function () {
+	var foundVersion = null;
+
+	//
+	// Gets the Flash version by using the GetVariable function via ActiveX
+	//
+	try {
+		var ax = new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version').toString();
+		foundVersion = ax.match(/[\d,]+/g)[0].replace(/,/g, '.')
+	} catch (e) {}
+
+	//
+	// This should work fine for most non-IE browsers
+	//
+	if (foundVersion == null) {
+		var mimes = window.navigator.mimeTypes;
+		for (var i=0; i<mimes.length; i++) {
+			var pluginDesc = mimes[i].enabledPlugin.description.toString();
+			var m = pluginDesc.match(/Shockwave Flash [\d\.]+/g);
+			if (m != null) {
+				foundVersion = m[0].match(/\d.+/g)[0];
+				break;
+			}
+		}
+	}
+
+	//
+	// Detection for Windows + Firefox
+	//
+	if (foundVersion == null) {
+		var pluginsCount = navigator.plugins.length;
+		for (i=0; i < pluginsCount; i++) {
+			var pluginName = navigator.plugins[i].name;
+			var pluginVersion = navigator.plugins[i].version;
+			if (/Shockwave Flash/.test(pluginName) && pluginVersion != undefined) {
+				foundVersion = navigator.plugins[i].version;
+				break;
+			}
+		}
+	}
+
+	return foundVersion;
+}
 
 /**
  * Returns the Java version
  **/
-window.misc_addons_detect.getJavaVersion = function () {
+misc_addons_detect.getJavaVersion = function () {
 	var foundVersion = null;
 
 	//

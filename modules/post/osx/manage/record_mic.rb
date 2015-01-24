@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [ 'joev'],
       'Platform'      => [ 'osx'],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ],
+      'SessionTypes'  => [ 'shell' ],
       'Actions'       => [
         [ 'LIST',     { 'Description' => 'Show a list of microphones' } ],
         [ 'RECORD', { 'Description' => 'Record from a selected audio input' } ]
@@ -123,6 +123,11 @@ class Metasploit3 < Msf::Post
 
   private
 
-  def poll_timeout; POLL_TIMEOUT; end
-  def fail_with(msg); raise msg; end
+  def poll_timeout
+    POLL_TIMEOUT
+  end
+
+  def fail_with(msg)
+    raise msg
+  end
 end

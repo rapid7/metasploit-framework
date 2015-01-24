@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
 
-        OptString.new('DOMAIN', [true, 'Domain to do a fordward lookup bruteforce against.']),
+        OptString.new('DOMAIN', [true, 'Domain to do a forward lookup bruteforce against.']),
         OptPath.new('NAMELIST',[true, "List of hostnames or subdomains to use.",
             ::File.join(Msf::Config.data_directory, "wordlists", "namelist.txt")])
 

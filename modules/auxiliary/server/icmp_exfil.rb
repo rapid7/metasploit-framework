@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       OptAddress.new('LOCALIP', [false, 'The IP address of the local interface'])
     ], self.class)
 
-    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','UDP_SECRET','GATEWAY','NETMASK', 'TIMEOUT')
+    deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT', 'TIMEOUT')
   end
 
   def run
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
       # this is needed on windows cause we send interface directly to Pcap functions
       @interface = get_interface_guid(@interface)
       @iface_ip = datastore['LOCALIP']
-      @iface_ip ||= Pcap.lookupaddrs(@interface)[0] if netifaces
+      @iface_ip ||= get_ipv4_addr(@interface) if netifaces
       raise "Interface IP is not defined and can not be guessed" unless @iface_ip
 
       # start with blank slate

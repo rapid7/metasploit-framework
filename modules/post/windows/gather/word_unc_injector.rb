@@ -1,11 +1,22 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+#
+# Gems
+#
+
+# for extracting files
+require 'zip'
+
+#
+# Project
+#
+
 require 'msf/core'
-require 'zip/zip' #for extracting files
-require 'rex/zip' #for creating files
+# for creating files
+require 'rex/zip'
 
 class Metasploit3 < Msf::Post
 
@@ -14,12 +25,12 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft Word UNC Path Injector',
+      'Name'           => 'Windows Gather Microsoft Office Word UNC Path Injector',
       'Description'    => %q{
           This module modifies a remote .docx file that will, upon opening, submit
         stored netNTLM credentials to a remote host. Verified to work with Microsoft
-        Word 2003, 2007 and 2010 as of January 2013. In order to get the hashes
-        the auxiliary/server/capture/smb module can be used.
+        Word 2003, 2007, 2010, and 2013. In order to get the hashes the
+        auxiliary/server/capture/smb module can be used.
       },
       'License'        => MSF_LICENSE,
       'References'     =>
@@ -109,17 +120,17 @@ class Metasploit3 < Msf::Post
   end
 
   #RubyZip sometimes corrupts the document when manipulating inside a
-  #compressed document, so we extract it with Zip::ZipFile into memory
+  #compressed document, so we extract it with Zip::File into memory
   def unzip_docx(zipfile)
     vprint_status("Extracting #{datastore['FILE']} into memory.")
     zip_data = Hash.new
     begin
-      Zip::ZipFile.open(zipfile)  do |filezip|
+      Zip::File.open(zipfile)  do |filezip|
         filezip.each do |entry|
           zip_data[entry.name] = filezip.read(entry)
         end
       end
-    rescue Zip::ZipError => e
+    rescue Zip::Error => e
       print_error("Error extracting #{datastore['FILE']} please verify it is a valid .docx document.")
       return nil
     end

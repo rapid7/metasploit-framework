@@ -146,7 +146,7 @@ module BindTcp
         # to implement the Stream interface.
         conn_threads << framework.threads.spawn("BindTcpHandlerSession", false, client) { |client_copy|
           begin
-            handle_connection(wrap_aes_socket(client_copy))
+            handle_connection(wrap_aes_socket(client_copy), { datastore: datastore })
           rescue
             elog("Exception raised from BindTcp.handle_connection: #{$!}")
           end
@@ -166,7 +166,7 @@ module BindTcp
     socks[0].extend(Rex::Socket::Tcp)
     socks[1].extend(Rex::Socket::Tcp)
 
-    m = OpenSSL::Digest::Digest.new('md5')
+    m = OpenSSL::Digest.new('md5')
     m.reset
     key = m.digest(datastore["AESPassword"] || "")
 

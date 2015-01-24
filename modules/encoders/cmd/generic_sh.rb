@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Encoder
 
   # Has some issues, but overall it's pretty good
-  Rank = GoodRanking
+  Rank = ManualRanking
 
   def initialize
     super(
@@ -20,7 +20,8 @@ class Metasploit3 < Msf::Encoder
       tricks to avoid commonly restricted characters.
       },
       'Author'           => 'hdm',
-      'Arch'             => ARCH_CMD)
+      'Arch'             => ARCH_CMD,
+      'Platform'         => 'unix')
   end
 
 
