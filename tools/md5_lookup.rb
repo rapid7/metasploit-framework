@@ -60,6 +60,89 @@ end
 
 module Md5LookupUtility
 
+  # This class manages the disclamer
+  class Disclaimer
+
+    # @!attribute config_file
+    #  @return [String] The config file path
+    attr_accessor :config_file
+
+    # @!attribute group_name
+    #  @return [String] The name of the tool
+    attr_accessor :group_name
+
+
+    def initialize
+      self.config_file = Msf::Config.config_file
+      self.group_name  = 'MD5Lookup'
+    end
+
+    # Prompts a disclamer. The user will not be able to get out unless they acknowledge.
+    #
+    # @return [TrueClass] true if acknowledged.
+    def ack
+      print_status("WARNING: This tool will submit and look up your MD5 hashes in the")
+      print_status("clear (HTTP) on third party websites.")
+      print_status
+      print_status("The services from these third party websites are not within control")
+      print_status("of Metasploit (or Rapid7), and we shall not be liable for any loss or")
+      print_status("damage of whatever nature (direct, indirect, consequential, or other)")
+      print_status("as a result of your use of these services.")
+      print_status
+
+      while true
+        $stdout.print "[*] Enter 'Y' to acknowledge: "
+          if $stdin.gets =~ /^y|yes$/i
+            return true
+          end
+      end
+    end
+
+
+    # Saves the waiver so the warning won't show again after ack
+    #
+    # @return [void]
+    def save_waiver
+      save_setting('waiver', true)
+    end
+
+
+    # Returns true if we don't have to show the warning again
+    #
+    # @return [Boolean]
+    def has_waiver?
+      load_setting('waiver') == 'true' ? true : false
+    end
+
+
+    private
+
+    # Saves a setting to Metasploit's config file
+    #
+    # @param key_name [String] The name of the setting
+    # @param value [String] The value of the setting
+    # @return [void]
+    def save_setting(key_name, value)
+      ini = Rex::Parser::Ini.new(self.config_file)
+      ini.add_group(self.group_name) if ini[self.group_name].nil?
+      ini[self.group_name][key_name] = value
+      ini.to_file(self.config_file)
+    end
+
+
+    # Returns the value of a specific setting
+    #
+    # @param key_name [String] The name of the setting
+    # @return [String]
+    def load_setting(key_name)
+      ini = Rex::Parser::Ini.new(self.config_file)
+      group = ini[self.group_name]
+      return '' if group.nil?
+      group[key_name].to_s
+    end
+
+  end
+
   # This class is basically an auxiliary module without relying on msfconsole
   class Md5Lookup < Msf::Auxiliary
 
@@ -309,22 +392,33 @@ module Md5LookupUtility
       input = @opts[:input]
       dbs   = @opts[:databases]
 
+      disclamer = Md5LookupUtility::Disclaimer.new
+
+      unless disclamer.has_waiver?
+        disclamer.ack
+        disclamer.save_waiver
+      end
+
       get_hash_results(input, dbs) do |result|
         original_hash = result[:hash]
         cracked_hash  = result[:cracked_hash]
         credit_db     = result[:credit]
-
         print_status("Found: #{original_hash} = #{cracked_hash} (from #{credit_db})")
-
         save_result(result) if @output_handle
       end
     end
 
+
+    # Cleans up the output file handler if exists
+    #
+    # @return [void]
     def cleanup
       @output_handle.close if @output_handle
     end
 
+
     private
+
 
     # Saves the MD5 result to file
     #

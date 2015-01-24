@@ -70,9 +70,103 @@ describe Md5LookupUtility do
     end
   end
 
+  def get_stdout(&block)
+    out = $stdout
+    $stdout = fake = StringIO.new
+    begin
+      yield
+    ensure
+      $stdout = out
+    end
+    fake.string
+  end
+
   #
   # Tests start here
   #
+
+
+  describe Md5LookupUtility::Disclaimer do
+
+    let(:group_name)   { 'MD5Lookup' }
+    let(:setting_name) { 'waiver' }
+    let(:data)         { true }
+    let(:t_path)       { 'filepath' }
+
+    def stub_save
+      ini = Rex::Parser::Ini.new(t_path)
+      allow(ini).to receive(:to_file).with(any_args)
+      allow(Rex::Parser::Ini).to receive(:new).and_return(ini)
+      return ini
+    end
+
+    def stub_load(with_setting=true)
+      if with_setting
+        ini = stub_save
+        disclamer.save_waiver
+      else
+        ini = Rex::Parser::Ini.new(t_path)
+      end
+
+      allow(Rex::Parser::Ini).to receive(:new).and_return(ini)
+      return ini
+    end
+
+    subject(:disclamer) do
+      Md5LookupUtility::Disclaimer.new
+    end
+
+    describe '#ack' do
+      context 'When \'Y\' is entered' do
+        it 'returns true' do
+          agree = "Y\n"
+          allow($stdin).to receive(:gets).and_return(agree)
+          get_stdout { expect(disclamer.ack).to be_truthy }
+        end
+      end
+    end
+
+    describe '#save_waiver' do
+      context 'when waiver is true' do
+        it 'saves the wavier setting' do
+          ini = stub_save
+          disclamer.save_waiver
+          expect(ini[group_name]).to eq({setting_name=>true})
+        end
+      end
+    end
+
+    describe '#has_waiver?' do
+      context 'when there is a waiver' do
+        it 'returns true' do
+          ini = stub_load(true)
+          expect(disclamer.send(:has_waiver?)).to be_truthy
+        end
+      end
+
+      context 'when there is no waiver' do
+        it 'returns false' do
+          ini = stub_load(false)
+          expect(disclamer.send(:has_waiver?)).to be_falsey
+        end
+      end
+    end
+
+    describe '#save_setting' do
+      context 'when a setting is given' do
+        it 'saves the setting' do
+          ini = stub_save
+          disclamer.send(:save_setting, setting_name, data)
+          expect(ini[group_name]).to eq({setting_name=>true})
+        end
+      end
+    end
+
+    describe '#load_setting' do
+    end
+
+  end
+
 
   describe Md5LookupUtility::Md5Lookup do
 
@@ -146,19 +240,10 @@ describe Md5LookupUtility do
 
     describe '#run' do
       context 'when a hash is found' do
-
-        def get_stdout(&block)
-          out = $stdout
-          $stdout = fake = StringIO.new
-          begin
-            yield
-          ensure
-            $stdout = out
-          end
-          fake.string
-        end
-
         it 'prints a \'found\' message' do
+          disclaimer = Md5LookupUtility::Disclaimer.new
+          allow(disclaimer).to receive(:has_waiver?).and_return(true)
+          allow(Md5LookupUtility::Disclaimer).to receive(:new).and_return(disclaimer)
           allow(subject).to receive(:get_hash_results).and_yield(expected_result)
           output = get_stdout { subject.run }
           expect(output).to include('Found:')
