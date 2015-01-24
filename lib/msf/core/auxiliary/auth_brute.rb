@@ -49,6 +49,107 @@ module Auxiliary::AuthBrute
     @@max_per_service = nil
   end
 
+  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # a private type of 'ntlm_hash'
+  #
+  # @yieldparam [Metasploit::Credential::Core]
+  def each_ntlm_cred
+    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' }, workspace_id: myworkspace.id)
+    creds.each do |cred|
+      yield cred
+    end
+  end
+
+  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # a private type of 'password'
+  #
+  # @yieldparam [Metasploit::Credential::Core]
+  def each_password_cred
+    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::Password' }, workspace_id: myworkspace.id)
+    creds.each do |cred|
+      yield cred
+    end
+  end
+
+  # Yields each {Metasploit::Credential::Core} in the {Mdm::Workspace} with
+  # a private type of 'ssh_key'
+  #
+  # @yieldparam [Metasploit::Credential::Core]
+  def each_ssh_cred
+    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::SSHKey' }, workspace_id: myworkspace.id)
+    creds.each do |cred|
+      yield cred
+    end
+  end
+
+  # Checks whether we should be adding creds from the DB to a CredCollection
+  #
+  # @return [TrueClass] if any of the datastore options for db creds are selected and the db is active
+  # @return [FalseClass] if none of the datastore options are selected OR the db is not active
+  def prepend_db_creds?
+    (datastore['DB_ALL_CREDS'] || datastore['DB_ALL_PASS'] || datastore['DB_ALL_USERS']) && framework.db.active
+  end
+
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing NTLMHashes
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  #   the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_hashes(cred_collection)
+    if prepend_db_creds?
+      each_ntlm_cred do |cred|
+        process_cred_for_collection(cred_collection,cred)
+      end
+    end
+    cred_collection
+  end
+
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing SSHKeys
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  #    the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_keys(cred_collection)
+    if prepend_db_creds?
+      each_ssh_cred do |cred|
+        process_cred_for_collection(cred_collection,cred)
+      end
+    end
+    cred_collection
+  end
+
+  # This method takes a {Metasploit::Framework::CredentialCollection} and prepends existing Password Credentials
+  # from the database. This allows the users to use the DB_ALL_CREDS option.
+  #
+  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  #    the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_passwords(cred_collection)
+    if prepend_db_creds?
+      each_password_cred do |cred|
+        process_cred_for_collection(cred_collection,cred)
+      end
+    end
+    cred_collection
+  end
+
+  # Takes a {Metasploit::Credential::Core} and converts it into a
+  # {Metasploit::Framework::Credential} and processes it into the
+  # {Metasploit::Framework::CredentialCollection} as dictated by the
+  # selected datastore options.
+  #
+  # @param [Metasploit::Framework::CredentialCollection] the credential collection to add to
+  # @param [Metasploit::Credential::Core] the Credential Core to process
+  def process_cred_for_collection(cred_collection, cred)
+    msf_cred = cred.to_credential
+    cred_collection.prepend_cred(msf_cred) if datastore['DB_ALL_CREDS']
+    cred_collection.add_private(msf_cred.private) if datastore['DB_ALL_PASS']
+    cred_collection.add_public(msf_cred.public) if datastore['DB_ALL_USERS']
+  end
+
+
   # Checks all three files for usernames and passwords, and combines them into
   # one credential list to apply against the supplied block. The block (usually
   # something like do_login(user,pass) ) is responsible for actually recording

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
-        OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", %r{<title>(.*)</title>}i])
+        OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", '<title>(.*)</title>'])
 
       ], self.class)
 

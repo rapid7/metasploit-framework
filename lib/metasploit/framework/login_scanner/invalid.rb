@@ -13,6 +13,7 @@ module Metasploit
           @model = model
 
           errors = @model.errors.full_messages.join(', ')
+          errors << " (#{model.class.to_s})"
           super(errors)
         end
       end

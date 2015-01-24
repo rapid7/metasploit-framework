@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: http://www.metasploit.com/
 
 Files: *
-Copyright: 2006-2014, Rapid7, Inc.
+Copyright: 2006-2015, Rapid7, Inc.
 License: BSD-3-clause
 
 # The Metasploit Framework is provided under the 3-clause BSD license provided
@@ -85,10 +85,6 @@ License: MIT
 
 Files: lib/bit-struct.rb lib/bit-struct/*
 Copyright: 2005-2009, Joel VanderWerf
-License: Ruby
-
-Files: lib/fastlib.rb
-Copyright: 2011, Rapid7, Inc.
 License: Ruby
 
 Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*

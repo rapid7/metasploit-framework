@@ -55,41 +55,45 @@ module Metasploit
               service_name: 'telnet'
           }
 
-          if connect_reset_safe == :refused
-            result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-          else
-            if busy_message?
-              self.sock.close unless self.sock.closed?
+          begin
+            if connect_reset_safe == :refused
               result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-            end
-          end
-
-          unless result_options[:status]
-            unless password_prompt?
-              send_user(credential.public)
-            end
-
-            recvd_sample = @recvd.dup
-            # Allow for slow echos
-            1.upto(10) do
-              recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
-            end
-
-            if password_prompt?(credential.public)
-              send_pass(credential.private)
-
-              # Allow for slow echos
-              1.upto(10) do
-                recv_telnet(self.sock, 0.10) if @recvd == recvd_sample
+            else
+              if busy_message?
+                self.sock.close unless self.sock.closed?
+                result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
               end
             end
 
-            if login_succeeded?
-              result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
-            else
-              result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
-            end
+            unless result_options[:status]
+              unless password_prompt?
+                send_user(credential.public)
+              end
 
+              recvd_sample = @recvd.dup
+              # Allow for slow echos
+              1.upto(10) do
+                recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
+              end
+
+              if password_prompt?(credential.public)
+                send_pass(credential.private)
+
+                # Allow for slow echos
+                1.upto(10) do
+                  recv_telnet(self.sock, 0.10) if @recvd == recvd_sample
+                end
+              end
+
+              if login_succeeded?
+                result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+              else
+                result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
+              end
+
+            end
+          rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
+            result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
@@ -101,12 +105,12 @@ module Metasploit
         # like timeouts and TCP evasion options
         def set_sane_defaults
           self.connection_timeout ||= 30
-          self.max_send_size      ||= 0
           self.port               ||= DEFAULT_PORT
-          self.send_delay         ||= 0
           self.banner_timeout     ||= 25
           self.telnet_timeout     ||= 10
           self.connection_timeout ||= 30
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
           # Shim to set up the ivars from the old Login mixin
           create_login_ivars
         end

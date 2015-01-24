@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,6 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::DRDoS
 
@@ -45,7 +46,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def scan_host(ip)
-    scanner_send(@msearch_probe, ip, datastore['RPORT'])
+    if spoofed?
+      datastore['ScannerRecvWindow'] = 0
+      scanner_spoof_send(@msearch_probe, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
+    else
+      scanner_send(@msearch_probe, ip, datastore['RPORT'])
+    end
   end
 
   def scanner_process(data, shost, sport)

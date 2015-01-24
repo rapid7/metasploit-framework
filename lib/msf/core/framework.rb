@@ -1,4 +1,15 @@
 # -*- coding: binary -*-
+
+#
+# Standard Library
+#
+
+require 'monitor'
+
+#
+# Project
+#
+
 require 'metasploit/framework/version'
 require 'msf/core'
 require 'msf/util'
@@ -12,6 +23,7 @@ module Msf
 #
 ###
 class Framework
+  include MonitorMixin
 
   #
   # Versioning information
@@ -66,22 +78,22 @@ class Framework
   #
   # Creates an instance of the framework context.
   #
-  def initialize(opts={})
+  def initialize(options={})
+    self.options = options
+    # call super to initialize MonitorMixin.  #synchronize won't work without this.
+    super()
 
     # Allow specific module types to be loaded
-    types = opts[:module_types] || MODULE_TYPES
+    types = options[:module_types] || Msf::MODULE_TYPES
 
-    self.threads   = ThreadManager.new(self)
     self.events    = EventDispatcher.new(self)
     self.modules   = ModuleManager.new(self,types)
-    self.sessions  = SessionManager.new(self)
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
     self.plugins   = PluginManager.new(self)
-    self.db        = DBManager.new(self, opts)
 
     # Configure the thread factory
-    Rex::ThreadFactory.provider = self.threads
+    Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
 
     subscriber = FrameworkEventSubscriber.new(self)
     events.add_exploit_subscriber(subscriber)
@@ -155,11 +167,6 @@ class Framework
   #
   attr_reader   :modules
   #
-  # Session manager that tracks sessions associated with this framework
-  # instance over the course of their lifetime.
-  #
-  attr_reader   :sessions
-  #
   # The global framework datastore that can be used by modules.
   #
   attr_reader   :datastore
@@ -180,28 +187,62 @@ class Framework
   # unloading of plugins.
   #
   attr_reader   :plugins
-  #
+
   # The framework instance's db manager. The db manager
   # maintains the database db and handles db events
   #
-  attr_reader   :db
+  # @return [Msf::DBManager]
+  def db
+    synchronize {
+      @db ||= Msf::DBManager.new(self, options)
+    }
+  end
+
+  # Session manager that tracks sessions associated with this framework
+  # instance over the course of their lifetime.
   #
+  # @return [Msf::SessionManager]
+  def sessions
+    synchronize {
+      @sessions ||= Msf::SessionManager.new(self)
+    }
+  end
+
   # The framework instance's thread manager. The thread manager
   # provides a cleaner way to manage spawned threads
   #
-  attr_reader   :threads
+  # @return [Msf::ThreadManager]
+  def threads
+    synchronize {
+      @threads ||= Msf::ThreadManager.new(self)
+    }
+  end
+
+  # Whether {#threads} has been initialized
+  #
+  # @return [true] if {#threads} has been initialized
+  # @return [false] otherwise
+  def threads?
+    synchronize {
+      instance_variable_defined? :@threads
+    }
+  end
 
 protected
 
+  # @!attribute options
+  #   Options passed to {#initialize}
+  #
+  #   @return [Hash]
+  attr_accessor :options
+
   attr_writer   :events # :nodoc:
   attr_writer   :modules # :nodoc:
-  attr_writer   :sessions # :nodoc:
   attr_writer   :datastore # :nodoc:
   attr_writer   :auxmgr # :nodoc:
   attr_writer   :jobs # :nodoc:
   attr_writer   :plugins # :nodoc:
   attr_writer   :db # :nodoc:
-  attr_writer   :threads # :nodoc:
 end
 
 class FrameworkEventSubscriber

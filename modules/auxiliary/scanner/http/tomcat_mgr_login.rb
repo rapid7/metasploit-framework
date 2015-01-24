@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('URI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
+        OptString.new('TARGETURI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      uri = normalize_uri(datastore['URI'])
+      uri = normalize_uri(target_uri.path)
       res = send_request_cgi({
         'uri'     => uri,
         'method'  => 'GET',
@@ -103,13 +103,18 @@ class Metasploit3 < Msf::Auxiliary
         user_as_pass: datastore['USER_AS_PASS'],
     )
 
+    cred_collection = prepend_db_passwords(cred_collection)
+
     scanner = Metasploit::Framework::LoginScanner::Tomcat.new(
         host: ip,
         port: rport,
         proxies: datastore['PROXIES'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
-        connection_timeout: 10
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 10,
+        user_agent: datastore['UserAgent'],
+        vhost: datastore['VHOST']
     )
 
     scanner.scan! do |result|
@@ -126,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
       else
         invalidate_login(credential_data)
-        print_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
   end

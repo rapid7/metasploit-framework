@@ -22,7 +22,7 @@ end
 
 def resplat(line)
   if line =~ /This file is part of the Metasploit Framework/
-    return "# This module requires Metasploit: http//metasploit.com/download\n"
+# This module requires Metasploit: http://metasploit.com/download
   elsif line =~ /# redistribution and commercial restrictions\./
     return "# Current source: https://github.com/rapid7/metasploit-framework\n"
   else

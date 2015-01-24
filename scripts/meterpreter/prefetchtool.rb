@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 #Meterpreter script for extracting information from windows prefetch folder
 #Provided by Milo at keith.lee2012[at]gmail.com
 #Verion: 0.1.0

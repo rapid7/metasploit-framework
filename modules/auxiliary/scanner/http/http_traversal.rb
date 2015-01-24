@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Initialize the default file(s) we should try to read during fuzzing
     if datastore['FILE'].empty?
-      file_to_read = ['etc/passwd', 'boot.ini']
+      file_to_read = ['etc/passwd', 'boot.ini', 'windows\\win.ini']
     else
       file_to_read = [datastore['FILE']]
     end

@@ -85,7 +85,15 @@ class CmdStagerBourne < CmdStagerBase
   def compress_commands(cmds, opts)
     # Make it all happen
     cmds << "chmod +x #{@tempdir}#{@var_decoded}.bin"
-    cmds << "#{@tempdir}#{@var_decoded}.bin"
+    # Background the process, allowing the cleanup code to continue and delete the data
+    # while allowing the original shell to continue to function since it isn't waiting
+    # on the payload to exit.  The 'sleep' is required as '&' is a command terminator
+    # and having & and the cmds delimiter ';' next to each other is invalid.
+    if opts[:background]
+      cmds << "#{@tempdir}#{@var_decoded}.bin & sleep 2"
+    else
+      cmds << "#{@tempdir}#{@var_decoded}.bin"
+    end
 
     # Clean up after unless requested not to..
     if (not opts[:nodelete])

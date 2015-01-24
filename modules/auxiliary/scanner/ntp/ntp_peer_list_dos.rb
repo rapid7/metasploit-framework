@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -32,11 +32,6 @@ class Metasploit3 < Msf::Auxiliary
       'DisclosureDate' => 'Aug 25 2014',
       'License'        => MSF_LICENSE
     )
-  end
-
-  # Called for each IP in the batch
-  def scan_host(ip)
-    scanner_send(@probe, ip, datastore['RPORT'])
   end
 
   # Called before the scan block

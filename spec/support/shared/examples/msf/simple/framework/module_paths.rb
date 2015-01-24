@@ -2,6 +2,8 @@ shared_examples_for 'Msf::Simple::Framework::ModulePaths' do
   it { should be_a Msf::Simple::Framework::ModulePaths }
 
   context '#init_module_paths' do
+    include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
     def init_module_paths
       framework.init_module_paths(options)
     end

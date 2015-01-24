@@ -7,12 +7,20 @@ Gemfile.local.lock
 .sublime-project
 # RVM control file, keep this to avoid backdooring Metasploit
 .rvmrc
+# Allow for a local choice of (unsupported / semi-supported) ruby versions
+# See PR #4136 for usage, but example usage for rvm:
+#   rvm --create --versions-conf use 2.1.4@metasploit-framework
+# Because rbenv doesn't use .versions.conf, to achieve this same functionality, run:
+#   rbenv shell 2.1.4
+.versions.conf
 # YARD cache directory
 .yardoc
 # Mac OS X files
 .DS_Store
 # database config for testing
 config/database.yml
+# target config file for testing
+features/support/targets.yml
 # simplecov coverage data
 coverage
 doc/
@@ -50,6 +58,8 @@ tags
 
 # Rails log directory
 /log
+# Rails tmp directory
+/tmp
 
 # ignore release/debug folders for exploits
 external/source/exploits/**/Debug
@@ -73,3 +83,7 @@ data/meterpreter/screenshot.*.dll
 # private source. If you're interested in this functionality,
 # check out Metasploit Pro: http://metasploit.com/download
 data/meterpreter/ext_server_pivot.*.dll
+
+# Avoid checking in metakitty, the source for
+# https://rapid7.github.io/metasploit-framework. It's an orphan branch.
+/metakitty

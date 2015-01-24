@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140801150537) do
+ActiveRecord::Schema.define(:version => 20150112203945) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -125,6 +125,7 @@ ActiveRecord::Schema.define(:version => 20140801150537) do
     t.integer  "host_detail_count",                      :default => 0
     t.integer  "exploit_attempt_count",                  :default => 0
     t.integer  "cred_count",                             :default => 0
+    t.string   "detected_arch"
   end
 
   add_index "hosts", ["name"], :name => "index_hosts_on_name"
@@ -271,6 +272,7 @@ ActiveRecord::Schema.define(:version => 20140801150537) do
     t.string   "username",   :null => false
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.string   "type",       :null => false
   end
 
   add_index "metasploit_credential_publics", ["username"], :name => "index_metasploit_credential_publics_on_username", :unique => true
@@ -452,6 +454,7 @@ ActiveRecord::Schema.define(:version => 20140801150537) do
     t.text     "info"
   end
 
+  add_index "services", ["host_id", "port", "proto"], :name => "index_services_on_host_id_and_port_and_proto", :unique => true
   add_index "services", ["name"], :name => "index_services_on_name"
   add_index "services", ["port"], :name => "index_services_on_port"
   add_index "services", ["proto"], :name => "index_services_on_proto"

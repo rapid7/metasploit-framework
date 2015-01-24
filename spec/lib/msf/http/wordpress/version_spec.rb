@@ -91,6 +91,15 @@ describe Msf::HTTP::Wordpress::Version do
       it { expect(subject.send(:check_version_from_readme, :plugin, 'name', wp_fixed_version)).to be(Msf::Exploit::CheckCode::Detected) }
     end
 
+    context 'when version from readme has arbitrary leading whitespace' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.0.1' }
+      let(:wp_body) { 'stable tag:  1.0.0' }
+      it { expect(subject.send(:check_version_from_readme, :plugin, 'name', wp_fixed_version)).to be(Msf::Exploit::CheckCode::Appears) }
+      let(:wp_body) { 'stable tag:1.0.0' }
+      it { expect(subject.send(:check_version_from_readme, :plugin, 'name', wp_fixed_version)).to be(Msf::Exploit::CheckCode::Appears) }
+    end
+
     context 'when installed version is vulnerable' do
       let(:wp_code) { 200 }
       let(:wp_fixed_version) { '1.0.1' }
@@ -127,6 +136,13 @@ describe Msf::HTTP::Wordpress::Version do
       let(:wp_introd_version) { '1.0.0' }
       let(:wp_body) { 'stable tag: 1.0.2' }
       it { expect(subject.send(:check_version_from_readme, :plugin, 'name', wp_fixed_version, wp_introd_version)).to be(Msf::Exploit::CheckCode::Safe) }
+    end
+
+    context 'when installed version is newer (text in version number)' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.5.3' }
+      let(:wp_body) { 'Stable tag: 2.0.0-beta1' }
+      it { expect(subject.send(:check_version_from_readme, :plugin, 'name', wp_fixed_version)).to be(Msf::Exploit::CheckCode::Safe) }
     end
 
   end

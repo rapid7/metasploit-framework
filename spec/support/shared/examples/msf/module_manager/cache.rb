@@ -153,6 +153,8 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     context 'with module info in cache' do
+      include_context 'Metasploit::Framework::Spec::Constants cleaner'
+
       let(:module_info_by_path) do
         {
             'path/to/module' => {
@@ -337,11 +339,15 @@ shared_examples_for 'Msf::ModuleManager::Cache' do
   end
 
   context '#module_info_by_path' do
-    it { should respond_to(:module_info_by_path) }
+    it 'should have protected method module_info_by_path' do
+      subject.respond_to?(:module_info_by_path, true).should be_truthy
+    end
   end
 
   context '#module_info_by_path=' do
-    it { should respond_to(:module_info_by_path=) }
+    it 'should have protected method module_info_by_path=' do
+      subject.respond_to?(:module_info_by_path=, true).should be_truthy
+    end
   end
 
   context '#module_info_by_path_from_database!' do

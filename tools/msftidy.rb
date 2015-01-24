@@ -12,6 +12,16 @@ require 'time'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
+TITLE_WHITELIST = %w{
+  a an and as at avserve callmenum configdir connect debug docbase dtspcd
+  execve file for from getinfo goaway gsad hetro historysearch htpasswd ibstat
+  id in inetd iseemedia jhot libxslt lmgrd lnk load main map migrate mimencode
+  multisort name net netcat nodeid ntpd nttrans of on onreadystatechange or
+  ovutil path pbot pfilez pgpass pingstr pls popsubfolders prescan readvar
+  relfile rev rexec rlogin rsh rsyslog sa sadmind say sblistpack spamd
+  sreplace tagprinter the tnftp to twikidraw udev uplay user username via
+  welcome with ypupdated zsudo
+}
 
 if CHECK_OLD_RUBIES
   require 'rvm'
@@ -177,8 +187,6 @@ class Msftidy
           warn("milw0rm references are no longer supported.")
         when 'EDB'
           warn("Invalid EDB reference") if value !~ /^\d+$/
-        when 'WVE'
-          warn("Invalid WVE reference") if value !~ /^\d+\-\d+$/
         when 'US-CERT-VU'
           warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
         when 'ZDI'
@@ -194,8 +202,6 @@ class Msftidy
             warn("Please use 'MSB' for '#{value}'")
           elsif value =~ /^http:\/\/www\.exploit\-db\.com\/exploits\//
             warn("Please use 'EDB' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.wirelessve\.org\/entries\/show\/WVE\-/
-            warn("Please use 'WVE' for '#{value}'")
           elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
           end
@@ -423,21 +429,10 @@ class Msftidy
   end
 
   def check_title_casing
-    whitelist = %w{
-      a an and as at avserve callmenum configdir connect debug docbase dtspcd
-      execve file for from getinfo goaway gsad hetro historysearch htpasswd
-      ibstat id in inetd iseemedia jhot libxslt lmgrd lnk load main map
-      migrate mimencode multisort name net netcat nodeid ntpd nttrans of
-      on onreadystatechange or ovutil path pbot pfilez pgpass pingstr pls
-      popsubfolders prescan readvar relfile rev rexec rlogin rsh rsyslog sa
-      sadmind say sblistpack spamd sreplace tagprinter the to twikidraw udev
-      uplay user username via welcome with ypupdated zsudo
-    }
-
     if @source =~ /["']Name["'][[:space:]]*=>[[:space:]]*['"](.+)['"],*$/
       words = $1.split
       words.each do |word|
-        if whitelist.include?(word)
+        if TITLE_WHITELIST.include?(word)
           next
         elsif word =~ /^[a-z]+$/
           warn("Suspect capitalization in module title: '#{word}'")
@@ -536,12 +531,10 @@ class Msftidy
         error("Writes to stdout", idx)
       end
 
-      # You should not change datastore in code. For reasons. See
-      # RM#8498 for discussion, starting at comment #16:
-      #
-      # https://dev.metasploit.com/redmine/issues/8498#note-16
-      if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*=(?![=~>])/
-        info("datastore is modified in code: #{ln}", idx)
+      # You should not change datastore in code. See
+      # https://github.com/rapid7/metasploit-framework/issues/3853
+      if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*(=|<<)(?![=~>])/
+        info("datastore is modified in code with '#{Regexp.last_match(1)}': #{ln}", idx)
       end
 
       # do not read Set-Cookie header (ignore commented lines)
@@ -552,6 +545,10 @@ class Msftidy
       # Auxiliary modules do not have a rank attribute
       if ln =~ /^\s*Rank\s*=\s*/ and @source =~ /<\sMsf::Auxiliary/
         warn("Auxiliary modules have no 'Rank': #{ln}", idx)
+      end
+
+      if ln =~ /^\s*def\s+(?:[^\(\)]*[A-Z]+[^\(\)]*)(?:\(.*\))?$/
+        warn("Please use snake case on method names: #{ln}", idx)
       end
     end
   end
@@ -587,6 +584,19 @@ class Msftidy
   def check_udp_sock_get
     if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
       info('Please specify a timeout to udp_sock.get')
+    end
+  end
+
+  # At one point in time, somebody committed a module with a bad metasploit.com URL
+  # in the header -- http//metasploit.com/download rather than http://metasploit.com/download.
+  # This module then got copied and committed 20+ times and is used in numerous other places.
+  # This ensures that this stops.
+  def check_invalid_url_scheme
+    test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
+    unless test.empty?
+      test.each { |item|
+        info("Invalid URL: #{item}")
+      }
     end
   end
 
@@ -638,6 +648,7 @@ def run_checks(full_filepath)
   tidy.check_newline_eof
   tidy.check_sock_get
   tidy.check_udp_sock_get
+  tidy.check_invalid_url_scheme
   return tidy
 end
 

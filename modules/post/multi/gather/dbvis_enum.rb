@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -82,10 +82,10 @@ class Metasploit3 < Msf::Post
 
     if oldversion
       # Parse old config file
-      db_table = pareseOldConfigFile(raw_xml)
+      db_table = parse_old_config_file(raw_xml)
     else
       # Parse new config file
-      db_table = pareseNewConfigFile(raw_xml)
+      db_table = parse_new_config_file(raw_xml)
     end
 
     if db_table.rows.empty?
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Post
 
 
   # New config file parse function
-  def pareseNewConfigFile(raw_xml)
+  def parse_new_config_file(raw_xml)
 
     db_table = Rex::Ui::Text::Table.new(
     'Header'    => "Dbvis Databases",
@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Post
     raw_xml.each_line do |line|
 
       if versionFound == false
-         vesrionFound = findVersion(line)
+         vesrionFound = find_version(line)
       end
 
       if line =~ /<Database id=/
@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Post
 
 
   # New config file parse function
-  def pareseOldConfigFile(raw_xml)
+  def parse_old_config_file(raw_xml)
 
     db_table = Rex::Ui::Text::Table.new(
     'Header'    => "Dbvis Databases",
@@ -229,7 +229,7 @@ class Metasploit3 < Msf::Post
     raw_xml.each_line do |line|
 
       if versionFound == false
-         vesrionFound = findVersion(line)
+         vesrionFound = find_version(line)
       end
 
       if line =~ /<Database id=/
@@ -278,7 +278,7 @@ class Metasploit3 < Msf::Post
   end
 
 
-  def findVersion(tag)
+  def find_version(tag)
     found = false
     if (tag =~ /<Version>([\S+\s+]+)<\/Version>/i)
       print_good("DbVisualizer version :  #{$1}")
