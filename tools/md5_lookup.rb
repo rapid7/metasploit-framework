@@ -60,7 +60,7 @@ end
 
 module Md5LookupUtility
 
-  # This class manages the disclamer
+  # This class manages the disclaimer
   class Disclaimer
 
     # @!attribute config_file
@@ -77,7 +77,7 @@ module Md5LookupUtility
       self.group_name  = 'MD5Lookup'
     end
 
-    # Prompts a disclamer. The user will not be able to get out unless they acknowledge.
+    # Prompts a disclaimer. The user will not be able to get out unless they acknowledge.
     #
     # @return [TrueClass] true if acknowledged.
     def ack
