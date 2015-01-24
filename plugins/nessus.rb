@@ -104,7 +104,8 @@ module Msf
           "nessus_template_list" => "List all the templates on the server.",
           "nessus_db_scan" => "Create a scan of all ips in db_hosts.",
           "nessus_save" => "Save username/passowrd/server/port details.",
-          "nessus_folder_list" => "List folders configured on the Nessus server"
+          "nessus_folder_list" => "List folders configured on the Nessus server",
+          "nessus_scanner_list" => "List the configured scanners on the Nessus server"
           }
       end
 
@@ -114,6 +115,27 @@ module Msf
         end
         list = @n.list_folders      
         tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            "ID",
+            "Name",
+            "Type"
+          ]
+        )
+        list.each { |folder|
+        tbl << [ folder["id"], folder["name"], folder["type"] ]
+        }
+        print_line tbl.to_s
+      end
+
+      def cmd_nessus_scanner_list
+         if !nessus_verify_token
+            return
+         end
+         if !@n.is_admin
+            return
+         end
+         list = @n.list_scanners
+         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
             "ID",
             "Name",
@@ -212,10 +234,14 @@ module Msf
 
       def cmd_nessus_logout
         logout = @n.user_logout
-        if logout
-           print_status("Logged out")
+        status = logout.to_s
+        if status == "200"
+           print_good("User account logged out successfully")
+           @token = ''
+        elsif status == "403"
+           print_status("No user session to logout")
         else
-           print_status("There was some problem in logging out the user #{@user}")
+           print_error("There was some problem in logging out the user #{@user}")
         end
         return
       end
@@ -567,7 +593,6 @@ module Msf
       end
 
       def cmd_nessus_scan_list(*args)
-
         if args[0] == "-h"
           print_status("Usage: ")
           print_status("       nessus_scan_status")
@@ -583,28 +608,42 @@ module Msf
 
         list=@n.scan_list
         if list.empty?
-          print_status("No Scans Running.")
-          print_status("You can:")
-          print_status("        List of completed scans:     	nessus_report_list")
-          print_status("        Create a scan:           		nessus_scan_new <policy id> <scan name> <target(s)>")
-          return
+           print_status("No Scans Running.")
+           print_status("You can:")
+           print_status("        List of completed scans:     	nessus_report_list")
+           print_status("        Create a scan:           		nessus_scan_new <policy id> <scan name> <target(s)>")
+        return
         else
            tbl = Rex::Ui::Text::Table.new(
               'Columns' => [
-               'Folder ID',
+               'Scan ID',
                'Name',
                'Owner',
                'Started',
                'Status',
                'Folder'
-             ])
-        
+           ])
+           
            list.each {|scan|
-           tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
+              if args[0] == "-r"
+                 if scan["status"] == "running"
+                    tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
+                 end
+              elsif args[0] == "-p"
+                 if scan["status"] == "paused"
+                    tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
+                 end
+              elsif args[0] == "-c"
+                 if scan["status"] == "canceled"
+                    tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
+                 end
+              else
+                 tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
+              end
            }
            print_line tbl.to_s
         end
-      end
+    end
 
       def cmd_nessus_template_list(*args)
 
@@ -795,8 +834,7 @@ module Msf
           print_status("use nessus_scan_status to list all available scans")
           return
         end
-
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
@@ -811,8 +849,11 @@ module Msf
         end
 
         pause = @n.scan_pause(sid)
-
-        print_status("#{sid} has been paused")
+        if pause["error"]
+           print_error "Invalid scan ID"
+        else
+           print_status("#{sid} has been paused")
+        end
       end
 
       def cmd_nessus_scan_resume(*args)
@@ -827,7 +868,7 @@ module Msf
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
@@ -842,8 +883,11 @@ module Msf
         end
 
         resume = @n.scan_resume(sid)
-
-        print_status("#{sid} has been resumed")
+        if resume["error"]
+           print_error "Invalid scan ID"
+        else
+           print_status("#{sid} has been resumed")
+        end
       end
 
       def cmd_nessus_report_hosts(*args)
@@ -1062,7 +1106,7 @@ module Msf
       end
 
       def cmd_nessus_scan_pause_all(*args)
-
+        scan_ids = Array.new
         if args[0] == "-h"
           print_status("Usage: ")
           print_status("       nessus_scan_pause_all")
@@ -1073,13 +1117,23 @@ module Msf
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
-
-        pause = @n.scan_pause_all
-
-        print_status("All scans have been paused")
+        list = @n.scan_list
+        list.each { |scan|
+        if scan["status"] == "running"
+           scan_ids << scan["id"]
+        end
+        }
+        if scan_ids.length > 0
+           scan_ids.each { |scan_id|
+           @n.scan_pause(scan_id)
+           }
+           print_status("All scans have been paused")
+        else
+           print_error("No running scans")
+        end
       end
 
       def cmd_nessus_scan_stop(*args)
@@ -1094,7 +1148,7 @@ module Msf
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
@@ -1108,13 +1162,16 @@ module Msf
           return
         end
 
-        pause = @n.scan_stop(sid)
-
-        print_status("#{sid} has been stopped")
+        stop = @n.scan_stop(sid)
+        if stop["error"]
+           print_error "Invalid scan ID"
+        else
+           print_status("#{sid} has been stopped")
+        end
       end
 
       def cmd_nessus_scan_stop_all(*args)
-
+        scan_ids = Array.new
         if args[0] == "-h"
           print_status("Usage: ")
           print_status("       nessus_scan_stop_all")
@@ -1125,17 +1182,27 @@ module Msf
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
-
-        pause = @n.scan_stop_all
-
-        print_status("All scans have been stopped")
+        list = @n.scan_list
+        list.each { |scan|
+        if scan["status"] == "running" || scan["status"] == "paused"
+           scan_ids << scan["id"]
+        end
+        }
+        if scan_ids.length > 0
+           scan_ids.each { |scan_id|
+           @n.scan_stop(scan_id)
+           }
+           print_status("All scans have been stopped")
+        else
+           print_error("No running or paused scans to be stopped")
+        end
       end
 
       def cmd_nessus_scan_resume_all(*args)
-
+        scan_ids = Array.new
         if args[0] == "-h"
           print_status("Usage: ")
           print_status("       nessus_scan_resume_all")
@@ -1146,13 +1213,25 @@ module Msf
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
-        pause = @n.scan_resume_all
+        list = @n.scan_list
+        list.each { |scan|
+        if scan["status"] == "paused"
+           scan_ids << scan["id"]
+        end
+        }
+        if scan_ids.length > 0
+           scan_ids.each { |scan_id|
+           @n.scan_resume(scan_id)
+           }
+           print_status("All scans have been resumed")
+        else
+           print_error("No running scans to be resumed")
+        end
 
-        print_status("All scans have been resumed")
       end
 
       def cmd_nessus_user_add(*args)
@@ -1199,56 +1278,63 @@ module Msf
       def cmd_nessus_user_del(*args)
 
         if args[0] == "-h"
-          print_status("Usage: ")
-          print_status("       nessus_user_del <username>")
-          print_status(" Example:> nessus_user_del msf")
+          print_status("Usage:")
+          print_status("nessus_user_del <User ID>")
+          print_status("Example:> nessus_user_del 10")
           print_status()
-          print_status("Only dels non admin users. Must be an admin to del users.")
-          print_status("use nessus_user_list to list all users")
+          print_status("This command can only delete non admin users. You must be an admin to delete users.")
+          print_status("Use nessus_user_list to list all users with their corresponding user IDs")
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
-        if ! @n.is_admin
+        if !@n.is_admin
           print_error("Your Nessus user is not an admin")
           return
         end
 
         case args.length
         when 1
-          user = args[0]
+          user_id = args[0]
         else
           print_status("Usage: ")
-          print_status("       nessus_user_del <username>")
-          print_status("       Only dels non admin users")
+          print_status("nessus_user_del <User ID>")
+          print_status("This command can only delete non admin users")
           return
         end
 
-        del = @n.user_del(user)
-        status = del.root.elements['status'].text
-        if status == "OK"
-          print_good("#{user} has been deleted")
+        del = @n.user_delete(user_id)
+        status = del.to_s
+        if status == "200"
+           print_good("User account having user ID #{user_id} deleted successfully")
+        elsif status == "403"
+           print_error("You do not have permission to delete the user account having user ID #{user_id}")
+        elsif status == "404"
+           print_error("User account having user ID #{user_id} does not exist")
+        elsif status == "409"
+           print_error("You cannot delete your own account")
+        elsif status == "500"
+           print_error("The server failed to delete the user account having user ID #{user_id}")
         else
-          print_error("#{user} was not deleted")
+           print_error("Unknown problem occured by deleting the user account having user ID #{user_id}.")
         end
       end
 
       def cmd_nessus_user_passwd(*args)
 
         if args[0] == "-h"
-          print_status("Usage: ")
-          print_status("       nessus_user_passwd <username> <password>")
-          print_status(" Example:> nessus_user_passwd msf newpassword")
-          print_status()
-          print_status("Changes the password of a user. Must be an admin to change passwords.")
-          print_status("use nessus_user_list to list all users")
+          print_status("Usage:")
+          print_status("nessus_user_passwd <User ID> <New Password>")
+          print_status("Example:> nessus_user_passwd 10 mynewpassword")
+          print_status("Changes the password of a user. You must be an admin to change passwords.")
+          print_status("Use nessus_user_list to list all users with their corresponding user IDs")
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
@@ -1259,21 +1345,29 @@ module Msf
 
         case args.length
         when 2
-          user = args[0]
+          user_id = args[0]
           pass = args[1]
         else
-          print_status("Usage: ")
-          print_status("       nessus_user_passwd <username> <password>")
-          print_status("       User list from nessus_user_list")
+          print_status("Usage:")
+          print_status("nessus_user_passwd <User ID> <New Password>")
+          print_status("Use nessus_user_list to list all users with their corresponding user IDs")
           return
         end
 
-        pass = @n.user_pass(user,pass)
-        status = pass.root.elements['status'].text
-        if status == "OK"
-          print_good("#{user}'s password has been changed")
+        pass = @n.user_chpasswd(user_id,pass)
+        status = pass.to_s
+        if status == "200"
+           print_good("Password of account having user ID #{user_id} changed successfully")
+        elsif status == "400"
+           print_error("Password is too short")
+        elsif status == "403"
+           print_error("You do not have the permission to change password for the user having user ID #{user_id}")
+        elsif status == "404"
+           print_error("User having user ID #{user_id} does not exist")
+        elsif status == "500"
+           print_error("Nessus server failed to changed the user password")
         else
-          print_error("#{user}'s password has not been changed")
+           print_error("Unknown problem occured while changing the user password")
         end
       end
 
@@ -1360,13 +1454,12 @@ module Msf
         list=@n.list_policies
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
-            'UUID',
+            'Policy ID',
             'Name',
-            'Description',
-            'Owner'
+            'Policy UUID'
           ])
         list.each { |policy| 
-        tbl << [ policy["template_uuid"], policy["name"],policy["description"], policy["owner"] ]
+        tbl << [ policy["id"], policy["name"], policy["template_uuid"] ]
         }
         print_line tbl.to_s
       end
@@ -1383,7 +1476,7 @@ module Msf
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
@@ -1394,7 +1487,7 @@ module Msf
 
         case args.length
         when 1
-          pid = args[0]
+          policy_id = args[0]
         else
           print_status("Usage: ")
           print_status("       nessus_policy_del <policy ID>")
@@ -1403,15 +1496,20 @@ module Msf
         end
 
 
-          del = @n.policy_del(pid)
-          status = del.root.elements['status'].text
-          if status == "OK"
-            print_good("Policy number #{pid} has been deleted")
-          else
-            print_error("Policy number #{pid} was not deleted")
-          end
-
-        end
+        del = @n.policy_delete(policy_id)
+        status = del.to_s
+        if status == "200"
+           print_good("Policy ID #{policy_id} successfully deleted")
+        elsif status == "403"
+           print_error("You do not have permission to delete policy ID #{policy_id}")
+        elsif status == "404"
+           print_error("Policy ID #{policy_id} does not exist")
+        elsif status == "405"
+           print_error("Policy ID #{policy_id} is currently in use and cannot be deleted")
+        else
+           print_error("Unknown problem occured by deleting the user account having user ID #{user_id}.")
+        end  
+      end
 
       def cmd_nessus_plugin_details(*args)
 

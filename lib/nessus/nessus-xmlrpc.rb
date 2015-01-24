@@ -47,7 +47,7 @@ module Nessus
             :password => password,
             :json => 1,
          }
-         resp = connection.post '/session', payload
+         resp = connection.post "/session", payload
          resp = JSON.parse(resp.body)
          #if resp['reply']['status'].eql? 'OK'
          if resp.include? "token"
@@ -68,7 +68,7 @@ module Nessus
       end
 
       def get_server_properties
-         resp = connection.get '/server/properties'
+         resp = connection.get "/server/properties"
          resp = JSON.parse(resp.body)
          puts resp.to_s
       end
@@ -81,30 +81,38 @@ module Nessus
            :type => type,
            :json => 1,
         }
-        resp = connection.post '/users', payload
+        resp = connection.post "/users", payload
         resp = JSON.parse(resp.body)
         return resp
       end
 
+      def user_delete(user_id)
+         resp = connection.delete "/users/#{user_id}"
+         return resp.status
+      end
+
+      def user_chpasswd(user_id, password)
+         payload = {
+            :password => password,
+            :json => 1,
+         }
+         resp = connection.put "/users/#{user_id}/chpasswd", payload
+         return resp.status
+      end
+
       def user_logout
-         resp = connection.delete '/session'
-         if resp.body.length > 1
-            resp = JSON.parse(resp.body)
-            puts "Respose of session deletion is #{resp}"
-            return true
-         else
-            return false
-         end
+         resp = connection.delete "/session"
+         return resp.status
       end
 
       def list_policies
-         resp = connection.get '/policies'
+         resp = connection.get "/policies"
          resp = JSON.parse(resp.body)["policies"]
          return resp
       end
 
       def list_users
-         resp = connection.get '/users'
+         resp = connection.get "/users"
          resp = JSON.parse(resp.body)["users"]
          return resp
       end
@@ -114,9 +122,15 @@ module Nessus
          resp = JSON.parse(resp.body)["folders"]
          return resp
       end
+
+      def list_scanners
+         resp = connection.get "/scanners"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
     
       def is_admin
-         resp = connection.get '/session'
+         resp = connection.get "/session"
          resp = JSON.parse(resp.body)
          if resp["permissions"] == 128
             return true
@@ -126,22 +140,44 @@ module Nessus
       end
 
       def server_properties
-         resp = connection.get '/server/properties'
+         resp = connection.get "/server/properties"
          resp = JSON.parse(resp.body)
          return resp
       end
 
       def server_status
-         resp = connection.get '/server/status'
+         resp = connection.get "/server/status"
          resp = JSON.parse(resp.body)
          return resp
       end
 
       def scan_list
-         resp = connection.get '/scans'
+         resp = connection.get "/scans"
          resp = JSON.parse(resp.body)["scans"]
          return resp
       end
 
+      def scan_pause(scan_id)
+         resp = connection.post "/scans/#{scan_id}/pause"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def scan_resume(scan_id)
+         resp = connection.post "/scans/#{scan_id}/resume"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def scan_stop(scan_id)
+         resp = connection.post "/scans/#{scan_id}/stop"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def policy_delete(policy_id)
+         resp = connection.delete "/policies/#{policy_id}"
+         return resp.status
+      end
    end
 end
