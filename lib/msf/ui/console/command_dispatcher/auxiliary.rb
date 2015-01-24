@@ -120,17 +120,10 @@ class Auxiliary
       print_error("Auxiliary interrupted by the console user")
     rescue ::Exception => e
       print_error("Auxiliary failed: #{e.class} #{e}")
-      elog("Auxiliary failed: #{e.class} #{e}", 'core', LEV_0)
-
-      if e.kind_of?(Msf::OptionValidateError)
-        dlog("Call stack:\n#{e.backtrace.join("\n")}", 'core', LEV_3)
-      else
-        print_error("Call stack:")
-        e.backtrace.each do |line|
-          break if line =~ /lib.msf.base.simple/
-          print_error("  #{line}")
-        end
-        elog("Call stack:\n#{e.backtrace.join("\n")}", 'core', LEV_0)
+      print_error("Call stack:")
+      e.backtrace.each do |line|
+        break if line =~ /lib.msf.base.simple/
+        print_error("  #{line}")
       end
 
       return false
