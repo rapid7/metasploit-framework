@@ -5,113 +5,114 @@ require 'nessus/nessus-xmlrpc'
 require 'rex/parser/nessus_xml'
 
 module Msf
-  class Plugin::Nessus < Msf::Plugin
+   class Plugin::Nessus < Msf::Plugin
 
     #creates the index of exploit details to make searching for exploits much faster.
-    def create_xindex
-      start = Time.now
-        print_status("Creating Exploit Search Index - (#{@xindex}) - this wont take long.")
-        count = 0
-        # use Msf::Config.get_config_root as the location.
-        File.open("#{@xindex}", "w+") do |f|
-          #need to add version line.
-          f.puts(Msf::Framework::RepoRevision)
-          framework.exploits.sort.each { |refname, mod|
-            stuff = ""
-            o = nil
-            begin
-              o = mod.new
+      def create_xindex
+         start = Time.now
+         print_status("Creating Exploit Search Index - (#{@xindex}) - this wont take long.")
+         count = 0
+         #Use Msf::Config.get_config_root as the location.
+         File.open("#{@xindex}", "w+") do |f|
+         #need to add version line.
+         f.puts(Msf::Framework::RepoRevision)
+         framework.exploits.sort.each { |refname, mod|
+         stuff = ""
+         o = nil
+         begin
+            o = mod.new
             rescue ::Exception
-            end
-            stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
-            next if not o
+         end
+         stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
+         next if not o
             o.references.map do |x|
-              if !(x.ctx_id == "URL")
-                if (x.ctx_id == "MSB")
+            if !(x.ctx_id == "URL")
+               if (x.ctx_id == "MSB")
                   stuff << "|#{x.ctx_val}"
-                else
+               else
                   stuff << "|#{x.ctx_id}-#{x.ctx_val}"
-                end
-              end
+               end
             end
-            stuff << "\n"
-            f.puts(stuff)
-          }
-        end
-        total = Time.now - start
-        print_status("It has taken : #{total} seconds to build the exploits search index")
-    end
-
-    def nessus_index
-      if File.exist?("#{@xindex}")
-        #check if it's version line matches current version.
-        File.open("#{@xindex}") {|f|
-          line = f.readline
-          line.chomp!
-          if line.to_i == Msf::Framework::RepoRevision
-            print_good("Exploit Index - (#{@xindex}) -  is valid.")
-          else
-            create_xindex
-          end
-        }
-      else
-        create_xindex
+         end
+         stuff << "\n"
+         f.puts(stuff)
+         }
       end
-    end
+      total = Time.now - start
+      print_status("It has taken : #{total} seconds to build the exploits search index")
+   end
 
-    class ConsoleCommandDispatcher
+   def nessus_index
+      if File.exist?("#{@xindex}")
+         #check if it's version line matches current version.
+         File.open("#{@xindex}") {|f|
+         line = f.readline
+         line.chomp!
+         if line.to_i == Msf::Framework::RepoRevision
+            print_good("Exploit Index - (#{@xindex}) -  is valid.")
+         else
+            create_xindex
+         end
+      }
+      else
+         create_xindex
+      end
+   end
+
+   class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
       def name
-        "Nessus"
+         "Nessus"
       end
 
       def commands
-        {
-          "nessus_connect" => "Connect to a nessus server: nconnect username:password@hostname:port <ssl ok>.",
-          "nessus_admin" => "Checks if user is an admin.",
-          "nessus_help" => "Get help on all commands.",
-          "nessus_logout" => "Terminate the session.",
-          "nessus_server_status" => "Check the status of your Nessus Server.",
-          "nessus_server_feed" => "Nessus Feed Type.",
-          "nessus_server_prefs" => "Display Server Prefs.",
-          "nessus_report_list" => "List all Nessus reports.",
-          "nessus_report_get" => "Import a report from the nessus server in Nessus v2 format.",
-          "nessus_report_del" => "Delete a report.",
-          "nessus_report_vulns" => "Get list of vulns from a report.",
-          "nessus_report_hosts" => "Get list of hosts from a report.",
-          "nessus_report_host_ports" => "Get list of open ports from a host from a report.",
-          "nessus_report_host_detail" => "Detail from a report item on a host.",
-          "nessus_scan_list" => "List all currently running Nessus scans.",
-          "nessus_scan_new" => "Create new Nessus Scan.",
-          "nessus_scan_pause" => "Pause a Nessus Scan.",
-          "nessus_scan_pause_all" => "Pause all Nessus Scans.",
-          "nessus_scan_stop" => "Stop a Nessus Scan.",
-          "nessus_scan_stop_all" => "Stop all Nessus Scans.",
-          "nessus_scan_resume" => "Resume a Nessus Scan.",
-          "nessus_scan_resume_all" => "Resume all Nessus Scans.",
-          "nessus_user_list" => "Show Nessus Users.",
-          "nessus_user_add" => "Add a new Nessus User.",
-          "nessus_user_del" => "Delete a Nessus User.",
-          "nessus_user_passwd" => "Change Nessus Users Password.",
-          "nessus_plugin_family" => "List plugins in a family.",
-          "nessus_plugin_details" => "List details of a particular plugin.",
-          "nessus_plugin_list" => "Displays each plugin family and the number of plugins.",
-          "nessus_plugin_prefs" => "Display Plugin Prefs.",
-          "nessus_policy_list" => "List all polciies.",
-          "nessus_policy_del" => "Delete a policy.",
-          "nessus_index" => "Manually generates a search index for exploits.",
-          "nessus_template_list" => "List all the templates on the server.",
-          "nessus_db_scan" => "Create a scan of all ips in db_hosts.",
-          "nessus_save" => "Save username/passowrd/server/port details.",
-          "nessus_folder_list" => "List folders configured on the Nessus server",
-          "nessus_scanner_list" => "List the configured scanners on the Nessus server"
+         {
+            "nessus_connect" => "Connect to a nessus server: nconnect username:password@hostname:port <verify_ssl>.",
+             "nessus_admin" => "Checks if user is an admin.",
+             "nessus_help" => "Get help on all commands.",
+             "nessus_logout" => "Terminate the session.",
+             "nessus_server_status" => "Check the status of your Nessus Server.",
+             "nessus_server_feed" => "Nessus Feed Type.",
+             "nessus_server_prefs" => "Display Server Prefs.",
+             "nessus_report_list" => "List all Nessus reports.",
+             "nessus_report_get" => "Import a report from the nessus server in Nessus v2 format.",
+             "nessus_report_del" => "Delete a report.",
+             "nessus_report_vulns" => "Get list of vulns from a report.",
+             "nessus_report_hosts" => "Get list of hosts from a report.",
+             "nessus_report_host_ports" => "Get list of open ports from a host from a report.",
+             "nessus_report_host_detail" => "Detail from a report item on a host.",
+             "nessus_scan_list" => "List all currently running Nessus scans.",
+             "nessus_scan_new" => "Create new Nessus Scan.",
+             "nessus_scan_pause" => "Pause a Nessus Scan.",
+             "nessus_scan_pause_all" => "Pause all Nessus Scans.",
+             "nessus_scan_stop" => "Stop a Nessus Scan.",
+             "nessus_scan_stop_all" => "Stop all Nessus Scans.",
+             "nessus_scan_resume" => "Resume a Nessus Scan.",
+             "nessus_scan_resume_all" => "Resume all Nessus Scans.",
+             "nessus_user_list" => "Show Nessus Users.",
+             "nessus_user_add" => "Add a new Nessus User.",
+             "nessus_user_del" => "Delete a Nessus User.",
+             "nessus_user_passwd" => "Change Nessus Users Password.",
+             "nessus_plugin_family" => "List plugins in a family.",
+             "nessus_plugin_details" => "List details of a particular plugin.",
+             "nessus_plugin_list" => "Displays each plugin family and the number of plugins.",
+             "nessus_plugin_prefs" => "Display Plugin Prefs.",
+             "nessus_policy_list" => "List all polciies.",
+             "nessus_policy_del" => "Delete a policy.",
+             "nessus_index" => "Manually generates a search index for exploits.",
+             "nessus_template_list" => "List all the templates on the server.",
+             "nessus_db_scan" => "Create a scan of all ips in db_hosts.",
+             "nessus_save" => "Save username/passowrd/server/port details.",
+             "nessus_folder_list" => "List folders configured on the Nessus server",
+             "nessus_scanner_list" => "List the configured scanners on the Nessus server",
+             "nessus_scan_launch" => "Launch a previously added scan"
           }
       end
 
       def cmd_nessus_folder_list
          if !nessus_verify_token
-          return
+            return
         end
         list = @n.list_folders      
         tbl = Rex::Ui::Text::Table.new(
@@ -809,10 +810,45 @@ module Msf
         if check_policy(uuid)
            print_status("Creating scan from policy number #{uuid}, called \"#{scan_name} - #{description}\" and scanning #{targets}")
            scan = @n.scan_create(uuid, scan_name, description, targets)
-           puts JSON.pretty_generate(scan)
+           tbl = Rex::Ui::Text::Table.new(
+              'Columns' => [
+              "Scan ID",
+              "Scanner ID",
+              "Policy ID",
+              "Targets",
+              "Owner"
+              ]
+           )
+           print_status("New scan added")
+           tbl << [ scan["scan"]["id"], scan["scan"]["scanner_id"], scan["scan"]["policy_id"], scan["scan"]["custom_targets"], scan["scan"]["owner"] ]
+           print_line tbl.to_s
+           
         else
            print_error("The policy does not exist")
         end
+      end
+
+      def cmd_nessus_scan_launch(*args)
+         if args[0] == "-h"
+            print_status("Usage")
+            print_status("nessus_scan_launch <scan ID>")
+            print_status("Use nessus_scan_list to list all the availabla scans with their corresponding scan IDs")
+         end
+         if !nessus_verify_token
+            return
+         end
+         case args.length
+         when 1
+         scan_id = args[0]
+         else
+            print_error("Invalid arguments")
+            print_error("Usage:")
+            print_error("nessus_scan_launch <scan ID>")
+            print_error("Use nessus_scan_list to list all the availabla scans with their corresponding scan IDs")
+            return
+         end
+         launch = @n.scan_launch(scan_id)
+         puts JSON.pretty_generate(launch)
       end
 
       def cmd_nessus_scan_pause(*args)
@@ -1453,8 +1489,7 @@ module Msf
         list.each { |policy| 
         tbl << [ policy["id"], policy["name"], policy["template_uuid"] ]
         }
-        #print_line tbl.to_s
-        puts JSON.pretty_generate(list)
+        print_line tbl.to_s
       end
 
       def cmd_nessus_policy_del(*args)

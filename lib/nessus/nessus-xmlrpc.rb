@@ -147,6 +147,12 @@ module Nessus
          return resp
       end
 
+      def scan_launch(scan_id)
+         resp = connection.post "/scans/#{scan_id}/launch"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
       def server_status
          resp = connection.get "/server/status"
          resp = JSON.parse(resp.body)
