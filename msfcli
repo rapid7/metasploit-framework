@@ -6,6 +6,13 @@
 # or web-based interface.
 #
 
+$stderr.puts "[!] ************************************************************************"
+$stderr.puts "[!] *               The utility msfcli is deprecated!                      *"
+$stderr.puts "[!] *            It will be removed on or about 2015-06-18                 *"
+$stderr.puts "[!] *              Please use msfconsole -r or -x instead                  *"
+$stderr.puts "[!] *  Details: https://github.com/rapid7/metasploit-framework/pull/3802   *"
+$stderr.puts "[!] ************************************************************************"
+
 msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))

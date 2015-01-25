@@ -70,6 +70,9 @@ module Msf
     # @!attribute  template
     #   @return [String] The path to an executable template to use
     attr_accessor :template
+    # @!attribute  var_name
+    #   @return [String] The custom variable string for certain output formats
+    attr_accessor :var_name
 
 
     # @param opts [Hash] The options hash
@@ -105,6 +108,7 @@ module Msf
       @space      = opts.fetch(:space, 1.gigabyte)
       @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
+      @var_name   = opts.fetch(:var_name, 'buf')
 
       @framework  = opts.fetch(:framework)
 
@@ -213,10 +217,10 @@ module Msf
           if Rex::Arch.endian(arch) != ENDIAN_BIG
             raise IncompatibleEndianess, "Big endian format selected for a non big endian payload"
           else
-            ::Msf::Simple::Buffer.transform(shellcode, format)
+            ::Msf::Simple::Buffer.transform(shellcode, format, @var_name)
           end
         when *::Msf::Simple::Buffer.transform_formats
-          ::Msf::Simple::Buffer.transform(shellcode, format)
+          ::Msf::Simple::Buffer.transform(shellcode, format, @var_name)
         when *::Msf::Util::EXE.to_executable_fmt_formats
           ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform_list, shellcode, format, exe_options)
         else

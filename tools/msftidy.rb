@@ -532,10 +532,8 @@ class Msftidy
         error("Writes to stdout", idx)
       end
 
-      # You should not change datastore in code. For reasons. See
-      # RM#8498 for discussion, starting at comment #16:
-      #
-      # https://dev.metasploit.com/redmine/issues/8498#note-16
+      # You should not change datastore in code. See
+      # https://github.com/rapid7/metasploit-framework/issues/3853
       if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*(=|<<)(?![=~>])/
         info("datastore is modified in code with '#{Regexp.last_match(1)}': #{ln}", idx)
       end
@@ -595,7 +593,7 @@ class Msftidy
   # This module then got copied and committed 20+ times and is used in numerous other places.
   # This ensures that this stops.
   def check_invalid_url_scheme
-    test = @source.scan(/^#.+http\/\/metasploit.com/)
+    test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
     unless test.empty?
       test.each { |item|
         info("Invalid URL: #{item}")

@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
         else
           print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized #{res.code} response")
-          print_error(res.inspect)
+          print_error(res.to_s)
           return :abort
 
         end

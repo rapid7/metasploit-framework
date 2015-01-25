@@ -98,7 +98,7 @@ module Msf::HTTP::Wordpress::Version
     # try to extract version from readme
     # Example line:
     # Stable tag: 2.6.6
-    version = res.body.to_s[/stable tag: ([^\r\n"\']+\.[^\r\n"\']+)/i, 1]
+    version = res.body.to_s[/(?:stable tag|version):\s*(?!trunk)([0-9a-z.-]+)/i, 1]
 
     # readme present, but no version number
     return Msf::Exploit::CheckCode::Detected if version.nil?

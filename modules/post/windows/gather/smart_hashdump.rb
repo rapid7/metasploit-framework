@@ -323,7 +323,7 @@ class Metasploit3 < Msf::Post
       # skip if it returns nil for an entry
       next if h == nil
       begin
-        user = returned_hash[0].scan(/^[a-zA-Z0-9\-$.]*/).join.gsub(/\.$/,"")
+        user = returned_hash[0].scan(/^[a-zA-Z0-9_\-$.]*/).join.gsub(/\.$/,"")
         lmhash = returned_hash[2].scan(/[a-f0-9]*/).join
         next if lmhash == nil
         hash_entry = "#{user}:#{rid}:#{lmhash}:#{returned_hash[3]}"
