@@ -1,22 +1,10 @@
 require 'faraday'
 require 'cgi'
 require 'json'
-require 'nessus/client/file'
-require 'nessus/client/policy'
-require 'nessus/client/report'
-require 'nessus/client/report2'
-require 'nessus/client/scan'
-require 'nessus/error'
-require 'nessus/version'
 
 module Nessus
 
    class Client
-      include Nessus::Client::File
-      include Nessus::Client::Policy
-      include Nessus::Client::Report
-      include Nessus::Client::Report2
-      include Nessus::Client::Scan
       class << self
          # @!attribute verify_ssl
          #   @return [Boolean] whether to verify SSL with Faraday (default: true)
@@ -31,8 +19,8 @@ module Nessus
          else
             connection_options[:ssl][:verify] = false
          end
-         @connection = Faraday.new host, connection_options
-         @connection.headers[:user_agent] = "Nessus.rb v#{Nessus::VERSION}".freeze
+         @connection = Faraday.new(host, connection_options)
+         # @connection.headers[:user_agent] = "Nessus.rb v1.1".freeze
 
          # Allow passing a block to Faraday::Connection
          yield @connection if block_given?
@@ -49,7 +37,6 @@ module Nessus
          }
          resp = connection.post "/session", payload
          resp = JSON.parse(resp.body)
-         #if resp['reply']['status'].eql? 'OK'
          if resp.include? "token"
             connection.headers["X-Cookie"] = "token=#{resp['token']}"
          end
@@ -141,6 +128,21 @@ module Nessus
 
       def server_properties
          resp = connection.get "/server/properties"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def scan_create(uuid, name, description, targets)
+         payload = {
+            :uuid => uuid,
+            :settings => {
+               :name => name,
+               :description => description,
+               :text_targets => targets
+               },
+            }
+         connection.headers["Content-Type"] = "application/json"
+         resp = connection.post "/scans", payload.to_json
          resp = JSON.parse(resp.body)
          return resp
       end

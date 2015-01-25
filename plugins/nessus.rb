@@ -139,11 +139,14 @@ module Msf
           'Columns' => [
             "ID",
             "Name",
-            "Type"
-          ]
-        )
-        list.each { |folder|
-        tbl << [ folder["id"], folder["name"], folder["type"] ]
+            "Status",
+            "Platform",
+            "Plugin Set",
+            "UUID"
+          ])
+        
+        list.each { |scanner|
+        tbl << [ scanner["id"], scanner["name"], scanner["status"], scanner["platform"], scanner["loaded_plugin_set"], scanner["uuid"] ]
         }
         print_line tbl.to_s
       end
@@ -607,11 +610,8 @@ module Msf
         end
 
         list=@n.scan_list
-        if list.empty?
-           print_status("No Scans Running.")
-           print_status("You can:")
-           print_status("        List of completed scans:     	nessus_report_list")
-           print_status("        Create a scan:           		nessus_scan_new <policy id> <scan name> <target(s)>")
+        if list.to_s.empty?
+           print_status("No scans performed.")
         return
         else
            tbl = Rex::Ui::Text::Table.new(
@@ -771,55 +771,47 @@ module Msf
           return
         end
 
-        pol = @n.policy_list_hash
+        pol = @n.list_policies
         pol.each {|p|
-          if p['id'].to_i == pid
-            return false
-          end
+        if p["template_uuid"] == pid
+           return true
+        end
         }
-        return true
+        return false
       end
 
       def cmd_nessus_scan_new(*args)
 
         if args[0] == "-h"
           print_status("Usage")
-          print_status("nessus_scan_new <UUID of Policy> <Scan name> <Folder ID> <Scanner ID> <Launch> <Targets> <ACLs of Scan>")
-          print_status("use nessus_policy_list to list all available policies")
+          print_status("nessus_scan_new <UUID of Policy> <Scan name> <Description> <Targets>")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding UUIDs")
           return
         end
 
-        if ! nessus_verify_token
+        if !nessus_verify_token
           return
         end
 
         case args.length
-        when 7
+        when 4
           uuid = args[0]
           scan_name = args[1]
-          folder_id = args[2]
-          scanner_id = args[3]
-          launch = args[4]
-          targets = args[5]
-          acls = args[6]
+          description = args[2]
+          targets = args[3]
         else
-          print_status("Usage: ")
-          print_status("nessus_scan_new <UUID of Policy> <Scan name> <Folder ID> <Scanner ID> <Launch> <Targets> <ACLs of Scan>")
-          print_status("use nessus_policy_list to list all available policies")
+          print_status("Usage:")
+          print_status("nessus_scan_new <UUID of Policy> <Scan name> <Description> <Targets>>")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding UUIDs")
           return
         end
 
-        if check_policy(pid)
-          print_error("That policy does not exist.")
-          return
-        end
-
-        print_status("Creating scan from policy number #{uuid}, called \"#{scan_name}\" and scanning #{targets}")
-
-        scan = @n.scan_new(uuid, scan_name, folder_id, scanner_id, launch, targets, acls)
-
-        if scan
-          print_status("Scan started.  UUID is #{scan}")
+        if check_policy(uuid)
+           print_status("Creating scan from policy number #{uuid}, called \"#{scan_name} - #{description}\" and scanning #{targets}")
+           scan = @n.scan_create(uuid, scan_name, description, targets)
+           puts JSON.pretty_generate(scan)
+        else
+           print_error("The policy does not exist")
         end
       end
 
@@ -1461,7 +1453,8 @@ module Msf
         list.each { |policy| 
         tbl << [ policy["id"], policy["name"], policy["template_uuid"] ]
         }
-        print_line tbl.to_s
+        #print_line tbl.to_s
+        puts JSON.pretty_generate(list)
       end
 
       def cmd_nessus_policy_del(*args)
