@@ -24,7 +24,7 @@ module Metasploit3
       'Description'   => 'Listen for a connection. First, the port will need to be knocked from
                           the IP defined in KHOST. This IP will work as an authentication method
                           (you can spoof it with tools like hping). After that you could get your
-                          shellcode from any IP. The socket will appear as "closed" helping us to
+                          shellcode from any IP. The socket will appear as "closed," thus helping to
                           hide the shellcode',
       'Author'        =>
         [
