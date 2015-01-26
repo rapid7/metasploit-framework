@@ -12,6 +12,7 @@ module Nessus
       end
       
       def initialize(host, username = nil, password = nil, ssl_option = nil)
+         @uri = host
          connection_options = {}
          connection_options[:ssl] ||= {}
          if ssl_option == "ssl_verify"
@@ -23,6 +24,7 @@ module Nessus
          # @connection.headers[:user_agent] = "Nessus.rb v1.1".freeze
 
          # Allow passing a block to Faraday::Connection
+         
          yield @connection if block_given?
 
          authenticate(username, password) if username && password
@@ -57,7 +59,7 @@ module Nessus
       def get_server_properties
          resp = connection.get "/server/properties"
          resp = JSON.parse(resp.body)
-         puts resp.to_s
+         return resp
       end
    
       def user_add(username,password,permissions,type)
@@ -112,6 +114,24 @@ module Nessus
 
       def list_scanners
          resp = connection.get "/scanners"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def list_families
+         resp = connection.get "plugins/families"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def list_plugins(family_id)
+         resp = connection.get "/plugins/families/#{family_id}"
+         resp = JSON.parse(resp.body)
+         return resp
+      end
+
+      def plugin_details(plugin_id)
+         resp = connection.get "plugins/plugin/#{plugin_id}"
          resp = JSON.parse(resp.body)
          return resp
       end
