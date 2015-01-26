@@ -130,6 +130,12 @@ class Msftidy
     end
   end
 
+  def check_deprecated
+    if @source.include?('include Msf::Module::Deprecated')
+      warn('Module is deprecated')
+    end
+  end
+
   # Updated this check to see if Nokogiri::XML.parse is being called
   # specifically. The main reason for this concern is that some versions
   # of libxml2 are still vulnerable to XXE attacks. REXML is safer (and
@@ -627,6 +633,7 @@ def run_checks(full_filepath)
   tidy = Msftidy.new(full_filepath)
   tidy.check_mode
   tidy.check_shebang
+  tidy.check_deprecated
   tidy.check_nokogiri
   tidy.check_rubygems
   tidy.check_ref_identifiers
