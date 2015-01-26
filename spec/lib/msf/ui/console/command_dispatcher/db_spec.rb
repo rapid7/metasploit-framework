@@ -65,6 +65,73 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :set_rhosts_from_addrs }
 
   describe "#cmd_creds" do
+
+    describe "-u" do
+      let(:username)            { "thisuser" }
+      let(:password)            { "thispass" }
+      let(:nomatch_username)    { "thatuser" }
+      let(:nomatch_password)    { "thatpass" }
+      let(:blank_username)      { "" }
+      let(:blank_password)      { "" }
+      let(:nonblank_username)   { "nonblank_user" }
+      let(:nonblank_password)   { "nonblank_pass" }
+      before(:each) do
+        priv = FactoryGirl.create(:metasploit_credential_password, data: password)
+        pub = FactoryGirl.create(:metasploit_credential_username, username: username)
+        core = FactoryGirl.create(:metasploit_credential_core,
+                                  origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                                  private: priv,
+                                  public: pub,
+                                  realm: nil,
+                                  workspace: framework.db.workspace)
+        nonblank_priv = FactoryGirl.create(:metasploit_credential_password, data: nonblank_password)
+        blank_pub = FactoryGirl.create(:metasploit_credential_blank_username)
+        core = FactoryGirl.create(:metasploit_credential_core,
+                                  origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                                  private: nonblank_priv,
+                                  public: blank_pub,
+                                  realm: nil,
+                                  workspace: framework.db.workspace)
+      end
+      context "when the credential is present" do
+        it "should show a user that matches the given expression" do
+          db.cmd_creds("-u", username)
+          @output.should =~ [
+            "Credentials",
+            "===========",
+            "",
+            "host  service  public    private   realm  private_type",
+            "----  -------  ------    -------   -----  ------------",
+            "               thisuser  thispass         Password",
+          ]
+        end
+        context "and when the username is blank" do
+          it "should show a user that matches the given expression" do
+            db.cmd_creds("-u", "")
+            @output.should =~ [
+              "Credentials",
+              "===========",
+              "",
+              "host  service  public  private        realm  private_type",
+              "----  -------  ------  -------        -----  ------------",
+              "                       nonblank_pass         Password"
+            ]
+          end
+        end
+      end
+      context "when the credential is absent" do
+        it "should return a blank set" do
+          db.cmd_creds("-u", nomatch_username)
+          @output.should =~ [
+            "===========",
+            "Credentials",
+            "",
+            "----  -------  ------  -------  -----  ------------",
+            "host  service  public  private  realm  private_type"
+          ]
+        end
+      end
+    end
     describe "add-password" do
       let(:username) { "username" }
       let(:password) { "password" }
