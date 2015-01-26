@@ -92,6 +92,14 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
                                   public: blank_pub,
                                   realm: nil,
                                   workspace: framework.db.workspace)
+        nonblank_pub = FactoryGirl.create(:metasploit_credential_username, username: nonblank_username)
+        blank_priv = FactoryGirl.create(:metasploit_credential_password, data: blank_password)
+        core = FactoryGirl.create(:metasploit_credential_core,
+                                  origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                                  private: blank_priv,
+                                  public: nonblank_pub,
+                                  realm: nil,
+                                  workspace: framework.db.workspace)
       end
       context "when the credential is present" do
         it "should show a user that matches the given expression" do
@@ -107,7 +115,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         end
         context "and when the username is blank" do
           it "should show a user that matches the given expression" do
-            db.cmd_creds("-u", "")
+            db.cmd_creds("-u", blank_username )
             @output.should =~ [
               "Credentials",
               "===========",
@@ -115,6 +123,19 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
               "host  service  public  private        realm  private_type",
               "----  -------  ------  -------        -----  ------------",
               "                       nonblank_pass         Password"
+            ]
+          end
+        end
+        context "and when the password is blank" do
+          it "should show a user that matches the given expression" do
+            db.cmd_creds("-P", blank_password )
+            @output.should =~ [
+              "Credentials",
+              "===========",
+              "",
+              "host  service  public         private  realm  private_type",
+              "----  -------  ------         -------  -----  ------------",
+              "               nonblank_user                  Password"
             ]
           end
         end
@@ -132,6 +153,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         end
       end
     end
+
     describe "add-password" do
       let(:username) { "username" }
       let(:password) { "password" }
