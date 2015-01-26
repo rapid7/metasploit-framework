@@ -141,15 +141,29 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         end
       end
       context "when the credential is absent" do
-        it "should return a blank set" do
-          db.cmd_creds("-u", nomatch_username)
-          @output.should =~ [
-            "===========",
-            "Credentials",
-            "",
-            "----  -------  ------  -------  -----  ------------",
-            "host  service  public  private  realm  private_type"
-          ]
+        context "due to a nonmatching username" do
+          it "should return a blank set" do
+            db.cmd_creds("-u", nomatch_username)
+            @output.should =~ [
+              "===========",
+              "Credentials",
+              "",
+              "----  -------  ------  -------  -----  ------------",
+              "host  service  public  private  realm  private_type"
+            ]
+          end
+        end
+        context "due to a nonmatching password" do
+          it "should return a blank set" do
+            db.cmd_creds("-P", nomatch_password)
+            @output.should =~ [
+              "===========",
+              "Credentials",
+              "",
+              "----  -------  ------  -------  -----  ------------",
+              "host  service  public  private  realm  private_type"
+            ]
+          end
         end
       end
     end
