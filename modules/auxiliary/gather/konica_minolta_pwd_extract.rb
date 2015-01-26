@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'Konica Minolta Password Extractor',
       'Description' => %q{
           This module will extract FTP and SMB account usernames and passwords
-          from Konica Minolta multifunction printer (MFP) devices. Tested models
-          include: C224, C280, 283, C353, C360, 363, 420, C452,C452, C452, C454e, C554
+          from Konica Minolta multifunction printer (MFP) devices. Tested models include
+          C224, C280, 283, C353, C360, 363, 420, C452, C452, C452, C454e, and C554.
         },
       'Author'      =>
         [
