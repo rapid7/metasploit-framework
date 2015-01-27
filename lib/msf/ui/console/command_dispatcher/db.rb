@@ -887,6 +887,16 @@ class Db
 
       query.find_each do |core|
 
+        # Exclude non-blank username creds if that's what we're after
+        if user && user.empty? && !(core.public && core.public.username.blank?)
+          next
+        end
+
+        # Exclude non-blank password creds if that's what we're after
+        if pass && pass.empty? && !(core.private && core.private.data.blank?)
+          next
+        end
+
         if core.logins.empty?
 
           tbl << [
