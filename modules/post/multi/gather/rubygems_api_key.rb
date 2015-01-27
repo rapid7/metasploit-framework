@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
       'Author'        => [ 'Jonathan Claudius <jclaudius[at]trustwave.com>',
                            'Brandon Myers <bmyers[at]trustwave.com>' ],
       'Platform'      => %w{ bsd linux osx unix },
-      'SessionTypes'  => %w{  'shell' }
+      'SessionTypes'  => %w{ shell }
     ))
   end
 
