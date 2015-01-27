@@ -199,6 +199,96 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
       end
     end
 
+    describe "-t" do
+      context "with an invalid type" do
+        it "should print the list of valid types" do
+          db.cmd_creds("-t", "asdf")
+          @error.should =~ [
+            "Unrecognized credential type asdf -- must be one of password,ntlm,hash"
+          ]
+        end
+      end
+
+      context "with valid types" do
+        let(:ntlm_hash) { "1443d06412d8c0e6e72c57ef50f76a05:27c433245e4763d074d30a05aae0af2c" }
+
+        let!(:pub) do
+          FactoryGirl.create(:metasploit_credential_username, username: username)
+        end
+        let!(:password_core) do
+          priv = FactoryGirl.create(:metasploit_credential_password, data: password)
+          FactoryGirl.create(:metasploit_credential_core,
+                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                             private: priv,
+                             public: pub,
+                             realm: nil,
+                             workspace: framework.db.workspace)
+        end
+
+=begin
+        # Somehow this is hitting a unique constraint on Cores with the same
+        # Public, even though it has a different Private. Skip for now
+        let!(:ntlm_core) do
+          priv = FactoryGirl.create(:metasploit_credential_ntlm_hash, data: ntlm_hash)
+          FactoryGirl.create(:metasploit_credential_core,
+                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                             private: priv,
+                             public: pub,
+                             realm: nil,
+                             workspace: framework.db.workspace)
+        end
+        let!(:nonreplayable_core) do
+          priv = FactoryGirl.create(:metasploit_credential_nonreplayable_hash, data: 'asdf')
+          FactoryGirl.create(:metasploit_credential_core,
+                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                             private: priv,
+                             public: pub,
+                             realm: nil,
+                             workspace: framework.db.workspace)
+        end
+=end
+
+        after(:each) do
+          #ntlm_core.destroy
+          password_core.destroy
+          #nonreplayable_core.destroy
+        end
+
+        context "password" do
+          it "should show just the password" do
+            db.cmd_creds("-t", "password")
+            # Table matching really sucks
+            @output.should =~ [
+              "Credentials",
+              "===========",
+              "",
+              "host  service  public    private   realm  private_type",
+              "----  -------  ------    -------   -----  ------------",
+              "               thisuser  thispass         Password"
+            ]
+          end
+        end
+
+        context "ntlm" do
+          it "should show just the ntlm" do
+            skip "Weird uniqueness constraint on Core (workspace_id, public_id)"
+
+            db.cmd_creds("-t", "ntlm")
+            # Table matching really sucks
+            @output.should =~ [
+              "Credentials",
+              "===========",
+              "",
+              "host  service  public    private                                                            realm  private_type",
+              "----  -------  ------    -------                                                            -----  ------------",
+              "               thisuser  #{ntlm_hash                                                     }         NTLM hash"
+            ]
+          end
+        end
+
+      end
+    end
+
     describe "add-password" do
       context "when no core exists" do
         it "should add a Core" do
