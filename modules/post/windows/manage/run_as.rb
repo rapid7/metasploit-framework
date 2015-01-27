@@ -102,9 +102,8 @@ class Metasploit3 < Msf::Post
     # execute command and get output with a poor mans pipe
     if priv_check
       print_status("Executing CreateProcessAsUserA...we are SYSTEM")
-      begin
-        pi = create_process_as_user(domain, user, password, nil, cmdstr)
-      ensure
+      pi = create_process_as_user(domain, user, password, nil, cmdstr)
+      if pi
         session.railgun.kernel32.CloseHandle(pi[:process_handle])
         session.railgun.kernel32.CloseHandle(pi[:thread_handle])
       end
