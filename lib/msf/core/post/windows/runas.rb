@@ -102,7 +102,6 @@ module Msf::Post::Windows::Runas
     return unless check_command_length(application_name, command_line, 32000)
 
     vprint_status("Executing LogonUserA...")
-    session.sys.config.getenv('SYSTEMDRIVE')
     logon_user = session.railgun.advapi32.LogonUserA(user,
                                                      domain,
                                                      password,
