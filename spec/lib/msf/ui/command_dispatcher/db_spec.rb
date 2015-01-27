@@ -118,6 +118,19 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
          ]
       end
 
+      it 'should return nothing for a non-matching regular expression' do
+        subject.cmd_creds("-u", "^$")
+        @output.should =~
+         [
+          "Credentials",
+          "===========",
+          "",
+          "host  service  public  private  realm  private_type",
+          "----  -------  ------  -------  -----  ------------",
+         ]
+      end
+
+
     end
   end
 
