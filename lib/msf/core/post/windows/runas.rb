@@ -41,9 +41,14 @@ module Msf::Post::Windows::Runas
     end
   end
 
+  #
+  # Create a STARTUP_INFO struct for use with CreateProcessa
+  #
+  # This struct will cause the process to be hidden
+  #
+  # @return [String] STARTUP_INFO struct
+  #
   def startup_info
-    # this is start info struct for a hidden process last two params are std out and in.
-    #for hidden startup_info[12] = STARTF_USESHOWWINDOW and startup_info[13] = 0 = SW_HIDE
     [0, # cb
      0, # lpReserved
      0, # lpDesktop
@@ -65,6 +70,19 @@ module Msf::Post::Windows::Runas
     ].pack('VVVVVVVVVVVVvvVVVV')
   end
 
+  #
+  # Call CreateProcessWithLogonW to start a process with the supplier
+  # user credentials
+  #
+  # @param domain [String] The target user domain
+  # @param user [String] The target user
+  # @param password [String] The target user password
+  # @param application_name [String] The executable to be run, can be
+  #   nil
+  # @param command_line [String] The command line or process arguments
+  #
+  # @return [Hash, nil] The values from the process_information struct
+  #
   def create_process_with_logon(domain, user, password, application_name, command_line)
     return unless check_user_format(user, domain)
     return unless check_command_length(application_name, command_line, 1024)
@@ -92,11 +110,25 @@ module Msf::Post::Windows::Runas
     pi
   end
 
+  #
+  # Call CreateProcessAsUser to start a process with the supplier
+  # user credentials
+  #
   # Can be used by SYSTEM processes with the SE_INCREASE_QUOTA_NAME and
   # SE_ASSIGNPRIMARYTOKEN_NAME privileges.
   #
   # This will normally error with 0xc000142 on later OS's (Vista+?) for
   # gui apps but is ok for firing off cmd.exe...
+  #
+  # @param domain [String] The target user domain
+  # @param user [String] The target user
+  # @param password [String] The target user password
+  # @param application_name [String] The executable to be run, can be
+  #   nil
+  # @param command_line [String] The command line or process arguments
+  #
+  # @return [Hash, nil] The values from the process_information struct
+  #
   def create_process_as_user(domain, user, password, application_name, command_line)
     return unless check_user_format(user, domain)
     return unless check_command_length(application_name, command_line, 32000)
@@ -148,11 +180,30 @@ module Msf::Post::Windows::Runas
     nil
   end
 
+  #
+  # Parse the PROCESS_INFORMATION struct
+  #
+  # @param process_information [String] The PROCESS_INFORMATION value
+  #   from the CreateProcess call
+  #
+  # @return [Hash] The values from the process_information struct
+  #
   def parse_process_information(process_information)
     pi = process_information.unpack('LLLL')
     { :process_handle => pi[0], :thread_handle => pi[1], :process_id => pi[2], :thread_id => pi[3] }
   end
 
+  #
+  # Checks the username and domain is in the correct format
+  # for the CreateProcess_x WinAPI calls.
+  #
+  # @param username [String] The target user
+  # @param domain [String] The target user domain
+  #
+  # @raise [ArgumentError] If the username format is incorrect
+  #
+  # @return [True] True if username is in the correct format
+  #
   def check_user_format(username, domain)
     if domain && username.include?('@')
       raise ArgumentError, 'Username is in UPN format (user@domain) so the domain parameter must be nil'
@@ -161,6 +212,20 @@ module Msf::Post::Windows::Runas
     true
   end
 
+  #
+  # Checks the command_length parameter is the correct length
+  # for the CreateProcess_x WinAPI calls depending on the presence
+  # of application_name
+  #
+  # @param application_name [String] lpApplicationName
+  # @param command_line [String] lpCommandLine
+  # @param max_length [Integer] The max command length of the respective
+  #   CreateProcess function
+  #
+  # @raise [ArgumentError] If the command_line is too large
+  #
+  # @return [True] True if the command_line is within the correct bounds
+  #
   def check_command_length(application_name, command_line, max_length)
     if application_name.nil? && command_line.nil?
       raise ArgumentError, 'Both application_name and command_line are nil'
