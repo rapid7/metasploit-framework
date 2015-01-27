@@ -145,7 +145,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
 
         context "and when the username is blank" do
           it "should show a user that matches the given expression" do
-            db.cmd_creds("-u", blank_username )
+            db.cmd_creds("-u", blank_username)
             @output.should =~ [
               "Credentials",
               "===========",
@@ -158,7 +158,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         end
         context "and when the password is blank" do
           it "should show a user that matches the given expression" do
-            db.cmd_creds("-P", blank_password )
+            db.cmd_creds("-P", blank_password)
             @output.should =~ [
               "Credentials",
               "===========",
