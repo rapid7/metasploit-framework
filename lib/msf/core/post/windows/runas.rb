@@ -69,45 +69,27 @@ module Msf::Post::Windows::Runas
     return unless check_user_format(user, domain)
     return unless check_command_length(application_name, command_line, 1024)
 
-    vprint_status("Executing LogonUserW...")
-    logon_user = session.railgun.advapi32.LogonUserW(user,
-                                                     domain,
-                                                     password,
-                                                     'LOGON32_LOGON_INTERACTIVE',
-                                                     'LOGON32_PROVIDER_DEFAULT',
-                                                     4)
-    if logon_user['return']
-      begin
-        ph_token = logon_user['phToken']
-        vprint_status("Executing CreateProcessWithLogonW: #{application_name} #{command_line}...")
-        create_process = session.railgun.advapi32.CreateProcessWithLogonW(user,
-                                                                          domain,
-                                                                          password,
-                                                                          'LOGON_WITH_PROFILE',
-                                                                          application_name,
-                                                                          command_line,
-                                                                          'CREATE_UNICODE_ENVIRONMENT',
-                                                                          nil,
-                                                                          nil,
-                                                                          startup_info,
-                                                                          16)
-        if create_process['return']
-          pi = parse_process_information(create_process['lpProcessInformation'])
-          print_good("Process started successfully, PID: #{pi[:process_id]}")
-        else
-          print_error("Unable to create process, Error Code: #{create_process['GetLastError']} - #{create_process['ErrorMessage']}")
-          print_error("Try setting the DOMAIN or USER in the format: user@domain") if create_process['GetLastError'] == 1783 && domain.nil?
-        end
-
-        return pi
-      ensure
-        session.railgun.kernel32.CloseHandle(ph_token)
-      end
+    vprint_status("Executing CreateProcessWithLogonW: #{application_name} #{command_line}...")
+    create_process = session.railgun.advapi32.CreateProcessWithLogonW(user,
+                                                                      domain,
+                                                                      password,
+                                                                      'LOGON_WITH_PROFILE',
+                                                                      application_name,
+                                                                      command_line,
+                                                                      'CREATE_UNICODE_ENVIRONMENT',
+                                                                      nil,
+                                                                      nil,
+                                                                      startup_info,
+                                                                      16)
+    if create_process['return']
+      pi = parse_process_information(create_process['lpProcessInformation'])
+      print_good("Process started successfully, PID: #{pi[:process_id]}")
     else
-      print_error("Unable to login the user, Error Code: #{logon_user['GetLastError']} - #{logon_user['ErrorMessage']}")
+      print_error("Unable to create process, Error Code: #{create_process['GetLastError']} - #{create_process['ErrorMessage']}")
+      print_error("Try setting the DOMAIN or USER in the format: user@domain") if create_process['GetLastError'] == 1783 && domain.nil?
     end
 
-    nil
+    pi
   end
 
   # Can be used by SYSTEM processes with the SE_INCREASE_QUOTA_NAME and
