@@ -54,7 +54,7 @@ module Msf::Post::Windows::Runas
      0, # dwYSize
      0, # dwXCountChars
      0, # dwYCountChars
-      0, # dwFillAttribute
+     0, # dwFillAttribute
      STARTF_USESHOWWINDOW, # dwFlags
      SW_HIDE, # wShowWindow
      0, # cbReserved2
@@ -62,21 +62,12 @@ module Msf::Post::Windows::Runas
      0, # hStdInput
      0, # hStdOutput
      0  # hStdError
-    ].pack('LLLLLLLLLLLLSSLLLL')
+    ].pack('VVVVVVVVVVVVvvVVVV')
   end
 
   def create_process_with_logon(domain, user, password, application_name, command_line)
     return unless check_user_format(user, domain)
     return unless check_command_length(application_name, command_line, 1024)
-
-    sysdrive = get_env('SYSTEMDRIVE')
-    os = session.sys.config.sysinfo['OS']
-    profiles_path = "#{sysdrive}\\Documents and Settings\\" if os =~ /(2000|2003|XP|)/
-    profiles_path = "#{sysdrive}\\Users\\"
-
-    # TODO:This should relaly be done ala GetUserProfileDirectory
-    # https://msdn.microsoft.com/en-us/library/windows/desktop/ms682431%28v=vs.85%29.aspx
-    path = "#{profiles_path}#{user}\\"
 
     vprint_status("Executing LogonUserW...")
     logon_user = session.railgun.advapi32.LogonUserW(user,
@@ -85,39 +76,58 @@ module Msf::Post::Windows::Runas
                                                      'LOGON32_LOGON_INTERACTIVE',
                                                      'LOGON32_PROVIDER_DEFAULT',
                                                      4)
-    if logon_user['return'] == ERROR::SUCCESS
-      vprint_status("Executing CreateProcessWithLogonW...")
-      create_process = session.railgun.advapi32.CreateProcessWithLogonW(user,
-                                                                        domain,
-                                                                        password,
-                                                                        'LOGON_WITH_PROFILE',
-                                                                        application_name,
-                                                                        command_line,
-                                                                        'CREATE_UNICODE_ENVIRONMENT',
-                                                                        nil,
-                                                                        path,
-                                                                        startup_info,
-                                                                        16)
-      if create_process['return'] == ERROR::SUCCESS
-        pi = parse_process_information(create_process['lpProcessInformation'])
-        print_good("Process started successfully, PID #{pi['process_id']}")
-      else
-        print_error("Unable to create process, #{create_process['GetLastError']} - #{create_process['ErrorMessage']}")
-      end
+    if logon_user['return']
+      begin
+        ph_token = logon_user['phToken']
+        vprint_status("Executing GetUserProfileDirectoryW...")
+        get_profile_dir = session.railgun.userenv.GetUserProfileDirectoryW(ph_token, MAX_PATH*2, MAX_PATH*2)
+        str_length = get_profile_dir['lpcchSize']
+        profile_path = get_profile_dir['lpProfileDir'][0, str_length]
+        vprint_status("Executing CreateProcessWithLogonW #{application_name} #{command_line}...")
+        create_process = session.railgun.advapi32.CreateProcessWithLogonW(user,
+                                                                          domain,
+                                                                          password,
+                                                                          'LOGON_WITH_PROFILE',
+                                                                          application_name,
+                                                                          command_line,
+                                                                          'CREATE_UNICODE_ENVIRONMENT',
+                                                                          nil,
+                                                                          nil, # profile_path,
+                                                                          startup_info,
+                                                                          16)
+        if create_process['return']
+          begin
+            pi = parse_process_information(create_process['lpProcessInformation'])
+          ensure
+            session.railgun.kernel32.CloseHandle(pi[:process_handle])
+            session.railgun.kernel32.CloseHandle(pi[:thread_handle])
+          end
+          print_good("Process started successfully, PID: #{pi[:process_id]}")
+        else
+          print_error("Unable to create process, Error Code: #{create_process['GetLastError']} - #{create_process['ErrorMessage']}")
+          print_error("Try setting the DOMAIN or USER in the format: user@domain") if create_process['GetLastError'] == 1783 && domain.nil?
+        end
 
-      pi
+        return pi
+      ensure
+        session.railgun.kernel32.CloseHandle(ph_token)
+      end
     else
-      print_error("Unable to login the user, #{logon_user['GetLastError']} - #{logon_user['ErrorMessage']}")
+      print_error("Unable to login the user, Error Code: #{logon_user['GetLastError']} - #{logon_user['ErrorMessage']}")
     end
 
     nil
   end
 
+  # Can be used by SYSTEM processes with the SE_INCREASE_QUOTA_NAME and
+  # SE_ASSIGNPRIMARYTOKEN_NAME privileges.
+  # This will normally error with 0xc000142 on later OS's (Vista+?)...
   def create_process_as_user(domain, user, password, application_name, command_line)
     return unless check_user_format(user, domain)
     return unless check_command_length(application_name, command_line, 32000)
 
     vprint_status("Executing LogonUserA...")
+    session.sys.config.getenv('SYSTEMDRIVE')
     logon_user = session.railgun.advapi32.LogonUserA(user,
                                                      domain,
                                                      password,
@@ -125,31 +135,40 @@ module Msf::Post::Windows::Runas
                                                      'LOGON32_PROVIDER_DEFAULT',
                                                      4)
 
-    if logon_user['return'] == ERROR::SUCCESS
-      ph_token = logon_user['phToken']
-      vprint_status("Executing CreateProcessAsUserA...")
-      create_process = session.railgun.advapi32.CreateProcessAsUserA(ph_token,
-                                                                    application_name,
-                                                                    command_line,
-                                                                    nil,
-                                                                    nil,
-                                                                    false,
-                                                                    'CREATE_NEW_CONSOLE',
-                                                                    nil,
-                                                                    nil,
-                                                                    startup_info,
-                                                                    16)
+    if logon_user['return']
+      begin
+        ph_token = logon_user['phToken']
+        vprint_status("Executing CreateProcessAsUserA...")
+        create_process = session.railgun.advapi32.CreateProcessAsUserA(ph_token,
+                                                                      application_name,
+                                                                      command_line,
+                                                                      nil,
+                                                                      nil,
+                                                                      false,
+                                                                      'CREATE_NEW_CONSOLE',
+                                                                      nil,
+                                                                      nil,
+                                                                      startup_info,
+                                                                      16)
 
-      if create_process['return'] == ERROR::SUCCESS
-        pi = parse_process_information(create_process['lpProcessInformation'])
-        print_good("Process started successfully, PID #{pi['process_id']}")
-      else
-        print_error("Unable to create process, #{create_process['GetLastError']} - #{create_process['ErrorMessage']}")
+        if create_process['return']
+          begin
+            pi = parse_process_information(create_process['lpProcessInformation'])
+          ensure
+            session.railgun.kernel32.CloseHandle(pi[:process_handle])
+            session.railgun.kernel32.CloseHandle(pi[:thread_handle])
+          end
+          print_good("Process started successfully, PID: #{pi[:process_id]}")
+        else
+          print_error("Unable to create process, Error Code: #{create_process['GetLastError']} - #{create_process['ErrorMessage']}")
+        end
+
+        return pi
+      ensure
+        session.railgun.kernel32.CloseHandle(ph_token)
       end
-
-      pi
     else
-      print_error("Unable to login the user, #{logon_user['GetLastError']} - #{logon_user['ErrorMessage']}")
+      print_error("Unable to login the user, Error Code: #{logon_user['GetLastError']} - #{logon_user['ErrorMessage']}")
     end
 
     nil
@@ -157,7 +176,7 @@ module Msf::Post::Windows::Runas
 
   def parse_process_information(process_information)
     pi = process_information.unpack('LLLL')
-    { process_handle => pi[0], thread_handle => pi[1], process_id => pi[2], thread_id => pi[3] }
+    { :process_handle => pi[0], :thread_handle => pi[1], :process_id => pi[2], :thread_id => pi[3] }
   end
 
   def check_user_format(username, domain)
@@ -171,9 +190,9 @@ module Msf::Post::Windows::Runas
   def check_command_length(application_name, command_line, max_length)
     if application_name.nil? && command_line.nil?
       raise ArgumentError, 'Both application_name and command_line are nil'
-    elsif application_name.nil? && command_line.length > MAX_PATH
+    elsif application_name.nil? && command_line && command_line.length > MAX_PATH
       raise ArgumentError, "When application_name is nil the command line must be less than MAX_PATH #{MAX_PATH} characters (Currently #{command_line.length})"
-    elsif command_line.length > max_length
+    elsif application_name && command_line && command_line.length > max_length
       raise ArgumentError, "When application_name is set, command line must be less than #{max_length} characters (Currently #{command_line.length})"
     end
 
