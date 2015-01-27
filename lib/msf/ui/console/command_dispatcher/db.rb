@@ -855,33 +855,32 @@ class Db
     ::ActiveRecord::Base.connection_pool.with_connection {
       query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
       query = query.includes(:private, :public, :logins)
+      query = query.includes(logins: [ :service, { service: :host } ])
 
       if type.present?
         query = query.where(metasploit_credential_privates: { type: type })
       end
 
       if svcs.present?
-        query = query.includes(logins: :service)
         query = query.where(Mdm::Service[:name].in(svcs))
       end
 
       if ports.present?
-        query = query.includes(logins: :service)
         query = query.where(Mdm::Service[:port].in(ports))
       end
 
       if user.present?
-        # Exclude creds that don't match the given user
+        # If we have a user regex, only include those that match
         query = query.where('"metasploit_credential_publics"."username" ~* ?', user)
       end
 
       if pass.present?
-        # Exclude creds that don't match the given password
+        # If we have a password regex, only include those that match
         query = query.where('"metasploit_credential_privates"."data" ~* ?', pass)
       end
 
       if host_ranges.any? || ports.any? || svcs.any?
-        # Skip cores that don't have any logins if the user specified a
+        # Only find Cores that have non-zero Logins if the user specified a
         # filter based on host, port, or service name
         query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
       end
