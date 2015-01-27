@@ -65,9 +65,10 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :set_rhosts_from_addrs }
 
   describe "#cmd_creds" do
+    let(:username) { "username" }
+    let(:password) { "password" }
+
     describe "add-password" do
-      let(:username) { "username" }
-      let(:password) { "password" }
       context "when no core exists" do
         it "should add a Core" do
           expect {
@@ -79,12 +80,12 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
         before(:each) do
           priv = FactoryGirl.create(:metasploit_credential_password, data: password)
           pub = FactoryGirl.create(:metasploit_credential_username, username: username)
-          core = FactoryGirl.create(:metasploit_credential_core,
-                                    origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                                    private: priv,
-                                    public: pub,
-                                    realm: nil,
-                                    workspace: framework.db.workspace)
+          FactoryGirl.create(:metasploit_credential_core,
+                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
+                             private: priv,
+                             public: pub,
+                             realm: nil,
+                             workspace: framework.db.workspace)
         end
         it "should not add a Core" do
           expect {
@@ -92,6 +93,31 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           }.to_not change{ Metasploit::Credential::Core.count }
         end
       end
+    end
+    describe "-u" do
+      before(:each) do
+        priv = FactoryGirl.create(:metasploit_credential_password, data: password)
+        pub = FactoryGirl.create(:metasploit_credential_username, username: username)
+        FactoryGirl.create(:metasploit_credential_core,
+                           private: priv,
+                           public: pub,
+                           realm: nil,
+                           workspace: framework.db.workspace)
+      end
+
+      it 'should match a regular expression' do
+        subject.cmd_creds("-u", "^#{username}$")
+        @output.should =~
+         [
+          "Credentials",
+          "===========",
+          "",
+          "host  service  public    private   realm  private_type",
+          "----  -------  ------    -------   -----  ------------",
+          "               username  password         Password",
+         ]
+      end
+
     end
   end
 
