@@ -827,12 +827,6 @@ class Db
     end
 
     # If we get here, we're searching.  Delete implies search
-    if user
-      user_regex = Regexp.compile(user)
-    end
-    if pass
-      pass_regex = Regexp.compile(pass)
-    end
 
     if ptype
       type = case ptype
@@ -859,29 +853,42 @@ class Db
     tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      query = Metasploit::Credential::Core.where(
-        workspace_id: framework.db.workspace,
-      )
+      query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
+      query = query.includes(:private, :public, :logins)
 
-      query.each do |core|
+      if type.present?
+        query = query.where(metasploit_credential_privates: { type: type })
+      end
 
-        # Exclude creds that don't match the given type
-        next if type.present? && !core.private.kind_of?(type)
+      if svcs.present?
+        query = query.includes(logins: :service)
+        query = query.where(Mdm::Service[:name].in(svcs))
+      end
 
+      if ports.present?
+        query = query.includes(logins: :service)
+        query = query.where(Mdm::Service[:port].in(ports))
+      end
+
+      if user.present?
         # Exclude creds that don't match the given user
-        if user_regex.present? && !core.public.username.match(user_regex)
-          next
-        end
+        query = query.where('"metasploit_credential_publics"."username" ~* ?', user)
+      end
 
-        # Exclude creds that don't match the given pass
-        if pass_regex.present? && !core.private.data.match(pass_regex)
-          next
-        end
+      if pass.present?
+        # Exclude creds that don't match the given password
+        query = query.where('"metasploit_credential_privates"."data" ~* ?', pass)
+      end
+
+      if host_ranges.any? || ports.any? || svcs.any?
+        # Skip cores that don't have any logins if the user specified a
+        # filter based on host, port, or service name
+        query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
+      end
+
+      query.find_each do |core|
 
         if core.logins.empty?
-          # Skip cores that don't have any logins if the user specified a
-          # filter based on host, port, or service name
-          next if host_ranges.any? || ports.any? || svcs.any?
 
           tbl << [
             "", # host
@@ -893,13 +900,6 @@ class Db
           ]
         else
           core.logins.each do |login|
-            if svcs.present? && !svcs.include?(login.service.name)
-              next
-            end
-
-            if ports.present? && !ports.include?(login.service.port)
-              next
-            end
 
             # If none of this Core's associated Logins is for a host within
             # the user-supplied RangeWalker, then we don't have any reason to
