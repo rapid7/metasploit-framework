@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status("Finding .gem/credentials")
+    print_status("Finding ~/.gem/credentials")
     paths = enum_user_directories.map {|d| d + "/.gem/credentials"}
     paths = paths.select { |f| file?(f) }
 
