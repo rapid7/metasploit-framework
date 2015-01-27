@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Multi RubyGems API Key Gather ./gem/credentials',
+      'Name'          => 'Multi Gather RubyGems API Key ~/.gem/credentials',
       'Description'   => %q{
         This module obtains a user's RubyGems API key from ~/.gem/credentials.
       },
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
     paths = paths.select { |f| file?(f) }
 
     if paths.nil? or paths.empty?
-      print_error("No users found with a .gem/credentials file")
+      print_error("No users found with a ~/.gem/credentials file")
       return
     end
 
