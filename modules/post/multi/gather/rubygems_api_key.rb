@@ -59,7 +59,16 @@ class Metasploit3 < Msf::Post
         workspace_id: myworkspace_id
       }
 
-      create_credential(credential_data)
+      credential_core = create_credential(credential_data)
+
+      login_data = {
+        core: credential_core,
+        status: Metasploit::Model::Login::Status::UNTRIED,
+        workspace_id: myworkspace_id
+      }
+
+      login_data.merge!(service_data)
+      create_credential_login(login_data)
     end
   end
 end
