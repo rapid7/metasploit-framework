@@ -74,6 +74,9 @@ module Msf::Post::Windows::Runas
   # Call CreateProcessWithLogonW to start a process with the supplier
   # user credentials
   #
+  # @note The caller should clear up the handles returned in
+  #   the PROCESS_INFORMATION @return hash.
+  #
   # @param domain [String] The target user domain
   # @param user [String] The target user
   # @param password [String] The target user password
