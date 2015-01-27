@@ -11,8 +11,8 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
-  def initialize(info={})
-    super( update_info( info,
+  def initialize(info = {})
+    super(update_info(info,
       'Name'          => 'Multi Gather RubyGems API Key ~/.gem/credentials',
       'Description'   => %q{
         This module obtains a user's RubyGems API key from ~/.gem/credentials.
@@ -59,8 +59,9 @@ class Metasploit3 < Msf::Post
                              "ruby_api_key.txt",
                              "Ruby API Key")
 
-      print_status("RubyGems API Key stored in: #{loot_path.to_s}")
+      print_good("RubyGems API Key stored in: #{loot_path.to_s}")
     end
   end
+
 end
 
