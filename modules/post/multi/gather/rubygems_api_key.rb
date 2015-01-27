@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
       if key = YAML.load(read_file(path))[:rubygems_api_key]
         rubygems_api_key = key
       else
-        return
+        next
       end
 
       print_good("Found a RubyGems API Key: #{rubygems_api_key}")
