@@ -82,13 +82,8 @@ module Md5LookupUtility
     # @return [TrueClass] true if acknowledged.
     def ack
       print_status("WARNING: This tool will look up your MD5 hashes by submitting them")
-      print_status("in the clear (HTTP) to third party websites.")
-      print_status
-      print_status("The services from these third party websites are not within control")
-      print_status("of Metasploit (or Rapid7), and we shall not be liable for any loss or")
-      print_status("damage of whatever nature (direct, indirect, consequential, or other)")
-      print_status("as a result of your use of these services.")
-      print_status
+      print_status("in the clear (HTTP) to third party websites. This can expose")
+      print_status("sensitive data to unknown and untrusted entities.")
 
       while true
         $stdout.print "[*] Enter 'Y' to acknowledge: "
