@@ -75,32 +75,36 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
       let(:blank_password)      { "" }
       let(:nonblank_username)   { "nonblank_user" }
       let(:nonblank_password)   { "nonblank_pass" }
+
+      let!(:origin) { FactoryGirl.create(:metasploit_credential_origin_import) }
+
       before(:each) do
         priv = FactoryGirl.create(:metasploit_credential_password, data: password)
         pub = FactoryGirl.create(:metasploit_credential_username, username: username)
-        core = FactoryGirl.create(:metasploit_credential_core,
-                                  origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                                  private: priv,
-                                  public: pub,
-                                  realm: nil,
-                                  workspace: framework.db.workspace)
-        nonblank_priv = FactoryGirl.create(:metasploit_credential_password, data: nonblank_password)
+        FactoryGirl.create(:metasploit_credential_core,
+                           origin: origin,
+                           private: priv,
+                           public: pub,
+                           realm: nil,
+                           workspace: framework.db.workspace)
         blank_pub = FactoryGirl.create(:metasploit_credential_blank_username)
-        core = FactoryGirl.create(:metasploit_credential_core,
-                                  origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                                  private: nonblank_priv,
-                                  public: blank_pub,
-                                  realm: nil,
-                                  workspace: framework.db.workspace)
+        nonblank_priv = FactoryGirl.create(:metasploit_credential_password, data: nonblank_password)
+        FactoryGirl.create(:metasploit_credential_core,
+                           origin: origin,
+                           private: nonblank_priv,
+                           public: blank_pub,
+                           realm: nil,
+                           workspace: framework.db.workspace)
         nonblank_pub = FactoryGirl.create(:metasploit_credential_username, username: nonblank_username)
         blank_priv = FactoryGirl.create(:metasploit_credential_password, data: blank_password)
-        core = FactoryGirl.create(:metasploit_credential_core,
-                                  origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                                  private: blank_priv,
-                                  public: nonblank_pub,
-                                  realm: nil,
-                                  workspace: framework.db.workspace)
+        FactoryGirl.create(:metasploit_credential_core,
+                           origin: origin,
+                           private: blank_priv,
+                           public: nonblank_pub,
+                           realm: nil,
+                           workspace: framework.db.workspace)
       end
+
       context "when the credential is present" do
         it "should show a user that matches the given expression" do
           db.cmd_creds("-u", username)
@@ -166,6 +170,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           end
         end
       end
+
       context "when the credential is absent" do
         context "due to a nonmatching username" do
           it "should return a blank set" do
