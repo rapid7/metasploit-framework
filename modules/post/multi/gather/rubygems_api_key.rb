@@ -58,7 +58,8 @@ class Metasploit3 < Msf::Post
                  "Ruby API Key")
 
       service_data = {
-        address: host,
+        address: "rubygems.org",
+        port: 443,
         service_name: 'rubygems',
         protocol: 'tcp',
         workspace_id: myworkspace_id
