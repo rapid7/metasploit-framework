@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
       'Name'          => 'Multi RubyGems API Key Gather ./gem/credentials',
       'Description'   => %q{
-        Post Module to obtain a users RubyGems API Key from ./gem/credentials
+        This module obtains a user's RubyGems API key from ~/.gem/credentials.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Jonathan Claudius <jclaudius[at]trustwave.com>',
