@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'RubyGems API Key Gather ./gem/credentials',
+      'Name'          => 'Multi RubyGems API Key Gather ./gem/credentials',
       'Description'   => %q{
         Post Module to obtain a users RubyGems API Key from ./gem/credentials
       },
