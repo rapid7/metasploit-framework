@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
     paths = enum_user_directories.map {|d| d + "/.gem/credentials"}
     paths = paths.select { |f| file?(f) }
 
-    if paths.nil? or paths.empty?
+    if paths.empty?
       print_error("No users found with a ~/.gem/credentials file")
       return
     end
