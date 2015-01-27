@@ -148,7 +148,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
               "",
               "host  service  public  private        realm  private_type",
               "----  -------  ------  -------        -----  ------------",
-              "                       nonblank_pass         Password"
+              "                       nonblank_pass         Password",
             ]
           end
         end
@@ -161,7 +161,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
               "",
               "host  service  public         private  realm  private_type",
               "----  -------  ------         -------  -----  ------------",
-              "               nonblank_user                  Password"
+              "               nonblank_user                  Password",
             ]
           end
         end
@@ -171,11 +171,11 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           it "should return a blank set" do
             db.cmd_creds("-u", nomatch_username)
             @output.should =~ [
-              "===========",
               "Credentials",
+              "===========",
               "",
+              "host  service  public  private  realm  private_type",
               "----  -------  ------  -------  -----  ------------",
-              "host  service  public  private  realm  private_type"
             ]
           end
         end
@@ -183,11 +183,11 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           it "should return a blank set" do
             db.cmd_creds("-P", nomatch_password)
             @output.should =~ [
-              "===========",
               "Credentials",
+              "===========",
               "",
+              "host  service  public  private  realm  private_type",
               "----  -------  ------  -------  -----  ------------",
-              "host  service  public  private  realm  private_type"
             ]
           end
         end
