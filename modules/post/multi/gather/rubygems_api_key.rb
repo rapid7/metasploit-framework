@@ -48,8 +48,8 @@ class Metasploit4 < Msf::Post
   # one anyway.
   def extract_key(path)
     data = read_file(path)
-    keys = data.split(":").strip.select {|k| k =~ /[0-9a-f]{32}/ }
-    keys.first
+    keys = data.split(':').select { |k| k =~ /[0-9a-f]{32}/ }
+    keys.first.strip
   end
 
   def download_key(paths)
