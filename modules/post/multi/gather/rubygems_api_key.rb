@@ -4,7 +4,6 @@
 ##
 
 require 'msf/core'
-require 'yaml'
 
 class Metasploit4 < Msf::Post
 
