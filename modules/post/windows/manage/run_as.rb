@@ -11,16 +11,16 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Runas
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
       'Name'                 => "Windows Manage Run Command As User",
-      'Description'          => %q{
+      'Description'          => %q(
         This module will login with the specified username/password and execute the
         supplied command as a hidden process. Output is not returned by default, by setting
         CMDOUT to false output will be redirected to a temp file and read back in to
         display.By setting advanced option SETPASS to true, it will reset the users
         password and then execute the command.
-      },
+                            ),
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
       'SessionTypes'         => ['meterpreter'],
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
         OptString.new('USER', [true, 'Username to login with' ]),
         OptString.new('PASSWORD', [true, 'Password to login with' ]),
         OptString.new('CMD', [true, 'Command to execute' ]),
-        OptBool.new('CMDOUT', [true, 'Retrieve command output', false]),
+        OptBool.new('CMDOUT', [true, 'Retrieve command output', false])
       ], self.class)
 
     register_advanced_options(
@@ -102,7 +102,12 @@ class Metasploit3 < Msf::Post
     # execute command and get output with a poor mans pipe
     if priv_check
       print_status("Executing CreateProcessAsUserA...we are SYSTEM")
-      pi = create_process_as_user(domain, user, password, nil, cmdstr)
+      begin
+        pi = create_process_as_user(domain, user, password, nil, cmdstr)
+      ensure
+        session.railgun.kernel32.CloseHandle(pi[:process_handle])
+        session.railgun.kernel32.CloseHandle(pi[:thread_handle])
+      end
     else
       print_status("Executing CreateProcessWithLogonW...")
       pi = create_process_with_logon(domain, user, password, nil, cmdstr)
