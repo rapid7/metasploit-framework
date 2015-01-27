@@ -41,14 +41,14 @@ Feature: Help command
           save          Saves the active datastores
           search        Searches module names and descriptions
           sessions      Dump session listings and display information about sessions
-          set           Sets a variable to a value
+          set           Sets a context-specific variable to a value
           setg          Sets a global variable to a value
           show          Displays modules of a given type, or all modules
           sleep         Do nothing for the specified number of seconds
           spool         Write console output into a file as well the screen
           threads       View and manipulate background threads
           unload        Unload a framework plugin
-          unset         Unsets one or more variables
+          unset         Unsets one or more context-specific variables
           unsetg        Unsets one or more global variables
           use           Selects a module by name
           version       Show the framework and console library version numbers
