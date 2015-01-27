@@ -79,11 +79,7 @@ module Msf::Post::Windows::Runas
     if logon_user['return']
       begin
         ph_token = logon_user['phToken']
-        vprint_status("Executing GetUserProfileDirectoryW...")
-        get_profile_dir = session.railgun.userenv.GetUserProfileDirectoryW(ph_token, MAX_PATH*2, MAX_PATH*2)
-        str_length = get_profile_dir['lpcchSize']
-        profile_path = get_profile_dir['lpProfileDir'][0, str_length]
-        vprint_status("Executing CreateProcessWithLogonW #{application_name} #{command_line}...")
+        vprint_status("Executing CreateProcessWithLogonW: #{application_name} #{command_line}...")
         create_process = session.railgun.advapi32.CreateProcessWithLogonW(user,
                                                                           domain,
                                                                           password,
@@ -92,16 +88,11 @@ module Msf::Post::Windows::Runas
                                                                           command_line,
                                                                           'CREATE_UNICODE_ENVIRONMENT',
                                                                           nil,
-                                                                          nil, # profile_path,
+                                                                          nil,
                                                                           startup_info,
                                                                           16)
         if create_process['return']
-          begin
-            pi = parse_process_information(create_process['lpProcessInformation'])
-          ensure
-            session.railgun.kernel32.CloseHandle(pi[:process_handle])
-            session.railgun.kernel32.CloseHandle(pi[:thread_handle])
-          end
+          pi = parse_process_information(create_process['lpProcessInformation'])
           print_good("Process started successfully, PID: #{pi[:process_id]}")
         else
           print_error("Unable to create process, Error Code: #{create_process['GetLastError']} - #{create_process['ErrorMessage']}")
@@ -121,7 +112,9 @@ module Msf::Post::Windows::Runas
 
   # Can be used by SYSTEM processes with the SE_INCREASE_QUOTA_NAME and
   # SE_ASSIGNPRIMARYTOKEN_NAME privileges.
-  # This will normally error with 0xc000142 on later OS's (Vista+?)...
+  #
+  # This will normally error with 0xc000142 on later OS's (Vista+?) for
+  # gui apps but is ok for firing off cmd.exe...
   def create_process_as_user(domain, user, password, application_name, command_line)
     return unless check_user_format(user, domain)
     return unless check_command_length(application_name, command_line, 32000)
