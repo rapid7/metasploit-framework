@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
       next if [".", ".."].include?(path)
 
       rubygems_api_key = YAML.load(read_file(path))[:rubygems_api_key]
-      next unless rubygems_api_key.nil?
+      next if rubygems_api_key.nil?
       
       print_good("Found a RubyGems API Key: #{rubygems_api_key}")
 
