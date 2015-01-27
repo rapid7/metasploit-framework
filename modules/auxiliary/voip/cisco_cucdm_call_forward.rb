@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
         The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager
         (CDM) 10 does not properly implement access control, which allows remote attackers to
-        modify user information. This module exploits the vulnerability for configure unauthorized
+        modify user information. This module exploits the vulnerability to configure unauthorized
         call forwarding.
       },
       'Author'      => 'fozavci',

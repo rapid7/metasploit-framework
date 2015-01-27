@@ -868,6 +868,16 @@ class Db
         # Exclude creds that don't match the given type
         next if type.present? && !core.private.kind_of?(type)
 
+        # Exclude non-blank username creds if that's what we're after
+        if user_regex.present? && user_regex == // && !core.public.username.blank?
+          next
+        end
+
+        # Exclude non-blank password creds if that's what we're after
+        if pass_regex.present? && pass_regex == // && !core.private.data.blank?
+          next
+        end
+
         # Exclude creds that don't match the given user
         if user_regex.present? && !core.public.username.match(user_regex)
           next
