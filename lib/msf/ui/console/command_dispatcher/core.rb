@@ -115,7 +115,7 @@ class Core
       "color"    => "Toggle color",
       "exit"     => "Exit the console",
       "edit"     => "Edit the current module with $VISUAL or $EDITOR",
-      "get"      => "Gets the value of a variable",
+      "get"      => "Gets the value of a context-specific variable",
       "getg"     => "Gets the value of a global variable",
       "go_pro"   => "Launch Metasploit web GUI",
       "grep"     => "Grep the output of another command",
