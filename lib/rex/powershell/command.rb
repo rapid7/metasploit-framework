@@ -15,14 +15,14 @@ module Command
   # @option opts [Bool] :sub_funcs Substitute function names
   #
   # @return [String] Encoded script
-  def self.encode_script(script_in, opts={})
+  def self.encode_script(script_in, eof=nil, opts={})
     # Build script object
     psh = Rex::Powershell::Script.new(script_in)
     psh.strip_comments if opts[:strip_comments]
     psh.strip_whitespace if opts[:strip_whitespace]
     psh.sub_vars if opts[:sub_vars]
     psh.sub_funcs if opts[:sub_funcs]
-    psh.encode_code
+    psh.encode_code(eof)
   end
 
   #
