@@ -52,7 +52,7 @@ module Msf::DBManager::Vuln
     # If there are multiple matches, choose the one with the most matches
     if service
       refs_ids = refs.map{|x| x.id }
-      vuln = service.vulns.find(:all, :include => [:refs], :conditions => { 'refs.id' => refs_ids }).sort { |a,b|
+      vuln = service.vulns.where({ 'refs.id' => refs_ids }).includes(:refs).sort { |a,b|
         ( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
       }.first
     end
@@ -63,7 +63,7 @@ module Msf::DBManager::Vuln
     # Try to find an existing vulnerability with the same host & references
     # If there are multiple matches, choose the one with the most matches
     refs_ids = refs.map{|x| x.id }
-    vuln = host.vulns.find(:all, :include => [:refs], :conditions => { 'service_id' => nil, 'refs.id' => refs_ids }).sort { |a,b|
+    vuln = host.vulns.where({ 'service_id' => nil, 'refs.id' => refs_ids }).includes(:refs).sort { |a,b|
       ( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
     }.first
 

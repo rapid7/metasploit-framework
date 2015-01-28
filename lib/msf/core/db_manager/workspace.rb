@@ -30,7 +30,7 @@ module Msf::DBManager::Workspace
 
   def workspaces
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.find(:all)
+    ::Mdm::Workspace.all
   }
   end
 end
