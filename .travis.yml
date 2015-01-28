@@ -1,4 +1,5 @@
-bundler_args: --without development coverage
+bundler_args: --without coverage development pcap
+cache: bundler
 env:
   - RAKE_TASKS="cucumber cucumber:boot"
   - RAKE_TASKS=spec SPEC_OPTS="--tag content"
@@ -10,8 +11,6 @@ matrix:
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libpcap-dev
   # Uncomment when we have fewer shipping msftidy warnings.
   # Merge committers will still be checking, just not autofailing.
   # - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
@@ -25,7 +24,7 @@ before_script:
 script:
   # fail build if db/schema.rb update is not committed
   - git diff --exit-code && bundle exec rake $RAKE_TASKS
-
+sudo: false
 rvm:
   - '1.9.3'
   - '2.1'

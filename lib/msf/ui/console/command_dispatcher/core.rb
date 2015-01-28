@@ -101,6 +101,9 @@ class Core
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
 
+  # Constant for a retry timeout on using modules before they're loaded
+  CMD_USE_TIMEOUT = 3
+
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
@@ -112,6 +115,8 @@ class Core
       "color"    => "Toggle color",
       "exit"     => "Exit the console",
       "edit"     => "Edit the current module with $VISUAL or $EDITOR",
+      "get"      => "Gets the value of a variable",
+      "getg"     => "Gets the value of a global variable",
       "go_pro"   => "Launch Metasploit web GUI",
       "grep"     => "Grep the output of another command",
       "help"     => "Help menu",
@@ -2295,6 +2300,81 @@ class Core
     return tabs
   end
 
+ def cmd_get_help
+    print_line "Usage: get var1 [var2 ...]"
+    print_line
+    print_line "The get command is used to get the value of one or more variables."
+    print_line
+  end
+
+  #
+  # Gets a value if it's been set.
+  #
+  def cmd_get(*args)
+
+    # Figure out if these are global variables
+    global = false
+
+    if (args[0] == '-g')
+      args.shift
+      global = true
+    end
+
+    # No arguments?  No cookie.
+    if args.empty?
+      global ? cmd_getg_help : cmd_get_help
+      return false
+    end
+
+    # Determine which data store we're operating on
+    if (active_module && !global)
+      datastore = active_module.datastore
+    else
+      datastore = framework.datastore
+    end
+
+    args.each { |var| print_line("#{var} => #{datastore[var]}") }
+  end
+
+  #
+  # Tab completion for the get command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_get_tabs(str, words)
+    datastore = active_module ? active_module.datastore : self.framework.datastore
+    datastore.keys
+  end
+
+  def cmd_getg_help
+    print_line "Usage: getg var1 [var2 ...]"
+    print_line
+    print_line "Exactly like get -g, get global variables"
+    print_line
+  end
+
+  #
+  # Gets variables in the global data store.
+  #
+  def cmd_getg(*args)
+    args.unshift('-g')
+
+    cmd_get(*args)
+  end
+
+  #
+  # Tab completion for the getg command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_getg_tabs(str, words)
+    self.framework.datastore.keys
+  end
+
   def cmd_unset_help
     print_line "Usage: unset [-g] var1 var2 var3 ..."
     print_line
@@ -2418,9 +2498,15 @@ class Core
     mod_name = args[0]
 
     begin
-      if ((mod = framework.modules.create(mod_name)) == nil)
-        print_error("Failed to load module: #{mod_name}")
-        return false
+      mod = framework.modules.create(mod_name)
+      unless mod
+        # Try one more time; see #4549
+        sleep CMD_USE_TIMEOUT
+        mod = framework.modules.create(mod_name)
+        unless mod
+          print_error("Failed to load module: #{mod_name}")
+          return false
+        end
       end
     rescue Rex::AmbiguousArgumentError => info
       print_error(info.to_s)
@@ -2834,73 +2920,72 @@ class Core
     res = []
     res << o.default.to_s if o.default
 
-    case o.class.to_s
-
-      when 'Msf::OptAddress'
-        case o.name.upcase
-          when 'RHOST'
-            option_values_target_addrs().each do |addr|
-              res << addr
-            end
-          when 'LHOST'
-            rh = self.active_module.datastore["RHOST"]
-            if rh and not rh.empty?
-              res << Rex::Socket.source_address(rh)
-            else
-              res << Rex::Socket.source_address()
-            end
-          else
+    case o
+    when Msf::OptAddress
+      case o.name.upcase
+      when 'RHOST'
+        option_values_target_addrs().each do |addr|
+          res << addr
         end
-
-      when 'Msf::OptAddressRange'
-        case str
-          when /^file:(.*)/
-            files = tab_complete_filenames($1, words)
-            res += files.map { |f| "file:" + f } if files
-          when /\/$/
-            res << str+'32'
-            res << str+'24'
-            res << str+'16'
-          when /\-$/
-            res << str+str[0, str.length - 1]
-          else
-            option_values_target_addrs().each do |addr|
-              res << addr+'/32'
-              res << addr+'/24'
-              res << addr+'/16'
-            end
+      when 'LHOST'
+        rh = self.active_module.datastore["RHOST"]
+        if rh and not rh.empty?
+          res << Rex::Socket.source_address(rh)
+        else
+          res << Rex::Socket.source_address()
         end
+      else
+      end
 
-      when 'Msf::OptPort'
-        case o.name.upcase
-          when 'RPORT'
-          option_values_target_ports().each do |port|
-            res << port
-          end
+    when Msf::OptAddressRange
+      case str
+      when /^file:(.*)/
+        files = tab_complete_filenames($1, words)
+        res += files.map { |f| "file:" + f } if files
+      when /\/$/
+        res << str+'32'
+        res << str+'24'
+        res << str+'16'
+      when /\-$/
+        res << str+str[0, str.length - 1]
+      else
+        option_values_target_addrs().each do |addr|
+          res << addr+'/32'
+          res << addr+'/24'
+          res << addr+'/16'
         end
+      end
 
-        if (res.empty?)
-          res << (rand(65534)+1).to_s
+    when Msf::OptPort
+      case o.name.upcase
+      when 'RPORT'
+        option_values_target_ports().each do |port|
+          res << port
         end
+      end
 
-      when 'Msf::OptEnum'
-        o.enums.each do |val|
-          res << val
-        end
+      if (res.empty?)
+        res << (rand(65534)+1).to_s
+      end
 
-      when 'Msf::OptPath'
-        files = tab_complete_filenames(str, words)
-        res += files if files
+    when Msf::OptEnum
+      o.enums.each do |val|
+        res << val
+      end
 
-      when 'Msf::OptBool'
-        res << 'true'
-        res << 'false'
+    when Msf::OptPath
+      files = tab_complete_filenames(str, words)
+      res += files if files
 
-      when 'Msf::OptString'
-        if (str =~ /^file:(.*)/)
-          files = tab_complete_filenames($1, words)
-          res += files.map { |f| "file:" + f } if files
-        end
+    when Msf::OptBool
+      res << 'true'
+      res << 'false'
+
+    when Msf::OptString
+      if (str =~ /^file:(.*)/)
+        files = tab_complete_filenames($1, words)
+        res += files.map { |f| "file:" + f } if files
+      end
     end
 
     return res

@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Post
     end
 
     result = client.railgun.netapi32.NetServerEnum(nil,101,4,-1,4,4,lookuptype,datastore['DOMAIN'],0)
-    # print_error(result.inspect)
+
     if result['totalentries'] == 0
       print_error("No systems found of that type")
       return

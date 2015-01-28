@@ -12,12 +12,33 @@ describe Metasploit::Framework::LoginScanner::Base do
     end
   }
 
-  subject(:login_scanner) { base_class.new }
+  let(:options) {
+
+    {
+      connection_timeout: 1,
+      cred_details: ["user", "pass"],
+      host: '1.2.3.4',
+      port: 4444,
+      stop_on_success: true,
+      bruteforce_speed: 5,
+
+    }
+  }
+
+  subject(:login_scanner) {
+    base_class.new(options)
+  }
 
   it { should respond_to :bruteforce_speed }
 
   context 'validations' do
+
+    it 'is valid!' do
+      expect(login_scanner).to be_valid
+    end
+
     context 'bruteforce_speed' do
+
       it 'is not valid for a non-number' do
         login_scanner.bruteforce_speed = "a"
         expect(login_scanner).to_not be_valid
@@ -36,11 +57,17 @@ describe Metasploit::Framework::LoginScanner::Base do
         expect(login_scanner.errors[:bruteforce_speed]).to include "must be greater than or equal to 0"
       end
 
+      it 'is nil' do
+        login_scanner.bruteforce_speed = nil
+        expect(login_scanner).to be_valid
+      end
+
       it 'is not greater than five' do
         login_scanner.bruteforce_speed = "6"
         expect(login_scanner).to_not be_valid
         expect(login_scanner.errors[:bruteforce_speed]).to include "must be less than or equal to 5"
       end
+
     end
 
     it { should respond_to :sleep_time }

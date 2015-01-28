@@ -56,6 +56,13 @@ class Metasploit3 < Msf::Post
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP")
       ret &&= !!(valinfo["Data"] == valdata)
 
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_NATIVE)
+      ret &&= !!(valinfo["Data"] == valdata)
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_32_BIT)
+      ret &&= !!(valinfo["Data"] == valdata)
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_64_BIT)
+      ret &&= !!(valinfo["Data"] == valdata)
+
       ret
     end
 
