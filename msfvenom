@@ -208,7 +208,7 @@ require 'msf/core/payload_generator'
             ])
 
     framework.payloads.each_module { |name, mod|
-      tbl << [ name, mod.new.description ]
+      tbl << [ name, mod.new.description.split.join(' ') ]
     }
 
     "\n" + tbl.to_s + "\n"
@@ -249,7 +249,7 @@ require 'msf/core/payload_generator'
             ])
 
     framework.nops.each_module { |name, mod|
-      tbl << [ name, mod.new.description ]
+      tbl << [ name, mod.new.description.split.join(' ') ]
     }
 
     "\n" + tbl.to_s + "\n"
