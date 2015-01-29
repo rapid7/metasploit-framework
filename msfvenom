@@ -283,7 +283,7 @@ if __FILE__ == $0
           $stdout.puts dump_encoders
           $stdout.puts dump_nops
         else
-          $stdout.puts "Invalid module type"
+          $stderr.puts "Invalid module type"
       end
     end
     exit(0)
