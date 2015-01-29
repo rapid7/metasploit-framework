@@ -168,7 +168,7 @@ module Msf::DBManager::Vuln
           sname = opts[:proto]
         end
 
-        service = host.services.find_or_create_by_port_and_proto(opts[:port].to_i, proto)
+        service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_create
       end
 
       # Try to find an existing vulnerability with the same service & references
