@@ -41,8 +41,8 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless enum_description.class == ClassDesc &&
-                    constant_name.class == Utf
+            unless enum_description.kind_of?(ClassDesc) &&
+                   constant_name.kind_of?(Utf)
               raise ::RuntimeError, 'Failed to serialize EnumDescription'
             end
 
@@ -68,7 +68,7 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succed
           def decode_constant_name(io)
             content = decode_content(io, stream)
-            raise ::RuntimeError, 'Failed to unserialize NewEnum' unless content.class == Rex::Java::Serialization::Model::Utf
+            raise ::RuntimeError, 'Failed to unserialize NewEnum' unless content.kind_of?(Rex::Java::Serialization::Model::Utf)
 
             content
           end
