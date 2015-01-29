@@ -29,7 +29,7 @@ module Rex
             loop do
               content = decode_content(io, stream)
               self.contents << content
-              return self if content.class == EndBlockData
+              return self if content.kind_of?(EndBlockData)
             end
 
             self
