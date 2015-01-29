@@ -4,7 +4,7 @@ module Msf::DBManager::Workspace
   #
   def add_workspace(name)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.find_or_create_by_name(name)
+    ::Mdm::Workspace.where(name: name).first_or_create
   }
   end
 
