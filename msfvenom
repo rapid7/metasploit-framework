@@ -270,20 +270,20 @@ if __FILE__ == $0
     generator_opts[:list].each do |mod|
       case mod.downcase
         when "payloads"
-          $stderr.puts dump_payloads
+          $stdout.puts dump_payloads
         when "encoders"
-          $stderr.puts dump_encoders(generator_opts[:arch])
+          $stdout.puts dump_encoders(generator_opts[:arch])
         when "nops"
-          $stderr.puts dump_nops
+          $stdout.puts dump_nops
         when "all"
           # Init here so #dump_payloads doesn't create a framework with
           # only payloads, etc.
           init_framework
-          $stderr.puts dump_payloads
-          $stderr.puts dump_encoders
-          $stderr.puts dump_nops
+          $stdout.puts dump_payloads
+          $stdout.puts dump_encoders
+          $stdout.puts dump_nops
         else
-          $stderr.puts "Invalid module type"
+          $stdout.puts "Invalid module type"
       end
     end
     exit(0)
@@ -297,7 +297,7 @@ if __FILE__ == $0
       exit
     end
 
-    $stderr.puts "Options for #{payload_mod.fullname}\n\n" + ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
+    $stdout.puts "Options for #{payload_mod.fullname}\n\n" + ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
     exit(0)
   end
 
