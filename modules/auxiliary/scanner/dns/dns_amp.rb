@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Sending DNS probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
     # Standard packet is 60 bytes. Add the domain size to this
     sendpacketsize = 60 + datastore['DOMAINNAME'].length
-    print_status("Sending #{sendpacketsize} bytes to each host using the IN ANY #{datastore['DOMAINNAME']} request")
+    print_status("Sending #{sendpacketsize} bytes to each host using the IN #{datastore['QUERYTYPE']} #{datastore['DOMAINNAME']} request")
     @results = {}
   end
 
