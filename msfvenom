@@ -297,7 +297,8 @@ if __FILE__ == $0
       exit
     end
 
-    $stdout.puts "Options for #{payload_mod.fullname}\n\n" + ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
+    $stderr.puts "Options for #{payload_mod.fullname}\n\n"
+    $stdout.puts ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
     exit(0)
   end
 
