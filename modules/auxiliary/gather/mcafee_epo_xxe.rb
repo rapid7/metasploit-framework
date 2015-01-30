@@ -18,15 +18,15 @@ class Metasploit3 < Msf::Auxiliary
       off of the filesystem. This properties file contains an encrypted password that is set during
       installation. What is interesting about this password is that it is set as the same password
       as the database 'sa' user and of the admin user created during installation. This password
-      is encrypted with a static key, and is encrypted using a weak cipher at that (ECB). By default,
-      if installed with a local SQL Server instance, the SQL server is listening on all interfaces.
+      is encrypted with a static key, and is encrypted using a weak cipher (ECB). By default,
+      if installed with a local SQL Server instance, the SQL Server is listening on all interfaces.
 
       Recovering this password allows an attacker to potentially authenticate as the 'sa' SQL Server
       user in order to achieve remote command execution with permissions of the database process. If
-      the administrator has no changed the password for the initially created account since installation,
-      the attacker also now has the password for this account. By default, 'admin' is recommended.
+      the administrator has not changed the password for the initially created account since installation,
+      the attacker will have the password for this account. By default, 'admin' is recommended.
 
-      Any user account can be used to exploit this, all that is needed is a pair of credentials.
+      Any user account can be used to exploit this, all that is needed is a valid credential.
 
       The most data that can be successfully retrieved is 255 characters due to length restrictions
       on the field used to perform the XXE attack.

@@ -22,9 +22,9 @@ PATH
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 3.2.21, < 4.0.0)
-      metasploit-credential (~> 0.13.11)
+      metasploit-credential (~> 0.13.15)
       metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (~> 0.21.3)
+      metasploit_data_models (~> 0.22.3)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
@@ -62,7 +62,7 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.3)
-    arel-helpers (2.0.2)
+    arel-helpers (2.1.0)
       activerecord (>= 3.1.0, < 5)
     aruba (0.6.1)
       childprocess (>= 0.3.6)
@@ -112,10 +112,10 @@ GEM
     metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.13.11)
+    metasploit-credential (0.13.15)
       metasploit-concern (~> 0.3.0)
       metasploit-model (~> 0.28.0)
-      metasploit_data_models (~> 0.21.0)
+      metasploit_data_models (~> 0.22.3)
       pg
       railties (< 4.0.0)
       rubyntlm
@@ -123,7 +123,7 @@ GEM
     metasploit-model (0.28.0)
       activesupport
       railties (< 4.0.0)
-    metasploit_data_models (0.21.3)
+    metasploit_data_models (0.22.3)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
