@@ -12,35 +12,33 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "ManageEngine OpManager / Applications Manager / IT360 Arbitrary Directory Listing",
+      'Name'           => "ManageEngine Multiple Products Arbitrary Directory Listing",
       'Description'    => %q{
-          This module exploits a directory listing information disclosure vulnerability in
-          FailOverHelperServlet on ManageEngine OpManager, Applications Manager and IT360.
-          It recurses through diretories, so it will list the whole drive if you ask it to list
-          / in Linux or C:\ in Windows.
-          This vulnerability is unauthenticated on OpManager and Applications Manager, but
-          authenticated in IT360. This module will attempt to login using the default
-          credentials for the administrator and guest accounts; alternatively you can provide a
-          pre-authenticated cookie or a username / password combo.
-          For IT360 targets enter the RPORT of the OpManager instance (usually 8300).
-          This module has been tested on both Windows and Linux with several different versions
-          Windows paths have to be escaped with 4 backslashes on the command line.
-          There is a companion module that allows you to download an arbitrary file.
-          This vulnerability has been fixed in Applications Manager v11.9 b11912 and OpManager 11.6.          
+        This module exploits a directory listing information disclosure vulnerability in the
+        FailOverHelperServlet on ManageEngine OpManager, Applications Manager and IT360. It
+        makes a recursive listing, so it will list the whole drive if you ask it to list / in
+        Linux or C:\ in Windows. This vulnerability is unauthenticated on OpManager and
+        Applications Manager, but authenticated in IT360. This module will attempt to login
+        using the default credentials for the administrator and guest accounts; alternatively
+        you can provide a pre-authenticated cookie or a username / password combo. For IT360
+        targets enter the RPORT of the OpManager instance (usually 8300). This module has been
+        tested on both Windows and Linux with several different versions Windows paths have to
+        be escaped with 4 backslashes on the command line. There is a companion module that
+        allows you to download an arbitrary file. This vulnerability has been fixed in Applications
+        Manager v11.9 b11912 and OpManager 11.6.
       },
-      'Author'       =>
+      'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Vulnerability Discovery and Metasploit module
         ],
-      'License'     => MSF_LICENSE,
+      'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'CVE', '2014-7863' ],
-          [ 'OSVDB', 'TODO' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_failservlet.txt' ],
-          [ 'URL', 'FULLDISC_URL' ]
+          ['CVE', '2014-7863'],
+          ['OSVDB', 'TODO'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_failservlet.txt'],
+          ['URL', 'FULLDISC_URL']
         ],
-      'DefaultOptions' => { 'WfsDelay' => 30 },
       'DisclosureDate' => 'Jan 28 2015'))
 
     register_options(
