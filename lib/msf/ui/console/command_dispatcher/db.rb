@@ -1178,7 +1178,7 @@ class Db
   end
 
   def make_sortable(input)
-    case input.class
+    case input
     when String
       input = input.downcase
     when Fixnum
