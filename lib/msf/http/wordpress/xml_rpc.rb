@@ -15,7 +15,7 @@ module Msf::HTTP::Wordpress::XmlRpc
     'data'      => xml
     )
 
-    return true if res && res.body =~ /<string>Hello!<\/string>/
+    return true if res && res.body && res.body.to_s =~ /<string>Hello!<\/string>/
     return false
   end
 
