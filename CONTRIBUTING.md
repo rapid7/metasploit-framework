@@ -23,7 +23,7 @@ and don'ts of how to make sure *your* valuable contributions actually
 make it into Metasploit's master branch.
 
 If you care not to follow these rules, your contribution **will** be
-closed (*Road House* style). Sorry!
+closed. Sorry!
 
 This is intended to be a **short** list. The [wiki] is much more
 exhaustive and reveals many mysteries. If you read nothing else, take a
