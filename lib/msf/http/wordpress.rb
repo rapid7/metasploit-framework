@@ -11,7 +11,7 @@ module Msf
       require 'msf/http/wordpress/uris'
       require 'msf/http/wordpress/users'
       require 'msf/http/wordpress/version'
-      require 'msf/http/wordpress/xmlrpc'
+      require 'msf/http/wordpress/xml_rpc'
 
       include Msf::Exploit::Remote::HttpClient
       include Msf::HTTP::Wordpress::Base
