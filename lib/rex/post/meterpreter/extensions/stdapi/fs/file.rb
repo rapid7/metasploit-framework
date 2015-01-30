@@ -246,9 +246,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Upload a single file.
   #
-  def File.upload_file(dest_file, src_file)
+  def File.upload_file(dest_file, src_file, &stat)
     # Open the file on the remote side for writing and read
     # all of the contents of the local file
+    stat.call('uploading', src_file, dest_file) if (stat)
     dest_fd = client.fs.file.new(dest_file, "wb")
     src_buf = ''
 
@@ -261,6 +262,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     ensure
       dest_fd.close
     end
+    stat.call('uploaded', src_file, dest_file) if (stat)
   end
 
   #
