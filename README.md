@@ -8,6 +8,9 @@ The latest version of this software is available from https://metasploit.com/
 Bug tracking and development information can be found at:
  https://github.com/rapid7/metasploit-framework
 
+New bugs and feature requests should be directed to:
+  http://r-7.co/MSF-BUGv1
+
 API documentation for writing modules can be found at:
   https://rapid7.github.io/metasploit-framework/api
 
