@@ -12,19 +12,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "ManageEngine OpManager / Applications Manager / IT360 Arbitrary File Download",
+      'Name'           => "ManageEngine Multiple Products Arbitrary File Download",
       'Description'    => %q{
-          This module exploits an arbitrary file download vulnerability in FailOverHelperServlet
-          on ManageEngine OpManager, Applications Manager and IT360.
-          This vulnerability is unauthenticated on OpManager and Applications Manager, but
-          authenticated in IT360. This module will attempt to login using the default
-          credentials for the administrator and guest accounts; alternatively you can provide
-          a pre-authenticated cookie or a username / password combo.
-          For IT360 targets enter the RPORT of the OpManager instance (usually 8300).
-          This module has been tested on both Windows and Linux with several different versions.
-          Windows paths have to be escaped with 4 backslashes on the command line.
-          There is a companion module that allows you to list the contents of any directory recursively.
-          This vulnerability has been fixed in Applications Manager v11.9 b11912 and OpManager 11.6.
+        This module exploits an arbitrary file download vulnerability in the FailOverHelperServlet
+        on ManageEngine OpManager, Applications Manager and IT360. This vulnerability is
+        unauthenticated on OpManager and Applications Manager, but authenticated in IT360. This
+        module will attempt to login using the default credentials for the administrator and
+        guest accounts; alternatively you can provide a pre-authenticated cookie or a username
+        and password combo. For IT360 targets enter the RPORT of the OpManager instance (usually
+        8300). This module has been tested on both Windows and Linux with several different
+        versions. Windows paths have to be escaped with 4 backslashes on the command line. There is
+        a companion module that allows you to list the contents of any directory recursively. This
+        vulnerability has been fixed in Applications Manager v11.9 b11912 and OpManager 11.6.
       },
       'Author'       =>
         [
@@ -33,28 +32,22 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'     =>
         [
-          [ 'CVE', '2014-7863' ],
-          [ 'OSVDB', 'TODO' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_failservlet.txt' ],
-          [ 'URL', 'FULLDISC_URL' ]
+          ['CVE', '2014-7863'],
+          ['OSVDB', 'TODO'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_failservlet.txt'],
+          ['URL', 'FULLDISC_URL']
         ],
-      'DefaultOptions' => { 'WfsDelay' => 30 },
       'DisclosureDate' => 'Jan 28 2015'))
 
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('TARGETURI',
-          [ true, "The base path to OpManager, AppManager or IT360", '/' ]),
+        OptString.new('TARGETURI', [true, "The base path to OpManager, AppManager or IT360", '/']),
         OptString.new('FILEPATH', [false, 'Path of the file to download', '/etc/passwd']),
-        OptString.new('IAMAGENTTICKET',
-          [false, 'Pre-authenticated IAMAGENTTICKET cookie (IT360 target only)']),
-        OptString.new('USERNAME',
-          [true, 'The username to login as (IT360 target only)', 'guest']),
-        OptString.new('PASSWORD',
-          [true, 'Password for the specified username (IT360 target only)', 'guest']),
-        OptString.new('DOMAIN_NAME',
-          [false, 'Name of the domain to logon to (IT360 target only)'])
+        OptString.new('IAMAGENTTICKET', [false, 'Pre-authenticated IAMAGENTTICKET cookie (IT360 target only)']),
+        OptString.new('USERNAME', [false, 'The username to login as (IT360 target only)']),
+        OptString.new('PASSWORD', [false, 'Password for the specified username (IT360 target only)']),
+        OptString.new('DOMAIN_NAME', [false, 'Name of the domain to logon to (IT360 target only)'])
       ], self.class)
   end
 
