@@ -2,7 +2,7 @@
 
 module Msf::HTTP::Wordpress::XmlRpc
 
-  # Determines if the XMLRPC interface is enabled by sending a demo.sayHello reuqest
+  # Determines if the XMLRPC interface is enabled by sending a demo.sayHello request
   #
   # @return [Boolean] true if the interface is enabled
   def wordpress_xmlrpc_enabled?
@@ -19,7 +19,7 @@ module Msf::HTTP::Wordpress::XmlRpc
     return false
   end
 
-  # Extracts the Wordpress version information from various sources
+  # Generates the xml post body for a XMLRPC call
   #
   # @param method_name [String] The XMLRPC method to call
   # @param params [String] The XMLRPC method params

