@@ -42,30 +42,9 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('BLANK_PASSWORDS') # we don't need this option
   end
 
-  def xmlrpc_enabled?
-    xml = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>"
-    xml << '<methodCall>'
-    xml << '<methodName>demo.sayHello</methodName>'
-    xml << '<params>'
-    xml << '<param></param>'
-    xml << '</params>'
-    xml << '</methodCall>'
-
-    res = send_request_cgi(
-      'uri'       => wordpress_url_xmlrpc,
-      'method'    => 'POST',
-      'data'      => xml
-    )
-
-    if res && res.body =~ /<string>Hello!<\/string>/
-      return true # xmlrpc is enabled
-    end
-    return false
-  end
-
   def run_host(ip)
     print_status("#{peer}:#{wordpress_url_xmlrpc} - Sending Hello...")
-    if xmlrpc_enabled?
+    if wordpress_xmlrpc_enabled?
       vprint_good("XMLRPC enabled, Hello message received!")
     else
       print_error("XMLRPC is not enabled! Aborting")
