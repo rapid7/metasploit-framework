@@ -1,30 +1,19 @@
-require 'faraday'
-require 'cgi'
-require 'json'
+require 'net/http'
 
 module Nessus
 
    class Client
       class << self
-         # @!attribute verify_ssl
-         #   @return [Boolean] whether to verify SSL with Faraday (default: true)
-         attr_accessor :verify_ssl
+        @uri
+        @connection
+        @token
       end
       
       def initialize(host, username = nil, password = nil, ssl_option = nil)
-         @uri = host
-         connection_options = {}
-         connection_options[:ssl] ||= {}
-         if ssl_option == "ssl_verify"
-            connection_options[:ssl][:verify] = true
-         else
-            connection_options[:ssl][:verify] = false
-         end
-         @connection = Faraday.new(host, connection_options)
-         # @connection.headers[:user_agent] = "Nessus.rb v1.1".freeze
-
-         # Allow passing a block to Faraday::Connection
-         
+         @uri = URI.parse('https://127.0.0.1:8834')
+         @connection = Net::HTTP.new(@uri.host, @uri.port)
+         @connection.use_ssl = true
+         @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
          yield @connection if block_given?
 
          authenticate(username, password) if username && password
@@ -37,19 +26,17 @@ module Nessus
             :password => password,
             :json => 1,
          }
-         resp = connection.post "/session", payload
+         request = Net::HTTP::Post.new("/session")
+         request.set_form_data(payload)
+         resp = @connection.request(request)
          resp = JSON.parse(resp.body)
-         if resp.include? "token"
-            connection.headers["X-Cookie"] = "token=#{resp['token']}"
-         end
-
+         @token = "token=#{resp['token']}"
          true
       end
       alias_method :login, :authenticate
       
       def authenticated
-         headers = connection.headers
-         if (headers["X-Cookie"] && headers["X-Cookie"].include?('token='))
+         if (@token && @token.include?('token='))
             return true
          else
             return false
@@ -107,37 +94,49 @@ module Nessus
       end
 
       def list_folders
-         resp = connection.get '/folders'
-         resp = JSON.parse(resp.body)["folders"]
+         request = Net::HTTP::Get.new("/folders")
+         request.add_field("X-Cookie",@token)
+         resp = @connection.request(request)
+         resp = JSON.parse(resp.body)
          return resp
       end
 
       def list_scanners
-         resp = connection.get "/scanners"
+         request = Net::HTTP::Get.new("/scanners")
+         request.add_field("X-Cookie",@token)
+         resp = @connection.request(request)
          resp = JSON.parse(resp.body)
          return resp
       end
 
       def list_families
-         resp = connection.get "plugins/families"
+         request = Net::HTTP::Get.new("/plugins/families")
+         request.add_field("X-Cookie",@token)
+         resp = @connection.request(request)
          resp = JSON.parse(resp.body)
          return resp
       end
 
       def list_plugins(family_id)
-         resp = connection.get "/plugins/families/#{family_id}"
+         request = Net::HTTP::Get.new("/plugins/families/#{family_id}")
+         request.add_field("X-Cookie",@token)
+         resp = @connection.request(request)
          resp = JSON.parse(resp.body)
          return resp
       end
 
       def plugin_details(plugin_id)
-         resp = connection.get "plugins/plugin/#{plugin_id}"
+         request = Net::HTTP::Get.new("/plugins/plugin/#{plugin_id}")
+         request.add_field("X-Cookie",@token)
+         resp = @connection.request(request)
          resp = JSON.parse(resp.body)
          return resp
       end
     
       def is_admin
-         resp = connection.get "/session"
+         request = Net::HTTP::Get.new("/session")
+         request.add_field("X-Cookie",@token)
+         resp = @connection.request(request)
          resp = JSON.parse(resp.body)
          if resp["permissions"] == 128
             return true

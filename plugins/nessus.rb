@@ -122,7 +122,7 @@ module Msf
                   "Name",
                   "Type"
                ])
-            list.each { |folder|
+            list["folders"].each { |folder|
             tbl << [ folder["id"], folder["name"], folder["type"] ]
             }
             print_line tbl.to_s
