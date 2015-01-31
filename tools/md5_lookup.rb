@@ -203,7 +203,7 @@ module Md5LookupUtility
       result = ''
 
       # Hmm, no proper response :-(
-      return result if !res || res.code != 200
+      return result unless res && res.code == 200
 
       begin
         json = JSON.parse(res.body)
