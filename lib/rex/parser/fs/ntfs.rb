@@ -12,7 +12,9 @@ module Rex
       #
       # Initialize the NTFS class with an already open file handler
       #
-      data_attribute = 128
+      DATA_ATTRIBUTE_ID = 128
+      INDEX_ROOT_ID = 144
+      INDEX_ALLOCATION_ID = 160
       def initialize(file_handler)
         @file_handler = file_handler
         data = @file_handler.read(4096)
@@ -37,7 +39,7 @@ module Rex
       # Gather the MFT entry corresponding to his number
       #
       def mft_record_from_mft_num(mft_num)
-        cluster_from_attribute_non_resident(mft_record_attribute(@mft)[data_attribute]["data"], mft_num * @cluster_per_mft_record, @bytes_per_mft_record)
+        cluster_from_attribute_non_resident(mft_record_attribute(@mft)[DATA_ATTRIBUTE_ID]["data"], mft_num * @cluster_per_mft_record, @bytes_per_mft_record)
       end
 
       #
@@ -68,10 +70,10 @@ module Rex
       def file_content_from_mft_num(mft_num, size)
         mft_record = mft_record_from_mft_num(mft_num)
         attribute_list = mft_record_attribute(mft_record)
-        if attribute_list[data_attribute]["resident"]
-          return attribute_list[data_attribute]["data"]
+        if attribute_list[DATA_ATTRIBUTE_ID]["resident"]
+          return attribute_list[DATA_ATTRIBUTE_ID]["data"]
         else
-          return cluster_from_attribute_non_resident(attribute_list[data_attribute]["data"])[0, size]
+          return cluster_from_attribute_non_resident(attribute_list[DATA_ATTRIBUTE_ID]["data"])[0, size]
         end
       end
 
@@ -126,10 +128,10 @@ module Rex
       # return the list of files in attribute directory and their MFT number and size
       #
       def index_list_from_attributes(attributes)
-        index_root_attribute = attributes[144]
+        index_root_attribute = attributes[INDEX_ROOT_ID]
         index_record = index_root_attribute[16, index_root_attribute.length - 16]
-        if attributes.key?(160)
-          return parse_index_list(index_record, attributes[160])
+        if attributes.key?(INDEX_ALLOCATION_ID)
+          return parse_index_list(index_record, attributes[INDEX_ALLOCATION_ID])
         else
           return parse_index_list(index_record, "")
         end
@@ -203,13 +205,13 @@ module Rex
             res[attribute_identifier] = mft_record[curs + content_offset, content_size]
           else
             # non resident
-            if attribute_identifier == data_attribute
+            if attribute_identifier == DATA_ATTRIBUTE_ID
               res[attribute_identifier] = mft_record[curs, attribute_size]
             else
               res[attribute_identifier] = cluster_from_attribute_non_resident(mft_record[curs, attribute_size])
             end
           end
-          if attribute_identifier == data_attribute
+          if attribute_identifier == DATA_ATTRIBUTE_ID
             res[attribute_identifier] = { "data" => res[attribute_identifier], "resident" => mft_record[curs + 8] == "\x00" }
           end
           curs += attribute_size
