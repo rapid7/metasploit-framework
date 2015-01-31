@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
       'License'      => 'MSF_LICENSE',
       'Platform'     => ['win'],
       'SessionTypes' => ['meterpreter'],
-      'Author'       => ['Danil Bazin <danil.bazin[at]hsc.fr> @danilbaz'],
+      'Author'       => ['Danil Bazin <danil.bazin[at]hsc.fr>'], #@danilbaz
       'References'   => [
         [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
       ]
