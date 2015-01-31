@@ -618,7 +618,7 @@ module Msf
                      'Folder'
                ])
            
-               list.each {|scan|
+               list["scans"].each {|scan|
                   if args[0] == "-r"
                      if scan["status"] == "running"
                         tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
@@ -712,7 +712,7 @@ module Msf
                   'Email',
                   'Permissions'
             ])
-            list.each { |user|
+            list["users"].each { |user|
                tbl << [ user["id"], user["name"], user["username"], user["type"], user["email"], user["permissions"] ]
             }
             print_line tbl.to_s
@@ -773,7 +773,7 @@ module Msf
             end
 
             pol = @n.list_policies
-            pol.each {|p|
+            pol["policies"].each {|p|
             if p["template_uuid"] == pid
                return true
             end
@@ -1469,7 +1469,7 @@ module Msf
                   'Name',
                   'Policy UUID'
             ])
-            list.each { |policy| 
+            list["policies"].each { |policy| 
                tbl << [ policy["id"], policy["name"], policy["template_uuid"] ]
             }
             print_line tbl.to_s
