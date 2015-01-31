@@ -32,9 +32,10 @@ module Rex
             self.class_desc = ClassDesc.decode(io, stream)
             stream.add_reference(self) unless stream.nil?
 
-            if class_desc.description.class == NewClassDesc
+            case class_desc.description
+            when NewClassDesc
               self.class_data = decode_class_data(io, class_desc.description)
-            elsif class_desc.description.class == Reference
+            when Reference
               ref = class_desc.description.handle - BASE_WIRE_HANDLE
               self.class_data = decode_class_data(io, stream.references[ref])
             end
@@ -47,7 +48,7 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless class_desc.class == ClassDesc
+            unless class_desc.kind_of?(ClassDesc)
               raise ::RuntimeError, 'Failed to serialize NewObject'
             end
 
@@ -55,7 +56,7 @@ module Rex
             encoded << class_desc.encode
 
             class_data.each do |value|
-              if value.class == Array
+              if value.kind_of?(Array)
                 encoded << encode_value(value)
               else
                 encoded << encode_content(value)
@@ -70,15 +71,16 @@ module Rex
           # @return [String]
           def to_s
             str  = ''
-            if class_desc.description.class == NewClassDesc
+            case class_desc.description
+            when NewClassDesc
               str << class_desc.description.class_name.to_s
-            elsif class_desc.description.class == Reference
+            when Reference
               str << (class_desc.description.handle - BASE_WIRE_HANDLE).to_s(16)
             end
 
             str << ' => { '
-            data = class_data.collect { |data| data.to_s }
-            str << data.join(', ')
+            data_str = class_data.collect { |data| data.to_s }
+            str << data_str.join(', ')
             str << ' }'
           end
 
@@ -93,7 +95,7 @@ module Rex
           def decode_class_data(io, my_class_desc)
             values = []
 
-            unless my_class_desc.super_class.description.class == NullReference
+            unless my_class_desc.super_class.description.kind_of?(NullReference)
               values += decode_class_data(io, my_class_desc.super_class.description)
             end
 

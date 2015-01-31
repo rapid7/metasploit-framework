@@ -151,18 +151,16 @@ protected
     rescue ::Exception => e
       mod.error = e
       mod.print_error("Auxiliary failed: #{e.class} #{e}")
-      elog("Auxiliary failed: #{e.class} #{e}", 'core', LEV_0)
-
-      if e.kind_of?(Msf::OptionValidateError)
-        dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_3)
-      else
+      if(e.class.to_s != 'Msf::OptionValidateError')
         mod.print_error("Call stack:")
         e.backtrace.each do |line|
           break if line =~ /lib.msf.base.simple.auxiliary.rb/
           mod.print_error("  #{line}")
         end
-        elog("Call stack:\n#{$@.join("\n")}", 'core', LEV_0)
       end
+
+      elog("Auxiliary failed: #{e.class} #{e}", 'core', LEV_0)
+      dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_3)
 
       mod.cleanup
 
@@ -184,3 +182,4 @@ end
 
 end
 end
+

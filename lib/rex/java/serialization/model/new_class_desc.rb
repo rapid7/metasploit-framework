@@ -66,9 +66,9 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless class_name.class == Rex::Java::Serialization::Model::Utf &&
-                    class_annotation.class == Rex::Java::Serialization::Model::Annotation &&
-                    super_class.class == Rex::Java::Serialization::Model::ClassDesc
+            unless class_name.kind_of?(Rex::Java::Serialization::Model::Utf) &&
+                   class_annotation.kind_of?(Rex::Java::Serialization::Model::Annotation) &&
+                   super_class.kind_of?(Rex::Java::Serialization::Model::ClassDesc)
               raise ::RuntimeError, 'Filed to serialize NewClassDesc'
             end
             encoded = ''

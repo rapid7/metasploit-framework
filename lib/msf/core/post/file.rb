@@ -354,21 +354,13 @@ module Msf::Post::File
   # @param old_file [String] Remote file name to move
   # @param new_file [String] The new name for the remote file
   def rename_file(old_file, new_file)
-    if session.respond_to? :commands && session.commands.include?("stdapi_fs_file_move")
+    if session.type == "meterpreter"
       return (session.fs.file.mv(old_file, new_file).result == 0)
     else
       if session.platform =~ /win/
-        if cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|) =~ /moved/
-          return true
-        else
-          return false
-        end
+        cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|) =~ /moved/
       else
-        if cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|).empty?
-          return true
-        else
-          return false
-        end
+        cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|).empty?
       end
     end
   end
