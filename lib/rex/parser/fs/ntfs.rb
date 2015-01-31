@@ -39,7 +39,9 @@ module Rex
       # Gather the MFT entry corresponding to his number
       #
       def mft_record_from_mft_num(mft_num)
-        cluster_from_attribute_non_resident(mft_record_attribute(@mft)[DATA_ATTRIBUTE_ID]["data"], mft_num * @cluster_per_mft_record, @bytes_per_mft_record)
+        mft_num_offset = mft_num * @cluster_per_mft_record
+        mft_data_attribute = mft_record_attribute(@mft)[DATA_ATTRIBUTE_ID]["data"]
+        cluster_from_attribute_non_resident(mft_data_attribute, mft_num_offset, @bytes_per_mft_record)
       end
 
       #
@@ -73,7 +75,8 @@ module Rex
         if attribute_list[DATA_ATTRIBUTE_ID]["resident"]
           return attribute_list[DATA_ATTRIBUTE_ID]["data"]
         else
-          return cluster_from_attribute_non_resident(attribute_list[DATA_ATTRIBUTE_ID]["data"])[0, size]
+          data_attribute = attribute_list[DATA_ATTRIBUTE_ID]["data"]
+          return cluster_from_attribute_non_resident(data_attribute)[0, size]
         end
       end
 
@@ -88,7 +91,8 @@ module Rex
         # mft_offset =  index_entry[0.unpack("Q<",:8])[0]
         # work with 4 bytes
         mft_offset =  index_entry[0, 4].unpack("V")[0]
-        res[filename_from_filenameattribute(filename_attribute)] = { "mft_offset" => mft_offset, "file_size" => real_size_from_filenameattribute(filename_attribute) }
+        res[filename_from_filenameattribute(filename_attribute)] = { "mft_offset" => mft_offset, 
+          "file_size" => real_size_from_filenameattribute(filename_attribute) }
         res
       end
 
@@ -107,7 +111,9 @@ module Rex
           if index_entry[12, 4].unpack("V")[0] & 1 == 1
             # should be 8 bytes length
             vcn =  index_entry[-8, 4].unpack("V")[0]
-            res_son = parse_index_list(index_allocation_attribute[vcn * @bytes_per_cluster + 24, index_size * @bytes_per_cluster], index_allocation_attribute)
+            vcn_in_bytes = vcn * @bytes_per_cluster
+            index_size_in_bytes = index_size * @bytes_per_cluster
+            res_son = parse_index_list(index_allocation_attribute[vcn_in_bytes + 24, index_size_in_bytes], index_allocation_attribute)
             res.update(res_son)
           end
           offset_index_entry_list += index_size
@@ -118,7 +124,9 @@ module Rex
         if index_entry[12, 4].unpack("V")[0] & 1 == 1
           # should be 8 bytes length
           vcn =  index_entry[-8, 4].unpack("V")[0]
-          res_son = parse_index_list(index_allocation_attribute[vcn * @bytes_per_cluster + 24, index_size * @bytes_per_cluster], index_allocation_attribute)
+          vcn_in_bytes = vcn * @bytes_per_cluster
+          index_size_in_bytes = index_size * @bytes_per_cluster
+          res_son = parse_index_list(index_allocation_attribute[vcn_in_bytes + 24, index_size_in_bytes], index_allocation_attribute)
           res.update(res_son)
         end
         res
@@ -166,7 +174,8 @@ module Rex
           size_wanted = [run_length * @bytes_per_cluster, size_max - attribut.length].min
 
           if cluster_num + (size_wanted / @bytes_per_cluster) >= run_list_num && (cluster_num < run_length + run_list_num)
-            run_list_offset = (run_offset + old_offset + [cluster_num - run_list_num, 0].max) * @bytes_per_cluster
+            run_list_offset_in_cluster = run_offset + old_offset + [cluster_num - run_list_num, 0].max
+            run_list_offset = (run_list_offset_in_cluster) * @bytes_per_cluster
             run_list_offset = run_list_offset.to_i
             @file_handler.seek(run_list_offset)
 
@@ -212,7 +221,8 @@ module Rex
             end
           end
           if attribute_identifier == DATA_ATTRIBUTE_ID
-            res[attribute_identifier] = { "data" => res[attribute_identifier], "resident" => mft_record[curs + 8] == "\x00" }
+            res[attribute_identifier] = { "data" => res[attribute_identifier], 
+              "resident" => mft_record[curs + 8] == "\x00" }
           end
           curs += attribute_size
           attribute_identifier = mft_record[curs, 4].unpack("V")[0]
