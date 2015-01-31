@@ -181,7 +181,7 @@ module Rex
 
             data = ""
             while data.length < size_wanted
-              data += @file_handler.read(size_wanted - data.length)
+              data << @file_handler.read(size_wanted - data.length)
             end
             attribut += data
           end
