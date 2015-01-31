@@ -43,6 +43,14 @@ class Metasploit3 < Msf::Post
     end
 
     file_path = datastore['FILE_PATH']
+
+    r = client.railgun.kernel32.GetFileAttributesA(file_path)
+
+    if r['GetLastError'] != 0
+      print_error("The file does not exist, use file format C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts")
+      return nil
+    end
+
     drive = file_path[0, 2]
 
     r = client.railgun.kernel32.CreateFileA("\\\\.\\#{drive}", "GENERIC_READ", "FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE",
