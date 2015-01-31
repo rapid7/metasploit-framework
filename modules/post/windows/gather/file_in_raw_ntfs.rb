@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
                                             nil, "OPEN_EXISTING", "FILE_FLAG_WRITE_THROUGH", 0)
 
     if r['GetLastError'] != 0
-      print_error("Error opening #{drive} GetLastError=#{r['GetLastError']}")
+      print_error("Error opening #{drive} GetLastError=#{r['ErrorMessage']}")
       return nil
     end
     @handle = r['return']
