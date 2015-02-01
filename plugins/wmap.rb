@@ -1563,7 +1563,7 @@ class Plugin::Wmap < Msf::Plugin
       wtree = Tree.new(s.vhost)
 
       # Load site pages
-      s.web_pages.order(path: :asc).each do |req|
+      s.web_pages.order('path asc').each do |req|
         tarray = req.path.to_s.split(pathchr)
         tarray.delete("")
         tpath = Pathname.new(pathchr)
