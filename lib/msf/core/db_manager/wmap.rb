@@ -128,7 +128,7 @@ module Msf::DBManager::WMAP
   # This methods returns a list of all targets in the database
   def requests
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::WmapRequest.find(:all)
+    ::Mdm::WmapRequest.all
   }
   end
 
@@ -183,7 +183,7 @@ module Msf::DBManager::WMAP
   # This methods returns a list of all targets in the database
   def targets
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::WmapTarget.find(:all)
+    ::Mdm::WmapTarget.all
   }
   end
 end
