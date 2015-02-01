@@ -67,6 +67,7 @@ class Metasploit3 < Msf::Post
      first = true
      print_status("Monitoring new processes.")
      while detected == false
+         sleep 1
          procs = client.sys.process.processes
          procs.each do |p|
             if p['name'] == process or process == "*"
