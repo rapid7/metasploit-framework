@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
     max_search = datastore['MAX_SEARCH']
 
     begin
-      q = query(search_filter, max_search, USER_FIELDS)
+      q = query(query_filter, max_search, USER_FIELDS)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Post
   # criteria set by user in the Datastore.
   #
   # @return [String] the LDAP query string
-  def search_filter
+  def query_filter
     inner_filter = '(objectCategory=person)(objectClass=user)'
     inner_filter << '(!(lockoutTime>=1))' if datastore['EXCLUDE_LOCKED']
     inner_filter << '(!(userAccountControl:1.2.840.113556.1.4.803:=2))' if datastore['EXCLUDE_DISABLED']
