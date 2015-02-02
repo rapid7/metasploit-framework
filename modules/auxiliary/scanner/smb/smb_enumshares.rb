@@ -34,7 +34,8 @@ class Metasploit3 < Msf::Auxiliary
           'nebulus',
           'sinn3r',
           'r3dy',
-          'altonjx'
+          'altonjx',
+	  'snar5'
         ],
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
@@ -42,7 +43,6 @@ class Metasploit3 < Msf::Auxiliary
           'DCERPC::fake_bind_multi' => false
         }
     ))
-
     register_options(
       [
         OptBool.new('SpiderShares',      [false, 'Spider shares recursively', false]),
@@ -50,6 +50,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('SpiderProfiles',  [false, 'Spider only user profiles when share = C$', true]),
         OptEnum.new('LogSpider',      [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0,1,2,3]]),
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
+	OptBool.new('Check_Write_Access',	[false, 'Check to see if share is writeable', false]),
         OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares only with SRVSVC', false ])
       ], self.class)
 
@@ -58,6 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def share_type(val)
     [ 'DISK', 'PRINTER', 'DEVICE', 'IPC', 'SPECIAL', 'TEMPORARY' ][val]
+  
   end
 
   def device_type_int_to_text(device_type)
@@ -82,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def eval_host(ip, share, subdir = "")
     read = write = false
-
+	
     # srvsvc adds a null byte that needs to be removed
     share = share.chomp("\x00")
 
@@ -127,14 +129,16 @@ class Metasploit3 < Msf::Auxiliary
       msg = "Unhandled Device Type (#{device_type})"
     when 2 .. 16, 18 .. 20, 30 .. 33, 36
       msg = device_type_int_to_text(device_type)
-    when 17
+    
+     when 17
       skip = true
+   
       msg = device_type_int_to_text(device_type)
+      
     else
       msg = "Unknown Device Type"
       msg << " (#{device_type})" if device_type
     end
-
     return read,write,msg,nil if skip
 
     rfd = self.simple.client.find_first("#{subdir}\\*")
@@ -142,9 +146,9 @@ class Metasploit3 < Msf::Auxiliary
 
     # Test writable
     filename = Rex::Text.rand_text_alpha(rand(8))
-    wfd = simple.open("\\#{filename}", 'rwct')
+    wfd = simple.aopen("\\#{filename}", 'rwct')
     wfd << Rex::Text.rand_text_alpha(rand(1024))
-    wfd.close
+    wfd.closea
     simple.delete("\\#{filename}")
     simple.disconnect("\\\\#{ip}\\#{share}")
 
@@ -175,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def lanman_netshareenum(ip, rport, info)
     shares = []
-
+	
     begin
       res = self.simple.client.trans(
         "\\PIPE\\LANMAN",
@@ -218,9 +222,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def srvsvc_netshareenum(ip)
+	
     shares = []
     simple.connect("\\\\#{ip}\\IPC$")
     handle = dcerpc_handle('4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 'ncacn_np', ["\\srvsvc"])
+    
     begin
       dcerpc_bind(handle)
     rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
@@ -274,10 +280,16 @@ class Metasploit3 < Msf::Auxiliary
       name    = Rex::Text.to_ascii(name)
       s_type  = Rex::Text.to_ascii(share_type(types[t]))
       comment = Rex::Text.to_ascii(comment)
-
+      if datastore['Check_Write_Access']
+      	writeable = check_write_access(ip,name) 
+      		if writeable 
+			comment += "\033[1;32m[Write Access]\033[0;00m"
+      		end
+      end 
+  
       shares << [ name, s_type, comment ]
     end
-
+	
     shares
   end
 
@@ -316,10 +328,30 @@ class Metasploit3 < Msf::Auxiliary
     return dirs
   end
 
+  def check_write_access(ip,share)
+	# Check to see if each share is writeable during scan returns bool. 
+	share = share.strip 
+        # Just test and pass if not writeable 
+	begin 
+		    simple.connect("\\\\#{ip}\\#{share}")
+		    filename = Rex::Text.rand_text_alpha(rand(8))    		    
+		    wfd = simple.open("\\#{filename}", 'rwct')
+    		    wfd << Rex::Text.rand_text_alpha(rand(1024))
+     	            wfd.close
+    		    simple.delete("\\#{filename}")
+     		    simple.disconnect("\\\\#{ip}\\#{share}")
+		    return true
+	rescue
+	
+		return false
+        end 
+     
+  end 
+	
   def get_files_info(ip, rport, shares, info)
     read  = false
     write = false
-
+		
     # Creating a separate file for each IP address's results.
     detailed_tbl = Rex::Ui::Text::Table.new(
       'Header'  => "Spidered results for #{ip}.",
@@ -446,6 +478,7 @@ class Metasploit3 < Msf::Auxiliary
       begin
         connect
         smb_login
+	
         if @srvsvc
           shares = srvsvc_netshareenum(ip)
         else
@@ -474,6 +507,7 @@ class Metasploit3 < Msf::Auxiliary
           if datastore['SpiderShares']
             get_files_info(ip, rport, shares, info)
           end
+	
 
           break if rport == 139
         end
@@ -509,4 +543,3 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 end
-
