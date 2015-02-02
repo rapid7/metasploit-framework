@@ -47,10 +47,6 @@ class Metasploit3 < Msf::Auxiliary
     datastore['LENGTH']
   end
 
-  def generate_pingback_xml(target, valid_blog_post)
-    wordpress_generate_xml_rpc_body('pingback.ping', target, valid_blog_post)
-  end
-
   def run_host(ip)
     unless wordpress_and_online?
       print_error("#{peer} - Looks like this site is no WordPress blog")
