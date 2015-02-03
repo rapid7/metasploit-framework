@@ -827,12 +827,6 @@ class Db
     end
 
     # If we get here, we're searching.  Delete implies search
-    if user
-      user_regex = Regexp.compile(user)
-    end
-    if pass
-      pass_regex = Regexp.compile(pass)
-    end
 
     if ptype
       type = case ptype
@@ -859,29 +853,51 @@ class Db
     tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      query = Metasploit::Credential::Core.where(
-        workspace_id: framework.db.workspace,
-      )
+      query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
+      query = query.includes(:private, :public, :logins)
+      query = query.includes(logins: [ :service, { service: :host } ])
 
-      query.each do |core|
+      if type.present?
+        query = query.where(metasploit_credential_privates: { type: type })
+      end
 
-        # Exclude creds that don't match the given type
-        next if type.present? && !core.private.kind_of?(type)
+      if svcs.present?
+        query = query.where(Mdm::Service[:name].in(svcs))
+      end
 
-        # Exclude creds that don't match the given user
-        if user_regex.present? && !core.public.username.match(user_regex)
+      if ports.present?
+        query = query.where(Mdm::Service[:port].in(ports))
+      end
+
+      if user.present?
+        # If we have a user regex, only include those that match
+        query = query.where('"metasploit_credential_publics"."username" ~* ?', user)
+      end
+
+      if pass.present?
+        # If we have a password regex, only include those that match
+        query = query.where('"metasploit_credential_privates"."data" ~* ?', pass)
+      end
+
+      if host_ranges.any? || ports.any? || svcs.any?
+        # Only find Cores that have non-zero Logins if the user specified a
+        # filter based on host, port, or service name
+        query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
+      end
+
+      query.find_each do |core|
+
+        # Exclude non-blank username creds if that's what we're after
+        if user == "" && core.public && !(core.public.username.blank?)
           next
         end
 
-        # Exclude creds that don't match the given pass
-        if pass_regex.present? && !core.private.data.match(pass_regex)
+        # Exclude non-blank password creds if that's what we're after
+        if pass == "" && core.private && !(core.private.data.blank?)
           next
         end
 
         if core.logins.empty?
-          # Skip cores that don't have any logins if the user specified a
-          # filter based on host, port, or service name
-          next if host_ranges.any? || ports.any? || svcs.any?
 
           tbl << [
             "", # host
@@ -893,13 +909,6 @@ class Db
           ]
         else
           core.logins.each do |login|
-            if svcs.present? && !svcs.include?(login.service.name)
-              next
-            end
-
-            if ports.present? && !ports.include?(login.service.port)
-              next
-            end
 
             # If none of this Core's associated Logins is for a host within
             # the user-supplied RangeWalker, then we don't have any reason to
@@ -1169,7 +1178,7 @@ class Db
   end
 
   def make_sortable(input)
-    case input.class
+    case input
     when String
       input = input.downcase
     when Fixnum
@@ -1323,7 +1332,7 @@ class Db
 
     # Handle hostless loot
     if host_ranges.compact.empty? # Wasn't a host search
-      hostless_loot = framework.db.loots.find_all_by_host_id(nil)
+      hostless_loot = framework.db.loots.where(host_id: nil)
       hostless_loot.each do |loot|
         row = []
         row.push("")

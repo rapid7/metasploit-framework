@@ -503,10 +503,17 @@ class Console::CommandDispatcher::Stdapi::Fs
           client.framework.events.on_session_upload(client, src, dest) if msf_loaded?
         }
       elsif (stat.file?)
-        client.fs.file.upload(dest, src) { |step, src, dst|
-          print_status("#{step.ljust(11)}: #{src} -> #{dst}")
-          client.framework.events.on_session_upload(client, src, dest) if msf_loaded?
-        }
+        if client.fs.file.exists?(dest) and client.fs.file.stat(dest).directory?
+          client.fs.file.upload(dest, src) { |step, src, dst|
+            print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+            client.framework.events.on_session_upload(client, src, dest) if msf_loaded?
+          }
+        else
+          client.fs.file.upload_file(dest, src) { |step, src, dst|
+            print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+            client.framework.events.on_session_upload(client, src, dest) if msf_loaded?
+          }
+        end
       end
     }
 

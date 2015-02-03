@@ -115,6 +115,8 @@ class Core
       "color"    => "Toggle color",
       "exit"     => "Exit the console",
       "edit"     => "Edit the current module with $VISUAL or $EDITOR",
+      "get"      => "Gets the value of a context-specific variable",
+      "getg"     => "Gets the value of a global variable",
       "go_pro"   => "Launch Metasploit web GUI",
       "grep"     => "Grep the output of another command",
       "help"     => "Help menu",
@@ -135,13 +137,13 @@ class Core
       "save"     => "Saves the active datastores",
       "search"   => "Searches module names and descriptions",
       "sessions" => "Dump session listings and display information about sessions",
-      "set"      => "Sets a variable to a value",
+      "set"      => "Sets a context-specific variable to a value",
       "setg"     => "Sets a global variable to a value",
       "show"     => "Displays modules of a given type, or all modules",
       "sleep"    => "Do nothing for the specified number of seconds",
       "threads"  => "View and manipulate background threads",
       "unload"   => "Unload a framework plugin",
-      "unset"    => "Unsets one or more variables",
+      "unset"    => "Unsets one or more context-specific variables",
       "unsetg"   => "Unsets one or more global variables",
       "use"      => "Selects a module by name",
       "version"  => "Show the framework and console library version numbers",
@@ -2296,6 +2298,81 @@ class Core
     tabs = []
     framework.plugins.each { |k| tabs.push(k.name) }
     return tabs
+  end
+
+ def cmd_get_help
+    print_line "Usage: get var1 [var2 ...]"
+    print_line
+    print_line "The get command is used to get the value of one or more variables."
+    print_line
+  end
+
+  #
+  # Gets a value if it's been set.
+  #
+  def cmd_get(*args)
+
+    # Figure out if these are global variables
+    global = false
+
+    if (args[0] == '-g')
+      args.shift
+      global = true
+    end
+
+    # No arguments?  No cookie.
+    if args.empty?
+      global ? cmd_getg_help : cmd_get_help
+      return false
+    end
+
+    # Determine which data store we're operating on
+    if (active_module && !global)
+      datastore = active_module.datastore
+    else
+      datastore = framework.datastore
+    end
+
+    args.each { |var| print_line("#{var} => #{datastore[var]}") }
+  end
+
+  #
+  # Tab completion for the get command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_get_tabs(str, words)
+    datastore = active_module ? active_module.datastore : self.framework.datastore
+    datastore.keys
+  end
+
+  def cmd_getg_help
+    print_line "Usage: getg var1 [var2 ...]"
+    print_line
+    print_line "Exactly like get -g, get global variables"
+    print_line
+  end
+
+  #
+  # Gets variables in the global data store.
+  #
+  def cmd_getg(*args)
+    args.unshift('-g')
+
+    cmd_get(*args)
+  end
+
+  #
+  # Tab completion for the getg command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_getg_tabs(str, words)
+    self.framework.datastore.keys
   end
 
   def cmd_unset_help

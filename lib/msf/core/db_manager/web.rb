@@ -55,7 +55,7 @@ module Msf::DBManager::Web
     # comparisons through ruby and not SQL.
 
     form = nil
-    ::Mdm::WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
+    ::Mdm::WebForm.where(web_site_id: site[:id], path: path, method: meth, query: quer).each do |xform|
       if xform.params == para
         form = xform
         break

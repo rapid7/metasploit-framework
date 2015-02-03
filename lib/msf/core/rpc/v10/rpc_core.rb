@@ -15,6 +15,11 @@ class RPC_Core < RPC_Base
     self.service.stop
   end
 
+  def rpc_getg(var)
+    val = framework.datastore[var]
+    { var.to_s => val.to_s }
+  end
+
   def rpc_setg(var, val)
     framework.datastore[var] = val
     { "result" => "success" }
