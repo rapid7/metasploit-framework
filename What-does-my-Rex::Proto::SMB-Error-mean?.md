@@ -22,3 +22,7 @@ Invalid SMBUSER or SMBPASS datastore option.
 * **STATUS_BAD_NETWORK_NAME**
 
 Invalid SMB share datastore option.
+
+* **STATUS_LOGON_TYPE_NOT_GRANTED **
+
+Network access:Sharing and security model for local accounts to "Local users authenticate as themselves"
