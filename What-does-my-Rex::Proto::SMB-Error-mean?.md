@@ -25,4 +25,4 @@ Invalid SMB share datastore option.
 
 * **STATUS_LOGON_TYPE_NOT_GRANTED**
 
-Network access:Sharing and security model for local accounts to "Local users authenticate as themselves"
+On Windows, in Local Security Settings, Network access:Sharing and security model for local accounts to "Local users authenticate as themselves"
