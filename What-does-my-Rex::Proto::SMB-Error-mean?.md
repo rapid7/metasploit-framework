@@ -21,8 +21,8 @@ Invalid SMBUSER or SMBPASS datastore option.
 
 * **STATUS_BAD_NETWORK_NAME**
 
-Invalid SMB share datastore option.
+Invalid SMB share datastore option. Or, in Local Security Settings, you should probably set Network access:Sharing and security model for local accounts to "Local users authenticate as themselves".
 
 * **STATUS_LOGON_TYPE_NOT_GRANTED**
 
-On Windows, in Local Security Settings, Network access:Sharing and security model for local accounts to "Local users authenticate as themselves"
+On Windows, in Local Security Settings, Network access:Sharing and security model for local accounts to "Local users authenticate as themselves".
