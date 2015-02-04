@@ -17,11 +17,11 @@ Windows Registry Editor Version 5.00
 
 * **STATUS_LOGON_FAILURE**
 
-Invalid SMBUSER or SMBPASS datastore option.
+Invalid SMBUSER or SMBPASS datastore option. Or, in Local Security Settings, you should probably set Network access:Sharing and security model for local accounts to "Local users authenticate as themselves".
 
 * **STATUS_BAD_NETWORK_NAME**
 
-Invalid SMB share datastore option. Or, in Local Security Settings, you should probably set Network access:Sharing and security model for local accounts to "Local users authenticate as themselves".
+Invalid SMB share datastore option.
 
 * **STATUS_LOGON_TYPE_NOT_GRANTED**
 
