@@ -14,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => "Microsoft Internet Explorer 10 and 11 Cross-Domain JavaScript Injection",
       'Description'    => %q{
           This module exploits a universal cross-site scripting (UXSS) vulnerability found in Internet
-          Explorer 10 and 11. It will steal the cookie of a specific webiste (set by the TARGET_URI
-          datastore option). You will also most likely need to configure the URIHOST if you are behind NAT.
-          If CUSTOMJS isn't specified, a default cookie stealer will kick in.
+          Explorer 10 and 11. By default, you will steal the cookie of a specific website (set by the
+          TARGET_URI datastore option), but you can use your own custom JavaScript by setting the
+          CUSTOMJS option. You might need to configure the URIHOST option if you are behind NAT.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
