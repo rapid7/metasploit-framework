@@ -54,6 +54,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
+  # Needed for actors instead of Threads
+  spec.add_runtime_dependency 'celluloid'
   # Needed for Javascript obfuscation
   spec.add_runtime_dependency 'jsobfu', '~> 0.2.0'
   # Needed for some admin modules (scrutinizer_add_user.rb)

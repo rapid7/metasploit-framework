@@ -5,6 +5,7 @@ PATH
       actionpack (>= 3.2.21, < 4.0.0)
       activesupport (>= 3.2.21, < 4.0.0)
       bcrypt
+      celluloid
       jsobfu (~> 0.2.0)
       json
       metasploit-concern (~> 0.3.0)
@@ -68,7 +69,7 @@ GEM
       childprocess (>= 0.3.6)
       cucumber (>= 1.1.1)
       rspec-expectations (>= 2.7.0)
-    bcrypt (3.1.9)
+    bcrypt (3.1.10)
     builder (3.0.4)
     capybara (2.4.1)
       mime-types (>= 1.16)
@@ -76,6 +77,8 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
+    celluloid (0.16.0)
+      timers (~> 4.0.0)
     childprocess (0.5.3)
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.0)
@@ -101,6 +104,7 @@ GEM
     gherkin (2.11.6)
       json (>= 1.7.6)
     hike (1.2.3)
+    hitimes (1.2.2)
     i18n (0.7.0)
     journey (1.0.4)
     jsobfu (0.2.1)
@@ -136,7 +140,7 @@ GEM
     method_source (0.8.2)
     mime-types (1.25.1)
     mini_portile (0.6.2)
-    msgpack (0.5.9)
+    msgpack (0.5.11)
     multi_json (1.0.4)
     network_interface (0.0.1)
     nokogiri (1.6.5)
@@ -172,7 +176,7 @@ GEM
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
     rake (10.4.2)
-    rb-readline (0.5.1)
+    rb-readline (0.5.2)
     rdoc (3.12.2)
       json (~> 1.4)
     recog (1.0.7)
@@ -216,6 +220,8 @@ GEM
     thor (0.19.1)
     tilt (1.4.1)
     timecop (0.7.1)
+    timers (4.0.1)
+      hitimes
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
