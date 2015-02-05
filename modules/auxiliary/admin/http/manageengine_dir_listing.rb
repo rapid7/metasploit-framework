@@ -22,9 +22,9 @@ class Metasploit3 < Msf::Auxiliary
         using the default credentials for the administrator and guest accounts; alternatively
         you can provide a pre-authenticated cookie or a username / password combo. For IT360
         targets enter the RPORT of the OpManager instance (usually 8300). This module has been
-        tested on both Windows and Linux with several different versions Windows paths have to
+        tested on both Windows and Linux with several different versions. Windows paths have to
         be escaped with 4 backslashes on the command line. There is a companion module that
-        allows you to download an arbitrary file. This vulnerability has been fixed in Applications
+        allows for arbitrary file download. This vulnerability has been fixed in Applications
         Manager v11.9 b11912 and OpManager 11.6.
       },
       'Author'         =>

@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
         and password combo. For IT360 targets enter the RPORT of the OpManager instance (usually
         8300). This module has been tested on both Windows and Linux with several different
         versions. Windows paths have to be escaped with 4 backslashes on the command line. There is
-        a companion module that allows you to list the contents of any directory recursively. This
+        a companion module that allows the recursive listing of any directory. This
         vulnerability has been fixed in Applications Manager v11.9 b11912 and OpManager 11.6.
       },
       'Author'       =>
