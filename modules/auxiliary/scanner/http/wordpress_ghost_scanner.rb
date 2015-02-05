@@ -11,11 +11,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-    'Name' => 'WordPress XMLRPC Ghost Vulnerability Scanner',
+    'Name' => 'WordPress XMLRPC GHOST Vulnerability Scanner',
     'Description' => %q{
-      This module can be used to determine hosts vulnerable to the Ghost vulnerability via
+      This module can be used to determine hosts vulnerable to the GHOST vulnerability via
       a call to the WordPress XMLRPC interface. If the target is vulnerable, the system
-      will segfault and return a server error. On patched systems a normal XMLRPC error
+      will segfault and return a server error. On patched systems, a normal XMLRPC error
       is returned.
     },
     'Author' =>
