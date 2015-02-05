@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Post
     ensure
       client.railgun.kernel32.CloseHandle(@handle)
     end
-    print_status("Post Successfuly")
+    print_status("Post Successful")
   end
 
   def read(size)
