@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def target_uri
-    @target_uri ||= datastore['TARGET_URI']
+    datastore['TARGET_URI']
   end
 
   def get_html
