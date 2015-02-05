@@ -52,7 +52,7 @@ module Nessus
       return resp
     end
   
-    def user_add(username,password,permissions,type)
+    def user_add(username, password, permissions, type)
       payload = {
         :username => username, 
         :password => password, 
@@ -62,7 +62,7 @@ module Nessus
       }
       request = Net::HTTP::Post.new("/users")
       request.set_form_data(payload)
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -70,7 +70,7 @@ module Nessus
       
     def user_delete(user_id)
       request = Net::HTTP::Delete.new("/users/#{user_id}")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       return resp.code
     end
@@ -82,21 +82,21 @@ module Nessus
       }
       request = Net::HTTP::Put.new("/users/#{user_id}/chpasswd")
       request.set_form_data(payload)
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       return resp.code
     end
       
     def user_logout
       request = Net::HTTP::Delete.new("/session")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       return resp.code
     end
 
     def list_policies
       request = Net::HTTP::Get.new("/policies")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -104,7 +104,7 @@ module Nessus
 
     def list_users
       request = Net::HTTP::Get.new("/users")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -112,7 +112,7 @@ module Nessus
 
     def list_folders
       request = Net::HTTP::Get.new("/folders")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -120,7 +120,7 @@ module Nessus
 
     def list_scanners
       request = Net::HTTP::Get.new("/scanners")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -128,7 +128,7 @@ module Nessus
 
     def list_families
       request = Net::HTTP::Get.new("/plugins/families")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -136,7 +136,7 @@ module Nessus
 
     def list_plugins(family_id)
       request = Net::HTTP::Get.new("/plugins/families/#{family_id}")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -144,7 +144,7 @@ module Nessus
 
     def plugin_details(plugin_id)
       request = Net::HTTP::Get.new("/plugins/plugin/#{plugin_id}")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -152,7 +152,7 @@ module Nessus
 
     def is_admin
       request = Net::HTTP::Get.new("/session")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       if resp["permissions"] == 128
@@ -164,7 +164,7 @@ module Nessus
 
     def server_properties
       request = Net::HTTP::Get.new("/server/properties")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -182,7 +182,7 @@ module Nessus
       }
       request = Net::HTTP::Post.new("/scans")
       request.body = payload.to_json
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       request["Content-Type"] = "application/json"
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
@@ -191,7 +191,7 @@ module Nessus
 
     def scan_launch(scan_id)
       request = Net::HTTP::Post.new("/scans/#{scan_id}/launch")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -199,7 +199,7 @@ module Nessus
 
     def server_status
       request = Net::HTTP::Get.new("/server/status")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -207,7 +207,15 @@ module Nessus
 
     def scan_list
       request = Net::HTTP::Get.new("/scans")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
+      resp = @connection.request(request)
+      resp = JSON.parse(resp.body)
+      return resp
+    end
+
+    def scan_details(scan_id)
+      request = Net::HTTP::Get.new("/scans/#{scan_id}")
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -215,7 +223,7 @@ module Nessus
 
     def scan_pause(scan_id)
       request = Net::HTTP::Post.new("/scans/#{scan_id}/pause")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -223,7 +231,7 @@ module Nessus
 
     def scan_resume(scan_id)
       request = Net::HTTP::Post.new("/scans/#{scan_id}/resume")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
@@ -231,10 +239,35 @@ module Nessus
 
     def scan_stop(scan_id)
       request = Net::HTTP::Post.new("/scans/#{scan_id}/stop")
-      request.add_field("X-Cookie",@token)
+      request.add_field("X-Cookie", @token)
       resp = @connection.request(request)
       resp = JSON.parse(resp.body)
       return resp
+    end
+
+    def scan_export(scan_id, format)
+      payload = {
+        :format => format
+      }
+      request = Net::HTTP::Post.new("/scans/#{scan_id}/export")
+      request.body = payload.to_json
+      request["Content-Type"] = "application/json"
+      request.add_field("X-Cookie", @token)
+      resp = @connection.request(request)
+      resp = JSON.parse(resp.body)
+      return resp
+    end
+
+    def scan_export_status(scan_id, file_id)
+      request = Net::HTTP::Get.new("/scans/#{scan_id}/export/#{file_id}/status")
+      request.add_field("X-Cookie", @token)
+      resp = @connection.request(request)
+      if resp.code == "200"
+        return "ready"
+      else
+        resp = JSON.parse(resp.body)
+        return resp
+      end
     end
 
     def policy_delete(policy_id)
