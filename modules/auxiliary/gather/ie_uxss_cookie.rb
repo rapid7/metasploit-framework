@@ -23,6 +23,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           'David Leo',      # Original discovery
           'filedescriptor', # PoC
+          'joev',           # He figured it out really
           'sinn3r'          # MSF
         ],
       'References'     =>
