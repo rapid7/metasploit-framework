@@ -40,11 +40,11 @@ class Metasploit3 < Msf::Auxiliary
       OptBool.new('DNSSEC', [ false, "Add DNSsec to each question (UDP payload size, EDNS0, ...)",false]),
       OptBool.new('TRAILINGNUL', [ false, "NUL byte terminate DNS names",true]),
       OptBool.new('RAWPADDING', [ false, "Generate totally random data from STARTSIZE to ENDSIZE",false]),
-      OptString.new('OPCODE', [ false, "Comma separated list of opcodes to fuzz. Leave empty to fuzz all fields.",'' ]),
+      OptString.new('OPCODE', [ false, "Comma separated list of opcodes to fuzz.",'' ]),
       # OPCODE accepted values: QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE
-      OptString.new('CLASS', [ false, "Comma separated list of classes to fuzz. Leave empty to fuzz all fields.",'' ]),
+      OptString.new('CLASS', [ false, "Comma separated list of classes to fuzz.",'' ]),
       # CLASS accepted values: IN,CH,HS,NONE,ANY
-      OptString.new('RR', [ false, "Comma separated list of requests to fuzz. Leave empty to fuzz all fields.",'' ])
+      OptString.new('RR', [ false, "Comma separated list of requests to fuzz.",'' ])
       # RR accepted values: A,CNAME,MX,PTR,TXT,AAAA,HINFO,SOA,NS,WKS,RRSIG,DNSKEY,DS,NSEC,NSEC3,NSEC3PARAM
       # RR accepted values: AFSDB,ISDN,RP,RT,X25,PX,SRV,NAPTR,MD,MF,MB,MG,MR,NULL,MINFO,NSAP,NSAP-PTR,SIG
       # RR accepted values: KEY,GPOS,LOC,NXT,EID,NIMLOC,ATMA,KX,CERT,A6,DNAME,SINK,OPT,APL,SSHFP,IPSECKEY
@@ -329,25 +329,6 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def fix_variables
-    if datastore['OPCODE'] == ""
-      datastore['OPCODE'] = "QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE"
-    end
-    if datastore['CLASS'] == ""
-      datastore['CLASS'] = "IN,CH,HS,NONE,ANY"
-    end
-    if datastore['RR'] == ""
-      datastore['RR'] = "A,NS,MD,MF,CNAME,SOA,MB,MG,MR,NULL,WKS,PTR,"
-      datastore['RR'] << "HINFO,MINFO,MX,TXT,RP,AFSDB,X25,ISDN,RT,"
-      datastore['RR'] << "NSAP,NSAP-PTR,SIG,KEY,PX,GPOS,AAAA,LOC,NXT,"
-      datastore['RR'] << "EID,NIMLOC,SRV,ATMA,NAPTR,KX,CERT,A6,DNAME,"
-      datastore['RR'] << "SINK,OPT,APL,DS,SSHFP,IPSECKEY,RRSIG,NSEC,"
-      datastore['RR'] << "DNSKEY,DHCID,NSEC3,NSEC3PARAM,HIP,NINFO,RKEY,"
-      datastore['RR'] << "TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG,"
-      datastore['RR'] << "IXFR,AXFR,MAILA,MAILB,*,TA,DLV,RESERVED"
-    end
-  end
-
   def run_host(ip)
     msg = "#{ip}:#{rhost} - DNS -"
     begin
@@ -365,8 +346,6 @@ class Metasploit3 < Msf::Auxiliary
       dnssec = datastore['DNSSEC']
       errorhdr = datastore['ERRORHDR']
       trailingnul = datastore['TRAILINGNUL']
-
-      fix_variables
 
       if !dns_alive(@underlayerProtocol) then return false end
 
