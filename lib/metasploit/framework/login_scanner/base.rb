@@ -111,6 +111,7 @@ module Metasploit
               when 2; 1
               when 3; 0.5
               when 4; 0.1
+              when 5; 0.02
               else; 0
             end
           end
