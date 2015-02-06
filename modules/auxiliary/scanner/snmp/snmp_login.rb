@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
     [
       Opt::RPORT(161),
       Opt::CHOST,
-      OptInt.new('CONNECTION_TIMEOUT', [true, 'The timeout value for each probe', 1]),
+      OptInt.new('CONNECTION_TIMEOUT', [true, 'The timeout value for each probe', 2]),
       OptInt.new('RETRIES', [true, 'The number of retries per community string', 0]),
       OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
       OptEnum.new('VERSION', [true, 'The SNMP version to scan', 'all', ['1','2c','all']]),
