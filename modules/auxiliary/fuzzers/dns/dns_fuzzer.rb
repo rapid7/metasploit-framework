@@ -40,11 +40,11 @@ class Metasploit3 < Msf::Auxiliary
       OptBool.new('DNSSEC', [ false, "Add DNSsec to each question (UDP payload size, EDNS0, ...)",false]),
       OptBool.new('TRAILINGNUL', [ false, "NUL byte terminate DNS names",true]),
       OptBool.new('RAWPADDING', [ false, "Generate totally random data from STARTSIZE to ENDSIZE",false]),
-      OptString.new('OPCODE', [ false, "Comma separated list of opcodes to fuzz.",'' ]),
+      OptString.new('OPCODE', [ false, "Comma separated list of opcodes to fuzz. Leave empty to fuzz all fields.",'' ]),
       # OPCODE accepted values: QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE
-      OptString.new('CLASS', [ false, "Comma separated list of classes to fuzz.",'' ]),
+      OptString.new('CLASS', [ false, "Comma separated list of classes to fuzz. Leave empty to fuzz all fields.",'' ]),
       # CLASS accepted values: IN,CH,HS,NONE,ANY
-      OptString.new('RR', [ false, "Comma separated list of requests to fuzz.",'' ])
+      OptString.new('RR', [ false, "Comma separated list of requests to fuzz. Leave empty to fuzz all fields.",'' ])
       # RR accepted values: A,CNAME,MX,PTR,TXT,AAAA,HINFO,SOA,NS,WKS,RRSIG,DNSKEY,DS,NSEC,NSEC3,NSEC3PARAM
       # RR accepted values: AFSDB,ISDN,RP,RT,X25,PX,SRV,NAPTR,MD,MF,MB,MG,MR,NULL,MINFO,NSAP,NSAP-PTR,SIG
       # RR accepted values: KEY,GPOS,LOC,NXT,EID,NIMLOC,ATMA,KX,CERT,A6,DNAME,SINK,OPT,APL,SSHFP,IPSECKEY
@@ -329,6 +329,20 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def fix_variables
+    @fuzz_opcode = datastore['OPCODE'] || "QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE"
+    @fuzz_class  = datastore['CLASS'] || "IN,CH,HS,NONE,ANY"
+    @fuzz_rr     = datastore['RR'] || "" <<
+      "A,NS,MD,MF,CNAME,SOA,MB,MG,MR,NULL,WKS,PTR," <<
+      "HINFO,MINFO,MX,TXT,RP,AFSDB,X25,ISDN,RT," <<
+      "NSAP,NSAP-PTR,SIG,KEY,PX,GPOS,AAAA,LOC,NXT," <<
+      "EID,NIMLOC,SRV,ATMA,NAPTR,KX,CERT,A6,DNAME," <<
+      "SINK,OPT,APL,DS,SSHFP,IPSECKEY,RRSIG,NSEC," <<
+      "DNSKEY,DHCID,NSEC3,NSEC3PARAM,HIP,NINFO,RKEY," <<
+      "TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG," <<
+      "IXFR,AXFR,MAILA,MAILB,*,TA,DLV,RESERVED"
+  end
+
   def run_host(ip)
     msg = "#{ip}:#{rhost} - DNS -"
     begin
@@ -347,6 +361,8 @@ class Metasploit3 < Msf::Auxiliary
       errorhdr = datastore['ERRORHDR']
       trailingnul = datastore['TRAILINGNUL']
 
+      fix_variables
+
       if !dns_alive(@underlayerProtocol) then return false end
 
       print_status("#{msg} Fuzzing DNS server, this may take a while.")
@@ -360,7 +376,7 @@ class Metasploit3 < Msf::Auxiliary
         if @domain == nil
           print_status("DNS Fuzzer: DOMAIN could be set for health check but not mandatory.")
         end
-        nsopcode=datastore['OPCODE'].split(",")
+        nsopcode=@fuzz_opcode.split(",")
         opcode = setup_opcode(nsopcode)
         opcode.unpack("n*").each do |dnsOpcode|
           1.upto(iter) do
@@ -393,11 +409,11 @@ class Metasploit3 < Msf::Auxiliary
           nsclass << req[:class]
           nsentry << req[:name]
         end
-        nsopcode=datastore['OPCODE'].split(",")
+        nsopcode=@fuzz_opcode.split(",")
       else
-        nsreq=datastore['RR'].split(",")
-        nsopcode=datastore['OPCODE'].split(",")
-        nsclass=datastore['CLASS'].split(",")
+        nsreq=@fuzz_rr.split(",")
+        nsopcode=@fuzz_opcode.split(",")
+        nsclass=@fuzz_class.split(",")
         begin
           classns = setup_nsclass(nsclass)
           raise ArgumentError, "Invalid CLASS: #{nsclass.inspect}" unless classns
