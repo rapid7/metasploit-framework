@@ -330,10 +330,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def fix_variables
-    @fuzz_opcode = datastore['OPCODE'] || "QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE"
-    @fuzz_class  = datastore['CLASS'] || "IN,CH,HS,NONE,ANY"
-    @fuzz_rr     = datastore['RR'] || "" <<
-      "A,NS,MD,MF,CNAME,SOA,MB,MG,MR,NULL,WKS,PTR," <<
+    @fuzz_opcode = datastore['OPCODE'].blank? ? "QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE" : datastore['OPCODE']
+    @fuzz_class  = datastore['CLASS'].blank? ? "IN,CH,HS,NONE,ANY" : datastore['CLASS']
+    fuzz_rr_queries = "A,NS,MD,MF,CNAME,SOA,MB,MG,MR,NULL,WKS,PTR," <<
       "HINFO,MINFO,MX,TXT,RP,AFSDB,X25,ISDN,RT," <<
       "NSAP,NSAP-PTR,SIG,KEY,PX,GPOS,AAAA,LOC,NXT," <<
       "EID,NIMLOC,SRV,ATMA,NAPTR,KX,CERT,A6,DNAME," <<
@@ -341,6 +340,7 @@ class Metasploit3 < Msf::Auxiliary
       "DNSKEY,DHCID,NSEC3,NSEC3PARAM,HIP,NINFO,RKEY," <<
       "TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG," <<
       "IXFR,AXFR,MAILA,MAILB,*,TA,DLV,RESERVED"
+    @fuzz_rr     = datastore['RR'].blank ? fuzz_rr_queries : datastore['RR']
   end
 
   def run_host(ip)
