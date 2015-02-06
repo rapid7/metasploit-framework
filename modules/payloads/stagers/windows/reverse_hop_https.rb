@@ -59,7 +59,6 @@ module Metasploit3
   #
   def generate
     uri = URI(datastore['HOPURL'])
-    print "#{uri.port}"
 
     #create actual payload
     payload_data = <<EOS
