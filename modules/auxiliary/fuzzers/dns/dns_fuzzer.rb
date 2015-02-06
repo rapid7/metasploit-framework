@@ -330,22 +330,17 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def fix_variables
-    if datastore['OPCODE'] == ""
-      datastore['OPCODE'] = "QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE"
-    end
-    if datastore['CLASS'] == ""
-      datastore['CLASS'] = "IN,CH,HS,NONE,ANY"
-    end
-    if datastore['RR'] == ""
-      datastore['RR'] = "A,NS,MD,MF,CNAME,SOA,MB,MG,MR,NULL,WKS,PTR,"
-      datastore['RR'] << "HINFO,MINFO,MX,TXT,RP,AFSDB,X25,ISDN,RT,"
-      datastore['RR'] << "NSAP,NSAP-PTR,SIG,KEY,PX,GPOS,AAAA,LOC,NXT,"
-      datastore['RR'] << "EID,NIMLOC,SRV,ATMA,NAPTR,KX,CERT,A6,DNAME,"
-      datastore['RR'] << "SINK,OPT,APL,DS,SSHFP,IPSECKEY,RRSIG,NSEC,"
-      datastore['RR'] << "DNSKEY,DHCID,NSEC3,NSEC3PARAM,HIP,NINFO,RKEY,"
-      datastore['RR'] << "TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG,"
-      datastore['RR'] << "IXFR,AXFR,MAILA,MAILB,*,TA,DLV,RESERVED"
-    end
+    @fuzz_opcode = datastore['OPCODE'].blank? ? "QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE" : datastore['OPCODE']
+    @fuzz_class  = datastore['CLASS'].blank? ? "IN,CH,HS,NONE,ANY" : datastore['CLASS']
+    fuzz_rr_queries = "A,NS,MD,MF,CNAME,SOA,MB,MG,MR,NULL,WKS,PTR," <<
+      "HINFO,MINFO,MX,TXT,RP,AFSDB,X25,ISDN,RT," <<
+      "NSAP,NSAP-PTR,SIG,KEY,PX,GPOS,AAAA,LOC,NXT," <<
+      "EID,NIMLOC,SRV,ATMA,NAPTR,KX,CERT,A6,DNAME," <<
+      "SINK,OPT,APL,DS,SSHFP,IPSECKEY,RRSIG,NSEC," <<
+      "DNSKEY,DHCID,NSEC3,NSEC3PARAM,HIP,NINFO,RKEY," <<
+      "TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG," <<
+      "IXFR,AXFR,MAILA,MAILB,*,TA,DLV,RESERVED"
+    @fuzz_rr     = datastore['RR'].blank ? fuzz_rr_queries : datastore['RR']
   end
 
   def run_host(ip)
@@ -381,7 +376,7 @@ class Metasploit3 < Msf::Auxiliary
         if @domain == nil
           print_status("DNS Fuzzer: DOMAIN could be set for health check but not mandatory.")
         end
-        nsopcode=datastore['OPCODE'].split(",")
+        nsopcode=@fuzz_opcode.split(",")
         opcode = setup_opcode(nsopcode)
         opcode.unpack("n*").each do |dnsOpcode|
           1.upto(iter) do
@@ -414,11 +409,11 @@ class Metasploit3 < Msf::Auxiliary
           nsclass << req[:class]
           nsentry << req[:name]
         end
-        nsopcode=datastore['OPCODE'].split(",")
+        nsopcode=@fuzz_opcode.split(",")
       else
-        nsreq=datastore['RR'].split(",")
-        nsopcode=datastore['OPCODE'].split(",")
-        nsclass=datastore['CLASS'].split(",")
+        nsreq=@fuzz_rr.split(",")
+        nsopcode=@fuzz_opcode.split(",")
+        nsclass=@fuzz_class.split(",")
         begin
           classns = setup_nsclass(nsclass)
           raise ArgumentError, "Invalid CLASS: #{nsclass.inspect}" unless classns
