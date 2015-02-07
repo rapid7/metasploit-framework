@@ -27,8 +27,9 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files`.split($/).reject { |file|
     file =~ /^config/
   }
-=begin
   spec.bindir = '.'
+
+=begin  
   spec.executables   = [
       'msfbinscan',
       'msfcli',
@@ -46,6 +47,7 @@ Gem::Specification.new do |spec|
       'msfvenom'
   ]
 =end
+
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
