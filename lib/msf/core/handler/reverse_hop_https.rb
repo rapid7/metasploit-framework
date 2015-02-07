@@ -232,7 +232,6 @@ module ReverseHopHttps
   def initialize(info = {})
     super
 
-    print "Loaded reverse_hop_https handler code."
     register_options(
       [
         OptString.new('HOPURL', [ true, "The full URL of the hop script, e.g. https://a.b/hop.php" ])
