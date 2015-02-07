@@ -276,5 +276,38 @@ module Nessus
       resp = @connection.request(request)
       return resp.code
     end
+
+    def report_list_hash
+      raise NotImplementedError
+    end
+
+    def scan_list_hash
+      raise NotImplementedError
+    end
+
+    def report_host_ports
+      raise NotImplementedError
+    end
+
+    def scan_new
+      raise NotImplementedError
+    end
+
+    def report_file_download
+      raise NotImplementedError
+    end
+
+    def template_list_hash
+      raise NotImplementedError
+    end
+
+    def report_host
+      raise NotImplementedError
+    end
+
+    def report_host_port_details
+      raise NotImplementedError
+    end
+
   end
 end

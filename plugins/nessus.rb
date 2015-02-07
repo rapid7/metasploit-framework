@@ -5,63 +5,20 @@ require 'rex/parser/nessus_xml'
 module Msf
 
   class Plugin::Nessus < Msf::Plugin
-    #creates the index of exploit details to make searching for exploits much faster.
-    def create_xindex
-      start = Time.now
-      print_status("Creating Exploit Search Index - (#{@xindex}) - this wont take long.")
-      count = 0
-      #Use Msf::Config.get_config_root as the location.
-      File.open("#{@xindex}", "w+") do |f|
-        #need to add version line.
-        f.puts(Msf::Framework::RepoRevision)
-        framework.exploits.sort.each { |refname, mod|
-        stuff = ""
-        o = nil
-        begin
-          o = mod.new
-          rescue ::Exception
-        end
-        stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
-        next if not o
-          o.references.map do |x|
-            if !(x.ctx_id == "URL")
-              if (x.ctx_id == "MSB")
-                stuff << "|#{x.ctx_val}"
-              else
-                stuff << "|#{x.ctx_id}-#{x.ctx_val}"
-              end
-            end
-          end
-          stuff << "\n"
-          f.puts(stuff)
-        }
-      end
-      total = Time.now - start
-      print_status("It has taken : #{total} seconds to build the exploits search index")
-    end
-      
-    def nessus_index
-      if File.exist?("#{@xindex}")
-        #check if it's version line matches current version.
-        File.open("#{@xindex}") {|f|
-        line = f.readline
-        line.chomp!
-        if line.to_i == Msf::Framework::RepoRevision
-          print_good("Exploit Index - (#{@xindex}) - is valid.")
-        else
-          create_xindex
-        end
-        }
-      else
-        create_xindex
-      end
-    end
       
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
       
       def name
         "Nessus"
+      end
+
+      def xindex
+        "#{Msf::Config.get_config_root}/nessus_index"
+      end
+
+      def nessus_yaml
+        "#{Msf::Config.get_config_root}/nessus.yaml"
       end
          
       def commands
@@ -106,8 +63,60 @@ module Msf
           "nessus_folder_list" => "List folders configured on the Nessus server",
           "nessus_scanner_list" => "List the configured scanners on the Nessus server",
           "nessus_scan_launch" => "Launch a previously added scan",
-          "nessus_plugin_family_list" => "List all the families of plugins"
+          "nessus_family_list" => "List all the families of plugins"
         }  
+      end
+
+      #creates the index of exploit details to make searching for exploits much faster.
+      def create_xindex
+        start = Time.now
+        print_status("Creating Exploit Search Index - (#{xindex}) - this won't take long.")
+        count = 0
+        #Use Msf::Config.get_config_root as the location.
+        File.open("#{xindex}", "w+") do |f|
+          #need to add version line.
+          f.puts(Msf::Framework::RepoRevision)
+          framework.exploits.sort.each { |refname, mod|
+          stuff = ""
+          o = nil
+          begin
+            o = mod.new
+            rescue ::Exception
+          end
+          stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
+          next if not o
+            o.references.map do |x|
+              if !(x.ctx_id == "URL")
+                if (x.ctx_id == "MSB")
+                  stuff << "|#{x.ctx_val}"
+                else
+                  stuff << "|#{x.ctx_id}-#{x.ctx_val}"
+                end
+              end
+            end
+            stuff << "\n"
+            f.puts(stuff)
+          }
+        end
+        total = Time.now - start
+        print_status("It has taken : #{total} seconds to build the exploits search index")
+      end
+      
+      def nessus_index
+        if File.exist?("#{xindex}")
+          #check if it's version line matches current version.
+          File.open("#{xindex}") {|f|
+            line = f.readline
+            line.chomp!
+            if line.to_i == Msf::Framework::RepoRevision
+              print_good("Exploit Index - (#{xindex}) - is valid.")
+            else
+              create_xindex
+            end
+          }
+        else
+          create_xindex
+        end
       end
          
       def cmd_nessus_folder_list
@@ -151,12 +160,11 @@ module Msf
       end
 
       def cmd_nessus_index
-        Msf::Plugin::Nessus.nessus_index
+        nessus_index
       end
          
       def cmd_nessus_save(*args)
         #if we are logged in, save session details to nessus.yaml
-        @nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml"
         if args[0] == "-h"
           print_status(" nessus_save")
           return
@@ -170,10 +178,10 @@ module Msf
         if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
           config = Hash.new
           config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port}}
-          File.open("#{@nessus_yaml}", "w+") do |f|
+          File.open("#{nessus_yaml}", "w+") do |f|
             f.puts YAML.dump(config)
           end
-          print_good("#{@nessus_yaml} created.")
+          print_good("#{nessus_yaml} created.")
         else
           print_error("Missing username/password/server/port - relogin and then try again.")
           return
@@ -345,10 +353,9 @@ module Msf
          
       def cmd_nessus_connect(*args)
         # Check if config file exists and load it
-        @nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml"
         if ! args[0]
-          if File.exist?("#{@nessus_yaml}")
-            lconfig = YAML.load_file("#{@nessus_yaml}")
+          if File.exist?(nessus_yaml)
+            lconfig = YAML.load_file(nessus_yaml)
             @user = lconfig['default']['username']
             @pass = lconfig['default']['password']
             @host = lconfig['default']['server']
@@ -1467,6 +1474,12 @@ module Msf
           return
         end
         list=@n.list_policies
+
+        unless list["policies"]
+          print_error("No policies found")
+          return
+        end
+
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
             'Policy ID',
@@ -1545,7 +1558,16 @@ module Msf
             'Reference',
             'Value'
           ])
-        list = @n.plugin_details(plugin_id)
+        begin
+          list = @n.plugin_details(plugin_id)
+        rescue ::Exception => e
+          if e.message =~ /unexpected token/
+            print_error("No plugin info found")
+            return
+          else
+            raise e
+          end
+        end
         list["attributes"].each { |attrib|
         tbl << [ attrib["attribute_name"], attrib["attribute_value"] ]
         }
@@ -1651,25 +1673,12 @@ module Msf
     def initialize(framework, opts)
       super
       add_console_dispatcher(ConsoleCommandDispatcher)
-      @nbver = "1.1" # Nessus Plugin Version.  Increments each time we commit to msf
-      @xindex = "#{Msf::Config.get_config_root}/nessus_index" # location of the exploit index file used to speed up searching for valid exploits.
-      @nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml" #location of the nessus.yml containing saved nessus creds
-      print_status("Nessus Bridge for Metasploit #{@nbver}")
+      print_status("Nessus Bridge for Metasploit")
       print_good("Type %bldnessus_help%clr for a command listing")
-      #nessus_index
     end
 
     def cleanup
       remove_console_dispatcher('Nessus')
     end
-
-    def name
-      "nessus"
-    end
-
-    def desc
-      "Nessus Bridge for Metasploit #{@nbver}"
-    end
-    protected
   end
 end
