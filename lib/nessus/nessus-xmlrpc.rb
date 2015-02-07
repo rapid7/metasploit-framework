@@ -12,7 +12,7 @@ module Nessus
       @connection = Net::HTTP.new(uri.host, uri.port)
       @connection.use_ssl = true
       if ssl_option == "ssl_verify"
-      @connection.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        @connection.verify_mode = OpenSSL::SSL::VERIFY_PEER
       else
         @connection.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
@@ -27,13 +27,15 @@ module Nessus
         :password => password, 
         :json => 1,
       }
-      request = Net::HTTP::Post.new("/session")
-      request.set_form_data(payload)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
+      resp = http_post(:uri=>'/session', :data=>payload)
       @token = "token=#{resp['token']}"
       true
     end
+
+    def x_cookie
+      {'X-Cookie'=>@token}
+    end
+
     alias_method :login, :authenticate
      
     def authenticated
@@ -45,11 +47,7 @@ module Nessus
     end
 
     def get_server_properties
-      request = Net::HTTP::Get.new("/server/properties")
-      request.add_field("X-Cookie",@token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/server/properties', :fields=>x_cookie)
     end
   
     def user_add(username, password, permissions, type)
@@ -60,19 +58,12 @@ module Nessus
         :type => type, 
         :json => 1,
       }
-      request = Net::HTTP::Post.new("/users")
-      request.set_form_data(payload)
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_post(:uri=>'/users', :fields=>x_cookie, :data=>payload)
     end
       
     def user_delete(user_id)
-      request = Net::HTTP::Delete.new("/users/#{user_id}")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      return resp.code
+      res = http_delete(:uri=>"/users/#{user_id}", :fields=>x_cookie)
+      return res.code
     end
       
     def user_chpasswd(user_id, password)
@@ -80,82 +71,46 @@ module Nessus
         :password => password, 
         :json => 1,
       }
-      request = Net::HTTP::Put.new("/users/#{user_id}/chpasswd")
-      request.set_form_data(payload)
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      return resp.code
+      res = http_put(:uri=>"/users/#{user_id}/chpasswd", :data=>payload, :fields=>x_cookie)
+      return res.code
     end
       
     def user_logout
-      request = Net::HTTP::Delete.new("/session")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      return resp.code
+      res = http_delete(:uri=>'/session', :fields=>x_cookie)
+      return res.code
     end
 
     def list_policies
-      request = Net::HTTP::Get.new("/policies")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/policies', :fields=>x_cookie)
     end
 
     def list_users
-      request = Net::HTTP::Get.new("/users")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/users', :fields=>x_cookie)
     end
 
     def list_folders
-      request = Net::HTTP::Get.new("/folders")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/folders', :fields=>x_cookie)
     end
 
     def list_scanners
-      request = Net::HTTP::Get.new("/scanners")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/scanners', :fields=>x_cookie)
     end
 
     def list_families
-      request = Net::HTTP::Get.new("/plugins/families")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/plugins/families', :fields=>x_cookie)
     end
 
     def list_plugins(family_id)
-      request = Net::HTTP::Get.new("/plugins/families/#{family_id}")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>"/plugins/families/#{family_id}", :fields=>x_cookie)
     end
 
     def plugin_details(plugin_id)
-      request = Net::HTTP::Get.new("/plugins/plugin/#{plugin_id}")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>"/plugins/plugin/#{plugin_id}", :fields=>x_cookie)
     end
 
     def is_admin
-      request = Net::HTTP::Get.new("/session")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      if resp["permissions"] == 128
+      res = http_get(:uri=>'/session', :fields=>x_cookie)
+      if res['permissions'] == 128
         return true
       else
         return false
@@ -163,11 +118,7 @@ module Nessus
     end
 
     def server_properties
-      request = Net::HTTP::Get.new("/server/properties")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/server/properties', :fields=>x_cookie)
     end
 
     def scan_create(uuid, name, description, targets)
@@ -179,83 +130,43 @@ module Nessus
           :text_targets => targets
           },
         :json => 1
-      }
-      request = Net::HTTP::Post.new("/scans")
-      request.body = payload.to_json
-      request.add_field("X-Cookie", @token)
-      request["Content-Type"] = "application/json"
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      }.to_json
+      http_post(:uri=>'/scans', :body=>payload, :fields=>x_cookie, :ctype=>'application/json')
     end
 
     def scan_launch(scan_id)
-      request = Net::HTTP::Post.new("/scans/#{scan_id}/launch")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_post(:uri=>"/scans/#{scan_id}/launch", :fields=>x_cookie)
     end
 
     def server_status
-      request = Net::HTTP::Get.new("/server/status")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/server/status', :fields=>x_cookie)
     end
 
     def scan_list
-      request = Net::HTTP::Get.new("/scans")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>'/scans', :fields=>x_cookie)
     end
 
     def scan_details(scan_id)
-      request = Net::HTTP::Get.new("/scans/#{scan_id}")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>"/scans/#{scan_id}", :fields=>x_cookie)
     end
 
     def scan_pause(scan_id)
-      request = Net::HTTP::Post.new("/scans/#{scan_id}/pause")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_get(:uri=>"/scans/#{scan_id}/pause", :fields=>x_cookie)
     end
 
     def scan_resume(scan_id)
-      request = Net::HTTP::Post.new("/scans/#{scan_id}/resume")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_post(:uri=>"/scans/#{scan_id}/resume", :fields=>x_cookie)
     end
 
     def scan_stop(scan_id)
-      request = Net::HTTP::Post.new("/scans/#{scan_id}/stop")
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      http_post(:uri=>"/scans/#{scan_id}/stop", :fields=>x_cookie)
     end
 
     def scan_export(scan_id, format)
       payload = {
         :format => format
-      }
-      request = Net::HTTP::Post.new("/scans/#{scan_id}/export")
-      request.body = payload.to_json
-      request["Content-Type"] = "application/json"
-      request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      resp = JSON.parse(resp.body)
-      return resp
+      }.to_json
+      http_post(:uri=>"/scans/#{scan_id}/export", :body=>payload, :ctype=>'application/json', :fields=>x_cookie)
     end
 
     def scan_export_status(scan_id, file_id)
@@ -271,10 +182,8 @@ module Nessus
     end
 
     def policy_delete(policy_id)
-      request = Net::HTTP::Delete.new("/policies/#{policy_id}")
-      request.add_field("X-Cookie",@token)
-      resp = @connection.request(request)
-      return resp.code
+      res = http_delete(:uri=>"/policies/#{policy_id}", :fields=>x_cookie)
+      return res.code
     end
 
     def report_list_hash
@@ -307,6 +216,104 @@ module Nessus
 
     def report_host_port_details
       raise NotImplementedError
+    end
+
+    private
+
+    def http_put(opts={})
+      uri    = opts[:uri]
+      data   = opts[:data]
+      fields = opts[:fields] || {}
+      res    = nil
+
+      req = Net::HTTP::Put.new(uri)
+      req.set_form_data(data) unless data.blank?
+      fields.each_pair do |name, value|
+        req.add_field(name, value)
+      end
+
+      begin
+        res = @connection.request(req)
+      rescue URI::InvalidURIError
+        return res
+      end
+
+      res
+    end
+
+    def http_delete(opts={})
+      uri    = opts[:uri]
+      fields = opts[:fields] || {}
+      res    = nil
+
+      req = Net::HTTP::Delete.new(uri)
+
+      fields.each_pair do |name, value|
+        req.add_field(name, value)
+      end
+
+      begin
+        res = @connection.request(req)
+      rescue URI::InvalidURIError
+        return res
+      end
+
+      res
+    end
+
+    def http_get(opts={})
+      uri    = opts[:uri]
+      fields = opts[:fields] || {}
+      json   = {}
+
+      req = Net::HTTP::Get.new(uri)
+      fields.each_pair do |name, value|
+        req.add_field(name, value)
+      end
+
+      begin
+        res = @connection.request(req)
+      rescue URI::InvalidURIError
+        return json
+      end
+
+      parse_json(res.body)
+    end
+
+    def http_post(opts={})
+      uri    = opts[:uri]
+      data   = opts[:data]
+      fields = opts[:fields] || {}
+      body   = opts[:body]
+      ctype  = opts[:ctype]
+      json   = {}
+
+      req = Net::HTTP::Post.new(uri)
+      req.set_form_data(data) unless data.blank?
+      req.body = body unless body.blank?
+      req['Content-Type'] = ctype unless ctype.blank?
+      fields.each_pair do |name, value|
+        req.add_field(name, value)
+      end
+
+      begin
+        res = @connection.request(req)
+      rescue URI::InvalidURIError
+        return json
+      end
+
+      parse_json(res.body)
+    end
+
+    def parse_json(body)
+      buf = {}
+
+      begin
+        buf = JSON.parse(body)
+      rescue JSON::ParserError
+      end
+
+      buf
     end
 
   end
