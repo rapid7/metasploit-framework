@@ -89,7 +89,8 @@ module Metasploit
               'SSL'        =>  dossl,
               'SSLVersion' =>  opts['SSLVersion'] || ssl_version,
               'Proxies'    => proxies,
-              'Timeout'    => (opts['ConnectTimeout'] || connection_timeout || 10).to_i
+              'Timeout'    => (opts['ConnectTimeout'] || connection_timeout || 10).to_i,
+              'Context'    => { 'Msf' => framework, 'MsfExploit' => self }
               )
           # enable evasions on this socket
           set_tcp_evasions(nsock)
