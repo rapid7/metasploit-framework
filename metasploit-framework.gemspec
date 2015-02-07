@@ -27,9 +27,9 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files`.split($/).reject { |file|
     file =~ /^config/
   }
-  spec.bindir = '.'
 
 =begin  
+  spec.bindir = '.'
   spec.executables   = [
       'msfbinscan',
       'msfcli',
