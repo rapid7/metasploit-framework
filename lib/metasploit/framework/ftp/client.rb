@@ -47,7 +47,7 @@ module Metasploit
             self.datasocket = Rex::Socket::Tcp.create(
               'PeerHost' => datahost,
               'PeerPort' => dataport,
-              'Context'  => { 'Msf' => framework, 'MsfExploit' => self }
+              'Context'  => { 'Msf' => framework, 'MsfExploit' => framework_module }
             )
           end
           self.datasocket
