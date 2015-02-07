@@ -2247,6 +2247,17 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/meterpreter/reverse_hop_http'
   end
 
+  context 'windows/meterpreter/reverse_hop_https' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_hop_https',
+                              'stages/windows/meterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/reverse_hop_https'
+  end
+
+
   context 'windows/meterpreter/reverse_http' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
