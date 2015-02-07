@@ -236,7 +236,7 @@ module Rex
       def file(path)
         repertory = mft_record_from_mft_num(5)
         index_entry = {}
-        for r in path.split('\\')
+        path.split('\\').each do |r|
           attributes = mft_record_attribute(repertory)
           index = index_list_from_attributes(attributes)
           unless index.key?(r)
