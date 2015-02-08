@@ -4,9 +4,12 @@
 ##
 
 require 'rex/parser/fs/ntfs'
-
+require 'action_view/helpers/number_helper'
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Error
+
+  ERROR = Msf::Post::Windows::Error
 
   def initialize(info = {})
     super(update_info(info,
@@ -40,10 +43,19 @@ class Metasploit3 < Msf::Post
 
     r = client.railgun.kernel32.GetFileAttributesW(file_path)
 
-    if r['GetLastError'] != 0
+    case r['GetLastError']
+    when ERROR::SUCCESS, ERROR::SHARING_VIOLATION, ERROR::ACCESS_DENIED, ERROR::LOCK_VIOLATION
+      # Continue, we can bypass these errors as we are performing a raw
+      # file read.
+    when ERROR::FILE_NOT_FOUND, ERROR::PATH_NOT_FOUND
       fail_with(
         Exploit::Failure::BadConfig,
-        'The file does not exist, use file format C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts'
+        "The file, #{file_path}, does not exist, use file format C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts"
+      )
+    else
+      fail_with(
+        Exploit::Failure::Unknown,
+        "Unknown error locating #{file_path}. Windows Error Code: #{r['GetLastError']} - #{r['ErrorMessage']}"
       )
     end
 
@@ -64,8 +76,9 @@ class Metasploit3 < Msf::Post
     end
 
     @handle = r['return']
-    print_status("Successfuly opened #{drive}")
+    vprint_status("Successfuly opened #{drive}")
     begin
+      @bytes_read = 0
       fs = Rex::Parser::NTFS.new(self)
       print_status("Trying to gather #{file_path}")
       path = file_path[3, file_path.length - 3]
@@ -80,7 +93,7 @@ class Metasploit3 < Msf::Post
   end
 
   def read(size)
-    client.railgun.kernel32.ReadFile(@handle, size, size, 4, nil)["lpBuffer"]
+    client.railgun.kernel32.ReadFile(@handle, size, size, 4, nil)['lpBuffer']
   end
 
   def seek(offset)
