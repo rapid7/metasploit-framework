@@ -205,6 +205,9 @@ $s=New-Object System.Diagnostics.ProcessStartInfo
 $s.FileName=$b
 $s.Arguments='#{ps_args}'
 $s.UseShellExecute=$false
+$s.RedirectStandardOutput=$true
+$s.WindowStyle='Hidden'
+$s.CreateNoWindow=$true
 $p=[System.Diagnostics.Process]::Start($s)
 EOS
     process_start_info.gsub!("\n", ';')
