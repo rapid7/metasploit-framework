@@ -4,7 +4,7 @@
 ##
 
 require 'rex/parser/fs/ntfs'
-require 'action_view/helpers/number_helper'
+
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Error
@@ -13,11 +13,10 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'Windows File Gathering In Raw NTFS',
+      'Name'         => 'Windows File Gather File from Raw NTFS',
       'Description'  => %q(
-          This module gather file using the raw NTFS device, bypassing some Windows restriction.
-          Gather file from disk bypassing restriction like already open file with write right lock.
-          Can be used to retreive file like NTDS.DIT),
+          This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
+          such as open file with write lock. Can be used to retrieve files such as NTDS.dit.),
       'License'      => 'MSF_LICENSE',
       'Platform'     => ['win'],
       'SessionTypes' => ['meterpreter'],
@@ -69,7 +68,7 @@ class Metasploit3 < Msf::Post
                                             'FILE_FLAG_WRITE_THROUGH',
                                             0)
 
-    if r['GetLastError'] != 0
+    if r['GetLastError'] != ERROR::SUCCESS
       fail_with(
         Exploit::Failure::Unknown,
         "Error opening #{drive}. Windows Error Code: #{r['GetLastError']} - #{r['ErrorMessage']}")
