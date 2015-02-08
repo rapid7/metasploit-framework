@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
 
     file_path = datastore['FILE_PATH']
 
-    r = client.railgun.kernel32.GetFileAttributesA(file_path)
+    r = client.railgun.kernel32.GetFileAttributesW(file_path)
 
     if r['GetLastError'] != 0
       fail_with(
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
 
     drive = file_path[0, 2]
 
-    r = client.railgun.kernel32.CreateFileA("\\\\.\\#{drive}",
+    r = client.railgun.kernel32.CreateFileW("\\\\.\\#{drive}",
                                             'GENERIC_READ',
                                             'FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE',
                                             nil,
