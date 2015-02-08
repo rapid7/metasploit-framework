@@ -103,6 +103,7 @@ module Rex
       def parse_index_list(index_record, index_allocation_attribute)
         offset_index_entry_list = index_record[0, 4].unpack('V')[0]
         index_size =  index_record[offset_index_entry_list + 8, 2].unpack('v')[0]
+        index_size_in_bytes = index_size * @bytes_per_cluster
         index_entry = index_record[offset_index_entry_list, index_size]
         res = {}
         while index_entry[12, 4].unpack('V')[0] & 2 != 2
@@ -112,12 +113,12 @@ module Rex
             # should be 8 bytes length
             vcn =  index_entry[-8, 4].unpack('V')[0]
             vcn_in_bytes = vcn * @bytes_per_cluster
-            index_size_in_bytes = index_size * @bytes_per_cluster
             res_son = parse_index_list(index_allocation_attribute[vcn_in_bytes + 24, index_size_in_bytes], index_allocation_attribute)
             res.update(res_son)
           end
           offset_index_entry_list += index_size
           index_size =  index_record[offset_index_entry_list + 8, 2].unpack('v')[0]
+          index_size_in_bytes = index_size * @bytes_per_cluster
           index_entry = index_record [offset_index_entry_list, index_size]
         end
         # if son on the last
@@ -125,7 +126,6 @@ module Rex
           # should be 8 bytes length
           vcn =  index_entry[-8, 4].unpack('V')[0]
           vcn_in_bytes = vcn * @bytes_per_cluster
-          index_size_in_bytes = index_size * @bytes_per_cluster
           res_son = parse_index_list(index_allocation_attribute[vcn_in_bytes + 24, index_size_in_bytes], index_allocation_attribute)
           res.update(res_son)
         end
@@ -153,7 +153,6 @@ module Rex
         attribut = ''
         run_list_num = lowvcn
         old_offset = 0
-
         while run_list_num <= highvcn
           first_runlist_byte = attribute[offset].ord
           run_offset_size = first_runlist_byte >> 4
@@ -170,11 +169,12 @@ module Rex
             run_offset += "\x00" * (8 - run_offset_size)
           end
           run_offset = run_offset.unpack('q<')[0]
+          #offset relative to previous offset
+          run_offset += old_offset
 
           size_wanted = [run_length * @bytes_per_cluster, size_max - attribut.length].min
-
-          if cluster_num + (size_wanted / @bytes_per_cluster) >= run_list_num && (cluster_num < run_length + run_list_num)
-            run_list_offset_in_cluster = run_offset + old_offset + [cluster_num - run_list_num, 0].max
+          if cluster_num + (size_max / @bytes_per_cluster) >= run_list_num && (cluster_num < run_length + run_list_num)
+            run_list_offset_in_cluster = run_offset + [cluster_num - run_list_num, 0].max
             run_list_offset = (run_list_offset_in_cluster) * @bytes_per_cluster
             run_list_offset = run_list_offset.to_i
             @file_handler.seek(run_list_offset)
@@ -183,7 +183,7 @@ module Rex
             while data.length < size_wanted
               data << @file_handler.read(size_wanted - data.length)
             end
-            attribut += data
+            attribut << data
           end
           offset += run_offset_size + run_length_size + 1
           run_list_num += run_length
