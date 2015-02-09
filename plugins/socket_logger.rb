@@ -43,7 +43,7 @@ class Plugin::SocketLogger < Msf::Plugin
 
   def initialize(framework, opts)
     log_path    = opts['path'] || "/tmp"
-    log_prefix  = opts['prefix'] || "socket_"
+    log_prefix  = opts['prefix'] || "socket_#{Rex::Text.rand_text_alphanumeric(8)}_"
 
     super
     @eh = MySocketEventHandler.new(log_path, log_prefix)
