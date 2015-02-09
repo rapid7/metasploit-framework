@@ -523,7 +523,7 @@ class Msftidy
       end
 
       # The rest of these only count if it's not a comment line
-      next if ln =~ /[[:space:]]*#/
+      next if ln =~ /^[[:space:]]*#/
 
       if ln =~ /\$std(?:out|err)/i or ln =~ /[[:space:]]puts/
         next if ln =~ /^[\s]*["][^"]+\$std(?:out|err)/
