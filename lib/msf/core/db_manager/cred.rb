@@ -102,28 +102,28 @@ module Msf::DBManager::Cred
     # If duplicate usernames are okay, find by both user and password (allows
     # for actual duplicates to get modified updated_at, sources, etc)
       if token[0].nil? or token[0].empty?
-        cred = service.creds.find_or_initialize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+        cred = service.creds.where(user: token[0] || "", ptype: ptype, pass: token[1] || "").first_or_initialize
       else
         cred = service.creds.find_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
         unless cred
           dcu = token[0].downcase
           cred = service.creds.find_by_user_and_ptype_and_pass( dcu || "", ptype, token[1] || "")
           unless cred
-            cred = service.creds.find_or_initialize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+            cred = service.creds.where(user: token[0] || "", ptype: ptype, pass: token[1] || "").first_or_initialize
           end
         end
       end
     else
       # Create the cred by username only (so we can change passwords)
       if token[0].nil? or token[0].empty?
-        cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+        cred = service.creds.where(user: token[0] || "", ptype: ptype).first_or_initialize
       else
         cred = service.creds.find_by_user_and_ptype(token[0] || "", ptype)
         unless cred
           dcu = token[0].downcase
           cred = service.creds.find_by_user_and_ptype_and_pass( dcu || "", ptype, token[1] || "")
           unless cred
-            cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+            cred = service.creds.where(user: token[0] || "", ptype: ptype).first_or_initialize
           end
         end
       end
