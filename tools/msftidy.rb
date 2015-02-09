@@ -547,7 +547,7 @@ class Msftidy
         warn("Auxiliary modules have no 'Rank': #{ln}", idx)
       end
 
-      if ln =~ /^\s*def\s+(?:[^\(\)]*[A-Z]+[^\(\)]*)(?:\(.*\))?$/
+      if ln =~ /^\s*def\s+(?:[^\(\)#]*[A-Z]+[^\(\)]*)(?:\(.*\))?$/
         warn("Please use snake case on method names: #{ln}", idx)
       end
     end
