@@ -523,7 +523,7 @@ class Msftidy
       end
 
       # The rest of these only count if it's not a comment line
-      next if ln =~ /[[:space:]]*#/
+      next if ln =~ /^[[:space:]]*#/
 
       if ln =~ /\$std(?:out|err)/i or ln =~ /[[:space:]]puts/
         next if ln =~ /^[\s]*["][^"]+\$std(?:out|err)/
@@ -538,7 +538,7 @@ class Msftidy
       end
 
       # do not read Set-Cookie header (ignore commented lines)
-      if ln =~ /^(?!\s*#).+\[['"]Set-Cookie['"]\]/i
+      if ln =~ /^(?!\s*#).+\[['"]Set-Cookie['"]\](?!\s*=[^=~]+)/i
         warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
       end
 
@@ -547,7 +547,7 @@ class Msftidy
         warn("Auxiliary modules have no 'Rank': #{ln}", idx)
       end
 
-      if ln =~ /^\s*def\s+(?:[^\(\)]*[A-Z]+[^\(\)]*)(?:\(.*\))?$/
+      if ln =~ /^\s*def\s+(?:[^\(\)#]*[A-Z]+[^\(\)]*)(?:\(.*\))?$/
         warn("Please use snake case on method names: #{ln}", idx)
       end
     end
