@@ -74,6 +74,8 @@ class Metasploit3 < Msf::Auxiliary
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       max_send_size: datastore['TCP::max_send_size'],
       send_delay: datastore['TCP::send_delay'],
+      framework: framework,
+      framework_module: self,
     )
 
     scanner.scan! do |result|
