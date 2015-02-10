@@ -20,51 +20,140 @@ module Msf
       def nessus_yaml
         "#{Msf::Config.get_config_root}/nessus.yaml"
       end
+  
+      def cmd_nessus_index
+        nessus_index
+      end
          
       def commands
         {
-          "nessus_connect" => "Connect to a nessus server: nconnect username:password@hostname:port <verify_ssl>.",
-          "nessus_admin" => "Checks if user is an admin.",
-          "nessus_help" => "Get help on all commands.",
-          "nessus_logout" => "Terminate the session.",
-          "nessus_server_status" => "Check the status of your Nessus server.",
-          "nessus_server_properties" => "Nessus server properties such as feed type, version, plugin set and server UUID.",
-          "nessus_report_list" => "List all Nessus reports.",
-          "nessus_report_get" => "Import a report from the nessus server in Nessus v2 format.",
-          "nessus_report_del" => "Delete a report.",
-          "nessus_report_vulns" => "Get list of vulns from a report.",
-          "nessus_report_hosts" => "Get list of hosts from a report.",
-          "nessus_report_host_ports" => "Get list of open ports from a host from a report.",
-          "nessus_report_host_detail" => "Detail from a report item on a host.",
-          "nessus_scan_list" => "List all currently running Nessus scans.",
-          "nessus_scan_new" => "Create new Nessus Scan.",
-          "nessus_scan_pause" => "Pause a Nessus Scan.",
-          "nessus_scan_pause_all" => "Pause all Nessus Scans.",
-          "nessus_scan_stop" => "Stop a Nessus Scan.",
-          "nessus_scan_stop_all" => "Stop all Nessus Scans.",
-          "nessus_scan_resume" => "Resume a Nessus Scan.",
-          "nessus_scan_resume_all" => "Resume all Nessus Scans.",
-          "nessus_scan_details" => "Return detailed information of a given scan.",
-          "nessus_scan_export" => "Export a scan result in either Nessus, HTML, PDF, CSV, or DB format.",
+          "nessus_connect" => "Connect to a nessus server: nconnect username:password@hostname:port <verify_ssl>",
+          "nessus_admin" => "Checks if user is an admin",
+          "nessus_help" => "Get help on all commands",
+          "nessus_logout" => "Terminate the session",
+          "nessus_server_status" => "Check the status of your Nessus server",
+          "nessus_server_properties" => "Nessus server properties such as feed type, version, plugin set and server UUID",
+          "nessus_scanner_list" => "List all the scanners configured on the Nessus server",
+          "nessus_report_list" => "List all Nessus reports",
+          "nessus_report_download" => "Download a report from the nessus server in either Nessus, HTML, PDF, CSV, or DB format",
+          "nessus_report_del" => "Delete a report",
+          "nessus_report_vulns" => "Get list of vulns from a report",
+          "nessus_report_hosts" => "Get list of hosts from a report",
+          "nessus_report_host_ports" => "Get list of open ports from a host from a report",
+          "nessus_report_host_details" => "Get detailed information from a report item on a host",
+          "nessus_scan_list" => "List of currently running Nessus scans",
+          "nessus_scan_new" => "Create a new Nessus scan",
+          "nessus_scan_pause" => "Pause a running Nessus scan",
+          "nessus_scan_pause_all" => "Pause all running Nessus scans",
+          "nessus_scan_stop" => "Stop a running or paused Nessus scan",
+          "nessus_scan_stop_all" => "Stop all running or paused Nessus scans",
+          "nessus_scan_resume" => "Resume a paused Nessus scan",
+          "nessus_scan_resume_all" => "Resume all paused Nessus scans",
+          "nessus_scan_details" => "Return detailed information of a given scan",
+          "nessus_scan_export" => "Export a scan result in either Nessus, HTML, PDF, CSV, or DB format",
           "nessus_scan_export_status" => "Check the status of scan export",
-          "nessus_user_list" => "Show Nessus Users.",
-          "nessus_user_add" => "Add a new Nessus User.",
-          "nessus_user_del" => "Delete a Nessus User.",
-          "nessus_user_passwd" => "Change Nessus Users Password.",
-          "nessus_family_list" => "List all the plugin families along with their corresponding family IDs and plugin count.",
-          "nessus_plugin_details" => "List details of a particular plugin.",
-          "nessus_plugin_list" => "Display plugin details in a particular plugin family.",
-          "nessus_policy_list" => "List all polciies.",
-          "nessus_policy_del" => "Delete a policy.",
-          "nessus_index" => "Manually generates a search index for exploits.",
-          "nessus_template_list" => "List all the templates on the server.",
-          "nessus_db_scan" => "Create a scan of all ips in db_hosts.",
-          "nessus_save" => "Save username/passowrd/server/port details.",
+          "nessus_user_list" => "List of Nessus users",
+          "nessus_user_add" => "Add a new Nessus user",
+          "nessus_user_del" => "Delete a Nessus user",
+          "nessus_user_passwd" => "Change Nessus Users Password",
+          "nessus_family_list" => "List all the plugin families along with their corresponding family IDs and plugin count",
+          "nessus_plugin_details" => "List details of a particular plugin",
+          "nessus_plugin_list" => "Display plugin details in a particular plugin family",
+          "nessus_policy_list" => "List all polciies",
+          "nessus_policy_del" => "Delete a policy",
+          "nessus_index" => "Manually generates a search index for exploits",
+          "nessus_template_list" => "List all the templates on the server",
+          "nessus_db_scan" => "Create a scan of all ips in db_hosts",
+          "nessus_save" => "Save credentials of the logged in user to nessus.yml",
           "nessus_folder_list" => "List folders configured on the Nessus server",
           "nessus_scanner_list" => "List the configured scanners on the Nessus server",
           "nessus_scan_launch" => "Launch a previously added scan",
           "nessus_family_list" => "List all the families of plugins"
         }  
+      end
+
+      def cmd_nessus_help(*args)
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            "Command",
+            "Help Text"
+            ],
+          'SortIndex' => -1
+          )
+        tbl << [ "Generic Commands", "" ]
+        tbl << [ "-----------------", "-----------------"]
+        tbl << [ "nessus_connect", "Connect to a Nessus server" ]
+        tbl << [ "nessus_logout", "Logout from the Nessus server" ]
+        tbl << [ "nessus_login", "Login into the connected Nesssus server with a different username and password"]
+        tbl << [ "nessus_login", "Login into the connected Nesssus server with a different username and password" ]
+        tbl << [ "nessus_cmd_save", "Save credentials of the logged in user to nessus.yml"]
+        tbl << [ "nessus_help", "Listing of available nessus commands" ]
+        tbl << [ "nessus_server_properties", "Nessus server properties such as feed type, version, plugin set and server UUID." ]
+        tbl << [ "nessus_server_status", "Check the status of your Nessus Server" ]
+        tbl << [ "nessus_admin", "Checks if user is an admin" ]
+        tbl << [ "nessus_template_list", "List scan or policy templates" ]
+        tbl << [ "nessus_folder_list", "List all configured folders on the Nessus server" ]
+        tbl << [ "nessus_scanner_list" => "List all the scanners configured on the Nessus server" ]
+        tbl << [ "", ""]
+        tbl << [ "Reports Commands", "" ]
+        tbl << [ "-----------------", "-----------------"]   
+        tbl << [ "nessus_report_hosts", "Get list of hosts from a report" ]
+        tbl << [ "nessus_report_vulns", "Get list of vulns from a report" ]
+        tbl << [ "nessus_report_host_details", "Get detailed information from a report item on a host" ]
+        tbl << [ "", ""]
+        tbl << [ "Scan Commands", "" ]
+        tbl << [ "-----------------", "-----------------"]
+        tbl << [ "nessus_scan_list", "List of all current Nessus scans" ]
+        tbl << [ "nessus_scan_new", "Create a new Nessus Scan" ]
+        tbl << [ "nessus_scan_lauch", "Launch a newly created scan. New scans need to be manually launched through this command" ]
+        tbl << [ "nessus_scan_pause", "Pause a running Nessus scan" ]
+        tbl << [ "nessus_scan_pause_all", "Pause all running Nessus scans" ]
+        tbl << [ "nessus_scan_stop", "Stop a running or paused Nessus scan" ]
+        tbl << [ "nessus_scan_stop_all", "Stop all running or paused Nessus scans" ]
+        tbl << [ "nessus_scan_resume", "Resume a pasued Nessus scan" ]
+        tbl << [ "nessus_scan_resume_all", "Resume all paused Nessus scans" ]
+        tbl << [ "nessus_scan_details", "Return detailed information of a given scan" ]
+        tbl << [ "nessus_scan_export", "Export a scan result in either Nessus, HTML, PDF, CSV, or DB format" ]
+        tbl << [ "nessus_scan_export_status", "Check the status of exported scan" ]
+        tbl << [ "", ""]
+        tbl << [ "Plugin Commands", "" ]
+        tbl << [ "-----------------", "-----------------"]
+        tbl << [ "nessus_plugin_list", "List all plugins in a particular plugin family." ]
+        tbl << [ "nessus_family_list", "List all the plugin families along with their corresponding family IDs and plugin count." ]
+        tbl << [ "nessus_plugin_details", "List details of a particular plugin" ]
+        tbl << [ "", ""]
+        tbl << [ "User Commands", "" ]
+        tbl << [ "-----------------", "-----------------"]
+        tbl << [ "nessus_user_list", "Show Nessus Users" ]
+        tbl << [ "nessus_user_add", "Add a new Nessus User" ]
+        tbl << [ "nessus_user_del", "Delete a Nessus User" ]
+        tbl << [ "nessus_user_passwd", "Change Nessus Users Password" ]
+        tbl << [ "", ""]
+        tbl << [ "Policy Commands", "" ]
+        tbl << [ "-----------------", "-----------------"]
+        tbl << [ "nessus_policy_list", "List all polciies" ]
+        tbl << [ "nessus_policy_del", "Delete a policy" ]
+        print_status ""
+        print_line tbl.to_s
+        print_status ""
+      end
+
+      def ncusage
+        print_status("%redYou must do this before any other commands.%clr")
+        print_status("Usage: ")
+        print_status("nessus_connect username:password@hostname:port <ssl_verify>")
+        print_status("Example:> nessus_connect msf:msf@192.168.1.10:8834")
+        print_status(" OR")
+        print_status("nessus_connect username@hostname:port ssl_verify")
+        print_status("Example:> nessus_connect msf@192.168.1.10:8834 ssl_verify")
+        print_status("OR")
+        print_status("nessus_connect hostname:port ssl_verify")
+        print_status("Example:> nessus_connect 192.168.1.10:8834 ssl_verify")
+        print_status("OR")
+        print_status("nessus_connect")
+        print_status("Example:> nessus_connect")
+        print_status("This only works after you have saved creds with nessus_save")
+        return
       end
 
       #creates the index of exploit details to make searching for exploits much faster.
@@ -118,205 +207,7 @@ module Msf
           create_xindex
         end
       end
-         
-      def cmd_nessus_folder_list
-        if !nessus_verify_token
-          return
-        end
-        list = @n.list_folders
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            "ID",
-            "Name",
-            "Type"
-          ])
-        list["folders"].each { |folder|
-        tbl << [ folder["id"], folder["name"], folder["type"] ]
-        }
-        print_line tbl.to_s
-      end
-         
-      def cmd_nessus_scanner_list
-        if !nessus_verify_token
-          return
-        end
-        if !@n.is_admin
-          return
-        end
-        list = @n.list_scanners
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            "ID",
-            "Name",
-            "Status",
-            "Platform",
-            "Plugin Set",
-            "UUID"
-          ])
-        list.each { |scanner|
-        tbl << [ scanner["id"], scanner["name"], scanner["status"], scanner["platform"], scanner["loaded_plugin_set"], scanner["uuid"] ]
-        }
-        print_line tbl.to_s
-      end
 
-      def cmd_nessus_index
-        nessus_index
-      end
-         
-      def cmd_nessus_save(*args)
-        #if we are logged in, save session details to nessus.yaml
-        if args[0] == "-h"
-          print_status(" nessus_save")
-          return
-        end
-        if args[0]
-          print_status("Usage: ")
-          print_status("nessus_save")
-          return
-        end
-        group = "default"
-        if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
-          config = Hash.new
-          config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port}}
-          File.open("#{nessus_yaml}", "w+") do |f|
-            f.puts YAML.dump(config)
-          end
-          print_good("#{nessus_yaml} created.")
-        else
-          print_error("Missing username/password/server/port - relogin and then try again.")
-          return
-        end
-      end
-         
-      def cmd_nessus_db_scan(*args)
-        if args[0] == "-h"
-          print_status("nessus_db_scan <policy id> <scan name>")
-          print_status("Example:> nessus_db_scan 1 \"My Scan\"")
-          print_status()
-          print_status("Creates a scan based on all the hosts listed in db_hosts.")
-          print_status("use nessus_policy_list to list all available policies")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        case args.length
-        when 2
-          pid = args[0].to_i
-          name = args[1]
-        else
-          print_status("Usage: ")
-          print_status("nessus_db_scan <policy id> <scan name>")
-          print_status("use nessus_policy_list to list all available policies")
-          return
-        end
-        if check_policy(pid)
-          print_error("That policy does not exist.")
-          return
-        end
-        tgts = ""
-        framework.db.hosts(framework.db.workspace).each do |host|
-          tgts << host.address
-          tgts << ","
-        end
-        tgts.chop!
-        print_status("Creating scan from policy number #{pid}, called \"#{name}\" and scanning all hosts in workspace")
-        scan = @n.scan_new(pid, name, tgts)
-        if scan
-          print_status("Scan started.  uid is #{scan}")
-        end
-      end
-         
-      def cmd_nessus_logout
-        logout = @n.user_logout
-        status = logout.to_s
-        if status == "200"
-          print_good("User account logged out successfully")
-          @token = ""
-        elsif status == "403"
-          print_status("No user session to logout")
-        else
-          print_error("There was some problem in logging out the user #{@user}")
-        end
-        return
-      end
-         
-      def cmd_nessus_help(*args)
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            "Command",
-            "Help Text"
-            ],
-          'SortIndex' => -1
-          )
-        tbl << [ "Generic Commands", "" ]
-        tbl << [ "-----------------", "-----------------"]
-        tbl << [ "nessus_connect", "Connect to a nessus server" ]
-        tbl << [ "nessus_logout", "Logout from the nessus server" ]
-        tbl << [ "nessus_help", "Listing of available nessus commands" ]
-        tbl << [ "nessus_server_status", "Check the status of your Nessus Server" ]
-        tbl << [ "nessus_admin", "Checks if user is an admin" ]
-        tbl << [ "nessus_server_feed", "Nessus Feed Type" ]
-        tbl << [ "", ""]
-        tbl << [ "Reports Commands", "" ]
-        tbl << [ "-----------------", "-----------------"]   
-        tbl << [ "nessus_scan_export", "Export a scan into either Nessus, HTML, PDF, CSV, or DB format." ]
-        tbl << [ "nessus_scan_export_status", "Check the status of scan export" ]
-        tbl << [ "", ""]
-        tbl << [ "Scan Commands", "" ]
-        tbl << [ "-----------------", "-----------------"]
-        tbl << [ "nessus_scan_new", "Create new Nessus Scan" ]
-        tbl << [ "nessus_scan_pause", "Pause a Nessus Scan" ]
-        tbl << [ "nessus_scan_pause_all", "Pause all Nessus Scans" ]
-        tbl << [ "nessus_scan_stop", "Stop a Nessus Scan" ]
-        tbl << [ "nessus_scan_stop_all", "Stop all Nessus Scans" ]
-        tbl << [ "nessus_scan_resume", "Resume a Nessus Scan" ]
-        tbl << [ "nessus_scan_resume_all", "Resume all Nessus Scans" ]
-        tbl << [ "", ""]
-        tbl << [ "Plugin Commands", "" ]
-        tbl << [ "-----------------", "-----------------"]
-        tbl << [ "nessus_plugin_list", "Display plugin details in a particular plugin family." ]
-        tbl << [ "nessus_plugin_family_list", "List all the plugin families along with their corresponding family IDs and plugin count." ]
-        tbl << [ "nessus_plugin_details", "List details of a particular plugin" ]
-        tbl << [ "", ""]
-        tbl << [ "User Commands", "" ]
-        tbl << [ "-----------------", "-----------------"]
-        tbl << [ "nessus_user_list", "Show Nessus Users" ]
-        tbl << [ "nessus_user_add", "Add a new Nessus User" ]
-        tbl << [ "nessus_user_del", "Delete a Nessus User" ]
-        tbl << [ "nessus_user_passwd", "Change Nessus Users Password" ]
-        tbl << [ "", ""]
-        tbl << [ "Policy Commands", "" ]
-        tbl << [ "-----------------", "-----------------"]
-        tbl << [ "nessus_policy_list", "List all polciies" ]
-        tbl << [ "nessus_policy_del", "Delete a policy" ]
-        print_status ""
-        print_line tbl.to_s
-        print_status ""
-      end
-         
-      def cmd_nessus_server_properties(*args)
-        if args[0] == "-h"
-          print_status("nessus_server_feed")
-          print_status("Example:> nessus_server_feed")
-          print_status()
-          print_status("Returns information about the feed type and server version.")
-          return
-        end
-        resp = @n.server_properties
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Feed',
-            'Type',
-            'Nessus Version',
-            'Nessus Web Version',
-            'Plugin Set',
-            'Server UUID'
-          ])
-        tbl << [ resp["feed"], resp["nessus_type"], resp["server_version"], resp["nessus_ui_version"], resp["loaded_plugin_set"], resp["server_uuid"] ]
-        print_line tbl.to_s
-      end
-         
       def nessus_verify_token
         if @token.nil? or @token == ''
           ncusage
@@ -324,36 +215,10 @@ module Msf
         end
         true
       end
-         
-      def nessus_verify_db
-        if !(framework.db and framework.db.active)
-          print_error("No database has been configured, please use db_create/db_connect first")
-          return false
-        end
-        true
-      end
-         
-      def ncusage
-        print_status("%redYou must do this before any other commands.%clr")
-        print_status("Usage: ")
-        print_status("nessus_connect username:password@hostname:port <ssl_verify>")
-        print_status("Example:> nessus_connect msf:msf@192.168.1.10:8834")
-        print_status(" OR")
-        print_status("nessus_connect username@hostname:port ssl_verify")
-        print_status("Example:> nessus_connect msf@192.168.1.10:8834 ssl_verify")
-        print_status("OR")
-        print_status("nessus_connect hostname:port ssl_verify")
-        print_status("Example:> nessus_connect 192.168.1.10:8834 ssl_verify")
-        print_status("OR")
-        print_status("nessus_connect")
-        print_status("Example:> nessus_connect")
-        print_status("This only works after you have saved creds with nessus_save")
-        return
-      end
-         
+
       def cmd_nessus_connect(*args)
         # Check if config file exists and load it
-        if ! args[0]
+        if !args[0]
           if File.exist?(nessus_yaml)
             lconfig = YAML.load_file(nessus_yaml)
             @user = lconfig['default']['username']
@@ -367,6 +232,7 @@ module Msf
             return
           end
         end
+        
         if args[0] == "-h"
           print_status("%redYou must do this before any other commands.%clr")
           print_status("Usage: ")
@@ -378,14 +244,16 @@ module Msf
           print_status("use a self signed certificate, therefore, users should use ssl_ignore.")
           return
         end
+        
         if !@token == ''
-          print_error("You are already authenticated.  Call nessus_logout before authing again")
+          print_error("You are already authenticated.  Call nessus_logout before authenticating again")
           return
         end
         if(args.length == 0 or args[0].empty?)
           ncusage
           return
         end
+        
         @user = @pass = @host = @port = @sslv = nil
         case args.length
         when 1,2
@@ -428,7 +296,21 @@ module Msf
         end
         nessus_login
       end
-         
+
+      def cmd_nessus_logout
+        logout = @n.user_logout
+        status = logout.to_s
+        if status == "200"
+          print_good("User account logged out successfully")
+          @token = ""
+        elsif status == "403"
+          print_status("No user session to logout")
+        else
+          print_error("There was some problem in logging out the user #{@user}")
+        end
+        return
+      end
+
       def nessus_login
         if !((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
           print_status("You need to connect to a server first.")
@@ -446,106 +328,435 @@ module Msf
           return
         end
       end
-         
-      def cmd_nessus_report_list(*args)
+
+      def cmd_nessus_save(*args)
+        #if we are logged in, save session details to nessus.yaml
         if args[0] == "-h"
-          print_status("nessus_report_list")
-          print_status("Example:> nessus_report_list")
-          print_status("Generates a list of all reports visable to your user.")
+          print_status(" nessus_save")
+          return
+        end
+        if args[0]
+          print_status("Usage: ")
+          print_status("nessus_save")
+          return
+        end
+        group = "default"
+        if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
+          config = Hash.new
+          config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port}}
+          File.open("#{nessus_yaml}", "w+") do |f|
+            f.puts YAML.dump(config)
+          end
+          print_good("#{nessus_yaml} created.")
+        else
+          print_error("Missing username/password/server/port - relogin and then try again.")
+          return
+        end
+      end
+
+      def cmd_nessus_server_properties(*args)
+        if args[0] == "-h"
+          print_status("nessus_server_feed")
+          print_status("Example:> nessus_server_feed")
+          print_status()
+          print_status("Returns information about the feed type and server version.")
+          return
+        end
+        resp = @n.server_properties
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            'Feed',
+            'Type',
+            'Nessus Version',
+            'Nessus Web Version',
+            'Plugin Set',
+            'Server UUID'
+          ])
+        tbl << [ resp["feed"], resp["nessus_type"], resp["server_version"], resp["nessus_ui_version"], resp["loaded_plugin_set"], resp["server_uuid"] ]
+        print_line tbl.to_s
+      end
+
+      def cmd_nessus_server_status(*args)
+        if args[0] == "-h"
+          print_status("nessus_server_status")
+          print_status("Example:> nessus_server_status")
+          print_status()
+          print_status("Returns some status items for the server..")
+          return
+        end
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            'Status',
+            'Progress'
+          ])
+        list = @n.server_status
+        tbl << [ list["progress"], list["status"] ]
+        print_line tbl.to_s
+      end
+
+      def cmd_nessus_admin(*args)
+        if args[0] == "-h"
+          print_status("nessus_admin")
+          print_status("Example:> nessus_admin")
+          print_status()
+          print_status("Checks to see if the current user is an admin")
+          print_status("Use nessus_user_list to list all users")
           return
         end
         if !nessus_verify_token
           return
         end
-        list=@n.report_list_hash
+        if !@n.is_admin
+          print_error("Your Nessus user is not an admin")
+        else
+          print_good("Your Nessus user is an admin")
+        end
+      end
+
+      def cmd_nessus_template_list(*args)
+        if args[0] == "-h"
+          print_status("nessus_template_list <scan> | <policy>")
+          print_status("Example:> nessus_template_list scan")
+          print_status("OR")
+          print_status("nessus_template_list policy")
+          print_status()
+          print_status("Returns a list of information about the scan or policy templates..")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 1
+          type = args[0]
+        else
+          print_status("Usage: ")
+          print_status("nessus_template_list <scan> | <policy>")
+          print_status("Example:> nessus_template_list scan")
+          print_status("OR")
+          print_status("nessus_template_list policy")
+          print_status()
+          print_status("Returns a list of information about the scan or policy templates..")
+          return
+        end
+        if type.in?(['scan', 'policy'])
+          list=@n.list_template(type)
+        else
+          print_error("Only scan and policy are valid templates")
+          return
+        end
+        if list.empty?
+          print_status("No Templates Created.")
+          print_status("You can:")
+          print_status("List of completed scans: nessus_report_list")
+          print_status("Create a template: nessus_template_new <policy id> <scan name> <target(s)>")
+          return
+        end
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
-            'ID',
             'Name',
-            'Status',
-            'Date'
+            'Title',
+            'Description',
+           'Subscription Only',
+            'Cloud Only'
           ])
-        list.each {|report|
-        t = Time.at(report['timestamp'].to_i)
-        tbl << [ report['id'], report['name'], report['status'], t.strftime("%H:%M %b %d %Y") ]
+        list["templates"].each {|template|
+        tbl << [ template["name"], template["title"], template["desc"], template["subscription_only"], template["cloud_only"] ]
         }
-        print_good("Nessus Report List")
-        print_good "\n"
-        print_line tbl.to_s + "\n"
-        print_status("You can:")
-        print_status(" Get a list of hosts from the report: nessus_report_hosts <report id>")
+        print_line
+        print_line tbl.to_s
       end
-         
+
+      def cmd_nessus_folder_list
+        if !nessus_verify_token
+          return
+        end
+        list = @n.list_folders
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            "ID",
+            "Name",
+            "Type"
+          ])
+        list["folders"].each { |folder|
+        tbl << [ folder["id"], folder["name"], folder["type"] ]
+        }
+        print_line tbl.to_s
+      end
+
+      def cmd_nessus_scanner_list
+        if !nessus_verify_token
+          return
+        end
+        if !@n.is_admin
+          return
+        end
+        list = @n.list_scanners
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            "ID",
+            "Name",
+            "Status",
+            "Platform",
+            "Plugin Set",
+            "UUID"
+          ])
+        list.each { |scanner|
+        tbl << [ scanner["id"], scanner["name"], scanner["status"], scanner["platform"], scanner["loaded_plugin_set"], scanner["uuid"] ]
+        }
+        print_line tbl.to_s
+      end
+
       def check_scan(*args)
         case args.length
         when 1
-          rid = args[0]
+          scan_id = args[0]
         else
-          print_error("No Report ID Supplied")
+          print_error("No scan ID supplied")
           return
         end
-        scans = @n.scan_list_hash
+        scans = @n.scan_list
         scans.each {|scan|
-        if scan['id'] == rid
+        if scan["scans"]["id"] == scan_id && scan["scans"]["status"] == "completed"
           return true
         end
         }
         return false
       end
-         
-      def cmd_nessus_report_get(*args)
+
+      def cmd_nessus_report_hosts(*args)
         if args[0] == "-h"
-          print_status("nessus_report_get <report id>")
-          print_status("Example:> nessus_report_get f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
-          print_status("This command pulls the provided report from the nessus server in the nessusv2 format")
-          print_status("and parses it the same way db_import_nessus does.  After it is parsed it will be")
-          print_status("available to commands such as db_hosts, db_vulns, db_services and db_autopwn.")
-          print_status("Use: nessus_report_list to obtain a list of report id's")
+          print_status("nessus_report_hosts <scan ID>")
+          print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
+          return
+        end
+        case args.length
+        when 1
+          scan_id = args[0]
+          scan_id = scan_id.to_i
+        else
+          print_status("Usage: ")
+          print_status("nessus_report_hosts <scan ID>")
+          print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
+          return
+        end
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            "Host ID",
+            "Hostname",
+            "% of Critical Findings",
+            "% of High Findings",
+            "% of Medium Findings",
+            "% of Low Findings"
+          ])
+        list=@n.scan_list
+        list["scans"].each { |scan|
+        if scan["id"] == scan_id
+          if scan["status"] == "completed"
+            details = @n.scan_details(scan_id)
+            details["hosts"].each { |host|
+            tbl << [ host["host_id"], host["hostname"], host["critical"], host["high"], host["medium"], host["low"] ]
+            }
+            print_line
+            print_line tbl.to_s
+          else
+            print_error("Only completed scans can be used for host reporting. The provided scan ID is " + scan["status"].to_s)
+            return
+          end
+        end
+        }
+      end
+
+      def cmd_nessus_report_vulns(*args)
+        if args[0] == "-h"
+          print_status("nessus_report_vulns <scan ID>")
+          print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
+          return
+        end
+        case args.length
+        when 1
+          scan_id = args[0]
+          scan_id = scan_id.to_i
+        else
+          print_status("Usage: ")
+          print_status("nessus_report_vulns <scan ID>")
+          print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
+          return
+        end
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            "Plugin ID",
+            "Plugin Name",
+            "Plugin Family",
+            "Vulnerability Count"
+          ])
+        list=@n.scan_list
+        list["scans"].each { |scan|
+        if scan["id"] == scan_id
+          if scan["status"] == "completed"
+            details = @n.scan_details(scan_id)
+            details["vulnerabilities"].each { |vuln|
+            tbl << [ vuln["plugin_id"], vuln["plugin_name"], vuln["plugin_family"], vuln["count"] ]
+            }
+            print_line
+            print_line tbl.to_s
+          else
+            print_error("Only completed scans can be used for vulnerability reporting. The provided scan ID is " + scan["status"].to_s)
+            return
+          end
+        end
+        }
+      end
+
+      def cmd_nessus_report_host_details(*args)
+        if args[0] == "-h"
+          print_status("nessus_report_host_details <scan ID> <host ID>")
+          print_status("Example:> nessus_report_host_details 10 5")
+          print_status("Use nessus_scan_list to get list of all scans. Only completed scans can be used for reporting.")
+          print_status("Use nessus_report_hosts to get a list of all the hosts along with their corresponding host IDs.")
           return
         end
         if !nessus_verify_token
           return
         end
-        if !nessus_verify_db
-          return
-        end
-        if(args.length == 0 or args[0].empty? or args[0] == "-h")
+        case args.length
+        when 2
+          scan_id = args[0]
+          host_id = args[1]
+        else
           print_status("Usage: ")
-          print_status("nessus_report_get <report id> ")
-          print_status("use nessus_report_list to list all available reports for importing")
+          print_status("nessus_report_host_detail <scan ID> <host ID>")
+          print_status("Example:> nessus_report_host_detail 10 5")
+          print_status("Use nessus_scan_list to get list of all scans. Only completed scans can be used for reporting.")
+          print_status("Use nessus_report_hosts to get a list of all the hosts along with their corresponding host IDs.")
           return
         end
-        rid = nil
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            'Plugin Name',
+            'Plugin Famil',
+            'Severity'
+          ])
+        details=@n.host_detail(scan_id, host_id)
+        print_line
+        print_status("Host information")
+        print_line "IP Address: " + details["info"]["host-ip"].to_s
+        print_line "Hostname: " + details["info"]["host-name"].to_s
+        print_line "Operating System: " + details["info"]["operating-system"].to_s
+        print_line 
+        print_status("Vulnerability information")
+        details["vulnerabilities"].each { |vuln|
+        tbl << [ vuln["plugin_name"], vuln["plugin_family"], vuln["severity"] ]
+        }
+        print_line tbl.to_s
+        tbl2 = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            'Plugin Name',
+            'Plugin Famil',
+            'Severity'
+          ])
+        print_status("Compliance information")
+        details["compliance"].each { |comp|
+        tbl2 << [ comp["plugin_name"], comp["plugin_family"], comp["severity"] ]
+        }
+        print_line tbl2.to_s
+      end
+
+      def nessus_report_download(*args)
+        if args[0] == "-h"
+          print_status("nessus_scan_report_download <scan_id> <file ID> ")
+          print_status("Use nessus_scan_export_status <scan ID> <file ID> to check the export status.")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 2
+          scan_id = args[0]
+          file_id = args[1]
+          report = @n.scan_report_download
+        end
+
+      end
+
+      def cmd_nessus_report_host_ports(*args)
+        if args[0] == "-h"
+          print_status("nessus_report_host_ports <hostname> <report id>")
+          print_status("Example:> nessus_report_host_ports 192.168.1.250 f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+          print_status()
+          print_status("Returns all the ports associated with a host and details about their vulnerabilities")
+          print_status("Use nessus_report_hosts to list all available hosts for a report")
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 2
+          host = args[0]
+          rid = args[1]
+        else
+          print_status("Usage: ")
+          print_status("nessus_report_host_ports <hostname> <report id>")
+          print_status("Use nessus_report_list to list all available reports")
+          return
+        end
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            'Port',
+            'Protocol',
+            'Severity',
+            'Service Name',
+            'Sev 0',
+            'Sev 1',
+            'Sev 2',
+            'Sev 3'
+          ])
+        ports=@n.report_host_ports(rid, host)
+        ports.each {|port|
+        tbl << [ port['portnum'], port['protocol'], port['severity'], port['svcname'], port['sev0'], port['sev1'], port['sev2'], port['sev3'] ]
+        }
+        print_good("Host Info")
+        print_good "\n"
+        print_line tbl.to_s
+        print_status("You can:")
+        print_status("Get detailed scan infromation about a specfic port: nessus_report_host_detail <hostname> <port> <protocol> <report id>")
+      end
+
+      def cmd_nessus_report_del(*args)
+        if args[0] == "-h"
+          print_status("nessus_report_del <reportname>")
+          print_status("Example:> nessus_report_del f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+          print_status()
+          print_status("Must be an admin to del reports.")
+          print_status("Use nessus_report_list to list all reports")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        if !@n.is_admin
+          print_error("Your Nessus user is not an admin")
+          return
+        end
         case args.length
         when 1
           rid = args[0]
         else
           print_status("Usage: ")
-          print_status("nessus_report_get <report id> ")
-          print_status("use nessus_report_list to list all available reports for importing")
+          print_status("nessus_report_del <report ID>")
+          print_status("nessus_report_list to find the id.")
           return
         end
-        if check_scan(rid)
-          print_error("That scan is still running.")
-          return
+        del = @n.report_del(rid)
+        status = del.root.elements['status'].text
+        if status == "OK"
+          print_good("Report #{rid} has been deleted")
+        else
+          print_error("Report #{rid} was not deleted")
         end
-        content = nil
-        content=@n.report_file_download(rid)
-        if content.nil?
-          print_error("Failed, please reauthenticate")
-          return
-        end
-        print_status("importing " + rid)
-        framework.db.import({:data => content}) do |type,data|
-          case type
-          when :address
-            print_line("%bld%blu[*]%clr %bld#{data}%clr")
-          end
-        end
-        print_good("Done")
       end
-         
+
       def cmd_nessus_scan_list(*args)
         if args[0] == "-h"
           print_status("nessus_scan_status")
@@ -582,6 +793,10 @@ module Msf
               tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
             end
           elsif args[0] == "-c"
+            if scan["status"] == "completed"
+              tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
+            end
+          elsif args[0] == "-a"
             if scan["status"] == "canceled"
               tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
             end
@@ -592,131 +807,7 @@ module Msf
           print_line tbl.to_s
         end
       end
-         
-      def cmd_nessus_template_list(*args)
-        if args[0] == "-h"
-          print_status("nessus_template_list")
-          print_status("Example:> nessus_template_list")
-          print_status()
-          print_status("Returns a list of information about the server templates..")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        list=@n.template_list_hash
-        if list.empty?
-          print_status("No Templates Created.")
-          print_status("You can:")
-          print_status("List of completed scans: nessus_report_list")
-          print_status("Create a template: nessus_template_new <policy id> <scan name> <target(s)>")
-          return
-        end
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Template ID',
-            'Policy ID',
-            'Name',
-            'Owner',
-            'Target'
-          ])
-        list.each {|template|
-        tbl << [ template['name'], template['pid'], template['rname'], template['owner'], template['target'] ]
-        }
-        print_good("Templates")
-        print_good "\n"
-        print_line tbl.to_s + "\n"
-        print_good "\n"
-        print_status("You can:")
-        print_good("Import Nessus report to database: nessus_report_get <reportid>")
-      end
-         
-      def cmd_nessus_user_list(*args)
-        if args[0] == "-h"
-          print_status("nessus_user_list")
-          print_status("Example:> nessus_user_list")
-          print_status()
-          print_status("Returns a list of the users on the Nessus server and their access level.")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        if !@n.is_admin
-          print_status("Your Nessus user is not an admin")
-        end
-        list=@n.list_users
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'ID',
-            'Name',
-            'Username',
-            'Type',
-            'Email',
-            'Permissions'
-          ])
-        list["users"].each { |user|
-        tbl << [ user["id"], user["name"], user["username"], user["type"], user["email"], user["permissions"] ]
-        }
-        print_line tbl.to_s
-      end
-         
-      def cmd_nessus_server_status(*args)
-        if args[0] == "-h"
-          print_status("nessus_server_status")
-          print_status("Example:> nessus_server_status")
-          print_status()
-          print_status("Returns some status items for the server..")
-          return
-        end
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Status',
-            'Progress'
-          ])
-        list = @n.server_status
-        tbl << [ list["progress"], list["status"] ]
-        print_line tbl.to_s
-      end
-         
-      def cmd_nessus_family_list(*args)
-        if args[0] == "-h"
-          print_status("nessus_family_list")
-          print_status("Example:> nessus_family_list")
-          print_status()
-          print_status("Returns a list of all the plugin families along with their corresponding family IDs and plugin count.")
-          return
-        end
-        list = @n.list_families
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Family ID',
-            'Family Name',
-            'Number of Plugins'
-          ])
-        list.each { |family|
-        tbl << [ family["id"], family["name"], family["count"] ]
-        }
-        print_line tbl.to_s
-      end
-         
-      def check_policy(*args)
-        case args.length
-        when 1
-          pid = args[0]
-        else
-          print_error("No Policy ID supplied.")
-          return
-        end
-        pol = @n.list_policies
-        pol["policies"].each {|p|
-        if p["template_uuid"] == pid
-          return true
-        end
-        }
-        return false
-      end
-         
+
       def cmd_nessus_scan_new(*args)
         if args[0] == "-h"
           print_status("nessus_scan_new <UUID of Policy> <Scan name> <Description> <Targets>")
@@ -754,6 +845,240 @@ module Msf
           print_line tbl.to_s
         else
           print_error("The policy does not exist")
+        end
+      end
+
+      def cmd_nessus_scan_launch(*args)
+        if args[0] == "-h"
+          print_status("nessus_scan_launch <scan ID>")
+          print_status("Use nessus_scan_list to list all the availabla scans with their corresponding scan IDs")
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 1
+          scan_id = args[0]
+        else
+          print_status("Usage: ")
+          print_status("nessus_scan_launch <scan ID>")
+          print_status("Use nessus_scan_list to list all the availabla scans with their corresponding scan IDs")
+          return
+        end
+        launch = @n.scan_launch(scan_id)
+        print_good("Scan ID #{scan_id} successfully launched. The Scan UUID is " + launch["scan_uuid"])
+      end
+
+      def cmd_nessus_scan_pause(*args)
+        if args[0] == "-h"
+          print_status("nessus_scan_pause <scan id>")
+          print_status("Example:> nessus_scan_pause f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+          print_status()
+          print_status("Pauses a running scan")
+          print_status("Use nessus_scan_status to list all available scans")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 1
+          sid = args[0]
+        else
+          print_status("Usage: ")
+          print_status("nessus_scan_pause <scan id>")
+          print_status("Use nessus_scan_status to list all available scans")
+          return
+        end
+        pause = @n.scan_pause(sid)
+        if pause["error"]
+          print_error "Invalid scan ID"
+        else
+          print_status("#{sid} has been paused")
+        end
+      end
+
+      def cmd_nessus_db_scan(*args)
+        if args[0] == "-h"
+          print_status("nessus_db_scan <policy id> <scan name>")
+          print_status("Example:> nessus_db_scan 1 \"My Scan\"")
+          print_status()
+          print_status("Creates a scan based on all the hosts listed in db_hosts.")
+          print_status("use nessus_policy_list to list all available policies")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 2
+          pid = args[0].to_i
+          name = args[1]
+        else
+          print_status("Usage: ")
+          print_status("nessus_db_scan <policy id> <scan name>")
+          print_status("use nessus_policy_list to list all available policies")
+          return
+        end
+        if check_policy(pid)
+          print_error("That policy does not exist.")
+          return
+        end
+        tgts = ""
+        framework.db.hosts(framework.db.workspace).each do |host|
+          tgts << host.address
+          tgts << ","
+        end
+        tgts.chop!
+        print_status("Creating scan from policy number #{pid}, called \"#{name}\" and scanning all hosts in workspace")
+        scan = @n.scan_new(pid, name, tgts)
+        if scan
+          print_status("Scan started.  uid is #{scan}")
+        end
+      end
+
+      def cmd_nessus_scan_pause_all(*args)
+        scan_ids = Array.new
+        if args[0] == "-h"
+          print_status("nessus_scan_pause_all")
+          print_status("Example:> nessus_scan_pause_all")
+          print_status()
+          print_status("Pauses all currently running scans")
+          print_status("Use nessus_scan_list to list all running scans")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        list = @n.scan_list
+        list["scans"].each { |scan|
+        if scan["status"] == "running"
+          scan_ids << scan["id"]
+        end
+        }
+        if scan_ids.length > 0
+          scan_ids.each { |scan_id|
+          @n.scan_pause(scan_id)
+          }
+          print_status("All scans have been paused")
+        else
+          print_error("No running scans")
+        end
+      end
+
+      def cmd_nessus_scan_stop(*args)
+        if args[0] == "-h"
+          print_status("nessus_scan_stop <scan id>")
+          print_status("Example:> nessus_scan_stop f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+          print_status()
+          print_status("Stops a currently running scans")
+          print_status("Use nessus_scan_list to list all running scans")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 1
+          sid = args[0]
+        else
+          print_status("Usage: ")
+          print_status("nessus_scan_stop <scan id>")
+          print_status("Use nessus_scan_status to list all available scans")
+          return
+        end
+        stop = @n.scan_stop(sid)
+        if stop["error"]
+          print_error "Invalid scan ID"
+        else
+          print_status("#{sid} has been stopped")
+        end
+      end
+
+      def cmd_nessus_scan_stop_all(*args)
+        scan_ids = Array.new
+        if args[0] == "-h"
+          print_status("nessus_scan_stop_all")
+          print_status("Example:> nessus_scan_stop_all")
+          print_status()
+          print_status("stops all currently running scans")
+          print_status("Use nessus_scan_list to list all running scans")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        list = @n.scan_list
+        list["scans"].each { |scan|
+        if scan["status"] == "running" || scan["status"] == "paused"
+          scan_ids << scan["id"]
+        end
+        }
+        if scan_ids.length > 0
+          scan_ids.each { |scan_id|
+          @n.scan_stop(scan_id)
+          }
+          print_status("All scans have been stopped")
+        else
+          print_error("No running or paused scans to be stopped")
+        end
+      end
+
+      def cmd_nessus_scan_resume(*args)
+        if args[0] == "-h"
+          print_status("nessus_scan_resume <scan id>")
+          print_status("Example:> nessus_scan_resume f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+          print_status()
+          print_status("resumes a running scan")
+          print_status("Use nessus_scan_status to list all available scans")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 1
+          sid = args[0]
+        else
+          print_status("Usage: ")
+          print_status("nessus_scan_resume <scan id>")
+          print_status("Use nessus_scan_status to list all available scans")
+          return
+        end
+        resume = @n.scan_resume(sid)
+        if resume["error"]
+          print_error "Invalid scan ID"
+        else
+          print_status("#{sid} has been resumed")
+        end
+      end
+
+      def cmd_nessus_scan_resume_all(*args)
+        scan_ids = Array.new
+        if args[0] == "-h"
+          print_status("nessus_scan_resume_all")
+          print_status("Example:> nessus_scan_resume_all")
+          print_status()
+          print_status("resumes all currently running scans")
+          print_status("Use nessus_scan_list to list all running scans")
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        list = @n.scan_list
+        list["scans"].each { |scan|
+        if scan["status"] == "paused"
+          scan_ids << scan["id"]
+        end
+        }
+        if scan_ids.length > 0
+          scan_ids.each { |scan_id|
+          @n.scan_resume(scan_id)
+          }
+          print_status("All scans have been resumed")
+        else
+          print_error("No running scans to be resumed")
         end
       end
 
@@ -818,7 +1143,7 @@ module Msf
               "Count"
             ])
           details["vulnerabilities"].each { |vuln|
-          tbl << [ vuln["plugin_id"], vuln["plugin_family"], vuln["plugin_family"], vuln["count"] ]
+          tbl << [ vuln["plugin_id"], vuln["plugin_name"], vuln["plugin_family"], vuln["count"] ]
           }
         elsif category == "history"
           tbl = Rex::Ui::Text::Table.new(
@@ -871,24 +1196,6 @@ module Msf
         end
       end
 
-      def nessus_scan_report_download(*args)
-        if args[0] == "-h"
-          print_status("nessus_scan_report_download <scan_id> <file ID> ")
-          print_status("Use nessus_scan_export_status <scan ID> <file ID> to check the export status.")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        case args.length
-        when 2
-          scan_id = args[0]
-          file_id = args[1]
-          report = @n.scan_report_download
-        end
-
-      end
-
       def cmd_nessus_scan_export_status(*args)
         if args[0] == "-h"
           print_status("nessus_scan_export_status <scan ID> <file ID>")
@@ -913,35 +1220,14 @@ module Msf
           print_status("Use nessus_scan_export <scan ID> <format> to export a scan and get its file ID")
         end
       end
-         
-      def cmd_nessus_scan_launch(*args)
+
+      def cmd_nessus_plugin_list(*args)
         if args[0] == "-h"
-          print_status("nessus_scan_launch <scan ID>")
-          print_status("Use nessus_scan_list to list all the availabla scans with their corresponding scan IDs")
-        end
-        if !nessus_verify_token
-          return
-        end
-        case args.length
-        when 1
-          scan_id = args[0]
-        else
-          print_status("Usage: ")
-          print_status("nessus_scan_launch <scan ID>")
-          print_status("Use nessus_scan_list to list all the availabla scans with their corresponding scan IDs")
-          return
-        end
-        launch = @n.scan_launch(scan_id)
-        print_good("Scan ID #{scan_id} successfully launched. The Scan UUID is " + launch["scan_uuid"])
-      end
-         
-      def cmd_nessus_scan_pause(*args)
-        if args[0] == "-h"
-          print_status("nessus_scan_pause <scan id>")
-          print_status("Example:> nessus_scan_pause f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+          print_status("nessus_plugin_list <Family ID>")
+          print_status("Example:> nessus_plugin_list 10")
           print_status()
-          print_status("Pauses a running scan")
-          print_status("Use nessus_scan_status to list all available scans")
+          print_status("Returns a list of all plugins in that family.")
+          print_status("Use nessus_family_list to display all the plugin families along with their corresponding family IDs")
           return
         end
         if !nessus_verify_token
@@ -949,266 +1235,54 @@ module Msf
         end
         case args.length
         when 1
-          sid = args[0]
+          family_id = args[0]
         else
           print_status("Usage: ")
-          print_status("nessus_scan_pause <scan id>")
-          print_status("Use nessus_scan_status to list all available scans")
-          return
-        end
-        pause = @n.scan_pause(sid)
-        if pause["error"]
-          print_error "Invalid scan ID"
-        else
-          print_status("#{sid} has been paused")
-        end
-      end
-         
-      def cmd_nessus_scan_resume(*args)
-        if args[0] == "-h"
-          print_status("nessus_scan_resume <scan id>")
-          print_status("Example:> nessus_scan_resume f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
-          print_status("resumes a running scan")
-          print_status("Use nessus_scan_status to list all available scans")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        case args.length
-        when 1
-          sid = args[0]
-        else
-          print_status("Usage: ")
-          print_status("nessus_scan_resume <scan id>")
-          print_status("Use nessus_scan_status to list all available scans")
-          return
-        end
-        resume = @n.scan_resume(sid)
-        if resume["error"]
-          print_error "Invalid scan ID"
-        else
-          print_status("#{sid} has been resumed")
-        end
-      end
-         
-      def cmd_nessus_report_hosts(*args)
-        if args[0] == "-h"
-          print_status("nessus_report_hosts <report id>")
-          print_status("Example:> nessus_report_hosts f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
-          print_status("Returns all the hosts associated with a scan and details about their vulnerabilities")
-          print_status("Use nessus_report_list to list all available scans")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        case args.length
-        when 1
-          rid = args[0]
-        else
-          print_status("Usage: ")
-          print_status("nessus_report_hosts <report id>")
-          print_status("Use nessus_report_list to list all available reports")
+          print_status("nessus_plugin_list <Family ID>")
+          print_status("Use nessus_family_list to display all the plugin families along with their corresponding family IDs")
           return
         end
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
-            'Hostname',
-            'Severity',
-            'Sev 0',
-            'Sev 1',
-            'Sev 2',
-            'Sev 3',
-            'Current Progress',
-            'Total Progress'
-          ])
-        hosts=@n.report_hosts(rid)
-        hosts.each {|host|
-        tbl << [ host['hostname'], host['severity'], host['sev0'], host['sev1'], host['sev2'], host['sev3'], host['current'], host['total'] ]
-        }
-        print_good("Report Info")
-        print_good "\n"
-        print_line tbl.to_s
-        print_status("You can:")
-        print_status("Get information from a particular host: nessus_report_host_ports <hostname> <report id>")
-      end
-         
-      def cmd_nessus_report_vulns(*args)
-        if args[0] == "-h"
-          print_status("nessus_report_vulns <report id>")
-          print_status("Example:> nessus_report_vulns f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
-          print_status("Returns all the vulns associated with a scan and details about hosts and their vulnerabilities")
-          print_status("Use nessus_report_list to list all available scans")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        case args.length
-        when 1
-          rid = args[0]
-        else
-          print_status("Usage: ")
-          print_status("nessus_report_vulns <report id>")
-          print_status("Use nessus_report_vulns to list all available reports")
-          return
-        end
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Hostname',
-            'Port',
-            'Proto',
-            'Sev',
-            'PluginID',
+            'Plugin ID',
             'Plugin Name'
           ])
-        print_status("Grabbing all vulns for report #{rid}")
-        hosts=@n.report_hosts(rid)
-        hosts.each do |host|
-        ports=@n.report_host_ports(rid, host['hostname'])
-        ports.each do |port|
-          details=@n.report_host_port_details(rid, host['hostname'], port['portnum'], port['protocol'])
-            details.each do |detail|
-              tbl << [host['hostname'], port['portnum'], port['protocol'], detail['severity'], detail['pluginID'], detail['pluginName'] ]
-            end
-          end
-        end
-        print_good("Report Info")
-        print_line
+        list = @n.list_plugins(family_id)
+        list["plugins"].each {|plugin|
+        tbl << [ plugin["id"], plugin["name"] ]
+        }
+        print_good("Plugin Family Name: " + list["name"])
         print_line tbl.to_s
-        print_status("You can:")
-        print_status("Get information from a particular host: nessus_report_host_ports <hostname> <report id>")
       end
-         
-      def cmd_nessus_report_host_ports(*args)
+
+      def cmd_nessus_family_list(*args)
         if args[0] == "-h"
-          print_status("nessus_report_host_ports <hostname> <report id>")
-          print_status("Example:> nessus_report_host_ports 192.168.1.250 f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
+          print_status("nessus_family_list")
+          print_status("Example:> nessus_family_list")
           print_status()
-          print_status("Returns all the ports associated with a host and details about their vulnerabilities")
-          print_status("Use nessus_report_hosts to list all available hosts for a report")
-        end
-        if !nessus_verify_token
+          print_status("Returns a list of all the plugin families along with their corresponding family IDs and plugin count.")
           return
         end
-        case args.length
-        when 2
-          host = args[0]
-          rid = args[1]
-        else
-          print_status("Usage: ")
-          print_status("nessus_report_host_ports <hostname> <report id>")
-          print_status("Use nessus_report_list to list all available reports")
-          return
-        end
+        list = @n.list_families
         tbl = Rex::Ui::Text::Table.new(
           'Columns' => [
-            'Port',
-            'Protocol',
-            'Severity',
-            'Service Name',
-            'Sev 0',
-            'Sev 1',
-            'Sev 2',
-            'Sev 3'
+            'Family ID',
+            'Family Name',
+            'Number of Plugins'
           ])
-        ports=@n.report_host_ports(rid, host)
-        ports.each {|port|
-        tbl << [ port['portnum'], port['protocol'], port['severity'], port['svcname'], port['sev0'], port['sev1'], port['sev2'], port['sev3'] ]
+        list.each { |family|
+        tbl << [ family["id"], family["name"], family["count"] ]
         }
-        print_good("Host Info")
-        print_good "\n"
-        print_line tbl.to_s
-        print_status("You can:")
-        print_status("Get detailed scan infromation about a specfic port: nessus_report_host_detail <hostname> <port> <protocol> <report id>")
-      end
-
-      def cmd_nessus_report_host_detail(*args)
-        if args[0] == "-h"
-          print_status("nessus_report_host_detail <hostname> <port> <protocol> <report id>")
-          print_status("Example:> nessus_report_host_ports 192.168.1.250 445 tcp f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
-          print_status("Returns all the vulns associated with a port for a specific host")
-          print_status("Use nessus_report_host_ports to list all available ports for a host")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        case args.length
-        when 4
-          host = args[0]
-          port = args[1]
-          prot = args[2]
-          rid = args[3]
-        else
-          print_status("Usage: ")
-          print_status("nessus_report_host_detail <hostname> <port> <protocol> <report id>")
-          print_status("Use nessus_report_host_ports to list all available ports")
-          return
-        end
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Port',
-            'Severity',
-            'PluginID',
-            'Plugin Name',
-            'CVSS2',
-            'Exploit?',
-            'CVE',
-            'Risk Factor',
-            'CVSS Vector'
-          ])
-        details=@n.report_host_port_details(rid, host, port, prot)
-        details.each {|detail|
-        tbl << [ detail['port'], detail['severity'], detail['pluginID'], detail['pluginName'], detail['cvss_base_score'] || 'none',
-               detail['exploit_available'] || '.', detail['cve'] || '.', detail['risk_factor'] || '.', detail['cvss_vector'] || '.' ]
-        }
-        print_good("Port Info")
-        print_good "\n"
         print_line tbl.to_s
       end
 
-      def cmd_nessus_scan_pause_all(*args)
-        scan_ids = Array.new
+      def cmd_nessus_plugin_details(*args)
         if args[0] == "-h"
-          print_status("nessus_scan_pause_all")
-          print_status("Example:> nessus_scan_pause_all")
+          print_status("nessus_plugin_details <Plugin ID>")
+          print_status("Example:> nessus_plugin_details 10264")
           print_status()
-          print_status("Pauses all currently running scans")
-          print_status("Use nessus_scan_list to list all running scans")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        list = @n.scan_list
-        list.each { |scan|
-        if scan["status"] == "running"
-          scan_ids << scan["id"]
-        end
-        }
-        if scan_ids.length > 0
-          scan_ids.each { |scan_id|
-          @n.scan_pause(scan_id)
-          }
-          print_status("All scans have been paused")
-        else
-          print_error("No running scans")
-        end
-      end
-
-      def cmd_nessus_scan_stop(*args)
-        if args[0] == "-h"
-          print_status("nessus_scan_stop <scan id>")
-          print_status("Example:> nessus_scan_stop f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
-          print_status("Stops a currently running scans")
-          print_status("Use nessus_scan_list to list all running scans")
+          print_status("Returns details on a particular plugin.")
+          print_status("Use nessus_plugin_list to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
           return
         end
         if !nessus_verify_token
@@ -1216,77 +1290,64 @@ module Msf
         end
         case args.length
         when 1
-          sid = args[0]
+          plugin_id = args[0]
         else
           print_status("Usage: ")
-          print_status("nessus_scan_stop <scan id>")
-          print_status("Use nessus_scan_status to list all available scans")
+          print_status("nessus_plugin_details <Plugin ID>")
+          print_status("Use nessus_plugin_list to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
           return
         end
-        stop = @n.scan_stop(sid)
-        if stop["error"]
-          print_error "Invalid scan ID"
-        else
-          print_status("#{sid} has been stopped")
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            'Reference',
+            'Value'
+          ])
+        begin
+          list = @n.plugin_details(plugin_id)
+        rescue ::Exception => e
+          if e.message =~ /unexpected token/
+            print_error("No plugin info found")
+            return
+          else
+            raise e
+          end
         end
+        list["attributes"].each { |attrib|
+        tbl << [ attrib["attribute_name"], attrib["attribute_value"] ]
+        }
+        print_good("Plugin Name: " + list["name"])
+        print_good("Plugin Family: " + list["family_name"])
+        print_line tbl.to_s
       end
 
-      def cmd_nessus_scan_stop_all(*args)
-        scan_ids = Array.new
+      def cmd_nessus_user_list(*args)
         if args[0] == "-h"
-          print_status("nessus_scan_stop_all")
-          print_status("Example:> nessus_scan_stop_all")
+          print_status("nessus_user_list")
+          print_status("Example:> nessus_user_list")
           print_status()
-          print_status("stops all currently running scans")
-          print_status("Use nessus_scan_list to list all running scans")
+          print_status("Returns a list of the users on the Nessus server and their access level.")
           return
         end
         if !nessus_verify_token
           return
         end
-        list = @n.scan_list
-        list.each { |scan|
-        if scan["status"] == "running" || scan["status"] == "paused"
-          scan_ids << scan["id"]
+        if !@n.is_admin
+          print_status("Your Nessus user is not an admin")
         end
+        list=@n.list_users
+        tbl = Rex::Ui::Text::Table.new(
+          'Columns' => [
+            'ID',
+            'Name',
+            'Username',
+            'Type',
+            'Email',
+            'Permissions'
+          ])
+        list["users"].each { |user|
+        tbl << [ user["id"], user["name"], user["username"], user["type"], user["email"], user["permissions"] ]
         }
-        if scan_ids.length > 0
-          scan_ids.each { |scan_id|
-          @n.scan_stop(scan_id)
-          }
-          print_status("All scans have been stopped")
-        else
-          print_error("No running or paused scans to be stopped")
-        end
-      end
-
-      def cmd_nessus_scan_resume_all(*args)
-        scan_ids = Array.new
-        if args[0] == "-h"
-          print_status("nessus_scan_resume_all")
-          print_status("Example:> nessus_scan_resume_all")
-          print_status()
-          print_status("resumes all currently running scans")
-          print_status("Use nessus_scan_list to list all running scans")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        list = @n.scan_list
-        list.each { |scan|
-        if scan["status"] == "paused"
-          scan_ids << scan["id"]
-        end
-        }
-        if scan_ids.length > 0
-          scan_ids.each { |scan_id|
-          @n.scan_resume(scan_id)
-          }
-          print_status("All scans have been resumed")
-        else
-          print_error("No running scans to be resumed")
-        end
+        print_line tbl.to_s
       end
 
       def cmd_nessus_user_add(*args)
@@ -1409,59 +1470,6 @@ module Msf
         end
       end
 
-      def cmd_nessus_admin(*args)
-        if args[0] == "-h"
-          print_status("nessus_admin")
-          print_status("Example:> nessus_admin")
-          print_status()
-          print_status("Checks to see if the current user is an admin")
-          print_status("Use nessus_user_list to list all users")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        if !@n.is_admin
-          print_error("Your Nessus user is not an admin")
-        else
-          print_good("Your Nessus user is an admin")
-        end
-      end
-
-      def cmd_nessus_plugin_list(*args)
-        if args[0] == "-h"
-          print_status("nessus_plugin_list <Family ID>")
-          print_status("Example:> nessus_plugin_list 10")
-          print_status()
-          print_status("Returns a list of all plugins in that family.")
-          print_status("Use nessus_family_list to display all the plugin families along with their corresponding family IDs")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        case args.length
-        when 1
-          family_id = args[0]
-        else
-          print_status("Usage: ")
-          print_status("nessus_plugin_list <Family ID>")
-          print_status("Use nessus_family_list to display all the plugin families along with their corresponding family IDs")
-          return
-        end
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Plugin ID',
-            'Plugin Name'
-          ])
-        list = @n.list_plugins(family_id)
-        list["plugins"].each {|plugin|
-        tbl << [ plugin["id"], plugin["name"] ]
-        }
-        print_good("Plugin Family Name: " + list["name"])
-        print_line tbl.to_s
-      end
-
       def cmd_nessus_policy_list(*args)
         if args[0] == "-h"
           print_status("nessus_policy_list")
@@ -1532,141 +1540,29 @@ module Msf
         end
       end
 
-      def cmd_nessus_plugin_details(*args)
-        if args[0] == "-h"
-          print_status("nessus_plugin_details <Plugin ID>")
-          print_status("Example:> nessus_plugin_details 10264")
-          print_status()
-          print_status("Returns details on a particular plugin.")
-          print_status("Use nessus_plugin_list to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
+      def check_policy(*args)
         case args.length
         when 1
-          plugin_id = args[0]
+          pid = args[0]
         else
-          print_status("Usage: ")
-          print_status("nessus_plugin_details <Plugin ID>")
-          print_status("Use nessus_plugin_list to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
+          print_error("No Policy ID supplied.")
           return
         end
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Reference',
-            'Value'
-          ])
-        begin
-          list = @n.plugin_details(plugin_id)
-        rescue ::Exception => e
-          if e.message =~ /unexpected token/
-            print_error("No plugin info found")
-            return
-          else
-            raise e
-          end
+        pol = @n.list_policies
+        pol["policies"].each {|p|
+        if p["template_uuid"] == pid
+          return true
         end
-        list["attributes"].each { |attrib|
-        tbl << [ attrib["attribute_name"], attrib["attribute_value"] ]
         }
-        print_good("Plugin Name: " + list["name"])
-        print_good("Plugin Family: " + list["family_name"])
-        print_line tbl.to_s
+        return false
       end
 
-      def cmd_nessus_report_del(*args)
-        if args[0] == "-h"
-          print_status("nessus_report_del <reportname>")
-          print_status("Example:> nessus_report_del f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
-          print_status()
-          print_status("Must be an admin to del reports.")
-          print_status("Use nessus_report_list to list all reports")
-          return
+      def nessus_verify_db
+        if !(framework.db and framework.db.active)
+          print_error("No database has been configured, please use db_create/db_connect first")
+          return false
         end
-        if !nessus_verify_token
-          return
-        end
-        if !@n.is_admin
-          print_error("Your Nessus user is not an admin")
-          return
-        end
-        case args.length
-        when 1
-          rid = args[0]
-        else
-          print_status("Usage: ")
-          print_status("nessus_report_del <report ID>")
-          print_status("nessus_report_list to find the id.")
-          return
-        end
-        del = @n.report_del(rid)
-        status = del.root.elements['status'].text
-        if status == "OK"
-          print_good("Report #{rid} has been deleted")
-        else
-          print_error("Report #{rid} was not deleted")
-        end
-      end
-
-      def cmd_nessus_server_prefs(*args)
-        if args[0] == "-h"
-          print_status("nessus_server_prefs")
-          print_status("Example:> nessus_server_prefs")
-          print_status()
-          print_status("Returns a long list of server prefs.")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        if !@n.is_admin
-          print_error("Your Nessus user is not an admin")
-          return
-        end
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Name',
-            'Value'
-          ])
-        prefs = @n.server_prefs
-        prefs.each {|pref|
-        tbl << [ pref['name'], pref['value'] ]
-        }
-        print_good("Nessus Server Pref List")
-        print_good "\n"
-        print_line tbl.to_s + "\n"
-      end
-
-      def cmd_nessus_plugin_prefs(*args)
-        if args[0] == "-h"
-          print_status("nessus_plugin_prefs")
-          print_status("Example:> nessus_plugin_prefs")
-          print_status()
-          print_status("Returns a long list of plugin prefs.")
-          return
-        end
-        if !nessus_verify_token
-          return
-        end
-        if !@n.is_admin
-          print_error("Your Nessus user is not an admin")
-          return
-        end
-        tbl = Rex::Ui::Text::Table.new(
-          'Columns' => [
-            'Name',
-            'Value',
-            'Type'
-          ])
-        prefs = @n.plugin_prefs
-        prefs.each {|pref|
-        tbl << [ pref['prefname'], pref['prefvalues'], pref['preftype'] ]
-        }
-        print_good("Nessus Plugins Pref List")
-        print_good "\n"
-        print_line tbl.to_s
+        true
       end
     end
 

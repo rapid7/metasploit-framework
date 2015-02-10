@@ -25,10 +25,10 @@ module Nessus
       payload = {
         :username => username, 
         :password => password, 
-        :json => 1,
+        :json => 1
       }
-      resp = http_post(:uri=>'/session', :data=>payload)
-      @token = "token=#{resp['token']}"
+      res = http_post(:uri=>"/session", :data=>payload)
+      @token = "token=#{res['token']}"
       true
     end
 
@@ -47,7 +47,7 @@ module Nessus
     end
 
     def get_server_properties
-      http_get(:uri=>'/server/properties', :fields=>x_cookie)
+      http_get(:uri=>"/server/properties", :fields=>x_cookie)
     end
   
     def user_add(username, password, permissions, type)
@@ -56,9 +56,9 @@ module Nessus
         :password => password, 
         :permissions => permissions, 
         :type => type, 
-        :json => 1,
+        :json => 1
       }
-      http_post(:uri=>'/users', :fields=>x_cookie, :data=>payload)
+      http_post(:uri=>"/users", :fields=>x_cookie, :data=>payload)
     end
       
     def user_delete(user_id)
@@ -69,39 +69,43 @@ module Nessus
     def user_chpasswd(user_id, password)
       payload = {
         :password => password, 
-        :json => 1,
+        :json => 1
       }
       res = http_put(:uri=>"/users/#{user_id}/chpasswd", :data=>payload, :fields=>x_cookie)
       return res.code
     end
       
     def user_logout
-      res = http_delete(:uri=>'/session', :fields=>x_cookie)
+      res = http_delete(:uri=>"/session", :fields=>x_cookie)
       return res.code
     end
 
     def list_policies
-      http_get(:uri=>'/policies', :fields=>x_cookie)
+      http_get(:uri=>"/policies", :fields=>x_cookie)
     end
 
     def list_users
-      http_get(:uri=>'/users', :fields=>x_cookie)
+      http_get(:uri=>"/users", :fields=>x_cookie)
     end
 
     def list_folders
-      http_get(:uri=>'/folders', :fields=>x_cookie)
+      http_get(:uri=>"/folders", :fields=>x_cookie)
     end
 
     def list_scanners
-      http_get(:uri=>'/scanners', :fields=>x_cookie)
+      http_get(:uri=>"/scanners", :fields=>x_cookie)
     end
 
     def list_families
-      http_get(:uri=>'/plugins/families', :fields=>x_cookie)
+      http_get(:uri=>"/plugins/families", :fields=>x_cookie)
     end
 
     def list_plugins(family_id)
       http_get(:uri=>"/plugins/families/#{family_id}", :fields=>x_cookie)
+    end
+
+    def list_template(type)
+      res = http_get(:uri=>"/editor/#{type}/templates", :fields=>x_cookie)
     end
 
     def plugin_details(plugin_id)
@@ -109,7 +113,7 @@ module Nessus
     end
 
     def is_admin
-      res = http_get(:uri=>'/session', :fields=>x_cookie)
+      res = http_get(:uri=>"/session", :fields=>x_cookie)
       if res['permissions'] == 128
         return true
       else
@@ -118,7 +122,7 @@ module Nessus
     end
 
     def server_properties
-      http_get(:uri=>'/server/properties', :fields=>x_cookie)
+      http_get(:uri=>"/server/properties", :fields=>x_cookie)
     end
 
     def scan_create(uuid, name, description, targets)
@@ -131,7 +135,7 @@ module Nessus
           },
         :json => 1
       }.to_json
-      http_post(:uri=>'/scans', :body=>payload, :fields=>x_cookie, :ctype=>'application/json')
+      http_post(:uri=>"/scans", :body=>payload, :fields=>x_cookie, :ctype=>'application/json')
     end
 
     def scan_launch(scan_id)
@@ -139,11 +143,11 @@ module Nessus
     end
 
     def server_status
-      http_get(:uri=>'/server/status', :fields=>x_cookie)
+      http_get(:uri=>"/server/status", :fields=>x_cookie)
     end
 
     def scan_list
-      http_get(:uri=>'/scans', :fields=>x_cookie)
+      http_get(:uri=>"/scans", :fields=>x_cookie)
     end
 
     def scan_details(scan_id)
@@ -151,7 +155,7 @@ module Nessus
     end
 
     def scan_pause(scan_id)
-      http_get(:uri=>"/scans/#{scan_id}/pause", :fields=>x_cookie)
+      http_post(:uri=>"/scans/#{scan_id}/pause", :fields=>x_cookie)
     end
 
     def scan_resume(scan_id)
@@ -172,12 +176,12 @@ module Nessus
     def scan_export_status(scan_id, file_id)
       request = Net::HTTP::Get.new("/scans/#{scan_id}/export/#{file_id}/status")
       request.add_field("X-Cookie", @token)
-      resp = @connection.request(request)
-      if resp.code == "200"
+      res = @connection.request(request)
+      if res.code == "200"
         return "ready"
       else
-        resp = JSON.parse(resp.body)
-        return resp
+        res = JSON.parse(resp.body)
+        return res
       end
     end
 
@@ -186,11 +190,15 @@ module Nessus
       return res.code
     end
 
-    def report_list_hash
+    def host_detail(scan_id, host_id)
+      res = http_get(:uri=>"/scans/#{scan_id}/hosts/#{host_id}", :fields=>x_cookie)
+    end
+
+    def report_list
       raise NotImplementedError
     end
 
-    def scan_list_hash
+    def report_del
       raise NotImplementedError
     end
 
@@ -198,23 +206,7 @@ module Nessus
       raise NotImplementedError
     end
 
-    def scan_new
-      raise NotImplementedError
-    end
-
-    def report_file_download
-      raise NotImplementedError
-    end
-
-    def template_list_hash
-      raise NotImplementedError
-    end
-
-    def report_host
-      raise NotImplementedError
-    end
-
-    def report_host_port_details
+    def report_download
       raise NotImplementedError
     end
 
