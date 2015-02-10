@@ -6,7 +6,7 @@ module Msf
       module Mbean
         require 'msf/java/jmx/mbean/server_connection'
 
-        include Msf::Jmx::Mbean::ServerConnection
+        include Msf::Java::Jmx::Mbean::ServerConnection
       end
     end
   end
