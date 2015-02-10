@@ -4,15 +4,15 @@ require 'rex/java/serialization'
 
 module Msf
   module Jmx
-    require 'msf/jmx/util'
-    require 'msf/jmx/discovery'
-    require 'msf/jmx/handshake'
-    require 'msf/jmx/mbean'
+    require 'msf/java/jmx/util'
+    require 'msf/java/jmx/discovery'
+    require 'msf/java/jmx/handshake'
+    require 'msf/java/jmx/mbean'
 
-    include Msf::Jmx::Util
-    include Msf::Jmx::Discovery
-    include Msf::Jmx::Handshake
-    include Msf::Jmx::Mbean
+    include Msf::Java::Jmx::Util
+    include Msf::Java::Jmx::Discovery
+    include Msf::Java::Jmx::Handshake
+    include Msf::Java::Jmx::Mbean
 
     def initialize(info = {})
       super
