@@ -14,14 +14,15 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Android Browser RCE Through Google Play Store XFO',
       'Description'    => %q{
-        This module combines two vulnerabilities to achieve remote code execution on affected
-        Android devices. First, the module exploits a Universal Cross-Site Scripting (UXSS)
-        vulnerability present in versions of Android's open source stock browser (the AOSP Browser)
-        prior to 4.4. Second, the Google Play store's web interface fails to enforce a
-        X-Frame-Options: DENY header (XFO) on some error pages, and therefore, can be targeted for script
-        injection. As a result, this leads to remote code execution through Google Play's remote
-        installation feature, as any application available on the Google Play store can be installed
-        and launched on the user's device.
+        This module combines two vulnerabilities to achieve remote code
+        execution on affected Android devices. First, the module exploits
+        CVE-2014-6041, a Universal Cross-Site Scripting (UXSS) vulnerability present in
+        versions of Android's open source stock browser (the AOSP Browser) prior to
+        4.4. Second, the Google Play store's web interface fails to enforce a
+        X-Frame-Options: DENY header (XFO) on some error pages, and therefore, can be
+        targeted for script injection. As a result, this leads to remote code execution
+        through Google Play's remote installation feature, as any application available
+        on the Google Play store can be installed and launched on the user's device.
 
         This module requires that the user is logged into Google with a vulnerable browser.
 
@@ -29,12 +30,13 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         => [
         'Rafay Baloch', # Original UXSS vulnerability
-        'joev'          # Metasploit module
+        'joev'          # Play Store vector and Metasploit module
       ],
       'License'        => MSF_LICENSE,
       'Actions'        => [[ 'WebServer' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' => [
+        [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2014/09/15/major-android-bug-is-a-privacy-disaster-cve-2014-6041'],
         [ 'URL', 'http://1337day.com/exploit/description/22581' ],
         [ 'OSVDB', '110664' ],
         [ 'CVE', '2014-6041' ]
