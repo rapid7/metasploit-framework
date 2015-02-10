@@ -1,41 +1,3 @@
-GIT
-  remote: git://github.com/rapid7/metasploit-credential.git
-  revision: 00954f33ad4d2449fb73b345d819ce96f395b1ef
-  ref: 00954f33ad4d2449fb73b345d819ce96f395b1ef
-  specs:
-    metasploit-credential (0.13.10.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
-      metasploit-concern (~> 0.3.0)
-      metasploit-model (= 0.29.0.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
-      metasploit_data_models (= 0.21.4.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
-      pg
-      railties (< 4.0.0)
-      rubyntlm
-      rubyzip (~> 1.1)
-
-GIT
-  remote: git://github.com/rapid7/metasploit-model.git
-  revision: ee4d06009811c21c36ace781b27509f816ef7fee
-  ref: ee4d06009811c21c36ace781b27509f816ef7fee
-  specs:
-    metasploit-model (0.29.0.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
-      activesupport
-      railties (< 4.0.0)
-
-GIT
-  remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: f29efd129b3843c55289add6affb5465b2969446
-  ref: f29efd129b3843c55289add6affb5465b2969446
-  specs:
-    metasploit_data_models (0.21.4.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
-      activerecord (>= 3.2.13, < 4.0.0)
-      activesupport
-      arel-helpers
-      metasploit-concern (~> 0.3.0)
-      metasploit-model (= 0.29.0.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
-      pg
-      railties (< 4.0.0)
-      recog (~> 1.0)
-
 PATH
   remote: .
   specs:
@@ -46,7 +8,7 @@ PATH
       jsobfu (~> 0.2.0)
       json
       metasploit-concern (~> 0.3.0)
-      metasploit-model (= 0.29.0.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      metasploit-model (~> 0.29.0)
       meterpreter_bins (= 0.0.12)
       msgpack
       nokogiri
@@ -60,9 +22,9 @@ PATH
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 3.2.21, < 4.0.0)
-      metasploit-credential (= 0.13.10.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      metasploit-credential (~> 0.13.19)
       metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (= 0.21.4.pre.extract.pre.cache.pre.from.pre.metasploit.pre.model)
+      metasploit_data_models (~> 0.22.8)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
@@ -100,13 +62,13 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.3)
-    arel-helpers (2.0.2)
+    arel-helpers (2.1.0)
       activerecord (>= 3.1.0, < 5)
     aruba (0.6.1)
       childprocess (>= 0.3.6)
       cucumber (>= 1.1.1)
       rspec-expectations (>= 2.7.0)
-    bcrypt (3.1.9)
+    bcrypt (3.1.10)
     builder (3.0.4)
     capybara (2.4.1)
       mime-types (>= 1.16)
@@ -150,18 +112,38 @@ GEM
     metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
+    metasploit-credential (0.13.19)
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.29.0)
+      metasploit_data_models (~> 0.22.8)
+      pg
+      railties (< 4.0.0)
+      rubyntlm
+      rubyzip (~> 1.1)
+    metasploit-model (0.29.0)
+      activesupport
+      railties (< 4.0.0)
+    metasploit_data_models (0.22.8)
+      activerecord (>= 3.2.13, < 4.0.0)
+      activesupport
+      arel-helpers
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.29.0)
+      pg
+      railties (< 4.0.0)
+      recog (~> 1.0)
     meterpreter_bins (0.0.12)
     method_source (0.8.2)
     mime-types (1.25.1)
     mini_portile (0.6.1)
-    msgpack (0.5.9)
+    msgpack (0.5.11)
     multi_json (1.0.4)
     network_interface (0.0.1)
     nokogiri (1.6.5)
       mini_portile (~> 0.6.0)
     packetfu (1.1.9)
     pcaprub (0.11.3)
-    pg (0.17.1)
+    pg (0.18.1)
     polyglot (0.3.5)
     pry (0.10.0)
       coderay (~> 1.1.0)
@@ -193,7 +175,7 @@ GEM
     rb-readline (0.5.2)
     rdoc (3.12.2)
       json (~> 1.4)
-    recog (1.0.7)
+    recog (1.0.16)
       nokogiri
     redcarpet (3.1.2)
     rkelly-remix (0.0.6)
@@ -218,7 +200,7 @@ GEM
       rspec-expectations (~> 2.99.0)
       rspec-mocks (~> 2.99.0)
     rubyntlm (0.4.0)
-    rubyzip (1.1.6)
+    rubyzip (1.1.7)
     shoulda-matchers (2.6.2)
     simplecov (0.5.4)
       multi_json (~> 1.0.3)
@@ -251,12 +233,9 @@ DEPENDENCIES
   factory_girl (>= 4.1.0)
   factory_girl_rails
   fivemat (= 1.2.1)
-  metasploit-credential!
   metasploit-framework!
   metasploit-framework-db!
   metasploit-framework-pcap!
-  metasploit-model!
-  metasploit_data_models!
   pry
   rake (>= 10.0.0)
   redcarpet
