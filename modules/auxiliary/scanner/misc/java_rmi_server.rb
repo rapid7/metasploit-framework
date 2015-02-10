@@ -8,7 +8,7 @@ require 'rex/java/serialization'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Rmi::Client
+  include Msf::Java::Rmi::Client
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
