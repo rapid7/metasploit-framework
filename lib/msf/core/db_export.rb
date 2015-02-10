@@ -223,7 +223,7 @@ class Export
       # Authors sub-elements
       # @todo https://www.pivotaltracker.com/story/show/48451001
       report_file.write("    <module_authors>\n")
-      m.authors.find(:all).each do |d|
+      m.authors.each do |d|
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
           report_file.write("        #{el}\n")
@@ -234,7 +234,7 @@ class Export
       # Refs sub-elements
       # @todo https://www.pivotaltracker.com/story/show/48451001
       report_file.write("    <module_refs>\n")
-      m.refs.find(:all).each do |d|
+      m.refs.each do |d|
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
           report_file.write("        #{el}\n")
@@ -246,7 +246,7 @@ class Export
       # Archs sub-elements
       # @todo https://www.pivotaltracker.com/story/show/48451001
       report_file.write("    <module_archs>\n")
-      m.archs.find(:all).each do |d|
+      m.archs.each do |d|
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
           report_file.write("        #{el}\n")
@@ -258,7 +258,7 @@ class Export
       # Platforms sub-elements
       # @todo https://www.pivotaltracker.com/story/show/48451001
       report_file.write("    <module_platforms>\n")
-      m.platforms.find(:all).each do |d|
+      m.platforms.each do |d|
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
           report_file.write("        #{el}\n")
@@ -270,7 +270,7 @@ class Export
       # Targets sub-elements
       # @todo https://www.pivotaltracker.com/story/show/48451001
       report_file.write("    <module_targets>\n")
-      m.targets.find(:all).each do |d|
+      m.targets.each do |d|
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
           report_file.write("        #{el}\n")
@@ -281,7 +281,7 @@ class Export
       # Actions sub-elements
       # @todo https://www.pivotaltracker.com/story/show/48451001
       report_file.write("    <module_actions>\n")
-      m.actions.find(:all).each do |d|
+      m.actions.each do |d|
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
           report_file.write("        #{el}\n")
@@ -292,7 +292,7 @@ class Export
       # Mixins sub-elements
       # @todo https://www.pivotaltracker.com/story/show/48451001
       report_file.write("    <module_mixins>\n")
-      m.mixins.find(:all).each do |d|
+      m.mixins.each do |d|
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
           report_file.write("        #{el}\n")
@@ -319,7 +319,7 @@ class Export
 
       # Host details sub-elements
       report_file.write("    <host_details>\n")
-      h.host_details.find(:all).each do |d|
+      h.host_details.each do |d|
         report_file.write("        <host_detail>\n")
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
@@ -331,7 +331,7 @@ class Export
 
       # Host exploit attempts sub-elements
       report_file.write("    <exploit_attempts>\n")
-      h.exploit_attempts.find(:all).each do |d|
+      h.exploit_attempts.each do |d|
         report_file.write("        <exploit_attempt>\n")
         d.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
@@ -343,7 +343,7 @@ class Export
 
       # Service sub-elements
       report_file.write("    <services>\n")
-      @services.find_all_by_host_id(host_id).each do |e|
+      @services.where(host_id: host_id).each do |e|
         report_file.write("      <service>\n")
         e.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
@@ -355,7 +355,7 @@ class Export
 
       # Notes sub-elements
       report_file.write("    <notes>\n")
-      @notes.find_all_by_host_id(host_id).each do |e|
+      @notes.where(host_id: host_id).each do |e|
         report_file.write("      <note>\n")
         e.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
@@ -367,7 +367,7 @@ class Export
 
       # Vulns sub-elements
       report_file.write("    <vulns>\n")
-      @vulns.find_all_by_host_id(host_id).each do |e|
+      @vulns.where(host_id: host_id).each do |e|
         report_file.write("      <vuln>\n")
         e.attributes.each_pair do |k,v|
           el = create_xml_element(k,v)
@@ -385,7 +385,7 @@ class Export
 
         # Vuln details sub-elements
         report_file.write("            <vuln_details>\n")
-        e.vuln_details.find(:all).each do |d|
+        e.vuln_details.each do |d|
           report_file.write("                <vuln_detail>\n")
           d.attributes.each_pair do |k,v|
             el = create_xml_element(k,v)
@@ -398,7 +398,7 @@ class Export
 
         # Vuln attempts sub-elements
         report_file.write("            <vuln_attempts>\n")
-        e.vuln_attempts.find(:all).each do |d|
+        e.vuln_attempts.each do |d|
           report_file.write("                <vuln_attempt>\n")
           d.attributes.each_pair do |k,v|
             el = create_xml_element(k,v)

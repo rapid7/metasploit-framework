@@ -55,7 +55,9 @@ class Metasploit3 < Msf::Auxiliary
         connection_timeout: 30,
         max_send_size: datastore['TCP::max_send_size'],
         send_delay: datastore['TCP::send_delay'],
-        windows_authentication: datastore['USE_WINDOWS_AUTHENT']
+        windows_authentication: datastore['USE_WINDOWS_AUTHENT'],
+        framework: framework,
+        framework_module: self,
     )
 
     scanner.scan! do |result|

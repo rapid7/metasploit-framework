@@ -50,8 +50,6 @@ class Priv < Extension
       raise RuntimeError, "elevator.#{binary_suffix} not found", caller
     end
 
-    elevator_path = ::File.expand_path( elevator_path )
-
     elevator_data = ""
 
     ::File.open( elevator_path, "rb" ) { |f|

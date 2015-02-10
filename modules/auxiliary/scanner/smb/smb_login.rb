@@ -77,6 +77,8 @@ class Metasploit3 < Msf::Auxiliary
       connection_timeout: 5,
       max_send_size: datastore['TCP::max_send_size'],
       send_delay: datastore['TCP::send_delay'],
+      framework: framework,
+      framework_module: self,
     )
 
     bogus_result = @scanner.attempt_bogus_login(domain)

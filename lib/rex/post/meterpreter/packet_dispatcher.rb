@@ -355,8 +355,14 @@ module PacketDispatcher
 
           begin
           if ! dispatch_inbound_packet(pkt)
-            # Only requeue packets newer than the timeout
-            if (::Time.now.to_i - pkt.created_at.to_i > PacketTimeout)
+            # Keep Packets in the receive queue until a handler is registered
+            # for them. Packets will live in the receive queue for up to
+            # PacketTimeout, after which they will be dropped.
+            #
+            # A common reason why there would not immediately be a handler for
+            # a received Packet is in channels, where a connection may
+            # open and receive data before anything has asked to read.
+            if (::Time.now.to_i - pkt.created_at.to_i < PacketTimeout)
               incomplete << pkt
             end
           end

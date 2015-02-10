@@ -77,8 +77,16 @@ module Msf::HTTP::Wordpress::URIs
   #
   # @return [String] Wordpress Admin Ajax URL
   def wordpress_url_admin_ajax
-    normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php')
+    normalize_uri(wordpress_url_backend, 'admin-ajax.php')
   end
+
+  # Returns the Wordpress Admin Posts URL
+  #
+  # @return [String] Wordpress Admin Post URL
+  def wordpress_url_admin_post
+    normalize_uri(wordpress_url_backend, 'admin-post.php')
+  end
+
 
   # Returns the Wordpress wp-content dir URL
   #
