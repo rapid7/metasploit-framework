@@ -159,14 +159,12 @@ class ClientCore < Extension
     path = MeterpreterBinaries.path(modname, client.binary_suffix)
 
     if opts['ExtensionPath']
-      path = opts['ExtensionPath']
+      path = ::File.expand_path(opts['ExtensionPath'])
     end
 
     if path.nil?
       raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
     end
-
-    path = ::File.expand_path(path)
 
     # Load the extension DLL
     commands = load_library(

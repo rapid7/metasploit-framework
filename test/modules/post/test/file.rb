@@ -32,7 +32,7 @@ class Metasploit4 < Msf::Post
   #
   def setup
     @old_pwd = pwd
-    tmp = (directory?("/tmp")) ? "/tmp" : "%TMP%"
+    tmp = (directory?("/tmp")) ? "/tmp" : "%TEMP%"
     vprint_status("Setup: changing working directory to #{tmp}")
     cd(tmp)
 

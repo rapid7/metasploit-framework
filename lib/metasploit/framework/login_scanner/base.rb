@@ -12,6 +12,12 @@ module Metasploit
         include ActiveModel::Validations
 
         included do
+          # @!attribute framework
+          #   @return [Object] The framework instance object
+          attr_accessor :framework
+          # @!attribute framework_module
+          #   @return [Object] The framework module caller, if availale
+          attr_accessor :framework_module
           # @!attribute connection_timeout
           #   @return [Fixnum] The timeout in seconds for a single SSH connection
           attr_accessor :connection_timeout
@@ -57,8 +63,8 @@ module Metasploit
                     inclusion: { in: [true, false] }
 
           validates :bruteforce_speed,
-                    presence: false,
                     numericality: {
+                      allow_nil: true,
                       only_integer:             true,
                       greater_than_or_equal_to: 0,
                       less_than_or_equal_to:    5

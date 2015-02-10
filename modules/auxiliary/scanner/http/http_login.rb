@@ -163,7 +163,9 @@ class Metasploit3 < Msf::Auxiliary
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 5,
       user_agent: datastore['UserAgent'],
-      vhost: datastore['VHOST']
+      vhost: datastore['VHOST'],
+      framework: framework,
+      framework_module: self,
     )
 
     msg = scanner.check_setup
