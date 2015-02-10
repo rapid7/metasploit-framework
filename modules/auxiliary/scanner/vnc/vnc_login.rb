@@ -81,6 +81,8 @@ class Metasploit3 < Msf::Auxiliary
         connection_timeout: datastore['ConnectTimeout'],
         max_send_size: datastore['TCP::max_send_size'],
         send_delay: datastore['TCP::send_delay'],
+        framework: framework,
+        framework_module: self,
     )
 
     scanner.scan! do |result|

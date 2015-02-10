@@ -33,7 +33,7 @@ _arguments \
   {-o,--output}"[Output to the specified file]:output file" \
   {-p,--plugin}"[Load a plugin on startup]:plugin file:_files" \
   {-q,--quiet}"[Do not print the banner on start up]" \
-  {-r,--resource}"[Execute the specified resource file]:resource file:_files" \
+  {-r,--resource}"[Execute the specified resource file (- for stdin)]:resource file:_files" \
   {-v,--version}"[Show version]" \
   {-x,--execute-command}"[Execute the specified string as console commands]:commands" \
   {-y,--yaml}"[Specify a YAML file containing database settings]:yaml file:_files"

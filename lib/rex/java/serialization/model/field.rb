@@ -55,7 +55,7 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless name.class == Rex::Java::Serialization::Model::Utf
+            unless name.kind_of?(Rex::Java::Serialization::Model::Utf)
               raise ::RuntimeError, 'Failed to serialize Field'
             end
 

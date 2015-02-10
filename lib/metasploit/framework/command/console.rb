@@ -8,7 +8,15 @@ require 'metasploit/framework/command/base'
 # Based on pattern used for lib/rails/commands in the railties gem.
 class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::Base
 
+  # Provides an animated spinner in a seperate thread.
+  #
+  # See GitHub issue #4147, as this may be blocking some
+  # Windows instances, which is why Windows platforms
+  # should simply return immediately.
+
   def spinner
+    return if Rex::Compat.is_windows
+    return if Rex::Compat.is_cygwin
     return if $msf_spinner_thread
     $msf_spinner_thread = Thread.new do
       $stderr.print "[*] Starting the Metasploit Framework console..."

@@ -58,16 +58,6 @@ class Metasploit3 < Msf::Encoder::Alphanum
     buf + Rex::Encoder::Alpha2::AlphaUpper::gen_decoder(reg, off)
   end
 
-
-  #
-  # Configure SEH getpc code on Windows
-  #
-  def init_platform(platform)
-    if(platform.supports?(::Msf::Module::PlatformList.win32))
-      datastore['AllowWin32SEH'] = true
-    end
-  end
-
   #
   # Encodes a one byte block with the current index of the length of the
   # payload.

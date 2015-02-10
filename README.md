@@ -1,4 +1,4 @@
-Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.png)](https://travis-ci.org/rapid7/metasploit-framework) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/rapid7/metasploit-framework)
+Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.png?branch=master)](https://travis-ci.org/rapid7/metasploit-framework) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/rapid7/metasploit-framework)
 ==
 The Metasploit Framework is released under a BSD-style license. See
 COPYING for more details.
@@ -7,6 +7,9 @@ The latest version of this software is available from https://metasploit.com/
 
 Bug tracking and development information can be found at:
  https://github.com/rapid7/metasploit-framework
+
+New bugs and feature requests should be directed to:
+  http://r-7.co/MSF-BUGv1
 
 API documentation for writing modules can be found at:
   https://rapid7.github.io/metasploit-framework/api

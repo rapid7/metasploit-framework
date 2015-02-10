@@ -176,10 +176,11 @@ module Msf
     def encode_payload(shellcode)
       shellcode = shellcode.dup
       encoder_list = get_encoders
-      cli_print "Found #{encoder_list.count} compatible encoders"
       if encoder_list.empty?
+        cli_print "No encoder or badchars specified, outputting raw payload"
         shellcode
       else
+        cli_print "Found #{encoder_list.count} compatible encoders"
         encoder_list.each do |encoder_mod|
           cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
           begin

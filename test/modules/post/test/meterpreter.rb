@@ -35,7 +35,7 @@ class Metasploit4 < Msf::Post
     if (stat and stat.directory?)
       tmp = "/tmp"
     else
-      tmp = session.fs.file.expand_path("%TMP%")
+      tmp = session.fs.file.expand_path("%TEMP%")
     end
     vprint_status("Setup: changing working directory to #{tmp}")
     session.fs.dir.chdir(tmp)
@@ -164,10 +164,11 @@ class Metasploit4 < Msf::Post
     end
 
     it "should create and remove a dir" do
-      res = create_directory("meterpreter-test")
+      session.fs.dir.rmdir("meterpreter-test-dir") rescue nil
+      res = create_directory("meterpreter-test-dir")
       if (res)
-        session.fs.dir.rmdir("meterpreter-test")
-        res &&= !session.fs.dir.entries.include?("meterpreter-test")
+        session.fs.dir.rmdir("meterpreter-test-dir")
+        res &&= !session.fs.dir.entries.include?("meterpreter-test-dir")
         vprint_status("Directory removed successfully")
       end
 
@@ -175,16 +176,17 @@ class Metasploit4 < Msf::Post
     end
 
     it "should change directories" do
-      res = create_directory("meterpreter-test")
+      session.fs.dir.rmdir("meterpreter-test-dir") rescue nil
+      res = create_directory("meterpreter-test-dir")
 
       old_wd = session.fs.dir.pwd
       vprint_status("Old CWD: #{old_wd}")
 
       if res
-        session.fs.dir.chdir("meterpreter-test")
+        session.fs.dir.chdir("meterpreter-test-dir")
         new_wd = session.fs.dir.pwd
         vprint_status("New CWD: #{new_wd}")
-        res &&= (new_wd =~ /meterpreter-test$/)
+        res &&= (new_wd =~ /meterpreter-test-dir$/)
 
         if res
           session.fs.dir.chdir("..")
@@ -192,8 +194,8 @@ class Metasploit4 < Msf::Post
           vprint_status("Back to old CWD: #{wd}")
         end
       end
-      session.fs.dir.rmdir("meterpreter-test")
-      res &&= !session.fs.dir.entries.include?("meterpreter-test")
+      session.fs.dir.rmdir("meterpreter-test-dir")
+      res &&= !session.fs.dir.entries.include?("meterpreter-test-dir")
       vprint_status("Directory removed successfully")
 
       res
@@ -220,8 +222,9 @@ class Metasploit4 < Msf::Post
 
     it "should upload a file" do
       res = true
-      remote = "HACKING.remote.txt"
-      local  = "HACKING"
+
+      remote = "meterpreter-test-file.txt"
+      local  = __FILE__
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
       vprint_status("done")
@@ -270,8 +273,8 @@ class Metasploit4 < Msf::Post
 
     it "should do md5 and sha1 of files" do
       res = true
-      remote = "HACKING.remote.txt"
-      local  = "HACKING"
+      remote = "meterpreter-test-file.txt"
+      local  = __FILE__
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
       vprint_status("done")

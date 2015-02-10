@@ -173,7 +173,7 @@ class Tree
   # Tree that responds to the call.
   #
   def method_missing(method_id,*params,&block)
-    if not parameters.nil? and parameters.respond_to?(method_id) then
+    if not parameters.nil? and parameters.respond_to?(method_id, true) then
       return parameters.send(method_id, *params, &block)
     elsif not is_root? then
       @parent.send method_id, *params, &block
