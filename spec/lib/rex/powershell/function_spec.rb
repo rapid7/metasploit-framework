@@ -1,9 +1,9 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/exploitation/powershell'
+require 'rex/powershell'
 
-describe Rex::Exploitation::Powershell::Function do
+describe Rex::Powershell::Function do
 
   let(:function_name) do
     Rex::Text.rand_text_alpha(15)
@@ -59,7 +59,7 @@ describe Rex::Exploitation::Powershell::Function do
 
   describe "::initialize" do
     it 'should handle a function without params' do
-      function = Rex::Exploitation::Powershell::Function.new(function_name, example_function_without_params)
+      function = Rex::Powershell::Function.new(function_name, example_function_without_params)
       function.name.should eq function_name
       function.code.should eq example_function_without_params
       function.to_s.include?("function #{function_name} #{example_function_without_params}").should be_truthy
@@ -68,7 +68,7 @@ describe Rex::Exploitation::Powershell::Function do
     end
 
     it 'should handle a function with params' do
-      function = Rex::Exploitation::Powershell::Function.new(function_name, example_function_with_params)
+      function = Rex::Powershell::Function.new(function_name, example_function_with_params)
       function.name.should eq function_name
       function.code.should eq example_function_with_params
       function.to_s.include?("function #{function_name} #{example_function_with_params}").should be_truthy

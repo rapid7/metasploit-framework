@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 module Rex
-module Exploitation
 module Powershell
   class Function
     FUNCTION_REGEX = Regexp.new(/\[(\w+\[\])\]\$(\w+)\s?=|\[(\w+)\]\$(\w+)\s?=|\[(\w+\[\])\]\s+?\$(\w+)\s+=|\[(\w+)\]\s+\$(\w+)\s?=/i)
@@ -58,6 +57,5 @@ module Powershell
       end
     end
   end
-end
 end
 end

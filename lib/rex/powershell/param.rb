@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 module Rex
-module Exploitation
 module Powershell
   class Param
     attr_accessor :klass, :name
@@ -18,6 +17,5 @@ module Powershell
       "[#{klass}]$#{name}"
     end
   end
-end
 end
 end

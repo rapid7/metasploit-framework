@@ -1,9 +1,9 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/exploitation/powershell'
+require 'rex/powershell'
 
-describe Rex::Exploitation::Powershell::Obfu do
+describe Rex::Powershell::Obfu do
 
   let(:example_script_without_literal) do
 """
@@ -134,11 +134,11 @@ lots \t of   whitespace
   end
 
   let(:subject) do
-    Rex::Exploitation::Powershell::Script.new(example_script)
+    Rex::Powershell::Script.new(example_script)
   end
 
   let(:subject_no_literal) do
-    Rex::Exploitation::Powershell::Script.new(example_script_without_literal)
+    Rex::Powershell::Script.new(example_script_without_literal)
   end
 
   describe "::strip_comments" do

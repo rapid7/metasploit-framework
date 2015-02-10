@@ -4,7 +4,6 @@ require 'rex'
 require 'forwardable'
 
 module Rex
-module Exploitation
 module Powershell
   class Script
     attr_accessor :code
@@ -94,6 +93,5 @@ module Powershell
       instance_methods.select { |m| m =~ /^(strip|sub)/ }
     end
   end # class Script
-end
 end
 end

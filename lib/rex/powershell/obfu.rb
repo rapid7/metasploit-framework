@@ -3,7 +3,6 @@
 require 'rex/text'
 
 module Rex
-module Exploitation
 module Powershell
   module Obfu
     MULTI_LINE_COMMENTS_REGEX = Regexp.new(/<#(.*?)#>/m)
@@ -93,6 +92,5 @@ module Powershell
       code
     end
   end # Obfu
-end
 end
 end
