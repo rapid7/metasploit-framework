@@ -3,12 +3,12 @@ require 'spec_helper'
 
 require 'stringio'
 require 'rex/java'
-require 'msf/jmx'
+require 'msf/java/jmx'
 
-describe Msf::Jmx::Handshake do
+describe Msf::Java::Jmx::Handshake do
   subject(:mod) do
     mod = ::Msf::Exploit.new
-    mod.extend ::Msf::Jmx
+    mod.extend ::Msf::Java::Jmx
     mod.send(:initialize)
     mod
   end

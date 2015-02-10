@@ -3,12 +3,12 @@ require 'spec_helper'
 
 require 'rex/java/serialization'
 require 'rex/proto/rmi'
-require 'msf/rmi/client'
+require 'msf/java/rmi/client'
 
-describe Msf::Rmi::Client::Streams do
+describe Msf::Java::Rmi::Client::Streams do
   subject(:mod) do
     mod = ::Msf::Exploit.new
-    mod.extend ::Msf::Rmi::Client
+    mod.extend ::Msf::Java::Rmi::Client
     mod.send(:initialize)
     mod
   end

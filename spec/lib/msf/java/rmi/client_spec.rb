@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/java/serialization'
 require 'rex/proto/rmi'
-require 'msf/rmi/client'
+require 'msf/java/rmi/client'
 
 class RmiStringIO < StringIO
 
@@ -16,10 +16,10 @@ class RmiStringIO < StringIO
   end
 end
 
-describe Msf::Rmi::Client do
+describe Msf::Java::Rmi::Client do
   subject(:mod) do
     mod = ::Msf::Exploit.new
-    mod.extend ::Msf::Rmi::Client
+    mod.extend ::Msf::Java::Rmi::Client
     mod.send(:initialize)
     mod
   end

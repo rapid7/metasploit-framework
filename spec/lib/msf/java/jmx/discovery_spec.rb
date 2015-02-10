@@ -2,12 +2,12 @@
 require 'spec_helper'
 
 require 'rex/java'
-require 'msf/jmx'
+require 'msf/java/jmx'
 
-describe Msf::Jmx::Discovery do
+describe Msf::Java::Jmx::Discovery do
   subject(:mod) do
     mod = ::Msf::Exploit.new
-    mod.extend ::Msf::Jmx
+    mod.extend ::Msf::Java::Jmx
     mod.send(:initialize)
     mod
   end
