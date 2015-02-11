@@ -11,6 +11,7 @@ matrix:
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
+  # Fail build if msftidy is not successful
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
