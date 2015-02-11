@@ -11,11 +11,10 @@ matrix:
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
-  # Uncomment when we have fewer shipping msftidy warnings.
-  # Merge committers will still be checking, just not autofailing.
-  # - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
-  # - ls -la ./.git/hooks
-  # - ./.git/hooks/post-merge
+  # Fail build if msftidy is not successful
+  - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+  - ls -la ./.git/hooks
+  - ./.git/hooks/post-merge
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version

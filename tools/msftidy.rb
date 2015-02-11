@@ -531,12 +531,6 @@ class Msftidy
         error("Writes to stdout", idx)
       end
 
-      # You should not change datastore in code. See
-      # https://github.com/rapid7/metasploit-framework/issues/3853
-      if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*(=|<<)(?![=~>])/
-        info("datastore is modified in code with '#{Regexp.last_match(1)}': #{ln}", idx)
-      end
-
       # do not read Set-Cookie header (ignore commented lines)
       if ln =~ /^(?!\s*#).+\[['"]Set-Cookie['"]\](?!\s*=[^=~]+)/i
         warn("Do not read Set-Cookie header directly, use res.get_cookies instead: #{ln}", idx)
