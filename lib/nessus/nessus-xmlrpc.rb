@@ -180,7 +180,7 @@ module Nessus
       if res.code == "200"
         return "ready"
       else
-        res = JSON.parse(resp.body)
+        res = JSON.parse(res.body)
         return res
       end
     end
@@ -206,8 +206,8 @@ module Nessus
       raise NotImplementedError
     end
 
-    def report_download
-      raise NotImplementedError
+    def report_download(scan_id, file_id)
+      res = http_get(:uri=>"/scans/#{scan_id}/export/#{file_id}/download", :raw_content=> true, :fields=>x_cookie)
     end
 
     private
@@ -256,6 +256,7 @@ module Nessus
     def http_get(opts={})
       uri    = opts[:uri]
       fields = opts[:fields] || {}
+      raw_content = opts[:raw_content] || false
       json   = {}
 
       req = Net::HTTP::Get.new(uri)
@@ -268,8 +269,11 @@ module Nessus
       rescue URI::InvalidURIError
         return json
       end
-
-      parse_json(res.body)
+      if !raw_content
+        parse_json(res.body)
+      else
+        res.body
+      end
     end
 
     def http_post(opts={})
