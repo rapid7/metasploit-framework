@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
       # Login parameters
       user = datastore['USERNAME']
       password = datastore['PASSWORD']
-      realm = datastore['REALM']
+      realms = datastore['REALM']
       from = datastore['FROM']
       to = datastore['TO']
       login = datastore['LOGIN']
@@ -74,46 +74,63 @@ class Metasploit3 < Msf::Auxiliary
       sipsocket_start(sockinfo)
       sipsocket_connect
 
-      context = {
-          "method"    => "register",
-          "user"      => user,
-          "password"  => password
-      }
-
-      case deregister
-        when "ONLY"
-          # Sending de-register
-          deregister(login,user,password,realm,from,to,context)
-          return
-        when /BEFORE|BOTH/
-          # Sending de-register
-          deregister(login,user,password,realm,from,to,context)
+      if realms == nil
+        rcount = 1
+        realm = nil
+      else
+        rcount = realms.split(" ").length
+        realm = ""
       end
 
-      if vendor == 'mslync'
-        results = send_negotiate(
-            'realm'		  => datastore['REALM'],
-            'from'    	=> datastore['FROM'],
-            'to'    	  => datastore['TO']
+      rcount.times do |i|
+        if realm != nil
+          realm = realms.split(" ")[i]
+          print_status("Sending register request for #{realm}")
+        else
+          print_status("we in the else #{realm}")
+        end
+
+        context = {
+            "method" => "register",
+            "user" => user,
+            "password" => password
+        }
+
+        case deregister
+          when "ONLY"
+            # Sending de-register
+            deregister(login, user, password, realm, from, to, context)
+            return
+          when /BEFORE|BOTH/
+            # Sending de-register
+            deregister(login, user, password, realm, from, to, context)
+        end
+
+        if vendor == 'mslync'
+          results = send_negotiate(
+              'realm' => datastore['REALM'],
+              'from' => datastore['FROM'],
+              'to' => datastore['TO']
+          )
+          printresults(results) if datastore['DEBUG'] == true
+        end
+
+        print_debug("Register request is sending.") if datastore["DEBUG"]
+
+        results = send_register(
+            'login' => login,
+            'user' => user,
+            'password' => password,
+            'realm' => realm,
+            'from' => from,
+            'to' => to
         )
-        printresults(results) if datastore['DEBUG'] == true
+
+        printresults(results, context)
+
+        # Sending de-register
+        deregister(login, user, password, realm, from, to, context) if deregister =~ /AFTER|BOTH/
       end
-
-      vprint_status("Register request is sending.")
-
-      results = send_register(
-          'login'  	    => login,
-          'user'      	=> user,
-          'password'	  => password,
-          'realm'		    => realm,
-          'from'    	  => from,
-          'to'    	    => to
-      )
-
-      printresults(results,context)
-
-      # Sending de-register
-      deregister(login,user,password,realm,from,to,context) if deregister =~ /AFTER|BOTH/
 
       sipsocket_stop
     }
