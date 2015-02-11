@@ -14,8 +14,10 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 8. Avoid using 'vars_post' for send_request_cgi() when crafting a POST request
 9. Bad variable naming style
 10. Using global variables
+11. Modifying the datastore during execution
 
 **1. Not checking the return value of a Metasploit API**
+
 ```ruby
 	res = send_request_cgi({
 		'method' => 'GET',
@@ -31,7 +33,9 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 		print_error("Unexpected response")
 	end
 ```
+
 **2. Ruby 1.9.3 vs 1.8.7... gotcha!**
+
 ```ruby
 	some_string = "ABC"
 
@@ -45,6 +49,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 		puts "You will see this message in Ruby 1.8.7"
 	end
 ```
+
 ```ruby
 	# 1.9 allows a comma after the last argument when calling 
 	# a method while 1.8 does not.  The most common place to 
@@ -57,6 +62,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 ```
 
 **3. Not checking the return value when using match()**
+
 ```ruby
 	str = "dragon! drag on! Not lizard, I don't do that tongue thing"
 
@@ -64,6 +70,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 	# so you'll get this error: "undefined method `[]' for nil:NilClass"
 	puts str.match(/(Not snake)/)[0]
 ```
+
 ```ruby
 	# The above is better written as:
 	if (str =~ /(Not snake)/)
@@ -72,6 +79,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 ```
 
 **4. Not checking nil first before accessing a method**
+
 ```ruby
 	str = "These things are round and tasty, let's call them... tastycles!"
 
@@ -83,7 +91,9 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 		puts "I don't know what it's called"
 	end
 ```
+
 **5. Using exception handling to shut an error up**
+
 ```ruby
 	begin
 		# This block has 2 issues:
@@ -102,7 +112,9 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 		# because it can even hide syntax errors.
 	end
 ```
+
 **6. Not taking advantage of the 'ensure' block**
+
 ```ruby
 	# You should use the ensure block to make sure x always has a value,
 	# which also avoids repeating code
@@ -119,7 +131,9 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 
 	puts "Value is #{x.to_s}"
 ```
+
 **7. Adding the 'VERBOSE' option**
+
 ```ruby
 	register_options(
 		[
@@ -128,7 +142,9 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 			OptBool.new("VERBOSE", [false, 'Enable detailed status messages', false])
 		], self.class)
 ```
+
 **8. Avoid using send_request_cgi()'s vars_get or vars_get when crafting a POST/GET request**
+
 ```ruby
 	data_post = 'user=jsmith&pass=hello123'
 
@@ -141,7 +157,9 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 		'data'   => data_post
 	})
 ```
+
 **9. Bad variable naming style**
+
 ```ruby
 	# What's this, Java?
 	# The proper naming style in this case should be: my_string
@@ -149,6 +167,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 ```
 
 **10. Using global variables**
+
 ```ruby
 	# $msg is a global variable that can be accessed anywhere within the program.
 	# This can induce bugs to other modules or mixins that are hard to debug.
@@ -172,4 +191,10 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 	Metasploit3.new
 
 
+```
+
+**11. Modifying the datastore during execution**
+
+```ruby
+datastore['BAD'] = 'This is bad.'
 ```
