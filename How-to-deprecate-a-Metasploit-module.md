@@ -7,29 +7,24 @@ Metasploit has a very specific way to deprecate a module. To do so, you must be 
 
 To use the ```Msf::Module::Deprecated```, here's how:
 
-1 - In the module you wish to deprecate, add the following ```require``` statement:
+1 - Under ```class metasploit3``` of your module, include the following:
 
 ```ruby
-require 'msf/core/module/deprecated'
-```
-
-2 - Under ```class metasploit3``` of your module, include the following:
-
-```
 include Msf::Module::Deprecated
 ```
 
-3 - Define the ```DEPRECATION_DATE``` constant:
+2a - Use the ```deprecated``` method to assign a deprecation date and replacement module:
+
+```ruby
+deprecated(Date.new(2014, 9, 21), 'exploit/linux/http/dlink_upnp_exec_noauth')
+```
+
+2b - Alternatively, define the ```DEPRECATION_DATE``` and ```DEPRECATION_REPLACEMENT``` constants:
 
 ```ruby
 DEPRECATION_DATE = Date.new(2014, 9, 21) # Sep 21
-```
-
-4 - Define the ```DEPRECATION_REPLACEMENT``` constant:
-
-```ruby
-# The new module is exploits/linux/http/dlink_upnp_exec_noauth
-DEPRECATION_REPLACEMENT = 'exploits/linux/http/dlink_upnp_exec_noauth'
+# The new module is exploit/linux/http/dlink_upnp_exec_noauth
+DEPRECATION_REPLACEMENT = 'exploit/linux/http/dlink_upnp_exec_noauth'
 ```
 
 When the user loads that module, they should see a warning like this:
@@ -40,7 +35,7 @@ msf > use exploit/windows/misc/test
 [!] ************************************************************************
 [!] *             The module windows/misc/test is deprecated!              *
 [!] *              It will be removed on or about 2014-09-21               *
-[!] *        Use exploits/linux/http/dlink_upnp_exec_noauth instead        *
+[!] *        Use exploit/linux/http/dlink_upnp_exec_noauth instead        *
 [!] ************************************************************************
 ```
 
@@ -48,15 +43,13 @@ msf > use exploit/windows/misc/test
 
 ```ruby
 require 'msf/core'
-require 'msf/core/module/deprecated'
 
 class Metasploit3 < Msf::Exploit::Remote
   Rank = ExcellentRanking
 
   include Msf::Module::Deprecated
 
-  DEPRECATION_DATE = Date.new(2014, 9, 21)
-  DEPRECATION_REPLACEMENT = 'exploits/linux/http/dlink_upnp_exec_noauth'
+  deprecated(Date.new(2014, 9, 21), 'exploit/linux/http/dlink_upnp_exec_noauth')
 
   def initialize(info = {})
     super(update_info(info,
