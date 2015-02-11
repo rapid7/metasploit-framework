@@ -128,8 +128,7 @@ class Metasploit3 < Msf::Auxiliary
           rdata = results["rdata"]
           smsg = rdata['resp_msg'].split(" ")[1,5].join(" ")
           if smsg != "403 Forbidden"
-            print_status("#{dest_addr}:#{dest_port} : #{realm}")
-            print_status("Server Response: #{smsg}")
+            print_status("#{dest_addr}:#{dest_port} #{realm} => #{smsg}")
           end
         else
           printresults(results, context)
