@@ -13,9 +13,9 @@ before_install:
   - rake --version
   # Uncomment when we have fewer shipping msftidy warnings.
   # Merge committers will still be checking, just not autofailing.
-  # - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
-  # - ls -la ./.git/hooks
-  # - ./.git/hooks/post-merge
+  - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+  - ls -la ./.git/hooks
+  - ./.git/hooks/post-merge
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
