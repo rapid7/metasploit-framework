@@ -85,7 +85,6 @@ class Metasploit3 < Msf::Auxiliary
       rcount.times do |i|
         if realm != nil
           realm = realms.split(" ")[i]
-          print_status("Sending register request for #{realm}")
         end
 
         context = {
@@ -124,7 +123,18 @@ class Metasploit3 < Msf::Auxiliary
             'to' => to
         )
 
-        printresults(results, context)
+        if rcount > 1
+          #printing the realms which receive different responses
+          rdata = results["rdata"]
+          smsg = rdata['resp_msg'].split(" ")[1,5].join(" ")
+          if smsg != "403 Forbidden"
+            print_status("#{dest_addr}:#{dest_port} : #{realm}")
+            print_status("Server Response: #{smsg}")
+          end
+        else
+          printresults(results, context)
+        end
+
 
         # Sending de-register
         deregister(login, user, password, realm, from, to, context) if deregister =~ /AFTER|BOTH/
