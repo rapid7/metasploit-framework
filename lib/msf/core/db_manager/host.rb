@@ -166,9 +166,9 @@ module Msf::DBManager::Host
       end
 
       if opts[:comm] and opts[:comm].length > 0
-        host = wspace.hosts.where(address: addr, comm: opts[:comm]).first_or_initialize
+        host = wspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
       else
-        host = wspace.hosts.where(address: addr).first_or_initialize
+        host = wspace.hosts.find_or_initialize_by_address(addr)
       end
     else
       host = addr
@@ -257,9 +257,9 @@ module Msf::DBManager::Host
       end
 
       if opts[:comm] and opts[:comm].length > 0
-        host = wspace.hosts.where(address: addr, comm: opts[:comm]).first_or_initialize
+        host = wspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
       else
-        host = wspace.hosts.where(address: addr).first_or_initialize
+        host = wspace.hosts.find_or_initialize_by_address(addr)
       end
     else
       host = addr
