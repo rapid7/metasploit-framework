@@ -196,5 +196,6 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 **11. Modifying the datastore during execution**
 
 ```ruby
+# https://github.com/rapid7/metasploit-framework/issues/3853
 datastore['BAD'] = 'This is bad.'
 ```
