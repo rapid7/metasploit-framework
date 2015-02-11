@@ -86,8 +86,6 @@ class Metasploit3 < Msf::Auxiliary
         if realm != nil
           realm = realms.split(" ")[i]
           print_status("Sending register request for #{realm}")
-        else
-          print_status("we in the else #{realm}")
         end
 
         context = {
