@@ -194,18 +194,6 @@ module Nessus
       res = http_get(:uri=>"/scans/#{scan_id}/hosts/#{host_id}", :fields=>x_cookie)
     end
 
-    def report_list
-      raise NotImplementedError
-    end
-
-    def report_del
-      raise NotImplementedError
-    end
-
-    def report_host_ports
-      raise NotImplementedError
-    end
-
     def report_download(scan_id, file_id)
       res = http_get(:uri=>"/scans/#{scan_id}/export/#{file_id}/download", :raw_content=> true, :fields=>x_cookie)
     end

@@ -38,15 +38,13 @@ module Msf
           "nessus_server_status" => "Check the status of your Nessus server",
           "nessus_server_properties" => "Nessus server properties such as feed type, version, plugin set and server UUID",
           "nessus_scanner_list" => "List all the scanners configured on the Nessus server",
-          "nessus_report_list" => "List all Nessus reports",
           "nessus_report_download" => "Download a report from the nessus server in either Nessus, HTML, PDF, CSV, or DB format",
-          "nessus_report_del" => "Delete a report",
           "nessus_report_vulns" => "Get list of vulns from a report",
           "nessus_report_hosts" => "Get list of hosts from a report",
-          "nessus_report_host_ports" => "Get list of open ports from a host from a report",
           "nessus_report_host_details" => "Get detailed information from a report item on a host",
           "nessus_scan_list" => "List of currently running Nessus scans",
           "nessus_scan_new" => "Create a new Nessus scan",
+          "nessus_scan_launch" => "Launch a previously added scan",
           "nessus_scan_pause" => "Pause a running Nessus scan",
           "nessus_scan_pause_all" => "Pause all running Nessus scans",
           "nessus_scan_stop" => "Stop a running or paused Nessus scan",
@@ -60,19 +58,18 @@ module Msf
           "nessus_user_add" => "Add a new Nessus user",
           "nessus_user_del" => "Delete a Nessus user",
           "nessus_user_passwd" => "Change Nessus Users Password",
-          "nessus_family_list" => "List all the plugin families along with their corresponding family IDs and plugin count",
           "nessus_plugin_details" => "List details of a particular plugin",
           "nessus_plugin_list" => "Display plugin details in a particular plugin family",
           "nessus_policy_list" => "List all polciies",
           "nessus_policy_del" => "Delete a policy",
           "nessus_index" => "Manually generates a search index for exploits",
           "nessus_template_list" => "List all the templates on the server",
-          "nessus_db_scan" => "Create a scan of all ips in db_hosts",
+          "nessus_db_scan" => "Create a scan of all IP addresses in db_hosts",
+          "nessus_db_import" => "Import Nessus scan to the Metasploit connected database",
           "nessus_save" => "Save credentials of the logged in user to nessus.yml",
           "nessus_folder_list" => "List folders configured on the Nessus server",
           "nessus_scanner_list" => "List the configured scanners on the Nessus server",
-          "nessus_scan_launch" => "Launch a previously added scan",
-          "nessus_family_list" => "List all the families of plugins"
+          "nessus_family_list" => "List all the plugin families along with their corresponding family IDs and plugin count"
         }  
       end
 
@@ -90,7 +87,7 @@ module Msf
         tbl << [ "nessus_logout", "Logout from the Nessus server" ]
         tbl << [ "nessus_login", "Login into the connected Nesssus server with a different username and password"]
         tbl << [ "nessus_login", "Login into the connected Nesssus server with a different username and password" ]
-        tbl << [ "nessus_cmd_save", "Save credentials of the logged in user to nessus.yml"]
+        tbl << [ "nessus_save", "Save credentials of the logged in user to nessus.yml"]
         tbl << [ "nessus_help", "Listing of available nessus commands" ]
         tbl << [ "nessus_server_properties", "Nessus server properties such as feed type, version, plugin set and server UUID." ]
         tbl << [ "nessus_server_status", "Check the status of your Nessus Server" ]
@@ -98,6 +95,10 @@ module Msf
         tbl << [ "nessus_template_list", "List scan or policy templates" ]
         tbl << [ "nessus_folder_list", "List all configured folders on the Nessus server" ]
         tbl << [ "nessus_scanner_list" => "List all the scanners configured on the Nessus server" ]
+        tbl << [ "Nessus Database Commands", "" ]
+        tbl << [ "-----------------", "-----------------" ]
+        tbl << [ "nessus_db_scan" => "Create a scan of all IP addresses in db_hosts" ]
+        tbl << [ "nessus_db_import" => "Import Nessus scan to the Metasploit connected database" ]
         tbl << [ "", ""]
         tbl << [ "Reports Commands", "" ]
         tbl << [ "-----------------", "-----------------"]   
@@ -198,7 +199,7 @@ module Msf
       def nessus_index
         if File.exist?("#{xindex}")
           #check if it's version line matches current version.
-          File.open("#{xindex}") {|f|
+          File.open("#{xindex}") { |f|
             line = f.readline
             line.chomp!
             if line.to_i == Msf::Framework::RepoRevision
@@ -404,7 +405,7 @@ module Msf
           print_status("Example:> nessus_admin")
           print_status()
           print_status("Checks to see if the current user is an admin")
-          print_status("Use %bldnessus_user_list%clr to list all users")
+          print_status("Use nessus_user_list to list all users")
           return
         end
         if !nessus_verify_token
@@ -461,7 +462,7 @@ module Msf
            'Subscription Only',
             'Cloud Only'
           ])
-        list["templates"].each {|template|
+        list["templates"].each { |template|
         tbl << [ template["name"], template["title"], template["desc"], template["subscription_only"], template["cloud_only"] ]
         }
         print_line
@@ -482,6 +483,7 @@ module Msf
         list["folders"].each { |folder|
         tbl << [ folder["id"], folder["name"], folder["type"] ]
         }
+        print_line
         print_line tbl.to_s
       end
 
@@ -517,7 +519,7 @@ module Msf
           return
         end
         scans = @n.scan_list
-        scans.each {|scan|
+        scans.each { |scan|
         if scan["scans"]["id"] == scan_id && scan["scans"]["status"] == "completed"
           return true
         end
@@ -528,17 +530,17 @@ module Msf
       def cmd_nessus_report_hosts(*args)
         if args[0] == "-h"
           print_status("nessus_report_hosts <scan ID>")
-          print_status("Use %bldnessus_scan_list%clr to get a list of all the scans. Only completed scans can be reported.")
+          print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
           return
         end
         case args.length
         when 1
           scan_id = args[0]
-          scan_id = scan_id.to_i
+          scan_id = scan_id
         else
           print_status("Usage: ")
           print_status("nessus_report_hosts <scan ID>")
-          print_status("Use %bldnessus_scan_list%clr to get a list of all the scans. Only completed scans can be reported.")
+          print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
           return
         end
         tbl = Rex::Ui::Text::Table.new(
@@ -550,28 +552,23 @@ module Msf
             "% of Medium Findings",
             "% of Low Findings"
           ])
-        list=@n.scan_list
-        list["scans"].each { |scan|
-        if scan["id"] == scan_id
-          if scan["status"] == "completed"
-            details = @n.scan_details(scan_id)
-            details["hosts"].each { |host|
-            tbl << [ host["host_id"], host["hostname"], host["critical"], host["high"], host["medium"], host["low"] ]
-            }
-            print_line
-            print_line tbl.to_s
-          else
-            print_error("Only completed scans can be used for host reporting. The provided scan ID is " + scan["status"].to_s)
-            return
-          end
+        if is_scan_complete(scan_id)
+          details = @n.scan_details(scan_id)
+          details["hosts"].each { |host|
+          tbl << [ host["host_id"], host["hostname"], host["critical"], host["high"], host["medium"], host["low"] ]
+          }
+          print_line
+          print_line tbl.to_s
+        else
+          print_error("Only completed scans can be used for host reporting")
+          return
         end
-        }
       end
 
       def cmd_nessus_report_vulns(*args)
         if args[0] == "-h"
           print_status("nessus_report_vulns <scan ID>")
-          print_status("Use %bldnessus_scan_list%clr to get a list of all the scans. Only completed scans can be reported.")
+          print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
           return
         end
         case args.length
@@ -581,7 +578,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_report_vulns <scan ID>")
-          print_status("Use %bldnessus_scan_list%clr to get a list of all the scans. Only completed scans can be reported.")
+          print_status("Use nessus_scan_list to get a list of all the scans. Only completed scans can be reported.")
           return
         end
         tbl = Rex::Ui::Text::Table.new(
@@ -591,23 +588,18 @@ module Msf
             "Plugin Family",
             "Vulnerability Count"
           ])
-        list=@n.scan_list
-        list["scans"].each { |scan|
-        if scan["id"] == scan_id
-          if scan["status"] == "completed"
-            details = @n.scan_details(scan_id)
-            details["vulnerabilities"].each { |vuln|
-            tbl << [ vuln["plugin_id"], vuln["plugin_name"], vuln["plugin_family"], vuln["count"] ]
-            }
-            print_line
-            print_line tbl.to_s
-            return
-          else
-            print_error("Only completed scans can be used for vulnerability reporting. The provided scan ID is #{scan['status']}")
-            return
-          end
+        if is_scan_complete(scan_id)
+          details = @n.scan_details(scan_id)
+          details["vulnerabilities"].each { |vuln|
+          tbl << [ vuln["plugin_id"], vuln["plugin_name"], vuln["plugin_family"], vuln["count"] ]
+          }
+          print_line
+          print_line tbl.to_s
+          return
+        else
+          print_error("Only completed scans can be used for vulnerability reporting")
+          return
         end
-        }
       end
 
       def cmd_nessus_report_host_details(*args)
@@ -629,8 +621,8 @@ module Msf
           print_status("Usage: ")
           print_status("nessus_report_host_detail <scan ID> <host ID>")
           print_status("Example:> nessus_report_host_detail 10 5")
-          print_status("Use %bldnessus_scan_list%clr to get list of all scans. Only completed scans can be used for reporting.")
-          print_status("Use %bldnessus_report_hosts <scan ID>%clr to get a list of all the hosts along with their corresponding host IDs.")
+          print_status("Use nessus_scan_list to get list of all scans. Only completed scans can be used for reporting.")
+          print_status("Use nessus_report_hosts <scan ID> to get a list of all the hosts along with their corresponding host IDs.")
           return
         end
         tbl = Rex::Ui::Text::Table.new(
@@ -642,9 +634,9 @@ module Msf
         details=@n.host_detail(scan_id, host_id)
         print_line
         print_status("Host information")
-        print_line "IP Address: " + details["info"]["host-ip"].to_s
-        print_line "Hostname: " + details["info"]["host-name"].to_s
-        print_line "Operating System: " + details["info"]["operating-system"].to_s
+        print_line("IP Address: #{details['info']['host-ip']}")
+        print_line("Hostname: #{details['info']['host-name']}")
+        print_line("Operating System: #{details['info']['operating-system']}")
         print_line 
         print_status("Vulnerability information")
         details["vulnerabilities"].each { |vuln|
@@ -667,8 +659,8 @@ module Msf
       def cmd_nessus_report_download(*args)
         if args[0] == "-h"
           print_status("nessus_scan_report_download <scan_id> <file ID> ")
-          print_status("Use %bldnessus_scan_export_status <scan ID> <file ID>%clr to check the export status.")
-          print_status("Use %bldnessus_scan_list -c%clr to list all completed scans along with their corresponding scan IDs")
+          print_status("Use nessus_scan_export_status <scan ID> <file ID> to check the export status.")
+          print_status("Use nessus_scan_list -c to list all completed scans along with their corresponding scan IDs")
           return
         end
         if !nessus_verify_token
@@ -678,16 +670,20 @@ module Msf
         when 2
           scan_id = args[0]
           file_id = args[1]
-          report = @n.report_download(scan_id, file_id)
-          File.open("#{msf_local}/#{scan_id}-#{file_id}","w+") do |f|
-          f.puts report
-          print_status("Report downloaded to #{msf_local} directory") 
+          if is_scan_complete(scan_id)
+            report = @n.report_download(scan_id, file_id)
+            File.open("#{msf_local}/#{scan_id}-#{file_id}","w+") do |f|
+            f.puts report
+            print_status("Report downloaded to #{msf_local} directory") 
+            end
+          else
+            print_error("Only completed scans ca be downloaded")
           end
         else
           print_status("Usage: ")
           print_status("nessus_scan_report_download <scan_id> <file ID> ")
-          print_status("Use %bldnessus_scan_export_status <scan ID> <file ID>%clr to check the export status.")
-          print_status("Use %bldnessus_scan_list -c%clr to list all completed scans along with their corresponding scan IDs")
+          print_status("Use nessus_scan_export_status <scan ID> <file ID> to check the export status.")
+          print_status("Use nessus_scan_list -c to list all completed scans along with their corresponding scan IDs")
         end
       end
 
@@ -697,7 +693,7 @@ module Msf
           print_status("Example:> nessus_report_host_ports 192.168.1.250 f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
           print_status()
           print_status("Returns all the ports associated with a host and details about their vulnerabilities")
-          print_status("Use %bldnessus_report_hosts%clr to list all available hosts for a report")
+          print_status("Use nessus_report_hosts to list all available hosts for a report")
         end
         if !nessus_verify_token
           return
@@ -709,7 +705,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_report_host_ports <hostname> <report id>")
-          print_status("Use %bldnessus_report_list%clr to list all available reports")
+          print_status("Use nessus_report_list to list all available reports")
           return
         end
         tbl = Rex::Ui::Text::Table.new(
@@ -724,7 +720,7 @@ module Msf
             'Sev 3'
           ])
         ports=@n.report_host_ports(rid, host)
-        ports.each {|port|
+        ports.each { |port|
         tbl << [ port['portnum'], port['protocol'], port['severity'], port['svcname'], port['sev0'], port['sev1'], port['sev2'], port['sev3'] ]
         }
         print_good("Host Info")
@@ -740,7 +736,7 @@ module Msf
           print_status("Example:> nessus_report_del f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
           print_status()
           print_status("Must be an admin to del reports.")
-          print_status("Use %bldnessus_report_list%clr to list all reports")
+          print_status("Use nessus_report_list to list all reports")
           return
         end
         if !nessus_verify_token
@@ -794,7 +790,7 @@ module Msf
             'Folder'
           ])
            
-        list["scans"].each {|scan|
+        list["scans"].each { |scan|
         if args[0] == "-r"
           if scan["status"] == "running"
             tbl << [ scan["id"], scan["name"], scan["owner"], scan["starttime"], scan["status"], scan["folder_id"] ]
@@ -822,7 +818,7 @@ module Msf
       def cmd_nessus_scan_new(*args)
         if args[0] == "-h"
           print_status("nessus_scan_new <UUID of Policy> <Scan name> <Description> <Targets>")
-          print_status("Use %bldnessus_policy_list%clr to list all available policies with their corresponding UUIDs")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding UUIDs")
           return
         end
         if !nessus_verify_token
@@ -837,11 +833,11 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_scan_new <UUID of Policy> <Scan name> <Description> <Targets>")
-          print_status("Use %bldnessus_policy_list%clr to list all available policies with their corresponding UUIDs")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding UUIDs")
           return
         end
         if valid_policy(uuid)
-          print_status("Creating scan from policy number #{uuid}, called \"#{scan_name} - #{description}\" and scanning #{targets}")
+          print_status("Creating scan from policy number #{uuid}, called #{scan_name} - #{description} and scanning #{targets}")
           scan = @n.scan_create(uuid, scan_name, description, targets)
           tbl = Rex::Ui::Text::Table.new(
             'Columns' => [
@@ -853,6 +849,7 @@ module Msf
             ])
           print_status("New scan added")
           tbl << [ scan["scan"]["id"], scan["scan"]["scanner_id"], scan["scan"]["policy_id"], scan["scan"]["custom_targets"], scan["scan"]["owner"] ]
+          print_status("Use nessus_scan_launch #{scan['scan']['id']} to launch the scan")
           print_line tbl.to_s
         else
           print_error("The policy does not exist")
@@ -862,7 +859,7 @@ module Msf
       def cmd_nessus_scan_launch(*args)
         if args[0] == "-h"
           print_status("nessus_scan_launch <scan ID>")
-          print_status("Use %bldnessus_scan_list%clr to list all the availabla scans with their corresponding scan IDs")
+          print_status("Use nessus_scan_list to list all the availabla scans with their corresponding scan IDs")
         end
         if !nessus_verify_token
           return
@@ -873,11 +870,11 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_scan_launch <scan ID>")
-          print_status("Use %bldnessus_scan_list%clr to list all the availabla scans with their corresponding scan IDs")
+          print_status("Use nessus_scan_list to list all the availabla scans with their corresponding scan IDs")
           return
         end
         launch = @n.scan_launch(scan_id)
-        print_good("Scan ID #{scan_id} successfully launched. The Scan UUID is " + launch["scan_uuid"])
+        print_good("Scan ID #{scan_id} successfully launched. The Scan UUID is #{launch['scan_uuid']}")
       end
 
       def cmd_nessus_scan_pause(*args)
@@ -886,7 +883,7 @@ module Msf
           print_status("Example:> nessus_scan_pause f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
           print_status()
           print_status("Pauses a running scan")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans")
+          print_status("Use nessus_scan_list to list all available scans")
           return
         end
         if !nessus_verify_token
@@ -898,7 +895,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_scan_pause <scan id>")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans")
+          print_status("Use nessus_scan_list to list all available scans")
           return
         end
         pause = @n.scan_pause(sid)
@@ -914,7 +911,7 @@ module Msf
           print_status("nessus_db_scan <policy ID> <scan name> <scan description>")
           print_status()
           print_status("Creates a scan based on all the hosts listed in db_hosts.")
-          print_status("Use %bldnessus_policy_list%clr to list all available policies with their corresponding policy IDs")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding policy IDs")
           return
         end
         if !nessus_verify_db
@@ -931,7 +928,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_db_scan <policy ID> <scan name> <scan description>")
-          print_status("Use %bldnessus_policy_list%clr to list all available policies with their corresponding policy IDs")
+          print_status("Use nessus_policy_list to list all available policies with their corresponding policy IDs")
           return
         end
         if !valid_policy(policy_id)
@@ -949,10 +946,76 @@ module Msf
         if !scan["error"]
           scan = scan["scan"]
           print_status("Scan ID #{scan['id']} successfully created")
-          print_status("Run %bldnessus_scan_launch #{scan['id']}%clr to launch the scan")
+          print_status("Run nessus_scan_launch #{scan['id']} to launch the scan")
         else
           print_error(JSON.pretty_generate(scan))
         end
+      end
+
+      def cmd_nessus_db_import(*args)
+        if args[0] == "-h"
+          print_status("nessus_db_import <scan ID>")
+          print_status("Example:> nessus_db_import 500")
+          print_status()
+          print_status("Use nessus_scan_list -c to list all completed scans")
+        end
+        if !nessus_verify_db
+          return
+        end
+        if !nessus_verify_token
+          return
+        end
+        case args.length
+        when 1
+          scan_id = args[0]
+        else
+          print_status("Usage: ")
+          print_status("nessus_db_import <scan ID>")
+          print_status("Example:> nessus_db_import 500")
+          print_status()
+          print_status("Use nessus_scan_list -c to list all completed scans")
+        end
+        if is_scan_complete(scan_id)
+          print_status("Exporting scan ID #{scan_id} is Nessus format...")
+          export = @n.scan_export(scan_id, 'nessus')
+          if export["file"]
+            file_id = export["file"]
+            print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
+            print_status("Checking export status...")
+            status = @n.scan_export_status(scan_id, file_id)
+            if status == "ready"
+              print_status("The status of scan ID #{scan_id} export is ready")
+              select(nil, nil, nil, 5)
+              report = @n.report_download(scan_id, file_id)
+              print_status("Importing scan results to the database...")
+              framework.db.import({:data => report}) do |type,data|
+                case type
+                when :address
+                  print_line("Importing data of #{data}")
+                end
+              end
+              print_good("Done")
+            else
+              print_error("There was some problem in exporting the scan. The error message is #{status}")
+            end
+          else
+            print_error(export)
+          end  
+        else
+          print_error("Only completed scans could be used for import")
+        end
+        
+      end
+
+      def is_scan_complete(scan_id)
+        complete = false
+        status = @n.scan_list
+        status["scans"].each { |scan|
+        if scan["id"] == scan_id.to_i && scan["status"] == "completed"
+          complete = true
+        end
+        }
+        complete
       end
 
       def cmd_nessus_scan_pause_all(*args)
@@ -962,7 +1025,7 @@ module Msf
           print_status("Example:> nessus_scan_pause_all")
           print_status()
           print_status("Pauses all currently running scans")
-          print_status("Use %bldnessus_scan_list%clr to list all running scans")
+          print_status("Use nessus_scan_list to list all running scans")
           return
         end
         if !nessus_verify_token
@@ -990,7 +1053,7 @@ module Msf
           print_status("Example:> nessus_scan_stop f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
           print_status()
           print_status("Stops a currently running scans")
-          print_status("Use %bldnessus_scan_list%clr to list all running scans")
+          print_status("Use nessus_scan_list to list all running scans")
           return
         end
         if !nessus_verify_token
@@ -1002,7 +1065,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_scan_stop <scan id>")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans")
+          print_status("Use nessus_scan_list to list all available scans")
           return
         end
         stop = @n.scan_stop(sid)
@@ -1020,7 +1083,7 @@ module Msf
           print_status("Example:> nessus_scan_stop_all")
           print_status()
           print_status("stops all currently running scans")
-          print_status("Use %bldnessus_scan_list%clr to list all running scans")
+          print_status("Use nessus_scan_list to list all running scans")
           return
         end
         if !nessus_verify_token
@@ -1048,7 +1111,7 @@ module Msf
           print_status("Example:> nessus_scan_resume f0eabba3-4065-7d54-5763-f191e98eb0f7f9f33db7e75a06ca")
           print_status()
           print_status("resumes a running scan")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans")
+          print_status("Use nessus_scan_list to list all available scans")
           return
         end
         if !nessus_verify_token
@@ -1060,7 +1123,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_scan_resume <scan id>")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans")
+          print_status("Use nessus_scan_list to list all available scans")
           return
         end
         resume = @n.scan_resume(sid)
@@ -1078,7 +1141,7 @@ module Msf
           print_status("Example:> nessus_scan_resume_all")
           print_status()
           print_status("resumes all currently running scans")
-          print_status("Use %bldnessus_scan_list%clr to list all running scans")
+          print_status("Use nessus_scan_list to list all running scans")
           return
         end
         if !nessus_verify_token
@@ -1104,7 +1167,7 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_scan_details <scan ID> <category>")
           print_status("Availble categories are info, hosts, vulnerabilities, and history")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans with their corresponding scan IDs")
+          print_status("Use nessus_scan_list to list all available scans with their corresponding scan IDs")
           return
         end
         if !nessus_verify_token
@@ -1124,7 +1187,7 @@ module Msf
           print_status("Usage: ")
           print_status("nessus_scan_details <scan ID> <category>")
           print_status("Availble categories are info, hosts, vulnerabilities, and history")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans with their corresponding scan IDs")
+          print_status("Use nessus_scan_list to list all available scans with their corresponding scan IDs")
           return
         end
         details = @n.scan_details(scan_id)
@@ -1182,7 +1245,7 @@ module Msf
         if args[0] == "-h"
           print_status("nessus_scan_export <scan ID> <export format>")
           print_status("The available export formats are Nessus, HTML, PDF, CSV, or DB")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans with their corresponding scan IDs")
+          print_status("Use nessus_scan_list to list all available scans with their corresponding scan IDs")
           return
         end
         if !nessus_verify_token
@@ -1196,7 +1259,7 @@ module Msf
           print_status("Usage: ")
           print_status("nessus_scan_export <scan ID> <export format>")
           print_status("The available export formats are Nessus, HTML, PDF, CSV, or DB")
-          print_status("Use %bldnessus_scan_list%clr to list all available scans with their corresponding scan IDs")
+          print_status("Use nessus_scan_list to list all available scans with their corresponding scan IDs")
           return
         end
         if format.in?(['nessus','html','pdf','csv','db'])
@@ -1223,7 +1286,7 @@ module Msf
       def cmd_nessus_scan_export_status(*args)
         if args[0] == "-h"
           print_status("nessus_scan_export_status <scan ID> <file ID>")
-          print_status("Use %bldnessus_scan_export <scan ID> <format>%clr to export a scan and get its file ID")
+          print_status("Use nessus_scan_export <scan ID> <format> to export a scan and get its file ID")
         end
         if !nessus_verify_token
           return
@@ -1241,7 +1304,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_scan_export_status <scan ID> <file ID>")
-          print_status("Use %bldnessus_scan_export <scan ID> <format>%clr to export a scan and get its file ID")
+          print_status("Use nessus_scan_export <scan ID> <format> to export a scan and get its file ID")
         end
       end
 
@@ -1251,7 +1314,7 @@ module Msf
           print_status("Example:> nessus_plugin_list 10")
           print_status()
           print_status("Returns a list of all plugins in that family.")
-          print_status("Use %bldnessus_family_list%clr to display all the plugin families along with their corresponding family IDs")
+          print_status("Use nessus_family_list to display all the plugin families along with their corresponding family IDs")
           return
         end
         if !nessus_verify_token
@@ -1263,7 +1326,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_plugin_list <Family ID>")
-          print_status("Use %bldnessus_family_list%clr to display all the plugin families along with their corresponding family IDs")
+          print_status("Use nessus_family_list to display all the plugin families along with their corresponding family IDs")
           return
         end
         tbl = Rex::Ui::Text::Table.new(
@@ -1272,10 +1335,12 @@ module Msf
             'Plugin Name'
           ])
         list = @n.list_plugins(family_id)
-        list["plugins"].each {|plugin|
+        list["plugins"].each { |plugin|
         tbl << [ plugin["id"], plugin["name"] ]
         }
-        print_good("Plugin Family Name: " + list["name"])
+        print_line
+        print_good("Plugin Family Name: #{list['name']}")
+        print_line
         print_line tbl.to_s
       end
 
@@ -1297,6 +1362,7 @@ module Msf
         list.each { |family|
         tbl << [ family["id"], family["name"], family["count"] ]
         }
+        print_line
         print_line tbl.to_s
       end
 
@@ -1306,7 +1372,7 @@ module Msf
           print_status("Example:> nessus_plugin_details 10264")
           print_status()
           print_status("Returns details on a particular plugin.")
-          print_status("Use %bldnessus_plugin_list%clr to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
+          print_status("Use nessus_plugin_list to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
           return
         end
         if !nessus_verify_token
@@ -1318,7 +1384,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_plugin_details <Plugin ID>")
-          print_status("Use %bldnessus_plugin_list%clr to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
+          print_status("Use nessus_plugin_list to list all plugins and their corresponding plugin IDs belonging to a particular plugin family.")
           return
         end
         tbl = Rex::Ui::Text::Table.new(
@@ -1339,8 +1405,10 @@ module Msf
         list["attributes"].each { |attrib|
         tbl << [ attrib["attribute_name"], attrib["attribute_value"] ]
         }
-        print_good("Plugin Name: " + list["name"])
-        print_good("Plugin Family: " + list["family_name"])
+        print_line
+        print_good("Plugin Name: #{list['name']}")
+        print_good("Plugin Family: #{list['family_name']}")
+        print_line
         print_line tbl.to_s
       end
 
@@ -1371,6 +1439,7 @@ module Msf
         list["users"].each { |user|
         tbl << [ user["id"], user["name"], user["username"], user["type"], user["email"], user["permissions"] ]
         }
+        print_line
         print_line tbl.to_s
       end
 
@@ -1381,7 +1450,7 @@ module Msf
           print_status("Type can be either local or LDAP")
           print_status("Example:> nessus_user_add msf msf 16 local")
           print_status("You need to be an admin in order to add accounts")
-          print_status("Use %bldnessus_user_list%clr to list all users")
+          print_status("Use nessus_user_list to list all users")
           return
         end
         if !nessus_verify_token
@@ -1416,7 +1485,7 @@ module Msf
           print_status("Example:> nessus_user_del 10")
           print_status()
           print_status("This command can only delete non admin users. You must be an admin to delete users.")
-          print_status("Use %bldnessus_user_list%clr to list all users with their corresponding user IDs")
+          print_status("Use nessus_user_list to list all users with their corresponding user IDs")
           return
         end
         if !nessus_verify_token
@@ -1457,7 +1526,7 @@ module Msf
           print_status("nessus_user_passwd <User ID> <New Password>")
           print_status("Example:> nessus_user_passwd 10 mynewpassword")
           print_status("Changes the password of a user. You must be an admin to change passwords.")
-          print_status("Use %bldnessus_user_list%clr to list all users with their corresponding user IDs")
+          print_status("Use nessus_user_list to list all users with their corresponding user IDs")
           return
         end
         if !nessus_verify_token
@@ -1474,7 +1543,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_user_passwd <User ID> <New Password>")
-          print_status("Use %bldnessus_user_list%clr to list all users with their corresponding user IDs")
+          print_status("Use nessus_user_list to list all users with their corresponding user IDs")
           return
         end
         pass = @n.user_chpasswd(user_id,pass)
@@ -1530,7 +1599,7 @@ module Msf
           print_status("Example:> nessus_policy_del 1")
           print_status()
           print_status("You must be an admin to delete policies.")
-          print_status("Use %bldnessus_policy_list%clr to list all policies with their corresponding policy IDs")
+          print_status("Use nessus_policy_list to list all policies with their corresponding policy IDs")
           return
         end
         if !nessus_verify_token
@@ -1546,7 +1615,7 @@ module Msf
         else
           print_status("Usage: ")
           print_status("nessus_policy_del <policy ID>")
-          print_status("Use %bldnessus_policy_list%clr to list all the policies with their corresponding policy IDs")
+          print_status("Use nessus_policy_list to list all the policies with their corresponding policy IDs")
           return
         end
         del = @n.policy_delete(policy_id)
@@ -1573,7 +1642,7 @@ module Msf
           return
         end
         pol = @n.list_policies
-        pol["policies"].each {|p|
+        pol["policies"].each { |p|
         if p["template_uuid"] == pid
           return true
         end
