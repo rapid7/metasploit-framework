@@ -184,6 +184,8 @@ class Metasploit3 < Msf::Auxiliary
       save_file.close
     end
 
+    vprint_status("SIP Trust Scanning Request:\n"+p.payload.to_s)
+
     # Sending creates errors, PacketFU debug is required.
     ret = send(p.ip_daddr,p)
 
