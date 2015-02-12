@@ -130,7 +130,7 @@ class Msf::DBManager
   #
   def check
   ::ActiveRecord::Base.connection_pool.with_connection {
-    res = ::Mdm::Host.find(:first)
+    res = ::Mdm::Host.first
   }
   end
 
