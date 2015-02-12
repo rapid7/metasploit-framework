@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'References'     =>
         [
+          [ 'CVE', '2015-0072' ],
           [ 'OSVDB', '117876' ],
           [ 'URL', 'http://www.deusen.co.uk/items/insider3show.3362009741042107/'],
           [ 'URL', 'http://innerht.ml/blog/ie-uxss.html' ],
