@@ -15,10 +15,10 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'         => 'Windows File Gather File from Raw NTFS',
       'Description'  => %q{
-          This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
-          such as open file with write lock. Because it avoids the usual file locking issues, it can
-          be used to retrieve files such as NTDS.dit.
-       },
+        This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
+        such as open file with write lock. Because it avoids the usual file locking issues, it can
+        be used to retrieve files such as NTDS.dit.
+      },
       'License'      => 'MSF_LICENSE',
       'Platform'     => ['win'],
       'SessionTypes' => ['meterpreter'],
