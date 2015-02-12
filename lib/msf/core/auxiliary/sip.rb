@@ -352,6 +352,7 @@ module Auxiliary::SIP
 
       results = send_register(regopts)
       reg_status = results["status"]
+      callopts = results["callopts"]
 
       printdebug(results) if datastore["DEBUG"] == true
 
