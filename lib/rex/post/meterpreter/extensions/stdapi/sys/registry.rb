@@ -165,13 +165,13 @@ class Registry
     return keys
   end
 
-  def Registry.enum_key_direct(root_key, base_key)
+  def Registry.enum_key_direct(root_key, base_key, perm = KEY_READ)
     request = Packet.create_request('stdapi_registry_enum_key_direct')
     keys    = []
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
-    request.add_tlv(TLV_TYPE_PERMISSION, KEY_READ)
+    request.add_tlv(TLV_TYPE_PERMISSION, perm)
 
     response = client.send_request(request)
 
@@ -212,12 +212,12 @@ class Registry
     return true
   end
 
-  def Registry.set_value_direct(root_key, base_key, name, type, data)
+  def Registry.set_value_direct(root_key, base_key, name, type, data, perm = KEY_WRITE)
     request = Packet.create_request('stdapi_registry_set_value_direct')
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
-    request.add_tlv(TLV_TYPE_PERMISSION, KEY_WRITE)
+    request.add_tlv(TLV_TYPE_PERMISSION, perm)
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
 
@@ -238,12 +238,12 @@ class Registry
   # Queries the registry value supplied in name and returns an
   # initialized RegistryValue instance if a match is found.
   #
-  def Registry.query_value_direct(root_key, base_key, name)
+  def Registry.query_value_direct(root_key, base_key, name, perm = KEY_READ)
     request = Packet.create_request('stdapi_registry_query_value_direct')
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
-    request.add_tlv(TLV_TYPE_PERMISSION, KEY_READ)
+    request.add_tlv(TLV_TYPE_PERMISSION, perm)
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
 
     response = client.send_request(request)
@@ -334,13 +334,13 @@ class Registry
     return values
   end
 
-  def Registry.enum_value_direct(root_key, base_key)
+  def Registry.enum_value_direct(root_key, base_key, perm = KEY_READ)
     request = Packet.create_request('stdapi_registry_enum_value_direct')
     values  = []
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
-    request.add_tlv(TLV_TYPE_PERMISSION, KEY_READ)
+    request.add_tlv(TLV_TYPE_PERMISSION, perm)
 
     response = client.send_request(request)
 
