@@ -155,7 +155,7 @@ module Msf
         print_status("Usage: ")
         print_status("nessus_connect username:password@hostname:port <ssl_verify>")
         print_status("Example:> nessus_connect msf:msf@192.168.1.10:8834")
-        print_status(" OR")
+        print_status("OR")
         print_status("nessus_connect username@hostname:port ssl_verify")
         print_status("Example:> nessus_connect msf@192.168.1.10:8834 ssl_verify")
         print_status("OR")
