@@ -4,13 +4,20 @@ require 'rex/parser/nessus_xml'
 
 module Msf
 
+  PLUGIN_NAME        = 'Nessus'
+  PLUGIN_DESCRIPTION = 'Nessus Bridge for Metasploit'
+
   class Plugin::Nessus < Msf::Plugin
+
+    def name
+      PLUGIN_NAME
+    end
       
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
       
       def name
-        "Nessus"
+        PLUGIN_NAME
       end
 
       def xindex
@@ -175,7 +182,7 @@ module Msf
           o = nil
           begin
             o = mod.new
-            rescue ::Exception
+          rescue ::Exception
           end
           stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
           next if not o
@@ -1662,8 +1669,8 @@ module Msf
     def initialize(framework, opts)
       super
       add_console_dispatcher(ConsoleCommandDispatcher)
-      print_status("Nessus Bridge for Metasploit")
-      print_good("Type %bldnessus_help%clr for a command listing")
+      print_status(PLUGIN_DESCRIPTION)
+      print_status("Type %bldnessus_help%clr for a command listing")
     end
 
     def cleanup
