@@ -19,7 +19,7 @@ class Metasploit4 < Msf::Auxiliary
         'Misfortune Cookie' vulnerability which affects Allegro Software
         Rompager versions before 4.34 and can allow attackers to authenticate
         to the HTTP service as an administrator without providing valid
-        credentials, however more specifics are not yet known.
+        credentials.
       ),
       'Author' => [
         'Jon Hart <jon_hart[at]rapid7.com>', # metasploit module

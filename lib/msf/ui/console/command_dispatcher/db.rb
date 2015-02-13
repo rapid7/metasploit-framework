@@ -68,6 +68,10 @@ class Db
     ]
   end
 
+  def allowed_cred_types
+    %w(password ntlm hash)
+  end
+
   #
   # Returns true if the db is connected, prints an error and returns
   # false if not.
@@ -676,6 +680,8 @@ class Db
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
+    print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 
     print_line
     print_line "Examples, listing:"
@@ -683,6 +689,7 @@ class Db
     print_line "  creds 1.2.3.4/24    # nmap host specification"
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
+    print_line "  creds -t ntlm       # All NTLM creds"
     print_line
 
     print_line
@@ -760,6 +767,9 @@ class Db
     host_ranges = []
     port_ranges = []
     svcs        = []
+    rhosts      = []
+
+    set_rhosts = false
 
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
     cred_table_columns = [ 'host', 'service', 'public', 'private', 'realm', 'private_type' ]
@@ -806,6 +816,8 @@ class Db
         end
       when "-d"
         mode = :delete
+      when '-R', '--rhosts'
+        set_rhosts = true
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -815,11 +827,19 @@ class Db
     end
 
     # If we get here, we're searching.  Delete implies search
-    if user
-      user_regex = Regexp.compile(user)
-    end
-    if pass
-      pass_regex = Regexp.compile(pass)
+
+    if ptype
+      type = case ptype
+             when 'password'
+               Metasploit::Credential::Password
+             when 'hash'
+               Metasploit::Credential::PasswordHash
+             when 'ntlm'
+               Metasploit::Credential::NTLMHash
+             else
+               print_error("Unrecognized credential type #{ptype} -- must be one of #{allowed_cred_types.join(',')}")
+               return
+             end
     end
 
     # normalize
@@ -833,26 +853,51 @@ class Db
     tbl = Rex::Ui::Text::Table.new(tbl_opts)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      query = Metasploit::Credential::Core.where(
-        workspace_id: framework.db.workspace,
-      )
+      query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
+      query = query.includes(:private, :public, :logins)
+      query = query.includes(logins: [ :service, { service: :host } ])
 
-      query.each do |core|
+      if type.present?
+        query = query.where(metasploit_credential_privates: { type: type })
+      end
 
-        # Exclude creds that don't match the given user
-        if user_regex.present? && !core.public.username.match(user_regex)
+      if svcs.present?
+        query = query.where(Mdm::Service[:name].in(svcs))
+      end
+
+      if ports.present?
+        query = query.where(Mdm::Service[:port].in(ports))
+      end
+
+      if user.present?
+        # If we have a user regex, only include those that match
+        query = query.where('"metasploit_credential_publics"."username" ~* ?', user)
+      end
+
+      if pass.present?
+        # If we have a password regex, only include those that match
+        query = query.where('"metasploit_credential_privates"."data" ~* ?', pass)
+      end
+
+      if host_ranges.any? || ports.any? || svcs.any?
+        # Only find Cores that have non-zero Logins if the user specified a
+        # filter based on host, port, or service name
+        query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
+      end
+
+      query.find_each do |core|
+
+        # Exclude non-blank username creds if that's what we're after
+        if user == "" && core.public && !(core.public.username.blank?)
           next
         end
 
-        # Exclude creds that don't match the given pass
-        if pass_regex.present? && !core.private.data.match(pass_regex)
+        # Exclude non-blank password creds if that's what we're after
+        if pass == "" && core.private && !(core.private.data.blank?)
           next
         end
 
         if core.logins.empty?
-          # Skip cores that don't have any logins if the user specified a
-          # filter based on host, port, or service name
-          next if host_ranges.any? || ports.any? || svcs.any?
 
           tbl << [
             "", # host
@@ -864,13 +909,6 @@ class Db
           ]
         else
           core.logins.each do |login|
-            if svcs.present? && !svcs.include?(login.service.name)
-              next
-            end
-
-            if ports.present? && !ports.include?(login.service.port)
-              next
-            end
 
             # If none of this Core's associated Logins is for a host within
             # the user-supplied RangeWalker, then we don't have any reason to
@@ -880,6 +918,7 @@ class Db
               next
             end
             row = [ login.service.host.address ]
+            rhosts << login.service.host.address
             if login.service.name.present?
               row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
             else
@@ -908,7 +947,8 @@ class Db
         ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
         print_status("Wrote creds to #{output_file}")
       end
-      
+
+      set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
       print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
   end
@@ -1138,7 +1178,7 @@ class Db
   end
 
   def make_sortable(input)
-    case input.class
+    case input
     when String
       input = input.downcase
     when Fixnum
@@ -1292,7 +1332,7 @@ class Db
 
     # Handle hostless loot
     if host_ranges.compact.empty? # Wasn't a host search
-      hostless_loot = framework.db.loots.find_all_by_host_id(nil)
+      hostless_loot = framework.db.loots.where(host_id: nil)
       hostless_loot.each do |loot|
         row = []
         row.push("")

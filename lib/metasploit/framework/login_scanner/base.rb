@@ -12,6 +12,12 @@ module Metasploit
         include ActiveModel::Validations
 
         included do
+          # @!attribute framework
+          #   @return [Object] The framework instance object
+          attr_accessor :framework
+          # @!attribute framework_module
+          #   @return [Object] The framework module caller, if availale
+          attr_accessor :framework_module
           # @!attribute connection_timeout
           #   @return [Fixnum] The timeout in seconds for a single SSH connection
           attr_accessor :connection_timeout

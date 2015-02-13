@@ -13,7 +13,6 @@
 # openssl before rubygems mac os
 require 'msf/core'
 require 'openssl'
-require 'rubygems'
 require 'rinda/tuplespace'
 require 'pathname'
 require 'uri'
@@ -33,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptString.new('PATH',	[true,	"Starting crawling path", '/']),
-      OptInt.new('RPORT', [true, "Remote port", 80 ]),
+      OptInt.new('RPORT', [true, "Remote port", 80 ])
     ], self.class)
 
     register_advanced_options([
@@ -47,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('TakeTimeout', [ true, "Timeout for loop ending", 15]),
       OptInt.new('ReadTimeout', [ true, "Read timeout (-1 forever)", 3]),
       OptInt.new('ThreadNum', [ true, "Threads number", 20]),
-      OptString.new('DontCrawl',	[true,	"Filestypes not to crawl", '.exe,.zip,.tar,.bz2,.run,.asc,.gz']),
+      OptString.new('DontCrawl',	[true,	"Filestypes not to crawl", '.exe,.zip,.tar,.bz2,.run,.asc,.gz'])
     ], self.class)
   end
 

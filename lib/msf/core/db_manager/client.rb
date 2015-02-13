@@ -36,7 +36,7 @@ module Msf::DBManager::Client
     ret = {}
 
     host = get_host(:workspace => wspace, :host => addr)
-    client = host.clients.find_or_initialize_by_ua_string(opts[:ua_string])
+    client = host.clients.where(ua_string: opts[:ua_string]).first_or_initialize
 
     opts[:ua_string] = opts[:ua_string].to_s
 
