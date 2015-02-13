@@ -125,7 +125,7 @@ module Msf
         tbl << [ "nessus_scan_resume_all", "Resume all paused Nessus scans" ]
         tbl << [ "nessus_scan_details", "Return detailed information of a given scan" ]
         tbl << [ "nessus_scan_export", "Export a scan result in either Nessus, HTML, PDF, CSV, or DB format" ]
-        tbl << [ "nessus_scan_export_status", "Check the status of exported scan" ]
+        tbl << [ "nessus_scan_export_status", "Check the status of an exported scan" ]
         tbl << [ "", ""]
         tbl << [ "Plugin Commands", "" ]
         tbl << [ "-----------------", "-----------------"]
@@ -144,9 +144,9 @@ module Msf
         tbl << [ "-----------------", "-----------------"]
         tbl << [ "nessus_policy_list", "List all polciies" ]
         tbl << [ "nessus_policy_del", "Delete a policy" ]
-        print_status ""
+        print_line ""
         print_line tbl.to_s
-        print_status ""
+        print_line ""
       end
 
       def ncusage
