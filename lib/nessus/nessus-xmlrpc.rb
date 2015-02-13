@@ -28,8 +28,12 @@ module Nessus
         :json => 1
       }
       res = http_post(:uri=>"/session", :data=>payload)
-      @token = "token=#{res['token']}"
-      true
+      if res['token']
+        @token = "token=#{res['token']}"
+        return true
+      else
+        false
+      end
     end
 
     def x_cookie
