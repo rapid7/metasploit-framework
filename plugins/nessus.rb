@@ -998,7 +998,7 @@ module Msf
               framework.db.import({:data => report}) do |type,data|
                 case type
                 when :address
-                  print_line("Importing data of #{data}")
+                  print_status("Importing data of #{data}")
                 end
               end
               print_good("Done")
