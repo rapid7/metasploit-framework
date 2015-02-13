@@ -93,7 +93,6 @@ module Msf
         tbl << [ "nessus_connect", "Connect to a Nessus server" ]
         tbl << [ "nessus_logout", "Logout from the Nessus server" ]
         tbl << [ "nessus_login", "Login into the connected Nesssus server with a different username and password"]
-        tbl << [ "nessus_login", "Login into the connected Nesssus server with a different username and password" ]
         tbl << [ "nessus_save", "Save credentials of the logged in user to nessus.yml"]
         tbl << [ "nessus_help", "Listing of available nessus commands" ]
         tbl << [ "nessus_server_properties", "Nessus server properties such as feed type, version, plugin set and server UUID." ]
