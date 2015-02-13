@@ -1,0 +1,5 @@
+50 character commit title
+
+Longer description, if needed, wrapped at 72 characters.
+
+[See #XXXX]
