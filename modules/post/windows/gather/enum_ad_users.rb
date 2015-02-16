@@ -12,7 +12,13 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Accounts
 
   UAC_DISABLED = 0x02
-  USER_FIELDS = ['sAMAccountName', 'userAccountControl', 'lockoutTime', 'mail', 'primarygroupid', 'description'].freeze
+  USER_FIELDS = ['userPrincipalName',
+                 'sAMAccountName',
+                 'userAccountControl',
+                 'lockoutTime',
+                 'mail',
+                 'primarygroupid',
+                 'description'].freeze
 
   def initialize(info = {})
     super(update_info(
@@ -108,8 +114,8 @@ class Metasploit3 < Msf::Post
       end
 
       username = result.first[:value]
-      uac = result[1][:value]
-      lockout_time = result[2][:value]
+      uac = result[2][:value]
+      lockout_time = result[3][:value]
       store_username(username, uac, lockout_time, domain, domain_ip)
 
       results_table << row
