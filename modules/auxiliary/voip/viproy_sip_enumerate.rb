@@ -123,22 +123,24 @@ class Metasploit3 < Msf::Auxiliary
       possible = /^40[0-3]|^40[5-9]|^200/
     end
 
-    rdata = results["rdata"]
-    if rdata != nil and rdata['resp'] =~ possible
-      user=rdata['from'].split("@")[0]
+    if results != nil
+      rdata = results["rdata"]
+      if rdata != nil and rdata['resp'] =~ possible
+        user=rdata['from'].split("@")[0]
 
-      if ! reported_users.include?(user)
-        print_good("User #{user} is Valid (Server Response: #{rdata['resp_msg'].split(" ")[1,5].join(" ")})")
-        vprint_status("Warning: #{rdata['warning']}") if rdata['warning']
-        reported_users << user
+        if ! reported_users.include?(user)
+          print_good("User #{user} is Valid (Server Response: #{rdata['resp_msg'].split(" ")[1,5].join(" ")})")
+          vprint_status("Warning: #{rdata['warning']}") if rdata['warning']
+          reported_users << user
+        end
+      else
+        vprint_status("User #{user} is Invalid (#{rdata['resp_msg'].split(" ")[1,5].join(" ")})") if rdata !=nil
+        vprint_status("\tWarning \t\t: #{rdata['warning']}\n") if ! rdata.nil? and rdata['warning']
       end
-    else
-      vprint_status("User #{user} is Invalid (#{rdata['resp_msg'].split(" ")[1,5].join(" ")})") if rdata !=nil
-      vprint_status("\tWarning \t\t: #{rdata['warning']}\n") if ! rdata.nil? and rdata['warning']
+
+      printresults(results) if datastore['DEBUG'] == true
+
+      return reported_users
     end
-
-    printresults(results) if datastore['DEBUG'] == true
-
-    return reported_users
   end
 end
