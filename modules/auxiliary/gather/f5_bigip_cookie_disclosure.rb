@@ -85,12 +85,13 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     unless res.nil?
-      # Get the SLB session IDs for all cases, like
-      # IPv4 pool members - "BIGipServerWEB=2263487148.3013.0000",
-      # IPv4 pool members in non-default routed domains - "BIGipServerWEB=rd5o00000000000000000000ffffc0000201o80",
-      # IPv6 pool members - "BIGipServerWEB=vi20010112000000000000000000000030.20480",
-      # IPv6 pool members in non-default route domains - "BIGipServerWEB=rd3o20010112000000000000000000000030o80",
-      # Encrypted cookies - "BIGipServerWEB=!dcdlUciYEFlt1QzXtD7QKx22XJx7Uuj2I0dYdFTwJASsJyJySME9/GACjztr7WYJIvHxTSNreeve7foossGzKS3vT9ECJscSg1LAc3rc"
+      # Get the SLB session IDs for all cases:
+      # 1. IPv4 pool members - "BIGipServerWEB=2263487148.3013.0000",
+      # 2. IPv4 pool members in non-default routed domains - "BIGipServerWEB=rd5o00000000000000000000ffffc0000201o80",
+      # 3. IPv6 pool members - "BIGipServerWEB=vi20010112000000000000000000000030.20480",
+      # 4. IPv6 pool members in non-default route domains - "BIGipServerWEB=rd3o20010112000000000000000000000030o80",
+      # 5. Encrypted cookies - "BIGipServerWEB=!dcdlUciYEFlt1QzXtD7QKx22XJx7Uuj2I0dYdFTwJASsJyJySME9/GACjztr7WYJIvHxTSNreeve7foossGzKS3vT9ECJscSg1LAc3rc"
+
       m = res.get_cookies.match(/([\-\w\d]+)=(((?:\d+\.){2}\d+)|(rd\d+o0{20}f{4}\w+o\d{1,5})|(vi([a-f0-9]{32})\.(\d{1,5}))|(rd\d+o([a-f0-9]{32})o(\d{1,5}))|(!(.){104}))(?:$|,|;|\s)/)
       cookie[:id] = (m.nil?) ? nil : m[1]
       cookie[:value] = (m.nil?) ? nil : m[2]
@@ -114,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
       cookie = get_cookie() # Get the cookie
       # If the cookie is not found, stop process
       if cookie.empty? || cookie[:id].nil?
-        print_error("#{peer} - F5 Server load balancing cookie not found")
+        print_error("#{peer} - F5 BigIP load balancing cookie not found")
           break
       end
 
@@ -127,8 +128,8 @@ class Metasploit3 < Msf::Auxiliary
 	if cookie[:value].start_with?('rd')
 	  print_status("#{peer} - Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
 	end
-        if cookie[:id].start_with?('BIGipServer') and cookie[:value].start_with?('!')
-	  print_status("#{peer} - BigIP cookie is probably encrypted") 		
+        if cookie[:value].start_with?('!')
+	  print_status("#{peer} - F5 BigIP cookie is probably encrypted") 		
 	end
       end
 
