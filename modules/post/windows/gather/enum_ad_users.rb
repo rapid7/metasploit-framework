@@ -12,8 +12,8 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Accounts
 
   UAC_DISABLED = 0x02
-  USER_FIELDS = ['userPrincipalName',
-                 'sAMAccountName',
+  USER_FIELDS = ['sAMAccountName',
+                 'userPrincipalName',
                  'userAccountControl',
                  'lockoutTime',
                  'mail',
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Post
         end
       end
 
-      username = result[USER_FIELDS.index('userPrincipalName')][:value]
+      username = result[USER_FIELDS.index('sAMAccountName')][:value]
       uac = result[USER_FIELDS.index('userAccountControl')][:value]
       lockout_time = result[USER_FIELDS.index('lockoutTime')][:value]
       store_username(username, uac, lockout_time, domain, domain_ip)
