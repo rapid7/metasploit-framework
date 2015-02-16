@@ -42,6 +42,7 @@ class Metasploit3 < Msf::Auxiliary
     [
       Opt::CHOST,
       Opt::CPORT(5065),
+      OptString.new('DELAY',   [true, 'Delay in seconds',"0"]),
       OptString.new('USERAGENT',   [ false, "SIP user agent" ]),
       OptBool.new('USER_AS_FROM_and_TO', [true, 'Try the username as the from/to for all users', true]),
       OptBool.new('DEREGISTER', [true, 'De-Register After Successful Login', false]),
@@ -106,6 +107,7 @@ class Metasploit3 < Msf::Auxiliary
   def do_login(user,password,from,to,dest_addr,method)
 
     realm = datastore['REALM']
+    Rex.sleep(datastore['DELAY'].to_i)
 
     results = send_register(
       'login'  	  => true,
@@ -147,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     else
       if results["rdata"] !=nil
-        vprint_status("User: #{user} \tPassword: #{password} \tResult: #{convert_error(results["status"])}")
+        vprint_status("#{dest_addr}:#{realm} User: #{user} \tPassword: #{password} \tResult: #{convert_error(results["status"])}")
       else
         vprint_status("No response received from #{dest_addr}")
       end

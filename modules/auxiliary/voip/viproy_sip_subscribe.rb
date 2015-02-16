@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 
       rdata = results["rdata"]
 
-      if rdata != nil and rdata['resp'] =~ /^18|^20|^48/ and resutls["rawdata"].to_s =~ /#{results["callopts"]["tag"]}/
+      if rdata != nil and rdata['resp'] =~ /^18|^20|^48/ and results["rawdata"].to_s =~ /#{results["callopts"]["tag"]}/
         print_good("Message: #{from} ==> #{to} Subscribe Sent (Server Response: #{rdata['resp_msg'].split(" ")[1,5].join(" ")})")
       else
         vprint_status("Message: #{from} ==> #{to} Subscription Failed (Server Response: #{rdata['resp_msg'].split(" ")[1,5].join(" ")})") if rdata != nil

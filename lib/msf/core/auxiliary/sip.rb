@@ -381,7 +381,7 @@ module Auxiliary::SIP
     end
 
     if results["rawdata"].nil?
-      print_error("No response recieved!")
+      print_error("No response received for From: #{regopts['from']}!")
       return
     else
       printdebug(results) if datastore["DEBUG"] == true
@@ -512,7 +512,10 @@ module Auxiliary::SIP
         return results
     end
 
+
     req_options['callopts'] = results["callopts"] if results["callopts"] != nil
+
+
 
     #Cisco generic Register methods requests same FROM and TO fields
     req_options['to'] = req_options['from'] if self.vendor == "ciscogeneric"
@@ -547,6 +550,7 @@ module Auxiliary::SIP
       else
         results["status"] = :authorization_error
     end
+
     return results
   end
 
@@ -585,6 +589,7 @@ module Auxiliary::SIP
 
     while (rdata != nil and !(rdata['resp'] =~ possible))
       rdata,rawdata=recv_data
+      vprint_status("Nonce: #{rdata["digest"]["nonce"]}") if datastore["DELAY"] != "0" and ! rdata["digest"].nil?
       break if rdebug.length > 9
     end
 
