@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Post
       'Header'     => "Domain Users",
       'Indent'     => 1,
       'SortIndex'  => -1,
-      'Columns'    => @user_fields 
+      'Columns'    => @user_fields
     )
 
     results.each do |result|
