@@ -955,7 +955,7 @@ module Auxiliary::SIP
     return customheader
   end
 
-
+  #There is a Bug in this function for WWW-Authentiction !!!!!
   # Parse the authentication
   def parse_auth(data)
     result={}
@@ -965,7 +965,7 @@ module Auxiliary::SIP
     data.each_char { |c|
       quote += 1 if c == '"'
       if c == "="
-        var = str
+        var = str.gsub(" ","")
         val = nil
         str = ""
       else
@@ -985,6 +985,7 @@ module Auxiliary::SIP
         end
       end
     }
+    print_status(result.to_s)
     return result
   end
 
@@ -1036,7 +1037,9 @@ module Auxiliary::SIP
       t=header.split(" ")[0]
       type=t.downcase
       data="#{header.strip.gsub("#{t} ","")}"
-      rdata[type] = parse_auth(data)
+      #rdata[type] = parse_auth(data)
+      rdata[type] = {}
+      data.split(",").each { |d| rdata[type][d.split("=")[0].gsub(" ","")]=d.split("=")[1].gsub("\"",'')}
       rdata[type]["authtype"]="www"
     end
     if(rawdata =~ /^Proxy-Authenticate:\s*(.*)$/i)
@@ -1044,7 +1047,9 @@ module Auxiliary::SIP
       t=header.split(" ")[0]
       type=t.downcase
       data="#{header.strip.gsub("#{t} ","")}"
-      rdata[type] = parse_auth(data)
+      #rdata[type] = parse_auth(data)
+      rdata[type] = {}
+      data.split(",").each { |d| rdata[type][d.split("=")[0].gsub(" ","")]=d.split("=")[1].gsub("\"",'')}
       rdata[type]["authtype"]="proxy"
     end
     if(rawdata =~ /^From:\s+(.*)$/)
