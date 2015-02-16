@@ -346,13 +346,14 @@ module Auxiliary::SIP
         #From and TO fields should be Username for REGISTER
         if datastore['USEREQFROM'] == true
           regopts['from']=regopts['user']
-          regopts['fromname']=regopts['user']
+          regopts['fromname']=nil
           regopts['to']=regopts['user']
         end
       end
 
       results = send_register(regopts)
       reg_status = results["status"]
+
       callopts = results["callopts"]
 
       printdebug(results) if datastore["DEBUG"] == true
