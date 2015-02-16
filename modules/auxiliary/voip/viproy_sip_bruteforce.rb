@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
     # Socket parameters
     sockinfo["listen_addr"] = datastore['CHOST']
     sockinfo["listen_port"] = datastore['CPORT']
-    sockinfo["dest_addr"] =datastore['RHOST']
+    sockinfo["dest_addr"] = dest_addr = datastore['RHOST']
     sockinfo["dest_port"] = datastore['RPORT']
 
     method = datastore['METHOD']
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if datastore['DEBUG'] != true
         # reporting the validated credentials
-        res=report_creds(user,password,results["status"])
+        res=report_creds(user,password,realm,results["status"])
         print_good(res.gsub("\tC","C"))
       end
 
@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     else
       if results["rdata"] !=nil
-        vprint_status("#{dest_addr}:#{realm} User: #{user} \tPassword: #{password} \tResult: #{convert_error(results["status"])}")
+        vprint_status("IP:Realm: #{dest_addr}:#{realm} User: #{user} \tPassword: #{password} \tResult: #{convert_error(results["status"])}")
       else
         vprint_status("No response received from #{dest_addr}")
       end

@@ -128,7 +128,12 @@ module Auxiliary::SIP
     report << "\tServer \t\t: #{rdata['server']}\n" if rdata['server']
     report << "\tWarning \t: #{rdata['warning']}\n" if rdata['warning']
     report << "\tUser-Agent \t: #{rdata['agent']}\n"	if rdata['agent']
-    report << "\tRealm \t\t: #{rdata['digest']['realm']}\n" if rdata['digest']
+    if rdata['digest']
+      report << "\tRealm \t\t: #{rdata['digest']['realm']}\n"
+      realm = rdata['digest']['realm']
+    else
+      realm = nil
+    end
     report << "\tContact\t\t: #{rdata['contact']}\n" if rdata['resp_msg'].split(" ")[1] == "301"
 
     printdebug(results) if datastore["DEBUG"] == true
@@ -153,11 +158,11 @@ module Auxiliary::SIP
       )
 
       # reporting the validated credentials
-      res = report_creds(user,password,status) if user != nil
+      res = report_creds(user,password,realm,status) if user != nil
       report << res if ! res.nil?
       print_good(report)
     else
-      report << "\tCredentials\t: User => #{user} Password => #{password}\n" if user != nil and datastore['LOGIN']
+      report << "\tCredentials\t IP:Realm => #{self.dest_addr}:#{rdata['digest']['realm']} User => #{user} Password => #{password}\n" if user != nil and datastore['LOGIN']
       if method == 'register'
         print_status(report)
       else
@@ -167,14 +172,14 @@ module Auxiliary::SIP
   end
 
   # reporting the validated credentials
-  def report_creds(user,password,status)
+  def report_creds(user,password,realm,status)
     if status =~ /without/
       user="User=NULL,FROM=#{datastore["FROM"]},TO=#{datastore["TO"]}"
       password=nil
       res = nil
     else
       if status =~ /succeed/
-        res = "\tCredentials\t: User => #{user} Password => #{password}"
+        res = "\tCredentials\t IP:Realm => #{self.dest_addr}:#{realm} User => #{user} Password => #{password}"
       else
         res = nil
       end
@@ -955,14 +960,14 @@ module Auxiliary::SIP
     return customheader
   end
 
-  #There is a Bug in this function for WWW-Authentiction !!!!!
+  #There is a Bug in this function for WWW-Authentication !!!!!
   # Parse the authentication
   def parse_auth(data)
     result={}
     str=""
     var = nil
     quote = 0
-    data.each_char { |c|
+    data.each_char { |c|1
       quote += 1 if c == '"'
       if c == "="
         var = str.gsub(" ","")
@@ -985,7 +990,8 @@ module Auxiliary::SIP
         end
       end
     }
-    print_status(result.to_s)
+    #Remove IT!
+    #vprint_status(result.to_s)
     return result
   end
 
@@ -1037,9 +1043,7 @@ module Auxiliary::SIP
       t=header.split(" ")[0]
       type=t.downcase
       data="#{header.strip.gsub("#{t} ","")}"
-      #rdata[type] = parse_auth(data)
-      rdata[type] = {}
-      data.split(",").each { |d| rdata[type][d.split("=")[0].gsub(" ","")]=d.split("=")[1].gsub("\"",'')}
+      rdata[type] = parse_auth(data)
       rdata[type]["authtype"]="www"
     end
     if(rawdata =~ /^Proxy-Authenticate:\s*(.*)$/i)
@@ -1047,9 +1051,7 @@ module Auxiliary::SIP
       t=header.split(" ")[0]
       type=t.downcase
       data="#{header.strip.gsub("#{t} ","")}"
-      #rdata[type] = parse_auth(data)
-      rdata[type] = {}
-      data.split(",").each { |d| rdata[type][d.split("=")[0].gsub(" ","")]=d.split("=")[1].gsub("\"",'')}
+      rdata[type] = parse_auth(data)
       rdata[type]["authtype"]="proxy"
     end
     if(rawdata =~ /^From:\s+(.*)$/)
