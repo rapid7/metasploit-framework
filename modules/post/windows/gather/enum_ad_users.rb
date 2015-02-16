@@ -113,9 +113,9 @@ class Metasploit3 < Msf::Post
         end
       end
 
-      username = result.first[:value]
-      uac = result[2][:value]
-      lockout_time = result[3][:value]
+      username = result[USER_FIELDS.index('userPrincipalName')][:value]
+      uac = result[USER_FIELDS.index('userAccountControl')][:value]
+      lockout_time = result[USER_FIELDS.index('lockoutTime')][:value]
       store_username(username, uac, lockout_time, domain, domain_ip)
 
       results_table << row
