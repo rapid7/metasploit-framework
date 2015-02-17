@@ -344,7 +344,7 @@ class Registry
 
     response = client.send_request(request)
 
-    response.each(TLV_TYPE_KEY_NAME) { |value_name|
+    response.each(TLV_TYPE_VALUE_NAME) { |value_name|
       values << Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
           client, 0, value_name.value)
     }

@@ -462,6 +462,7 @@ protected
       vals.each { |val|
         values <<  val.name
       }
+      return values
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
     end
