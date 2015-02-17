@@ -127,11 +127,12 @@ class CmdStagerBase
   def compress_commands(cmds, opts)
     new_cmds = []
     line = ''
-    concat = cmd_concat_operator
+
+    concat = opts[:concat_operator] || cmd_concat_operator
 
     # We cannot compress commands if there is no way to combine commands on
     # a single line.
-    return cmds if not concat
+    return cmds unless concat
 
     cmds.each { |cmd|
 
@@ -169,6 +170,19 @@ class CmdStagerBase
   #
   def cmd_concat_operator
     nil
+  end
+
+  # Should be overriden if the cmd stager needs to setup anything
+  # before it's executed
+  def setup(mod = nil)
+
+  end
+
+  #
+  # Should be overriden if the cmd stager needs to do any clenaup
+  #
+  def teardown(mod = nil)
+
   end
 
 end

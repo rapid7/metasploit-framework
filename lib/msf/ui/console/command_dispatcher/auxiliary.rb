@@ -39,7 +39,7 @@ class Auxiliary
   # Allow modules to define their own commands
   #
   def method_missing(meth, *args)
-    if (mod and mod.respond_to?(meth.to_s))
+    if (mod and mod.respond_to?(meth.to_s, true) )
 
       # Initialize user interaction
       mod.init_ui(driver.input, driver.output)

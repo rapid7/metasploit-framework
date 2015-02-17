@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(9084),
         OptString.new('URIPATH', [true, 'URI path to the downloads', '/vci/downloads/']),
-        OptString.new('FILE', [true, 'Define the remote file to download', 'boot.ini'])
+        OptString.new('FILE', [true, 'Define the remote file to download', 'windows\\win.ini'])
       ], self.class)
   end
 

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -130,7 +130,8 @@ class Metasploit3 < Msf::Auxiliary
       }, 25)
 
       if res and res.code == 200
-        if (res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/(.*); path=\//))
+        cookies = res.get_cookies
+        if cookies && cookies.match(/(.*); path=\//)
           cookie= $1
           print_status("Got cookie #{cookie}. Password reset was successful!\n")
         end

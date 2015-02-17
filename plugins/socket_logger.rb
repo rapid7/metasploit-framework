@@ -31,19 +31,18 @@ class Plugin::SocketLogger < Msf::Plugin
 
     def on_socket_created(comm, sock, param)
       # Sockets created by the exploit have MsfExploit set and MsfPayload not set
-      if (param.context['MsfExploit'] and (! param.context['MsfPayload'] ))
+      if param.context and param.context['MsfExploit'] and (! param.context['MsfPayload'])
         sock.extend(SocketLogger::SocketTracer)
         sock.context = param.context
         sock.params = param
         sock.initlog(@path, @prefix)
-
       end
     end
   end
 
 
   def initialize(framework, opts)
-    log_path    = opts['path'] || "/tmp"
+    log_path    = opts['path'] || Msf::Config.log_directory
     log_prefix  = opts['prefix'] || "socket_"
 
     super
@@ -60,7 +59,7 @@ class Plugin::SocketLogger < Msf::Plugin
   end
 
   def desc
-    "Logs all socket operations to hex dumps in /tmp"
+    "Log socket operations to a directory as individual files"
   end
 
 protected
@@ -78,17 +77,16 @@ module SocketTracer
 
   # Hook the write method
   def write(buf, opts = {})
-    @fd.puts "WRITE (#{buf.length} bytes)"
-    @fd.puts Rex::Text.to_hex_dump(buf)
+    @fd.puts "WRITE\t#{buf.length}\t#{Rex::Text.encode_base64(buf)}"
+    @fd.flush
     super(buf, opts)
   end
 
   # Hook the read method
   def read(length = nil, opts = {})
     r = super(length, opts)
-
-    @fd.puts "READ (#{r.length} bytes)"
-    @fd.puts Rex::Text.to_hex_dump(r)
+    @fd.puts "READ\t#{ r ? r.length : 0}\t#{Rex::Text.encode_base64(r.to_s)}"
+    @fd.flush
     return r
   end
 
@@ -97,15 +95,28 @@ module SocketTracer
     @fd.close
   end
 
+  def format_socket_conn
+    "#{params.proto.upcase} #{params.localhost}:#{params.localport} > #{params.peerhost}:#{params.peerport}"
+  end
+
+  def format_module_info
+    return "" unless params.context and params.context['MsfExploit']
+    if params.context['MsfExploit'].respond_to? :fullname
+      return "via " + params.context['MsfExploit'].fullname
+    end
+    "via " + params.context['MsfExploit'].to_s
+  end
+
   def initlog(path, prefix)
     @log_path    = path
     @log_prefix  = prefix
     @log_id      = @@last_id
     @@last_id   += 1
     @fd = File.open(File.join(@log_path, "#{@log_prefix}#{@log_id}.log"), "w")
-    @fd.puts "Socket created at #{Time.now}"
-    @fd.puts "Info: #{params.proto} #{params.localhost}:#{params.localport} -> #{params.peerhost}:#{params.peerport}"
+    @fd.puts "Socket created at #{Time.now} (#{Time.now.to_i})"
+    @fd.puts "Info: #{format_socket_conn} #{format_module_info}"
     @fd.puts ""
+    @fd.flush
   end
 
 end

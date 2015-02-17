@@ -1,16 +1,15 @@
 
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 
-$:.push "test/lib" unless $:.include? "test/lib"
+lib = File.join(Msf::Config.install_root, "test", "lib")
+$:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
 class Metasploit3 < Msf::Post
@@ -55,6 +54,13 @@ class Metasploit3 < Msf::Post
       ret &&= !!(valinfo["Type"])
 
       valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP")
+      ret &&= !!(valinfo["Data"] == valdata)
+
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_NATIVE)
+      ret &&= !!(valinfo["Data"] == valdata)
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_32_BIT)
+      ret &&= !!(valinfo["Data"] == valdata)
+      valdata = registry_getvaldata(%q#HKCU\Environment#, "TEMP", REGISTRY_VIEW_64_BIT)
       ret &&= !!(valinfo["Data"] == valdata)
 
       ret

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -46,8 +46,13 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  def verbose; datastore['VERBOSE']; end
-  def uri; datastore['URI'].to_s; end
+  def verbose
+    datastore['VERBOSE']
+  end
+
+  def uri
+    datastore['URI'].to_s
+  end
 
   def timeout
     (datastore['TIMEOUT'] || 60).to_i

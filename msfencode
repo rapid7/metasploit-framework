@@ -5,13 +5,19 @@
 # $Revision$
 #
 
+$stderr.puts "[!] ************************************************************************"
+$stderr.puts "[!] *               The utility msfencode is deprecated!                   *"
+$stderr.puts "[!] *              It will be removed on or about 2015-06-08               *"
+$stderr.puts "[!] *                   Please use msfvenom instead                        *"
+$stderr.puts "[!] *  Details: https://github.com/rapid7/metasploit-framework/pull/4333   *"
+$stderr.puts "[!] ************************************************************************"
+
 msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-require 'fastlib'
 require 'msfenv'
 
 

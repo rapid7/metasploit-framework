@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
           eventvalidation = ""
         end
 
-        GetVersion()
+        get_version
 
         print_status "Testing passwords at #{target_url}"
         each_user_pass { |user, pass|
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def GetVersion
+  def get_version
       #Attempt to retrieve the version of CMS400.NET installed.
       #Not always possible based on version/config.
       payload = "http://#{vhost}:#{rport}/WorkArea/java/ektron.site-data.js.ashx"
@@ -124,11 +124,11 @@ class Metasploit3 < Msf::Auxiliary
       end
   end
 
-  def do_login(user=nil, pass=nil, viewstate=viewstate, eventvalidation=eventvalidation)
+  def do_login(user=nil, pass=nil, viewstate_arg=viewstate, eventvalidation_arg=eventvalidation)
     vprint_status("#{target_url} - Trying: username:'#{user}' with password:'#{pass}'")
 
-    post_data =  "__VIEWSTATE=#{Rex::Text.uri_encode(viewstate.to_s)}"
-    post_data << "&__EVENTVALIDATION=#{Rex::Text.uri_encode(eventvalidation.to_s)}"
+    post_data =  "__VIEWSTATE=#{Rex::Text.uri_encode(viewstate_arg.to_s)}"
+    post_data << "&__EVENTVALIDATION=#{Rex::Text.uri_encode(eventvalidation_arg.to_s)}"
     post_data << "&username=#{Rex::Text.uri_encode(user.to_s)}"
     post_data << "&password=#{Rex::Text.uri_encode(pass.to_s)}"
 

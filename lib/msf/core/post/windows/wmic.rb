@@ -27,7 +27,7 @@ module WMIC
     result_text = ""
 
     if datastore['SMBUser']
-      if server.downcase == "localhost" || server.downcase.starts_with("127.")
+      if server.downcase == "localhost" || server.downcase.starts_with?('127.')
         raise RuntimeError, "WMIC: User credentials cannot be used for local connections"
       end
     end

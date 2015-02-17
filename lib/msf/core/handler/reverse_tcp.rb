@@ -55,11 +55,11 @@ module ReverseTcp
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false])
+        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
+        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
       ], Msf::Handler::ReverseTcp)
 
-
-    self.handler_queue = ::Queue.new
+    self.conn_threads = []
   end
 
   #
@@ -69,7 +69,7 @@ module ReverseTcp
   #
   def setup_handler
     if datastore['Proxies'] and not datastore['ReverseAllowProxy']
-      raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
+      raise RuntimeError, "TCP connect-back payloads cannot be used with Proxies. Use 'set ReverseAllowProxy true' to override this behaviour."
     end
 
     ex = false
@@ -124,37 +124,58 @@ module ReverseTcp
   #
   def cleanup_handler
     stop_handler
+
+    # Kill any remaining handle_connection threads that might
+    # be hanging around
+    conn_threads.each { |thr|
+      thr.kill rescue nil
+    }
   end
 
   #
   # Starts monitoring for an inbound connection.
   #
   def start_handler
-    local_port = bind_port
-    self.listener_thread = framework.threads.spawn("ReverseTcpHandlerListener-#{local_port}", false) {
-      client = nil
+    queue = ::Queue.new
 
-      begin
+    local_port = bind_port
+
+    self.listener_thread = framework.threads.spawn("ReverseTcpHandlerListener-#{local_port}", false, queue) { |lqueue|
+      loop do
         # Accept a client connection
         begin
           client = self.listener_sock.accept
-        rescue
-          wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
+          if ! client
+            wlog("ReverseTcpHandlerListener-#{local_port}: No client received in call to accept, exiting...")
+            break
+          end
+
+          self.pending_connections += 1
+          lqueue.push(client)
+        rescue ::Exception
+          wlog("ReverseTcpHandlerListener-#{local_port}: Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
           break
         end
-
-        # Increment the has connection counter
-        self.pending_connections += 1
-
-        self.handler_queue.push( client )
-      end while true
+      end
     }
 
-    self.handler_thread = framework.threads.spawn("ReverseTcpHandlerWorker-#{local_port}", false) {
-      while true
-        client = self.handler_queue.pop
+    self.handler_thread = framework.threads.spawn("ReverseTcpHandlerWorker-#{local_port}", false, queue) { |cqueue|
+      loop do
         begin
-          handle_connection(wrap_aes_socket(client))
+          client = cqueue.pop
+
+          if ! client
+            elog("ReverseTcpHandlerWorker-#{local_port}: Queue returned an empty result, exiting...")
+            break
+          end
+
+          if datastore['ReverseListenerThreaded']
+            self.conn_threads << framework.threads.spawn("ReverseTcpHandlerSession-#{local_port}-#{client.peerhost}", false, client) { |client_copy|
+              handle_connection(wrap_aes_socket(client_copy), { datastore: datastore })
+            }
+          else
+            handle_connection(wrap_aes_socket(client), { datastore: datastore })
+          end
         rescue ::Exception
           elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
         end
@@ -176,7 +197,7 @@ module ReverseTcp
     m.reset
     key = m.digest(datastore["AESPassword"] || "")
 
-    Rex::ThreadFactory.spawn('AESEncryption', false) {
+    Rex::ThreadFactory.spawn('Session-AESEncrypt', false) {
       c1 = OpenSSL::Cipher.new('aes-128-cfb8')
       c1.encrypt
       c1.key=key
@@ -189,7 +210,7 @@ module ReverseTcp
       end
       sock.close()
     }
-    Rex::ThreadFactory.spawn('AESEncryption', false) {
+    Rex::ThreadFactory.spawn('Session-AESDecrypt', false) {
       c2 = OpenSSL::Cipher.new('aes-128-cfb8')
       c2.decrypt
       c2.key=key
@@ -260,7 +281,7 @@ protected
   attr_accessor :listener_sock # :nodoc:
   attr_accessor :listener_thread # :nodoc:
   attr_accessor :handler_thread # :nodoc:
-  attr_accessor :handler_queue # :nodoc:
+  attr_accessor :conn_threads # :nodoc:
 end
 
 end
