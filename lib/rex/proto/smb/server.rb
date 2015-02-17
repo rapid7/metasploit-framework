@@ -371,8 +371,16 @@ protected
         dprint("LOI is: #{loi}")
         case loi
          when CONST::SMB_QUERY_PATH_STANDARD_INFO 
+          dprint("[smb_cmd_trans_query_path_info_standard]")
           smb_cmd_trans_query_path_info_standard(c, buff)
-         else
+         when CONST::SMB_QUERY_FILE_STANDARD_INFO_BASIC
+          dprint("[smb_cmd_trans_query_file_info_basic]")
+          smb_cmd_trans_query_file_info_basic(c, buff)
+         when CONST::SMB_QUERY_FILE_NETWORK_OPEN_INFO
+          dprint("[smb_cmd_trans_query_file_info_network]")
+          smb_cmd_trans_query_file_info_network(c, buff)
+         else 
+          dprint("Unknown LOI [smb_cmd_trans_query_path_info_standard] - #{loi.to_s}")
           smb_cmd_trans_query_file_info_standard(c, buff)
          end
       when CONST::TRANS2_QUERY_PATH_INFO
@@ -387,7 +395,7 @@ protected
             dprint("[query_file_info_basic]")
             smb_cmd_trans_query_file_info_basic(c, buff)
            else
-            dprint("[query_path_info_basic]")
+            dprint("Unknown LOI [smb_cmd_trans_query_path_info_basic] - #{loi.to_s}")
             smb_cmd_trans_query_path_info_basic(c, buff)
            end
         when CONST::SMB_QUERY_STANDARD_MDC1, CONST::SMB_QUERY_STANDARD_MDC2 
@@ -396,7 +404,7 @@ protected
         when CONST::SMB_QUERY_FILE_INTERNAL_INFO_MDC 
           dprint("[query_file_info_basic]")
           smb_cmd_trans_query_file_info_standard(c, buff)
-        when CONST::SMB_QUERY_FILE_NETWORK_INFO_MDC 
+        when CONST::SMB_QUERY_FILE_NETWORK_INFO_MDC
           dprint("[query_file_info_network]")
           smb_cmd_trans_query_file_info_network(c, buff)
         else
