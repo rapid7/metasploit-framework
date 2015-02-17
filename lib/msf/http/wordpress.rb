@@ -11,6 +11,7 @@ module Msf
       require 'msf/http/wordpress/uris'
       require 'msf/http/wordpress/users'
       require 'msf/http/wordpress/version'
+      require 'msf/http/wordpress/xml_rpc'
 
       include Msf::Exploit::Remote::HttpClient
       include Msf::HTTP::Wordpress::Base
@@ -20,15 +21,26 @@ module Msf
       include Msf::HTTP::Wordpress::URIs
       include Msf::HTTP::Wordpress::Users
       include Msf::HTTP::Wordpress::Version
+      include Msf::HTTP::Wordpress::XmlRpc
 
       def initialize(info = {})
         super
 
         register_options(
-            [
-                Msf::OptString.new('TARGETURI', [true, 'The base path to the wordpress application', '/']),
-            ], HTTP::Wordpress
+          [
+            Msf::OptString.new('TARGETURI', [true, 'The base path to the wordpress application', '/'])
+          ], HTTP::Wordpress
         )
+
+        register_advanced_options(
+          [
+            Msf::OptString.new('WPCONTENTDIR', [true, 'The name of the wp-content directory', 'wp-content'])
+          ], HTTP::Wordpress
+        )
+      end
+
+      def wp_content_dir
+        datastore['WPCONTENTDIR']
       end
     end
   end

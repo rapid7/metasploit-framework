@@ -22,8 +22,9 @@ class Console::CommandDispatcher::Extapi::Service
   #
   def commands
     {
-      "service_enum" => "Enumerate all registered Windows services",
-      "service_query" => "Query more detail about a specific Windows service"
+      "service_enum"    => "Enumerate all registered Windows services",
+      "service_query"   => "Query more detail about a specific Windows service",
+      "service_control" => "Control a single service (start/pause/resume/stop/restart)"
     }
   end
 
@@ -33,6 +34,32 @@ class Console::CommandDispatcher::Extapi::Service
   def name
     "Extapi: Service Management"
   end
+
+  #
+  # Initialize the instance
+  #
+  def initialize(shell)
+    super
+
+    @status_map = {
+      1 => "Stopped",
+      2 => "Starting",
+      3 => "Stopping",
+      4 => "Running",
+      5 => "Continuing",
+      6 => "Pausing",
+      7 => "Paused"
+    }
+
+    @start_type_map = {
+      0 => "Boot",
+      1 => "System",
+      2 => "Automatic",
+      3 => "Manual",
+      4 => "Disabled"
+    }
+  end
+
   #
   # Options for the service_enum command.
   #
@@ -44,7 +71,7 @@ class Console::CommandDispatcher::Extapi::Service
   # Query a single service for more detail.
   #
   def cmd_service_enum(*args)
-    @@service_enum_opts.parse(args) { |opt, idx, val|
+    @@service_enum_opts.parse(args) do |opt, idx, val|
       case opt
       when "-h"
         print(
@@ -55,17 +82,7 @@ class Console::CommandDispatcher::Extapi::Service
           "able to interact with the desktop.\n\n")
           return true
       end
-    }
-
-    status_map = {
-      1 => "Stopped",
-      2 => "Starting",
-      3 => "Stopping",
-      4 => "Running",
-      5 => "Continuing",
-      6 => "Pausing",
-      7 => "Paused"
-    }
+    end
 
     services = client.extapi.service.enumerate
 
@@ -78,14 +95,14 @@ class Console::CommandDispatcher::Extapi::Service
       ]
     )
 
-    services.each { |s|
+    services.each do |s|
       table << [
         s[:pid],
-        status_map[s[:status]],
+        @status_map[s[:status]],
         s[:interactive] ? "Y" : "N",
         "#{s[:name].downcase} (#{s[:display]})"
       ]
-    }
+    end
 
     print_line
     print_line(table.to_s)
@@ -107,9 +124,9 @@ class Console::CommandDispatcher::Extapi::Service
   # Query a single service for more detail.
   #
   def cmd_service_query(*args)
-    args << "-h" if args.length == 0
+    args.unshift("-h") if args.length != 1
 
-    @@service_query_opts.parse(args) { |opt, idx, val|
+    @@service_query_opts.parse(args) do |opt, idx, val|
       case opt
       when "-h"
         print(
@@ -119,17 +136,9 @@ class Console::CommandDispatcher::Extapi::Service
           "binary path, DACL, load order group, start type and more.\n\n")
           return true
       end
-    }
+    end
 
     service_name = args.shift
-
-    start_type_map = {
-      0 => "Boot",
-      1 => "System",
-      2 => "Automatic",
-      3 => "Manual",
-      4 => "Disabled"
-    }
 
     detail = client.extapi.service.query(service_name)
 
@@ -137,13 +146,47 @@ class Console::CommandDispatcher::Extapi::Service
     print_line("Name        : #{service_name}")
     print_line("Display     : #{detail[:display]}")
     print_line("Account     : #{detail[:startname]}")
-    print_line("Start Type  : #{start_type_map[detail[:starttype]]}")
+    print_line("Status      : #{@status_map[detail[:status]]}")
+    print_line("Start Type  : #{@start_type_map[detail[:starttype]]}")
     print_line("Path        : #{detail[:path]}")
     print_line("L.O. Group  : #{detail[:logroup]}")
     print_line("Interactive : #{detail[:interactive] ? "Yes" : "No"}")
     print_line("DACL        : #{detail[:dacl]}")
     print_line
 
+  end
+
+  #
+  # Options for the service_control command.
+  #
+  @@service_control_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner" ]
+  )
+
+  #
+  # Query a single service for more detail.
+  #
+  def cmd_service_control(*args)
+    args.unshift("-h") if args.length != 2
+
+    @@service_control_opts.parse(args) do |opt, idx, val|
+      case opt
+      when "-h"
+        print(
+          "\nUsage: service_control [-h] <servicename> <op>\n" +
+          "   <servicename> : The name of the service to control.\n" +
+          "            <op> : The operation to perform on the service.\n" +
+          "                   Valid ops: start pause resume stop restart.\n\n")
+          return true
+      end
+    end
+
+    service_name = args[0]
+    op = args[1]
+
+    client.extapi.service.control(service_name, op)
+
+    print_good("Operation #{op} succeeded.")
   end
 
 end

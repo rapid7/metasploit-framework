@@ -511,6 +511,10 @@ class MachO < ExeFormat
   def decode_half(edata = @encoded) edata.decode_imm(:u16, @endianness) end
   def decode_word(edata = @encoded) edata.decode_imm(:u32, @endianness) end
   def decode_xword(edata= @encoded) edata.decode_imm((@size == 32 ? :u32 : :u64), @endianness) end
+  def sizeof_byte ; 1 ; end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
+  def sizeof_xword ; @size == 32 ? 4 : 8 ; end
 
 
   attr_accessor :endianness, :size
@@ -978,6 +982,7 @@ class UniversalBinary < ExeFormat
 
   def encode_word(val)        Expression[val].encode(:u32, @endianness) end
   def decode_word(edata = @encoded) edata.decode_imm(:u32, @endianness) end
+  def sizeof_word ; 4 ; end
 
   attr_accessor :endianness, :encoded, :header, :archive
   def initialize

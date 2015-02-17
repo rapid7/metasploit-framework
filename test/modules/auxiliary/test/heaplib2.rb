@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,13 +12,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "heaplib2 test",
+      'Name'           => "Heaplib2 Test",
       'Description'    => %q{
-        This tests heaplib2
+        This tests heaplib2. Since it is a test module, it's not intended to do much useful work in the field.
       },
       'License'        => MSF_LICENSE,
       'Author'         => [ 'sinn3r' ],
-      'References'     => 
+      'References'     =>
         [
           [ 'URL', 'http://metasploit.com' ]
         ],

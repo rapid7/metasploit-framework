@@ -39,6 +39,8 @@ class Sh4
   end
 
   def decode_findopcode(edata)
+    return if edata.ptr >= edata.length
+
     di = DecodedInstruction.new(self)
     val = edata.decode_imm(:u16, @endianness)
     edata.ptr -= 2

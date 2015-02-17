@@ -15,7 +15,8 @@ module MeterpreterOptions
         OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
         OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", '']),
         OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
-        OptBool.new('EnableUnicodeEncoding', [true, "Automatically encode UTF-8 strings as hexadecimal", true])
+        OptBool.new('EnableUnicodeEncoding', [true, "Automatically encode UTF-8 strings as hexadecimal", true]),
+        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format, ignored for HTTP transports"])
       ], self.class)
   end
 
@@ -56,6 +57,12 @@ module MeterpreterOptions
 =end
       if session.platform =~ /win32|win64/i
         session.load_priv rescue nil
+      end
+    end
+
+    if session.platform =~ /android/i
+      if datastore['AutoLoadAndroid']
+        session.load_android
       end
     end
 

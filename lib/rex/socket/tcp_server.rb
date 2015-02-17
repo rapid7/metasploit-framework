@@ -56,6 +56,9 @@ module  Rex::Socket::TcpServer
 
       pn = t.getpeername
 
+      # We hit a "getpeername(2)" from Ruby
+      return nil unless pn
+
       t.peerhost = pn[1]
       t.peerport = pn[2]
     end

@@ -33,7 +33,7 @@ module Msf::HTTP::Wordpress::Users
         'uri' => url
     })
 
-    if res and res.code == 301
+    if res and res.redirect?
       uri = wordpress_helper_parse_location_header(res)
       return nil unless uri
       # try to extract username from location

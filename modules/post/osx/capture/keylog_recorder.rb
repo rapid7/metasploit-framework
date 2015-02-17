@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -178,7 +178,7 @@ child_pid = fork do
         def method_missing(meth, *args, &block)
           str = meth.to_s
           lower = str[0,1].downcase + str[1..-1]
-          if self.respond_to? lower
+          if self.respond_to? lower, true
             self.send lower, *args
           else
             super

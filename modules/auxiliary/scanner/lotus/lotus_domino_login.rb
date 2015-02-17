@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -45,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
         'data'    => post_data,
       }, 20)
 
-      if (res and res.code == 302 )
-        if res.headers['Set-Cookie'].match(/DomAuthSessId=(.*);(.*)/i)
+      if res and res.code == 302
+        if res.get_cookies.match(/DomAuthSessId=(.*);(.*)/i)
           print_good("http://#{vhost}:#{rport} - Lotus Domino - SUCCESSFUL login for '#{user}' : '#{pass}'")
           report_auth_info(
             :host   => rhost,
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
             :sname => (ssl ? "https" : "http"),
             :user   => user,
             :pass   => pass,
-            :proof  => "WEBAPP=\"Lotus Domino\", VHOST=#{vhost}, COOKIE=#{res.headers['Set-Cookie']}",
+            :proof  => "WEBAPP=\"Lotus Domino\", VHOST=#{vhost}, COOKIE=#{res.get_cookies}",
             :source_type => "user_supplied",
             :active => true
           )

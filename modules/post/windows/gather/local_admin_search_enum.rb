@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Post
           'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
           'Royce Davis "r3dy" <rdavis[at]accuvant.com>'
         ],
-      'Platform'     => [ 'windows'],
+      'Platform'     => 'win',
       'SessionTypes' => [ 'meterpreter' ]
       ))
 

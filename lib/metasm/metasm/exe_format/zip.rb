@@ -211,6 +211,8 @@ class ZIP < ExeFormat
   def decode_word(edata=@encoded) edata.decode_imm(:u32, @endianness) end
   def encode_half(w) Expression[w].encode(:u16, @endianness) end
   def encode_word(w) Expression[w].encode(:u32, @endianness) end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
 
   attr_accessor :files, :header
 

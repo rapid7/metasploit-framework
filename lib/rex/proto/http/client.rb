@@ -86,7 +86,7 @@ class Client
       typ = self.config_types[var] || 'string'
 
       # These are enum types
-      if(typ.class.to_s == 'Array')
+      if typ.is_a?(Array)
         if not typ.include?(val)
           raise RuntimeError, "The specified value for #{var} is not one of the valid choices"
         end
@@ -198,7 +198,7 @@ class Client
   def close
     if (self.conn)
       self.conn.shutdown
-      self.conn.close
+      self.conn.close unless self.conn.closed?
     end
 
     self.conn = nil
@@ -480,7 +480,7 @@ class Client
     opts['headers']||= {}
 
     ntlmssp_flags = ::Rex::Proto::NTLM::Utils.make_ntlm_flags(ntlm_options)
-    workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
+    workstation_name = Rex::Text.rand_text_alpha(rand(8)+6)
     domain_name = self.config['domain']
 
     b64_blob = Rex::Text::encode_base64(
@@ -719,4 +719,3 @@ end
 end
 end
 end
-

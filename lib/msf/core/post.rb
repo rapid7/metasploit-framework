@@ -9,6 +9,7 @@ class Msf::Post < Msf::Module
   require 'msf/core/post_mixin'
 
   require 'msf/core/post/file'
+  require 'msf/core/post/webrtc'
 
   require 'msf/core/post/linux'
   require 'msf/core/post/osx'
@@ -18,7 +19,12 @@ class Msf::Post < Msf::Module
 
   include Msf::PostMixin
 
-  def setup; end
+  def setup
+    m = replicant
+    if m.actions.length > 0 && !m.action
+      raise Msf::MissingActionError, "Please use: #{m.actions.collect {|e| e.name} * ", "}"
+    end
+  end
 
   def type
     Msf::MODULE_POST
@@ -44,5 +50,18 @@ class Msf::Post < Msf::Module
     mod.class.refname = "anonymous"
 
     mod
+  end
+
+  # This method returns the ID of the {Mdm::Session} that the post module
+  # is currently running agaist.
+  #
+  # @return [NilClass] if there is no database record for the session
+  # @return [Fixnum] if there is a database record to get the id for
+  def session_db_id
+    if session.db_record
+      session.db_record.id
+    else
+      nil
+    end
   end
 end

@@ -68,6 +68,29 @@ class Def_netapi32
       ["PDWORD","totalentries","out"]
     ])
 
+    dll.add_function('NetSessionEnum', 'DWORD',[
+        ['PWCHAR','servername','in'],
+        ['PWCHAR','UncClientName','in'],
+        ['PWCHAR','username','in'],
+        ['DWORD','level','in'],
+        ['PDWORD','bufptr','out'],
+        ['DWORD','prefmaxlen','in'],
+        ['PDWORD','entriesread','out'],
+        ['PDWORD','totalentries','out'],
+        ['PDWORD','resume_handle','inout']
+    ])
+
+    dll.add_function('NetApiBufferFree', 'DWORD', [
+        ['LPVOID','buffer','in']
+    ])
+
+    dll.add_function('NetUserChangePassword', 'DWORD', [
+      ["PWCHAR","domainname","in"],
+      ["PWCHAR","username","in"],
+      ["PWCHAR","oldpassword","in"],
+      ["PWCHAR","newpassword","in"]
+    ])
+
     return dll
   end
 
