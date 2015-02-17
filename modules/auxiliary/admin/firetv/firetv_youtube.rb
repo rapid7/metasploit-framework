@@ -40,6 +40,7 @@ class Metasploit4 < Msf::Auxiliary
   def run
     case action.name
     when 'Play'
+      stop
       res = play
     when 'Stop'
       res = stop
