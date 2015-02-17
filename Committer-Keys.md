@@ -18,7 +18,7 @@ This page lists the keys in use by [Metasploit committers](https://github.com/ra
 | [@wchen-r7](https://github.com/wchen-r7) | wei_chen@rapid7.com | [F06F730B](https://gist.github.com/wchen-r7/0e0269d9ff0afc1ca7a5) | [0x2384DB4EF06F730B](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2384DB4EF06F730B) |
 | [@wvu-r7](https://github.com/wvu-r7) | william_vu@rapid7.com | [25866743](https://gist.github.com/wvu-r7/373f4b2e765798a6e46a) | [0x68BD00CE25866743](http://pgp.mit.edu/pks/lookup?op=vindex&search=0x68BD00CE25866743)|
 | [@zeroSteiner](https://github.com/zeroSteiner) | zeroSteiner@gmail.com | [A5E15412](https://gist.github.com/zeroSteiner/b32f86a76d701af42dbd) | [0xC00D6B6AA5E15412](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0xC00D6B6AA5E15412)|
-
+| [@hmoore-r7](https://github.com/hmoore-r7) | hdm@rapid7.com | [FA604913](https://gist.github.com/hmoore-r7/b7cf8bfc0a455688052c) | [0x22015B93FA604913](http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x22015B93FA604913)|
 # Signing criteria
 
 In order to get @todb-r7 to sign your key, you should:
