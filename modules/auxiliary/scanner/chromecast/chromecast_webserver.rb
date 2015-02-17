@@ -40,7 +40,12 @@ class Metasploit4 < Msf::Auxiliary
 
     return unless (res && res.code == 200)
 
-    json = JSON.parse(res.body)
+    begin
+      json = JSON.parse(res.body)
+    rescue JSON::ParserError
+      return
+    end
+
     name, ssid = json['name'], json['ssid']
 
     if name && ssid
