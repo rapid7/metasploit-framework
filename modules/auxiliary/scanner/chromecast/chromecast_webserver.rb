@@ -4,7 +4,6 @@
 ##
 
 require 'msf/core'
-require 'rexml/document'
 
 class Metasploit4 < Msf::Auxiliary
 
@@ -35,22 +34,23 @@ class Metasploit4 < Msf::Auxiliary
   def run_host(ip)
     res = send_request_raw(
       'method' => 'GET',
-      'uri' => '/ssdp/device-desc.xml',
+      'uri' => '/setup/eureka_info',
       'agent' => Rex::Text.rand_text_english(rand(42) + 1)
     )
 
     return unless (res && res.code == 200)
 
-    name = REXML::Document.new(res.body).elements['//friendlyName']
+    json = JSON.parse(res.body)
+    name, ssid = json['name'], json['ssid']
 
-    if name
-      print_good("#{peer} - #{name.text}")
+    if name && ssid
+      print_good(%Q{#{peer} - Chromecast "#{name}" is connected to #{ssid}})
       report_service(
         :host => ip,
         :port => rport,
         :proto => 'tcp',
         :name => 'chromecast',
-        :info => name.text
+        :info => name
       )
     end
   end
