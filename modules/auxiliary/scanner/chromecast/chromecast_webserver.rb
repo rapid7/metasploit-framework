@@ -50,7 +50,7 @@ class Metasploit4 < Msf::Auxiliary
         :port => rport,
         :proto => 'tcp',
         :name => 'chromecast',
-        :info => name
+        :info => "#{name} (#{ssid})"
       )
     end
   end
