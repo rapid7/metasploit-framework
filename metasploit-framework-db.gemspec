@@ -29,9 +29,9 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential', '~> 0.13.17'
+  spec.add_runtime_dependency 'metasploit-credential', '~> 0.13.19'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models', '~> 0.22.6'
+  spec.add_runtime_dependency 'metasploit_data_models', '~> 0.22.8'
   # depend on metasploit-framewrok as the optional gems are useless with the actual code
   spec.add_runtime_dependency 'metasploit-framework', "= #{spec.version}"
   # Needed for module caching in Mdm::ModuleDetails
