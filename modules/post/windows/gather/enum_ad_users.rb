@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
       OptBool.new('EXCLUDE_LOCKED', [true, 'Exclude in search locked accounts..', false]),
       OptBool.new('EXCLUDE_DISABLED', [true, 'Exclude from search disabled accounts.', false]),
-      OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma sperated', nil]),
+      OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
       OptEnum.new('UAC', [true, 'Filter on User Account Control Setting.', 'ANY',
                           [
                             'ANY',
