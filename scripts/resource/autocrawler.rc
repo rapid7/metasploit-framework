@@ -34,7 +34,7 @@ end
 framework.db.workspace.hosts.each do |host|
 	host.services.each do |serv|
 		next if not serv.host
-		next if (serv.state != ServiceState::Open)
+		next if (serv.state != Msf::ServiceState::Open)
 		next if (serv.name !~ /http/)
 		
 		if(verbose == 1)

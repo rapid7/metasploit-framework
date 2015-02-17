@@ -92,4 +92,11 @@ class TestX86_64 < Test::Unit::TestCase
     assert_equal("\x87\xc0", assemble('xchg eax, eax'))
     assert_equal('xchg r8, rax', disassemble("\x49\x90").decoded[0].instruction.to_s)
   end
+
+  def test_C_size
+    assert_nothing_raised {
+      Metasm::Shellcode.compile_c(@@cpu, "void main(void) { int i=5670, j=8907 ; i = i*j; }").encode_string
+    }
+  end
+
 end

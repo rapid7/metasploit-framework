@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 # Base error class for all error under {Msf::Modules}
 class Msf::Modules::Error < StandardError
   def initialize(attributes={})

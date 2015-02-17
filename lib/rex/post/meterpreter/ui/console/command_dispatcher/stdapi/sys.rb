@@ -88,6 +88,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getpid"      => "Get the current process identifier",
       "getprivs"    => "Attempt to enable all privileges available to the current process",
       "getuid"      => "Get the user that the server is running as",
+      "getsid"      => "Get the SID of the user that the server is running as",
       "getenv"      => "Get one or more environment variable values",
       "kill"        => "Terminate a process",
       "ps"          => "List running processes",
@@ -107,6 +108,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getpid"      => [ "stdapi_sys_process_getpid"  ],
       "getprivs"    => [ "stdapi_sys_config_getprivs" ],
       "getuid"      => [ "stdapi_sys_config_getuid" ],
+      "getsid"      => [ "stdapi_sys_config_getsid" ],
       "getenv"      => [ "stdapi_sys_config_getenv" ],
       "kill"        => [ "stdapi_sys_process_kill" ],
       "ps"          => [ "stdapi_sys_process_get_processes" ],
@@ -277,6 +279,13 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_getuid(*args)
     print_line("Server username: #{client.sys.config.getuid}")
+  end
+
+  #
+  # Display the SID of the user that the server is running as.
+  #
+  def cmd_getsid(*args)
+    print_line("Server SID: #{client.sys.config.getsid}")
   end
 
   #

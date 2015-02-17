@@ -1,12 +1,11 @@
 ##
-## This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 ## Current source: https://github.com/rapid7/metasploit-framework
 ###
 
 require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
-  Rank = GoodRanking
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -100,5 +99,6 @@ class Metasploit4 < Msf::Auxiliary
       print_good("File saved to: #{path}")
     end
   end
+
 end
 

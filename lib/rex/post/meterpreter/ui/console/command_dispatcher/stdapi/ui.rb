@@ -150,7 +150,7 @@ class Console::CommandDispatcher::Stdapi::Ui
         when "-p"
           path = val
         when "-v"
-          view = false if ( val =~ /^(f|n|0)/i )
+          view = true if ( val =~ /^(t|y|1)/i )
       end
     }
 

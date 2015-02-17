@@ -18,6 +18,7 @@ class Webcam
 
   include Msf::Post::Common
   include Msf::Post::File
+  include Msf::Post::WebRTC
 
   def initialize(client)
     @client = client
@@ -193,66 +194,6 @@ class Webcam
       elog("webcam_chat failed. #{e.class} #{e.to_s}")
       raise RuntimeError, "Unable to start the remote browser: #{e.message}"
     end
-  end
-
-
-  #
-  # Connects to a video chat session as an answerer
-  #
-  # @param offerer_id [String] The offerer's ID in order to join the video chat
-  # @return void
-  #
-  def connect_video_chat(server, channel, offerer_id)
-    interface = load_interface('answerer.html')
-    api       = load_api_code
-
-    tmp_api = Tempfile.new('api.js')
-    tmp_api.binmode
-    tmp_api.write(api)
-    tmp_api.close
-
-    interface = interface.gsub(/\=SERVER\=/, server)
-    interface = interface.gsub(/\=WEBRTCAPIJS\=/, tmp_api.path)
-    interface = interface.gsub(/\=RHOST\=/, rhost)
-    interface = interface.gsub(/\=CHANNEL\=/, channel)
-    interface = interface.gsub(/\=OFFERERID\=/, offerer_id)
-
-    tmp_interface = Tempfile.new('answerer.html')
-    tmp_interface.binmode
-    tmp_interface.write(interface)
-    tmp_interface.close
-
-    found_local_browser = Rex::Compat.open_webrtc_browser(tmp_interface.path)
-    unless found_local_browser
-      raise RuntimeError, "Unable to find a suitable browser to connect to the target"
-    end
-  end
-
-
-  #
-  # Returns the webcam interface
-  #
-  # @param html_name [String] The filename of the HTML interface (offerer.html or answerer.html)
-  # @return [String] The HTML interface code
-  #
-  def load_interface(html_name)
-    interface_path = ::File.join(Msf::Config.data_directory, 'webcam', html_name)
-    interface_code = ''
-    ::File.open(interface_path) { |f| interface_code = f.read }
-    interface_code
-  end
-
-
-  #
-  # Returns the webcam API
-  #
-  # @return [String] The WebRTC lib code
-  #
-  def load_api_code
-    js_api_path = ::File.join(Msf::Config.data_directory, 'webcam', 'api.js')
-    api = ''
-    ::File.open(js_api_path) { |f| api = f.read }
-    api
   end
 
 end

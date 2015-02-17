@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -56,16 +56,6 @@ class Metasploit3 < Msf::Encoder::Alphanum
     end
 
     buf + Rex::Encoder::Alpha2::AlphaUpper::gen_decoder(reg, off)
-  end
-
-
-  #
-  # Configure SEH getpc code on Windows
-  #
-  def init_platform(platform)
-    if(platform.supports?(::Msf::Module::PlatformList.win32))
-      datastore['AllowWin32SEH'] = true
-    end
   end
 
   #

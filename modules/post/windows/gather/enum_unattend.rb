@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
         [
           'Sean Verity <veritysr1980[at]gmail.com>',
           'sinn3r',
-          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>'
+          'Ben Campbell'
         ],
       'References'    =>
         [
@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Post
   # Initialize all 7 possible paths for the answer file
   #
   def init_paths
-    drive = session.fs.file.expand_path("%SystemDrive%")
+    drive = session.sys.config.getenv('SystemDrive')
 
     files =
       [

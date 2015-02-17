@@ -3,7 +3,7 @@
 ##
 
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
         :port => datastore['RPORT'],
         :name => "nessus-xmlrpc",
         :info => 'Nessus XMLRPC',
-        :state => 'UP'
+        :state => 'open'
       )
     else
       vprint_error("Wrong HTTP Server header: #{res.headers['Server'] || ''}")

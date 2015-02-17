@@ -1,12 +1,26 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+#
+# Standard Library
+#
+
+require 'tmpdir'
+
+#
+# Gems
+#
+
+require 'zip'
+
+#
+# Project
+#
+
 require 'msf/core'
 require 'rex'
-require 'zip/zip'
-require 'tmpdir'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
@@ -104,10 +118,10 @@ class Metasploit3 < Msf::Post
       begin
         # automatically commits the changes made to the zip archive when
         # the block terminates
-        Zip::ZipFile.open(tmp) do |zip_file|
+        Zip::File.open(tmp) do |zip_file|
           res = modify_omnija(zip_file)
         end
-      rescue Zip::ZipError => e
+      rescue Zip::Error => e
         print_error("Error modifying #{new_file}")
         return
       end
@@ -277,7 +291,6 @@ class Metasploit3 < Msf::Post
   def get_ff_and_loot_path
     @paths = {}
     check_paths = []
-    drive = expand_path("%SystemDrive%")
     loot_file = Rex::Text::rand_text_alpha(6) + ".txt"
 
     case @platform
@@ -286,7 +299,9 @@ class Metasploit3 < Msf::Post
         print_error("You need root privileges on this platform for DECRYPT option")
         return false
       end
-      tmpdir = expand_path("%TEMP%") + "\\"
+      env_vars = session.sys.config.getenvs('TEMP', 'SystemDrive')
+      tmpdir = env_vars['TEMP'] + "\\"
+      drive = env_vars['SystemDrive']
       # this way allows for more independent use of meterpreter
       # payload (32 and 64 bit) and cleaner code
       check_paths << drive + '\\Program Files\\Mozilla Firefox\\'
@@ -643,9 +658,9 @@ class Metasploit3 < Msf::Post
 
   def whoami
     if @platform == :windows
-      return session.fs.file.expand_path("%USERNAME%")
+      session.sys.config.getenv('USERNAME')
     else
-      return session.shell_command("whoami").chomp
+      session.shell_command("whoami").chomp
     end
   end
 end

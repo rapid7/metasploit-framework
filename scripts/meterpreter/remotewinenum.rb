@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -57,7 +65,7 @@ def wmicexec(session,wmic,user,pass,trgt)
   runfail = 0
   runningas = session.sys.config.getuid
   begin
-    tmp = session.fs.file.expand_path("%TEMP%")
+    tmp = session.sys.config.getenv('TEMP')
     # Temporary file on windows host to store results
     wmicfl = tmp + "\\wmictmp#{rand(100000)}.txt"
 

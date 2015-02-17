@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 
 
   def download_files(location, file_type)
-    sysdriv = client.fs.file.expand_path("%SYSTEMDRIVE%")
+    sysdriv = client.sys.config.getenv('SYSTEMDRIVE')
     sysnfo = client.sys.config.sysinfo['OS']
     profile_path_old = sysdriv + "\\Documents and Settings\\"
     profile_path_new = sysdriv + "\\Users\\"

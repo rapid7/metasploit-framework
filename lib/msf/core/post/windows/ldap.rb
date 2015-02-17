@@ -149,7 +149,7 @@ module LDAP
       query_result = query_ldap(session_handle, "", 0, "(objectClass=computer)", ["defaultNamingContext"])
       first_entry_fields = query_result[:results].first
       # Value from First Attribute of First Entry
-      default_naming_context = first_entry_fields.first
+      default_naming_context = first_entry_fields.first[:value]
       vprint_status("Default naming context #{default_naming_context}")
       return default_naming_context
     end
@@ -231,7 +231,7 @@ module LDAP
         values_result = values.join(',') if values
         vprint_status("Values #{values}")
 
-        field_results << values_result
+        field_results << {:type => 'unknown', :value => values_result}
       end
 
       entry_results << field_results
@@ -248,7 +248,7 @@ module LDAP
   # @param pEntry [Fixnum] Pointer to the Entry
   # @return [Array] Entry data structure
   def get_entry(pEntry)
-    return client.railgun.memread(pEntry,41).unpack('LLLLLLLLLSCCC')
+    return client.railgun.memread(pEntry,41).unpack('VVVVVVVVVvCCC')
   end
 
   # Get BER Element data structure from LDAPMessage
@@ -256,7 +256,7 @@ module LDAP
   # @param msg [String] The LDAP Message from the server
   # @return [String] The BER data structure
   def get_ber(msg)
-    ber = client.railgun.memread(msg[2],60).unpack('L*')
+    ber = client.railgun.memread(msg[2],60).unpack('V*')
 
     # BER Pointer is different between x86 and x64
     if client.platform =~ /x64/

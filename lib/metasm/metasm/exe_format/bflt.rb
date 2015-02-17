@@ -57,6 +57,7 @@ class Bflt < ExeFormat
 
   def decode_word(edata = @encoded) edata.decode_imm(:u32, @endianness) end
   def encode_word(w) Expression[w].encode(:u32, @endianness) end
+  def sizeof_word ; 4 ; end
 
   attr_accessor :endianness
   def initialize(cpu = nil)

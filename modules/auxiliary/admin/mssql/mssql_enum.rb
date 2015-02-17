@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         module to work, valid administrative user credentials must be
         supplied.
       },
-      'Author'         => [ 'Carlos Perez <carlos_perez [at] darkoperator.com>' ],
+      'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
       'License'        => MSF_LICENSE
     ))
   end

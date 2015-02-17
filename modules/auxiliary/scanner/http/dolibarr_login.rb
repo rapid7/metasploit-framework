@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,10 +10,11 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Dolibarr ERP & CRM 3 Login Utility',
+      'Name'           => 'Dolibarr ERP/CRM Login Utility',
       'Description'    => %q{
         This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface,
         and should only work against version 3.1.1 or older, because these versions do not
@@ -39,13 +40,13 @@ class Metasploit3 < Msf::Auxiliary
   def get_sid_token
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => normalize_uri(@uri.path)
+      'uri'    => normalize_uri(@uri)
     })
 
-    return [nil, nil] if not (res and res.headers['Set-Cookie'])
+    return [nil, nil] if res.nil? || res.get_cookies.empty?
 
     # Get the session ID from the cookie
-    m = res.headers['Set-Cookie'].match(/(DOLSESSID_.+);/)
+    m = get_cookies.match(/(DOLSESSID_.+);/)
     id = (m.nil?) ? nil : m[1]
 
     # Get the token from the decompressed HTTP body response
@@ -62,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
     #
     sid, token = get_sid_token
     if sid.nil? or token.nil?
-      print_error("#{peer} - Unable to obtain session ID or token, cannot continue")
+      vprint_error("#{peer} - Unable to obtain session ID or token, cannot continue")
       return :abort
     else
       vprint_status("#{peer} - Using sessiond ID: #{sid}")
@@ -72,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       res = send_request_cgi({
         'method'   => 'POST',
-        'uri'      => normalize_uri("#{@uri.path}index.php"),
+        'uri'      => normalize_uri("#{@uri}index.php"),
         'cookie'   => sid,
         'vars_post' => {
           'token'         => token,
@@ -91,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if res.nil?
-      print_error("#{peer} - Connection timed out")
+      vprint_error("#{peer} - Connection timed out")
       return :abort
     end
 
@@ -116,8 +117,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     @uri = target_uri.path
-    @uri.path << "/" if @uri.path[-1, 1] != "/"
+    @uri << "/" if @uri[-1, 1] != "/"
 
+    super
+  end
+
+  def run_host(ip)
     each_user_pass { |user, pass|
       vprint_status("#{peer} - Trying \"#{user}:#{pass}\"")
       do_login(user, pass)

