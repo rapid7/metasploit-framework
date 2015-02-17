@@ -57,8 +57,8 @@ class Server
   # Debugging
   #
   def dprint(msg)
-    $stdout.puts "#{msg}"
-    #dlog("#{msg}", 'rex', LEV_3)
+    #$stdout.puts "#{msg}"
+    dlog("#{msg}", 'rex', LEV_3)
   end
 
   #
@@ -413,6 +413,8 @@ protected
             smb_cmd_trans_find_first2_file(c, buff)
           when '0401' # Find File Both Directory Info # 260
             smb_cmd_trans_find_first2(c, buff)
+          when '0201' # Find File Full Directory Info # 258
+            smb_cmd_trans_find_first2_full(c, buff)
           else
             smb_cmd_trans_find_first2(c, buff)
           end
@@ -795,12 +797,14 @@ protected
     pkt = CONST::SMB_TRANS2_PKT.make_struct
     pkt.from_s(buff)
 
+    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '').chomp.strip
     ar = Rex::Text.to_hex(buff, '').to_s
     fid = ar[146..147] + ar[144..145]
     dprint("[smb_cmd_trans_query_path_info_standard] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
+    dprint("[smb_cmd_trans_query_path_info_standard] Payload length: #{payload.length.to_s}")
 
-    # If FileID matches, send the file
-    if ( fid.hex.eql?(self.file_id.to_i) )
+    # If FileID matches or matches file, send file response 
+    if ( fid.hex.eql?(self.file_id.to_i) or payload.length.eql?(@file_name.length) )
         attrib2 = "\x00" # IsFile
         dprint("[smb_cmd_trans_query_path_info_standard] Sending file response")
     else
@@ -1205,6 +1209,111 @@ protected
       [data.length].pack("V") + # File Name Len
       data +
       "\x00\x00" # Padding
+    c.put(pkt.to_s)
+ end
+
+  #
+  # Responds to FIND_FIRST2 requests
+  # Command: Find File Full Directory Info
+  #
+  def smb_cmd_trans_find_first2_full(c, buff)
+    pkt = CONST::SMB_TRANS_RES_PKT.make_struct
+    smb_set_defaults(c, pkt)
+
+    pkt.from_s(buff)
+
+    payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '\\').chomp.strip
+    file = @file_name
+    file_name = Rex::Text.to_unicode(@file_name)
+    path = Rex::Text.to_unicode(@path_name)
+
+    dprint("[smb_cmd_trans_find_first2_full] Payload is: #{payload}")
+    dprint("[smb_cmd_trans_find_first2_full] Payload length: #{payload.length.to_s}")
+
+    ar = Rex::Text.to_hex(buff, '').to_s
+    dprint("[smb_cmd_trans_find_first2_full] ar is : #{ar}")
+    fid = ar[146..147] + ar[144..145]
+    dprint("[smb_cmd_trans_find_first2_full] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
+    if ( fid.hex.eql?(self.file_id.to_i) )
+      dprint("File match")
+    end
+    if ( fid.hex.eql?(self.dir_id.to_i) )
+      dprint("Dir match")
+    end
+
+    if path.nil? || path == 0
+      dprint("[smb_cmd_trans_find_first2_full] Path is empty")
+      path = '\\'
+    else
+      dprint("[smb_cmd_trans_find_first2_full] Path is: #{path}")
+    end
+
+    begin
+      fileext = file.split('.').last
+    rescue
+      fileext = file
+    end
+
+    begin
+      payext = payload.split('.').last
+    rescue
+      payext = payload
+    end
+
+    pkt = CONST::SMB_TRANS_RES_PKT.make_struct
+    smb_set_defaults(c, pkt)
+
+    if (payext and payext.downcase.eql?(fileext.downcase)) or payload.length.to_s.eql?('4')
+      dprint("[smb_cmd_trans_find_first2_full] Sending file response #{file}")
+      data = file_name
+      length = [@exe.length].pack("V")
+      ea = "\x00\x00"
+      alloc = "\x00\x00\x10\x00\x00\x00\x00\x00" # Allocation Size = 1048576 || 1Mb
+      attrib = "\x80\x00\x00\x00" # File
+      search = "\x01\x00"
+    else
+      dprint("[smb_cmd_trans_find_first2_full] Sending directory response #{path}")
+      data = path
+      length = "\x00\x00\x00\x00" 
+      ea = "\x21\x00"
+      alloc = "\x00\x00\x00\x00\x00\x00\x00\x00" # 0Mb
+      attrib = "\x10\x00\x00\x00" # Dir
+      pkt['Payload'].v['SetupCount'] = 0
+      search = "\x00\x01"
+    end
+
+    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
+    pkt['Payload']['SMB'].v['Flags1'] = 0x88
+    pkt['Payload']['SMB'].v['Flags2'] = @flags2
+    pkt['Payload']['SMB'].v['WordCount'] = 10
+    pkt['Payload'].v['ParamCountTotal'] = 10
+    pkt['Payload'].v['DataCountTotal'] = 68 + data.length
+    pkt['Payload'].v['ParamCount'] = 10
+    pkt['Payload'].v['ParamOffset'] = 56
+    pkt['Payload'].v['DataCount'] = 68 + data.length
+    pkt['Payload'].v['DataOffset'] = 68
+    pkt['Payload'].v['Payload'] =
+     "\x00" + # Padding
+     # FIND_FIRST2 Parameters
+     "\xfd\xff" + # Search ID
+     search + # Search count
+     search + # End Of Search
+     ea + # EA Error Offset
+     "\x00\x00" + # Last Name Offset
+     "\x00\x00" + # Padding
+     # QUERY_PATH_INFO Data
+     [68 + data.length].pack("V") + # Next Entry Offset
+     "\x00\x00\x00\x00" + # File Index
+     [@lo, @hi].pack("VV") + # Created
+     [@lo, @hi].pack("VV") + # Last Access
+     [@lo, @hi].pack("VV") + # Last Write
+     [@lo, @hi].pack("VV") + # Change
+     length + "\x00\x00\x00\x00" + # End Of File
+     alloc + 
+     attrib + 
+     [data.length].pack("V") + # File name len
+     "\x00\x00\x00\x00" + # EA List Length
+     data 
     c.put(pkt.to_s)
  end
 
