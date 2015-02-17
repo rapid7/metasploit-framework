@@ -131,7 +131,8 @@ class Metasploit3 < Msf::Auxiliary
       if datastore['DEBUG'] != true
         # reporting the validated credentials
         res=report_creds(user,password,realm,results["status"])
-        print_good(res.gsub("\tC","C"))
+        #print_good(res.gsub("\tC","C"))
+        print_good("IP:Realm: #{dest_addr}:#{realm}\t User: #{user} \tPassword: #{password} \tResult: #{convert_error(results["status"])}")
       end
 
       # Sending de-register
@@ -149,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     else
       if results["rdata"] !=nil
-        vprint_status("IP:Realm: #{dest_addr}:#{realm} User: #{user} \tPassword: #{password} \tResult: #{convert_error(results["status"])}")
+        print_status("IP:Realm: #{dest_addr}:#{realm}\t User: #{user} \tPassword: #{password} \tResult: #{convert_error(results["status"])}")
       else
         vprint_status("No response received from #{dest_addr}")
       end
