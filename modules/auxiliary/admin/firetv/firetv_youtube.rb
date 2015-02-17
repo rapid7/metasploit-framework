@@ -41,7 +41,7 @@ class Metasploit4 < Msf::Auxiliary
     case action.name
     when 'Play'
       stop
-      Rex.sleep(1)
+      sleep(1)
       res = play
     when 'Stop'
       res = stop
