@@ -140,7 +140,10 @@ class Server
       @hi = hi
       @lo = lo
       @exe = contents
-      @flags2 = 0xc807 # e807 or c807 or c001
+      @flags2 = CONST::FLAGS2_UNICODE_STRINGS + 
+              CONST::FLAGS2_EXTENDED_SECURITY + 
+              CONST::FLAGS2_32_BIT_ERROR_CODES + 
+              CONST::FLAGS2_LONG_PATH_COMPONENTS
   end
 
 protected
@@ -266,9 +269,11 @@ protected
     pkt['Payload']['SMB'].v['Command'] = cmd
     pkt['Payload']['SMB'].v['Flags1']  = 0x88
     if esn
-      pkt['Payload']['SMB'].v['Flags2']  = 0xc801
+      pkt['Payload']['SMB'].v['Flags2']  = @flags2 
     else
-      pkt['Payload']['SMB'].v['Flags2']  = 0xc001
+      pkt['Payload']['SMB'].v['Flags2']  = CONST::FLAGS2_UNICODE_STRINGS + 
+                                        CONST::FLAGS2_32_BIT_ERROR_CODES + 
+                                        CONST::FLAGS2_LONG_PATH_COMPONENTS
     end
     pkt['Payload']['SMB'].v['ErrorClass'] = errorclass
     c.put(pkt.to_s)
@@ -354,66 +359,60 @@ protected
     sub_command = pkt['Payload'].v['SetupData'].unpack("v").first
     dprint("Command is: #{sub_command.to_s}")
     ar = Rex::Text.to_hex(buff, '').to_s
-    mdc = ar[86..89]
+    mdc = ar[86..89].unpack('n*').reverse.pack('n*').to_i(16)
 
     case sub_command
-      when 0x24 # QUERY_FILE_INFO
-        dprint("[query_file_info_24]")
-        # path info works here
+      when CONST::TRANS2_QUERY_FILE_INFO_BASIC
+        dprint("[query_file_info_basic]")
         smb_cmd_trans_query_path_info_standard(c, buff)
-      when 0x7 # QUERY_FILE_INFO
-        dprint("[query_file_info_7]")
-        loi = ar[148..151]
+      when CONST::TRANS2_QUERY_FILE_INFO_STANDARD
+        dprint("[query_file_info_standard]")
+        loi = ar[148..151].unpack('n*').reverse.pack('n*').to_i(16)
         dprint("LOI is: #{loi}")
         case loi
-         when 'ed03' # Query Path Standard Info
+         when CONST::SMB_QUERY_PATH_STANDARD_INFO 
           smb_cmd_trans_query_path_info_standard(c, buff)
          else
           smb_cmd_trans_query_file_info_standard(c, buff)
          end
-      when 0x5 # QUERY_PATH_INFO
+      when CONST::TRANS2_QUERY_PATH_INFO
        dprint("[query_path_info]")
        dprint("MDC is: #{mdc}")
-       loi = ar[144..147]
+       loi = ar[144..147].unpack('n*').reverse.pack('n*').to_i(16)
        dprint("LOI is: #{loi}")
        case mdc # MAX DATA COUNT
-        when '2800'
-          # Basic is MDC = 40 / 2800 hex
+        when CONST::SMB_QUERY_BASIC_MDC
           case loi
-           when '0101' # Query File Basic Info
+           when CONST::SMB_QUERY_FILE_BASIC_INFO
             dprint("[query_file_info_basic]")
             smb_cmd_trans_query_file_info_basic(c, buff)
            else
             dprint("[query_path_info_basic]")
             smb_cmd_trans_query_path_info_basic(c, buff)
            end
-        when '1800', '0201'
-          # Standard is MDC = 24 / 1800 hex or 258 / 0201 hex
+        when CONST::SMB_QUERY_STANDARD_MDC1, CONST::SMB_QUERY_STANDARD_MDC2 
           dprint("[query_path_info_standard]")
           smb_cmd_trans_query_path_info_standard(c, buff)
-        when '0800'
-          # Internal File info is MDC = 8 / 0800 hex
+        when CONST::SMB_QUERY_FILE_INTERNAL_INFO_MDC 
           dprint("[query_file_info_basic]")
           smb_cmd_trans_query_file_info_standard(c, buff)
-        when '3800'
-          # Query file network open info
+        when CONST::SMB_QUERY_FILE_NETWORK_INFO_MDC 
           dprint("[query_file_info_network]")
           smb_cmd_trans_query_file_info_network(c, buff)
         else
           dprint("Unknown MDC - Sending to [query_path_info_standard]: #{mdc.to_s}")
           smb_cmd_trans_query_path_info_standard(c, buff)
         end
-      when 0x1 # FIND_FIRST2
+      when CONST::TRANS2_FIND_FIRST2
         dprint("find_first2")
-        loi = ar[156..159]
-        dprint("MDC is: #{mdc}")
+        loi = ar[156..159].unpack('n*').reverse.pack('n*').to_i(16)
         dprint("LOI is: #{loi}")
         case loi
-          when '0301' # Find File Names Info # 259
+          when CONST::SMB_FIND_FILE_NAMES_INFO
             smb_cmd_trans_find_first2_file(c, buff)
-          when '0401' # Find File Both Directory Info # 260
+          when CONST::SMB_FIND_FILE_BOTH_DIRECTORY_INFO
             smb_cmd_trans_find_first2(c, buff)
-          when '0201' # Find File Full Directory Info # 258
+          when CONST::SMB_FIND_FILE_FULL_DIRECTORY_INFO
             smb_cmd_trans_find_first2_full(c, buff)
           else
             smb_cmd_trans_find_first2(c, buff)
@@ -799,7 +798,7 @@ protected
 
     payload = pkt['Payload'].v['SetupData'].gsub(/\x00/, '').gsub(/.*\\/, '').chomp.strip
     ar = Rex::Text.to_hex(buff, '').to_s
-    fid = ar[146..147] + ar[144..145]
+    fid = ar[144..147].unpack('n*').reverse.pack('n*')
     dprint("[smb_cmd_trans_query_path_info_standard] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
     dprint("[smb_cmd_trans_query_path_info_standard] Payload length: #{payload.length.to_s}")
 
@@ -857,7 +856,7 @@ protected
 
     ar = Rex::Text.to_hex(buff, '').to_s
     dprint("[smb_cmd_trans_query_file_info_basic] ar is : #{ar}")
-    fid = ar[146..147] + ar[144..145]
+    fid = ar[144..147].unpack('n*').reverse.pack('n*')
     dprint("[smb_cmd_trans_query_file_info_basic] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
     if ( fid.hex.eql?(self.file_id.to_i) )
       dprint("File match")
@@ -1037,7 +1036,7 @@ protected
 
     ar = Rex::Text.to_hex(buff, '').to_s
     dprint("[smb_cmd_trans_find_first2] ar is : #{ar}")
-    fid = ar[146..147] + ar[144..145]
+    fid = ar[144..147].unpack('n*').reverse.pack('n*')
     dprint("[smb_cmd_trans_find_first2] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
     if ( fid.hex.eql?(self.file_id.to_i) )
       dprint("File match")
@@ -1144,7 +1143,7 @@ protected
 
     ar = Rex::Text.to_hex(buff, '').to_s
     dprint("[smb_cmd_trans_find_first2_file] ar is : #{ar}")
-    fid = ar[146..147] + ar[144..145]
+    fid = ar[144..147].unpack('n*').reverse.pack('n*')
     dprint("[smb_cmd_trans_find_first2_file] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
     if ( fid.hex.eql?(self.file_id.to_i) )
       dprint("File match")
@@ -1232,7 +1231,7 @@ protected
 
     ar = Rex::Text.to_hex(buff, '').to_s
     dprint("[smb_cmd_trans_find_first2_full] ar is : #{ar}")
-    fid = ar[146..147] + ar[144..145]
+    fid = ar[144..147].unpack('n*').reverse.pack('n*')
     dprint("[smb_cmd_trans_find_first2_full] fid is : #{fid.hex}, file_id is : " + self.file_id.to_s)
     if ( fid.hex.eql?(self.file_id.to_i) )
       dprint("File match")
