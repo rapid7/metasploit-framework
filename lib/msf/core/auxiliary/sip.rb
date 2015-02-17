@@ -518,13 +518,7 @@ module Auxiliary::SIP
         return results
     end
 
-
     req_options['callopts'] = results["callopts"] if results["callopts"] != nil
-
-
-
-    #Cisco generic Register methods requests same FROM and TO fields
-    req_options['to'] = req_options['from'] if self.vendor == "ciscogeneric"
 
     #Sending Request with Nonce or NTLM request
     results["callopts"],send_state=send_data(method,req_options)
@@ -615,20 +609,31 @@ module Auxiliary::SIP
     cnonce=Rex::Text.rand_text_alphanumeric(10)
     nc="00000001"
 
-    if digestopts['algorithm'] == 'MD5-sess'
-      h1 = Digest::MD5.hexdigest("#{digestopts['username']}:#{digestopts['realm']}:#{digestopts['password']}")
-      hash1 = Digest::MD5.hexdigest("#{h1}:#{digestopts['nonce']}:#{cnonce}")
+    case digestopts['algorithm']
+      when 'MD5-sess'
+        h1 = Digest::MD5.hexdigest("#{digestopts['username']}:#{digestopts['realm']}:#{digestopts['password']}")
+        hash1 = Digest::MD5.hexdigest("#{h1}:#{digestopts['nonce']}:#{cnonce}")
+      when 'MD5'
+        hash1 = Digest::MD5.hexdigest("#{digestopts['username']}:#{digestopts['realm']}:#{digestopts['password']}")
     else
-      hash1 = Digest::MD5.hexdigest("#{digestopts['username']}:#{digestopts['realm']}:#{digestopts['password']}")
+      print_error("ERROR 1: UNKNOWN ALGORITHM REQUESTED IN THE AUTHENTICATION")
+      return
     end
 
-    hash2 = Digest::MD5.hexdigest("#{digestopts['req_type']}:#{digestopts['uri']}")
 
-    if digestopts['qop'] =~ /auth/
-      response=Digest::MD5.hexdigest("#{hash1}:#{digestopts['nonce']}:#{nc}:#{cnonce}:#{digestopts['qop']}:#{hash2}")
-    else
-      response=Digest::MD5.hexdigest("#{hash1}:#{digestopts['nonce']}:#{hash2}")
+    case digestopts['qop']
+      when "auth"
+        hash2 = Digest::MD5.hexdigest("#{digestopts['req_type']}:#{digestopts['uri']}")
+        response=Digest::MD5.hexdigest("#{hash1}:#{digestopts['nonce']}:#{nc}:#{cnonce}:#{digestopts['qop']}:#{hash2}")
+      when "auth-in"
+        # HA2=MD5(method:digestURI:MD5(entityBody))
+        print_error("ERROR 2: ONLY AUTH-INT REQUESTED IN THE AUTHENTICATION")
+        return
+      else
+        hash2 = Digest::MD5.hexdigest("#{digestopts['req_type']}:#{digestopts['uri']}")
+        response=Digest::MD5.hexdigest("#{hash1}:#{digestopts['nonce']}:#{hash2}")
     end
+
 
     authdata = "username=\"#{digestopts['username']}\", realm=\"#{digestopts['realm']}\", nonce=\"#{digestopts['nonce']}\", uri=\"#{digestopts['uri']}\", response=\"#{response}\""
     if digestopts['algorithm']
@@ -636,10 +641,14 @@ module Auxiliary::SIP
     else
       authdata << ", algorithm=MD5"
     end
-    authdata << ", cnonce=\"#{cnonce}\"" if digestopts['algorithm'] == "MD5-sess" or digestopts['qop'] =~ /auth/
-    authdata << ", qop=#{digestopts['qop']}, nc=#{nc}" if digestopts['qop'] =~ /auth/
+
+
+    #There could be a bug here. This will be tested for the multiple QOP options.
+    #authdata << ", qop=#{digestopts['qop']}, nc=#{nc}" if digestopts['qop'] =~ /auth/
+    authdata << ", cnonce=\"#{cnonce}\", qop=\"auth\", nc=\"#{nc}\"" if digestopts['algorithm'] == "MD5-sess" or digestopts['qop'] == "auth"
 
     return authdata
+
   end
 
 
@@ -975,17 +984,15 @@ module Auxiliary::SIP
         str = ""
       else
         if quote % 2 == 0
-          if c != "," and c != '"'
-            str << c
-          else
-            if ! var.nil?
+            if c != "," and c != '"'
+              str << c
+            else
               result[var]=str
               var = nil
               str = ""
             end
-          end
         else
-          str << c if c != '"'
+            str << c if c != '"' and c != '"'
         end
       end
     }
