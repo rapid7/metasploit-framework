@@ -15,9 +15,9 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Chromecast Web Server Scanner',
       'Description' => %q{
-        This module scans for the Chromecast web server on port 8008/TCP.
-
-        To be used with other Chromecast modules such as chromecast_youtube.
+        This module scans for the Chromecast web server on port 8008/TCP, and
+        can be used to discover devices which can be targeted by other Chromecast
+        modules, such as chromecast_youtube.
       },
       'Author' => ['wvu'],
       'References' => [
