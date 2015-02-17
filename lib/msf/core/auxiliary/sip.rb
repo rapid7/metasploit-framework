@@ -179,7 +179,7 @@ module Auxiliary::SIP
       res = nil
     else
       if status =~ /succeed/
-        res = "\tCredentials\t IP:Realm => #{self.dest_addr}:#{realm} User => #{user} Password => #{password}"
+        res = "\tCredentials\t: User => #{user} Password => #{password}"
       else
         res = nil
       end
@@ -342,22 +342,8 @@ module Auxiliary::SIP
     loginmethod = req_options["loginmethod"] || method
 
     if login and loginmethod == "REGISTER"
-      regopts=req_options.clone
 
-      #Cisco generic Register methods requests same FROM and TO fields
-      if self.vendor == "ciscogeneric"
-        regopts['to'] = regopts['from']
-      else
-        #From and TO fields should be Username for REGISTER
-        vprint_status("From field is setting #{datastore['USEREQFROM']}")
-        if datastore['USEREQFROM'] == true
-          regopts['from'] = regopts['user']
-          regopts['fromname'] = nil
-          regopts['to'] = regopts['user']
-        end
-      end
-
-      results = send_register(regopts)
+      results = send_register(req_options)
       reg_status = results["status"]
 
       callopts = results["callopts"]
@@ -505,6 +491,19 @@ module Auxiliary::SIP
   # Authentication
   #
   def auth(method,req_options,results)
+
+    #Cisco generic Register methods requests same FROM and TO fields
+    if self.vendor == "ciscogeneric"
+      req_options['to'] = req_options['from']
+    else
+      #From and TO fields should be Username for REGISTER
+      if datastore['USEREQFROM'] == true
+        req_options['from'] = req_options['user']
+        req_options['fromname'] = nil
+        req_options['to'] = req_options['user']
+      end
+    end
+
     initmslync = results["initmslync"] || false
 
     case
