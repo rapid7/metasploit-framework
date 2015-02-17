@@ -162,7 +162,7 @@ module Auxiliary::SIP
       report << res if ! res.nil?
       print_good(report)
     else
-      report << "\tCredentials\t IP:Realm => #{self.dest_addr}:#{rdata['digest']['realm']} User => #{user} Password => #{password}\n" if user != nil and datastore['LOGIN']
+      report << "\tCredentials\t: User => #{user} Password => #{password}\n" if user != nil and datastore['LOGIN']
       if method == 'register'
         print_status(report)
       else
@@ -964,34 +964,45 @@ module Auxiliary::SIP
   # Parse the authentication
   def parse_auth(data)
     result={}
-    str=""
+    str = ""
     var = nil
     quote = 0
-    data.each_char { |c|1
+    data.each_char { |c|
       quote += 1 if c == '"'
       if c == "="
         var = str.gsub(" ","")
+        print_status("Var Setup: Var is #{var} and String is #{str}")
         val = nil
         str = ""
       else
+        print_status("Quote is: #{quote}")
         case quote
           when 0
             if c != ","
               str << c
+              print_status("No Quote Reading the string: #{str}")
             else
               result[var]=str
+              print_status("Val Setup: Var is #{var} and String is #{str}")
               var = nil
               str = ""
             end
           when 1
+            print_status("Quote is open Reading the string: #{str}")
             str << c if c != '"'
           when 2
+            print_status("Quote is closing Reading the string: #{str}")
+            result[var]=str
+            print_status("Val Setup: Var is #{var} and String is #{str}")
+            var = nil
+            str = ""
             quote = 0
         end
       end
     }
     #Remove IT!
-    #vprint_status(result.to_s)
+    vprint_status("Data: "+data.to_s)
+    vprint_status("Result: "+result.to_s)
     return result
   end
 
