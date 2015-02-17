@@ -54,8 +54,8 @@ class Metasploit4 < Msf::Auxiliary
         :host => ip,
         :port => rport,
         :proto => 'tcp',
-        :name => 'chromecast',
-        :info => "#{name} (#{ssid})"
+        :name => 'http',
+        :info => %Q{Chromecast "#{name}" connected to #{ssid}}
       )
     end
   end
