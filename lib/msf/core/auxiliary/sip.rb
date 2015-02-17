@@ -346,13 +346,14 @@ module Auxiliary::SIP
 
       #Cisco generic Register methods requests same FROM and TO fields
       if self.vendor == "ciscogeneric"
-        regopts['to']=regopts['from']
+        regopts['to'] = regopts['from']
       else
         #From and TO fields should be Username for REGISTER
+        vprint_status("From field is setting #{datastore['USEREQFROM']}")
         if datastore['USEREQFROM'] == true
-          regopts['from']=regopts['user']
-          regopts['fromname']=nil
-          regopts['to']=regopts['user']
+          regopts['from'] = regopts['user']
+          regopts['fromname'] = nil
+          regopts['to'] = regopts['user']
         end
       end
 
@@ -971,38 +972,24 @@ module Auxiliary::SIP
       quote += 1 if c == '"'
       if c == "="
         var = str.gsub(" ","")
-        print_status("Var Setup: Var is #{var} and String is #{str}")
         val = nil
         str = ""
       else
-        print_status("Quote is: #{quote}")
-        case quote
-          when 0
-            if c != ","
-              str << c
-              print_status("No Quote Reading the string: #{str}")
-            else
+        if quote % 2 == 0
+          if c != "," and c != '"'
+            str << c
+          else
+            if ! var.nil?
               result[var]=str
-              print_status("Val Setup: Var is #{var} and String is #{str}")
               var = nil
               str = ""
             end
-          when 1
-            print_status("Quote is open Reading the string: #{str}")
-            str << c if c != '"'
-          when 2
-            print_status("Quote is closing Reading the string: #{str}")
-            result[var]=str
-            print_status("Val Setup: Var is #{var} and String is #{str}")
-            var = nil
-            str = ""
-            quote = 0
+          end
+        else
+          str << c if c != '"'
         end
       end
     }
-    #Remove IT!
-    vprint_status("Data: "+data.to_s)
-    vprint_status("Result: "+result.to_s)
     return result
   end
 
