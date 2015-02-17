@@ -93,7 +93,6 @@ module Msf::HTTP::Wordpress::Version
       'method' => 'GET'
     )
     
-    # no readme.txt present
     if res.nil? || res.code != 200
       readme_url = normalize_uri(target_uri.path, wp_content_dir, folder, name, 'Readme.txt')
       res = send_request_cgi(

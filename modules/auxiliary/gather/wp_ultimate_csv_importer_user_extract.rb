@@ -34,15 +34,6 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'DisclosureDate'  => 'Feb 02 2015'
     ))
-
-    register_options(
-      [
-        OptString.new('EXPORT_TO', [false, 'The file to save the CSV extract to'])
-      ], self.class)
-  end
-
-  def export_to
-    datastore['EXPORT_TO']
   end
 
   def plugin_url
@@ -114,14 +105,6 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    if export_to.to_s.strip.length > 0
-      begin
-        print_status("#{peer} - Exporting CSV to #{export_to}...")
-        File.open(export_to, 'wb') { |f| f.write(res.body) }
-        print_good("#{peer} - CSV exported")
-      rescue
-        print_error("#{peer} - Failed to export CSV")
-      end
-    end
+    store_loot('wordpress.users.export', 'csv', datastore['RHOST'], res.body, 'users_export.csv', 'WordPress User Table Extract')
   end
 end
