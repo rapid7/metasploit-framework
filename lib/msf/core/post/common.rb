@@ -3,6 +3,8 @@
 module Msf::Post::Common
 
   def rhost
+    return nil unless session
+
     case session.type
     when 'meterpreter'
       session.sock.peerhost
@@ -110,7 +112,14 @@ module Msf::Post::Common
         break if d == ""
         o << d
       end
-      process.channel.close
+      o.chomp! if o
+
+      begin
+        process.channel.close
+      rescue IOError => e
+        # Channel was already closed, but we got the cmd output, so let's soldier on.
+      end
+
       process.close
     when /shell/
       o = session.shell_command_token("#{cmd} #{args}", time_out)
@@ -153,4 +162,55 @@ module Msf::Post::Common
     report_host(vm_data)
   end
 
+  #
+  # Returns the value of the environment variable +env+
+  #
+  def get_env(env)
+    case session.type
+    when /meterpreter/
+      return session.sys.config.getenv(env)
+    when /shell/
+      if session.platform =~ /win/
+        if env[0,1] == '%'
+          unless env[-1,1] == '%'
+            env << '%'
+          end
+        else
+          env = "%#{env}%"
+        end
+
+        return cmd_exec("echo #{env}")
+      else
+        unless env[0,1] == '$'
+          env = "$#{env}"
+        end
+
+        return cmd_exec("echo \"#{env}\"")
+      end
+    end
+
+    nil
+  end
+
+  #
+  # Returns a hash of environment variables +envs+
+  #
+  def get_envs(*envs)
+    case session.type
+    when /meterpreter/
+      return session.sys.config.getenvs(*envs)
+    when /shell/
+      result = {}
+      envs.each do |env|
+        res = get_env(env)
+        result[env] = res unless res.blank?
+      end
+
+      return result
+    end
+
+    nil
+  end
+
 end
+

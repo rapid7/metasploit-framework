@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -39,7 +39,7 @@ module Metasploit3
   end
 
   def library_path
-    File.join(Msf::Config.data_directory, "meterpreter", "metsrv.x86.dll")
+    MeterpreterBinaries.path('metsrv','x86.dll')
   end
 
 end

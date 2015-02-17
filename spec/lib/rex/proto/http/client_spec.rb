@@ -30,8 +30,17 @@ describe Rex::Proto::Http::Client do
   end
 
   let(:ip) { "1.2.3.4" }
+
   subject(:cli) do
     Rex::Proto::Http::Client.new(ip)
+  end
+
+  describe "#set_config" do
+
+    it "should respond to #set_config" do
+      cli.set_config.should == {}
+    end
+
   end
 
   it "should respond to intialize" do
@@ -42,7 +51,7 @@ describe Rex::Proto::Http::Client do
     cli.instance_variable_get(:@hostname).should == ip
     cli.instance_variable_get(:@port).should == 80
     cli.instance_variable_get(:@context).should == {}
-    cli.instance_variable_get(:@ssl).should be_false
+    cli.instance_variable_get(:@ssl).should be_falsey
     cli.instance_variable_get(:@proxies).should be_nil
     cli.instance_variable_get(:@username).should be_empty
     cli.instance_variable_get(:@password).should be_empty
@@ -112,6 +121,7 @@ describe Rex::Proto::Http::Client do
       conn.stub(:put)
       conn.stub(:shutdown)
       conn.stub(:close)
+      conn.stub(:closed? => false)
 
       conn.should_receive(:get_once).and_return(first_response, authed_response)
       conn.should_receive(:put) do |str_request|
@@ -146,27 +156,27 @@ describe Rex::Proto::Http::Client do
     cli.close.should be_nil
   end
 
-  it "should send a request and receive a response", :pending => excuse_needs_connection do
+  it "should send a request and receive a response", :skip => excuse_needs_connection do
 
   end
 
-  it "should send a request and receive a response without auth handling", :pending => excuse_needs_connection do
+  it "should send a request and receive a response without auth handling", :skip => excuse_needs_connection do
 
   end
 
-  it "should send a request", :pending => excuse_needs_connection do
+  it "should send a request", :skip => excuse_needs_connection do
 
   end
 
   it "should test for credentials" do
-    pending "Should actually respond to :has_creds" do
+    skip "Should actually respond to :has_creds" do
       cli.should_not have_creds
       this_cli = described_class.new("127.0.0.1", 1, {}, false, nil, nil, "user1", "pass1" )
       this_cli.should have_creds
     end
   end
 
-  it "should send authentication", :pending => excuse_needs_connection
+  it "should send authentication", :skip => excuse_needs_connection
 
   it "should produce a basic authentication header" do
     u = "user1"
@@ -175,15 +185,15 @@ describe Rex::Proto::Http::Client do
     cli.basic_auth_header("user1","pass1").should == "Basic #{b64}"
   end
 
-  it "should perform digest authentication", :pending => excuse_needs_auth do
+  it "should perform digest authentication", :skip => excuse_needs_auth do
 
   end
 
-  it "should perform negotiate authentication", :pending => excuse_needs_auth do
+  it "should perform negotiate authentication", :skip => excuse_needs_auth do
 
   end
 
-  it "should get a response", :pending => excuse_needs_connection do
+  it "should get a response", :skip => excuse_needs_connection do
 
   end
 
@@ -192,7 +202,7 @@ describe Rex::Proto::Http::Client do
   end
 
   it "should test if a connection is valid" do
-    cli.conn?.should be_false
+    cli.conn?.should be_falsey
   end
 
   it "should tell if pipelining is enabled" do
@@ -214,11 +224,11 @@ describe Rex::Proto::Http::Client do
     cli.should respond_to :username
     cli.should respond_to :password
     cli.should respond_to :junk_pipeline
-    # These are supposed to be protected
-    cli.should respond_to :ssl
-    cli.should respond_to :ssl_version
-    cli.should respond_to :hostname
-    cli.should respond_to :port
+    # These are protected. Why are they protected? Hysterical raisins.
+    #cli.should respond_to :ssl
+    #cli.should respond_to :ssl_version
+    #cli.should respond_to :hostname
+    #cli.should respond_to :port
   end
 
   # Not super sure why these are protected...

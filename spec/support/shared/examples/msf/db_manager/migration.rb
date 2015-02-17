@@ -1,15 +1,28 @@
 shared_examples_for 'Msf::DBManager::Migration' do
   it { should be_a Msf::DBManager::Migration }
 
+
+  context '#add_rails_engine_migration_paths' do
+    def add_rails_engine_migration_paths
+      db_manager.add_rails_engine_migration_paths
+    end
+
+    it 'should not add duplicate paths to ActiveRecord::Migrator.migrations_paths' do
+      add_rails_engine_migration_paths
+
+      expect {
+        add_rails_engine_migration_paths
+      }.to_not change {
+        ActiveRecord::Migrator.migrations_paths.length
+      }
+
+      ActiveRecord::Migrator.migrations_paths.uniq.should == ActiveRecord::Migrator.migrations_paths
+    end
+  end
+
   context '#migrate' do
     def migrate
       db_manager.migrate
-    end
-
-    it 'should create a connection' do
-      ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice
-
-      migrate
     end
 
     it 'should call ActiveRecord::Migrator.migrate' do

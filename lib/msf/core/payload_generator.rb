@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 require 'active_support/core_ext/numeric/bytes'
 module Msf
 
@@ -69,6 +70,9 @@ module Msf
     # @!attribute  template
     #   @return [String] The path to an executable template to use
     attr_accessor :template
+    # @!attribute  var_name
+    #   @return [String] The custom variable string for certain output formats
+    attr_accessor :var_name
 
 
     # @param opts [Hash] The options hash
@@ -104,6 +108,7 @@ module Msf
       @space      = opts.fetch(:space, 1.gigabyte)
       @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
+      @var_name   = opts.fetch(:var_name, 'buf')
 
       @framework  = opts.fetch(:framework)
 
@@ -171,10 +176,11 @@ module Msf
     def encode_payload(shellcode)
       shellcode = shellcode.dup
       encoder_list = get_encoders
-      cli_print "Found #{encoder_list.count} compatible encoders"
       if encoder_list.empty?
+        cli_print "No encoder or badchars specified, outputting raw payload"
         shellcode
       else
+        cli_print "Found #{encoder_list.count} compatible encoders"
         encoder_list.each do |encoder_mod|
           cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
           begin
@@ -212,10 +218,10 @@ module Msf
           if Rex::Arch.endian(arch) != ENDIAN_BIG
             raise IncompatibleEndianess, "Big endian format selected for a non big endian payload"
           else
-            ::Msf::Simple::Buffer.transform(shellcode, format)
+            ::Msf::Simple::Buffer.transform(shellcode, format, @var_name)
           end
         when *::Msf::Simple::Buffer.transform_formats
-          ::Msf::Simple::Buffer.transform(shellcode, format)
+          ::Msf::Simple::Buffer.transform(shellcode, format, @var_name)
         when *::Msf::Util::EXE.to_executable_fmt_formats
           ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform_list, shellcode, format, exe_options)
         else
@@ -229,12 +235,13 @@ module Msf
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
       payload_module = framework.payloads.create(payload)
+      payload_module.datastore.merge!(datastore)
       case format
-        when "raw"
+        when "raw", "jar"
           if payload_module.respond_to? :generate_jar
             payload_module.generate_jar.pack
           else
-            raise InvalidFormat, "#{payload} is not a Java payload"
+            payload_module.generate
           end
         when "war"
           if payload_module.respond_to? :generate_war
@@ -306,12 +313,16 @@ module Msf
       if encoder.present?
         # Allow comma seperated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
-          encoders << framework.encoders.create(chosen_encoder)
+          e = framework.encoders.create(chosen_encoder)
+          e.datastore.import_options_from_hash(datastore)
+          encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif badchars.present?
-        framework.encoders.each_module_ranked('Arch' => [arch]) do |name, mod|
-          encoders << framework.encoders.create(name)
+        framework.encoders.each_module_ranked('Arch' => [arch], 'Platform' => platform_list) do |name, mod|
+          e = framework.encoders.create(name)
+          e.datastore.import_options_from_hash(datastore)
+          encoders << e if e
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       else
@@ -362,7 +373,9 @@ module Msf
       iterations.times do |x|
         shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
         cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
-        raise EncoderSpaceViolation, "encoder has made a buffer that is too big" if shellcode.length > space
+        if shellcode.length > space
+          raise EncoderSpaceViolation, "encoder has made a buffer that is too big"
+        end
       end
       shellcode
     end

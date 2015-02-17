@@ -21,29 +21,52 @@ class ELF < ExeFormat
   TYPE_HIPROC = 0xffff
 
   MACHINE = {
-     0 => 'NONE',   1 => 'M32',     2 => 'SPARC',   3 => '386',
-     4 => '68K',    5 => '88K',     6 => '486',     7 => '860',
-     8 => 'MIPS',   9 => 'S370',   10 => 'MIPS_RS3_LE',
-    15 => 'PARISC',
-    17 => 'VPP500',18 => 'SPARC32PLUS', 19 => '960',
-    20 => 'PPC',   21 => 'PPC64',  22 => 'S390',
-    36 => 'V800',  37 => 'FR20',   38 => 'RH32',   39 => 'MCORE',
-    40 => 'ARM',   41 => 'ALPHA_STD', 42 => 'SH', 43 => 'SPARCV9',
-    44 => 'TRICORE', 45 => 'ARC',  46 => 'H8_300', 47 => 'H8_300H',
-    48 => 'H8S',   49 => 'H8_500', 50 => 'IA_64',  51 => 'MIPS_X',
+     0 => 'NONE', 1 => 'M32', 2 => 'SPARC', 3 => '386',
+     4 => '68K', 5 => '88K', 6 => '486', 7 => '860',
+     8 => 'MIPS', 9 => 'S370', 10 => 'MIPS_RS3_LE',
+    15 => 'PARISC', 17 => 'VPP500', 18 => 'SPARC32PLUS', 19 => '960',
+    20 => 'PPC', 21 => 'PPC64', 22 => 'S390', 23 => 'SPU',
+    36 => 'V800', 37 => 'FR20', 38 => 'RH32', 39 => 'MCORE',
+    40 => 'ARM', 41 => 'ALPHA', 42 => 'SH', 43 => 'SPARCV9',
+    44 => 'TRICORE', 45 => 'ARC', 46 => 'H8_300', 47 => 'H8_300H',
+    48 => 'H8S', 49 => 'H8_500', 50 => 'IA_64', 51 => 'MIPS_X',
     52 => 'COLDFIRE', 53 => '68HC12', 54 => 'MMA', 55 => 'PCP',
-    56 => 'NCPU',  57 => 'NDR1',   58 => 'STARCORE', 59 => 'ME16',
-    60 => 'ST100', 61 => 'TINYJ',  62 => 'X86_64', 63 => 'PDSP',
-    66 => 'FX66',  67 => 'ST9PLUS',
-    68 => 'ST7',   69 => '68HC16', 70 => '68HC11', 71 => '68HC08',
-    72 => '68HC05',73 => 'SVX',    74 => 'ST19',   75 => 'VAX',
-    76 => 'CRIS',  77 => 'JAVELIN',78 => 'FIREPATH', 79 => 'ZSP',
-    80 => 'MMIX',  81 => 'HUANY',  82 => 'PRISM',  83 => 'AVR',
-    84 => 'FR30',  85 => 'D10V',   86 => 'D30V',   87 => 'V850',
-    88 => 'M32R',  89 => 'MN10300',90 => 'MN10200',91 => 'PJ',
-    92 => 'OPENRISC', 93 => 'ARC_A5', 94 => 'XTENSA',
-    99 => 'PJ',
-    0x9026 => 'ALPHA'
+    56 => 'NCPU', 57 => 'NDR1', 58 => 'STARCORE', 59 => 'ME16',
+    60 => 'ST100', 61 => 'TINYJ', 62 => 'X86_64', 63 => 'PDSP',
+    64 => 'PDP10', 65 => 'PDP11', 66 => 'FX66', 67 => 'ST9PLUS',
+    68 => 'ST7', 69 => '68HC16', 70 => '68HC11', 71 => '68HC08',
+    72 => '68HC05',73 => 'SVX', 74 => 'ST19', 75 => 'VAX',
+    76 => 'CRIS', 77 => 'JAVELIN',78 => 'FIREPATH', 79 => 'ZSP',
+    80 => 'MMIX', 81 => 'HUANY', 82 => 'PRISM', 83 => 'AVR',
+    84 => 'FR30', 85 => 'D10V', 86 => 'D30V', 87 => 'V850',
+    88 => 'M32R', 89 => 'MN10300',90 => 'MN10200',91 => 'PJ',
+    92 => 'OPENRISC', 93 => 'ARC_A5', 94 => 'XTENSA', 95 => 'VIDEOCORE',
+    96 => 'TMM_GPP', 97 => 'NS32K', 98 => 'TPC', 99 => 'SNP1K',
+    100 => 'ST200', 101 => 'IP2K', 102 => 'MAX', 103 => 'CR',
+    104 => 'F2MC16', 105 => 'MSP430', 106 => 'BLACKFIN', 107 => 'SE_C33',
+    108 => 'SEP', 109 => 'ARCA', 110 => 'UNICORE', 111 => 'EXCESS',
+    112 => 'DXP', 113 => 'ALTERA_NIOS2', 114 => 'CRX', 115 => 'XGATE',
+    116 => 'C166', 117 => 'M16C', 118 => 'DSPIC30F', 119 => 'CE',
+    120 => 'M32C',
+    131 => 'TSK3000', 132 => 'RS08', 133 => 'SHARC',
+    134 => 'ECOG2', 135 => 'SCORE7', 136 => 'DSP24', 137 => 'VIDEOCORE3',
+    138 => 'LATTICEMICO32', 139 => 'SE_C17', 140 => 'TI_C6000', 141 => 'TI_C2000',
+    142 => 'TI_C5500',
+    160 => 'MMDSP_PLUS', 161 => 'CYPRESS_M8C', 162 => 'R32C', 163 => 'TRIMEDIA',
+    164 => 'QDSP6', 165 => '8051', 166 => 'STXP7X', 167 => 'NDS32',
+    168 => 'ECOG1', 169 => 'MAXQ30', 170 => 'XIMO16', 171 => 'MANIK',
+    172 => 'CRAYNV2', 173 => 'RX', 174 => 'METAG', 175 => 'MCST_ELBRUS',
+    176 => 'ECOG16', 177 => 'CR16', 178 => 'ETPU', 179 => 'SLE9X',
+    180 => 'L10M', 181 => 'K10M', 182 => 'INTEL_RESV', 183 => 'AARCH64',
+    184 => 'ARM_RESV', 185 => 'AVR32', 186 => 'STM8', 187 => 'TILE64',
+    188 => 'TILEPRO', 189 => 'MICROBLAZE', 190 => 'CUDA', 191 => 'TILEGX',
+    192 => 'CLOUDSHIELD', 193 => 'COREA_1ST', 194 => 'COREA_2ND', 195 => 'ARC_COMPACT2',
+    196 => 'OPEN8', 197 => 'RL78', 198 => 'VIDEOCORE5', 199 => '78KOR',
+    200 => '56800EX', 201 => 'BA1', 202 => 'BA2', 203 => 'XCORE',
+    204 => 'MCHP_PIC', 205 => 'INTEL205', 206 => 'INTEL206', 207 => 'INTEL207',
+    208 => 'INTEL208', 209 => 'INTEL209', 210 => 'KM32', 211 => 'KMX32',
+    212 => 'KMX16', 213 => 'KMX8', 214 => 'KVARC', 215 => 'CDP',
+    216 => 'COGE', 217 => 'COOL', 218 => 'NORC',
   }
 
   FLAGS = {
@@ -394,11 +417,6 @@ class ELF < ExeFormat
     word :flags
     fld_bits(:flags) { |elf, hdr| FLAGS[hdr.machine] || {} }
     halfs :ehsize, :phentsize, :phnum, :shentsize, :shnum, :shstrndx
-
-    def self.size elf
-      x = elf.bitsize >> 3
-      40 + 3*x
-    end
   end
 
   class Segment < SerialStruct
@@ -411,11 +429,6 @@ class ELF < ExeFormat
       when 32; Segment32
       else Segment64
       end
-    end
-
-    def self.size elf
-      x = elf.bitsize >> 3
-      8 + 6*x
     end
   end
 
@@ -453,11 +466,6 @@ class ELF < ExeFormat
     xword :entsize
 
     attr_accessor :name, :encoded
-
-    def self.size elf
-      x = elf.bitsize >> 3
-      16 + 6*x
-    end
   end
 
   class Symbol < SerialStruct
@@ -471,11 +479,6 @@ class ELF < ExeFormat
 
     attr_accessor :name_p, :value, :size, :bind, :type, :other, :shndx
     attr_accessor :name, :thunk
-
-    def self.size elf
-      x = elf.bitsize >> 3
-      8 + 2*x
-    end
   end
 
   class Symbol32 < Symbol
@@ -510,12 +513,6 @@ class ELF < ExeFormat
     end
 
     def addend ; end
-
-    def self.size elf
-      x = elf.bitsize >> 3
-      2*x
-    end
-
   end
   class Relocation32 < Relocation
     addr :offset
@@ -538,11 +535,6 @@ class ELF < ExeFormat
       else RelocationAddend64
       end
     end
-    def self.size elf
-      x = elf.bitsize >> 3
-      3*x
-    end
-
   end
   class RelocationAddend32 < RelocationAddend
     addr :offset
@@ -669,6 +661,15 @@ class ELF < ExeFormat
   end
 
   def shortname; 'elf'; end
+
+  def sizeof_byte ; 1 ; end
+  def sizeof_half ; 2 ; end
+  def sizeof_word ; 4 ; end
+  def sizeof_sword ; 4 ; end
+  def sizeof_xword ; @bitsize == 32 ? 4 : 8 ; end
+  alias sizeof_sxword sizeof_xword
+  alias sizeof_addr sizeof_xword
+  alias sizeof_off sizeof_xword
 end
 
 class LoadedELF < ELF
@@ -721,6 +722,9 @@ class FatELF < ExeFormat
   def decode_byte(edata = @encoded)  edata.decode_imm(:u8,  @endianness) end
   def decode_word(edata = @encoded)  edata.decode_imm(:u16, @endianness) end
   def decode_qword(edata = @encoded) edata.decode_imm(:u64, @endianness) end
+  def sizeof_byte ; 1 ; end
+  def sizeof_word ; 2 ; end
+  def sizeof_qword ; 8 ; end
 
   attr_accessor :header, :list
   def initialize

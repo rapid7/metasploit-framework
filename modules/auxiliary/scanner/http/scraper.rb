@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
-        OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", %r{<title>(.*)</title>}i])
+        OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", '<title>(.*)</title>'])
 
       ], self.class)
 
@@ -59,6 +59,14 @@ class Metasploit3 < Msf::Auxiliary
 
       result.each do |u|
         print_status("[#{target_host}] #{tpath} [#{u}]")
+
+        report_note(
+          :host    => target_host,
+          :port    => rport,
+          :proto   => 'tcp',
+          :type    => "http.scraper.#{rport}",
+          :data    => u
+        )
 
         report_web_vuln(
           :host	=> target_host,

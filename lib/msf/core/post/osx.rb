@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 module Msf::Post::OSX
   require 'msf/core/post/osx/system'

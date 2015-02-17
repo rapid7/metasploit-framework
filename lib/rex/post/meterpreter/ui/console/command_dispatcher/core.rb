@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'set'
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
 
@@ -68,7 +69,7 @@ class Console::CommandDispatcher::Core
     # whatever reason it is not adding core_migrate to its list of commands.
     # Use a dumb platform til it gets sorted.
     #if client.commands.include? "core_migrate"
-    if client.platform =~ /win/
+    if client.platform =~ /win/ || client.platform =~ /linux/
       c["migrate"] = "Migrate the server to another process"
     end
 
@@ -314,11 +315,17 @@ class Console::CommandDispatcher::Core
     print_status("Starting IRB shell")
     print_status("The 'client' variable holds the meterpreter client\n")
 
+    session = client
+    framework = client.framework
     Rex::Ui::Text::IrbShell.new(binding).run
   end
 
   def cmd_migrate_help
-    print_line "Usage: migrate <pid>"
+    if client.platform =~ /linux/
+      print_line "Usage: migrate <pid> [writable_path]"
+    else
+      print_line "Usage: migrate <pid>"
+    end
     print_line
     print_line "Migrates the server instance to another process."
     print_line "NOTE: Any open channels or other dynamic state will be lost."
@@ -328,7 +335,8 @@ class Console::CommandDispatcher::Core
   #
   # Migrates the server to the supplied process identifier.
   #
-  # @param args [Array<String>] Commandline arguments, only -h or a pid
+  # @param args [Array<String>] Commandline arguments, -h or a pid. On linux
+  #   platforms a path for the unix domain socket used for IPC.
   # @return [void]
   def cmd_migrate(*args)
     if ( args.length == 0 or args.include?("-h") )
@@ -340,6 +348,10 @@ class Console::CommandDispatcher::Core
     if(pid == 0)
       print_error("A process ID must be specified, not a process name")
       return
+    end
+
+    if client.platform =~ /linux/
+      writable_dir = (args.length >= 2) ? args[1] : nil
     end
 
     begin
@@ -382,7 +394,11 @@ class Console::CommandDispatcher::Core
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
     # Do this thang.
-    client.core.migrate(pid)
+    if client.platform =~ /linux/
+      client.core.migrate(pid, writable_dir)
+    else
+      client.core.migrate(pid)
+    end
 
     print_status("Migration completed successfully.")
 
@@ -413,20 +429,23 @@ class Console::CommandDispatcher::Core
 
     @@load_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-l"
-          exts = []
-          path = ::File.join(Msf::Config.data_directory, 'meterpreter')
+      when "-l"
+        exts = SortedSet.new
+        msf_path = MeterpreterBinaries.metasploit_data_dir
+        gem_path = MeterpreterBinaries.local_dir
+        [msf_path, gem_path].each do |path|
           ::Dir.entries(path).each { |f|
             if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-              exts.push($1)
+              exts.add($1)
             end
           }
-          print(exts.sort.join("\n") + "\n")
+        end
+        print(exts.to_a.join("\n") + "\n")
 
-          return true
-        when "-h"
-          cmd_load_help
-          return true
+        return true
+      when "-h"
+        cmd_load_help
+        return true
       end
     }
 
@@ -459,16 +478,19 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_load_tabs(str, words)
-    tabs = []
-    path = ::File.join(Msf::Config.data_directory, 'meterpreter')
+    tabs = SortedSet.new
+    msf_path = MeterpreterBinaries.metasploit_data_dir
+    gem_path = MeterpreterBinaries.local_dir
+    [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
         if (not extensions.include?($1))
-          tabs.push($1)
+          tabs.add($1)
         end
       end
     }
-    return tabs
+    end
+    return tabs.to_a
   end
 
   def cmd_use(*args)
@@ -728,10 +750,10 @@ class Console::CommandDispatcher::Core
 
     @@write_opts.parse(args) { |opt, idx, val|
       case opt
-        when "-f"
-          src_file = val
-        else
-          cid = val.to_i
+      when "-f"
+        src_file = val
+      else
+        cid = val.to_i
       end
     }
 

@@ -57,7 +57,7 @@ end
     res = self.service.tokens.keys
     begin
       if framework.db and framework.db.active
-        ::Mdm::ApiKey.find(:all).each do |k|
+        ::Mdm::ApiKey.all.each do |k|
           res << k.token
         end
       end

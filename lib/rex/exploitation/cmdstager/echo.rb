@@ -103,7 +103,8 @@ class CmdStagerEcho < CmdStagerBase
   def generate_cmds_decoder(opts)
     cmds = []
     # Make it all happen
-    cmds << "chmod +x #{@tempdir}#{@var_elf}"
+    cmds << "chmod 777 #{@tempdir}#{@var_elf}"
+    #cmds << "chmod +x #{@tempdir}#{@var_elf}"
     cmds << "#{@tempdir}#{@var_elf}"
 
     # Clean up after unless requested not to..

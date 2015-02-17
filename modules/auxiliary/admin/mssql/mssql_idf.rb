@@ -8,7 +8,7 @@
 ##
 
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft SQL Server - Interesting Data Finder',
+      'Name'           => 'Microsoft SQL Server Interesting Data Finder',
       'Description'    => %q{
         This module will search the specified MSSQL server for
         'interesting' columns and data.

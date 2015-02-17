@@ -176,7 +176,7 @@ class Console::CommandDispatcher::Extapi::Adsi
     )
 
     objects[:results].each do |c|
-      table << c
+      table << to_table_row(c)
     end
 
     print_line
@@ -187,6 +187,48 @@ class Console::CommandDispatcher::Extapi::Adsi
     print_line
 
     return true
+  end
+
+protected
+
+  #
+  # Convert an ADSI result row to a table row so that it can
+  #   be rendered to screen appropriately.
+  #
+  # @param result [Array[Hash]] Array of type/value pairs.
+  #
+  # @return [Array[String]] Renderable view of the value.
+  #
+  def to_table_row(result)
+    values = []
+
+    result.each do |v|
+      case v[:type]
+      when :string, :number, :bool
+        values << v[:value].to_s
+      when :raw
+        # for UI level stuff, rendering raw as hex is really the only option
+        values << Rex::Text.to_hex(v[:value], '')
+      when :array
+        val = "#{to_table_row(v[:value]).join(", ")}"
+
+        # we'll truncate the output of the array because it could be excessive if we
+        # don't. Users who want the detail of this stuff should probably script it.
+        if val.length > 50
+          val = "<#{val[0,50]}..."
+        end
+
+        values << val
+      when :dn
+        values << "#{value[:label]}: #{value[:string] || Rex::Text.to_hex(value[:raw], '')}"
+      when :path
+        values << "Vol: #{v[:volume]}, Path: #{v[:path]}, Type: #{v[:vol_type]}"
+      when :unknown
+        values << "(unknown)"
+      end
+    end
+
+    values
   end
 
 end
