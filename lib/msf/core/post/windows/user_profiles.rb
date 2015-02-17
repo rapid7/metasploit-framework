@@ -50,6 +50,7 @@ module UserProfiles
   def parse_profile(hive)
     profile={}
     sidinf = resolve_sid(hive['SID'].to_s)
+    return profile unless sidinf
     profile['UserName'] = sidinf[:name]
     profile['Domain'] = sidinf[:domain]
     profile['SID'] = hive['SID']
