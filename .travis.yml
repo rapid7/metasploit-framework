@@ -25,7 +25,6 @@ script:
   - git diff --exit-code && bundle exec rake $RAKE_TASKS
 sudo: false
 rvm:
-  - '1.9.3'
   - '2.1'
 
 notifications:
