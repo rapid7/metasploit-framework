@@ -20,6 +20,24 @@ module Metasploit
         #   @return [String] Cookie session
         attr_accessor :zsession
 
+        # Decides which login routine and returns the results
+        #
+        # @param credential [Metasploit::Framework::Credential] The credential object
+        # @return [Result]
+        def attempt_login(credential)
+          result_opts = { credential: credential }
+
+          begin
+            status = try_login(credential)
+            result_opts.merge!(status)
+          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
+          end
+
+          Result.new(result_opts)
+        end
+
+
         # (see Base#check_setup)
         def check_setup
           begin
@@ -109,23 +127,6 @@ module Metasploit
           end
 
           {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.body}
-        end
-
-        # Decides which login routine and returns the results
-        #
-        # @param credential [Metasploit::Framework::Credential] The credential object
-        # @return [Result]
-        def attempt_login(credential)
-          result_opts = { credential: credential }
-
-          begin
-            status = try_login(credential)
-            result_opts.merge!(status)
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
-            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
-          end
-
-          Result.new(result_opts)
         end
 
       end
