@@ -102,7 +102,7 @@ ActiveRecord::Schema.define(:version => 20150212214222) do
 
   create_table "hosts", :force => true do |t|
     t.datetime "created_at"
-    t.string   "address",                                               :null => false
+    t.string   "address",               :limit => nil,                  :null => false
     t.string   "mac"
     t.string   "comm"
     t.string   "name"
@@ -686,7 +686,7 @@ ActiveRecord::Schema.define(:version => 20150212214222) do
 
   create_table "wmap_requests", :force => true do |t|
     t.string   "host"
-    t.string   "address"
+    t.string   "address",    :limit => nil
     t.integer  "port"
     t.integer  "ssl"
     t.string   "meth",       :limit => 32
@@ -703,7 +703,7 @@ ActiveRecord::Schema.define(:version => 20150212214222) do
 
   create_table "wmap_targets", :force => true do |t|
     t.string   "host"
-    t.string   "address"
+    t.string   "address",    :limit => nil
     t.integer  "port"
     t.integer  "ssl"
     t.integer  "selected"
