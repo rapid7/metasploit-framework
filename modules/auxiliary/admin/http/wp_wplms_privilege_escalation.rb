@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
-    check_theme_version_from_style('wplms', '1.8.4.2', '1.5.2')
+    check_theme_version_from_readme('wplms', '1.8.4.2', '1.5.2')
   end
 
   def username

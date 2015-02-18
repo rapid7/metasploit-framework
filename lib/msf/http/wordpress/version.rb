@@ -68,44 +68,7 @@ module Msf::HTTP::Wordpress::Version
     # No style.css file present
     return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
 
-    # Try to extract version from style.css
-    # Example line:
-    # Version: 1.5.2
-    version = res.body.to_s[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
-
-    # style.css present, but no version number
-    return Msf::Exploit::CheckCode::Detected if version.nil?
-
-    vprint_status("#{peer} - Found version #{version} of the theme")
-
-    if fixed_version.nil?
-      if vuln_introduced_version.nil?
-        # All versions are vulnerable
-        return Msf::Exploit::CheckCode::Appears
-      elsif Gem::Version.new(version) >= Gem::Version.new(vuln_introduced_version)
-        # Newer or equal to the version it was introduced
-        return Msf::Exploit::CheckCode::Appears
-      else
-        return Msf::Exploit::CheckCode::Safe
-      end
-    else
-      # Version older than fixed version
-      if Gem::Version.new(version) < Gem::Version.new(fixed_version)
-        if vuln_introduced_version.nil?
-          # All previous versions are vulnerable
-          return Msf::Exploit::CheckCode::Appears
-        # vuln_introduced_version provided, check if version is newer
-        elsif Gem::Version.new(version) >= Gem::Version.new(vuln_introduced_version)
-          return Msf::Exploit::CheckCode::Appears
-        else
-          # Not in range, nut vulnerable
-          return Msf::Exploit::CheckCode::Safe
-        end
-      # version newer than fixed version
-      else
-        return Msf::Exploit::CheckCode::Safe
-      end
-    end
+    return extract_and_check_version(res.body.to_s, :style, :theme, fixed_version, vuln_introduced_version)
   end
 
   # Checks a readme for a vulnerable version
@@ -156,20 +119,70 @@ module Msf::HTTP::Wordpress::Version
         'uri'    => readme_url,
         'method' => 'GET'
       )
-
-      # no Readme.txt present
-      return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
     end
 
-    # try to extract version from readme
-    # Example line:
-    # Stable tag: 2.6.6
-    version = res.body.to_s[/(?:stable tag|version):\s*(?!trunk)([0-9a-z.-]+)/i, 1]
+    if res.nil? || res.code != 200
+      # No readme.txt or Readme.txt present for plugin
+      return Msf::Exploit::CheckCode::Unknown if type == :plugin
 
-    # readme present, but no version number
+      # Try again using the style.css file
+      return check_theme_version_from_style(name, fixed_version, vuln_introduced_version) if type == :theme
+    end
+
+    version_res = extract_and_check_version(res.body.to_s, :readme, type, fixed_version, vuln_introduced_version)
+    if version_res == Msf::Exploit::CheckCode::Detected && type == :theme
+      # If no version could be found in readme.txt for a theme, try style.css
+      return check_theme_version_from_style(name, fixed_version, vuln_introduced_version)
+    else
+      return version_res
+    end
+  end
+
+  def extract_and_check_version(body, type, item_type, fixed_version = nil, vuln_introduced_version = nil)
+    case type
+    when :readme
+      # Try to extract version from readme
+      # Example line:
+      # Stable tag: 2.6.6
+      version = body[/(?:stable tag|version):\s*(?!trunk)([0-9a-z.-]+)/i, 1]
+    when :style
+      # Try to extract version from style.css
+      # Example line:
+      # Version: 1.5.2
+      version = body[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
+    else
+      fail("Unknown file type #{type}")
+    end
+
+    version_res = extract_and_check_version(res.body.to_s, :readme, type, fixed_version, vuln_introduced_version)
+    if version_res == Msf::Exploit::CheckCode::Detected && type == :theme
+      # If no version could be found in readme.txt for a theme, try style.css
+      return check_theme_version_from_style(name, fixed_version, vuln_introduced_version)
+    else
+      return version_res
+    end
+  end
+
+  def extract_and_check_version(body, type, item_type, fixed_version = nil, vuln_introduced_version = nil)
+    case type
+    when :readme
+      # Try to extract version from readme
+      # Example line:
+      # Stable tag: 2.6.6
+      version = body[/(?:stable tag|version):\s*(?!trunk)([0-9a-z.-]+)/i, 1]
+    when :style
+      # Try to extract version from style.css
+      # Example line:
+      # Version: 1.5.2
+      version = body[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
+    else
+      fail("Unknown file type #{type}")
+    end
+
+    # Could not identify version number
     return Msf::Exploit::CheckCode::Detected if version.nil?
 
-    vprint_status("#{peer} - Found version #{version} of the #{type}")
+    vprint_status("#{peer} - Found version #{version} of the #{item_type}")
 
     if fixed_version.nil?
       if vuln_introduced_version.nil?
