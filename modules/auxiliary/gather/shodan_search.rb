@@ -84,19 +84,22 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   # Check to see if api.shodan.io resolves properly
-  def shodan_rhost
-    @res = Net::DNS::Resolver.new
-    dns_query = @res.query('api.shodan.io', 'A')
-    if dns_query.answer.length == 0
-      print_error('Could not resolve api.shodan.io')
-      raise ::Rex::ConnectError('api.shodan.io', '443')
+  def shodan_resolvable?
+    begin
+      Rex::Socket.resolv_to_dotted("api.shodan.io")
+    rescue RuntimeError, SocketError
+      return false
     end
-    dns_query.answer[0].to_s.split(/[\s,]+/)[4]
+
+    true
   end
 
   def run
     # check to ensure api.shodan.io is resolvable
-    shodan_rhost
+    unless shodan_resolvable?
+      print_error("Unable to resolve api.shodan.io")
+      return
+    end
 
     # create our Shodan request parameters
     query = datastore['QUERY']

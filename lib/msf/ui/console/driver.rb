@@ -417,8 +417,14 @@ class Driver < Msf::Ui::Driver
   # @param path [String] Path to a resource file to run
   # @return [void]
   def load_resource(path)
-    return if not ::File.readable?(path)
-    resource_file = ::File.read(path)
+    if path == '-'
+      resource_file = $stdin.read
+      path = 'stdin'
+    elsif ::File.readable?(path)
+      resource_file = ::File.read(path)
+    else
+      return
+    end
 
     self.active_resource = resource_file
 

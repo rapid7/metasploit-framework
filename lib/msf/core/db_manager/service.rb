@@ -87,7 +87,7 @@ module Msf::DBManager::Service
 
     proto = opts[:proto] || 'tcp'
 
-    service = host.services.find_or_initialize_by_port_and_proto(opts[:port].to_i, proto)
+    service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_initialize
     opts.each { |k,v|
       if (service.attribute_names.include?(k.to_s))
         service[k] = ((v and k == :name) ? v.to_s.downcase : v)

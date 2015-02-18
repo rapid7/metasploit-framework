@@ -52,3 +52,4 @@ module Rex
 end
 
 require 'rex/java/serialization/model'
+require 'rex/java/serialization/builder'
