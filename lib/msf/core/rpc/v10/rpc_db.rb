@@ -55,7 +55,7 @@ private
       return hosts if opts[:addresses].class != Array
       conditions = {}
       conditions[:address] = opts[:addresses]
-      hent = wspace.hosts.all(:conditions => conditions)
+      hent = wspace.hosts.where(conditions)
       hosts |= hent if hent.class == Array
     end
     return hosts
@@ -73,7 +73,7 @@ private
           conditions = {}
           conditions[:port] = opts[:port] if opts[:port]
           conditions[:proto] = opts[:proto] if opts[:proto]
-          sret = h.services.all(:conditions => conditions)
+          sret = h.services.where(conditions)
           next if sret == nil
           services |= sret if sret.class == Array
           services << sret if sret.class == ::Mdm::Service
@@ -85,7 +85,7 @@ private
       conditions = {}
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:proto] = opts[:proto] if opts[:proto]
-      sret = wspace.services.all(:conditions => conditions)
+      sret = wspace.services.where(conditions)
       services |= sret if sret.class == Array
       services << sret if sret.class == ::Mdm::Service
     end
@@ -189,8 +189,7 @@ public
 
     ret = {}
     ret[:hosts] = []
-    wspace.hosts.all(:conditions => conditions, :order => :address,
-        :limit => limit, :offset => offset).each do |h|
+    wspace.hosts.where(conditions).offset(offset).order(:address).limit(limit).each do |h|
       host = {}
       host[:created_at] = h.created_at.to_i
       host[:address] = h.address.to_s
@@ -226,8 +225,7 @@ public
     ret = {}
     ret[:services] = []
 
-    wspace.services.all(:include => :host, :conditions => conditions,
-        :limit => limit, :offset => offset).each do |s|
+    wspace.services.includes(:host).where(conditions).offset(offset).limit(limit).each do |s|
       service = {}
       host = s.host
       service[:host] = host.address || "unknown"
@@ -258,7 +256,7 @@ public
 
     ret = {}
     ret[:vulns] = []
-    wspace.vulns.all(:include => :service, :conditions => conditions, :limit => limit, :offset => offset).each do |v|
+    wspace.vulns.includes(:service).where(conditions).offset(offset).limit(limit).each do |v|
       vuln = {}
       reflist = v.refs.map { |r| r.name }
       if(v.service)
@@ -423,7 +421,7 @@ public
       conditions[:proto] = opts[:proto] if opts[:proto]
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]
-      sret = wspace.services.all(:conditions => conditions, :order => "hosts.address, port")
+      sret = wspace.services.where(conditions).order("hosts.address, port")
     else
       sret = host.services
     end
@@ -564,8 +562,7 @@ public
 
     ret = {}
     ret[:notes] = []
-    wspace.notes.all(:include => [:host, :service], :conditions => conditions,
-        :limit => limit, :offset => offset).each do |n|
+    wspace.notes.includes(:host, :service).where(conditions).offset(offset).limit(limit).each do |n|
       note = {}
       note[:time] = n.created_at.to_i
       note[:host] = ""
@@ -737,7 +734,7 @@ public
     elsif opts[:addresses]
       return { :result => 'failed' } if opts[:addresses].class != Array
       conditions = { :address => opts[:addresses] }
-      hent = wspace.hosts.all(:conditions => conditions)
+      hent = wspace.hosts.where(conditions)
       return { :result => 'failed' } if hent == nil
       hosts |= hent if hent.class == Array
       hosts << hent if hent.class == ::Mdm::Host
@@ -749,7 +746,7 @@ public
           conditions = {}
           conditions[:port] = opts[:port] if opts[:port]
           conditions[:proto] = opts[:proto] if opts[:proto]
-          sret = h.services.all(:conditions => conditions)
+          sret = h.services.where(conditions)
           next if sret == nil
           services << sret if sret.class == ::Mdm::Service
           services |= sret if sret.class == Array
@@ -761,7 +758,7 @@ public
       conditions = {}
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:proto] = opts[:proto] if opts[:proto]
-      sret = wspace.services.all(:conditions => conditions)
+      sret = wspace.services.where(conditions)
       services << sret if sret and sret.class == ::Mdm::Service
       services |= sret if sret and sret.class == Array
     end
@@ -794,7 +791,7 @@ public
     elsif opts[:addresses]
       return { :result => 'failed' } if opts[:addresses].class != Array
       conditions = { :address => opts[:addresses] }
-      hent = wspace.hosts.all(:conditions => conditions)
+      hent = wspace.hosts.where(conditions)
       return { :result => 'failed' } if hent == nil
       hosts |= hent if hent.class == Array
       hosts << hent if hent.class == ::Mdm::Host
@@ -829,7 +826,7 @@ public
     ret = {}
     ret[:events] = []
 
-    wspace.events.all(:limit => limit, :offset => offset).each do |e|
+    wspace.events.offset(offset).limit(limit).each do |e|
       event = {}
       event[:host] = e.host.address if(e.host)
       event[:created_at] = e.created_at.to_i
@@ -874,7 +871,7 @@ public
 
     ret = {}
     ret[:loots] = []
-    wspace.loots.all(:limit => limit, :offset => offset).each do |l|
+    wspace.loots.offset(offset).limit(limit).each do |l|
       loot = {}
       loot[:host] = l.host.address if(l.host)
       loot[:service] = l.service.name || l.service.port  if(l.service)
@@ -964,8 +961,7 @@ public
     ret = {}
     ret[:clients] = []
 
-    wspace.clients.all(:include => :host, :conditions => conditions,
-        :limit => limit, :offset => offset).each do |c|
+    wspace.clients.includes(:host).where(conditions).offset(offset).limit(limit).each do |c|
       client = {}
       client[:host] = c.host.address.to_s if c.host
       client[:ua_string] = c.ua_string
@@ -999,7 +995,7 @@ public
         conditions = {}
         conditions[:ua_name] = opts[:ua_name] if opts[:ua_name]
         conditions[:ua_ver] = opts[:ua_ver] if opts[:ua_ver]
-        cret = h.clients.all(:conditions => conditions)
+        cret = h.clients.where(conditions)
       else
         cret = h.clients
       end

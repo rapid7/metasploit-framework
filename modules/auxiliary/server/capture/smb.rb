@@ -10,7 +10,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::SMBServer
+  include Msf::Exploit::Remote::SMB::Server
 
   def initialize
     super({

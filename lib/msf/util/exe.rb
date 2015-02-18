@@ -734,15 +734,26 @@ require 'msf/core/exe/segment_injector'
   # @param [Hash] opts the options hash
   # @option opts [String] :exe_name (random) the name of the macho exe file (never seen by the user)
   # @option opts [String] :app_name (random) the name of the OSX app
+  # @option opts [String] :hidden (true) hide the app when it is running
   # @option opts [String] :plist_extra ('') some extra data to shove inside the Info.plist file
   # @return [String] zip archive containing an OSX .app directory
   def self.to_osx_app(exe, opts = {})
-    exe_name    = opts[:exe_name]    || Rex::Text.rand_text_alpha(8)
-    app_name    = opts[:app_name]    || Rex::Text.rand_text_alpha(8)
-    plist_extra = opts[:plist_extra] || ''
+    exe_name    = opts.fetch(:exe_name) { Rex::Text.rand_text_alpha(8) }
+    app_name    = opts.fetch(:app_name) { Rex::Text.rand_text_alpha(8) }
+    hidden      = opts.fetch(:hidden, true)
+    plist_extra = opts.fetch(:plist_extra, '')
 
     app_name.chomp!(".app")
     app_name += ".app"
+
+    visible_plist = if hidden
+      %Q|
+      <key>LSBackgroundOnly</key>
+      <string>1</string>
+      |
+    else
+      ''
+    end
 
     info_plist = %Q|
       <?xml version="1.0" encoding="UTF-8"?>
@@ -754,7 +765,7 @@ require 'msf/core/exe/segment_injector'
   <key>CFBundleIdentifier</key>
   <string>com.#{exe_name}.app</string>
   <key>CFBundleName</key>
-  <string>#{exe_name}</string>
+  <string>#{exe_name}</string>#{visible_plist}
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   #{plist_extra}
