@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Apache Axis2 Brute Force Utility',
       'Description'    => %q{
         This module attempts to login to an Apache Axis2 instance using
-        username and password combindations indicated by the USER_FILE,
+        username and password combinations indicated by the USER_FILE,
         PASS_FILE, and USERPASS_FILE options. It has been verified to
         work on at least versions 1.4.1 and 1.6.2.
       },
