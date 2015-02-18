@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
       })
 
       if not res
-        vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")
+        vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' returned no response")
         return :skip_pass
       end
 
