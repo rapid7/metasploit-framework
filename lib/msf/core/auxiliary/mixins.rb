@@ -25,3 +25,5 @@ require 'msf/core/auxiliary/natpmp'
 require 'msf/core/auxiliary/iax2'
 require 'msf/core/auxiliary/ntp'
 require 'msf/core/auxiliary/pii'
+require 'msf/core/auxiliary/sip'
+
