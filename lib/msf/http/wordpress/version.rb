@@ -43,22 +43,79 @@ module Msf::HTTP::Wordpress::Version
   # Checks a readme for a vulnerable version
   #
   # @param [String] plugin_name The name of the plugin
-  # @param [String] fixed_version The version the vulnerability was fixed in
+  # @param [String] fixed_version Optional, the version the vulnerability was fixed in
   # @param [String] vuln_introduced_version Optional, the version the vulnerability was introduced
   #
   # @return [ Msf::Exploit::CheckCode ]
-  def check_plugin_version_from_readme(plugin_name, fixed_version, vuln_introduced_version = nil)
+  def check_plugin_version_from_readme(plugin_name, fixed_version = nil, vuln_introduced_version = nil)
     check_version_from_readme(:plugin, plugin_name, fixed_version, vuln_introduced_version)
+  end
+
+  # Checks the style.css file for a vulnerable version
+  #
+  # @param [String] theme_name The name of the theme
+  # @param [String] fixed_version Optional, the version the vulnerability was fixed in
+  # @param [String] vuln_introduced_version Optional, the version the vulnerability was introduced
+  #
+  # @return [ Msf::Exploit::CheckCode ]
+  def check_theme_version_from_style(theme_name, fixed_version = nil, vuln_introduced_version = nil)
+    style_uri = normalize_uri(wordpress_url_themes, theme_name, 'style.css')
+    res = send_request_cgi(
+      'uri'    => style_uri,
+      'method' => 'GET'
+    )
+
+    # No style.css file present
+    return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
+
+    # Try to extract version from style.css
+    # Example line:
+    # Version: 1.5.2
+    version = res.body.to_s[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
+
+    # style.css present, but no version number
+    return Msf::Exploit::CheckCode::Detected if version.nil?
+
+    vprint_status("#{peer} - Found version #{version} of the theme")
+
+    if fixed_version.nil?
+      if vuln_introduced_version.nil?
+        # All versions are vulnerable
+        return Msf::Exploit::CheckCode::Appears
+      elsif Gem::Version.new(version) >= Gem::Version.new(vuln_introduced_version)
+        # Newer or equal to the version it was introduced
+        return Msf::Exploit::CheckCode::Appears
+      else
+        return Msf::Exploit::CheckCode::Safe
+      end
+    else
+      # Version older than fixed version
+      if Gem::Version.new(version) < Gem::Version.new(fixed_version)
+        if vuln_introduced_version.nil?
+          # All previous versions are vulnerable
+          return Msf::Exploit::CheckCode::Appears
+        # vuln_introduced_version provided, check if version is newer
+        elsif Gem::Version.new(version) >= Gem::Version.new(vuln_introduced_version)
+          return Msf::Exploit::CheckCode::Appears
+        else
+          # Not in range, nut vulnerable
+          return Msf::Exploit::CheckCode::Safe
+        end
+      # version newer than fixed version
+      else
+        return Msf::Exploit::CheckCode::Safe
+      end
+    end
   end
 
   # Checks a readme for a vulnerable version
   #
   # @param [String] theme_name The name of the theme
-  # @param [String] fixed_version The version the vulnerability was fixed in
+  # @param [String] fixed_version Optional, the version the vulnerability was fixed in
   # @param [String] vuln_introduced_version Optional, the version the vulnerability was introduced
   #
   # @return [ Msf::Exploit::CheckCode ]
-  def check_theme_version_from_readme(theme_name, fixed_version, vuln_introduced_version = nil)
+  def check_theme_version_from_readme(theme_name, fixed_version = nil, vuln_introduced_version = nil)
     check_version_from_readme(:theme, theme_name, fixed_version, vuln_introduced_version)
   end
 
@@ -114,21 +171,33 @@ module Msf::HTTP::Wordpress::Version
 
     vprint_status("#{peer} - Found version #{version} of the #{type}")
 
-    # Version older than fixed version
-    if Gem::Version.new(version) < Gem::Version.new(fixed_version)
+    if fixed_version.nil?
       if vuln_introduced_version.nil?
         # All versions are vulnerable
         return Msf::Exploit::CheckCode::Appears
-      # vuln_introduced_version provided, check if version is newer
       elsif Gem::Version.new(version) >= Gem::Version.new(vuln_introduced_version)
+        # Newer or equal to the version it was introduced
         return Msf::Exploit::CheckCode::Appears
       else
-        # Not in range, nut vulnerable
         return Msf::Exploit::CheckCode::Safe
       end
-    # version newer than fixed version
     else
-      return Msf::Exploit::CheckCode::Safe
+      # Version older than fixed version
+      if Gem::Version.new(version) < Gem::Version.new(fixed_version)
+        if vuln_introduced_version.nil?
+          # All versions are vulnerable
+          return Msf::Exploit::CheckCode::Appears
+        # vuln_introduced_version provided, check if version is newer
+        elsif Gem::Version.new(version) >= Gem::Version.new(vuln_introduced_version)
+          return Msf::Exploit::CheckCode::Appears
+        else
+          # Not in range, nut vulnerable
+          return Msf::Exploit::CheckCode::Safe
+        end
+      # version newer than fixed version
+      else
+        return Msf::Exploit::CheckCode::Safe
+      end
     end
   end
 end
