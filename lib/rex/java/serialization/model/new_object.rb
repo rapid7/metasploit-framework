@@ -95,8 +95,13 @@ module Rex
           def decode_class_data(io, my_class_desc)
             values = []
 
-            unless my_class_desc.super_class.description.kind_of?(NullReference)
-              values += decode_class_data(io, my_class_desc.super_class.description)
+            unless my_class_desc.super_class.description.class == NullReference
+              if my_class_desc.super_class.description.class == Reference
+                ref = my_class_desc.super_class.description.handle - BASE_WIRE_HANDLE
+                values += decode_class_data(io, stream.references[ref])
+              else
+                values += decode_class_data(io, my_class_desc.super_class.description)
+              end
             end
 
             values += decode_class_fields(io, my_class_desc)

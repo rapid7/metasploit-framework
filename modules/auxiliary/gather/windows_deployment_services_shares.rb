@@ -9,8 +9,8 @@ require 'rex/parser/unattend'
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
 
   include Msf::Auxiliary::Report

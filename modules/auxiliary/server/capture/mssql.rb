@@ -15,7 +15,7 @@ MESSAGE = Rex::Proto::NTLM::Message
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
-  include Msf::Exploit::Remote::SMBServer
+  include Msf::Exploit::Remote::SMB::Server
   include Msf::Auxiliary::Report
 
   class Constants

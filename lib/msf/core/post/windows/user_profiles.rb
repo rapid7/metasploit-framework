@@ -49,9 +49,6 @@ module UserProfiles
   #
   def parse_profile(hive)
     profile={}
-    sidinf = resolve_sid(hive['SID'].to_s)
-    profile['UserName'] = sidinf[:name]
-    profile['Domain'] = sidinf[:domain]
     profile['SID'] = hive['SID']
     profile['ProfileDir'] = hive['PROF']
     profile['AppData'] = registry_getvaldata("#{hive['HKU']}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 'AppData')
@@ -64,6 +61,12 @@ module UserProfiles
     profile['Cookies'] = registry_getvaldata("#{hive['HKU']}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 'Cookies')
     profile['Temp'] = registry_getvaldata("#{hive['HKU']}\\Environment", 'TEMP').to_s.sub('%USERPROFILE%',profile['ProfileDir'])
     profile['Path'] = registry_getvaldata("#{hive['HKU']}\\Environment", 'PATH')
+
+    sidinf = resolve_sid(hive['SID'].to_s)
+    if sidinf
+      profile['UserName'] = sidinf[:name]
+      profile['Domain'] = sidinf[:domain]
+    end
 
     return profile
   end
