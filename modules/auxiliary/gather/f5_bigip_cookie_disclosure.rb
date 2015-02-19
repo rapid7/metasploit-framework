@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => [ 'Thanat0s <thanspam[at]trollprod.org>', 
                             'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
                             'Nikita Oleksov <neoleksov[at]gmail.com>',
-							'Denis Kolegov <dnkolegov[at]gmail.com>'
+			    'Denis Kolegov <dnkolegov[at]gmail.com>'
                           ],
       'References'     =>
         [
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Print the cookie name on the first request
       if i == 0
-        print_status("#{peer} - F5 BigIP load balancing cookie \"#{cookie[:id]}\" found")
+        print_status("#{peer} - F5 BigIP load balancing cookie \"#{cookie[:id]} = #{cookie[:value]}\" found")
 	if cookie[:id].start_with?('BIGipServer')
 	  print_status("#{peer} - Load balancing pool name \"#{cookie[:id].split('BIGipServer')[1]}\" found")
 	end
