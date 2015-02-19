@@ -16,12 +16,11 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module identifies F5 BigIP load balancers and leaks backend
         information (pool name, backend's IP address and port, routed domain) through cookies inserted by the BigIP system.
-	
       },
       'Author'         => [ 'Thanat0s <thanspam[at]trollprod.org>', 
                             'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
                             'Nikita Oleksov <neoleksov[at]gmail.com>',
-			    'Denis Kolegov <dnkolegov[at]gmail.com>'
+                            'Denis Kolegov <dnkolegov[at]gmail.com>'
                           ],
       'References'     =>
         [
@@ -122,15 +121,15 @@ class Metasploit3 < Msf::Auxiliary
       # Print the cookie name on the first request
       if i == 0
         print_status("#{peer} - F5 BigIP load balancing cookie \"#{cookie[:id]} = #{cookie[:value]}\" found")
-	if cookie[:id].start_with?('BIGipServer')
-	  print_status("#{peer} - Load balancing pool name \"#{cookie[:id].split('BIGipServer')[1]}\" found")
-	end
-	if cookie[:value].start_with?('rd')
-	  print_status("#{peer} - Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
-	end
+        if cookie[:id].start_with?('BIGipServer')
+          print_status("#{peer} - Load balancing pool name \"#{cookie[:id].split('BIGipServer')[1]}\" found")
+        end
+        if cookie[:value].start_with?('rd')
+          print_status("#{peer} - Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
+        end
         if cookie[:value].start_with?('!')
-	  print_status("#{peer} - F5 BigIP cookie is probably encrypted") 		
-	end
+          print_status("#{peer} - F5 BigIP cookie is probably encrypted") 		
+        end
       end
 
       back_end = cookie_decode(cookie[:value])
@@ -150,5 +149,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-end 
-
+end
