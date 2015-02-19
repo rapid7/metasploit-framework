@@ -172,11 +172,11 @@ module ReverseHttp
   end
 
   #
-  # Removes the / handler and stop the service.
+  # Removes the / handler, possibly stopping the service if no sessions are
+  # active on sub-urls.
   #
   def stop_handler
     self.service.remove_resource("/") if self.service
-    self.service.stop
   end
 
   attr_accessor :service # :nodoc:
