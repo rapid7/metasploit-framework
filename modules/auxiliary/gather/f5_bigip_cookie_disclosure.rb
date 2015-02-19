@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
         This module identifies F5 BigIP load balancers and leaks backend
         information (pool name, backend's IP address and port, routed domain) through cookies inserted by the BigIP system.
       },
-      'Author'         => [ 'Thanat0s <thanspam[at]trollprod.org>', 
+      'Author'         => [ 'Thanat0s <thanspam[at]trollprod.org>',
                             'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
                             'Nikita Oleksov <neoleksov[at]gmail.com>',
                             'Denis Kolegov <dnkolegov[at]gmail.com>'
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
       host = nil
       port = nil
     end
-    back_end = (host.nil?) ? nil : "#{host}:#{port}" 
+    back_end = (host.nil?) ? nil : "#{host}:#{port}"
   end
 
   def get_cookie # request a page and extract a F5 looking cookie.
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
           print_status("#{peer} - Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
         end
         if cookie[:value].start_with?('!')
-          print_status("#{peer} - F5 BigIP cookie is probably encrypted") 		
+          print_status("#{peer} - F5 BigIP cookie is probably encrypted")
         end
       end
 
