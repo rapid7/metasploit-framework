@@ -15,13 +15,16 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'F5 BigIP Backend Cookie Disclosure',
       'Description'    => %q{
         This module identifies F5 BigIP load balancers and leaks backend
-        information (pool name, backend's IP address and port, routed domain) through cookies inserted by the BigIP system.
+        information (pool name, backend's IP address and port, routed domain)
+        through cookies inserted by the BigIP system.
       },
-      'Author'         => [ 'Thanat0s <thanspam[at]trollprod.org>',
-                            'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
-                            'Nikita Oleksov <neoleksov[at]gmail.com>',
-                            'Denis Kolegov <dnkolegov[at]gmail.com>'
-                          ],
+      'Author'         =>
+        [
+          'Thanat0s <thanspam[at]trollprod.org>',
+          'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
+          'Nikita Oleksov <neoleksov[at]gmail.com>',
+          'Denis Kolegov <dnkolegov[at]gmail.com>'
+        ],
       'References'     =>
         [
           ['URL', 'http://support.f5.com/kb/en-us/solutions/public/6000/900/sol6917.html'],
@@ -69,11 +72,11 @@ class Metasploit3 < Msf::Auxiliary
       host = $1.to_i(16)
       port = $2.to_i
       host = Rex::Socket.addr_itoa(host, v6=true)
-    elsif cookie_value =~ /!(.){104}/
+    elsif cookie_value =~ /!.{104}/
       host = nil
       port = nil
     end
-    back_end = (host.nil?) ? nil : "#{host}:#{port}"
+    host.nil? ? nil : "#{host}:#{port}"
   end
 
   def get_cookie # request a page and extract a F5 looking cookie.
@@ -92,9 +95,8 @@ class Metasploit3 < Msf::Auxiliary
       # 5. Encrypted cookies - "BIGipServerWEB=!dcdlUciYEFlt1QzXtD7QKx22XJx7Uuj2I0dYdFTwJASsJyJySME9/GACjztr7WYJIvHxTSNreeve7foossGzKS3vT9ECJscSg1LAc3rc"
 
       m = res.get_cookies.match(/([~_\.\-\w\d]+)=(((?:\d+\.){2}\d+)|(rd\d+o0{20}f{4}\w+o\d{1,5})|(vi([a-f0-9]{32})\.(\d{1,5}))|(rd\d+o([a-f0-9]{32})o(\d{1,5}))|(!(.){104}))(?:$|,|;|\s)/)
-      cookie[:id] = (m.nil?) ? nil : m[1]
-      cookie[:value] = (m.nil?) ? nil : m[2]
-
+      cookie[:id] = m.nil? ? nil : m[1]
+      cookie[:value] = m.nil? ? nil : m[2]
    end
 
     cookie
@@ -115,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
       # If the cookie is not found, stop process
       if cookie.empty? || cookie[:id].nil?
         print_error("#{peer} - F5 BigIP load balancing cookie not found")
-          break
+        break
       end
 
       # Print the cookie name on the first request
