@@ -1125,6 +1125,42 @@ SMB_FIND_FILE_BOTH_DIRECTORY_INFO_HDR = Rex::Struct2::CStructTemplate.new(
 
 SMB_FIND_FILE_BOTH_DIRECTORY_INFO_HDR_LENGTH = 94
 
+# A template for SMB_FIND_FILE_BOTH_DIRECTORY_INFO Find information level
+SMB_FIND_FILE_NAMES_INFO_HDR = Rex::Struct2::CStructTemplate.new(
+  ['uint32v', 'NextEntryOffset',   0],
+  ['uint32v', 'FileIndex',         0],
+  ['uint32v', 'FileNameLength',    0],
+  ['string',  'FileName', nil, '' ]
+).create_restraints(
+  ['FileName', 'FileNameLength',  nil, true]
+)
+
+SMB_FIND_FILE_NAMES_INFO_HDR_LENGTH = 12
+
+# A template for SMB_FIND_FILE_FULL_DIRECTORY_INFO Find information level
+SMB_FIND_FILE_FULL_DIRECTORY_INFO_HDR = Rex::Struct2::CStructTemplate.new(
+  ['uint32v', 'NextEntryOffset',   0],
+  ['uint32v', 'FileIndex',         0],
+  ['uint32v', 'loCreationTime',    0],
+  ['uint32v', 'hiCreationTime',    0],
+  ['uint32v', 'loLastAccessTime',  0],
+  ['uint32v', 'hiLastAccessTime',  0],
+  ['uint32v', 'loLastWriteTime',   0],
+  ['uint32v', 'hiLastWriteTime',   0],
+  ['uint32v', 'loLastChangeTime',  0],
+  ['uint32v', 'hiLastChangeTime',  0],
+  ['uint64v', 'EndOfFile',         0],
+  ['uint64v', 'AllocationSize',    0],
+  ['uint32v', 'ExtFileAttributes', 0],
+  ['uint32v', 'FileNameLength',    0],
+  ['uint32v', 'EaSize',            0],
+  ['string',  'FileName', nil, '' ]
+).create_restraints(
+  ['FileName', 'FileNameLength',  nil, true]
+)
+
+SMB_FIND_FILE_FULL_DIRECTORY_INFO_HDR_LENGTH = 68
+
 end
 end
 end
