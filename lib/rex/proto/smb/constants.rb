@@ -1123,6 +1123,8 @@ SMB_FIND_FILE_BOTH_DIRECTORY_INFO_HDR = Rex::Struct2::CStructTemplate.new(
   ['FileName', 'FileNameLength',  nil, true]
 )
 
+SMB_FIND_FILE_BOTH_DIRECTORY_INFO_HDR_LENGTH = 94
+
 end
 end
 end
