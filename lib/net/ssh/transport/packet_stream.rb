@@ -58,8 +58,8 @@ module Net; module SSH; module Transport
     # The IP address of the peer (remote) end of the socket, as reported by
     # the Rex socket.
     def peer_ip
-		@peer_ip ||= getpeername[1]
-	end
+    @peer_ip ||= getpeername[1]
+  end
 
     # Returns true if the IO is available for reading, and false otherwise.
     def available_for_read?

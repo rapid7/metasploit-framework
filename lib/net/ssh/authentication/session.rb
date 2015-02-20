@@ -132,10 +132,10 @@ module Net; module SSH; module Authentication
       # Returns an array of paths to the key files that should be used when
       # attempting any key-based authentication mechanism.
       def keys
-			Array(
-				options[:keys] # ||
-				# %w(~/.ssh/id_dsa ~/.ssh/id_rsa ~/.ssh2/id_dsa ~/.ssh2/id_rsa)
-				)
+      Array(
+        options[:keys] # ||
+        # %w(~/.ssh/id_dsa ~/.ssh/id_rsa ~/.ssh2/id_dsa ~/.ssh2/id_rsa)
+        )
       end
 
       # Returns an array of the key data that should be used when

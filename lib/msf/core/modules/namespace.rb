@@ -1,3 +1,7 @@
+# -*- coding: binary -*-
+require 'metasploit/framework/api/version'
+require 'metasploit/framework/core/version'
+
 # Concern for behavior that all namespace modules that wrap Msf::Modules must support like version checking and
 # grabbing the version specific-Metasploit* class.
 module Msf::Modules::Namespace
@@ -28,16 +32,16 @@ module Msf::Modules::Namespace
   end
 
   def metasploit_class!(module_path, module_reference_name)
-	  metasploit_class = self.metasploit_class
+    metasploit_class = self.metasploit_class
 
-	  unless metasploit_class
-		  raise Msf::Modules::MetasploitClassCompatibilityError.new(
-				        :module_path => module_path,
-				        :module_reference_name => module_reference_name
-		        )
-	  end
+    unless metasploit_class
+      raise Msf::Modules::MetasploitClassCompatibilityError.new(
+                :module_path => module_path,
+                :module_reference_name => module_reference_name
+            )
+    end
 
-	  metasploit_class
+    metasploit_class
   end
 
   # Raises an error unless {Msf::Framework::VersionCore} and {Msf::Framework::VersionAPI} meet the minimum required
@@ -54,11 +58,11 @@ module Msf::Modules::Namespace
   def version_compatible!(module_path, module_reference_name)
     if const_defined?(:RequiredVersions)
       required_versions = const_get(:RequiredVersions)
-      minimum_core_version = required_versions[0]
-      minimum_api_version = required_versions[1]
+      minimum_core_version = Gem::Version.new(required_versions[0].to_s)
+      minimum_api_version = Gem::Version.new(required_versions[1].to_s)
 
-      if (minimum_core_version > ::Msf::Framework::VersionCore or
-          minimum_api_version > ::Msf::Framework::VersionAPI)
+      if (minimum_core_version > Metasploit::Framework::Core::GEM_VERSION ||
+          minimum_api_version > Metasploit::Framework::API::GEM_VERSION)
         raise Msf::Modules::VersionCompatibilityError.new(
                   :module_path => module_path,
                   :module_reference_name => module_reference_name,

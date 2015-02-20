@@ -18,11 +18,11 @@
 
 
 def log_caller(cls, meth, singleton=false, histlen=nil)
-	histlen ||= ENV.fetch('LOGCALLER_MAXHIST', 16).to_i
-	dec_meth = 'm_' + meth.to_s.gsub(/[^\w]/) { |c| c.unpack('H*')[0] }
-	malias = dec_meth + '_log_caller'
-	mcntr = '$' + dec_meth + '_counter'
-	eval <<EOS
+  histlen ||= ENV.fetch('LOGCALLER_MAXHIST', 16).to_i
+  dec_meth = 'm_' + meth.to_s.gsub(/[^\w]/) { |c| c.unpack('H*')[0] }
+  malias = dec_meth + '_log_caller'
+  mcntr = '$' + dec_meth + '_counter'
+  eval <<EOS
 
 #{cls.kind_of?(Class) ? 'class' : 'module'} #{cls}
 #{'class << self' if singleton}
@@ -39,13 +39,13 @@ end
 #{mcntr} = Hash.new(0)
 
 at_exit {
-	total = #{mcntr}.inject(0) { |a, (k, v)| a+v } 
-	puts "\#{total} callers of #{cls} #{meth}:"
-	#{mcntr}.sort_by { |k, v|
-		-v
-	}[0, 4].each { |k, v|
-		puts " \#{'%.2f%%' % (100.0*v/total)} - \#{v} times from", k, ''
-	}
+  total = #{mcntr}.inject(0) { |a, (k, v)| a+v } 
+  puts "\#{total} callers of #{cls} #{meth}:"
+  #{mcntr}.sort_by { |k, v|
+    -v
+  }[0, 4].each { |k, v|
+    puts " \#{'%.2f%%' % (100.0*v/total)} - \#{v} times from", k, ''
+  }
 }
 
 EOS
@@ -53,9 +53,9 @@ EOS
 end
 
 ENV['LOGCALLER'].to_s.split(';').map { |lc|
-	next if not lc =~ /^(.*)([.#])(.*)$/
-	cls, sg, meth = $1, $2, $3.to_sym
-	sg = { '.' => true, '#' => false }[sg]
-	cls = cls.split('::').inject(::Object) { |o, cst| o.const_get(cst) }
-	log_caller(cls, meth, sg)
+  next if not lc =~ /^(.*)([.#])(.*)$/
+  cls, sg, meth = $1, $2, $3.to_sym
+  sg = { '.' => true, '#' => false }[sg]
+  cls = cls.split('::').inject(::Object) { |o, cst| o.const_get(cst) }
+  log_caller(cls, meth, sg)
 }

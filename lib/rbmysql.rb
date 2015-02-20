@@ -280,7 +280,7 @@ class RbMysql
   # In Ruby 1.8, this is not safe for multibyte charset such as 'SJIS'.
   # You should use place-holder in prepared-statement.
   def escape_string(str)
-    str.gsub(/[\0\n\r\\\'\"\x1a]/) do |s|
+    str.gsub(/[\0\n\r\\\'\"\x1a]/n) do |s|
       case s
       when "\0" then "\\0"
       when "\n" then "\\n"

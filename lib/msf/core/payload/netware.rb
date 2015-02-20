@@ -11,24 +11,24 @@ require 'msf/core'
 
 module Msf::Payload::Netware
 
-	def initialize(info = {})
-		ret = super(info)
-	end
+  def initialize(info = {})
+    ret = super(info)
+  end
 
-	#
-	# Returns a list of compatible encoders based on architecture
-	# fnstenv does not work on NetWare
-	#
-	def compatible_encoders
-		encoders = super()
-		encoders2 = []
+  #
+  # Returns a list of compatible encoders based on architecture
+  # fnstenv does not work on NetWare
+  #
+  def compatible_encoders
+    encoders = super()
+    encoders2 = []
 
-		encoders.each { |encname, encmod|
-			if (!encname.include?('fnstenv_mov') && !encname.include?('shikata_ga_nai'))
-				encoders2 << [ encname, encmod ]
-			end
-		}
+    encoders.each { |encname, encmod|
+      if (!encname.include?('fnstenv_mov') && !encname.include?('shikata_ga_nai'))
+        encoders2 << [ encname, encmod ]
+      end
+    }
 
-		return encoders2;
-	end
+    return encoders2;
+  end
 end

@@ -19,7 +19,7 @@ abort 'target needed' if not file = ARGV.shift
 
 visualstudiopath = ARGV.shift
 if visualstudiopath
-	stub = <<EOS
+  stub = <<EOS
 // add the path to the visual studio std headers
 #ifdef __METASM__
  #pragma include_dir #{(visualstudiopath+'/platformsdk/include').inspect}
@@ -29,7 +29,7 @@ if visualstudiopath
 #endif
 EOS
 else
-	stub = <<EOS
+  stub = <<EOS
 #ifdef __METASM__
  #pragma prepare_gcc
 #endif

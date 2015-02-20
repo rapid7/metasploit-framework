@@ -25,9 +25,9 @@ cp = sc.cpu.new_cparser
 cp.parse <<EOS
 void some_func(void);
 /* __declspec(naked) */ void c_func() {
-	int i;
-	for (i=0 ; i<10 ; ++i)
-		some_func();
+  int i;
+  for (i=0 ; i<10 ; ++i)
+    some_func();
 }
 EOS
 asm = sc.cpu.new_ccompiler(cp, sc).compile

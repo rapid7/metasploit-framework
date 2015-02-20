@@ -13,46 +13,46 @@ module Ui
 ###
 class Console::CommandDispatcher::Priv
 
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/elevate'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/passwd'
-	require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/timestomp'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/elevate'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/passwd'
+  require 'rex/post/meterpreter/ui/console/command_dispatcher/priv/timestomp'
 
-	Klass = Console::CommandDispatcher::Priv
+  Klass = Console::CommandDispatcher::Priv
 
-	Dispatchers =
-		[
-			Klass::Elevate,
-			Klass::Passwd,
-			Klass::Timestomp,
-		]
+  Dispatchers =
+    [
+      Klass::Elevate,
+      Klass::Passwd,
+      Klass::Timestomp,
+    ]
 
-	include Console::CommandDispatcher
+  include Console::CommandDispatcher
 
-	#
-	# Initializes an instance of the priv command interaction.
-	#
-	def initialize(shell)
-		super
+  #
+  # Initializes an instance of the priv command interaction.
+  #
+  def initialize(shell)
+    super
 
-		Dispatchers.each { |d|
-			shell.enstack_dispatcher(d)
-		}
-	end
+    Dispatchers.each { |d|
+      shell.enstack_dispatcher(d)
+    }
+  end
 
-	#
-	# List of supported commands.
-	#
-	def commands
-		{
-		}
-	end
+  #
+  # List of supported commands.
+  #
+  def commands
+    {
+    }
+  end
 
-	#
-	# Name for this dispatcher
-	#
-	def name
-		"Privilege Escalation"
-	end
+  #
+  # Name for this dispatcher
+  #
+  def name
+    "Privilege Escalation"
+  end
 
 end
 

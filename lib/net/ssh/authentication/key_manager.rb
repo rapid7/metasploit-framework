@@ -125,7 +125,7 @@ module Net
             if @options[:skip_private_keys]
               key = KeyFactory.load_data_public_key(data)
               known_identities[key] = { :from => :key_data, :data => data }
-	          yield key
+            yield key
             else
               private_key = KeyFactory.load_data_private_key(data)
               key = private_key.send(:public_key)

@@ -37,7 +37,7 @@
 */
 
 /*	
-	All ruby-lorcon/rubyisms are by Metasploit LLC (C) 2006-2007
+	All ruby-lorcon/rubyisms are by Rapid7, Inc. (C) 2006-2007
 		http://metasploit.com/ - msfdev[at]metasploit.com
 */
 

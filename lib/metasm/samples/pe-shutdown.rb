@@ -15,15 +15,15 @@ cpu = Metasm::Ia32.new
 cpu.generate_PIC = false
 Metasm::PE.compile_c(cpu, DATA.read + <<EOS).encode_file('metasm-shutdown.exe')
 int main(void) {
-	static HANDLE htok;
-	static TOKEN_PRIVILEGES tokpriv;
-	OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &htok);
-	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tokpriv.Privileges[0].Luid);
-	tokpriv.PrivilegeCount = 1U;
-	tokpriv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-	AdjustTokenPrivileges(htok, 0, &tokpriv, 0U, NULL, NULL);
-	ExitWindowsEx(EWX_SHUTDOWN | EWX_FORCE, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_UPGRADE | SHTDN_REASON_FLAG_PLANNED);
-	return 0;
+  static HANDLE htok;
+  static TOKEN_PRIVILEGES tokpriv;
+  OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &htok);
+  LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tokpriv.Privileges[0].Luid);
+  tokpriv.PrivilegeCount = 1U;
+  tokpriv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+  AdjustTokenPrivileges(htok, 0, &tokpriv, 0U, NULL, NULL);
+  ExitWindowsEx(EWX_SHUTDOWN | EWX_FORCE, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_UPGRADE | SHTDN_REASON_FLAG_PLANNED);
+  return 0;
 }
 EOS
 
@@ -55,8 +55,8 @@ typedef DWORD *PDWORD;
 typedef HANDLE *PHANDLE;
 
 struct _LUID {
-	DWORD LowPart;
-	LONG HighPart;
+  DWORD LowPart;
+  LONG HighPart;
 };
 typedef struct _LUID LUID;
 BOOL OpenProcessToken __attribute__((dllimport)) __attribute__((stdcall))(HANDLE ProcessHandle, DWORD DesiredAccess, PHANDLE TokenHandle);
@@ -64,14 +64,14 @@ typedef struct _LUID *PLUID;
 BOOL LookupPrivilegeValueA __attribute__((dllimport)) __attribute__((stdcall))(LPCSTR lpSystemName, LPCSTR lpName, PLUID lpLuid);
 
 struct _LUID_AND_ATTRIBUTES {
-	LUID Luid;
-	DWORD Attributes;
+  LUID Luid;
+  DWORD Attributes;
 };
 typedef struct _LUID_AND_ATTRIBUTES LUID_AND_ATTRIBUTES;
 
 struct _TOKEN_PRIVILEGES {
-	DWORD PrivilegeCount;
-	LUID_AND_ATTRIBUTES Privileges[1];
+  DWORD PrivilegeCount;
+  LUID_AND_ATTRIBUTES Privileges[1];
 };
 typedef struct _TOKEN_PRIVILEGES *PTOKEN_PRIVILEGES;
 typedef struct _TOKEN_PRIVILEGES TOKEN_PRIVILEGES;

@@ -18,34 +18,34 @@ d = Metasm::DynLdr
 
 d.new_api_c <<EOS, 'advapi32'
 __stdcall int RegCreateKeyExA(
-	void *key,
-	char *subkey,
-	int resvd,
-	char *class,
-	int options,
-	int access,
-	void *security,
-	void **keyout,
-	void *dispos);
+  void *key,
+  char *subkey,
+  int resvd,
+  char *class,
+  int options,
+  int access,
+  void *security,
+  void **keyout,
+  void *dispos);
 
 __stdcall int RegQueryValueExA(
-	void *key,
-	char *value,
-	int resvd,
-	int type,
-	void *data,
-	int *datalen);
+  void *key,
+  char *value,
+  int resvd,
+  int type,
+  void *data,
+  int *datalen);
 
 __stdcall int RegSetValueExA(
-	void *key,
-	char *value,
-	int resvd,
-	int type,
-	void *data,
-	int datalen);
+  void *key,
+  char *value,
+  int resvd,
+  int type,
+  void *data,
+  int datalen);
 
 __stdcall int RegCloseKey(
-	void *key);
+  void *key);
 
 #define KEY_ALL_ACCESS      0xf003f
 #define KEY_CURRENT_USER 0x80000001
@@ -63,16 +63,16 @@ ret = d.regqueryvalueexa(key, 'RUBYLIB', 0, 0, buf, buflen)
 data = ret == 0 ? buf[0, buflen.unpack('L').first-1] : ''
 
 if data.split(';').include? metasmpath
-	puts 'already registered'
+  puts 'already registered'
 else
-	data << ';' if not data.empty?
-	data << metasmpath << 0
-	ret = d.regsetvalueexa(key, 'RUBYLIB', 0, d::REG_EXPAND_SZ, data, data.length)
-	if ret == 0
-		puts "success - restart your session"
-	else
-		puts "failed :(  - #{Metasm::WinAPI.last_error_msg(ret)}"
-	end
+  data << ';' if not data.empty?
+  data << metasmpath << 0
+  ret = d.regsetvalueexa(key, 'RUBYLIB', 0, d::REG_EXPAND_SZ, data, data.length)
+  if ret == 0
+    puts "success - restart your session"
+  else
+    puts "failed :(  - #{Metasm::WinAPI.last_error_msg(ret)}"
+  end
 end
 
 d.regclosekey(key)

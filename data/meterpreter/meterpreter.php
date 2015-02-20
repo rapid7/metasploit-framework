@@ -125,6 +125,7 @@ define("TLV_META_TYPE_STRING",     (1 << 16));
 define("TLV_META_TYPE_UINT",       (1 << 17));
 define("TLV_META_TYPE_RAW",        (1 << 18));
 define("TLV_META_TYPE_BOOL",       (1 << 19));
+define("TLV_META_TYPE_QWORD",      (1 << 20));
 define("TLV_META_TYPE_COMPRESSED", (1 << 29));
 define("TLV_META_TYPE_GROUP",      (1 << 30));
 define("TLV_META_TYPE_COMPLEX",    (1 << 31));
@@ -265,7 +266,7 @@ function core_channel_write($req, &$pkt) {
 }
 
 #
-# This is called when the client wants to close a channel explicitly.  Not to be confused with 
+# This is called when the client wants to close a channel explicitly.  Not to be confused with
 #
 function core_channel_close($req, &$pkt) {
     global $channel_process_map;
@@ -297,7 +298,7 @@ function core_channel_close($req, &$pkt) {
     return ERROR_FAILURE;
 }
 
-# 
+#
 # Destroy a channel and all associated handles.
 #
 function channel_close_handles($cid) {
@@ -578,7 +579,7 @@ function handle_dead_resource_channel($resource) {
 
         # Make sure the provided resource gets closed regardless of it's status
         # as a channel
-        remove_reader($resource); 
+        remove_reader($resource);
         close($resource);
     } else {
         my_print("Handling dead resource: {$resource}, for channel: {$cid}");
@@ -655,6 +656,11 @@ function tlv_pack($tlv) {
     if (($tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
         $ret = pack("NNa*", 8 + strlen($tlv['value'])+1, $tlv['type'], $tlv['value'] . "\0");
     }
+    elseif (($tlv['type'] & TLV_META_TYPE_QWORD) == TLV_META_TYPE_QWORD) {
+        $hi = ($tlv['value'] >> 32) & 0xFFFFFFFF;
+        $lo = $tlv['value'] & 0xFFFFFFFF;
+        $ret = pack("NNNN", 8 + 8, $tlv['type'], $hi, $lo);
+    }
     elseif (($tlv['type'] & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT) {
         $ret = pack("NNN", 8 + 4, $tlv['type'], $tlv['value']);
     }
@@ -680,6 +686,37 @@ function tlv_pack($tlv) {
     return $ret;
 }
 
+function tlv_unpack($raw_tlv) {
+    $tlv = unpack("Nlen/Ntype", substr($raw_tlv, 0, 8));
+    $type = $tlv['type'];
+    my_print("len: {$tlv['len']}, type: {$tlv['type']}");
+    if (($type & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
+        $tlv = unpack("Nlen/Ntype/a*value", substr($raw_tlv, 0, $tlv['len']));
+        # PHP 5.5.0 modifed the 'a' unpack format to stop removing the trailing
+        # NULL, so catch that here
+        $tlv['value'] = str_replace("\0", "", $tlv['value']);
+    }
+    elseif (($type & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT) {
+        $tlv = unpack("Nlen/Ntype/Nvalue", substr($raw_tlv, 0, $tlv['len']));
+    }
+    elseif (($type & TLV_META_TYPE_QWORD) == TLV_META_TYPE_QWORD) {
+        $tlv = unpack("Nlen/Ntype/Nhi/Nlo", substr($raw_tlv, 0, $tlv['len']));
+        $tlv['value'] = $tlv['hi'] << 32 | $tlv['lo'];
+    }
+    elseif (($type & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL) {
+        $tlv = unpack("Nlen/Ntype/cvalue", substr($raw_tlv, 0, $tlv['len']));
+    }
+    elseif (($type & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW) {
+        $tlv = unpack("Nlen/Ntype", $raw_tlv);
+        $tlv['value'] = substr($raw_tlv, 8, $tlv['len']-8);
+    }
+    else {
+        my_print("Wtf type is this? $type");
+        $tlv = null;
+    }
+    return $tlv;
+}
+
 function packet_add_tlv(&$pkt, $tlv) {
     $pkt .= tlv_pack($tlv);
 }
@@ -689,33 +726,37 @@ function packet_get_tlv($pkt, $type) {
     # Start at offset 8 to skip past the packet header
     $offset = 8;
     while ($offset < strlen($pkt)) {
-        $tlv = unpack("Nlen/Ntype", substr($pkt, $offset, 8));
+        $tlv = tlv_unpack(substr($pkt, $offset));
         #my_print("len: {$tlv['len']}, type: {$tlv['type']}");
         if ($type == ($tlv['type'] & ~TLV_META_TYPE_COMPRESSED)) {
             #my_print("Found one at offset $offset");
-            if (($type & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
-                $tlv = unpack("Nlen/Ntype/a*value", substr($pkt, $offset, $tlv['len']));
-            }
-            elseif (($type & TLV_META_TYPE_UINT) == TLV_META_TYPE_UINT) {
-                $tlv = unpack("Nlen/Ntype/Nvalue", substr($pkt, $offset, $tlv['len']));
-            }
-            elseif (($type & TLV_META_TYPE_BOOL) == TLV_META_TYPE_BOOL) {
-                $tlv = unpack("Nlen/Ntype/cvalue", substr($pkt, $offset, $tlv['len']));
-            }
-            elseif (($type & TLV_META_TYPE_RAW) == TLV_META_TYPE_RAW) {
-                $tlv = unpack("Nlen/Ntype", substr($pkt, $offset, 8));
-                $tlv['value'] = substr($pkt, $offset+8, $tlv['len']-8);
-            }
-            else {
-                my_print("Wtf type is this? $type");
-                $tlv = null;
-            }
             return $tlv;
         }
         $offset += $tlv['len'];
     }
     #my_print("Didn't find one, wtf");
     return false;
+}
+
+
+function packet_get_all_tlvs($pkt, $type) {
+    my_print("Looking for all tlvs of type $type");
+    # Start at offset 8 to skip past the packet header
+    $offset = 8;
+    $all = array();
+    while ($offset < strlen($pkt)) {
+        $tlv = tlv_unpack(substr($pkt, $offset));
+        if ($tlv == NULL) {
+            break;
+        }
+        my_print("len: {$tlv['len']}, type: {$tlv['type']}");
+        if (empty($type) || $type == ($tlv['type'] & ~TLV_META_TYPE_COMPRESSED)) {
+            my_print("Found one at offset $offset");
+            array_push($all, $tlv);
+        }
+        $offset += $tlv['len'];
+    }
+    return $all;
 }
 
 
@@ -822,7 +863,7 @@ function eof($resource) {
         #
         # See http://us2.php.net/manual/en/function.feof.php , specifically this:
         #   If a connection opened by fsockopen() wasn't closed by the server,
-        #   feof() will hang. To workaround this, see below example: 
+        #   feof() will hang. To workaround this, see below example:
         #     <?php
         #     function safe_feof($fp, &$start = NULL) {
         #     ...
@@ -862,7 +903,7 @@ function read($resource, $len=null) {
     #my_print(sprintf("Reading from $resource which is a %s", get_rtype($resource)));
     $buff = '';
     switch (get_rtype($resource)) {
-    case 'socket': 
+    case 'socket':
         if (array_key_exists((int)$resource, $udp_host_map)) {
             my_print("Reading UDP socket");
             list($host,$port) = $udp_host_map[(int)$resource];
@@ -879,11 +920,12 @@ function read($resource, $len=null) {
         # whole php process will block waiting for data that may never come.
         # Unfortunately, selecting on pipes created with proc_open on Windows
         # always returns immediately.  Basically, shell interaction in Windows
-        # is hosed until this gets figured out.  See https://dev.metasploit.com/redmine/issues/2232
+        # is hosed until this gets figured out.
         $r = Array($resource);
         my_print("Calling select to see if there's data on $resource");
         while (true) {
-            $cnt = stream_select($r, $w=NULL, $e=NULL, 0);
+            $w=NULL;$e=NULL;$t=0;
+            $cnt = stream_select($r, $w, $e, $t);
 
             # Stream is not ready to read, have to live with what we've gotten
             # so far
@@ -915,13 +957,13 @@ function read($resource, $len=null) {
                     break;
                 }
             }
-            
+
             if ($resource != $msgsock) { my_print("buff: '$buff'"); }
             $r = Array($resource);
         }
         my_print(sprintf("Done with the big read loop on $resource, got %d bytes", strlen($buff)));
         break;
-    default: 
+    default:
         # then this is possibly a closed channel resource, see if we have any
         # data from previous reads
         $cid = get_channel_id_from_resource($resource);
@@ -948,7 +990,7 @@ function write($resource, $buff, $len=0) {
     #my_print(sprintf("Writing $len bytes to $resource which is a %s", get_rtype($resource)));
     $count = false;
     switch (get_rtype($resource)) {
-    case 'socket': 
+    case 'socket':
         if (array_key_exists((int)$resource, $udp_host_map)) {
             my_print("Writing UDP socket");
             list($host,$port) = $udp_host_map[(int)$resource];
@@ -957,7 +999,7 @@ function write($resource, $buff, $len=0) {
             $count = socket_write($resource, $buff, $len);
         }
         break;
-    case 'stream': 
+    case 'stream':
         $count = fwrite($resource, $buff, $len);
         fflush($resource);
         break;
@@ -1107,7 +1149,7 @@ if (!isset($GLOBALS['msgsock'])) {
     case 'socket':
         register_socket($msgsock);
         break;
-    case 'stream': 
+    case 'stream':
         # fall through
     default:
         register_stream($msgsock);
@@ -1119,7 +1161,8 @@ add_reader($msgsock);
 # Main dispatch loop
 #
 $r=$GLOBALS['readers'];
-while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
+$w=NULL;$e=NULL;$t=1;
+while (false !== ($cnt = select($r, $w, $e, $t))) {
     #my_print(sprintf("Returned from select with %s readers", count($r)));
     $read_failed = false;
     for ($i = 0; $i < $cnt; $i++) {
@@ -1156,7 +1199,7 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
                 if ($request) {
                     write($msgsock, $request);
                 }
-            } 
+            }
         }
     }
     # $r is modified by select, so reset it

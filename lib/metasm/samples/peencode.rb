@@ -14,6 +14,6 @@ __stdcall int MessageBox(int, char*, char*, int);
 __stdcall void ExitProcess(int);
 void main(void)
 {
-	MessageBox(0, "kikoo", "lol", 0);
-	ExitProcess(0);
+  MessageBox(0, "kikoo", "lol", 0);
+  ExitProcess(0);
 }

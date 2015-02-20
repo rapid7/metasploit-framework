@@ -59,8 +59,8 @@ module Net; module SSH; module Proxy
         }
       )
       # Tell MSF to automatically close this socket on error or completion...
-		# This prevents resource leaks.
-		options[:msfmodule].add_socket(@socket) if options[:msfmodule]
+    # This prevents resource leaks.
+    options[:msfmodule].add_socket(@socket) if options[:msfmodule]
 
       socket.write "CONNECT #{host}:#{port} HTTP/1.0\r\n"
 

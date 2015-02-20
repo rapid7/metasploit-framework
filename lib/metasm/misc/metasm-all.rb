@@ -8,6 +8,6 @@
 require File.join(File.dirname(__FILE__), '..', 'metasm')
 
 module Metasm
-	Const_autorequire.values.flatten.each { |f| require File.join('metasm', f) }
-	$:.pop if $:.last == Metasmdir
+  Const_autorequire.values.flatten.each { |f| require File.join('metasm', f) }
+  $:.pop if $:.last == Metasmdir
 end

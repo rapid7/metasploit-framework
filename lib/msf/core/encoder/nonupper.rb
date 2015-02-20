@@ -10,9 +10,9 @@ module Msf
 ###
 class Encoder::NonUpper < Msf::Encoder
 
-	def initialize(info)
-		super(info)
-	end
+  def initialize(info)
+    super(info)
+  end
 
 end
 

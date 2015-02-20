@@ -1,123 +1,102 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
-#
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
+require 'msf/core/auxiliary/jtr'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Auxiliary::JohnTheRipper
+  include Msf::Auxiliary::JohnTheRipper
 
-	def initialize
-		super(
-			'Name'            => 'John the Ripper Linux Password Cracker',
-			'Description'     => %Q{
-					This module uses John the Ripper to identify weak passwords that have been
-				acquired from unshadowed passwd files from Unix systems. The module will only crack
-				MD5 and DES implementations by default. Set Crypt to true to also try to crack
-				Blowfish and SHA implementations. Warning: This is much slower.
-			},
-			'Author'          =>
-				[
-					'theLightCosine',
-					'hdm'
-				] ,
-			'License'         => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
-		)
+  def initialize
+    super(
+      'Name'            => 'John the Ripper Linux Password Cracker',
+      'Description'     => %Q{
+          This module uses John the Ripper to identify weak passwords that have been
+        acquired from unshadowed passwd files from Unix systems. The module will only crack
+        MD5 and DES implementations by default. Set Crypt to true to also try to crack
+        Blowfish and SHA implementations. Warning: This is much slower.
+      },
+      'Author'          =>
+        [
+          'theLightCosine',
+          'hdm'
+        ] ,
+      'License'         => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+    )
 
-		register_options(
-			[
-				OptBool.new('Crypt',[false, 'Try crypt() format hashes(Very Slow)', false])
-			]
-		)
+    register_options(
+      [
+        OptBool.new('Crypt',[false, 'Try crypt() format hashes(Very Slow)', false])
+      ]
+    )
 
-	end
+  end
 
-	def run
-		wordlist = Rex::Quickfile.new("jtrtmp")
+  def run
 
-		wordlist.write( build_seed().join("\n") + "\n" )
-		wordlist.close
+    formats = [ 'md5', 'des', 'bsdi']
+    if datastore['Crypt']
+      format << 'crypt'
+    end
 
-		hashlist = Rex::Quickfile.new("jtrtmp")
+    cracker = new_john_cracker
 
-		myloots = myworkspace.loots.where('ltype=?', 'linux.hashes')
-		unless myloots.nil? or myloots.empty?
-			myloots.each do |myloot|
-				begin
-					usf = File.open(myloot.path, "rb")
-				rescue Exception => e
-					print_error("Unable to read #{myloot.path} \n #{e}")
-				end
-				usf.each_line do |row|
-					row.gsub!(/\n/, ":#{myloot.host.address}\n")
-					hashlist.write(row)
-				end
-			end
-			hashlist.close
+    #generate our wordlist and close the file handle
+    wordlist = wordlist_file
+    wordlist.close
+    print_status "Wordlist file written out to #{wordlist.path}"
+    cracker.wordlist = wordlist.path
+    cracker.hash_path = hash_file
 
-			print_status("HashList: #{hashlist.path}")
+    formats.each do |format|
+      # dupe our original cracker so we can safely change options between each run
+      cracker_instance = cracker.dup
+      cracker_instance.format = format
+      print_status "Cracking #{format} hashes in normal wordlist mode..."
+      # Turn on KoreLogic rules if the user asked for it
+      if datastore['KoreLogic']
+        cracker_instance.rules = 'KoreLogicRules'
+        print_status "Applying KoreLogic ruleset..."
+      end
+      cracker_instance.crack do |line|
+        print_status line.chomp
+      end
 
-			print_status("Trying Format:md5 Wordlist: #{wordlist.path}")
-			john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'md5')
-			print_status("Trying Format:md5 Rule: All4...")
-			john_crack(hashlist.path, :incremental => "All4", :format => 'md5')
-			print_status("Trying Format:md5 Rule: Digits5...")
-			john_crack(hashlist.path, :incremental => "Digits5", :format => 'md5')
+      print_status "Cracked Passwords this run:"
+      cracker_instance.each_cracked_password do |password_line|
+        password_line.chomp!
+        next if password_line.blank?
+        fields = password_line.split(":")
+        # If we don't have an expected minimum number of fields, this is probably not a hash line
+        next unless fields.count >=7
+        username = fields.shift
+        core_id  = fields.pop
+        4.times { fields.pop }
+        password = fields.join('') # Anything left must be the password. This accounts for passwords with : in them
+        print_good password_line
+        create_cracked_credential( username: username, password: password, core_id: core_id)
+      end
+    end
+  end
 
-
-			print_status("Trying Format:des Wordlist: #{wordlist.path}")
-			john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'des')
-			print_status("Trying Format:des Rule: All4...")
-			john_crack(hashlist.path, :incremental => "All4", :format => 'des')
-			print_status("Trying Format:des Rule: Digits5...")
-			john_crack(hashlist.path, :incremental => "Digits5", :format => 'des')
-
-			print_status("Trying Format:bsdi Wordlist: #{wordlist.path}")
-			john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'bsdi')
-			print_status("Trying Format:bsdi Rule: All4...")
-			john_crack(hashlist.path, :incremental => "All4", :format => 'bsdi')
-			print_status("Trying Format:bsdi Rule: Digits5...")
-			john_crack(hashlist.path, :incremental => "Digits5", :format => 'bsdi')
-
-			if datastore['Crypt']
-				print_status("Trying Format:crypt Wordlist: #{wordlist.path}")
-				john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'crypt')
-				print_status("Trying Rule: All4...")
-				john_crack(hashlist.path, :incremental => "All4", :format => 'crypt')
-				print_status("Trying Rule: Digits5...")
-				john_crack(hashlist.path, :incremental => "Digits5", :format => 'crypt')
-			end
-
-
-			cracked = john_show_passwords(hashlist.path)
-
-
-			print_status("#{cracked[:cracked]} hashes were cracked!")
-
-			cracked[:users].each_pair do |k,v|
-				if v[0] == "NO PASSWORD"
-					passwd=""
-				else
-					passwd=v[0]
-				end
-				print_good("Host: #{v.last}  User: #{k} Pass: #{passwd}")
-				report_auth_info(
-					:host  => v.last,
-					:port => 22,
-					:sname => 'ssh',
-					:user => k,
-					:pass => passwd
-				)
-			end
-		end
-
-	end
+  def hash_file
+    hashlist = Rex::Quickfile.new("hashes_tmp")
+    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: 'md5,des,bsdi,crypt').each do |hash|
+      hash.cores.each do |core|
+        user = core.public.username
+        hash_string = "#{hash.data}"
+        id = core.id
+        hashlist.puts "#{user}:#{hash_string}:::::#{id}:"
+      end
+    end
+    hashlist.close
+    print_status "Hashes Written out to #{hashlist.path}"
+    hashlist.path
+  end
 
 
 

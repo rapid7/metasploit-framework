@@ -21,9 +21,9 @@ include Metasm
 # open target
 WinOS.get_debug_privilege
 if not pr = WinOS.find_process(ARGV.first)
-	# display list of running processes if no target found
-	puts WinOS.list_processes.sort_by { |pr_| pr_.pid }
-	exit
+  # display list of running processes if no target found
+  puts WinOS.list_processes.sort_by { |pr_| pr_.pid }
+  exit
 end
 raise 'cannot open target process' if not pr.handle
 
@@ -38,15 +38,15 @@ target_p = nil
 msgboxw_p = nil
 iat_entry_len = pe.encode_xword(0).length	# 64bits portable ! (shellcode probably won't work)
 pe.imports.each { |id|
-	id.imports.each_with_index { |i, idx|
-		case i.name
-		when 'MessageBoxW'
-			msgboxw_p = pr.modules[0].addr + id.iat_p + iat_entry_len * idx
-		when /WriteFile/
-			target_p  = pr.modules[0].addr + id.iat_p + iat_entry_len * idx
-			target = id.iat[idx]
-		end
-	}
+  id.imports.each_with_index { |i, idx|
+    case i.name
+    when 'MessageBoxW'
+      msgboxw_p = pr.modules[0].addr + id.iat_p + iat_entry_len * idx
+    when /WriteFile/
+      target_p  = pr.modules[0].addr + id.iat_p + iat_entry_len * idx
+      target = id.iat[idx]
+    end
+  }
 }
 raise "iat entries not found" if not target or not msgboxw_p
 

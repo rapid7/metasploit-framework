@@ -14,21 +14,31 @@ module Auxiliary::Scanner
 # Initializes an instance of a recon auxiliary module
 #
 def initialize(info = {})
-	super
+  super
 
-	register_options([
-			OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
-			OptInt.new('THREADS', [ true, "The number of concurrent threads", 1 ] )
-		], Auxiliary::Scanner)
+  register_options([
+      OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
+      OptInt.new('THREADS', [ true, "The number of concurrent threads", 1 ] )
+    ], Auxiliary::Scanner)
 
-	# RHOST should not be used in scanner modules, only RHOSTS
-	deregister_options('RHOST')
+  # RHOST should not be used in scanner modules, only RHOSTS
+  deregister_options('RHOST')
 
-	register_advanced_options([
-		OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
-		OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10])
-	], Auxiliary::Scanner)
+  register_advanced_options([
+    OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
+    OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10])
+  ], Auxiliary::Scanner)
 
+end
+
+
+def check
+  nmod = replicant
+  begin
+    nmod.check_host(datastore['RHOST'])
+  rescue NoMethodError
+    Exploit::CheckCode::Unsupported
+  end
 end
 
 
@@ -37,205 +47,256 @@ end
 #
 def run
 
-	@show_progress = datastore['ShowProgress']
-	@show_percent  = datastore['ShowProgressPercent'].to_i
+  @show_progress = datastore['ShowProgress']
+  @show_percent  = datastore['ShowProgressPercent'].to_i
 
-	ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
-	@range_count   = ar.length || 0
-	@range_done    = 0
-	@range_percent = 0
+  ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
+  @range_count   = ar.length || 0
+  @range_done    = 0
+  @range_percent = 0
 
-	threads_max = datastore['THREADS'].to_i
-	@tl = []
+  threads_max = datastore['THREADS'].to_i
+  @tl = []
+  @scan_errors = []
 
-	#
-	# Sanity check threading on different platforms
-	#
+  #
+  # Sanity check threading given different conditions
+  #
 
-	if(Rex::Compat.is_windows)
-		if(threads_max > 16)
-			print_error("Warning: The Windows platform cannot reliably support more than 16 threads")
-			print_error("Thread count has been adjusted to 16")
-			threads_max = 16
-		end
-	end
+  if datastore['CPORT'].to_i != 0 && threads_max > 1
+    print_error("Warning: A maximum of one thread is possible when a source port is set (CPORT)")
+    print_error("Thread count has been adjusted to 1")
+    threads_max = 1
+  end
 
-	if(Rex::Compat.is_cygwin)
-		if(threads_max > 200)
-			print_error("Warning: The Cygwin platform cannot reliably support more than 200 threads")
-			print_error("Thread count has been adjusted to 200")
-			threads_max = 200
-		end
-	end
+  if(Rex::Compat.is_windows)
+    if(threads_max > 16)
+      print_error("Warning: The Windows platform cannot reliably support more than 16 threads")
+      print_error("Thread count has been adjusted to 16")
+      threads_max = 16
+    end
+  end
 
-	begin
+  if(Rex::Compat.is_cygwin)
+    if(threads_max > 200)
+      print_error("Warning: The Cygwin platform cannot reliably support more than 200 threads")
+      print_error("Thread count has been adjusted to 200")
+      threads_max = 200
+    end
+  end
 
-	if (self.respond_to?('run_range'))
-		# No automated progress reporting for run_range
-		return run_range(datastore['RHOSTS'])
-	end
+  begin
 
-	if (self.respond_to?('run_host'))
+  if (self.respond_to?('run_range'))
+    # No automated progress reporting or error handling for run_range
+    return run_range(datastore['RHOSTS'])
+  end
 
-		@tl = []
+  if (self.respond_to?('run_host'))
 
-		while (true)
-			# Spawn threads for each host
-			while (@tl.length < threads_max)
-				ip = ar.next_ip
-				break if not ip
+    loop do
+      # Stop scanning if we hit a fatal error
+      break if has_fatal_errors?
 
-				@tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{ip}", false, ip.dup) do |tip|
-					targ = tip
-					nmod = self.replicant
-					nmod.datastore['RHOST'] = targ
+      # Spawn threads for each host
+      while (@tl.length < threads_max)
 
-					begin
-						nmod.run_host(targ)
-					rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError
-					rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
-						raise $!
-					rescue ::Exception => e
-						print_status("Error: #{targ}: #{e.class} #{e.message}")
-						elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
-					ensure
-						nmod.cleanup
-					end
-				end
-			end
+        # Stop scanning if we hit a fatal error
+        break if has_fatal_errors?
 
-			# Exit once we run out of hosts
-			if(@tl.length == 0)
-				break
-			end
+        ip = ar.next_ip
+        break if not ip
 
-			# Assume that the oldest thread will be one of the
-			# first to finish and wait for it.  After that's
-			# done, remove any finished threads from the list
-			# and continue on.  This will open up at least one
-			# spot for a new thread
-			tla = @tl.length
-			@tl.first.join
-			@tl.delete_if { |t| not t.alive? }
-			tlb = @tl.length
+        @tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{ip}", false, ip.dup) do |tip|
+          targ = tip
+          nmod = self.replicant
+          nmod.datastore['RHOST'] = targ
 
-			@range_done += (tla - tlb)
-			scanner_show_progress() if @show_progress
-		end
+          begin
+            nmod.run_host(targ)
+          rescue ::Rex::BindFailed
+            if datastore['CHOST']
+              @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
+            end
+          rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError
+          rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
+            raise $!
+          rescue ::Exception => e
+            print_status("Error: #{targ}: #{e.class} #{e.message}")
+            elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
+          ensure
+            nmod.cleanup
+          end
+        end
+      end
 
-		return
-	end
+      # Stop scanning if we hit a fatal error
+      break if has_fatal_errors?
 
-	if (self.respond_to?('run_batch'))
+      # Exit once we run out of hosts
+      if(@tl.length == 0)
+        break
+      end
 
-		if (! self.respond_to?('run_batch_size'))
-			print_status("This module needs to export run_batch_size()")
-			return
-		end
+      # Assume that the oldest thread will be one of the
+      # first to finish and wait for it.  After that's
+      # done, remove any finished threads from the list
+      # and continue on.  This will open up at least one
+      # spot for a new thread
+      tla = @tl.length
+      @tl.first.join
+      @tl.delete_if { |t| not t.alive? }
+      tlb = @tl.length
 
-		size = run_batch_size()
+      @range_done += (tla - tlb)
+      scanner_show_progress() if @show_progress
+    end
 
-		ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
+    scanner_handle_fatal_errors
+    return
+  end
 
-		@tl = []
+  if (self.respond_to?('run_batch'))
 
-		while(true)
-			nohosts = false
-			while (@tl.length < threads_max)
+    if (! self.respond_to?('run_batch_size'))
+      print_status("This module needs to export run_batch_size()")
+      return
+    end
 
-				batch = []
+    size = run_batch_size()
 
-				# Create batches from each set
-				while (batch.length < size)
-					ip = ar.next_ip
-					if (not ip)
-						nohosts = true
-						break
-					end
-					batch << ip
-				end
+    ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
 
-				# Create a thread for each batch
-				if (batch.length > 0)
-					thread = framework.threads.spawn("ScannerBatch(#{self.refname})", false, batch) do |bat|
-						nmod = self.replicant
-						mybatch = bat.dup
-						begin
-							nmod.run_batch(mybatch)
-						rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
-						rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
-							raise $!
-						rescue ::Exception => e
-							print_status("Error: #{mybatch[0]}-#{mybatch[-1]}: #{e}")
-						ensure
-							nmod.cleanup
-						end
-					end
-					thread[:batch_size] = batch.length
-					@tl << thread
-				end
+    while(true)
+      nohosts = false
 
-				# Exit once we run out of hosts
-				if (@tl.length == 0 or nohosts)
-					break
-				end
-			end
+      # Stop scanning if we hit a fatal error
+      break if has_fatal_errors?
 
-			# Exit if there are no more pending threads
-			if (@tl.length == 0)
-				break
-			end
+      while (@tl.length < threads_max)
 
-			# Assume that the oldest thread will be one of the
-			# first to finish and wait for it.  After that's
-			# done, remove any finished threads from the list
-			# and continue on.  This will open up at least one
-			# spot for a new thread
-			tla = 0
-			@tl.map {|t| tla += t[:batch_size] }
-			@tl.first.join
-			@tl.delete_if { |t| not t.alive? }
-			tlb = 0
-			@tl.map {|t| tlb += t[:batch_size] }
+        batch = []
 
-			@range_done += tla - tlb
-			scanner_show_progress() if @show_progress
-		end
+        # Create batches from each set
+        while (batch.length < size)
+          ip = ar.next_ip
+          if (not ip)
+            nohosts = true
+            break
+          end
+          batch << ip
+        end
 
-		return
-	end
+        # Create a thread for each batch
+        if (batch.length > 0)
+          thread = framework.threads.spawn("ScannerBatch(#{self.refname})", false, batch) do |bat|
+            nmod = self.replicant
+            mybatch = bat.dup
+            begin
+              nmod.run_batch(mybatch)
+          rescue ::Rex::BindFailed
+            if datastore['CHOST']
+              @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
+            end
+            rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
+            rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
+              raise $!
+            rescue ::Exception => e
+              print_status("Error: #{mybatch[0]}-#{mybatch[-1]}: #{e}")
+            ensure
+              nmod.cleanup
+            end
+          end
+          thread[:batch_size] = batch.length
+          @tl << thread
+        end
 
-	print_error("This module defined no run_host, run_range or run_batch methods")
+        # Exit once we run out of hosts
+        if (@tl.length == 0 or nohosts)
+          break
+        end
+      end
 
-	rescue ::Interrupt
-		print_status("Caught interrupt from the console...")
-		return
-	ensure
-		seppuko!()
-	end
+      # Stop scanning if we hit a fatal error
+      break if has_fatal_errors?
+
+      # Exit if there are no more pending threads
+      if (@tl.length == 0)
+        break
+      end
+
+      # Assume that the oldest thread will be one of the
+      # first to finish and wait for it.  After that's
+      # done, remove any finished threads from the list
+      # and continue on.  This will open up at least one
+      # spot for a new thread
+      tla = 0
+      @tl.map {|t| tla += t[:batch_size] }
+      @tl.first.join
+      @tl.delete_if { |t| not t.alive? }
+      tlb = 0
+      @tl.map {|t| tlb += t[:batch_size] }
+
+      @range_done += tla - tlb
+      scanner_show_progress() if @show_progress
+    end
+
+    scanner_handle_fatal_errors
+    return
+  end
+
+  print_error("This module defined no run_host, run_range or run_batch methods")
+
+  rescue ::Interrupt
+    print_status("Caught interrupt from the console...")
+    return
+  ensure
+    seppuko!()
+  end
 end
 
 def seppuko!
-	@tl.each do |t|
-		begin
-			t.kill if t.alive?
-		rescue ::Exception
-		end
-	end
+  @tl.each do |t|
+    begin
+      t.kill if t.alive?
+    rescue ::Exception
+    end
+  end
+end
+
+def has_fatal_errors?
+  @scan_errors && !@scan_errors.empty?
+end
+
+def scanner_handle_fatal_errors
+  return unless has_fatal_errors?
+  return unless @tl
+
+  # First kill any running threads
+  @tl.each {|t| t.kill if t.alive? }
+
+  # Show the unique errors triggered by the scan
+  uniq_errors = @scan_errors.uniq
+  uniq_errors.each do |emsg|
+    print_error("Fatal: #{emsg}")
+  end
+  print_error("Scan terminated due to #{uniq_errors.size} fatal error(s)")
 end
 
 def scanner_progress
-	return 0 unless @range_done and @range_count
-	pct = (@range_done / @range_count.to_f) * 100
+  return 0 unless @range_done and @range_count
+  pct = (@range_done / @range_count.to_f) * 100
 end
 
 def scanner_show_progress
-	pct = scanner_progress
-	if(pct >= (@range_percent + @show_percent))
-		@range_percent = @range_percent + @show_percent
-		tdlen = @range_count.to_s.length
-		print_status("Scanned #{"%.#{tdlen}d" % @range_done} of #{@range_count} hosts (#{"%.3d" % pct.to_i}% complete)")
-	end
+  # it should already be in the process of shutting down if there are fatal errors
+  return if has_fatal_errors?
+  pct = scanner_progress
+  if pct >= (@range_percent + @show_percent)
+    @range_percent = @range_percent + @show_percent
+    tdlen = @range_count.to_s.length
+    print_status(sprintf("Scanned %#{tdlen}d of %d hosts (%d%% complete)", @range_done, @range_count, pct))
+  end
 end
 
 end

@@ -1,6 +1,0 @@
-<div>
-<% for item in list %>
-  <p><%= item %></p>
-  <p><%== item %></p>
-<% end %>
-</div>

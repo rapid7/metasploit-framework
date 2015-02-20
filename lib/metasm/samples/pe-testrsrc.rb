@@ -14,8 +14,8 @@ require 'metasm'
 
 pe = Metasm::PE.assemble Metasm::Ia32.new, <<EOS
 .entrypoint
-	xor eax, eax
-	ret
+  xor eax, eax
+  ret
 EOS
 
 rsrc = { 1 => { 1 => { 2 => 'xxx' }, 'toto' => { 12 => 'tata' } } }

@@ -10,34 +10,26 @@
 
 require 'rubygems'
 require 'pathname'
-require 'hpricot'
+require 'nokogiri'
 require 'uri'
 
 class CrawlerLink < BaseParser
 
-	def parse(request,result)
+  def parse(request,result)
+    return unless result['Content-Type'].include?('text/html')
 
-		if !result['Content-Type'].include? "text/html"
-			return
-		end
+    doc = Nokogiri::HTML(result.body.to_s)
+    doc.css('link').each do |link|
+      hr = link['href']
+      if hr && !hr.match(/^(\#|javascript\:)/)
+        begin
+          hreq = urltohash('GET', hr, request['uri'], nil)
+          insertnewpath(hreq)
+        rescue URI::InvalidURIError
+        end
+      end
 
-		doc = Hpricot(result.body.to_s)
-		doc.search('link').each do |link|
-
-		hr = link.attributes['href']
-
-		if hr and !hr.match(/^(\#|javascript\:)/)
-			begin
-				hreq = urltohash('GET',hr,request['uri'],nil)
-
-				insertnewpath(hreq)
-
-			rescue URI::InvalidURIError
-				#puts "Parse error"
-				#puts "Error: #{link[0]}"
-			end
-		end
-		end
-	end
+    end
+  end
 end
 

