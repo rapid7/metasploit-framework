@@ -1089,6 +1089,14 @@ SMB_SEARCH_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 )
 SMB_SEARCH_PKT = self.make_nbs(SMB_SEARCH_HDR_PKT)
 
+# A SMB template for SMB TRANS2 parameters
+TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+    [ 'uint16v',  'SID',                 0 ],
+    [ 'uint16v',  'SearchCount',         0 ],
+    [ 'uint16v',  'EndOfSearch',         0 ],
+    [ 'uint16v',  'EaErrorOffset',       0 ],
+    [ 'uint16v',  'LastNameOffset',      0 ]
+)
 
 end
 end
