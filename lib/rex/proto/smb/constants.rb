@@ -1089,8 +1089,8 @@ SMB_SEARCH_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 )
 SMB_SEARCH_PKT = self.make_nbs(SMB_SEARCH_HDR_PKT)
 
-# A template for SMB TRANS2 parameters
-SMB_TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+# A template for SMB TRANS2_FIND_FIRST response parameters
+SMB_TRANS2_FIND_FIRST2_RES_PARAMETERS = Rex::Struct2::CStructTemplate.new(
   ['uint16v', 'SID',            0],
   ['uint16v', 'SearchCount',    0],
   ['uint16v', 'EndOfSearch',    0],
@@ -1160,6 +1160,25 @@ SMB_FIND_FILE_FULL_DIRECTORY_INFO_HDR = Rex::Struct2::CStructTemplate.new(
 )
 
 SMB_FIND_FILE_FULL_DIRECTORY_INFO_HDR_LENGTH = 68
+
+# A template for SMB FIND_FIRST2 TRANS2 response parameters
+SMB_TRANS2_QUERY_PATH_INFORMATION_RES_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+  ['uint16v', 'EaErrorOffset',  0]
+)
+
+# A template for SMB_QUERY_FILE_BASIC_INFO query path information level
+SMB_QUERY_FILE_BASIC_INFO_HDR = Rex::Struct2::CStructTemplate.new(
+  ['uint32v', 'loCreationTime',    0],
+  ['uint32v', 'hiCreationTime',    0],
+  ['uint32v', 'loLastAccessTime',  0],
+  ['uint32v', 'hiLastAccessTime',  0],
+  ['uint32v', 'loLastWriteTime',   0],
+  ['uint32v', 'hiLastWriteTime',   0],
+  ['uint32v', 'loLastChangeTime',  0],
+  ['uint32v', 'hiLastChangeTime',  0],
+  ['uint32v', 'ExtFileAttributes', 0],
+  ['uint32v', 'Reserved', 0]
+)
 
 end
 end
