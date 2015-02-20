@@ -1089,13 +1089,38 @@ SMB_SEARCH_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 )
 SMB_SEARCH_PKT = self.make_nbs(SMB_SEARCH_HDR_PKT)
 
-# A SMB template for SMB TRANS2 parameters
-TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
-    [ 'uint16v',  'SID',                 0 ],
-    [ 'uint16v',  'SearchCount',         0 ],
-    [ 'uint16v',  'EndOfSearch',         0 ],
-    [ 'uint16v',  'EaErrorOffset',       0 ],
-    [ 'uint16v',  'LastNameOffset',      0 ]
+# A template for SMB TRANS2 parameters
+SMB_TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+  ['uint16v', 'SID',            0],
+  ['uint16v', 'SearchCount',    0],
+  ['uint16v', 'EndOfSearch',    0],
+  ['uint16v', 'EaErrorOffset',  0],
+  ['uint16v', 'LastNameOffset', 0]
+)
+
+# A template for SMB_FIND_FILE_BOTH_DIRECTORY_INFO Find information level
+SMB_FIND_FILE_BOTH_DIRECTORY_INFO_HDR = Rex::Struct2::CStructTemplate.new(
+  ['uint32v', 'NextEntryOffset',   0],
+  ['uint32v', 'FileIndex',         0],
+  ['uint32v', 'loCreationTime',    0],
+  ['uint32v', 'hiCreationTime',    0],
+  ['uint32v', 'loLastAccessTime',  0],
+  ['uint32v', 'hiLastAccessTime',  0],
+  ['uint32v', 'loLastWriteTime',   0],
+  ['uint32v', 'hiLastWriteTime',   0],
+  ['uint32v', 'loLastChangeTime',  0],
+  ['uint32v', 'hiLastChangeTime',  0],
+  ['uint64v', 'EndOfFile',         0],
+  ['uint64v', 'AllocationSize',    0],
+  ['uint32v', 'ExtFileAttributes', 0],
+  ['uint32v', 'FileNameLength',    0],
+  ['uint32v', 'EaSize',            0],
+  ['uint8',   'ShortNameLength',   0],
+  ['uint8',   'Reserved',          0],
+  ['string',  'ShortName', 24, '', "\x00"],
+  ['string',  'FileName', nil, '' ]
+).create_restraints(
+  ['FileName', 'FileNameLength',  nil, true]
 )
 
 end
