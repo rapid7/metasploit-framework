@@ -135,7 +135,7 @@ module Msf::DBManager::Web
 
     ret = {}
 
-    page = ::Mdm::WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
+    page = ::Mdm::WebPage.where(web_site_id: site[:id], path: path, query: query).first_or_initialize
     page.code     = code
     page.body     = body
     page.headers  = headers
@@ -243,7 +243,7 @@ module Msf::DBManager::Web
 =end
 
     vhost ||= host.address
-    site = ::Mdm::WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
+    site = ::Mdm::WebSite.where(vhost: vhost, service_id: serv[:id]).first_or_initialize
     site.options = opts[:options] if opts[:options]
 
     # XXX:
@@ -342,7 +342,7 @@ module Msf::DBManager::Web
 
     meth = meth.to_s.upcase
 
-    vuln = ::Mdm::WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_category_and_query(site[:id], path, meth, pname, name, cat, quer)
+    vuln = ::Mdm::WebVuln.where(web_site_id: site[:id], path: path, method: meth, pname: pname, name: name, category: cat, query: quer).first_or_initialize
     vuln.name     = name
     vuln.risk     = risk
     vuln.params   = para

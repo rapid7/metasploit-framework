@@ -210,6 +210,8 @@ class Metasploit3 < Msf::Auxiliary
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       proxies: datastore['Proxies'],
       connection_timeout: datastore['SSH_TIMEOUT'],
+      framework: framework,
+      framework_module: self,
     )
 
     scanner.scan! do |result|

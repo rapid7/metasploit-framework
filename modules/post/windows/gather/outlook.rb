@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Post
     # Check whether target system is locked
     locked = client.railgun.user32.GetForegroundWindow()['return']
     if locked == 0
-      fail_with(Failure::Unknown, "Target system is locked. This post module cannot click on Outlooks security warning when the target system is locked")
+      fail_with(Failure::Unknown, "Target system is locked. This post module cannot click on Outlook's security warning when the target system is locked.")
     end
 
     case action.name
