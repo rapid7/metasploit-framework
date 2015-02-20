@@ -1180,6 +1180,15 @@ SMB_QUERY_FILE_BASIC_INFO_HDR = Rex::Struct2::CStructTemplate.new(
   ['uint32v', 'Reserved', 0]
 )
 
+# A template for SMB_QUERY_FILE_STANDARD_INFO query path information level
+SMB_QUERY_FILE_STANDARD_INFO_HDR = Rex::Struct2::CStructTemplate.new(
+  ['uint64v', 'AllocationSize', 0],
+  ['uint64v', 'EndOfFile',      0],
+  ['uint32v', 'NumberOfLinks',  0],
+  ['uint8',   'DeletePending',  0],
+  ['uint8',   'Directory',      0]
+)
+
 end
 end
 end
