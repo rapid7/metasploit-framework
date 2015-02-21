@@ -105,6 +105,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    store_loot('wordpress.users.export', 'csv', datastore['RHOST'], res.body, 'users_export.csv', 'WordPress User Table Extract')
+    store_path = store_loot('wordpress.users.export', 'csv', datastore['RHOST'], res.body, 'users_export.csv', 'WordPress User Table Extract')
+    print_good("#{peer} - CSV saved to #{store_path}")
   end
 end
