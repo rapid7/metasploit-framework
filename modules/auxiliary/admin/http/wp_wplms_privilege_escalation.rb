@@ -38,8 +38,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USERNAME', [false, 'The WordPress username to authenticate with']),
-        OptString.new('PASSWORD', [false, 'The WordPress password to authenticate with'])
+        OptString.new('USERNAME', [true, 'The WordPress username to authenticate with']),
+        OptString.new('PASSWORD', [true, 'The WordPress password to authenticate with'])
       ], self.class)
   end
 
