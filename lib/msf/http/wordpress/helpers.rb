@@ -132,6 +132,8 @@ module Msf::HTTP::Wordpress::Helpers
       'vars_get'  => { 'tab' => 'upload' }
     }
     res = send_request_cgi(options)
-    res.body.to_s[/id="_wpnonce" name="_wpnonce" value="([a-z0-9]+)"/i, 1]
+    if res && res.code == 200
+      return res.body.to_s[/id="_wpnonce" name="_wpnonce" value="([a-z0-9]+)"/i, 1]
+    end
   end
 end
