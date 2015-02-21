@@ -32,6 +32,13 @@ class Metasploit3 < Msf::Auxiliary
           'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "unix_passwords.txt")
         }
     ))
+
+    register_advanced_options([
+      OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/proxy/ssllogin']),
+      OptString.new('CPQLOGIN', [true, 'The homepage of the login', '/cpqlogin.htm']),
+      OptString.new('LOGIN_REDIRECT', true, 'The URL to redirect to', '/cpqlogin')
+
+    ], self.class)
   end
 
   def get_version(res)
@@ -78,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
     @scanner = Metasploit::Framework::LoginScanner::Smh.new(
       host:               ip,
       port:               rport,
-      uri:                datastore['URI'],
+      uri:                datastore['LOGIN_URL'],
       proxies:            datastore["PROXIES"],
       cred_details:       @cred_collection,
       stop_on_success:    datastore['STOP_ON_SUCCESS'],
@@ -163,10 +170,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri' => '/cpqlogin.htm',
+      'uri' => datastore['CPQLOGIN'],
       'method' => 'GET',
       'vars_get' => {
-        'RedirectUrl' => '/cpqlogin',
+        'RedirectUrl' => datastore['LOGIN_REDIRECT'],
         'RedirectQueryString' => ''
       }
     })
