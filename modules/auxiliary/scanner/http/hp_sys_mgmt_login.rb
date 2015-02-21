@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options([
       OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/proxy/ssllogin']),
       OptString.new('CPQLOGIN', [true, 'The homepage of the login', '/cpqlogin.htm']),
-      OptString.new('LOGIN_REDIRECT', true, 'The URL to redirect to', '/cpqlogin')
+      OptString.new('LOGIN_REDIRECT', [true, 'The URL to redirect to', '/cpqlogin'])
 
     ], self.class)
   end
