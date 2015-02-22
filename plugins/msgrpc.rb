@@ -43,7 +43,7 @@ class Plugin::MSGRPC < Msf::Plugin
 
     host = opts['ServerHost'] || DefaultHost
     port = opts['ServerPort'] || DefaultPort
-    ssl  = (opts['SSL'] and opts['SSL'].to_s =~ /^[ty]/i) ? true : false
+    ssl  = (opts['SSL'] && opts['SSL'].to_s =~ /^[ty]/i) ? true : false
     cert = opts['SSLCert']
 
     user = opts['User'] || "msf"
@@ -67,7 +67,7 @@ class Plugin::MSGRPC < Msf::Plugin
 
     # If the run in foreground flag is not specified, then go ahead and fire
     # it off in a worker thread.
-    if (opts['RunInForeground'] != true)
+    unless opts['RunInForeground']
       # Store a handle to the thread so we can kill it during
       # cleanup when we get unloaded.
       self.thread = Thread.new { run }
