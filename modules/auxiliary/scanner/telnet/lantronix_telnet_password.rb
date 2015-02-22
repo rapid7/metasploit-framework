@@ -36,8 +36,6 @@ class Metasploit4 < Msf::Auxiliary
     password = nil
 
     begin
-      # Create an unbound UDP socket if no CHOST is specified, otherwise
-      # create a UDP socket bound to CHOST (in order to avail of pivoting)
       sock_opts = {
         'LocalHost' => datastore['CHOST'] || nil,
         'PeerHost'  => ip, 
@@ -51,6 +49,8 @@ class Metasploit4 < Msf::Auxiliary
         vprint_good("Checking Lantronix TCP Socket #{datastore['RPORT']} on #{ip}")
         rem_sock = Rex::Socket::Tcp.create(sock_opts)
       else
+        # Create an unbound UDP socket if no CHOST is specified, otherwise
+        # create a UDP socket bound to CHOST (in order to avail of pivoting)
         vprint_good("Checking Lantronix UDP Socket #{datastore['RPORT']} on #{ip}")
         rem_sock = Rex::Socket::Udp.create(sock_opts)
       end
@@ -74,16 +74,32 @@ class Metasploit4 < Msf::Auxiliary
       else
         print_good("#{rhost} - Telnet password found: #{password.to_s}")
 
-        report_auth_info({
-          :host         => rhost,
-          :port         => 9999,
-          :sname        => 'telnet',
-          :duplicate_ok => false,
-          :pass         => password.to_s
-        })
+        service_data = { 
+          address: ip, 
+          port: 9999,
+          service_name: 'telnet',
+          protocol: 'tcp',
+          workspace_id: myworkspace_id
+        }   
+
+        credential_data = { 
+          module_fullname: self.fullname,
+          origin_type: :service,
+          private_data: password.to_s,
+          private_type: :password
+        }.merge(service_data)
+
+        credential_core = create_credential(credential_data)
+
+        login_data = { 
+          core: credential_core,
+          last_attempted_at: DateTime.now,
+          status: Metasploit::Model::Login::Status::SUCCESSFUL
+        }.merge(service_data)
+
+        create_credential_login(login_data)
       end
     end
-
   end
 
   def parse_reply(pkt)
@@ -97,4 +113,4 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 
-end
+end 
