@@ -76,16 +76,15 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     @scanner = Metasploit::Framework::LoginScanner::Smh.new(
-      host:               ip,
-      port:               rport,
-      uri:                datastore['URI'],
-      proxies:            datastore["PROXIES"],
-      cred_details:       @cred_collection,
-      stop_on_success:    datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: 5,
-      framework: framework,
-      framework_module: self,
+      configure_http_login_scanner(
+        host:               ip,
+        port:               rport,
+        uri:                datastore['URI'],
+        cred_details:       @cred_collection,
+        stop_on_success:    datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
+      )
     )
 
     @scanner.ssl         = datastore['SSL']
