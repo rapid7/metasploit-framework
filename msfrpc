@@ -84,8 +84,6 @@ rpc = Msf::RPC::Client.new(
 )
 
 rpc.login(opts['User'], opts['Pass'])
-rpc.call('console.create')
-# => "consoles"=>[ {"id"=>"0", "prompt"=>"msf > ", "busy"=>false} ]
 
 puts "[*] The 'rpc' object holds the RPC client interface"
 puts "[*] Use rpc.call('group.command') to make RPC calls"
