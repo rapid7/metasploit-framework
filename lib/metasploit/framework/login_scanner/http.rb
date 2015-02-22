@@ -286,7 +286,7 @@ module Metasploit
           # Set the parameter only if it is not nil
           possible_params.each_pair do |k,v|
             next if v.nil?
-            http_client.set_config(k,v)
+            http_client.set_config(k => v)
           end
 
           http_client
