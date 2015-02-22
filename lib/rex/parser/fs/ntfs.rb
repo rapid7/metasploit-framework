@@ -181,7 +181,8 @@ module Rex
 
             data = ''
             while data.length < size_wanted
-              data << @file_handler.read([size_wanted - data.length, 2**25].min)
+              # use an arbitrary block size to avoid target memory consomation
+              data << @file_handler.read([size_wanted - data.length, 2**26].min)
             end
             attribut << data
           end
