@@ -77,8 +77,6 @@ class Metasploit3 < Msf::Auxiliary
 
     @scanner = Metasploit::Framework::LoginScanner::Smh.new(
       configure_http_login_scanner(
-        host:               ip,
-        port:               rport,
         uri:                datastore['URI'],
         cred_details:       @cred_collection,
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
@@ -86,9 +84,6 @@ class Metasploit3 < Msf::Auxiliary
         connection_timeout: 5
       )
     )
-
-    @scanner.ssl         = datastore['SSL']
-    @scanner.ssl_version = datastore['SSLVERSION']
   end
 
  def do_report(ip, port, result)

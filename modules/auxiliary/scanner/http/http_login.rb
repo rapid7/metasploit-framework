@@ -154,8 +154,6 @@ class Metasploit3 < Msf::Auxiliary
 
     scanner = Metasploit::Framework::LoginScanner::HTTP.new(
       configure_http_login_scanner(
-        host: ip,
-        port: rport,
         uri: @uri,
         method: datastore['REQUESTTYPE'],
         cred_details: cred_collection,

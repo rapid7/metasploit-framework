@@ -80,8 +80,6 @@ class Metasploit3 < Msf::Auxiliary
 
     scanner = Metasploit::Framework::LoginScanner::Axis2.new(
       configure_http_login_scanner(
-        host: ip,
-        port: rport,
         uri: uri,
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
