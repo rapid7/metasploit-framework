@@ -122,7 +122,7 @@ module Metasploit
         attr_accessor :evade_header_folding
 
         # @!attribute ntlm_use_ntlmv2_session
-        #   @return [Boolean] Whtehr to activate the 'Negotiate NTLM2 key' flag, forcing the use of a NTLMv2_session
+        #   @return [Boolean] Whether to activate the 'Negotiate NTLM2 key' flag, forcing the use of a NTLMv2_session
         attr_accessor :ntlm_use_ntlmv2_session
 
         # @!attribute ntlm_use_ntlmv2
