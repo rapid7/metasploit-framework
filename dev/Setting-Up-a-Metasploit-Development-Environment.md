@@ -64,7 +64,7 @@ Wayne Seguin's RVM has become quite excellent at providing several proven Ruby i
 [https://rvm.io/](https://rvm.io/) to read up on it or just trust that it'll all work out with a simple:
 
 ````bash
-\curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=1.9.3
+\curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.5
 ````
 
 Note the *lack* of sudo; you will nearly always want to install this as
