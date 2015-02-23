@@ -193,7 +193,6 @@ module Metasploit
         #   login with.
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
-          ssl = false if ssl.nil?
 
           result_opts = {
             credential: credential,
@@ -312,6 +311,10 @@ module Metasploit
             self.ssl = false
           elsif self.ssl.nil? && self.port == self.class::DEFAULT_SSL_PORT
             self.ssl = true
+          end
+
+          if self.ssl.nil?
+            self.ssl = false
           end
 
           nil
