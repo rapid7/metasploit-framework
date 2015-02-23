@@ -74,7 +74,7 @@ Sometimes, depending on your particular platform, this incantation may
 not be reliable. This is nearly identical, but more typing:
 
 ````bash
-\curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
+\curl -o rvm.sh -L get.rvm.io && cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.5
 ````
 
 Also, if you're sketchy about piping a web site directly to bash (which you should be), you
@@ -83,7 +83,7 @@ can perform each step individually, without the &&:
 ````bash
 \curl -o rvm.sh -L get.rvm.io 
 less rvm.sh
-cat rvm.sh | bash -s stable --autolibs=enabled --ruby=1.9.3
+cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.5
 ````
 
 Next, load the RVM scripts by either opening a new terminal window, or
@@ -116,19 +116,15 @@ Because Metasploit now ships with `.ruby-gemset` and `.ruby-version`
 files, you do not need to do anything special to ensure your gems get
 stashed in the right place. When you cd to your Metasploit framework
 checkout, your environment will automatically switch contexts to
-`ruby-1.9.3-p551@metasploit-framework`.
+`ruby-2.1.5@metasploit-framework`.
 
 ### rbenv
 
 Simply follow [this](https://github.com/sstephenson/rbenv#installation)
 
-### Moving to Ruby 2.1.x
+### Moving to Ruby 2.1.x (from 1.9.3)
 
-As a Metasploit developer, you are encouraged to use the non-default
-2.1.5, and you should see some significant performance increases as a result.
-Metasploit is currently cross-compatible with 1.9.3 and 2.1.5. 
-Until January 6, 2015, both Ruby 1.9.3 and Ruby 2.1.x are supported; after that,
-only 2.1.x will be supported, as 1.9.3 will be [completely end of life'd](https://www.ruby-lang.org/en/news/2014/01/10/ruby-1-9-3-will-end-on-2015/).
+As a Metasploit developer, you are encouraged to switch to Ruby 2.1.x as soon as possible. You should see some significant performance increases as a result. As of January 6, 2015, only Ruby 2.1.x is supported and 1.9.3 has been [completely end of life'd](https://www.ruby-lang.org/en/news/2014/01/10/ruby-1-9-3-will-end-on-2015/). Note that Ruby 2.2.x is **not** supported yet.
 
 If you'd like to use another version of ruby, ```rvm``` and ```rbenv``` can help you easily switch:
 
