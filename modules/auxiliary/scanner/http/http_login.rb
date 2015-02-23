@@ -74,6 +74,7 @@ class Metasploit3 < Msf::Auxiliary
         /auth/
         /manager/
         /Management.asp
+        /ews/
       }
     end
 
