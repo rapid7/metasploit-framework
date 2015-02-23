@@ -2053,6 +2053,16 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/dllinject/reverse_http'
   end
 
+  context 'windows/dllinject/reverse_http_proxy_pstore' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_http_proxy_pstore',
+                            'stages/windows/dllinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/dllinject/reverse_http_proxy_pstore'
+  end
+
   context 'windows/dllinject/reverse_ipv6_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
@@ -2255,6 +2265,16 @@ describe 'modules/payloads', :content do
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_http'
+  end
+
+  context 'windows/meterpreter/reverse_http_proxy_pstore' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_http_proxy_pstore',
+                            'stages/windows/meterpreter'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/reverse_http_proxy_pstore'
   end
 
   context 'windows/meterpreter/reverse_https' do
@@ -2705,6 +2725,16 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/shell/reverse_http'
   end
 
+  context 'windows/shell/reverse_http_proxy_pstore' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_http_proxy_pstore',
+                            'stages/windows/shell'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/shell/reverse_http_proxy_pstore'
+  end
+
   context 'windows/shell/reverse_ipv6_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
@@ -2900,6 +2930,16 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/upexec/reverse_http'
   end
 
+  context 'windows/upexec/reverse_http_proxy_pstore' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_http_proxy_pstore',
+                            'stages/windows/upexec'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/upexec/reverse_http_proxy_pstore'
+  end
+
   context 'windows/upexec/reverse_ipv6_tcp' do
     it_should_behave_like 'payload can be instantiated',
                           ancestor_reference_names: [
@@ -3048,6 +3088,16 @@ describe 'modules/payloads', :content do
                           ],
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_http'
+  end
+
+  context 'windows/vncinject/reverse_http_proxy_pstore' do
+    it_should_behave_like 'payload can be instantiated',
+                          ancestor_reference_names: [
+                            'stagers/windows/reverse_http_proxy_pstore',
+                            'stages/windows/vncinject'
+                          ],
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/vncinject/reverse_http_proxy_pstore'
   end
 
   context 'windows/vncinject/reverse_ipv6_tcp' do

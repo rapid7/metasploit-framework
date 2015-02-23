@@ -64,16 +64,13 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::WordpressRPC.new(
-        host: ip,
-        port: rport,
+      configure_http_login_scanner(
         uri: wordpress_url_xmlrpc,
-        proxies: datastore["PROXIES"],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
-        framework: framework,
-        framework_module: self,
+      )
     )
 
     scanner.scan! do |result|

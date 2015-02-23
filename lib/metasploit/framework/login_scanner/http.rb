@@ -37,6 +37,122 @@ module Metasploit
         #   @return [String] the Virtual Host name for the target Web Server
         attr_accessor :vhost
 
+        # @!attribute evade_uri_encode_mode
+        #   @return [String] The type of URI encoding to use
+        attr_accessor :evade_uri_encode_mode
+
+        # @!attribute evade_uri_full_url
+        #   @return [Boolean] Whether to use the full URL for all HTTP requests
+        attr_accessor :evade_uri_full_url
+
+        # @!attribute evade_pad_method_uri_count
+        #   @return [Fixnum] How many whitespace characters to use between the method and uri
+        attr_accessor :evade_pad_method_uri_count
+
+        # @!attribute evade_pad_uri_version_count
+        #   @return [Fixnum] How many whitespace characters to use between the uri and version
+        attr_accessor :evade_pad_uri_version_count
+
+        # @!attribute evade_pad_method_uri_type
+        #   @return [String] What type of whitespace to use between the method and uri
+        attr_accessor :evade_pad_method_uri_type
+
+        # @!attribute evade_pad_uri_version_type
+        #   @return [String] What type of whitespace to use between the uri and version
+        attr_accessor :evade_pad_uri_version_type
+
+        # @!attribute evade_method_random_valid
+        #   @return [Boolean] Whether to use a random, but valid, HTTP method for request
+        attr_accessor :evade_method_random_valid
+
+        # @!attribute evade_method_random_invalid
+        #   @return [Boolean] Whether to use a random invalid, HTTP method for request
+        attr_accessor :evade_method_random_invalid
+
+        # @!attribute evade_method_random_case
+        #   @return [Boolean] Whether to use random casing for the HTTP method
+        attr_accessor :evade_method_random_case
+
+        # @!attribute evade_uri_dir_self_reference
+        #   @return [Boolean] Whether to insert self-referential directories into the uri
+        attr_accessor :evade_uri_dir_self_reference
+
+        # @!attribute evade_uri_dir_fake_relative
+        #   @return [Boolean] Whether to insert fake relative directories into the uri
+        attr_accessor :evade_uri_dir_fake_relative
+
+        # @!attribute evade_uri_use_backslashes
+        #   @return [Boolean] Whether to use back slashes instead of forward slashes in the uri
+        attr_accessor :evade_uri_use_backslashes
+
+        # @!attribute evade_pad_fake_headers
+        #   @return [Boolean] Whether to insert random, fake headers into the HTTP request
+        attr_accessor :evade_pad_fake_headers
+
+        # @!attribute evade_pad_fake_headers_count
+        #   @return [Fixnum] How many fake headers to insert into the HTTP request
+        attr_accessor :evade_pad_fake_headers_count
+
+        # @!attribute evade_pad_get_params
+        #   @return [Boolean] Whether to insert random, fake query string variables into the request
+        attr_accessor :evade_pad_get_params
+
+        # @!attribute evade_pad_get_params_count
+        #   @return [Fixnum] How many fake query string variables to insert into the request
+        attr_accessor :evade_pad_get_params_count
+
+        # @!attribute evade_pad_post_params
+        #   @return [Boolean] Whether to insert random, fake post variables into the request
+        attr_accessor :evade_pad_post_params
+
+        # @!attribute evade_pad_post_params_count
+        #   @return [Fixnum] How many fake post variables to insert into the request
+        attr_accessor :evade_pad_post_params_count
+
+        # @!attribute evade_uri_fake_end
+        #   @return [Boolean] Whether to add a fake end of URI (eg: /%20HTTP/1.0/../../)
+        attr_accessor :evade_uri_fake_end
+
+        # @!attribute evade_uri_fake_params_start
+        #   @return [Boolean] Whether to add a fake start of params to the URI (eg: /%3fa=b/../)
+        attr_accessor :evade_uri_fake_params_start
+
+        # @!attribute evade_header_folding
+        #   @return [Boolean]  Whether to enable folding of HTTP headers
+        attr_accessor :evade_header_folding
+
+        # @!attribute ntlm_use_ntlmv2_session
+        #   @return [Boolean] Whether to activate the 'Negotiate NTLM2 key' flag, forcing the use of a NTLMv2_session
+        attr_accessor :ntlm_use_ntlmv2_session
+
+        # @!attribute ntlm_use_ntlmv2
+        #   @return [Boolean] Whether to use NTLMv2 instead of NTLM2_session when 'Negotiate NTLM2' is enabled
+        attr_accessor :ntlm_use_ntlmv2
+
+        # @!attribute ntlm_send_lm
+        #   @return [Boolean] Whether to always send the LANMAN response (except when NTLMv2_session is specified)
+        attr_accessor :ntlm_send_lm
+
+        # @!attribute ntlm_send_ntlm
+        #   @return [Boolean] Whether to activate the 'Negotiate NTLM key' flag, indicating the use of NTLM responses
+        attr_accessor :ntlm_send_ntlm
+
+        # @!attribute ntlm_send_spn
+        #   @return [Boolean] Whether to send an avp of type SPN in the NTLMv2 client blob.
+        attr_accessor :ntlm_send_spn
+
+        # @!attribute ntlm_use_lm_key
+        #   @return [Boolean] Activate the 'Negotiate Lan Manager Key' flag, using the LM key when the LM response is sent
+        attr_accessor :ntlm_use_lm_key
+
+        # @!attribute ntlm_domain
+        #   @return [String] The NTLM domain to use during authentication
+        attr_accessor :ntlm_domain
+
+        # @!attribute digest_auth_iis
+        #   @return [Boolean] Whether to conform to IIS digest authentication mode.
+        attr_accessor :digest_auth_iis
+
 
         validates :uri, presence: true, length: { minimum: 1 }
 
@@ -47,7 +163,7 @@ module Metasploit
         # (see Base#check_setup)
         def check_setup
           http_client = Rex::Proto::Http::Client.new(
-            host, port, {}, ssl, ssl_version, proxies
+            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies
           )
           request = http_client.request_cgi(
             'uri' => uri,
@@ -55,7 +171,7 @@ module Metasploit
           )
 
           begin
-            # Use _send_recv instead of send_recv to skip automatiu
+            # Use _send_recv instead of send_recv to skip automatic
             # authentication
             response = http_client._send_recv(request)
           rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
@@ -95,11 +211,11 @@ module Metasploit
           end
 
           http_client = Rex::Proto::Http::Client.new(
-            host, port, {}, ssl, ssl_version,
+            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version,
             proxies, credential.public, credential.private
           )
 
-          http_client = config_client(http_client)
+          configure_http_client(http_client)
 
           if credential.realm
             http_client.set_config('domain' => credential.realm)
@@ -127,12 +243,53 @@ module Metasploit
 
         private
 
-        def config_client(client)
-          client.set_config(
-            'vhost' => vhost || host,
-            'agent' => user_agent
+        # This method is responsible for mapping the caller's datastore options to the
+        # Rex::Proto::Http::Client configuration parameters.
+        def configure_http_client(http_client)
+          http_client.set_config(
+            'vhost'                  => vhost || host,
+            'agent'                  => user_agent
           )
-          client
+
+          possible_params = {
+            'uri_encode_mode'        => evade_uri_encode_mode,
+            'uri_full_url'           => evade_uri_full_url,
+            'pad_method_uri_count'   => evade_pad_method_uri_count,
+            'pad_uri_version_count'  => evade_pad_uri_version_count,
+            'pad_method_uri_type'    => evade_pad_method_uri_type,
+            'pad_uri_version_type'   => evade_pad_uri_version_type,
+            'method_random_valid'    => evade_method_random_valid,
+            'method_random_invalid'  => evade_method_random_invalid,
+            'method_random_case'     => evade_method_random_case,
+            'uri_dir_self_reference' => evade_uri_dir_self_reference,
+            'uri_dir_fake_relative'  => evade_uri_dir_fake_relative,
+            'uri_use_backslashes'    => evade_uri_use_backslashes,
+            'pad_fake_headers'       => evade_pad_fake_headers,
+            'pad_fake_headers_count' => evade_pad_fake_headers_count,
+            'pad_get_params'         => evade_pad_get_params,
+            'pad_get_params_count'   => evade_pad_get_params_count,
+            'pad_post_params'        => evade_pad_post_params,
+            'pad_post_params_count'  => evade_pad_post_params_count,
+            'uri_fake_end'           => evade_uri_fake_end,
+            'uri_fake_params_start'  => evade_uri_fake_params_start,
+            'header_folding'         => evade_header_folding,
+            'usentlm2_session'       => ntlm_use_ntlmv2_session,
+            'use_ntlmv2'             => ntlm_use_ntlmv2,
+            'send_lm'                => ntlm_send_lm,
+            'send_ntlm'              => ntlm_send_ntlm,
+            'SendSPN'                => ntlm_send_spn,
+            'UseLMKey'               => ntlm_use_lm_key,
+            'domain'                 => ntlm_domain,
+            'DigestAuthIIS'          => digest_auth_iis
+          }
+
+          # Set the parameter only if it is not nil
+          possible_params.each_pair do |k,v|
+            next if v.nil?
+            http_client.set_config(k => v)
+          end
+
+          http_client
         end
 
         # This method sets the sane defaults for things
@@ -158,6 +315,14 @@ module Metasploit
           end
 
           nil
+        end
+
+        # Combine the base URI with the target URI in a sane fashion
+        #
+        # @param [String] The target URL
+        # @return [String] the final URL mapped against the base
+        def normalize_uri(target_uri)
+          (self.uri.to_s + "/" + target_uri.to_s).gsub(/\/+/, '/')
         end
 
       end
