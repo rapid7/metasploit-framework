@@ -1199,6 +1199,21 @@ class Constants
     ['uint8',   'DeletePending',  0],
     ['uint8',   'Directory',      0]
   )
+
+  # A template for SMB_Data blocks of the SMB_COM_TRANSACTION2 requests
+  SMB_DATA_TRANS2 = Rex::Struct2::CStructTemplate.new(
+    ['uint16v', 'SubCommand',          0],
+    ['uint16v', 'ByteCount',           0],
+    ['string',  'Parameters', nil,    '']
+  ).create_restraints(
+    ['Parameters', 'ByteCount',  nil, true]
+  )
+
+  SMB_TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+    ['uint16v', 'InformationLevel', 0],
+    ['uint32v', 'Reserved',         0],
+    ['string',  'FileName', nil,   '']
+  )
 end
 end
 end
