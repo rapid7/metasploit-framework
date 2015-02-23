@@ -111,6 +111,7 @@ in your shell:
 
 [[/screens/rvm_install.png]]
 [[/screens/rvm_finish.png]]
+*<sup>TODO: Update these screens with 2.1.5</sup>*
 
 Because Metasploit now ships with `.ruby-gemset` and `.ruby-version`
 files, you do not need to do anything special to ensure your gems get
@@ -121,6 +122,7 @@ checkout, your environment will automatically switch contexts to
 ### rbenv
 
 Simply follow [this](https://github.com/sstephenson/rbenv#installation)
+set of instructions.
 
 ### Moving to Ruby 2.1.x (from 1.9.3)
 
@@ -185,9 +187,9 @@ Finally, I have a very small set of defaults, here:
 https://gist.github.com/4658778 . Drop this in your `~/.vimrc.after`
 file. Note, **Metasploit no longer uses hard tabs**.
 
-*TODO: Add Rubymine docs, add screenshots for this*
-*TODO: Could reference the Sublime Text 2 plugin TidyOnExit for anyone
- using Sublime
+*<sup>TODO: Add Rubymine docs, add screenshots for this</sup>*
+*<sup>TODO: Could reference the Sublime Text 2 plugin TidyOnExit for anyone
+ using Sublime</sup>*
 
 ## Using GitHub
 
@@ -355,6 +357,7 @@ Your bundle is complete!
 Use `bundle show [gemname]` to see where a bundled gem is installed.
 (master) fakey@mazikeen:~/git/metasploit-framework$
 ````
+*<sup>TODO: Update this for a more recent bundle readout</sup>*
 
 From that point on, you'll want to occasionally run `bundle install`
 whenever the `Gemfile` changes (`msfupdate` does this automatically).
@@ -432,6 +435,7 @@ git log --pretty=oneline --name-only -3
 It should all look like this in your command window:
 
 [[/screens/git02.png]]
+*<sup>TODO: Update this screen to 2.1.5</sup>*
 
 It's pretty handy to have this checkout be persistent so you can
 reference it later. So, type this:
@@ -504,6 +508,7 @@ git push origin master
 It should all look something like this:
 
 [[/screens/git04.png]]
+*<sup>TODO: Update this screen to 2.1.5</sup>*
 
 Switch back to your browser, refresh, and you should see the new changes
 reflected in your repo immediately (those GitHub guys are super fast):
