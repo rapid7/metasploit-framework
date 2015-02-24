@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Windows Local SQL Server Password Hashes Dump',
+        'Name'          => 'Windows Gather Local SQL Server Hash Dump',
         'Description'   => %q{ This module extracts the usernames and password
         hashes from a MSSQL server and stores them in the loot using the
         same technique in mssql_local_auth_bypass (Credits: Scott Sutherland)
