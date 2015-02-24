@@ -781,7 +781,6 @@ class Core
     end
   end
 
-
   def cmd_rename_job_help
     print_line "Usage: rename_job [ID] [Name]"
     print_line
@@ -814,6 +813,17 @@ class Core
     true
   end
 
+  #
+  # Tab completion for the rename_job command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_rename_job_tabs(str, words)
+    return [] if words.length > 1
+    framework.jobs.keys
+  end
 
   def cmd_jobs_help
     print_line "Usage: jobs [options]"
