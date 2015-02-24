@@ -345,6 +345,13 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
         vobj = report_vuln(vuln_data)
 
+        vuln.elements.each("notes/note") do |note|
+          note_data = {}
+          note_data[:workspace] = wspace
+          note_data[:vuln_id] = vobj.id
+          import_msf_note_element(note,allow_yaml,note_data)
+        end
+
         vuln.elements.each("vuln_details/vuln_detail") do |vdet|
           vdet_data = {}
           vdet.elements.each do |det|

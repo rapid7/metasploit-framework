@@ -162,6 +162,9 @@ module Msf::DBManager::Note
       note.ntype    = ntype
       note.data     = data
     end
+    if opts[:vuln_id]
+      note.vuln_id = opts[:vuln_id]
+    end
     msf_import_timestamps(opts,note)
     note.save!
     ret[:note] = note
