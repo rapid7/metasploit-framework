@@ -154,31 +154,6 @@ module Msf::HTTP::Wordpress::Version
       fail("Unknown file type #{type}")
     end
 
-    version_res = extract_and_check_version(res.body.to_s, :readme, type, fixed_version, vuln_introduced_version)
-    if version_res == Msf::Exploit::CheckCode::Detected && type == :theme
-      # If no version could be found in readme.txt for a theme, try style.css
-      return check_theme_version_from_style(name, fixed_version, vuln_introduced_version)
-    else
-      return version_res
-    end
-  end
-
-  def extract_and_check_version(body, type, item_type, fixed_version = nil, vuln_introduced_version = nil)
-    case type
-    when :readme
-      # Try to extract version from readme
-      # Example line:
-      # Stable tag: 2.6.6
-      version = body[/(?:stable tag|version):\s*(?!trunk)([0-9a-z.-]+)/i, 1]
-    when :style
-      # Try to extract version from style.css
-      # Example line:
-      # Version: 1.5.2
-      version = body[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
-    else
-      fail("Unknown file type #{type}")
-    end
-
     # Could not identify version number
     return Msf::Exploit::CheckCode::Detected if version.nil?
 
