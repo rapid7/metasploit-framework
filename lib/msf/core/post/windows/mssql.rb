@@ -12,9 +12,6 @@ module MSSQL
   include Msf::Post::Windows::Services
   include Msf::Post::Windows::Priv
 
-  ## ----------------------------------------------
-  ## Method to check if the SQL Server service is running
-  ## ----------------------------------------------
   def check_for_sqlserver(instance=nil)
     target_service = nil
     each_service do |service|
@@ -39,9 +36,6 @@ module MSSQL
     return target_service
   end
 
-  ## ----------------------------------------------
-  ## Method for identifying which SQL client to use
-  ## ----------------------------------------------
   def get_sql_client
     client = nil
 
@@ -103,10 +97,6 @@ module MSSQL
     res
   end
 
-
-  ## ----------------------------------------------
-  ## Method for impersonating sql server instance
-  ## ----------------------------------------------
   def impersonate_sql_user(service)
     pid = service[:pid]
     vprint_status("Current user: #{session.sys.config.getuid}")
@@ -127,11 +117,6 @@ module MSSQL
     true
   end
 
-
-  ## ----------------------------------------------
-  ## Method to become SYSTEM if required
-  ## Note: This is from one of Jabra's modules.
-  ## ----------------------------------------------
   def get_system
     print_status("Checking if user is SYSTEM...")
 
@@ -150,6 +135,7 @@ module MSSQL
       end
     end
   end
+
 end # MSSQL
 end # Windows
 end # Post
