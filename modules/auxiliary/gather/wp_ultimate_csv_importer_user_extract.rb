@@ -14,14 +14,13 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'WordPress Ultimate CSV Importer User Table Extract',
-      'Description'     => %q{Due to lack of verification of a visitor's
-                              permissions, it is possible to execute the
-                              'export.php' script included in the default
-                              installation of this plugin, and retrieve the full
-                              contents of the user table in the WordPress
-                              installation. This results in full disclosure of
-                              usernames, hashed passwords and email addresses
-                              for all users.},
+      'Description'     => %q{
+        Due to lack of verification of a visitor's permissions, it is possible
+        to execute the 'export.php' script included in the default installation of the
+        Ultimate CSV Importer plugin and retrieve the full contents of the user table
+        in the WordPress installation. This results in full disclosure of usernames,
+        hashed passwords and email addresses for all users.
+      },
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
