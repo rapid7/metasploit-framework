@@ -36,6 +36,7 @@ Feature: Help command
           pushm         Pushes the active or list of modules onto the module stack
           quit          Exit the console
           reload_all    Reloads all modules from all defined module paths
+          rename_job    Rename a job
           resource      Run the commands stored in a file
           route         Route traffic through a session
           save          Saves the active datastores
