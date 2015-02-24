@@ -81,7 +81,7 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
 * **Do** report vulnerabilities in Rapid7 software directly to security@rapid7.com.
 * **Do** write a detailed description of your bug and use a descriptive title.
 * **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
-* **Do** [label] your bug report appropriately if you're filing GitHub [issues].
+* **Do** [label] your bug report appropriately if you're using our [issues] page.
 * **Don't** file duplicate reports - search for your bug before filing a new report.
 
 If you need some more guidance, talk to the main body of open
