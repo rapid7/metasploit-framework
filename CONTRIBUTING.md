@@ -35,8 +35,8 @@ and Metasploit's [Common Coding Mistakes].
 * **Do** stick to the [Ruby style guide].
 * **Do** get [Rubocop] relatively quiet against the code you are adding or modifying.
 * **Do** follow the [50/72 rule] for Git commit messages.
-* **Don't** use the default merge messages when merging from other branches.
 * **Do** create a [topic branch] to work on instead of working directly on `master`.
+* **Don't** use the default merge messages when merging from other branches.
 
 ### Pull Requests
 
@@ -44,6 +44,7 @@ and Metasploit's [Common Coding Mistakes].
 * **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output], especially for witnessable effects in `msfconsole`.
 * **Do** list [verification steps] so your code is testable.
+* **Do** [label] your pull request appropriately.
 * **Don't** leave your pull request description blank.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
 
@@ -80,6 +81,7 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
 * **Do** report vulnerabilities in Rapid7 software directly to security@rapid7.com.
 * **Do** write a detailed description of your bug and use a descriptive title.
 * **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
+* **Do** [label] your bug report appropriately if you're using our [Issues] page.
 * **Don't** file duplicate reports - search for your bug before filing a new report.
 
 If you need some more guidance, talk to the main body of open
@@ -101,6 +103,7 @@ already way ahead of the curve, so keep it up!
 [topic branch]:http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches
 [console output]:https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
 [verification steps]:https://help.github.com/articles/writing-on-github#task-lists
+[label]:https://help.github.com/articles/applying-labels-to-issues-and-pull-requests/
 [PR#2940]:https://github.com/rapid7/metasploit-framework/pull/2940
 [PR#3043]:https://github.com/rapid7/metasploit-framework/pull/3043
 [pre-commit hook]:https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb
