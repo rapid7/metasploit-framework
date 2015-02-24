@@ -787,7 +787,7 @@ class Core
     print_line
     print_line "Example: rename_job 0 \"meterpreter HTTPS special\""
     print_line
-    print_line "Rename a job that's currently acitve."
+    print_line "Rename a job that's currently active."
     print_line "You may use the jobs command to see what jobs are available."
     print_line
   end
