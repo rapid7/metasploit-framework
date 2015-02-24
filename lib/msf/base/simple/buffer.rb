@@ -26,7 +26,7 @@ module Buffer
       when 'num'
         buf = Rex::Text.to_num(buf)
       when 'hex'
-        buf = Rex::Text.to_hex(buf, '') + "\n"
+        buf = Rex::Text.to_hex(buf, '')
       when 'dword', 'dw'
         buf = Rex::Text.to_dword(buf)
       when 'python', 'py'
