@@ -1219,6 +1219,15 @@ class Constants
     ['uint16v', 'FID',              0],
     ['uint16v', 'InformationLevel', 0]
   )
+
+  SMB_TRANS2_FIND_FIRST2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+    ['uint16v', 'SearchAttributes',  0],
+    ['uint16v', 'SearchCount',       0],
+    ['uint16v', 'Flags',             0],
+    ['uint16v', 'InformationLevel',  0],
+    ['uint32v', 'SearchStorageType', 0],
+    ['string',  'FileName', nil,   '']
+  )
 end
 end
 end
