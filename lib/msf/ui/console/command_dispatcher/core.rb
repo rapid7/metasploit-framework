@@ -781,7 +781,6 @@ class Core
     end
   end
 
-
   def cmd_rename_job_help
     print_line "Usage: rename_job [ID] [Name]"
     print_line
@@ -813,7 +812,6 @@ class Core
 
     true
   end
-
 
   def cmd_jobs_help
     print_line "Usage: jobs [options]"
