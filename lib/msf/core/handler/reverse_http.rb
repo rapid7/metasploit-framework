@@ -158,19 +158,6 @@ module ReverseHttp
   end
 
   #
-  # Simply calls stop handler to ensure that things are cool.
-  #
-  def cleanup_handler
-  end
-
-  #
-  # Basically does nothing.  The service is already started and listening
-  # during set up.
-  #
-  def start_handler
-  end
-
-  #
   # Removes the / handler, possibly stopping the service if no sessions are
   # active on sub-urls.
   #
