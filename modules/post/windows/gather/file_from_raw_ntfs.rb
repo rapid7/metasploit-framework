@@ -94,10 +94,12 @@ class Metasploit3 < Msf::Post
   end
 
   def read(size)
+    print_debug("Reading #{size} bytes")
     client.railgun.kernel32.ReadFile(@handle, size, size, 4, nil)['lpBuffer']
   end
 
   def seek(offset)
+    print_debug("Seeking to offset #{offset}")
     high_offset = offset >> 32
     low_offset = offset & (2**33 - 1)
     client.railgun.kernel32.SetFilePointer(@handle, low_offset, high_offset, 0)
