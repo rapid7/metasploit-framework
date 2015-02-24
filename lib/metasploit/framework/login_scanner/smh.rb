@@ -21,7 +21,7 @@ module Metasploit
 
           req_opts = {
             'method' => 'POST',
-            'uri'    => '/proxy/ssllogin',
+            'uri'    => uri,
             'vars_post' => {
               'redirecturl'         => '',
               'redirectquerystring' => '',
