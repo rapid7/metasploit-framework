@@ -161,7 +161,6 @@ module ReverseHttp
   # Simply calls stop handler to ensure that things are cool.
   #
   def cleanup_handler
-    stop_handler
   end
 
   #
@@ -176,7 +175,10 @@ module ReverseHttp
   # active on sub-urls.
   #
   def stop_handler
-    self.service.remove_resource("/") if self.service
+    if self.service
+      self.service.remove_resource("/")
+      Rex::ServiceManager.stop_service(self.service) if self.pending_connections == 0
+    end
   end
 
   attr_accessor :service # :nodoc:
@@ -228,6 +230,7 @@ protected
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
         })
+        self.pending_connections += 1
 
       when /^\/INITJM/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
