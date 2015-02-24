@@ -35,8 +35,8 @@ and Metasploit's [Common Coding Mistakes].
 * **Do** stick to the [Ruby style guide].
 * **Do** get [Rubocop] relatively quiet against the code you are adding or modifying.
 * **Do** follow the [50/72 rule] for Git commit messages.
-* **Don't** use the default merge messages when merging from other branches.
 * **Do** create a [topic branch] to work on instead of working directly on `master`.
+* **Don't** use the default merge messages when merging from other branches.
 
 ### Pull Requests
 
