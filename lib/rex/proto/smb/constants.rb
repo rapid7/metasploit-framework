@@ -140,6 +140,10 @@ class Constants
   NEG_SECURITY_SHARE = 1
   NEG_SECURITY_PASSWORD = 2
 
+  # SMB Setup Actions
+  SMB_SETUP_GUEST = 1
+  SMB_SETUP_USE_LANMAN_KEY = 2
+
   # SMB Negotiate Capabilities
   # The server supports SMB_COM_READ_RAW and SMB_COM_WRITE_RAW
   CAP_RAW_MODE         = 0x0001
