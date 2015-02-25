@@ -97,7 +97,7 @@ describe Rex::Proto::PJL::Client do
     end
 
     context "#fsdirlist" do
-      it "should reaise an exception due to an invaid path name" do
+      it "should reaise an exception due to an invalid path" do
         expect { cli.fsdirlist("BAD") }.to raise_error(ArgumentError)
       end
 
@@ -112,7 +112,7 @@ describe Rex::Proto::PJL::Client do
     end
 
     context "#fsupload" do
-      it "should raise an exception due to an invalid path name" do
+      it "should raise an exception due to an invalid path" do
         expect { cli.fsupload("BAD") }.to raise_error(ArgumentError)
       end
 
@@ -127,7 +127,7 @@ describe Rex::Proto::PJL::Client do
     end
 
     context "#fsdownload" do
-      it "should raise an exception due to an invalid path name" do
+      it "should raise an exception due to an invalid path" do
         expect { cli.fsdownload("BAD") }.to raise_error(ArgumentError)
       end
 
@@ -140,7 +140,7 @@ describe Rex::Proto::PJL::Client do
     end
 
     context "#fsdelete" do
-      it "should raise an exception due to an invalid path name" do
+      it "should raise an exception due to an invalid path" do
         expect { cli.fsdelete("BAD") }.to raise_error(ArgumentError)
       end
 
