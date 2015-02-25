@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
       info,
       'Name'            => 'WordPress WP EasyCart Plugin Privilege Escalation',
       'Description'     => %q{
-          The WordPress WP EasyCart plugin from version 1.1.30 to 3.0.19
+          The WordPress WP EasyCart plugin from version 1.1.30 to 3.0.20
           allows authenticated users of any user level to set any system
           option via a lack of validation in the ec_ajax_update_option
           and ec_ajax_clear_all_taxrates functions located in
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
-    check_plugin_version_from_readme('wp-easycart', '3.0.20', '1.1.30')
+    check_plugin_version_from_readme('wp-easycart', '3.0.21', '1.1.30')
   end
 
   def username
