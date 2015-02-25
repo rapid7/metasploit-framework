@@ -136,6 +136,37 @@ class Constants
   FLAGS2_UNICODE_STRINGS                  = 0x8000
   FLAGS2_WIN2K_SIGNATURE                  = 0xC852
 
+  # SMB Negotiate Security Modes
+  NEG_SECURITY_SHARE = 1
+  NEG_SECURITY_PASSWORD = 2
+
+  # SMB Negotiate Capabilities
+  # The server supports SMB_COM_READ_RAW and SMB_COM_WRITE_RAW
+  CAP_RAW_MODE         = 0x0001
+  # The server supports SMB_COM_READ_MPX and SMB_COM_WRITE_MPX
+  CAP_MPX_MODE         = 0x0002
+  # The server supports Unicode strings
+  CAP_UNICODE          = 0x0004
+  # The server supports large files with 64 bit offsets
+  CAP_LARGE_FILES      = 0x0008
+  # The server supports the SMBs particular to the NT LM 0.12 dialect
+  CAP_NT_SMBS          = 0x0010
+  # The sever supports remote API requests via RPC
+  CAP_RPC_REMOTE_APIS  = 0x0020
+  # The server can respond with 32 bit status codes in Status.Status
+  CAP_STATUS32         = 0x0040
+  # The server supports level 2 oplocks
+  CAP_LEVEL_II_OPLOCKS = 0x0080
+  # The server supports the SMB_COM_LOCK_AND_READ SMB
+  CAP_LOCK_AND_READ    = 0x0100
+  CAP_NT_FIND          = 0x0200
+  # This server is DFS aware
+  CAP_DFS              = 0x1000
+  CAP_PASSTHRU         = 0x2000
+  CAP_LARGE_READX      = 0x4000
+  CAP_LARGE_WRITEX     = 0x8000
+  CAP_UNIX_EXTENSIONS  = 0x800000
+
   # Open Modes
   OPEN_MODE_CREAT = 0x10   # Create the file if file does not exists. Otherwise, operation fails.
   OPEN_MODE_EXCL  = 0x00   # When used with SMB_O_CREAT, operation fails if file exists. Cannot be used with SMB_O_OPEN.
