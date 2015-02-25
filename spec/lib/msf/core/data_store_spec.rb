@@ -26,7 +26,7 @@ shared_examples "datastore" do
   end
   context "#delete" do
     it "should delete the specified key" do
-      subject.delete("foo") == { "fizz" => "buzz" }
+      subject.delete("foo").should == "bar"
     end
   end
 end
