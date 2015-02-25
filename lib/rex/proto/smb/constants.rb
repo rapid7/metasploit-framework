@@ -1209,13 +1209,15 @@ class Constants
     ['Parameters', 'ByteCount',  nil, true]
   )
 
-  SMB_QUERY_PATH_TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+  #SMB_QUERY_PATH_TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+  SMB_TRANS2_QUERY_PATH_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'InformationLevel', 0],
     ['uint32v', 'Reserved',         0],
     ['string',  'FileName', nil,   '']
   )
 
-  SMB_QUERY_FILE_TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+  #SMB_QUERY_FILE_TRANS2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
+  SMB_TRANS2_QUERY_FILE_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'FID',              0],
     ['uint16v', 'InformationLevel', 0]
   )
