@@ -1196,7 +1196,7 @@ class PeBase
         return section.rva_to_file_offset(rva)
       end
     end
-    raise WtfError, "wtf!", caller
+    raise PeParseyError, "No section contains RVA", caller
   end
 
   def vma_to_file_offset(vma)
@@ -1205,7 +1205,7 @@ class PeBase
 
   def file_offset_to_rva(foffset)
     if foffset < 0
-      raise WtfError, "lame", caller
+      raise PeParseyError, "Offset should not be less than 0. The value is: #{foffset}", caller
     end
 
     all_sections.each do |section|
@@ -1214,7 +1214,7 @@ class PeBase
       end
     end
 
-    raise WtfError, "wtf! #{foffset}", caller
+    raise PeParseyError, "No section contains file offset #{foffset}", caller
   end
 
   def file_offset_to_vma(foffset)
@@ -1245,7 +1245,7 @@ class PeBase
     section = _find_section_by_rva(rva)
 
     if !section
-      raise WtfError, "Cannot find rva! #{rva}", caller
+      raise PeParseyError, "Cannot find rva! #{rva}", caller
     end
 
     return section
