@@ -49,12 +49,13 @@ class Metasploit4 < Msf::Auxiliary
     pjl.begin_job
 
     pjl.fsinit(rpath[0..1])
-    file = pjl.fsdownload(lpath, rpath)
+
+    if pjl.fsdownload(lpath, rpath)
+      print_good("#{rhost}:#{rport} - Saved #{lpath} to #{rpath}")
+    end
 
     pjl.end_job
     disconnect
-
-    print_good("#{rhost}:#{rport} - Saved #{lpath} to #{rpath}")
   end
 
 end
