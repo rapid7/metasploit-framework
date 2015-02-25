@@ -96,6 +96,21 @@ describe Rex::Proto::PJL::Client do
       end
     end
 
+    context "#fsquery" do
+      it "should raise an exception due to an invalid path" do
+        expect { cli.fsquery("BAD") }.to raise_error(ArgumentError)
+      end
+
+      it "should query a file" do
+        response = "TYPE=FILE SIZE=1337\r\n\f"
+        tmp_sock = double("sock")
+        tmp_sock.stub(:put).with(an_instance_of(String))
+        tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
+        tmp_cli.fsquery("1:").should eq(true)
+      end
+    end
+
     context "#fsdirlist" do
       it "should reaise an exception due to an invalid path" do
         expect { cli.fsdirlist("BAD") }.to raise_error(ArgumentError)
