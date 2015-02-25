@@ -24,6 +24,11 @@ shared_examples "datastore" do
       subject.to_h.should == { "foo" => "bar", "fizz" => "buzz" }
     end
   end
+  context "#delete" do
+    it "should delete the specified key" do
+      subject.delete("foo") == { "fizz" => "buzz" }
+    end
+  end
 end
 
 describe Msf::DataStore do
