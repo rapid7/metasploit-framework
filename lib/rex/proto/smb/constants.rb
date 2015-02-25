@@ -514,6 +514,7 @@ class Constants
     [ 'uint8',   'WordCount',         0 ]
   )
 
+  SMB_HDR_LENGTH = 33
 
   # The SMB2 header template
   SMB2_HDR = Rex::Struct2::CStructTemplate.new(
@@ -819,6 +820,8 @@ class Constants
     [ 'Payload',   'ByteCount',  nil, true ]
   )
   SMB_TRANS_RES_PKT = self.make_nbs(SMB_TRANS_RES_HDR_PKT)
+
+  SMB_TRANS_RES_PKT_LENGTH = SMB_HDR_LENGTH + 23
 
   # A SMB template for SMB Transaction2 requests
   SMB_TRANS2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
@@ -1188,6 +1191,7 @@ class Constants
   )
   SMB_READ_RES_PKT = self.make_nbs(SMB_READ_RES_HDR_PKT)
 
+  SMB_READ_RES_HDR_PKT_LENGTH = SMB_HDR_LENGTH + 26
 
   # A SMB template for SMB Search requests
   SMB_SEARCH_HDR_PKT = Rex::Struct2::CStructTemplate.new(
