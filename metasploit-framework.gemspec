@@ -80,7 +80,8 @@ Gem::Specification.new do |spec|
   #   NoMethodError undefined method `dlopen' for Fiddle:Module
   unless Gem.win_platform?
     # Command line editing, history, and tab completion in msfconsole
-    spec.add_runtime_dependency 'rb-readline'
+    # Use the Rapid7 fork until the official gem catches up
+    spec.add_runtime_dependency 'rb-readline-r7'
   end
 
   # Needed by anemone crawler
