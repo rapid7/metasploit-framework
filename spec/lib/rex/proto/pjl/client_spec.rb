@@ -149,10 +149,12 @@ describe Rex::Proto::PJL::Client do
       end
 
       it "should upload a file" do
+        response = "TYPE=FILE SIZE=1337\r\n\f"
         tmp_sock = double("sock")
         tmp_sock.stub(:put).with(an_instance_of(String))
+        tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
-        tmp_cli.fsdownload("/etc/passwd", "1:").should eq(nil)
+        tmp_cli.fsdownload("/etc/passwd", "1:").should eq(true)
       end
     end
 
@@ -162,10 +164,12 @@ describe Rex::Proto::PJL::Client do
       end
 
       it "should delete a file" do
+        response = "FILEERROR=3\r\n\f"
         tmp_sock = double("sock")
         tmp_sock.stub(:put).with(an_instance_of(String))
+        tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
-        tmp_cli.fsdelete("1:").should eq(nil)
+        tmp_cli.fsdelete("1:").should eq(true)
       end
     end
   end
