@@ -113,6 +113,16 @@ class Constants
   NT_TRANSACT_GET_USER_QUOTA           = 7 # Get quota
   NT_TRANSACT_SET_USER_QUOTA           = 8 # Set quota
 
+  # NT Flags bits - cifs6.txt section 3.1.1
+  FLAGS_REQ_RES = 0x80
+  FLAGS_NOTIFY = 0x40
+  FLAGS_OP_LOCKS = 0x20
+  FLAGS_PATH_NORMALIZED = 0x10
+  FLAGS_CASE_SENSITIVE = 0x8
+  FLAGS_RESERVED = 0x4
+  FLAGS_POSTED = 0x2
+  FLAGS_LOCK_SUPPORT = 0x1
+
   # NT Flags2 bits - cifs6.txt section 3.1.2
   FLAGS2_LONG_PATH_COMPONENTS             = 0x0001
   FLAGS2_EXTENDED_ATTRIBUTES              = 0x0002
