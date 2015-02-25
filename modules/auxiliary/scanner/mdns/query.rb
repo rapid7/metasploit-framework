@@ -28,10 +28,6 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  def build_probe
-    @probe ||= ::Net::DNS::Packet.new(datastore['NAME'], query_type_num, query_class_num).data
-  end
-
   def scanner_process(data, shost, _sport)
     @results[shost] ||= []
     @results[shost] << data
@@ -39,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def scanner_prescan(batch)
     print_status("Sending mDNS #{query_type_name} #{query_class_name} queries for " +
-                 "#{datastore['NAME']} to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+                 "#{datastore['NAME']} to #{batch[0]}->#{batch[-1]} port #{rport} (#{batch.length} hosts)")
     @results = {}
   end
 

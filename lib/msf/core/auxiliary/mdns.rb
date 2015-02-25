@@ -25,6 +25,30 @@ module Msf
       query_type_name
     end
 
+    def build_probe
+      @probe ||= query
+    end
+
+    # Returns the raw query message
+    def query
+      # Note that we don't use ::Net::DNS::Packet or similar here because of
+      # the current restrictions it places on RRs, specifically the values that
+      # it allows for RR names (it only allows valid RR names, we often need to
+      # query invalid ones for various purposes)
+      [
+        rand(65535), # id
+        0, # all-0 qr, opcode, conflict, truncation, tentative, reserved an rcode
+        1, # number of questions
+        0, # number of answer RRs
+        0, # number of authority RRs
+        0, # number of additional RRs
+        query_name.length,
+        query_name,
+        query_type_num,
+        query_class_num
+      ].pack("nnnnnnCa#{query_name.length + 1}nn")
+    end
+
     def query_class
       if datastore['CLASS'] =~ /^\d+$/
         datastore['CLASS'].to_i
@@ -47,6 +71,10 @@ module Msf
       else
         datastore['TYPE'].upcase
       end
+    end
+
+    def query_name
+      datastore['NAME']
     end
 
     def query_type_name
