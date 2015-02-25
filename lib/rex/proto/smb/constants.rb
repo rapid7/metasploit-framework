@@ -113,6 +113,16 @@ class Constants
   NT_TRANSACT_GET_USER_QUOTA           = 7 # Get quota
   NT_TRANSACT_SET_USER_QUOTA           = 8 # Set quota
 
+  # NT Flags bits - cifs6.txt section 3.1.1
+  FLAGS_REQ_RES = 0x80
+  FLAGS_NOTIFY = 0x40
+  FLAGS_OP_LOCKS = 0x20
+  FLAGS_PATH_NORMALIZED = 0x10
+  FLAGS_CASE_SENSITIVE = 0x8
+  FLAGS_RESERVED = 0x4
+  FLAGS_POSTED = 0x2
+  FLAGS_LOCK_SUPPORT = 0x1
+
   # NT Flags2 bits - cifs6.txt section 3.1.2
   FLAGS2_LONG_PATH_COMPONENTS             = 0x0001
   FLAGS2_EXTENDED_ATTRIBUTES              = 0x0002
@@ -125,6 +135,41 @@ class Constants
   FLAGS2_32_BIT_ERROR_CODES               = 0x4000
   FLAGS2_UNICODE_STRINGS                  = 0x8000
   FLAGS2_WIN2K_SIGNATURE                  = 0xC852
+
+  # SMB Negotiate Security Modes
+  NEG_SECURITY_SHARE = 1
+  NEG_SECURITY_PASSWORD = 2
+
+  # SMB Setup Actions
+  SMB_SETUP_GUEST = 1
+  SMB_SETUP_USE_LANMAN_KEY = 2
+
+  # SMB Negotiate Capabilities
+  # The server supports SMB_COM_READ_RAW and SMB_COM_WRITE_RAW
+  CAP_RAW_MODE         = 0x0001
+  # The server supports SMB_COM_READ_MPX and SMB_COM_WRITE_MPX
+  CAP_MPX_MODE         = 0x0002
+  # The server supports Unicode strings
+  CAP_UNICODE          = 0x0004
+  # The server supports large files with 64 bit offsets
+  CAP_LARGE_FILES      = 0x0008
+  # The server supports the SMBs particular to the NT LM 0.12 dialect
+  CAP_NT_SMBS          = 0x0010
+  # The sever supports remote API requests via RPC
+  CAP_RPC_REMOTE_APIS  = 0x0020
+  # The server can respond with 32 bit status codes in Status.Status
+  CAP_STATUS32         = 0x0040
+  # The server supports level 2 oplocks
+  CAP_LEVEL_II_OPLOCKS = 0x0080
+  # The server supports the SMB_COM_LOCK_AND_READ SMB
+  CAP_LOCK_AND_READ    = 0x0100
+  CAP_NT_FIND          = 0x0200
+  # This server is DFS aware
+  CAP_DFS              = 0x1000
+  CAP_PASSTHRU         = 0x2000
+  CAP_LARGE_READX      = 0x4000
+  CAP_LARGE_WRITEX     = 0x8000
+  CAP_UNIX_EXTENSIONS  = 0x800000
 
   # Open Modes
   OPEN_MODE_CREAT = 0x10   # Create the file if file does not exists. Otherwise, operation fails.
@@ -154,6 +199,21 @@ class Constants
   CREATE_ACCESS_OVEREXIST  = 0x04 # Overwrite existing file and fail if it does not exist
   CREATE_ACCESS_OVERCREATE = 0x05 # Overwrite existing file or create it if it does not exist
 
+  # Access Rights
+  SMB_READ_ACCESS = 1
+  SMB_WRITE_ACCESS = 2
+  SMB_APPEND_ACCESS = 4
+  SMB_READ_EA_ACCESS = 8
+  SMB_WRITE_EA_ACCESS = 0x10
+  SMB_EXECUTE_ACCESS = 0x20
+  SMB_DELETE_CHILD_ACCESS = 0x40
+  SMB_READ_ATTRIBUTES_ACCESS = 0x80
+  SMB_WRITE_ATTRIBUTES_ACCESS = 0x100
+  SMB_DELETE_ACCESS = 0x10000
+  SMB_READ_CONTROL_ACCESS = 0x20000
+  SMB_WRITE_DAC_ACCESS = 0x40000
+  SMB_WRITE_OWNER_ACCESS = 0x80000
+  SMB_SYNC_ACCESS = 0x100000
 
   # Wildcard NetBIOS name
   NETBIOS_REDIR = 'CACACACACACACACACACACACACACACAAA'
@@ -175,7 +235,6 @@ class Constants
     # 12 = find_notify_next
     # 13 = create_directory
     # 14 = session_setup
-
 
   # SMB_COM_TRANSACTION2 SubCommands
   TRANS2_OPEN2 = 0
@@ -329,6 +388,14 @@ class Constants
   SMB_STATUS_ACCESS_DENIED =		0xC0000022
   SMB_STATUS_LOGON_FAILURE =		0xC000006D
   SMB_STATUS_NO_SUCH_FILE = 0xC000000F
+  SMB_STATUS_OBJECT_NAME_NOT_FOUND = 0xc0000034
+
+  # SMB Resource types
+  SMB_RESOURCE_FILE_TYPE_DISK = 0x0000
+  SMB_RESOURCE_FILE_TYPE_BYTE_MODE_PIPE = 0x0001
+  SMB_RESOURCE_FILE_TYPE_MESSAGE_MODE_PIPE = 0x0002
+  SMB_RESOURCE_FILE_TYPE_PRINTER = 0x0003
+  SMB_RESOURCE_FILE_TYPE_COMM_DEVICE = 0x0004
 
   # SMB Dialect Compatibility
   DIALECT = {}
