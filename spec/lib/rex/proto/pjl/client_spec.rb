@@ -125,5 +125,18 @@ describe Rex::Proto::PJL::Client do
         tmp_cli.fsupload("1:").should eq('FILE')
       end
     end
+
+    context "#fsdownload" do
+      it "should raise an exception due to an invalid path name" do
+        expect { cli.fsdownload("BAD") }.to raise_error(ArgumentError)
+      end
+
+      it "should upload a file" do
+        tmp_sock = double("sock")
+        tmp_sock.stub(:put).with(an_instance_of(String))
+        tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
+        tmp_cli.fsdownload("/etc/passwd", "1:").should eq(nil)
+      end
+    end
   end
 end
