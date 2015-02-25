@@ -178,5 +178,17 @@ class Client
     @sock.put(file)
   end
 
+  # Delete a file
+  #
+  # @param path [String] Remote path
+  # @return [void]
+  def fsdelete(path)
+    if path !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
+    end
+
+    @sock.put(%Q{#{FSDELETE} NAME = "#{path}"\n})
+  end
+
 end
 end
