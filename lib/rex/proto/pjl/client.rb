@@ -117,6 +117,26 @@ class Client
     @sock.put(%Q{#{FSINIT} VOLUME = "#{volume}"\n})
   end
 
+  # Query a file
+  #
+  # @param path [String] Remote path
+  # @return [Boolean] True if file exists
+  def fsquery(path)
+    if path !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
+    end
+
+    file = false
+
+    @sock.put(%Q{#{FSQUERY} NAME = "#{path}"\n})
+
+    if @sock.get(DEFAULT_TIMEOUT) =~ /TYPE=(FILE|DIR)/m
+      file = true
+    end
+
+    file
+  end
+
   # List a directory
   #
   # @param path [String] Remote path
