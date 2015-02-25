@@ -27,7 +27,7 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::CHOST,
         Opt::RPORT(30718),
-        OptBool.new('CHECK_TCP',[ false , 'Check TCP instead of UDP', false])
+        OptBool.new('CHECK_TCP', [false , 'Check TCP instead of UDP', false])
       ], self.class)
   end
 
@@ -38,12 +38,12 @@ class Metasploit4 < Msf::Auxiliary
     begin
       sock_opts = {
         'LocalHost' => datastore['CHOST'] || nil,
-        'PeerHost'  => ip, 
+        'PeerHost'  => ip,
         'PeerPort'  => datastore['RPORT'],
-        'Context'   =>  {   
+        'Context'   =>  {
           'Msf' => framework,
           'MsfExploit' => self
-        }   
+        }
       }
       if datastore['CHECK_TCP']
         vprint_good("Checking Lantronix TCP Socket #{datastore['RPORT']} on #{ip}")
@@ -74,15 +74,15 @@ class Metasploit4 < Msf::Auxiliary
       else
         print_good("#{rhost} - Telnet password found: #{password.to_s}")
 
-        service_data = { 
-          address: ip, 
+        service_data = {
+          address: ip,
           port: 9999,
           service_name: 'telnet',
           protocol: 'tcp',
           workspace_id: myworkspace_id
-        }   
+        }
 
-        credential_data = { 
+        credential_data = {
           module_fullname: self.fullname,
           origin_type: :service,
           private_data: password.to_s,
@@ -91,7 +91,7 @@ class Metasploit4 < Msf::Auxiliary
 
         credential_core = create_credential(credential_data)
 
-        login_data = { 
+        login_data = {
           core: credential_core,
           last_attempted_at: DateTime.now,
           status: Metasploit::Model::Login::Status::SUCCESSFUL
@@ -113,4 +113,4 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 
-end 
+end
