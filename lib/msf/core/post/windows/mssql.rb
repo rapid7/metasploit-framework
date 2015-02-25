@@ -16,13 +16,15 @@ module MSSQL
     target_service = nil
     each_service do |service|
       unless instance.to_s.strip.empty?
-        if service[:display].downcase.include?(instance.downcase)
+        if service[:display].downcase.include?(instance.downcase) &&
+          service[:pid].to_i > 0
           target_service = service
           break
         end
       else
         # Target default instance
-        if service[:display] =~ /SQL Server \(| MSSQLSERVER/i
+        if service[:display] =~ /SQL Server \(| MSSQLSERVER/i &&
+          service[:pid].to_i > 0
           target_service = service
           break
         end
@@ -78,10 +80,9 @@ module MSSQL
   ## ----------------------------------------------
   ## Method for executing cmd and returning the response
   ##
-  ## Note: This is from one of Jabra's modules - Thanks man!
-  ## Note: This craps out when escalating from local admin to system
-  ##       I assume it has something to do with the token, but don't
-  ##       really know.
+  ## Note: This may fail as SYSTEM if the current process
+  ## doesn't have sufficient privileges to duplicate a token,
+  ## e.g. SeAssignPrimaryToken
   ##----------------------------------------------
   def run_cmd(cmd, token=true)
     opts = {'Hidden' => true, 'Channelized' => true, 'UseThreadToken' => token}
