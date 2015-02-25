@@ -183,7 +183,7 @@ class Client
   #
   # @param lpath [String] Local path
   # @param rpath [String] Remote path
-  # @return [void]
+  # @return [Boolean] True if the file was uploaded
   def fsdownload(lpath, rpath)
     if rpath !~ /^[0-2]:/
       raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
@@ -197,18 +197,22 @@ class Client
 
     @sock.put(file)
     @sock.put(UEL)
+
+    fsquery(rpath)
   end
 
   # Delete a file
   #
   # @param path [String] Remote path
-  # @return [void]
+  # @return [Boolean] True if the file was deleted
   def fsdelete(path)
     if path !~ /^[0-2]:/
       raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
     end
 
     @sock.put(%Q{#{FSDELETE} NAME = "#{path}"\n})
+
+    !fsquery(path)
   end
 
 end
