@@ -196,6 +196,7 @@ class Client
     )
 
     @sock.put(file)
+    @sock.put(UEL)
   end
 
   # Delete a file
