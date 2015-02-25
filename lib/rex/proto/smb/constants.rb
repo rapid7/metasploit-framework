@@ -1087,7 +1087,6 @@ class Constants
   SMB_READ_RES_PKT = self.make_nbs(SMB_READ_RES_HDR_PKT)
 
 
-
   # A SMB template for SMB Search requests
   SMB_SEARCH_HDR_PKT = Rex::Struct2::CStructTemplate.new(
     [ 'template', 'SMB',                 SMB_HDR ],
@@ -1228,6 +1227,21 @@ class Constants
     ['uint32v', 'SearchStorageType', 0],
     ['string',  'FileName', nil,   '']
   )
+
+  SMB_TREE_CONN_ANDX_RES_PKT = Rex::Struct2::CStructTemplate.new(
+    ['uint8',   'WordCount',         0],
+    ['uint8',   'AndXCommand',       0],
+    ['uint8',   'AndXReserved',      0],
+    ['uint16v', 'AndXOffset',        0],
+    ['uint16v', 'OptionalSupport',   0],
+    ['uint32v', 'AccessRights',      0],
+    ['uint32v', 'GuestAccessRights', 0],
+    ['uint16v', 'ByteCount',         0],
+    ['string',  'Payload', nil,     '']
+  ).create_restraints(
+    [ 'Payload', 'ByteCount',  nil, true ]
+  )
+
 end
 end
 end
