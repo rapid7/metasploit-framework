@@ -46,12 +46,13 @@ class Metasploit4 < Msf::Auxiliary
     pjl.begin_job
 
     pjl.fsinit(path[0..1])
-    file = pjl.fsdelete(path)
+
+    if pjl.fsdelete(path)
+      print_good("#{ip}:#{rport} - Deleted #{path}")
+    end
 
     pjl.end_job
     disconnect
-
-    print_good("#{ip}:#{rport} - Deleted #{path}")
   end
 
 end
