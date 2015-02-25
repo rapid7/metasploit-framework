@@ -119,17 +119,17 @@ class Client
 
   # List a directory
   #
-  # @param pathname [String] Pathname
+  # @param path [String] Remote path
   # @param count [Fixnum] Number of entries to list
   # @return [String] Directory listing
-  def fsdirlist(pathname, count = COUNT_MAX)
-    if pathname !~ /^[0-2]:/
-      raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
+  def fsdirlist(path, count = COUNT_MAX)
+    if path !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
     end
 
     listing = nil
 
-    @sock.put(%Q{#{FSDIRLIST} NAME = "#{pathname}" ENTRY=1 COUNT=#{count}\n})
+    @sock.put(%Q{#{FSDIRLIST} NAME = "#{path}" ENTRY=1 COUNT=#{count}\n})
 
     if @sock.get(DEFAULT_TIMEOUT) =~ /ENTRY=1\r?\n(.*?)\f/m
       listing = $1
@@ -140,17 +140,17 @@ class Client
 
   # Download a file
   #
-  # @param pathname [String] Pathname
+  # @param path [String] Remote path
   # @param size [Fixnum] Size of file
   # @return [String] File as a string
-  def fsupload(pathname, size = SIZE_MAX)
-    if pathname !~ /^[0-2]:/
-      raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
+  def fsupload(path, size = SIZE_MAX)
+    if path !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
     end
 
     file = nil
 
-    @sock.put(%Q{#{FSUPLOAD} NAME = "#{pathname}" OFFSET=0 SIZE=#{size}\n})
+    @sock.put(%Q{#{FSUPLOAD} NAME = "#{path}" OFFSET=0 SIZE=#{size}\n})
 
     if @sock.get(DEFAULT_TIMEOUT) =~ /SIZE=\d+\r?\n(.*)\f/m
       file = $1
