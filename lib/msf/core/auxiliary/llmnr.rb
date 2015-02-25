@@ -4,7 +4,6 @@ require 'msf/core/auxiliary/mdns'
 module Msf
   # This module provides methods for working with LLMNR
   module Auxiliary::LLMNR
-    include Auxiliary::UDPScanner
     include Auxiliary::MDNS
 
     # Initializes an instance of an auxiliary module that uses LLMNR

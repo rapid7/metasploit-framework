@@ -30,6 +30,10 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
+  def build_probe
+    @probe ||= query
+  end
+
   def scanner_process(data, shost, _sport)
     @results[shost] ||= []
     @results[shost] << data

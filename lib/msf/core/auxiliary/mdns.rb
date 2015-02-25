@@ -5,7 +5,6 @@ require 'rex/proto/mdns'
 module Msf
   # This module provides methods for working with mDNS
   module Auxiliary::MDNS
-    include Auxiliary::UDPScanner
 
     # Initializes an instance of an auxiliary module that uses mDNS
     def initialize(info = {})
@@ -25,10 +24,6 @@ module Msf
       query_type_name
     end
 
-    def build_probe
-      @probe ||= query
-    end
-
     # Returns the raw query message
     def query
       # Note that we don't use ::Net::DNS::Packet or similar here because of
@@ -36,7 +31,7 @@ module Msf
       # it allows for RR names (it only allows valid RR names, we often need to
       # query invalid ones for various purposes)
       [
-        rand(65535), # id
+        0, #        rand(65535), # id
         0, # all-0 qr, opcode, conflict, truncation, tentative, reserved an rcode
         1, # number of questions
         0, # number of answer RRs
