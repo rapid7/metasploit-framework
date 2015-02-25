@@ -906,6 +906,41 @@ class Constants
   )
   SMB_CREATE_RES_PKT = self.make_nbs(SMB_CREATE_RES_HDR_PKT)
 
+  # A SMB template for SMB Create ANDX responses
+  SMB_CREATE_ANDX_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+      [ 'template', 'SMB',                 SMB_HDR ],
+      [ 'uint8',    'AndX',                0 ],
+      [ 'uint8',    'Reserved1',           0 ],
+      [ 'uint16v',  'AndXOffset',          0 ],
+      [ 'uint8',    'OpLock',              0 ],
+      [ 'uint16v',  'FileID',              0 ],
+      [ 'uint32v',  'Action',              0 ],
+      [ 'uint32v',  'CreateTimeLow',       0 ],
+      [ 'uint32v',  'CreateTimeHigh',      0 ],
+      [ 'uint32v',  'AccessTimeLow',       0 ],
+      [ 'uint32v',  'AccessTimeHigh',      0 ],
+      [ 'uint32v',  'WriteTimeLow',        0 ],
+      [ 'uint32v',  'WriteTimeHigh',       0 ],
+      [ 'uint32v',  'ChangeTimeLow',       0 ],
+      [ 'uint32v',  'ChangeTimeHigh',      0 ],
+      [ 'uint32v',  'Attributes',          0 ],
+      [ 'uint32v',  'AllocLow',            0 ],
+      [ 'uint32v',  'AllocHigh',           0 ],
+      [ 'uint32v',  'EOFLow',              0 ],
+      [ 'uint32v',  'EOFHigh',             0 ],
+      [ 'uint16v',  'FileType',            0 ],
+      [ 'uint16v',  'IPCState',            0 ],
+      [ 'uint8',    'IsDirectory',         0 ],
+      [ 'string',   'VolumeGUID', 16,      '', "\x00"],
+      [ 'uint64v',  '64bitFID',            0 ],
+      [ 'uint32v',  'MaxAccess',           0 ],
+      [ 'uint32v',  'GuestAccess',         0 ],
+      [ 'uint16v',  'ByteCount',           0 ],
+      [ 'string',   'Payload', nil,       '' ]
+  ).create_restraints(
+      [ 'Payload', 'ByteCount',  nil, true ]
+  )
+  SMB_CREATE_ANDX_RES_PKT = self.make_nbs(SMB_CREATE_ANDX_RES_HDR_PKT)
 
   # A SMB template for SMB Write requests
   SMB_WRITE_HDR_PKT = Rex::Struct2::CStructTemplate.new(
