@@ -143,9 +143,7 @@ describe Rex::Proto::PJL::Client do
 
     context "#fsdownload" do
       it "should raise an exception due to an invalid path" do
-        expect { cli.fsdownload("/etc/passwd", "BAD") }.to raise_error(ArgumentError)
-        expect { cli.fsdownload("/etc/passwdd", "1:") }.to raise_error(Errno::ENOENT)
-        expect { cli.fsdownload("/etc/shadow", "1:") }.to raise_error(Errno::EACCES)
+        expect { cli.fsdownload("/dev/null", "BAD") }.to raise_error(ArgumentError)
       end
 
       it "should upload a file" do
@@ -154,7 +152,7 @@ describe Rex::Proto::PJL::Client do
         tmp_sock.stub(:put).with(an_instance_of(String))
         tmp_sock.stub(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
-        tmp_cli.fsdownload("/etc/passwd", "1:").should eq(true)
+        tmp_cli.fsdownload("/dev/null", "1:").should eq(true)
       end
     end
 
