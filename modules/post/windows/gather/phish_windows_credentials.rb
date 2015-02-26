@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Post
     base_script = File.read(File.join(Msf::Config.data_directory, "post", "powershell", "Invoke-LoginPrompt.ps1"))
     if process.nil?
        sdescription = description.gsub("{PROCESS_NAME} needs your permissions to start. ", "")
-       psh_script = base_script.gsub("#R{DESCRIPTION}", "#{sdescription}") << "Invoke-LoginPrompt"
+       psh_script = base_script.gsub("R{DESCRIPTION}", "#{sdescription}") << "Invoke-LoginPrompt"
     else
        sdescription = description.gsub("{PROCESS_NAME}", process)
        psh_script2 = base_script.gsub("R{DESCRIPTION}", "#{sdescription}") << "Invoke-LoginPrompt"
