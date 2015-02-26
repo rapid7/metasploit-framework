@@ -836,7 +836,7 @@ class Constants
   )
   SMB_TRANS_RES_PKT = self.make_nbs(SMB_TRANS_RES_HDR_PKT)
 
-  SMB_TRANS_RES_PKT_LENGTH = SMB_HDR_LENGTH + 23
+  SMB_TRANS_RES_PKT_LENGTH = SMB_HDR_LENGTH + 22
 
   # A SMB template for SMB Transaction2 requests
   SMB_TRANS2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
