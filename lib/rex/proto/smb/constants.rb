@@ -184,6 +184,19 @@ class Constants
   OPEN_SHARE_DENY_READEXEC     = 0x30
   OPEN_SHARE_DENY_NONE         = 0x40
 
+  # OpLock Levels
+  NO_OPLOCK = 0x00
+  EXCLUSIVE_OPLOCK = 0x01
+  BATCH_OPLOCK = 0x02
+  LEVEL_II_OPLOCK = 0x03
+
+  # Dispositions, action to take if the file already exists or if the file is a new file and does not already exist
+  FILE_SUPERSEDE = 0x00000000
+  FILE_OPEN = 0x00000001
+  FILE_CREATE = 0x00000002
+  FILE_OPEN_IF = 0x00000003
+  FILE_OVERWRITE = 0x00000004
+  FILE_OVERWRITE_IF = 0x00000005
 
   # File Access
   OPEN_ACCESS_READ          = 0x00
@@ -282,9 +295,10 @@ class Constants
   SMB_QUERY_FILE_BASIC_INFO_ALIAS = 0x3EC # alias for 0x101
   SMB_SET_FILE_BASIC_INFO_ALIAS = 0x3EC # alias for 0x101
   SMB_QUERY_FILE_STANDARD_INFO_ALIAS = 0x3ED # alias for 0x102
+  SMB_QUERY_FILE_INTERNAL_INFO_ALIAS = 0x3EE # alias for 0x103
   SMB_QUERY_FILE_EA_INFO_ALIAS = 0x3EF # alias for 0x103
   SMB_QUERY_FILE_NAME_INFO_ALIAS = 0x3F1 # alias for 0x104
-  SMB_QUERY_FILE_NETWORK_OPEN_INFO = 0x040a
+  SMB_QUERY_FILE_NETWORK_OPEN_INFO = 0x40A
   SMB_INFO_PASSTHROUGH = 0x1000
 
   # SMB_COM_TRANSACTION2 MAX DATA COUNT information levels
@@ -1281,6 +1295,24 @@ class Constants
   SMB_TRANS2_QUERY_PATH_INFORMATION_RES_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'EaErrorOffset',  0]
   )
+
+  # A template for SMB_QUERY_FILE_NETWORK_INFO query path information level
+  SMB_QUERY_FILE_NETWORK_INFO_HDR = Rex::Struct2::CStructTemplate.new(
+    ['uint32v', 'loCreationTime',    0],
+    ['uint32v', 'hiCreationTime',    0],
+    ['uint32v', 'loLastAccessTime',  0],
+    ['uint32v', 'hiLastAccessTime',  0],
+    ['uint32v', 'loLastWriteTime',   0],
+    ['uint32v', 'hiLastWriteTime',   0],
+    ['uint32v', 'loLastChangeTime',  0],
+    ['uint32v', 'hiLastChangeTime',  0],
+    ['uint64v', 'AllocationSize', 0],
+    ['uint64v', 'EndOfFile',      0],
+    ['uint32v', 'ExtFileAttributes', 0],
+    ['uint32v', 'Reserved', 0]
+  )
+
+  SMB_QUERY_FILE_NETWORK_INFO_HDR_LENGTH = 56
 
   # A template for SMB_QUERY_FILE_BASIC_INFO query path information level
   SMB_QUERY_FILE_BASIC_INFO_HDR = Rex::Struct2::CStructTemplate.new(
