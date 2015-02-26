@@ -97,7 +97,7 @@ module Msf::HTTP::Wordpress::Version
     nil
   end
 
-  def check_version_from_readme(type, name, fixed_version, vuln_introduced_version = nil)
+  def check_version_from_readme(type, name, fixed_version = nil, vuln_introduced_version = nil)
     case type
     when :plugin
       folder = 'plugins'
