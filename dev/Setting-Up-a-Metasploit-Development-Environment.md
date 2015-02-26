@@ -305,7 +305,7 @@ where the master bit changes depending on what branch you're in.
 ## Bundle Install
 
 The first time you download Metasploit, you will need to get your Ruby
-gems lined up. It's as simple as `gem install bundle && bundle install`
+gems lined up. It's as simple as `gem install bundler && bundle install`
 from your metasploit-framework checkout. It'll look like this:
 
 ````
