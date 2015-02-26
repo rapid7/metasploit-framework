@@ -57,8 +57,8 @@ class Metasploit3 < Msf::Auxiliary
         '__EVENTTARGET' => '',
         '__EVENTARGUMENT' => '',
         '__VIEWSTATE' => viewstate,
-        'ctl00$BodyContent$Username' => datastore['USERNAME'],
-        'ctl00$BodyContent$Password' => datastore['PASSWORD']
+        'ctl00$BodyContent$Username' => username,
+        'ctl00$BodyContent$Password' => password
       },
       'cookie' => cookie
     })
