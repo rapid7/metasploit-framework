@@ -69,7 +69,7 @@ class Webcam
 
     remote_browser_path = get_webrtc_browser_path
 
-    if remote_browser_path.blank?
+    if remote_browser_path.to_s.empty?
       raise RuntimeError, "Unable to find a suitable browser on the target machine"
     end
 
