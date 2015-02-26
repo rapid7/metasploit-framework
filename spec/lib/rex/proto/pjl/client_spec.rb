@@ -144,8 +144,6 @@ describe Rex::Proto::PJL::Client do
     context "#fsdownload" do
       it "should raise an exception due to an invalid path" do
         expect { cli.fsdownload("/etc/passwd", "BAD") }.to raise_error(ArgumentError)
-        expect { cli.fsdownload("/etc/passwdd", "1:") }.to raise_error(Errno::ENOENT)
-        expect { cli.fsdownload("/etc/shadow", "1:") }.to raise_error(Errno::EACCES)
       end
 
       it "should upload a file" do
