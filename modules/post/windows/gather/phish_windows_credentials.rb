@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
     else
        sdescription = description.gsub("{PROCESS_NAME}", process)
        psh_script2 = base_script.gsub("R{DESCRIPTION}", "#{sdescription}") << "Invoke-LoginPrompt"
-       psh_script = psh_script2.gsub("R{START_PROCESS}", "start-process \"#{path}\"")
+       psh_script = psh_script2.gsub("#R{START_PROCESS}", "start-process \"#{path}\"")
     end
     compressed_script = compress_script(psh_script)
     cmd_out, runnings_pids, open_channels = execute_script(compressed_script, datastore['TIMEOUT'])
