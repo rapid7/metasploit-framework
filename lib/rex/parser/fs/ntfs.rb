@@ -218,7 +218,7 @@ module Rex
           else
             # non resident
             if attribute_identifier == INDEX_ALLOCATION_ID or 
-              (not lazy and attribute_identifier != DATA_ATTRIBUTE_ID)
+              (!lazy and attribute_identifier != DATA_ATTRIBUTE_ID)
               res[attribute_identifier] = cluster_from_attribute_non_resident(mft_record[curs, attribute_size])
             else 
               res[attribute_identifier] = mft_record[curs, attribute_size]
