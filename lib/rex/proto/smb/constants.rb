@@ -184,6 +184,19 @@ class Constants
   OPEN_SHARE_DENY_READEXEC     = 0x30
   OPEN_SHARE_DENY_NONE         = 0x40
 
+  # OpLock Levels
+  NO_OPLOCK = 0x00
+  EXCLUSIVE_OPLOCK = 0x01
+  BATCH_OPLOCK = 0x02
+  LEVEL_II_OPLOCK = 0x03
+
+  # Dispositions, action to take if the file already exists or if the file is a new file and does not already exist
+  FILE_SUPERSEDE = 0x00000000
+  FILE_OPEN = 0x00000001
+  FILE_CREATE = 0x00000002
+  FILE_OPEN_IF = 0x00000003
+  FILE_OVERWRITE = 0x00000004
+  FILE_OVERWRITE_IF = 0x00000005
 
   # File Access
   OPEN_ACCESS_READ          = 0x00
