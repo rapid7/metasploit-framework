@@ -6,8 +6,6 @@
 module Rex::Proto::PJL
 class Client
 
-  attr_reader :sock
-
   def initialize(sock)
     @sock = sock
   end
