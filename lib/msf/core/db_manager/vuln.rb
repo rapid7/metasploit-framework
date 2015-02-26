@@ -62,7 +62,8 @@ module Msf::DBManager::Vuln
 
     # Try to find an existing vulnerability with the same host & references
     # If there are multiple matches, choose the one with the most matches
-    refs_ids = refs.map{|x| x.id }
+    # Do not match based on URL refs because they are not unique or authoritative
+    refs_ids = refs.map{|x| x.id unless x.name.starts_with? 'URL-' }.compact
     vuln = host.vulns.where({ 'service_id' => nil, 'refs.id' => refs_ids }).includes(:refs).sort { |a,b|
       ( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
     }.first
