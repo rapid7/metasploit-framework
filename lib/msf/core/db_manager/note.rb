@@ -124,6 +124,7 @@ module Msf::DBManager::Note
     conditions = { :ntype => ntype }
     conditions[:host_id] = host[:id] if host
     conditions[:service_id] = service[:id] if service
+    conditions[:vuln_id] = opts[:vuln_id]
 
     case mode
     when :unique
