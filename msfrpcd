@@ -72,7 +72,7 @@ arguments.parse(ARGV) { |opt, idx, val|
   end
 }
 
-unless opts['Pass']
+if(not opts['Pass'])
   $stderr.puts "[-] Error: a password must be specified (-P)"
   exit(0)
 end
@@ -83,7 +83,7 @@ rpctype = 'MSG'
 
 $stderr.puts "[*] #{rpctype}RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"}):#{opts['ServerType']}..."
 
-$stderr.puts "[*] URI: #{opts['URI']}" if opts['URI']
+$stderr.puts "[*] URI: #{opts['URI']}" if(opts['URI'])
 
 require 'msf/base'
 require 'msf/ui'

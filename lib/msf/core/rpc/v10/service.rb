@@ -112,13 +112,13 @@ class Service
         end
       end
 
-      unless (req.headers["Content-Type"] && req.headers["Content-Type"] == "binary/message-pack")
+      if not (req.headers["Content-Type"] and req.headers["Content-Type"] == "binary/message-pack")
         raise ArgumentError, "Invalid Content Type"
       end
 
       msg = MessagePack.unpack(req.body)
 
-      unless (msg && msg.kind_of?(::Array) && msg.length > 0)
+      if not (msg and msg.kind_of?(::Array) and msg.length > 0)
         raise ArgumentError, "Invalid Message Format"
       end
 
@@ -126,7 +126,7 @@ class Service
 
       group, funct = msg.shift.split(".", 2)
 
-      unless self.handlers[group]
+      if not self.handlers[group]
         raise ArgumentError, "Unknown API Group: '#{group.inspect}'"
       end
 
@@ -138,13 +138,13 @@ class Service
         mname << '_noauth'
       end
 
-      unless self.handlers[group].respond_to?(mname)
+      if not self.handlers[group].respond_to?(mname)
         raise ArgumentError, "Unknown API Call: '#{mname.inspect}'"
       end
 
       if doauth
         token = msg.shift
-        unless authenticate(token)
+        if not authenticate(token)
           raise ::Msf::RPC::Exception.new(401, "Invalid Authentication Token")
         end
       end
@@ -203,7 +203,7 @@ class Service
     stale = []
 
 
-    unless (token && token.kind_of?(::String))
+    if not (token and token.kind_of?(::String))
       return false
     end
 
@@ -212,17 +212,17 @@ class Service
 
     self.tokens.each_key do |t|
       user,ctime,mtime,perm = self.tokens[t]
-      if !perm && mtime + self.token_timeout < Time.now.to_i
+      if ! perm and mtime + self.token_timeout < Time.now.to_i
         stale << t
       end
     end
 
     stale.each { |t| self.tokens.delete(t) }
 
-    unless self.tokens[token]
+    if not self.tokens[token]
 
       begin
-        if framework.db.active && ::Mdm::ApiKey.find_by_token(token)
+        if framework.db.active and ::Mdm::ApiKey.find_by_token(token)
           return true
         end
       rescue ::Exception => e
