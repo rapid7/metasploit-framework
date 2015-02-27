@@ -72,7 +72,7 @@ class Client
     if res && [200, 401, 403, 500].include?(res.code)
       resp = MessagePack.unpack(res.body)
 
-      if resp && resp.kind_of?(::Hash) && resp['error']
+      if resp && resp.kind_of?(::Hash) && resp['error'] == true
         raise Msf::RPC::ServerException.new(resp['error_code'] || res.code, resp['error_message'] || resp['error_string'], resp['error_class'], resp['error_backtrace'])
       end
 
