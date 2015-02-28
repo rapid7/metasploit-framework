@@ -119,4 +119,21 @@ module Msf::HTTP::Wordpress::Helpers
     path_from_uri(location)
   end
 
+  # Helper method to retrieve a valid plugin upload nonce.
+  #
+  # @param cookie [String] A valid admin session cookie
+  # @return [String,nil] The nonce, nil on error
+  def wordpress_helper_get_plugin_upload_nonce(cookie)
+    uri = normalize_uri(wordpress_url_backend, 'plugin-install.php')
+    options = {
+      'method'    => 'GET',
+      'uri'       => uri,
+      'cookie'    => cookie,
+      'vars_get'  => { 'tab' => 'upload' }
+    }
+    res = send_request_cgi(options)
+    if res && res.code == 200
+      return res.body.to_s[/id="_wpnonce" name="_wpnonce" value="([a-z0-9]+)"/i, 1]
+    end
+  end
 end

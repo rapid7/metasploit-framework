@@ -12,8 +12,7 @@ module Metasploit
           http_client = Rex::Proto::Http::Client.new(
               host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies
           )
-
-          http_client = config_client(http_client)
+          configure_http_client(http_client)
 
           result_opts = {
               credential: credential,

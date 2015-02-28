@@ -43,6 +43,13 @@ class DataStore < Hash
     super(find_key_case(k), v)
   end
 
+  #
+  # Case-insensitive wrapper around delete
+  #
+  def delete(k)
+    super(find_key_case(k))
+  end
+
 
   #
   # Updates a value in the datastore with the specified name, k, to the

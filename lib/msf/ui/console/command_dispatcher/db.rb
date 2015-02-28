@@ -674,6 +674,7 @@ class Db
     print_line "General options"
     print_line "  -h,--help             Show this help information"
     print_line "  -o <file>             Send output to a file in csv format"
+    print_line "  -d                    Delete one or more credentials"
     print_line
     print_line "Filter options for listing"
     print_line "  -P,--password <regex> List passwords that match this regex"
@@ -700,6 +701,11 @@ class Db
     print_line "  creds add-password bob '' contosso"
     print_line "  # Add a user with an SSH key"
     print_line "  creds add-ssh-key root /root/.ssh/id_rsa"
+    print_line
+
+    print_line "Example, deleting:"
+    print_line "  # Delete all SMB credentials"
+    print_line "  creds -d -s smb"
     print_line
   end
 

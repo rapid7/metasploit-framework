@@ -94,7 +94,7 @@ class JmpRegScanner < Generic
         return 3
     end
 
-    raise "wtf"
+    raise "Cannot read at offset: #{offset}"
   end
 
   def _parse_ret(data)
@@ -136,7 +136,7 @@ class JmpRegScanner < Generic
           message = "push #{regname}; " + _parse_ret(elf.read(offset+2, retsize))
           offset += 2 + retsize
         else
-          raise "wtf"
+          raise "Unexpected value at #{offset}"
         end
       else
         regname = Rex::Arch::X86.reg_name32(byte1 & 0x7)
