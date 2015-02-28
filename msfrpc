@@ -41,7 +41,7 @@ opts = {
 }
 
 # Parse command line arguments.
-arguments.parse(ARGV) { |opt, idx, val|
+arguments.parse(ARGV) do |opt, idx, val|
   case opt
     when "-a"
       opts['ServerHost'] = val
@@ -57,16 +57,16 @@ arguments.parse(ARGV) { |opt, idx, val|
       print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
       exit
   end
-}
+end
 
 
-if(not opts['ServerHost'])
+unless opts['ServerHost']
   $stderr.puts "[-] Error: a server IP must be specified (-a)"
   $stderr.puts arguments.usage
   exit(0)
 end
 
-if(not opts['Pass'])
+unless opts['Pass']
   $stderr.puts "[-] Error: a password must be specified (-P)"
   $stderr.puts arguments.usage
   exit(0)
@@ -83,10 +83,11 @@ rpc = Msf::RPC::Client.new(
   :ssl  => opts['SSL']
 )
 
-res = rpc.login(opts['User'], opts['Pass'])
+rpc.login(opts['User'], opts['Pass'])
 
 puts "[*] The 'rpc' object holds the RPC client interface"
-puts ""
+puts "[*] Use rpc.call('group.command') to make RPC calls"
+puts
 
 while(ARGV.shift)
 end
