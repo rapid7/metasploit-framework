@@ -63,7 +63,7 @@ class Plugin::MSGRPC < Msf::Plugin
 
     # If the run in foreground flag is not specified, then go ahead and fire
     # it off in a worker thread.
-    unless opts['RunInForeground']
+    if (opts['RunInForeground'] != true)
       # Store a handle to the thread so we can kill it during
       # cleanup when we get unloaded.
       self.thread = Thread.new { run }

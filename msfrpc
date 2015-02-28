@@ -41,7 +41,7 @@ opts = {
 }
 
 # Parse command line arguments.
-arguments.parse(ARGV) do |opt, idx, val|
+arguments.parse(ARGV) { |opt, idx, val|
   case opt
     when "-a"
       opts['ServerHost'] = val
@@ -57,7 +57,7 @@ arguments.parse(ARGV) do |opt, idx, val|
       print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
       exit
   end
-end
+}
 
 
 unless opts['ServerHost']
@@ -87,7 +87,7 @@ rpc.login(opts['User'], opts['Pass'])
 
 puts "[*] The 'rpc' object holds the RPC client interface"
 puts "[*] Use rpc.call('group.command') to make RPC calls"
-puts
+puts ''
 
 while(ARGV.shift)
 end
