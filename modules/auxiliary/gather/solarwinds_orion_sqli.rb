@@ -63,6 +63,10 @@ class Metasploit3 < Msf::Auxiliary
       'cookie' => cookie
     })
 
+    if res.nil?
+      fail_with("Server didn't respond in an expected way")
+    end
+
     if res.code == 200
       fail_with("Authentication failed with username #{username}")
     end
