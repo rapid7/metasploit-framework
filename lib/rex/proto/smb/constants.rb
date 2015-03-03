@@ -1360,17 +1360,20 @@ class Constants
     ['Parameters', 'ByteCount',  nil, true]
   )
 
+  # A template for SMB_Parameters blocks of the SMB_COM_TRANSACTION2 QUERY_PATH_INFO responses
   SMB_TRANS2_QUERY_PATH_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'InformationLevel', 0],
     ['uint32v', 'Reserved',         0],
     ['string',  'FileName', nil,   '']
   )
 
+  # A template for SMB_Parameters blocks of the SMB_COM_TRANSACTION2 QUERY_FILE_INFO responses
   SMB_TRANS2_QUERY_FILE_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'FID',              0],
     ['uint16v', 'InformationLevel', 0]
   )
 
+  # A template for SMB_Parameters blocks of the SMB_COM_TRANSACTION2 FIND_FIRST2 responses
   SMB_TRANS2_FIND_FIRST2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'SearchAttributes',  0],
     ['uint16v', 'SearchCount',       0],
@@ -1380,6 +1383,7 @@ class Constants
     ['string',  'FileName', nil,   '']
   )
 
+  # A template for SMB Tree Connect commands in responses
   SMB_TREE_CONN_ANDX_RES_PKT = Rex::Struct2::CStructTemplate.new(
     ['uint8',   'WordCount',         0],
     ['uint8',   'AndXCommand',       0],
