@@ -176,11 +176,11 @@ class Registry
     response = client.send_request(request)
 
     # Enumerate through all of the registry keys
-    response.each(TLV_TYPE_KEY_NAME) { |key_name|
+    response.each(TLV_TYPE_KEY_NAME) do |key_name|
       keys << key_name.value
-    }
+    end
 
-    return keys
+    keys
   end
 
   ##
@@ -221,17 +221,17 @@ class Registry
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
 
-    if (type == REG_SZ)
+    if type == REG_SZ
       data += "\x00"
-    elsif (type == REG_DWORD)
-      data = [ data.to_i ].pack("V")
+    elsif type == REG_DWORD
+      data = [data.to_i].pack('V')
     end
 
     request.add_tlv(TLV_TYPE_VALUE_DATA, data)
 
     response = client.send_request(request)
 
-    return true
+    true
   end
 
   #
@@ -251,13 +251,13 @@ class Registry
     type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
     data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
 
-    if (type == REG_SZ)
+    if type == REG_SZ
       data = data[0..-2]
-    elsif (type == REG_DWORD)
-      data = data.unpack("N")[0]
+    elsif type == REG_DWORD
+      data = data.unpack('N')[0]
     end
 
-    return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
+    Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
         client, 0, name, type, data)
   end
 
@@ -344,12 +344,12 @@ class Registry
 
     response = client.send_request(request)
 
-    response.each(TLV_TYPE_VALUE_NAME) { |value_name|
+    response.each(TLV_TYPE_VALUE_NAME) do |value_name|
       values << Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
           client, 0, value_name.value)
-    }
+    end
 
-    return values
+    values
   end
 
   #
