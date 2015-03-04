@@ -210,7 +210,7 @@ class Metasploit::Framework::CredentialCollection
   def private_type(private)
     if private =~ /[0-9a-f]{32}:[0-9a-f]{32}/
       :ntlm_hash
-    elsif private =~ /md5([a-f0-9]{32})/
+    elsif private =~ /^md5([a-f0-9]{32})$/
       :postgres_md5
     else
       :password

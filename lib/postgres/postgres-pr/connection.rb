@@ -63,7 +63,7 @@ class Connection
     establish_connection(uri)
 
     # Check if the password supplied is a Postgres-style md5 hash
-    md5_hash_match = password.match(/md5([a-f0-9]{32})/)
+    md5_hash_match = password.match(/^md5([a-f0-9]{32})$/)
 
     @conn << StartupMessage.new(PROTO_VERSION, 'user' => user, 'database' => database).dump
 
