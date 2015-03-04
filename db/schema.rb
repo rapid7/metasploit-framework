@@ -393,9 +393,11 @@ ActiveRecord::Schema.define(:version => 20150212214222) do
     t.boolean  "critical"
     t.boolean  "seen"
     t.text     "data"
+    t.integer  "vuln_id"
   end
 
   add_index "notes", ["ntype"], :name => "index_notes_on_ntype"
+  add_index "notes", ["vuln_id"], :name => "index_notes_on_vuln_id"
 
   create_table "profiles", :force => true do |t|
     t.datetime "created_at",                   :null => false
