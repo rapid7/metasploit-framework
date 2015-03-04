@@ -412,6 +412,15 @@ class Constants
   SMB_RESOURCE_FILE_TYPE_PRINTER = 0x0003
   SMB_RESOURCE_FILE_TYPE_COMM_DEVICE = 0x0004
 
+  # Word count values
+  SMB_NEGOTIATE_RES_WORD_COUNT = 0x11
+  SMB_CLOSE_RES_WORD_COUNT = 0x00
+  SMB_NT_CREATE_ANDX_RES_WORD_COUNT = 0x22
+  SMB_READ_ANDX_RES_WORD_COUNT = 0x0c
+  SMB_TREE_CONN_ANDX_WORD_COUNT = 0x07
+  SMB_SESSION_SETUP_ANDX_RES_WORD_COUNT = 0x03
+  SMB_TRANS2_RES_WORD_COUNT = 0x0a
+
   # SMB Dialect Compatibility
   DIALECT = {}
 
@@ -1351,17 +1360,20 @@ class Constants
     ['Parameters', 'ByteCount',  nil, true]
   )
 
+  # A template for SMB_Parameters blocks of the SMB_COM_TRANSACTION2 QUERY_PATH_INFO responses
   SMB_TRANS2_QUERY_PATH_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'InformationLevel', 0],
     ['uint32v', 'Reserved',         0],
     ['string',  'FileName', nil,   '']
   )
 
+  # A template for SMB_Parameters blocks of the SMB_COM_TRANSACTION2 QUERY_FILE_INFO responses
   SMB_TRANS2_QUERY_FILE_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'FID',              0],
     ['uint16v', 'InformationLevel', 0]
   )
 
+  # A template for SMB_Parameters blocks of the SMB_COM_TRANSACTION2 FIND_FIRST2 responses
   SMB_TRANS2_FIND_FIRST2_PARAMETERS = Rex::Struct2::CStructTemplate.new(
     ['uint16v', 'SearchAttributes',  0],
     ['uint16v', 'SearchCount',       0],
@@ -1371,6 +1383,7 @@ class Constants
     ['string',  'FileName', nil,   '']
   )
 
+  # A template for SMB Tree Connect commands in responses
   SMB_TREE_CONN_ANDX_RES_PKT = Rex::Struct2::CStructTemplate.new(
     ['uint8',   'WordCount',         0],
     ['uint8',   'AndXCommand',       0],
