@@ -1535,7 +1535,7 @@ def stdapi_registry_query_value_direct(request, response):
 	err, hkey = _wreg_open_key(request)
 	if err != ERROR_SUCCESS:
 		return err, response
-	ret = _wreg_enum_key(request, response, hkey)
+	ret = _query_value(request, response, hkey)
 	_wreg_close_key(hkey)
 	return ret
 
