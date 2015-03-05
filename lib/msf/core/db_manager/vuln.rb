@@ -45,29 +45,8 @@ module Msf::DBManager::Vuln
   end
 
   def find_vuln_by_refs(refs, host, service=nil)
-
-    vuln = nil
-
-    # Try to find an existing vulnerability with the same service & references
-    # If there are multiple matches, choose the one with the most matches
-    if service
-      refs_ids = refs.map{|x| x.id }
-      vuln = service.vulns.where({ 'refs.id' => refs_ids }).includes(:refs).sort { |a,b|
-        ( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
-      }.first
-    end
-
-    # Return if we matched based on service
-    return vuln if vuln
-
-    # Try to find an existing vulnerability with the same host & references
-    # If there are multiple matches, choose the one with the most matches
-    refs_ids = refs.map{|x| x.id }
-    vuln = host.vulns.where({ 'service_id' => nil, 'refs.id' => refs_ids }).includes(:refs).sort { |a,b|
-      ( refs_ids - a.refs.map{|x| x.id } ).length <=> ( refs_ids - b.refs.map{|x| x.id } ).length
-    }.first
-
-    return vuln
+    ref_ids = refs.find_all { |ref| ref.name.starts_with? 'CVE-'}
+    host.vulns.joins(:refs).where(service_id: service.try(:id), refs: { id: ref_ids}).first
   end
 
   def get_vuln(wspace, host, service, name, data='')
