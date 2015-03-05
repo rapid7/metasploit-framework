@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'GlassFish Brute Force Utility',
       'Description'    => %q{
         This module attempts to login to GlassFish instance using username and password
-        combindations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+        combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
         It will also try to do an authentication bypass against older versions of GlassFish.
         Note: by default, GlassFish 4.0 requires HTTPS, which means you must set the SSL option
         to true, and SSLVersion to TLS1. It also needs Secure Admin to access the DAS remotely.
@@ -51,11 +51,6 @@ class Metasploit3 < Msf::Auxiliary
   # Module tracks the session id, and then it will have to pass the last known session id to
   # the LoginScanner class so the authentication can proceed properly
   #
-
-  # Overrides the ssl method from HttpClient
-  def ssl
-    @scanner.ssl || datastore['SSL']
-  end
 
   #
   # For a while, older versions of Glassfish didn't need to set a password for admin,
@@ -95,19 +90,13 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     @scanner = Metasploit::Framework::LoginScanner::Glassfish.new(
-      host:               ip,
-      port:               rport,
-      proxies:            datastore["PROXIES"],
-      cred_details:       @cred_collection,
-      stop_on_success:    datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: 5,
-      framework: framework,
-      framework_module: self,
+      configure_http_login_scanner(
+        cred_details:       @cred_collection,
+        stop_on_success:    datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
+      )
     )
-
-    @scanner.ssl         = datastore['SSL']
-    @scanner.ssl_version = datastore['SSLVERSION']
   end
 
   def do_report(ip, port, result)

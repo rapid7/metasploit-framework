@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Apache Axis2 Brute Force Utility',
       'Description'    => %q{
         This module attempts to login to an Apache Axis2 instance using
-        username and password combindations indicated by the USER_FILE,
+        username and password combinations indicated by the USER_FILE,
         PASS_FILE, and USERPASS_FILE options. It has been verified to
         work on at least versions 1.4.1 and 1.6.2.
       },
@@ -79,18 +79,13 @@ class Metasploit3 < Msf::Auxiliary
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::Axis2.new(
-      host: ip,
-      port: rport,
-      uri: uri,
-      proxies: proxies,
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: 5,
-      user_agent: datastore['UserAgent'],
-      vhost: datastore['VHOST'],
-      framework: framework,
-      framework_module: self,
+      configure_http_login_scanner(
+        uri: uri,
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
+      )
     )
 
     scanner.scan! do |result|

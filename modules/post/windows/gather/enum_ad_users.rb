@@ -12,7 +12,13 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Accounts
 
   UAC_DISABLED = 0x02
-  USER_FIELDS = ['sAMAccountName', 'userAccountControl', 'lockoutTime', 'mail', 'primarygroupid', 'description'].freeze
+  USER_FIELDS = ['sAMAccountName',
+                 'userPrincipalName',
+                 'userAccountControl',
+                 'lockoutTime',
+                 'mail',
+                 'primarygroupid',
+                 'description'].freeze
 
   def initialize(info = {})
     super(update_info(
@@ -35,6 +41,7 @@ class Metasploit3 < Msf::Post
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
       OptBool.new('EXCLUDE_LOCKED', [true, 'Exclude in search locked accounts..', false]),
       OptBool.new('EXCLUDE_DISABLED', [true, 'Exclude from search disabled accounts.', false]),
+      OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
       OptEnum.new('UAC', [true, 'Filter on User Account Control Setting.', 'ANY',
                           [
                             'ANY',
@@ -48,10 +55,17 @@ class Metasploit3 < Msf::Post
   end
 
   def run
+    @user_fields = USER_FIELDS.dup
+
+    if datastore['ADDITIONAL_FIELDS']
+      additional_fields = datastore['ADDITIONAL_FIELDS'].gsub(/\s+/,"").split(',')
+      @user_fields.push(*additional_fields)
+    end
+
     max_search = datastore['MAX_SEARCH']
 
     begin
-      q = query(query_filter, max_search, USER_FIELDS)
+      q = query(query_filter, max_search, @user_fields)
     rescue ::RuntimeError, ::Rex::Post::Meterpreter::RequestError => e
       # Can't bind or in a network w/ limited accounts
       print_error(e.message)
@@ -93,7 +107,7 @@ class Metasploit3 < Msf::Post
       'Header'     => "Domain Users",
       'Indent'     => 1,
       'SortIndex'  => -1,
-      'Columns'    => USER_FIELDS
+      'Columns'    => @user_fields
     )
 
     results.each do |result|
@@ -107,9 +121,9 @@ class Metasploit3 < Msf::Post
         end
       end
 
-      username = result.first[:value]
-      uac = result[1][:value]
-      lockout_time = result[2][:value]
+      username = result[@user_fields.index('sAMAccountName')][:value]
+      uac = result[@user_fields.index('userAccountControl')][:value]
+      lockout_time = result[@user_fields.index('lockoutTime')][:value]
       store_username(username, uac, lockout_time, domain, domain_ip)
 
       results_table << row

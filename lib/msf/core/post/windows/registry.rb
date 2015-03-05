@@ -439,12 +439,10 @@ protected
       subkeys = []
       root_key, base_key = session.sys.registry.splitkey(key)
       perms = meterpreter_registry_perms(KEY_READ, view)
-      open_key = session.sys.registry.open_key(root_key, base_key, perms)
-      keys = open_key.enum_key
+      keys = session.sys.registry.enum_key_direct(root_key, base_key, perms)
       keys.each { |subkey|
         subkeys << subkey
       }
-      open_key.close
       return subkeys
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
@@ -460,12 +458,10 @@ protected
       vals = {}
       root_key, base_key = session.sys.registry.splitkey(key)
       perms = meterpreter_registry_perms(KEY_READ, view)
-      open_key = session.sys.registry.open_key(root_key, base_key, perms)
-      vals = open_key.enum_value
+      vals = session.sys.registry.enum_value_direct(root_key, base_key, perms)
       vals.each { |val|
         values <<  val.name
       }
-      open_key.close
       return values
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
@@ -480,10 +476,8 @@ protected
       value = nil
       root_key, base_key = session.sys.registry.splitkey(key)
       perms = meterpreter_registry_perms(KEY_READ, view)
-      open_key = session.sys.registry.open_key(root_key, base_key, perms)
-      v = open_key.query_value(valname)
+      v = session.sys.registry.query_value_direct(root_key, base_key, valname, perms)
       value = v.data
-      open_key.close
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil
     end
@@ -516,9 +510,8 @@ protected
     begin
       root_key, base_key = session.sys.registry.splitkey(key)
       perms = meterpreter_registry_perms(KEY_WRITE, view)
-      open_key = session.sys.registry.open_key(root_key, base_key, perms)
-      open_key.set_value(valname, session.sys.registry.type2str(type), data)
-      open_key.close
+      session.sys.registry.set_value_direct(root_key, base_key,
+        valname, session.sys.registry.type2str(type), data, perms)
       return true
     rescue Rex::Post::Meterpreter::RequestError => e
       return nil

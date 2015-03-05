@@ -13,6 +13,7 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msf_base), '..', 'lib')))
 require 'rex/java/serialization'
 require 'pp'
+require 'optparse'
 
 # This class allows to deserialize Java Streams from
 # files
@@ -31,7 +32,7 @@ class JavaDeserializer
   #
   # @return [Rex::Java::Serialization::Model::Stream] if succeeds
   # @return [nil] if error
-  def run
+  def run(options = {})
     if file.nil?
       print_error("file path with serialized java stream required")
       return
@@ -49,7 +50,13 @@ class JavaDeserializer
       return
     end
 
-    puts stream
+    if options[:array]
+      print_array(stream.contents[options[:array].to_i])
+    elsif options[:object]
+      print_object(stream.contents[options[:object].to_i])
+    else
+      puts stream
+    end
   end
 
   private
@@ -75,9 +82,87 @@ class JavaDeserializer
   def print_line
     $stdout.puts("\n")
   end
+
+  # @param [Rex::Java::Serialization::Model::NewObject] obj the object to print
+  # @param [Fixnum] level the indentation level when printing super classes
+  def print_object(obj, level = 0)
+    prefix = "  " * level
+    if obj.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc
+      puts "#{prefix}Object Class Description:"
+      print_class(obj.class_desc.description, level + 1)
+    else
+      puts "#{prefix}Object Class Description: #{obj.class_desc.description}"
+    end
+    puts "#{prefix}Object Data: #{obj.class_data}"
+  end
+
+  # @param [Rex::Java::Serialization::Model::NewClassDesc] c the class to print
+  # @param [Fixnum] level the indentation level when printing super classes
+  def print_class(c, level = 0)
+    prefix = "  " * level
+    puts "#{prefix}Class Name: #{c.class_name}"
+    puts "#{prefix}Serial Version: #{c.serial_version}"
+    puts "#{prefix}Flags: #{c.flags}"
+    puts "#{prefix}Fields ##{c.fields.length}"
+    c.fields.each do |f|
+      puts "#{prefix}Field: #{f}"
+    end
+    puts "#{prefix}Class Annotations ##{c.class_annotation.contents.length}"
+    c.class_annotation.contents.each do |c|
+      puts "#{prefix}Annotation: #{c}"
+    end
+    puts "#{prefix}Super Class: #{c.super_class}"
+    if c.super_class.description.class == Rex::Java::Serialization::Model::NewClassDesc
+      print_class(c.super_class.description, level + 1)
+    end
+  end
+
+  # @param [Rex::Java::Serialization::Model::NewArray] arr the array to print
+  # @param [Fixnum] level the indentation level when printing super classes
+  def print_array(arr, level = 0)
+    prefix = "  " * level
+    if arr.array_description.description.class == Rex::Java::Serialization::Model::NewClassDesc
+      puts "#{prefix}Array Description"
+      print_class(arr.array_description.description, 1)
+    else
+      puts "#{prefix}Array Description: #{arr.array_description.description}"
+    end
+    puts "#{prefix}Array Type: #{arr.type}"
+    puts "#{prefix}Array Values ##{arr.values.length}"
+    arr.values.each do |v|
+      puts "Array value: #{prefix}#{v} (#{v.class})"
+      if v.class == Rex::Java::Serialization::Model::NewObject
+        print_object(v, level + 1)
+      end
+    end
+  end
 end
 
 if __FILE__ == $PROGRAM_NAME
+
+  options = {}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: java_deserializer.rb <file> [option]"
+
+    opts.on("-aID", "--array=ID", "Print detailed information about content array") do |id|
+      options[:array] = id
+    end
+
+    opts.on("-oID", "--object=ID", "Print detailed information about content object") do |id|
+      options[:object] = id
+    end
+
+    opts.on("-h", "--help", "Prints this help") do
+      puts opts
+      exit
+    end
+  end.parse!
+
+  if options.length > 1
+    $stdout.puts "[-] Don't provide more than one option"
+    exit
+  end
+
   deserializer = JavaDeserializer.new(ARGV[0])
-  deserializer.run
+  deserializer.run(options)
 end
