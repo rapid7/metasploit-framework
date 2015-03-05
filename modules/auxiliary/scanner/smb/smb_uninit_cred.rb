@@ -57,13 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # This is a good example of passive vs explicit check
     register_options([
-      OptEnum.new('CHECK_STYLE',
-        [
-          true,
-          'Explicit style will actually try to trigger the bug, otheriwse purely a banner check',
-          'PASSIVE',
-          ['EXPLICIT', 'PASSIVE']
-        ])
+      OptBool.new('PASSIVE', [false, 'Try banner checking instead of triggering the bug', false])
     ])
 
     # It's either 139 or 445. The user should not touch this.
@@ -224,16 +218,16 @@ class Metasploit3 < Msf::Auxiliary
         return Exploit::CheckCode::Safe
       end
 
-      case datastore['CHECK_STYLE']
-      when /explicit/i
-        if is_vulnerable?(ip)
-          flag_vuln_host(ip, samba_info)
-          return Exploit::CheckCode::Vulnerable
-        end
-      when /passive/i
+      if datastore['PASSIVE']
         if maybe_vulnerable?(samba_info)
           flag_vuln_host(ip, samba_info)
           return Exploit::CheckCode::Appears
+        end
+      else
+        # Explicit: Actually triggers the bug
+        if is_vulnerable?(ip)
+          flag_vuln_host(ip, samba_info)
+          return Exploit::CheckCode::Vulnerable
         end
       end
     end
