@@ -500,6 +500,12 @@ class Payload < Msf::Module
   #
   attr_accessor :assoc_exploit
 
+  #
+  # The amount of space available to the payload, whch may be nil,
+  # indicating that the smallest possible payload should be used.
+  #
+  attr_accessor :available_space
+
 protected
 
   #
