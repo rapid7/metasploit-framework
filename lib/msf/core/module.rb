@@ -295,6 +295,7 @@ class Module
   # The array of zero or more platforms.
   #
   attr_reader   :platform
+
   #
   # The reference count for the module.
   #
@@ -314,6 +315,13 @@ class Module
   # The last exception to occur using this module
   #
   attr_accessor :error
+
+  # An opaque bag of data to attach to a module. This is useful for attaching
+  # some piece of identifying info on to a module before calling
+  # {Msf::Simple::Exploit#exploit_simple} or
+  # {Msf::Simple::Auxiliary#run_simple} for correlating where modules came
+  # from.
+  attr_accessor :user_data
 
   protected
 
