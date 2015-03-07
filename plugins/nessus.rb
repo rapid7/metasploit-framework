@@ -232,10 +232,10 @@ module Msf
         if !args[0]
           if File.exist?(nessus_yaml)
             lconfig = YAML.load_file(nessus_yaml)
-            @user = lconfig['default']['username']
-            @pass = lconfig['default']['password']
-            @host = lconfig['default']['server']
-            @port = lconfig['default']['port']
+            @user = lconfig['default']['username'].to_s
+            @pass = lconfig['default']['password'].to_s
+            @host = lconfig['default']['server'].to_s
+            @port = lconfig['default']['port'].to_s
             nessus_login
             return
           else
