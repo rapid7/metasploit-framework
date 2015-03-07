@@ -93,7 +93,7 @@ module Msf
           return URI_CHECKSUM_PRECALC[sum]
         end
 
-        # Create an abitrary length URI that matches a given checksum
+        # Create an arbitrary length URI that matches a given checksum
         #
         # @param sum [Fixnum] The checksum value you are trying to create a URI for
         # @param len [Fixnum] The length of the created URI
