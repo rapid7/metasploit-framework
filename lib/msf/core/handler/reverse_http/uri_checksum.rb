@@ -76,6 +76,7 @@ module Msf
         # Create a URI that matches a given checksum
         #
         # @param sum [Fixnum] The checksum value you are trying to create a URI for
+        # @param len [Fixnum] An optional length value for the created URI
         # @return [String] The URI string that checksums to the given value
         def generate_uri_checksum(sum,len=nil)
           return generate_uri_checksum_with_length(sum, len) if len
@@ -95,11 +96,12 @@ module Msf
         # Create an abitrary length URI that matches a given checksum
         #
         # @param sum [Fixnum] The checksum value you are trying to create a URI for
+        # @param len [Fixnum] The length of the created URI
         # @return [String] The URI string that checksums to the given value
-        def generate_uri_checksum_with_length(sum, len=5)
+        def generate_uri_checksum_with_length(sum, len)
           # Lengths shorter than 4 bytes are unable to match all possible checksums
           # Lengths of exactly 4 are relatively slow to find for high checksum values
-          # Lengths of 5 or more bytes find a matching checksum fairly quickly
+          # Lengths of 5 or more bytes find a matching checksum fairly quickly (~80ms)
           raise ArgumentError, "Length must be 5 bytes or greater" if len < 5
 
           # Funny enough, this was more efficient than calculating checksum offsets
