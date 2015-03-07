@@ -20,13 +20,13 @@ class Metasploit4 < Msf::Auxiliary
     super(
       'Name'        => 'Brocde Enable Login Check Scanner',
       'Description' => %q{
-        This module will test a Brocade network device for a privilged 
+        This module will test a Brocade network device for a privilged
         (Enable) login on a range of machines and report successful
-        logins.  If you have loaded a database plugin and connected 
+        logins.  If you have loaded a database plugin and connected
         to a database this module will record successful
         logins and hosts so you can track your access.
-        This is not a login/telnet authentication.  Config should NOT 
-        have 'enable telnet authentication' in it.  This will test the 
+        This is not a login/telnet authentication.  Config should NOT
+        have 'enable telnet authentication' in it.  This will test the
         config that contains 'aaa authentication enable default local'
         Tested against:
               ICX6450-24 SWver 07.4.00bT311
@@ -57,13 +57,13 @@ class Metasploit4 < Msf::Auxiliary
         sock.puts(" \r\n") #paging
         config << sock.recv(1024)
         #there seems to be some buffering issues. so we want to match that we're back at a prompt, as well as received the 'end' of the config.
-        break if config.match(/>$/) and config.match(/end/) 
+        break if config.match(/>$/) and config.match(/end/)
       end #pull the entire config
       config.each_line do |un|
         if un.match(/^username/)
-	  found_username = un.split(" ")[1].strip
-	  un_list.push(found_username)
-	  print_status("   Found: #{found_username}@#{ip}")
+          found_username = un.split(" ")[1].strip
+          un_list.push(found_username)
+          print_status("   Found: #{found_username}@#{ip}")
         end #username match
       end #each line in config
     end #end config/running-config loop
