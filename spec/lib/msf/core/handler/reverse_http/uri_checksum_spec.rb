@@ -9,15 +9,31 @@ describe Msf::Handler::ReverseHttp::UriChecksum do
   subject(:dummy_object) { DummyClass.new }
 
   it { should respond_to :generate_uri_checksum}
+  it { should respond_to :generate_uri_checksum_with_length}
   it { should respond_to :process_uri_resource}
 
   describe '#generate_uri_checksum' do
+    let(:checksum_value) { 92 }
 
+    it 'generates a string that checksums back to the original value' do
+      uri_string = dummy_object.generate_uri_checksum(checksum_value)
+      expect(Rex::Text.checksum8(uri_string)).to eq checksum_value
+    end
 
+    context 'when it fails to generate a random URI' do
+      it 'should use the pre-calculated checksum string' do
+        Rex::Text.stub(:checksum8) { false }
+        expect(dummy_object.generate_uri_checksum(checksum_value)).to eq Msf::Handler::ReverseHttp::UriChecksum::URI_CHECKSUM_PRECALC[checksum_value]
+      end
+
+    end
+  end
+
+  describe '#generate_uri_checksum_with_length' do
     [0, 80, 88, 90, 92, 98, 255, 127].each do |checksum_value|
       [5,30,50,100,127].each do |uri_length|
         it "generates a #{uri_length} byte string that checksums back to the original value (#{checksum_value})" do
-          uri_string = dummy_object.generate_uri_checksum(checksum_value, uri_length)
+          uri_string = dummy_object.generate_uri_checksum_with_length(checksum_value, uri_length)
           expect(Rex::Text.checksum8(uri_string)).to eq checksum_value
         end
       end
