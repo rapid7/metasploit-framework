@@ -73,8 +73,8 @@ class Metasploit4 < Msf::Auxiliary
   attr_accessor :password_only
 
   def run_host(ip)
+    un_list = []
     if datastore['GET_USERNAMES_FROM_CONFIG']
-        un_list = []
         connect()
         get_username_from_config(un_list,ip)
         disconnect()
