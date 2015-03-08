@@ -154,6 +154,7 @@ class PayloadSet < ModuleSet
           'type'  => op[5]['type']})
         new_keys.push combined
 
+        # Cache the payload's size
         sizes[combined] = p.cached_size || p.new.size
       }
     }
