@@ -39,7 +39,6 @@ module Payload::Windows::ReverseHttps
       #{asm_reverse_https(opts)}
     ^
 
-    File.open("/tmp/x.asm", "wb"){|fd| fd.write combined_asm}
     Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
   end
 
