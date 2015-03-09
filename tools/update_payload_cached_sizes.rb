@@ -38,11 +38,11 @@ def is_dynamic_size?(mod)
   [*(1..5)].map{|x| mod.new.size}.uniq.length != 1
 end
 
-def update_cache_size(mod)
+def update_cache_size(mod, val)
   data = ''
   File.open(mod.file_path, 'rb'){|fd| data = fd.read(fd.stat.size)}
-  data = data.gsub(/^\s*CachedSize\s*=\s*\d+.*/, '')
-  data = data.gsub(/^(module Metasploit\d+)/) {|m| "#{m}\n  CachedSize = #{mod.new.size}\n" }
+  data = data.gsub(/^\s*CachedSize\s*=\s*(\d+|:dynamic).*/, '')
+  data = data.gsub(/^(module Metasploit\d+)\s*\n/) {|m| "#{m.strip}\n\n  CachedSize = #{val}\n\n" }
   File.open(mod.file_path, 'wb'){|fd| fd.write(data) }
 end
 
@@ -52,18 +52,21 @@ $framework = Msf::Simple::Framework.create('DisableDatabase' => true)
 $framework.payloads.each_module do |name, mod|
   gsize = mod.new.size
 
-  if is_dynamic_size?(mod)
-    print_status("#{mod.file_path} has a dynamic size, skipping...")
+  if is_dynamic_size?(mod) && ! mod.dynamic_size?
+    print_status("#{mod.file_path} has a dynamic size, updating cache...")
+    update_cache_size(mod, ":dynamic")
     next
   end
 
+  next if mod.dynamic_size?
+
   if mod.cached_size.nil?
     print_status("#{mod.file_path} has size #{gsize}, updating cache...")
-    update_cache_size(mod)
+    update_cache_size(mod, gsize)
   else
     next if gsize == mod.cached_size
-    print_error("#{mod.file_path} has cached size #{mod.cached_size} but generated #{gsize}")
-    update_cache_size(mod)
+    print_error("#{mod.file_path} has cached size #{mod.cached_size} but generated #{gsize}, updating cache...")
+    update_cache_size(mod, gsize)
     next
   end
 end

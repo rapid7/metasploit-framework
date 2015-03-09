@@ -159,12 +159,20 @@ class Payload < Msf::Module
     (@staged or payload_type == Type::Stager or payload_type == Type::Stage)
   end
 
-
   #
   # This method returns an optional cached size value
   #
   def self.cached_size
-    (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize == :dynamic ? nil : csize
+  end
+
+  #
+  # This method returns whether the payload generates variable-sized output
+  #
+  def self.dynamic_size?
+    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize == :dynamic
   end
 
   #
@@ -172,6 +180,13 @@ class Payload < Msf::Module
   #
   def cached_size
       self.class.cached_size
+  end
+
+  #
+  # This method returns whether the payload generates variable-sized output
+  #
+  def dynamic_size?
+      self.class.dynamic_size?
   end
 
   #
