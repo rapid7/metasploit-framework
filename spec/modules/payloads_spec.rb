@@ -6,7 +6,8 @@ describe 'modules/payloads', :content do
   include_context 'untested payloads', modules_pathname: modules_pathname
 
   context 'aix/ppc/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/aix/ppc/shell_bind_tcp'
                           ],
@@ -15,7 +16,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'aix/ppc/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/aix/ppc/shell_find_port'
                           ],
@@ -24,7 +26,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'aix/ppc/shell_interact' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/aix/ppc/shell_interact'
                           ],
@@ -33,7 +36,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'aix/ppc/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/aix/ppc/shell_reverse_tcp'
                           ],
@@ -42,7 +46,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'android/meterpreter/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'stagers/android/reverse_http',
                               'stages/android/meterpreter'
@@ -52,7 +57,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'android/meterpreter/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'stagers/android/reverse_https',
                               'stages/android/meterpreter'
@@ -62,7 +68,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'android/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'stagers/android/reverse_tcp',
                               'stages/android/meterpreter'
@@ -72,7 +79,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'android/shell/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'stagers/android/reverse_http',
                               'stages/android/shell'
@@ -82,7 +90,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'android/shell/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'stagers/android/reverse_https',
                               'stages/android/shell'
@@ -92,7 +101,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'android/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'stagers/android/reverse_tcp',
                               'stages/android/shell'
@@ -102,7 +112,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/sparc/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/sparc/shell_bind_tcp'
                           ],
@@ -111,7 +122,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/sparc/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/sparc/shell_reverse_tcp'
                           ],
@@ -120,7 +132,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/exec'
                           ],
@@ -129,7 +142,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/metsvc_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/metsvc_bind_tcp'
                           ],
@@ -138,7 +152,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/metsvc_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/metsvc_reverse_tcp'
                           ],
@@ -147,7 +162,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/bsd/x86/bind_ipv6_tcp',
                               'stages/bsd/x86/shell'
@@ -157,7 +173,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/bsd/x86/bind_tcp',
                               'stages/bsd/x86/shell'
@@ -167,7 +184,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/bsd/x86/find_tag',
                               'stages/bsd/x86/shell'
@@ -177,7 +195,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/bsd/x86/reverse_ipv6_tcp',
                               'stages/bsd/x86/shell'
@@ -187,7 +206,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/bsd/x86/reverse_tcp',
                               'stages/bsd/x86/shell'
@@ -197,7 +217,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_bind_tcp'
                           ],
@@ -206,7 +227,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell_bind_tcp_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_bind_tcp_ipv6'
                           ],
@@ -215,7 +237,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_find_port'
                           ],
@@ -224,7 +247,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell_find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_find_tag'
                           ],
@@ -233,7 +257,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_reverse_tcp'
                           ],
@@ -242,7 +267,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsd/x86/shell_reverse_tcp_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsd/x86/shell_reverse_tcp_ipv6'
                           ],
@@ -251,7 +277,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsdi/x86/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/bsdi/x86/bind_tcp',
                               'stages/bsdi/x86/shell'
@@ -261,7 +288,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsdi/x86/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/bsdi/x86/reverse_tcp',
                               'stages/bsdi/x86/shell'
@@ -271,7 +299,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsdi/x86/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsdi/x86/shell_bind_tcp'
                           ],
@@ -280,7 +309,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsdi/x86/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsdi/x86/shell_find_port'
                           ],
@@ -289,7 +319,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'bsdi/x86/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/bsdi/x86/shell_reverse_tcp'
                           ],
@@ -298,7 +329,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_awk' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_awk'
                           ],
@@ -307,7 +339,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_inetd' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_inetd'
                           ],
@@ -316,7 +349,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_lua' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_lua'
                           ],
@@ -325,7 +359,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_netcat' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_netcat'
                           ],
@@ -334,7 +369,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_netcat_gaping' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_netcat_gaping'
                           ],
@@ -343,7 +379,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_netcat_gaping_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_netcat_gaping_ipv6'
                           ],
@@ -352,7 +389,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_nodejs' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_nodejs'
                           ],
@@ -361,7 +399,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_perl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_perl'
                           ],
@@ -370,7 +409,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_perl_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_perl_ipv6'
                           ],
@@ -379,7 +419,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_ruby' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_ruby'
                           ],
@@ -388,7 +429,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_ruby_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_ruby_ipv6'
                           ],
@@ -397,7 +439,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/bind_zsh' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_zsh'
                           ],
@@ -406,7 +449,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/generic' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/generic'
                           ],
@@ -415,7 +459,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/interact' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/interact'
                           ],
@@ -424,7 +469,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse'
                           ],
@@ -433,7 +479,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_awk' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_awk'
                           ],
@@ -442,7 +489,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_bash' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_bash'
                           ],
@@ -451,7 +499,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_bash_telnet_ssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_bash_telnet_ssl'
                           ],
@@ -460,7 +509,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_lua' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_lua'
                           ],
@@ -469,7 +519,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_netcat' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_netcat'
                           ],
@@ -478,7 +529,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_netcat_gaping' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_netcat_gaping'
                           ],
@@ -487,7 +539,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_nodejs' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_nodejs'
                           ],
@@ -496,7 +549,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_openssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_openssl'
                           ],
@@ -505,7 +559,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_perl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_perl'
                           ],
@@ -514,7 +569,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_perl_ssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_perl_ssl'
                           ],
@@ -523,7 +579,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_php_ssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_php_ssl'
                           ],
@@ -532,7 +589,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_python' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_python'
                           ],
@@ -541,7 +599,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_python_ssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_python_ssl'
                           ],
@@ -550,7 +609,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_ruby' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_ruby'
                           ],
@@ -559,7 +619,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_ruby_ssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_ruby_ssl'
                           ],
@@ -568,7 +629,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_ssl_double_telnet' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_ssl_double_telnet'
                           ],
@@ -577,7 +639,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/unix/reverse_zsh' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_zsh'
                           ],
@@ -586,7 +649,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/adduser' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/adduser'
                           ],
@@ -595,7 +659,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/bind_lua' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/bind_lua'
                           ],
@@ -604,7 +669,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/bind_perl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/bind_perl'
                           ],
@@ -613,7 +679,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/bind_perl_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/bind_perl_ipv6'
                           ],
@@ -622,7 +689,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/bind_ruby' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/bind_ruby'
                           ],
@@ -631,7 +699,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/download_eval_vbs' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/cmd/windows/download_eval_vbs'
                           ],
@@ -640,7 +709,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/download_exec_vbs' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/cmd/windows/download_exec_vbs'
                           ],
@@ -649,7 +719,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/generic' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/generic'
                           ],
@@ -658,7 +729,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/reverse_lua' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/reverse_lua'
                           ],
@@ -667,7 +739,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/reverse_perl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/reverse_perl'
                           ],
@@ -676,7 +749,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/reverse_powershell' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/reverse_powershell'
                           ],
@@ -685,7 +759,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'cmd/windows/reverse_ruby' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/cmd/windows/reverse_ruby'
                           ],
@@ -694,7 +769,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'firefox/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/firefox/exec'
                           ],
@@ -703,7 +779,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'firefox/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/firefox/shell_bind_tcp'
                           ],
@@ -712,7 +789,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'firefox/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/firefox/shell_reverse_tcp'
                           ],
@@ -721,7 +799,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'generic/custom' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/generic/custom'
                           ],
@@ -730,7 +809,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'generic/debug_trap' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/generic/debug_trap'
                           ],
@@ -739,7 +819,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'generic/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/generic/shell_bind_tcp'
                           ],
@@ -748,7 +829,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'generic/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/generic/shell_reverse_tcp'
                           ],
@@ -757,7 +839,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'generic/tight_loop' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/generic/tight_loop'
                           ],
@@ -766,7 +849,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/jsp_shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/java/jsp_shell_bind_tcp'
                           ],
@@ -775,7 +859,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/jsp_shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/java/jsp_shell_reverse_tcp'
                           ],
@@ -784,7 +869,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/meterpreter/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/java/bind_tcp',
                               'stages/java/meterpreter'
@@ -794,7 +880,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/meterpreter/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/java/reverse_http',
                               'stages/java/meterpreter'
@@ -804,7 +891,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/meterpreter/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/java/reverse_https',
                               'stages/java/meterpreter'
@@ -814,7 +902,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/java/reverse_tcp',
                               'stages/java/meterpreter'
@@ -824,7 +913,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/java/bind_tcp',
                               'stages/java/shell'
@@ -834,7 +924,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/java/reverse_tcp',
                               'stages/java/shell'
@@ -844,7 +935,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'java/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/java/shell_reverse_tcp'
                           ],
@@ -853,7 +945,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/armle/adduser' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/armle/adduser'
                           ],
@@ -862,7 +955,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/armle/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/armle/exec'
                           ],
@@ -871,7 +965,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/armle/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/armle/bind_tcp',
                               'stages/linux/armle/shell'
@@ -881,7 +976,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/armle/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/armle/reverse_tcp',
                               'stages/linux/armle/shell'
@@ -891,7 +987,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/armle/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/armle/shell_bind_tcp'
                           ],
@@ -900,7 +997,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/armle/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/armle/shell_reverse_tcp'
                           ],
@@ -909,7 +1007,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsbe/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/mipsbe/exec'
                           ],
@@ -918,7 +1017,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsbe/reboot' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/mipsbe/reboot'
                           ],
@@ -927,7 +1027,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsbe/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/mipsbe/reverse_tcp',
                               'stages/linux/mipsbe/shell'
@@ -937,7 +1038,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsbe/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/mipsbe/shell_bind_tcp'
                           ],
@@ -946,7 +1048,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsbe/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/mipsbe/shell_reverse_tcp'
                           ],
@@ -955,7 +1058,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsle/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/mipsle/exec'
                           ],
@@ -964,7 +1068,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsle/reboot' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/mipsle/reboot'
                           ],
@@ -973,7 +1078,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsle/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/mipsle/reverse_tcp',
                               'stages/linux/mipsle/shell'
@@ -983,7 +1089,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsle/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/mipsle/shell_bind_tcp'
                           ],
@@ -992,7 +1099,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/mipsle/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/mipsle/shell_reverse_tcp'
                           ],
@@ -1001,7 +1109,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/ppc/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/ppc/shell_bind_tcp'
                           ],
@@ -1010,7 +1119,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/ppc/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/ppc/shell_find_port'
                           ],
@@ -1019,7 +1129,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/ppc/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/ppc/shell_reverse_tcp'
                           ],
@@ -1028,7 +1139,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/ppc64/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/ppc64/shell_bind_tcp'
                           ],
@@ -1037,7 +1149,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/ppc64/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/ppc64/shell_find_port'
                           ],
@@ -1046,7 +1159,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/ppc64/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/ppc64/shell_reverse_tcp'
                           ],
@@ -1055,7 +1169,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x64/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x64/exec'
                           ],
@@ -1064,7 +1179,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x64/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x64/bind_tcp',
                               'stages/linux/x64/shell'
@@ -1074,7 +1190,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x64/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x64/reverse_tcp',
                               'stages/linux/x64/shell'
@@ -1084,7 +1201,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x64/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_bind_tcp'
                           ],
@@ -1093,7 +1211,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x64/shell_bind_tcp_random_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_bind_tcp_random_port'
                           ],
@@ -1102,7 +1221,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x64/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_find_port'
                           ],
@@ -1111,7 +1231,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x64/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x64/shell_reverse_tcp'
                           ],
@@ -1120,7 +1241,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/adduser' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/adduser'
                           ],
@@ -1129,7 +1251,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/chmod' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/chmod'
                           ],
@@ -1138,7 +1261,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/exec'
                           ],
@@ -1147,7 +1271,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/meterpreter/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/bind_ipv6_tcp',
                               'stages/linux/x86/meterpreter'
@@ -1157,7 +1282,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/meterpreter/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/bind_nonx_tcp',
                               'stages/linux/x86/meterpreter'
@@ -1167,7 +1293,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/meterpreter/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/bind_tcp',
                               'stages/linux/x86/meterpreter'
@@ -1177,7 +1304,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/meterpreter/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/find_tag',
                               'stages/linux/x86/meterpreter'
@@ -1187,7 +1315,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/meterpreter/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/reverse_ipv6_tcp',
                               'stages/linux/x86/meterpreter'
@@ -1197,7 +1326,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/meterpreter/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/reverse_nonx_tcp',
                               'stages/linux/x86/meterpreter'
@@ -1207,7 +1337,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/reverse_tcp',
                               'stages/linux/x86/meterpreter'
@@ -1217,7 +1348,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/metsvc_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/metsvc_bind_tcp'
                           ],
@@ -1226,7 +1358,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/metsvc_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/metsvc_reverse_tcp'
                           ],
@@ -1235,7 +1368,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/read_file' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/read_file'
                           ],
@@ -1244,7 +1378,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/bind_ipv6_tcp',
                               'stages/linux/x86/shell'
@@ -1254,7 +1389,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/bind_nonx_tcp',
                               'stages/linux/x86/shell'
@@ -1264,7 +1400,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/bind_tcp',
                               'stages/linux/x86/shell'
@@ -1274,7 +1411,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/find_tag',
                               'stages/linux/x86/shell'
@@ -1284,7 +1422,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/reverse_ipv6_tcp',
                               'stages/linux/x86/shell'
@@ -1294,7 +1433,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/reverse_nonx_tcp',
                               'stages/linux/x86/shell'
@@ -1304,7 +1444,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/linux/x86/reverse_tcp',
                               'stages/linux/x86/shell'
@@ -1314,7 +1455,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell_bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_bind_ipv6_tcp'
                           ],
@@ -1323,7 +1465,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_bind_tcp'
                           ],
@@ -1332,7 +1475,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell_bind_tcp_random_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_bind_tcp_random_port'
                           ],
@@ -1341,7 +1485,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_find_port'
                           ],
@@ -1350,7 +1495,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell_find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_find_tag'
                           ],
@@ -1359,7 +1505,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_reverse_tcp'
                           ],
@@ -1368,7 +1515,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'linux/x86/shell_reverse_tcp2' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/linux/x86/shell_reverse_tcp2'
                           ],
@@ -1377,7 +1525,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'netware/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/netware/reverse_tcp',
                               'stages/netware/shell'
@@ -1387,7 +1536,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'nodejs/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/nodejs/shell_bind_tcp'
                           ],
@@ -1396,7 +1546,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'nodejs/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/nodejs/shell_reverse_tcp'
                           ],
@@ -1405,7 +1556,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'nodejs/shell_reverse_tcp_ssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/nodejs/shell_reverse_tcp_ssl'
                           ],
@@ -1414,7 +1566,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/armle/execute/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/armle/bind_tcp',
                               'stages/osx/armle/execute'
@@ -1424,7 +1577,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/armle/execute/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/armle/reverse_tcp',
                               'stages/osx/armle/execute'
@@ -1434,7 +1588,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/armle/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/armle/bind_tcp',
                               'stages/osx/armle/shell'
@@ -1444,7 +1599,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/armle/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/armle/reverse_tcp',
                               'stages/osx/armle/shell'
@@ -1454,7 +1610,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/armle/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/armle/shell_bind_tcp'
                           ],
@@ -1463,7 +1620,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/armle/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/armle/shell_reverse_tcp'
                           ],
@@ -1472,7 +1630,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/armle/vibrate' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/armle/vibrate'
                           ],
@@ -1481,7 +1640,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/ppc/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/ppc/bind_tcp',
                               'stages/osx/ppc/shell'
@@ -1491,7 +1651,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/ppc/shell/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/ppc/find_tag',
                               'stages/osx/ppc/shell'
@@ -1501,7 +1662,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/ppc/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/ppc/reverse_tcp',
                               'stages/osx/ppc/shell'
@@ -1511,7 +1673,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/ppc/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/ppc/shell_bind_tcp'
                           ],
@@ -1520,7 +1683,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/ppc/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/ppc/shell_reverse_tcp'
                           ],
@@ -1529,7 +1693,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x64/dupandexecve/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/x64/bind_tcp',
                               'stages/osx/x64/dupandexecve'
@@ -1539,7 +1704,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x64/dupandexecve/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/x64/reverse_tcp',
                               'stages/osx/x64/dupandexecve'
@@ -1549,7 +1715,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x64/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x64/exec'
                           ],
@@ -1558,7 +1725,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x64/say' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x64/say'
                           ],
@@ -1567,7 +1735,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x64/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x64/shell_bind_tcp'
                           ],
@@ -1576,7 +1745,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x64/shell_find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x64/shell_find_tag'
                           ],
@@ -1585,7 +1755,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x64/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x64/shell_reverse_tcp'
                           ],
@@ -1594,7 +1765,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/bundleinject/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/x86/bind_tcp',
                               'stages/osx/x86/bundleinject'
@@ -1604,7 +1776,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/bundleinject/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/x86/reverse_tcp',
                               'stages/osx/x86/bundleinject',
@@ -1614,7 +1787,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x86/exec'
                           ],
@@ -1623,7 +1797,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/isight/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/x86/bind_tcp',
                               'stages/osx/x86/isight'
@@ -1633,7 +1808,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/isight/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/x86/reverse_tcp',
                               'stages/osx/x86/isight'
@@ -1643,7 +1819,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x86/shell_bind_tcp'
                           ],
@@ -1652,7 +1829,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x86/shell_find_port'
                           ],
@@ -1661,7 +1839,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x86/shell_reverse_tcp'
                           ],
@@ -1670,7 +1849,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/vforkshell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/x86/bind_tcp',
                               'stages/osx/x86/vforkshell'
@@ -1680,7 +1860,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/vforkshell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/osx/x86/reverse_tcp',
                               'stages/osx/x86/vforkshell'
@@ -1690,7 +1871,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/vforkshell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x86/vforkshell_bind_tcp'
                           ],
@@ -1699,7 +1881,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'osx/x86/vforkshell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/osx/x86/vforkshell_reverse_tcp'
                           ],
@@ -1708,7 +1891,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/bind_perl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/php/bind_perl'
                           ],
@@ -1717,7 +1901,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/bind_perl_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/php/bind_perl_ipv6'
                           ],
@@ -1726,7 +1911,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/bind_php' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/php/bind_php'
                           ],
@@ -1735,7 +1921,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/bind_php_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/php/bind_php_ipv6'
                           ],
@@ -1744,7 +1931,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/download_exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/php/download_exec'
                           ],
@@ -1753,7 +1941,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/php/exec'
                           ],
@@ -1762,7 +1951,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/meterpreter/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/php/bind_tcp',
                               'stages/php/meterpreter'
@@ -1772,7 +1962,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/meterpreter/bind_tcp_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/php/bind_tcp_ipv6',
                               'stages/php/meterpreter'
@@ -1782,7 +1973,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/php/reverse_tcp',
                               'stages/php/meterpreter'
@@ -1792,7 +1984,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/meterpreter_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/php/meterpreter_reverse_tcp'
                           ],
@@ -1801,7 +1994,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/reverse_perl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/php/reverse_perl'
                           ],
@@ -1810,7 +2004,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/reverse_php' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/php/reverse_php'
                           ],
@@ -1819,7 +2014,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'php/shell_findsock' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: true,
                           ancestor_reference_names: [
                               'singles/php/shell_findsock'
                           ],
@@ -1828,7 +2024,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'python/meterpreter/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/python/bind_tcp',
                               'stages/python/meterpreter'
@@ -1838,7 +2035,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'python/meterpreter/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/python/reverse_http',
                             'stages/python/meterpreter'
@@ -1848,7 +2046,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'python/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/python/reverse_tcp',
                               'stages/python/meterpreter'
@@ -1858,7 +2057,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'python/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/python/shell_reverse_tcp'
                           ],
@@ -1867,7 +2067,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'python/shell_reverse_tcp_ssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/python/shell_reverse_tcp_ssl'
                           ],
@@ -1876,7 +2077,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'ruby/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/ruby/shell_bind_tcp'
                           ],
@@ -1885,7 +2087,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'ruby/shell_bind_tcp_ipv6' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/ruby/shell_bind_tcp_ipv6'
                           ],
@@ -1894,7 +2097,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'ruby/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/ruby/shell_reverse_tcp'
                           ],
@@ -1903,7 +2107,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'ruby/shell_reverse_tcp_ssl' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/ruby/shell_reverse_tcp_ssl'
                           ],
@@ -1912,7 +2117,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'solaris/sparc/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/solaris/sparc/shell_bind_tcp'
                           ],
@@ -1921,7 +2127,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'solaris/sparc/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/solaris/sparc/shell_find_port'
                           ],
@@ -1930,7 +2137,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'solaris/sparc/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/solaris/sparc/shell_reverse_tcp'
                           ],
@@ -1939,7 +2147,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'solaris/x86/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/solaris/x86/shell_bind_tcp'
                           ],
@@ -1948,7 +2157,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'solaris/x86/shell_find_port' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/solaris/x86/shell_find_port'
                           ],
@@ -1957,7 +2167,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'solaris/x86/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/solaris/x86/shell_reverse_tcp'
                           ],
@@ -1966,7 +2177,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'tty/unix/interact' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/tty/unix/interact'
                           ],
@@ -1975,7 +2187,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/adduser' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/adduser'
                           ],
@@ -1984,7 +2197,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/dllinject'
@@ -1994,7 +2208,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/dllinject'
@@ -2004,7 +2219,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp',
                               'stages/windows/dllinject'
@@ -2014,7 +2230,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/bind_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/dllinject'
@@ -2024,7 +2241,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/findtag_ord',
                               'stages/windows/dllinject'
@@ -2034,7 +2252,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_hop_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_hop_http',
                               'stages/windows/dllinject'
@@ -2044,7 +2263,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_http',
                               'stages/windows/dllinject'
@@ -2054,7 +2274,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_http_proxy_pstore' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/reverse_http_proxy_pstore',
                             'stages/windows/dllinject'
@@ -2064,7 +2285,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/dllinject'
@@ -2074,7 +2296,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/dllinject'
@@ -2084,7 +2307,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_ord_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/dllinject'
@@ -2094,7 +2318,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp',
                               'stages/windows/dllinject'
@@ -2104,7 +2329,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_tcp_allports' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/dllinject'
@@ -2114,7 +2340,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_tcp_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/dllinject'
@@ -2124,7 +2351,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/dllinject'
@@ -2134,7 +2362,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/reverse_tcp_rc4_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/dllinject'
@@ -2144,7 +2373,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dns_txt_query_exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/dns_txt_query_exec'
                           ],
@@ -2153,7 +2383,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/download_exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/download_exec'
                           ],
@@ -2162,7 +2393,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/exec'
                           ],
@@ -2171,7 +2403,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/format_all_drives' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/format_all_drives'
                           ],
@@ -2180,7 +2413,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/loadlibrary' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/loadlibrary'
                           ],
@@ -2189,7 +2423,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/messagebox' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/messagebox'
                           ],
@@ -2198,7 +2433,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/meterpreter'
@@ -2208,7 +2444,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/meterpreter'
@@ -2218,7 +2455,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp',
                               'stages/windows/meterpreter'
@@ -2228,7 +2466,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/bind_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/meterpreter'
@@ -2238,7 +2477,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/findtag_ord',
                               'stages/windows/meterpreter'
@@ -2248,7 +2488,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_hop_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_hop_http',
                               'stages/windows/meterpreter'
@@ -2258,7 +2499,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_http',
                               'stages/windows/meterpreter'
@@ -2268,7 +2510,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_http_proxy_pstore' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/reverse_http_proxy_pstore',
                             'stages/windows/meterpreter'
@@ -2278,7 +2521,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_https',
                               'stages/windows/meterpreter'
@@ -2288,7 +2532,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_https_proxy' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_https_proxy',
                               'stages/windows/meterpreter'
@@ -2298,7 +2543,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/meterpreter'
@@ -2308,7 +2554,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/meterpreter'
@@ -2318,7 +2565,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_ord_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/meterpreter'
@@ -2328,7 +2576,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp',
                               'stages/windows/meterpreter'
@@ -2338,7 +2587,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_tcp_allports' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/meterpreter'
@@ -2348,7 +2598,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_tcp_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/meterpreter'
@@ -2358,7 +2609,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/meterpreter'
@@ -2368,7 +2620,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/reverse_tcp_rc4_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/meterpreter'
@@ -2378,7 +2631,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/metsvc_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/metsvc_bind_tcp'
                           ],
@@ -2387,7 +2641,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/metsvc_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/metsvc_reverse_tcp'
                           ],
@@ -2396,7 +2651,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/patchupdllinject'
@@ -2406,7 +2662,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/patchupdllinject'
@@ -2416,7 +2673,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp',
                               'stages/windows/patchupdllinject'
@@ -2426,7 +2684,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/bind_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/patchupdllinject'
@@ -2436,7 +2695,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/findtag_ord',
                               'stages/windows/patchupdllinject'
@@ -2446,7 +2706,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/patchupdllinject'
@@ -2456,7 +2717,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/patchupdllinject'
@@ -2466,7 +2728,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/reverse_ord_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/patchupdllinject'
@@ -2476,7 +2739,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp',
                               'stages/windows/patchupdllinject'
@@ -2486,7 +2750,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/reverse_tcp_allports' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/patchupdllinject'
@@ -2496,7 +2761,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/reverse_tcp_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/patchupdllinject'
@@ -2506,7 +2772,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/reverse_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/patchupdllinject'
@@ -2516,7 +2783,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/reverse_tcp_rc4_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/patchupdllinject'
@@ -2526,7 +2794,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/patchupmeterpreter'
@@ -2536,7 +2805,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/patchupmeterpreter'
@@ -2546,7 +2816,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp',
                               'stages/windows/patchupmeterpreter'
@@ -2556,7 +2827,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/bind_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/patchupmeterpreter'
@@ -2566,7 +2838,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/findtag_ord',
                               'stages/windows/patchupmeterpreter'
@@ -2576,7 +2849,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/patchupmeterpreter'
@@ -2586,7 +2860,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/patchupmeterpreter'
@@ -2596,7 +2871,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/reverse_ord_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/patchupmeterpreter'
@@ -2606,7 +2882,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp',
                               'stages/windows/patchupmeterpreter'
@@ -2616,7 +2893,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/reverse_tcp_allports' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/patchupmeterpreter'
@@ -2626,7 +2904,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/reverse_tcp_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/patchupmeterpreter'
@@ -2636,7 +2915,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/reverse_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/patchupmeterpreter'
@@ -2646,7 +2926,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/reverse_tcp_rc4_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/patchupmeterpreter'
@@ -2656,7 +2937,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/shell'
@@ -2666,7 +2948,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/shell'
@@ -2676,7 +2959,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp',
                               'stages/windows/shell'
@@ -2686,7 +2970,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/bind_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/shell'
@@ -2696,7 +2981,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/findtag_ord',
                               'stages/windows/shell'
@@ -2706,7 +2992,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_hop_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_hop_http',
                               'stages/windows/shell'
@@ -2716,7 +3003,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_http',
                               'stages/windows/shell'
@@ -2726,7 +3014,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_http_proxy_pstore' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/reverse_http_proxy_pstore',
                             'stages/windows/shell'
@@ -2736,7 +3025,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/shell'
@@ -2746,7 +3036,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/shell'
@@ -2756,7 +3047,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_ord_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/shell'
@@ -2766,7 +3058,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp',
                               'stages/windows/shell'
@@ -2776,7 +3069,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_tcp_allports' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/shell'
@@ -2786,7 +3080,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_tcp_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/shell'
@@ -2796,7 +3091,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/shell'
@@ -2806,7 +3102,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/reverse_tcp_rc4_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/shell'
@@ -2816,7 +3113,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/shell_bind_tcp'
                           ],
@@ -2825,7 +3123,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell_bind_tcp_xpfw' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/shell_bind_tcp_xpfw'
                           ],
@@ -2834,7 +3133,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell_hidden_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/shell_hidden_bind_tcp'
                           ],
@@ -2843,7 +3143,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/shell_reverse_tcp'
                           ],
@@ -2852,7 +3153,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/speak_pwned' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/speak_pwned'
                           ],
@@ -2861,7 +3163,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/upexec'
@@ -2871,7 +3174,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/upexec'
@@ -2881,7 +3185,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp',
                               'stages/windows/upexec'
@@ -2891,7 +3196,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/bind_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/upexec'
@@ -2901,7 +3207,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/findtag_ord',
                               'stages/windows/upexec'
@@ -2911,7 +3218,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_hop_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_hop_http',
                               'stages/windows/upexec'
@@ -2921,7 +3229,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_http',
                               'stages/windows/upexec'
@@ -2931,7 +3240,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_http_proxy_pstore' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/reverse_http_proxy_pstore',
                             'stages/windows/upexec'
@@ -2941,7 +3251,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/upexec'
@@ -2951,7 +3262,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/upexec'
@@ -2961,7 +3273,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_ord_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/upexec'
@@ -2971,7 +3284,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp',
                               'stages/windows/upexec'
@@ -2981,7 +3295,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_tcp_allports' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/upexec'
@@ -2991,7 +3306,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_tcp_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/upexec'
@@ -3001,7 +3317,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/upexec'
@@ -3011,7 +3328,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/reverse_tcp_rc4_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/upexec'
@@ -3021,7 +3339,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/bind_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_ipv6_tcp',
                               'stages/windows/vncinject'
@@ -3031,7 +3350,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/bind_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_nonx_tcp',
                               'stages/windows/vncinject'
@@ -3041,7 +3361,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp',
                               'stages/windows/vncinject'
@@ -3051,7 +3372,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/bind_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/bind_tcp_rc4',
                               'stages/windows/vncinject'
@@ -3061,7 +3383,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/find_tag' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/findtag_ord',
                               'stages/windows/vncinject'
@@ -3071,7 +3394,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_hop_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_hop_http',
                               'stages/windows/vncinject'
@@ -3081,7 +3405,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_http' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_http',
                               'stages/windows/vncinject'
@@ -3091,7 +3416,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_http_proxy_pstore' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/reverse_http_proxy_pstore',
                             'stages/windows/vncinject'
@@ -3101,7 +3427,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ipv6_tcp',
                               'stages/windows/vncinject'
@@ -3111,7 +3438,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_nonx_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_nonx_tcp',
                               'stages/windows/vncinject'
@@ -3121,7 +3449,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_ord_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_ord_tcp',
                               'stages/windows/vncinject'
@@ -3131,7 +3460,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp',
                               'stages/windows/vncinject'
@@ -3141,7 +3471,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_tcp_allports' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_allports',
                               'stages/windows/vncinject'
@@ -3151,7 +3482,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_tcp_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_dns',
                               'stages/windows/vncinject'
@@ -3161,7 +3493,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_tcp_rc4' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4',
                               'stages/windows/vncinject'
@@ -3171,7 +3504,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/reverse_tcp_rc4_dns' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/reverse_tcp_rc4_dns',
                               'stages/windows/vncinject'
@@ -3181,7 +3515,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/exec' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/x64/exec'
                           ],
@@ -3190,7 +3525,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/loadlibrary' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/x64/loadlibrary'
                           ],
@@ -3199,7 +3535,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/meterpreter/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/meterpreter'
@@ -3209,7 +3546,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/meterpreter/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/reverse_https',
                               'stages/windows/x64/meterpreter'
@@ -3219,7 +3557,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/meterpreter'
@@ -3229,7 +3568,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/shell/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/shell'
@@ -3239,7 +3579,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/shell/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/reverse_https',
                               'stages/windows/x64/shell'
@@ -3249,7 +3590,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/shell/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/shell'
@@ -3259,7 +3601,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/shell_bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/x64/shell_bind_tcp'
                           ],
@@ -3268,7 +3611,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/shell_reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'singles/windows/x64/shell_reverse_tcp'
                           ],
@@ -3277,7 +3621,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/vncinject/bind_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/vncinject'
@@ -3287,7 +3632,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/vncinject/reverse_https' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/reverse_https',
                               'stages/windows/x64/vncinject'
@@ -3297,7 +3643,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/x64/vncinject/reverse_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/vncinject'
@@ -3307,7 +3654,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/bind_hidden_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/dllinject'
@@ -3317,7 +3665,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/bind_hidden_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/meterpreter'
@@ -3327,7 +3676,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/bind_hidden_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/patchupdllinject'
@@ -3337,7 +3687,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/bind_hidden_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/patchupmeterpreter'
@@ -3347,7 +3698,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/bind_hidden_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/shell'
@@ -3357,7 +3709,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/bind_hidden_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/upexec'
@@ -3367,7 +3720,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/bind_hidden_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_tcp',
                             'stages/windows/vncinject'
@@ -3377,7 +3731,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/dllinject/bind_hidden_ipknock_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/dllinject'
@@ -3387,7 +3742,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/meterpreter/bind_hidden_ipknock_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/meterpreter'
@@ -3397,7 +3753,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupdllinject/bind_hidden_ipknock_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/patchupdllinject'
@@ -3407,7 +3764,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/patchupmeterpreter/bind_hidden_ipknock_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/patchupmeterpreter'
@@ -3417,7 +3775,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/shell/bind_hidden_ipknock_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/shell'
@@ -3427,7 +3786,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/upexec/bind_hidden_ipknock_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/upexec'
@@ -3437,7 +3797,8 @@ describe 'modules/payloads', :content do
   end
 
   context 'windows/vncinject/bind_hidden_ipknock_tcp' do
-    it_should_behave_like 'payload can be instantiated',
+    it_should_behave_like 'payload cached size is consistent',
+                          dynamic_size: false,
                           ancestor_reference_names: [
                             'stagers/windows/bind_hidden_ipknock_tcp',
                             'stages/windows/vncinject'

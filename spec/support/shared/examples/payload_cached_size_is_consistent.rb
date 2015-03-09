@@ -66,9 +66,11 @@
 # @option options [Pathname] :modules_pathname The `modules` directory from which to load `:ancestor_reference_names`.
 # @option options [String] :reference_name The reference name for payload class that should be instantiated from mixing
 #   `:ancestor_reference_names`.
+# @option options [Boolean] :dynamic_size The dynamic_size flag determines whether we expect this module to generate a
+#   variable size payload or to have a valid cached_size
 # @return [void]
-shared_examples_for 'payload can be instantiated' do |options|
-  options.assert_valid_keys(:ancestor_reference_names, :modules_pathname, :reference_name)
+shared_examples_for 'payload cached size is consistent' do |options|
+  options.assert_valid_keys(:ancestor_reference_names, :modules_pathname, :reference_name, :dynamic_size)
 
   ancestor_reference_names = options.fetch(:ancestor_reference_names)
 
@@ -76,6 +78,8 @@ shared_examples_for 'payload can be instantiated' do |options|
   modules_path = modules_pathname.to_path
 
   reference_name = options.fetch(:reference_name)
+
+  dynamic_size = options.fetch(:dynamic_size)
 
   module_type = 'payload'
 
@@ -107,24 +111,29 @@ shared_examples_for 'payload can be instantiated' do |options|
       )
     end
 
-    it 'has a valid cached_size or is dynamic_size' do
-      pinst = load_and_create_module(
-          ancestor_reference_names: ancestor_reference_names,
-          module_type: module_type,
-          modules_path: modules_path,
-          reference_name: reference_name
-      )
-
-      if pinst.dynamic_size?
-        expect(pinst.cached_size).to(be_nil,
-          "Payload #{module_type}/#{reference_name} has a dynamic size but a non-nil cached_size")
-      else
-        expect(pinst.cached_size).not_to(be_nil,
-          "Payload #{module_type}/#{reference_name} is missing CachedSize")
-        expect(pinst.size).to(eq(pinst.cached_size),
-          "Payload #{module_type}/#{reference_name} generated size does not match CachedSize")
+    if dynamic_size
+      it 'is dynamic_size?' do
+        pinst = load_and_create_module(
+              ancestor_reference_names: ancestor_reference_names,
+              module_type: module_type,
+              modules_path: modules_path,
+              reference_name: reference_name
+        )
+        expect(pinst.cached_size).to(be_nil)
+        expect(pinst.dynamic_size?).to be(true)
+      end
+    else
+      it 'has a valid cached_size' do
+        pinst = load_and_create_module(
+              ancestor_reference_names: ancestor_reference_names,
+              module_type: module_type,
+              modules_path: modules_path,
+              reference_name: reference_name
+        )
+        expect(pinst.cached_size).to_not(be_nil)
+        expect(pinst.dynamic_size?).to be(false)
+        expect(pinst.cached_size).to eq(pinst.size)
       end
     end
-
   end
 end
