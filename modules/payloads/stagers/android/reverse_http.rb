@@ -8,6 +8,10 @@ require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
+  CachedSize = dynamic
+
+  CachedSize = dynamic
+
   include Msf::Payload::Stager
   include Msf::Payload::Dalvik
 
