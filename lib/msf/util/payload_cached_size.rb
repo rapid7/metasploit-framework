@@ -59,7 +59,7 @@ class PayloadCachedSize
   # @param mod [Msf::Payload] The class of the payload module to update
   # @return [Fixnum]
   def self.compute_cached_size(mod)
-    return :dynamic if is_dynamic?(mod)
+    return ":dynamic" if is_dynamic?(mod)
     return mod.new.size
   end
 
