@@ -14,6 +14,12 @@ module Util
 
 class PayloadCachedSize
 
+  # Insert a new CachedSize value into the text of a payload module
+  #
+  # @param data [String] The source code of a payload module
+  # @param cached_size [String] The new value for cached_size, which
+  #   which should be either numeric or the string :dynamic
+  # @return [String]
   def self.update_cache_constant(data, cached_size)
     data.
       gsub(/^\s*CachedSize\s*=\s*(\d+|:dynamic).*/, '').
@@ -22,6 +28,12 @@ class PayloadCachedSize
       end
   end
 
+  # Insert a new CachedSize value into a payload module file
+  #
+  # @param mod [Msf::Payload] The class of the payload module to update
+  # @param cached_size [String] The new value for cached_size, which
+  #   which should be either numeric or the string :dynamic
+  # @return [void]
   def self.update_cached_size(mod, cached_size)
     mod_data = ""
 
@@ -34,19 +46,37 @@ class PayloadCachedSize
     end
   end
 
+  # Updates the payload module specified with the current CachedSize
+  #
+  # @param mod [Msf::Payload] The class of the payload module to update
+  # @return [void]
   def self.update_module_cached_size(mod)
     update_cached_size(mod, compute_cached_size(mod))
   end
 
+  # Calculates the CachedSize value for a payload module
+  #
+  # @param mod [Msf::Payload] The class of the payload module to update
+  # @return [Fixnum]
   def self.compute_cached_size(mod)
     return :dynamic if is_dynamic?(mod)
     return mod.new.size
   end
 
+  # Determines whether a payload generates a static sized output
+  #
+  # @param mod [Msf::Payload] The class of the payload module to update
+  # @param generation_count [Fixnum] The number of iterations to use to
+  #   verify that the size is static.
+  # @return [Fixnum]
   def self.is_dynamic?(mod,generation_count=5)
     [*(1..generation_count)].map{|x| mod.new.size}.uniq.length != 1
   end
 
+  # Determines whether a payload's CachedSize is up to date
+  #
+  # @param mod [Msf::Payload] The class of the payload module to update
+  # @return [Boolean]
   def self.is_cached_size_accurate?(mod)
     return true if mod.dynamic_size?
     return false if mod.cached_size.nil?
