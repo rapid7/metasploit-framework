@@ -41,7 +41,7 @@ opts = {
 }
 
 # Parse command line arguments.
-arguments.parse(ARGV) { |opt, idx, val|
+arguments.parse(ARGV) do |opt, idx, val|
   case opt
     when "-a"
       opts['ServerHost'] = val
@@ -57,7 +57,7 @@ arguments.parse(ARGV) { |opt, idx, val|
       print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
       exit
   end
-}
+end
 
 
 unless opts['ServerHost']
