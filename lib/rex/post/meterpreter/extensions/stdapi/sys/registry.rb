@@ -382,6 +382,7 @@ class Registry
   #
   def self.type2str(type)
     return REG_SZ if (type == 'REG_SZ')
+    return REG_MULTI_SZ if (type == 'REG_MULTI_SZ')
     return REG_DWORD if (type == 'REG_DWORD')
     return REG_BINARY if (type == 'REG_BINARY')
     return REG_EXPAND_SZ if (type == 'REG_EXPAND_SZ')
