@@ -41,6 +41,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             double(
                 'Msf::Module',
+                :user_data => nil,
                 :fullname => "exploit/#{name}",
                 :framework => framework,
                 :name => name
@@ -65,6 +66,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
           let(:session) do
             session_class.new.tap do |session|
+              session.assoc_exploit = module_instance
               session.exploit_datastore = exploit_datastore
               session.info = 'Info'
               session.platform = 'Platform'
@@ -81,6 +83,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             Class.new do
               include Msf::Session
 
+              attr_accessor :assoc_exploit
               attr_accessor :datastore
               attr_accessor :platform
               attr_accessor :type

@@ -144,13 +144,14 @@ module Msf::DBManager::Session
       end
     end
 
-
     if opts[:session]
       session.db_record = s
     end
 
-    # If this is a live session, we know the host is vulnerable to something.
-    if opts[:session] and session.via_exploit
+    if opts[:session] && session.assoc_exploit.user_data.kind_of?(MetasploitDataModels::AutomaticExploitation::Match)
+      # do some shit with the match
+    elsif opts[:session] and session.via_exploit
+      # This is a live session, we know the host is vulnerable to something.
       infer_vuln_from_session(session, wspace)
     end
 
@@ -160,7 +161,9 @@ module Msf::DBManager::Session
 
   protected
 
-  # @param [Msf::Session]
+  # @param session [Msf::Session]
+  # @param wspace [Msf::Session]
+  # @return [void]
   def infer_vuln_from_session(session, wspace)
     s = session.db_record
     host = session.db_record.host
