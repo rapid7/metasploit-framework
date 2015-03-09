@@ -99,12 +99,32 @@ shared_examples_for 'payload can be instantiated' do |options|
     end
 
     it 'can be instantiated' do
-      load_and_create_module(
+      pinst = load_and_create_module(
           ancestor_reference_names: ancestor_reference_names,
           module_type: module_type,
           modules_path: modules_path,
           reference_name: reference_name
       )
     end
+
+    it 'has a valid cached_size or is dynamic_size' do
+      pinst = load_and_create_module(
+          ancestor_reference_names: ancestor_reference_names,
+          module_type: module_type,
+          modules_path: modules_path,
+          reference_name: reference_name
+      )
+
+      if pinst.dynamic_size?
+        expect(pinst.cached_size).to(be_nil,
+          "Payload #{module_type}/#{reference_name} has a dynamic size but a non-nil cached_size")
+      else
+        expect(pinst.cached_size).not_to(be_nil,
+          "Payload #{module_type}/#{reference_name} is missing CachedSize")
+        expect(pinst.size).to(eq(pinst.cached_size),
+          "Payload #{module_type}/#{reference_name} generated size does not match CachedSize")
+      end
+    end
+
   end
 end
