@@ -34,6 +34,7 @@ class EncodedPayload
     self.framework = framework
     self.pinst     = pinst
     self.reqs      = reqs
+    self.space     = reqs['Space']
   end
 
   #
@@ -63,6 +64,9 @@ class EncodedPayload
     begin
       # First, validate
       pinst.validate()
+
+      # Tell the payload how much space is available
+      pinst.available_space = self.space
 
       # Generate the raw version of the payload first
       generate_raw() if self.raw.nil?
@@ -190,6 +194,9 @@ class EncodedPayload
             'core', LEV_1)
           next
         end
+
+        # Tell the encoder how much space is available
+        self.encoder.available_space = self.space
 
         eout = self.raw.dup
 
@@ -456,7 +463,10 @@ class EncodedPayload
   # The number of encoding iterations used
   #
   attr_reader :iterations
-
+  #
+  # The maximum number of bytes acceptable for the encoded payload
+  #
+  attr_reader :space
 protected
 
   attr_writer :raw # :nodoc:
@@ -467,6 +477,7 @@ protected
   attr_writer :encoder # :nodoc:
   attr_writer :nop # :nodoc:
   attr_writer :iterations # :nodoc:
+  attr_writer :space # :nodoc
 
   #
   # The payload instance used to generate the payload
