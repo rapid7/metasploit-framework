@@ -2131,7 +2131,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/solaris/sparc/shell_find_port'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'solaris/sparc/shell_find_port'
   end
