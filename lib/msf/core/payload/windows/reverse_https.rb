@@ -18,14 +18,6 @@ module Payload::Windows::ReverseHttps
   include Msf::Payload::Windows::ReverseHttp
 
   def asm_reverse_https(opts={})
-
-    #
-    # options should contain:
-    #    ssl:   (true|false)
-    #    url:   "/url_to_request"
-    #   host:   [hostname]
-    #
-
     asm_reverse_http(opts.merge({ssl: true}))
   end
 
