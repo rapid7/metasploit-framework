@@ -7,7 +7,7 @@ require 'msf/core'
 
 module Metasploit3
 
-  CachedSize = dynamic
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Firefox

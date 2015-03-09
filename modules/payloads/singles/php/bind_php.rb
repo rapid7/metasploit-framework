@@ -11,7 +11,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
-  CachedSize = dynamic
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Php
