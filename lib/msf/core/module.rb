@@ -278,6 +278,14 @@ class Module
     raise RuntimeError, "#{reason.to_s}: #{msg}"
   end
 
+  # Whether {user_data} contains everything necessary to make a
+  # `MetasploitDataModels::AutomaticExploitation::MatchResult`
+  #
+  # @return [bool]
+  def user_data_is_match?
+    user_data.kind_of?(Hash) && user_data.keys == [ :match, :match_set, :run ]
+  end
+
   ##
   #
   # Just some handy quick checks
