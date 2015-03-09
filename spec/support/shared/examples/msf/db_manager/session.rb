@@ -120,6 +120,8 @@ shared_examples_for 'Msf::DBManager::Session' do
             )
           end
 
+          context 'without user_data' do
+
           context 'with :workspace' do
             before(:each) do
               options[:workspace] = options_workspace
@@ -462,6 +464,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 it { expect(subject.via_exploit).to eq(session.via_exploit) }
               end
             end
+          end
           end
         end
 
