@@ -121,7 +121,6 @@ module Msf::DBManager::Session
     else
       raise ArgumentError.new("Missing option :session or :host")
     end
-    ret = {}
 
     # Truncate the session data if necessary
     if sess_data[:desc]
