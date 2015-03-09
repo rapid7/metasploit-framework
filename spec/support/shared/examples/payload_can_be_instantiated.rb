@@ -99,7 +99,7 @@ shared_examples_for 'payload can be instantiated' do |options|
     end
 
     it 'can be instantiated' do
-      pinst = load_and_create_module(
+      load_and_create_module(
           ancestor_reference_names: ancestor_reference_names,
           module_type: module_type,
           modules_path: modules_path,
