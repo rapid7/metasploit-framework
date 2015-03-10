@@ -3817,5 +3817,4 @@ describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_winhttp'
   end
-
 end
