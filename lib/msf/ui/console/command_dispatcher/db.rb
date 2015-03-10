@@ -1713,8 +1713,8 @@ class Db
           cdb = conn.current_database
         end
       end
-      print_status("#{framework.db.driver} already connected to #{cdb}. " +
-        "Run db_disconnect first if you wish to connect to a different database.")
+      print_error("#{framework.db.driver} already connected to #{cdb}")
+      print_error("Run db_disconnect first if you wish to connect to a different database")
       return
     end
     if (args[0] == "-y")
