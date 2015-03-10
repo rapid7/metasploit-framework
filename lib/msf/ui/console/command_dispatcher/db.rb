@@ -1706,6 +1706,15 @@ class Db
 
   def cmd_db_connect(*args)
     return if not db_check_driver
+    if framework.db.connection_established?
+      cdb = ""
+      ::ActiveRecord::Base.connection_pool.with_connection { |conn|
+        if conn.respond_to? :current_database
+          cdb = conn.current_database
+        end
+      } 
+      return print_status("#{framework.db.driver} already connected to #{cdb}")
+    end
     if (args[0] == "-y")
       if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
         print_error("File not found")
