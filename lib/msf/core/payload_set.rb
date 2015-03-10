@@ -155,7 +155,7 @@ class PayloadSet < ModuleSet
         new_keys.push combined
 
         # Cache the payload's size
-        sizes[combined] = p.new.size
+        sizes[combined] = p.cached_size || p.new.size
       }
     }
 

