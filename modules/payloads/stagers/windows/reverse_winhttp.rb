@@ -10,11 +10,13 @@ require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
+  CachedSize = 347
+
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 
   def self.handler_type_alias
-    "reverse_winhttp_http"
+    "reverse_winhttp"
   end
 
   def initialize(info = {})
