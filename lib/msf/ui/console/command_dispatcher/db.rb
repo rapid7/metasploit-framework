@@ -1713,7 +1713,9 @@ class Db
           cdb = conn.current_database
         end
       } 
-      return print_status("#{framework.db.driver} already connected to #{cdb}")
+      status = "#{framework.db.driver} already connected to #{cdb}. "
+      status += "Run db_disconnect first if you wish to connect to a different database."
+      return print_status(status)
     end
     if (args[0] == "-y")
       if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
