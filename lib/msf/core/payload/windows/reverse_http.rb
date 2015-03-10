@@ -26,7 +26,7 @@ module Payload::Windows::ReverseHttp
     super
     register_advanced_options(
       [
-        OptInt.new('HTTPStagerURILength', [false, 'The URI length for the stager (5 to 240ish bytes)'])
+        OptInt.new('HTTPStagerURILength', [false, 'The URI length for the stager (at least 5 bytes)'])
       ], self.class)
   end
 
@@ -73,16 +73,12 @@ module Payload::Windows::ReverseHttp
   # Generate the URI for the initial stager
   #
   def generate_uri
-    # Maximum URL is limited to https:// plus 256 bytes, figure out our maximum URI
-    uri_max_len = 256 - "#{datastore['LHOST']}:#{datastore['LPORT']}/".length
+
     uri_req_len = datastore['HTTPStagerURILength'].to_i
 
+    # Choose a random URI length between 30 and 255 bytes
     if uri_req_len == 0
-      uri_req_len = 30 + rand(uri_max_len-30)
-    end
-
-    if uri_req_len > uri_max_len
-      raise ArgumentError, "Maximum HTTPStagerURILength is #{uri_max_len}"
+      uri_req_len = 30 + rand(256-30)
     end
 
     if uri_req_len < 5
