@@ -39,13 +39,15 @@ shared_examples_for 'Msf::DBManager::Session' do
           let(:module_instance) do
             name = 'multi/handler'
 
-            double(
-                'Msf::Module',
-                :user_data => nil,
+            d = double(
+                'Msf::Exploit',
+                :user_data => user_data,
                 :fullname => "exploit/#{name}",
                 :framework => framework,
                 :name => name
             )
+            allow(d).to receive(:user_data_is_match?).and_return(false)
+            d
           end
 
           let(:options_workspace) do
@@ -120,7 +122,26 @@ shared_examples_for 'Msf::DBManager::Session' do
             )
           end
 
+          context 'with a match in user_data' do
+            let(:user_data) do
+              {
+                match: FactoryGirl.create(:automatic_exploitation_match),
+                match_set: FactoryGirl.create(:automatic_exploitation_match_set),
+                run: FactoryGirl.create(:automatic_exploitation_run),
+              }
+            end
+
+            before do
+              allow(module_instance).to receive(:user_data_is_match?).and_return(true)
+            end
+
+            it 'should make a MatchResult' do
+              expect { report_session }.to change(MetasploitDataModels::AutomaticExploitation::MatchResult, :count).by(1)
+            end
+          end
+
           context 'without user_data' do
+            let(:user_data) { nil }
 
             context 'with :workspace' do
               before(:each) do
