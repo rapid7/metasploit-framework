@@ -1688,11 +1688,11 @@ class Db
 
     if framework.db.connection_established?
       cdb = ""
-      ::ActiveRecord::Base.connection_pool.with_connection { |conn|
-        if conn.respond_to? :current_database
+      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
           cdb = conn.current_database
         end
-      }
+      end
       print_status("#{framework.db.driver} connected to #{cdb}")
     else
       print_status("#{framework.db.driver} selected, no connection")
@@ -1706,16 +1706,16 @@ class Db
 
   def cmd_db_connect(*args)
     return if not db_check_driver
-    if framework.db.connection_established?
+    if args[0] != '-h' && framework.db.connection_established?
       cdb = ""
-      ::ActiveRecord::Base.connection_pool.with_connection { |conn|
-        if conn.respond_to? :current_database
+      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
           cdb = conn.current_database
         end
-      } 
-      status = "#{framework.db.driver} already connected to #{cdb}. "
-      status += "Run db_disconnect first if you wish to connect to a different database."
-      return print_status(status)
+      end
+      print_status("#{framework.db.driver} already connected to #{cdb}. " +
+        "Run db_disconnect first if you wish to connect to a different database.")
+      return
     end
     if (args[0] == "-y")
       if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
