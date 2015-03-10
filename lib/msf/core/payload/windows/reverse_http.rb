@@ -102,8 +102,8 @@ module Payload::Windows::ReverseHttp
     # Add 100 bytes for the encoder to have some room
     space += 100
 
-    # Add 251 bytes for large URI support (technically a little less, but lets go with it)
-    space += 251
+    # Make room for the maximum possible URL length
+    space += 256
 
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
