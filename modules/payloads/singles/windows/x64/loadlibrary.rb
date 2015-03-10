@@ -56,7 +56,7 @@ module Metasploit3
       ], self.class )
   end
 
-  def generate
+  def payload
     return super + dll_string + "\x00"
   end
 

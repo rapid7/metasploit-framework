@@ -52,7 +52,7 @@ module Metasploit3
       ], self.class )
   end
 
-  def generate
+  def payload
     return super + command_string + "\x00"
   end
 
