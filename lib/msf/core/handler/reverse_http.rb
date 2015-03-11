@@ -288,7 +288,7 @@ protected
         # Grab the checksummed version of CONN from the payload's request.
         conn_id = req.relative_resource.gsub("/", "")
 
-        print_status("Incoming orphaned session #{conn_id}, reattaching...")
+        print_status("Incoming orphaned or stageless session #{conn_id}, attaching...")
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
