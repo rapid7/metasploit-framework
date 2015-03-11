@@ -2991,39 +2991,6 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/shell/find_tag'
   end
 
-  context 'windows/shell/reverse_hop_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/reverse_hop_http',
-                              'stages/windows/shell'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/shell/reverse_hop_http'
-  end
-
-  context 'windows/shell/reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/reverse_http',
-                              'stages/windows/shell'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/shell/reverse_http'
-  end
-
-  context 'windows/shell/reverse_http_proxy_pstore' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'stagers/windows/reverse_http_proxy_pstore',
-                            'stages/windows/shell'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/shell/reverse_http_proxy_pstore'
-  end
-
   context 'windows/shell/reverse_ipv6_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3217,39 +3184,6 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/upexec/find_tag'
   end
 
-  context 'windows/upexec/reverse_hop_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/reverse_hop_http',
-                              'stages/windows/upexec'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/upexec/reverse_hop_http'
-  end
-
-  context 'windows/upexec/reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/reverse_http',
-                              'stages/windows/upexec'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/upexec/reverse_http'
-  end
-
-  context 'windows/upexec/reverse_http_proxy_pstore' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'stagers/windows/reverse_http_proxy_pstore',
-                            'stages/windows/upexec'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/upexec/reverse_http_proxy_pstore'
-  end
-
   context 'windows/upexec/reverse_ipv6_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3391,39 +3325,6 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/find_tag'
-  end
-
-  context 'windows/vncinject/reverse_hop_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/reverse_hop_http',
-                              'stages/windows/vncinject'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/vncinject/reverse_hop_http'
-  end
-
-  context 'windows/vncinject/reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/reverse_http',
-                              'stages/windows/vncinject'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/vncinject/reverse_http'
-  end
-
-  context 'windows/vncinject/reverse_http_proxy_pstore' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'stagers/windows/reverse_http_proxy_pstore',
-                            'stages/windows/vncinject'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/vncinject/reverse_http_proxy_pstore'
   end
 
   context 'windows/vncinject/reverse_ipv6_tcp' do
@@ -3578,17 +3479,6 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/shell/bind_tcp'
   end
 
-  context 'windows/x64/shell/reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/x64/reverse_https',
-                              'stages/windows/x64/shell'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/x64/shell/reverse_https'
-  end
-
   context 'windows/x64/shell/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3629,17 +3519,6 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/bind_tcp'
-  end
-
-  context 'windows/x64/vncinject/reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/x64/reverse_https',
-                              'stages/windows/x64/vncinject'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/x64/vncinject/reverse_https'
   end
 
   context 'windows/x64/vncinject/reverse_tcp' do
