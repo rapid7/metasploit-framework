@@ -6,7 +6,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
-
+#require 'msf/core/payload/windows/x64/reverse_https'
 
 module Metasploit3
 

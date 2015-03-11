@@ -150,5 +150,12 @@ module Msf::Payload::Windows
     return true
   end
 
+  #
+  # Share the EXITFUNC mappings with other classes
+  #
+  def self.exit_types
+    @@exit_types.dup
+  end
+
 end
 
