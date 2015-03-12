@@ -34,6 +34,6 @@ module Metasploit3
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseHttps,
-      'Convention'    => 'sockedi http'))
+      'Convention'    => 'sockedi https'))
   end
 end
