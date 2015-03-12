@@ -16,6 +16,7 @@ module Msf
 
 module Payload::Windows::ReverseHttp
 
+  include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
 

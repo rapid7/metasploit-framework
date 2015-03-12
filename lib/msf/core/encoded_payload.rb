@@ -94,7 +94,7 @@ class EncodedPayload
   #
   # @return [String] The raw, unencoded payload.
   def generate_raw
-    self.raw = (reqs['Prepend'] || '') + pinst.generate + (reqs['Append'] || '')
+    self.raw = (reqs['Prepend'] || '') + pinst.generate_complete + (reqs['Append'] || '')
 
     # If an encapsulation routine was supplied, then we should call it so
     # that we can get the real raw payload.
