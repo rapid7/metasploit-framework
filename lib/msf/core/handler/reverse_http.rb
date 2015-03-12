@@ -53,6 +53,7 @@ module ReverseHttp
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
+        OptBool.new('OverrideRequestHost', [ false, 'Forces clients to connect to LHOST:LPORT instead of keeping original payload host', false ]),
         OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
       ], Msf::Handler::ReverseHttp)
   end
@@ -93,7 +94,7 @@ module ReverseHttp
   #
   # @return [String] A URI of the form +scheme://host:port/+
   def payload_uri(req)
-    if req and req.headers and req.headers['Host']
+    if req and req.headers and req.headers['Host'] and not datastore['OverrideRequestHost']
       callback_host = req.headers['Host']
     elsif ipv6?
       callback_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
