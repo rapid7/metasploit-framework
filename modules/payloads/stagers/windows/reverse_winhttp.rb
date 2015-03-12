@@ -24,7 +24,7 @@ module Metasploit3
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Reverse HTTP Stager (WinHTTP)',
-      'Description'   => 'Tunnel communication over HTTP',
+      'Description'   => 'Tunnel communication over HTTP (WinHTTP)',
       'Author'        =>
         [
           'hdm',
