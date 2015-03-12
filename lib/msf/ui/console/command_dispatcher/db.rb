@@ -1594,11 +1594,19 @@ class Db
       print_status("Usage: db_nmap [nmap options]")
       return
     end
-
+    
     save = false
-    if args.include?("save")
-      save = active?
-      args.delete("save")
+    arguments = ''
+    while (arg = args.shift)
+      case arg
+      when 'save'
+        save = active?
+      when '--help', '-h'
+        cmd_db_nmap_help
+        return
+      else
+        arguments << arg + ' '
+      end
     end
 
     nmap =
@@ -1629,7 +1637,7 @@ class Db
     end
 
     begin
-      nmap_pipe = ::Open3::popen3([nmap, "nmap"], *args)
+      nmap_pipe = ::Open3::popen3([nmap, "nmap"], arguments)
       temp_nmap_threads = []
       temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
         np_1.each_line do |nmap_out|
@@ -1660,6 +1668,45 @@ class Db
     end
     fd.close(true)
   }
+  end
+
+  def cmd_db_nmap_help
+    nmap =
+        Rex::FileUtils.find_full_path('nmap') ||
+        Rex::FileUtils.find_full_path('nmap.exe')
+
+    stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
+
+    stdout.each_line do |out_line|
+      next if out_line.strip.empty?
+      print_status(out_line.strip);
+    end
+
+    stderr.each_line do |err_line|
+      next if err_line.strip.empty?
+      print_error(err_line.strip)
+    end
+  end
+
+  def cmd_db_nmap_tabs(str, words)
+    nmap =
+        Rex::FileUtils.find_full_path('nmap') ||
+        Rex::FileUtils.find_full_path('nmap.exe')
+
+    stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
+    tabs = []
+    stdout.each_line do |out_line|
+      if out_line.strip.starts_with?('-')
+        tabs.push(out_line.strip.split(':').first)
+      end
+    end
+
+    stderr.each_line do |err_line|
+      next if err_line.strip.empty?
+      print_error(err_line.strip)
+    end
+
+    return tabs
   end
 
   #
