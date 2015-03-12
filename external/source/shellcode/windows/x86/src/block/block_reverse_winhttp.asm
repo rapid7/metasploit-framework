@@ -64,8 +64,8 @@ WinHttpOpenRequest:
 send_request:
 
 WinHttpSendRequest:
-                         ; Context [7]
-                         ; TotalLength [6]
+  push ebx               ; Context [7]
+  push ebx               ; TotalLength [6]
   push ebx               ; OptionalLength (0) [5]
   push ebx               ; Optional (NULL) [4]
   push ebx               ; HeadersLength (0) [3]
