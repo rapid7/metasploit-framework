@@ -182,7 +182,6 @@ module Payload::Windows::ReverseWinHttp
         xchg esi, eax          ; save HttpRequest handler in esi
       ^
 
-    # TODO
     if opts[:ssl]
       asm << %Q^
         ; WinHttpSetOption (hInternet, WINHTTP_OPTION_SECURITY_FLAGS, &buffer, sizeof(buffer) );
