@@ -26,7 +26,7 @@ class Plugin::HTTPRequest < Msf::Plugin
         '-3' => [ false, 'Use SSLv3 (SSL)' ],
         '-A' => [ true,  'User-Agent to send to server' ],
         '-d' => [ true,  'HTTP POST data' ],
-        '-G' => [ false, 'Send the -d data with a HTTP GET' ],
+        '-G' => [ false, 'Send the -d data with an HTTP GET' ],
         '-h' => [ false, 'This help text' ],
         '-H' => [ true,  'Custom header to pass to server' ],
         '-i' => [ false, 'Include headers in the output' ],
@@ -81,7 +81,7 @@ class Plugin::HTTPRequest < Msf::Plugin
           options[:print_body]     = false
           options[:method] ||= 'HEAD'
         when '-o'
-          options[:output_file] = val
+          options[:output_file] = File.expand_path(val)
         when '-u'
           val = val.partition(':')
           options[:auth_username] = val[0]
@@ -174,7 +174,11 @@ class Plugin::HTTPRequest < Msf::Plugin
       ensure
         http_client.close
       end
-      return unless response
+
+      unless response
+        opts[:output_file].close unless opts[:output_file].nil?
+        return
+      end
 
       if opts[:print_headers]
         output_line(opts, response.cmd_string)
@@ -182,14 +186,16 @@ class Plugin::HTTPRequest < Msf::Plugin
       end
 
       output_line(opts, response.body) if opts[:print_body]
-      opts[:output_file].close unless opts[:output_file].nil?
+      unless opts[:output_file].nil?
+        print_status("Wrote #{opts[:output_file].tell} bytes to #{opts[:output_file].path}")
+        opts[:output_file].close
+      end
     end
   end
 
   def initialize(framework, opts)
     super
     add_console_dispatcher(ConsoleCommandDispatcher)
-    print_status("#{name} plugin loaded.")
   end
 
   def cleanup
