@@ -53,13 +53,11 @@ class ClientCore < Extension
     # No response?
     if response.nil?
       raise RuntimeError, "No response was received to the core_enumextcmd request.", caller
-    elsif response.result == 50
+    elsif response.result != 0
       # This case happens when the target doesn't support the core_enumextcmd message.
       # If this is the case, then we just want to ignore the error and return an empty
       # list. This will force the caller to load any required modules.
       return []
-    elsif response.result != 0
-      raise RuntimeError, "The core_enumextcmd request failed with result: #{response.result}.", caller
     end
 
     commands = []
