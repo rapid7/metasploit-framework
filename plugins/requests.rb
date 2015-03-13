@@ -32,7 +32,7 @@ class Plugin::HTTPRequest < Msf::Plugin
         '-i' => [ false, 'Include headers in the output' ],
         '-I' => [ false, 'Show document info only' ],
         '-o' => [ true,  'Write output to <file> instead of stdout' ],
-        '-u' => [ true,  'Server user and password', ],
+        '-u' => [ true,  'Server user and password' ],
         '-X' => [ true,  'Request method to use' ]
       )
 
@@ -140,6 +140,14 @@ class Plugin::HTTPRequest < Msf::Plugin
         opts[:ssl_version]
       )
 
+      unless opts[:auth_username].nil?
+        auth_str = opts[:auth_username].to_s + ':' + opts[:auth_password].to_s
+        auth_str = 'Basic ' + Rex::Text.encode_base64(auth_str)
+        opts[:headers]['Authorization'] = auth_str
+      end
+
+      uri.path = '/' if uri.path.length == 0
+
       begin
         http_client.connect
         request = http_client.request_cgi(
@@ -161,8 +169,8 @@ class Plugin::HTTPRequest < Msf::Plugin
         print_error('The connection was reset by the peer')
       rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
         print_error('Encountered an error')
-      rescue ::Exception => ex
-        print_line("An error of type #{ex.class} happened, message is #{ex.message}")
+      #rescue ::Exception => ex
+      #  print_line("An error of type #{ex.class} happened, message is #{ex.message}")
       ensure
         http_client.close
       end
@@ -193,7 +201,7 @@ class Plugin::HTTPRequest < Msf::Plugin
   end
 
   def desc
-    'Make Requests'
+    'Make HTTP requests from within Metasploit.'
   end
 
 protected
