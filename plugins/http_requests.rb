@@ -2,13 +2,13 @@ require 'uri'
 
 module Msf
 
-class Plugin::HTTPRequest < Msf::Plugin
+class Plugin::HTTPRequests < Msf::Plugin
 
   class ConsoleCommandDispatcher
     include Msf::Ui::Console::CommandDispatcher
 
     def name
-      'Request'
+      'HTTP Requests'
     end
 
     def commands
@@ -75,10 +75,10 @@ class Plugin::HTTPRequest < Msf::Plugin
           name, _, value = val.partition(':')
           options[:headers][name] = value.strip
         when '-i'
-          options[:print_headers]  = true
+          options[:print_headers] = true
         when '-I'
-          options[:print_headers]  = true
-          options[:print_body]     = false
+          options[:print_headers] = true
+          options[:print_body]    = false
           options[:method] ||= 'HEAD'
         when '-o'
           options[:output_file] = File.expand_path(val)
@@ -199,11 +199,11 @@ class Plugin::HTTPRequest < Msf::Plugin
   end
 
   def cleanup
-    remove_console_dispatcher('HTTP Request')
+    remove_console_dispatcher('HTTP Requests')
   end
 
   def name
-    'Requests'
+    'HTTP Requests'
   end
 
   def desc
