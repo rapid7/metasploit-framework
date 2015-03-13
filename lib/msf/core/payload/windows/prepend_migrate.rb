@@ -34,7 +34,7 @@ module Msf::Payload::Windows::PrependMigrate
   #
   # Overload the generate() call to prefix our stubs
   #
-  def prepends(buf)
+  def apply_prepend_migrate(buf)
     pre = ''
 
     test_arch = [ *(self.arch) ]
