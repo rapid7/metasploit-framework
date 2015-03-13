@@ -9,7 +9,7 @@ PATH
       json
       metasploit-concern (~> 0.3.0)
       metasploit-model (~> 0.29.0)
-      meterpreter_bins (= 0.0.15)
+      meterpreter_bins (= 0.0.14)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
