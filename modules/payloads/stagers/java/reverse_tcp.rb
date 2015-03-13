@@ -10,6 +10,8 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
+  CachedSize = 5487
+
   include Msf::Payload::Stager
   include Msf::Payload::Java
 

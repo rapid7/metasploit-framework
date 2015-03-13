@@ -8,6 +8,8 @@ require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
+  CachedSize = 442
+
   include Msf::Payload::Stager
 
   def initialize(info = {})
@@ -33,7 +35,7 @@ module Metasploit3
   # Constructs the payload
   #
   def generate
-    lhost = datastore['LHOST'] || Rex::Socket.source_address
+    lhost = datastore['LHOST'] || '127.127.127.127'
 
     var_escape = lambda { |txt|
       txt.gsub('\\', '\\'*4).gsub('\'', %q(\\\'))

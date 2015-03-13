@@ -160,6 +160,36 @@ class Payload < Msf::Module
   end
 
   #
+  # This method returns an optional cached size value
+  #
+  def self.cached_size
+    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize == :dynamic ? nil : csize
+  end
+
+  #
+  # This method returns whether the payload generates variable-sized output
+  #
+  def self.dynamic_size?
+    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize == :dynamic
+  end
+
+  #
+  # This method returns an optional cached size value
+  #
+  def cached_size
+      self.class.cached_size
+  end
+
+  #
+  # This method returns whether the payload generates variable-sized output
+  #
+  def dynamic_size?
+      self.class.dynamic_size?
+  end
+
+  #
   # Returns the payload's size.  If the payload is staged, the size of the
   # first stage is returned.
   #
@@ -279,6 +309,13 @@ class Payload < Msf::Module
   #
   def generate
     internal_generate
+  end
+
+  #
+  # Generates the payload and returns the raw buffer to the caller,
+  # handling any post-processing tasks, such as prepended code stubs.
+  def generate_complete
+    apply_prepends(generate)
   end
 
   #
@@ -435,6 +472,13 @@ class Payload < Msf::Module
     return nops
   end
 
+  #
+  # A placeholder stub, to be overriden by mixins
+  #
+  def apply_prepends(raw)
+    raw
+  end
+
   ##
   #
   # Event notifications.
@@ -499,6 +543,12 @@ class Payload < Msf::Module
   # attribute will point to that exploit instance.
   #
   attr_accessor :assoc_exploit
+
+  #
+  # The amount of space available to the payload, which may be nil,
+  # indicating that the smallest possible payload should be used.
+  #
+  attr_accessor :available_space
 
 protected
 

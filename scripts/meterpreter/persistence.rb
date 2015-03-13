@@ -123,8 +123,8 @@ def write_script_to_target(target_dir,vbs)
   fd.write(vbs)
   fd.close
   print_good("Persistent Script written to #{tempvbs}")
-  tempvbs = tempvbs.gsub(/\\/, '//')      # Escape windows pathname separators.
-  file_local_write(@clean_up_rc, "rm #{tempvbs}\n")
+  # Escape windows pathname separators.
+  file_local_write(@clean_up_rc, "rm #{tempvbs.gsub(/\\/, '//')}\n")
   return tempvbs
 end
 

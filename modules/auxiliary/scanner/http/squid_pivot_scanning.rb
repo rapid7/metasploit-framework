@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
         manual = false
         #request a non-existent page first to make sure the server doesn't respond with a 200 to everything.
         res_test = send_request_cgi({
-          'uri'          => "http://{datastore['CANARY_IP']}:80",
+          'uri'          => "http://#{datastore['CANARY_IP']}:80",
           'method'       => 'GET',
           'data'  =>      '',
           'version' => '1.0',
