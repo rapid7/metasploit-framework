@@ -25,7 +25,7 @@ module Payload::Windows::ReverseWinHttps
     super
     register_advanced_options(
       [
-        OptBool.new('StagerVerifySSLCert', [true, 'Whether to verify the SSL certificate hash in the handler', false])
+        OptBool.new('StagerVerifySSLCert', [false, 'Whether to verify the SSL certificate hash in the handler', false])
       ], self.class)
   end
 
@@ -52,7 +52,7 @@ module Payload::Windows::ReverseWinHttps
     verify_cert = false
     verify_cert_hash = nil
 
-    if datastore['StagerVerifySSLCert']
+    if datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
       unless datastore['HandlerSSLCert']
         raise ArgumentError, "StagerVerifySSLCert is enabled but no HandlerSSLCert is configured"
       else
@@ -69,7 +69,7 @@ module Payload::Windows::ReverseWinHttps
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
 
-      if datastore['StagerVerifySSLCert']
+      if datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
         raise ArgumentError, "StagerVerifySSLCert is enabled but not enough payload space is available"
       end
 
