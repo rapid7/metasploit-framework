@@ -307,7 +307,7 @@ module Payload::Windows::ReverseWinHttp
             db #{encoded_cert_hash}
 
           ssl_cert_compare_hashes:
-            pop ebx              ; ebx points to our internal 20-byte certificate hash (overwites *pCert)
+            pop ebx              ; ebx points to our internal 20-byte certificate hash (overwrites *pCert)
                                  ; edi points to the server-provided certificate hash
 
             push.i8 4            ; Compare 20 bytes (5 * 4) by repeating 4 more times
@@ -389,6 +389,8 @@ module Payload::Windows::ReverseWinHttp
       end
     asm
   end
+
+
 
 end
 
