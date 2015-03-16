@@ -11,6 +11,8 @@ require 'msf/base/sessions/meterpreter_options'
 
 module Metasploit3
 
+  CachedSize = :dynamic
+
   include Msf::Payload::Windows::StagelessMeterpreter
   include Msf::Sessions::MeterpreterOptions
 
