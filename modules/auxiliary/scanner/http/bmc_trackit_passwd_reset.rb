@@ -131,11 +131,8 @@ class Metasploit4 < Msf::Auxiliary
         'emailaddress' => Rex::Text.rand_text_alpha(8) + '@' + Rex::Text.rand_text_alpha(8) + '.com',
         'userQuestions' => %Q([{"Id":1,"Answer":"#{answers.first}"},{"Id":2,"Answer":"#{answers.last}"}]),
         'updatequesChk' => 'false',
-        'SelectedQuestion' => 1,
         'SelectedQuestion' => 2,
-        'answer' => answers.first,
         'answer' => answers.last,
-        'confirmanswer' => answers.first,
         'confirmanswer' => answers.last
       }
     )

@@ -88,7 +88,7 @@ class PayloadSet < ModuleSet
 
       # Cache the payload's size
       begin
-        sizes[name] = p.new.size
+        sizes[name] = p.cached_size || p.new.size
       # Don't cache generic payload sizes.
       rescue NoCompatiblePayloadError
       end

@@ -90,6 +90,13 @@ module Payload::Windows::ReverseHttp
   end
 
   #
+  # Generate the URI for the initial stager
+  #
+  def generate_small_uri
+    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW)
+  end
+
+  #
   # Determine the maximum amount of space required for the features requested
   #
   def required_space
