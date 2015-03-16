@@ -173,9 +173,7 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("NBNS Spoofer started. Listening for NBNS requests with REGEX \"#{datastore['REGEX']}\" ...")
 
-    while thread.alive?
-      IO.select(nil, nil, nil, 0.25)
-    end
+    self.thread.join
     print_status("NBNS Monitor thread exited...")
   end
 

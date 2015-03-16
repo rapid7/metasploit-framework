@@ -206,9 +206,7 @@ attr_accessor :sock, :thread
 
     add_socket(self.sock)
 
-    while thread.alive?
-      select(nil, nil, nil, 0.25)
-    end
+    self.thread.join
   end
 
   def cleanup
