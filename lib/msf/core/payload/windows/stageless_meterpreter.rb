@@ -75,11 +75,8 @@ module Payload::Windows::StagelessMeterpreter
 
     # the URL might not be given, as it might be patched in some other way
     if url
-      url = "s#{url}\x00"
-      location = dll.index("https://#{'X' * 256}")
-      if location
-        dll[location, url.length] = url
-      end
+      # Patch the URL using the patcher as this upports both ASCII and WCHAR.
+      Rex::Payloads::Meterpreter::Patch.patch_string!(dll, "https://#{'X' * 256}", url)
     end
 
     # if a block is given then call that with the meterpreter dll
