@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150205192745) do
+ActiveRecord::Schema.define(version: 20150212214222) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -396,9 +396,11 @@ ActiveRecord::Schema.define(version: 20150205192745) do
     t.boolean  "critical"
     t.boolean  "seen"
     t.text     "data"
+    t.integer  "vuln_id"
   end
 
   add_index "notes", ["ntype"], name: "index_notes_on_ntype", using: :btree
+  add_index "notes", ["vuln_id"], name: "index_notes_on_vuln_id", using: :btree
 
   create_table "profiles", force: true do |t|
     t.datetime "created_at",                null: false
@@ -457,6 +459,7 @@ ActiveRecord::Schema.define(version: 20150205192745) do
     t.text     "info"
   end
 
+  add_index "services", ["host_id", "port", "proto"], name: "index_services_on_host_id_and_port_and_proto", unique: true, using: :btree
   add_index "services", ["name"], name: "index_services_on_name", using: :btree
   add_index "services", ["port"], name: "index_services_on_port", using: :btree
   add_index "services", ["proto"], name: "index_services_on_proto", using: :btree

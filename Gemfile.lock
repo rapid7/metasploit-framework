@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: 33551619d0f0504d4640e7b5dd9135fdeda71670
+  revision: 0468528ebc25dbd9cc0b2d52495f8f7c0778ed61
   branch: staging/rails-4.0
   specs:
-    metasploit-credential (1.0.11.pre.rails.pre.4.0)
+    metasploit-credential (1.14.1.pre.rails.pre.4.0)
       metasploit-concern
       metasploit-model
       metasploit_data_models
@@ -34,10 +34,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: ae47cb9bd891b13051fb2fdc084bcce58202e18d
+  revision: 242d7469d51e37161096c7ab9d3f0a9904ad658c
   branch: staging/rails-4.0
   specs:
-    metasploit_data_models (1.0.0.pre.rails.pre.4.0)
+    metasploit_data_models (0.23.1.pre.rails.pre.4.0)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       arel-helpers
@@ -105,7 +105,7 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
     arel (4.0.2)
-    arel-helpers (2.0.1)
+    arel-helpers (2.1.0)
       activerecord (>= 3.1.0, < 5)
     aruba (0.6.1)
       childprocess (>= 0.3.6)
@@ -168,7 +168,7 @@ GEM
     pcaprub (0.12.0)
     pg (0.17.1)
     pg_array_parser (0.0.9)
-    postgres_ext (2.3.0)
+    postgres_ext (2.4.1)
       activerecord (>= 4.0.0)
       arel (>= 4.0.1)
       pg_array_parser (~> 0.0.9)
@@ -220,7 +220,7 @@ GEM
       rspec-core (~> 2.99.0)
       rspec-expectations (~> 2.99.0)
       rspec-mocks (~> 2.99.0)
-    rubyntlm (0.4.0)
+    rubyntlm (0.5.0)
     rubyzip (1.1.6)
     shoulda-matchers (2.6.2)
     simplecov (0.9.1)
