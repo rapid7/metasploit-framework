@@ -204,8 +204,8 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
-        unless datastore['PROXYHOST'].blank?
-          proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
+        unless datastore['PROXYHOST'].blank? && datastore['StagerProxyHost'].blank?
+          proxy_url = "http://#{datastore['StagerProxyHost']||datastore['PROXYHOST']}:#{datastore['StagerProxyPort']||datastore['PROXYPORT']}"
           blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
         end
 
@@ -268,11 +268,11 @@ protected
           :expiration     => datastore['SessionExpirationTimeout'],
           :comm_timeout   => datastore['SessionCommunicationTimeout'],
           :ua             => datastore['MeterpreterUserAgent'],
-          :proxyhost      => datastore['PROXYHOST'],
-          :proxyport      => datastore['PROXYPORT'],
-          :proxy_type     => datastore['PROXY_TYPE'],
-          :proxy_username => datastore['PROXY_USERNAME'],
-          :proxy_password => datastore['PROXY_PASSWORD']
+          :proxyhost      => datastore['StagerProxyHost'] || datastore['PROXYHOST'],
+          :proxyport      => datastore['StagerProxyPort'] || datastore['PROXYPORT'],
+          :proxy_type     => datastore['StagerProxyType'] || datastore['PROXY_TYPE'],
+          :proxy_username => datastore['StagerProxyUser'] || datastore['PROXY_USERNAME'],
+          :proxy_password => datastore['StagerProxyPass'] || datastore['PROXY_PASSWORD']
 
         resp.body = encode_stage(blob)
 
