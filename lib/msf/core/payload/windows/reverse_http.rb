@@ -28,11 +28,11 @@ module Payload::Windows::ReverseHttp
     register_advanced_options(
       [
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
-        OptString.new('StagerProxyHost', [false, 'An optional proxy server IP address or hostname']),
-        OptPort.new('StagerProxyPort', [false, 'An optional proxy server port']),
-        OptString.new('StagerProxyUser', [false, 'An optional proxy server username']),
-        OptString.new('StagerProxyPass', [false, 'An optional proxy server password']),
-        OptEnum.new('StagerProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']]),
+        OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
+        OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
+        OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
+        OptString.new('PayloadProxyPass', [false, 'An optional proxy server password']),
+        OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']]),
       ], self.class)
   end
 
@@ -55,11 +55,11 @@ module Payload::Windows::ReverseHttp
       port: datastore['LPORT'],
       url:  generate_uri,
       exitfunk: datastore['EXITFUNC'],
-      proxy_host: datastore['StagerProxyHost'],
-      proxy_port: datastore['StagerProxyPort'],
-      proxy_user: datastore['StagerProxyUser'],
-      proxy_pass: datastore['StagerProxyPass'],
-      proxy_type: datastore['StagerProxyType']
+      proxy_host: datastore['PayloadProxyHost'],
+      proxy_port: datastore['PayloadProxyPort'],
+      proxy_user: datastore['PayloadProxyUser'],
+      proxy_pass: datastore['PayloadProxyPass'],
+      proxy_type: datastore['PayloadProxyType']
     }
 
     generate_reverse_http(conf)
