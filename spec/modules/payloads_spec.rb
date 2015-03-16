@@ -2432,6 +2432,46 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/messagebox'
   end
 
+  context 'windows/meterpreter_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/meterpreter_bind_tcp'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter_bind_tcp'
+  end
+
+  context 'windows/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter_reverse_https'
+  end
+
+  context 'windows/meterpreter_reverse_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/meterpreter_reverse_ipv6_tcp'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter_reverse_ipv6_tcp'
+  end
+
+  context 'windows/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/meterpreter_reverse_tcp'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter_reverse_tcp'
+  end
+
   context 'windows/meterpreter/bind_ipv6_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
