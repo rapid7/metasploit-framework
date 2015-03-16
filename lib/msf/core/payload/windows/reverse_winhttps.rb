@@ -79,7 +79,8 @@ module Payload::Windows::ReverseWinHttps
         port: datastore['LPORT'],
         url:  generate_small_uri,
         verify_cert: verify_cert,
-        verify_cert_hash: verify_cert_hash)
+        verify_cert_hash: verify_cert_hash,
+        retry_count: datastore['StagerRetryCount'])
     end
 
     conf = {
@@ -89,7 +90,8 @@ module Payload::Windows::ReverseWinHttps
       url:  generate_uri,
       exitfunk: datastore['EXITFUNC'],
       verify_cert: verify_cert,
-      verify_cert_hash: verify_cert_hash
+      verify_cert_hash: verify_cert_hash,
+      retry_count: datastore['StagerRetryCount']
     }
 
     generate_reverse_winhttps(conf)
