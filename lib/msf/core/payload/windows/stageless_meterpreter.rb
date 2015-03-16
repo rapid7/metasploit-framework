@@ -77,7 +77,9 @@ module Payload::Windows::StagelessMeterpreter
     if url
       url = "s#{url}\x00"
       location = dll.index("https://#{'X' * 256}")
-      dll[location, url.length] = url
+      if location
+        dll[location, url.length] = url
+      end
     end
 
     # if a block is given then call that with the meterpreter dll
