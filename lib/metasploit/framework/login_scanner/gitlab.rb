@@ -13,7 +13,7 @@ module Metasploit
         # (see Base#set_sane_defaults)
         def set_sane_defaults
           self.uri = '/users/sign_in' if uri.nil?
-          self.method = 'POST' if method.nil
+          self.method = 'POST' if method.nil?
 
           super
         end
