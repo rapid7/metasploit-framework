@@ -21,15 +21,14 @@ class Metasploit3 < Msf::Auxiliary
         This module will attempt to authenticate to a Symantec Web Gateway
       },
       'Author'      => [ 'sinn3r' ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DefaultOptions' =>
+        {
+          'RPORT'      => 443,
+          'SSL'        => true,
+          'SSLVersion' => 'TLS1'
+        }
     ))
-
-    register_options(
-      [
-        Opt::RPORT(443),
-        OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', true]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
-      ], self.class)
   end
 
 
