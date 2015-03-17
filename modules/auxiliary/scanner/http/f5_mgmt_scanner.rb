@@ -15,10 +15,10 @@ class Metasploit3 < Msf::Auxiliary
     super(
         'Name'          => 'F5 management interface scanner',
         'Description'   => %q{
-          This module simply detects web management interface of the following F5 Networks devices: BigIP, BigIQ, Enterprise Manager, ARX, and FirePass. 
+          This module simply detects web management interface of the following F5 Networks devices: BigIP, BigIQ, Enterprise Manager, ARX, and FirePass.
         },
         'License'       => MSF_LICENSE,
-        'Author'         => 
+        'Author'         =>
           [
            'Denis Kolegov <dnkolegov[at]gmail.com>',
            'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
 
     register_advanced_options([
-	      OptBool.new('SSL', [true, "Negotiate SSL/TLS connection", true]),
+        OptBool.new('SSL', [true, "Negotiate SSL/TLS connection", true]),
         OptEnum.new('SSLVersion', [false, 'Specify the version of SSL/TLS that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']]),
       ], self.class)
 
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
     probe = buildprobe(shost, sport, rhost, rport)
     capture_sendto(probe, rhost)
     reply = probereply(self.capture, to)
-    
+
     if (reply and reply.is_tcp? and reply.tcp_flags.syn == 1 and reply.tcp_flags.ack == 1)
       
       res = send_request_raw('method' => 'GET', 'uri' => '/', 'rport' => rport)
@@ -130,9 +130,8 @@ class Metasploit3 < Msf::Auxiliary
            ::Rex::HostUnreachable,
            ::Errno::ECONNRESET
     print_error("#{peer} - Connection failed")
-
     rescue ::OpenSSL::SSL::SSLError
      print_error("#{peer} - SSL/TLS connection error")
-  
+
   end
 end
