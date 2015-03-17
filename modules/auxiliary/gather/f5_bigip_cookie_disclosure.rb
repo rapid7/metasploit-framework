@@ -32,8 +32,11 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
+        OptInt.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
-        OptInt.new('REQUESTS', [true, 'Number of requests to send to disclose back', 10])
+        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
+        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL/TLS that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']]),
+        OptInt.new('REQUESTS', [true, 'The number of requests to send', 10])
       ], self.class)
   end
 
@@ -147,6 +150,11 @@ class Metasploit3 < Msf::Auxiliary
        :data => back_ends
       )
     end
+
+    rescue ::Rex::ConnectionRefused, ::Rex::ConnectionTimeout, ::Errno::ECONNRESET, ::Rex::HostUnreachable, ::Timeout::Error, ::Errno::EPIPE
+      print_error("#{peer} - Network connection error")
+    rescue ::OpenSSL::SSL::SSLError
+     print_error("#{peer} - SSL/TLS connection error")
 
   end
 end
