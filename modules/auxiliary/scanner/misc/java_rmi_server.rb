@@ -51,15 +51,14 @@ class Metasploit3 < Msf::Auxiliary
     jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
     jar_url = "file:RMIClassLoaderSecurityTest/" + jar
 
-    print_status(calculate_interface_hash(
+    dgc_interface_hash = calculate_interface_hash(
       [
-        #{name: 'clean', descriptor: '([Ljava.rmi.server.ObjID;;J;Ljava.rmi.dgc.VMID;;Z)V'},
-        #{name: 'dirty', descriptor: '([Ljava.rmi.server.ObjID;;J;Ljava.rmi.dgc.Lease;)Ljava.rmi.dgc.Lease;'}
-        {name: 'sayHello', descriptor: '()Ljava/lang/String;'},
-        {name: 'sayHelloTwo', descriptor: '(Ljava/lang/String;)Ljava/lang/String;'}
+        {name: 'clean', descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/VMID;Z)V'},
+        {name: 'dirty', descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/Lease;)Ljava/rmi/dgc/Lease;'}
       ],
       ['java.rmi.RemoteException']
-    ).to_s)
+    )
+
     # JDK 1.1 stub protocol
     # Interface hash: 0xf6b6898d8bf28643 (sun.rmi.transport.DGCImpl_Stub)
     # Operation: 0 (public void clean(ObjID[] paramArrayOfObjID, long paramLong, VMID paramVMID, boolean paramBoolean))
@@ -69,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
       uid_time: 0,
       uid_count: 0,
       operation: 0,
-      method_hash: 0xf6b6898d8bf28643,
+      hash: dgc_interface_hash, # 0xf6b6898d8bf28643,
       arguments: build_dgc_clean_args(jar_url)
     )
     return_data = recv_return

@@ -39,7 +39,7 @@ module Msf
           #   at the same time.
           # @option opts [Fixnum] :operation On JDK 1.1 stub protocol the operation index in the interface. On JDK 1.2
           #   it is -1.
-          # @option opts [Fixnum] :method_hash On JDK 1.1 stub protocol the stub's interface hash. On JDK1.2 is a hash
+          # @option opts [Fixnum] :hash On JDK 1.1 stub protocol the stub's interface hash. On JDK1.2 is a hash
           #   representing the method to call.
           # @option opts [Array] :arguments
           # @return [Rex::Proto::Rmi::Model::Call]
@@ -50,7 +50,7 @@ module Msf
             uid_time = opts[:uid_time] ||  0
             uid_count = opts[:uid_count] || 0
             operation = opts[:operation] || -1
-            method_hash = opts[:method_hash] || 0
+            hash = opts[:hash] || 0
             arguments = opts[:arguments] || []
 
             block_data = Rex::Java::Serialization::Model::BlockData.new
@@ -60,7 +60,7 @@ module Msf
               uid_time,
               uid_count,
               operation,
-              method_hash
+              hash
             ].pack('qlqslq')
             block_data.length = block_data.contents.length
 
