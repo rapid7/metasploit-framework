@@ -411,8 +411,8 @@ class ClientCore < Extension
         :expiration     => self.client.expiration,
         :comm_timeout   =>  self.client.comm_timeout,
         :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
-        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
-        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
+        :proxyhost      =>  client.exploit_datastore['PROXY_HOST'],
+        :proxyport      =>  client.exploit_datastore['PROXY_PORT'],
         :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
         :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
         :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
