@@ -1,6 +1,7 @@
 #-*- coding: binary -*-
 
 require 'msf/core'
+require 'rex/payloads/meterpreter/patch'
 
 module Msf
 
