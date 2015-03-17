@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/mssql'
-load '/home/ben/git/metasploit-framework/lib/msf/core/post/windows/mssql.rb'
+
 class Metasploit3 < Msf::Post
 
   include Msf::Post::Windows::MSSQL
