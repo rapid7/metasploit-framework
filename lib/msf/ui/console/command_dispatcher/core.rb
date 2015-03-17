@@ -101,6 +101,12 @@ class Core
   # Constant for disclosure date formatting in search functions
   DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
 
+  # Sleep time in seconds between module use retries (see #4340)
+  CMD_USE_TIMEOUT = 1
+
+  # Total retry attempts before giving up on using a module (see #4340)
+  CMD_USE_ATTEMPTS = 30
+
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
@@ -2540,7 +2546,13 @@ class Core
     mod_name = args[0]
 
     begin
-      if ((mod = framework.modules.create(mod_name)) == nil)
+      mod = nil
+      CMD_USE_ATTEMPTS.times do
+        mod = framework.modules.create(mod_name)
+        break if mod
+        sleep CMD_USE_TIMEOUT
+      end
+      unless mod
         print_error("Failed to load module: #{mod_name}")
         return false
       end
