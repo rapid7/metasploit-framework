@@ -59,7 +59,7 @@ describe Msf::Java::Rmi::Client do
 
   describe "#send_call" do
     it "returns the number of bytes sent" do
-      expect(mod.send_call(sock: io)).to eq(5)
+      expect(mod.send_call(sock: io)).to eq(41)
     end
   end
 
