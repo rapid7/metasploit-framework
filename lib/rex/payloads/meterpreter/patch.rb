@@ -84,6 +84,18 @@ module Rex
 
         end
 
+        # Patch the ssl cert hash
+        def self.patch_ssl_check!(blob, ssl_cert_hash)
+          # SSL cert location is an ASCII string, so no need for
+          # WCHAR support
+          if ssl_cert_hash
+            i = blob.index("METERPRETER_SSL_CERT_HASH\x00")
+            if i
+              blob[i, ssl_cert_hash.length] = ssl_cert_hash
+            end
+          end
+        end
+
         # Patch options into metsrv for reverse HTTP payloads
         def self.patch_passive_service!(blob, options)
 
@@ -92,6 +104,7 @@ module Rex
           patch_expiration! blob, options[:expiration]
           patch_comm_timeout! blob, options[:comm_timeout]
           patch_ua! blob, options[:ua]
+          patch_ssl_check! blob, options[:ssl_cert_hash]
           patch_proxy!(blob,
             options[:proxy_host],
             options[:proxy_port],
