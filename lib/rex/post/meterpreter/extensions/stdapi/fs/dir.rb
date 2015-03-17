@@ -61,7 +61,7 @@ class Dir < Rex::Post::Dir
     response = client.send_request(request)
 
     response.each(TLV_TYPE_FILE_NAME) { |file_name|
-      files << client.unicode_filter_encode( file_name.value )
+      files << file_name.value
     }
 
     return files
@@ -96,8 +96,8 @@ class Dir < Rex::Post::Dir
 
       files <<
         {
-          'FileName' => client.unicode_filter_encode( file_name.value ),
-          'FilePath' => client.unicode_filter_encode( fpath[idx].value ),
+          'FileName' => file_name.value,
+          'FilePath' => fpath[idx].value,
           'StatBuf'  => st,
         }
     }
@@ -145,7 +145,7 @@ class Dir < Rex::Post::Dir
 
     response = client.send_request(request)
 
-    return client.unicode_filter_encode( response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value )
+    return response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value
   end
 
   #
@@ -195,8 +195,8 @@ class Dir < Rex::Post::Dir
   def Dir.download(dst, src, recursive = false, force = true, &stat)
 
     self.entries(src).each { |src_sub|
-      dst_item = dst + ::File::SEPARATOR + client.unicode_filter_encode( src_sub )
-      src_item = src + client.fs.file.separator + client.unicode_filter_encode( src_sub )
+      dst_item = dst + ::File::SEPARATOR + src_sub
+      src_item = src + client.fs.file.separator + src_sub
 
       if (src_sub == '.' or src_sub == '..')
         next
@@ -240,8 +240,8 @@ class Dir < Rex::Post::Dir
   #
   def Dir.upload(dst, src, recursive = false, &stat)
     ::Dir.entries(src).each { |src_sub|
-      dst_item = dst + client.fs.file.separator + client.unicode_filter_encode( src_sub )
-      src_item = src + ::File::SEPARATOR + client.unicode_filter_encode( src_sub )
+      dst_item = dst + client.fs.file.separator + src_sub
+      src_item = src + ::File::SEPARATOR + src_sub
 
       if (src_sub == '.' or src_sub == '..')
         next
