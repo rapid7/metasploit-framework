@@ -103,7 +103,6 @@ class Metasploit3 < Msf::Auxiliary
 
       if datastore['LISTENER']
         @listener.kill if @listener
-        GC.start()
       end
 
       if capture and @spoofing and not datastore['BROADCAST']
