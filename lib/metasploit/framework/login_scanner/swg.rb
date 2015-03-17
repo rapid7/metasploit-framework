@@ -109,7 +109,7 @@ module Metasploit
           })
 
           unless res
-            return {:status => LOGIN_STATUS::UNABLE_TO_CONNECT, :proof => res.body}
+            return {:status => LOGIN_STATUS::UNABLE_TO_CONNECT, :proof => res.to_s}
           end
 
           # After login, the application should give us a new SID
@@ -118,10 +118,10 @@ module Metasploit
           @last_sid = sid # Update our SID
 
           if res.headers['Location'].to_s.include?('executive_summary.php') && !sid.blank?
-            return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.body}
+            return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.to_s}
           end
 
-          {:status => LOGIN_STATUS::INCORRECT, :proof => res.body}
+          {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
         end
 
 
