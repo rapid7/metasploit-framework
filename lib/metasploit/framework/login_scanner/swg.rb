@@ -12,15 +12,6 @@ module Metasploit
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
-        # @!attribute ssl
-        #   @return [Boolean] SSL setting
-        attr_accessor :ssl
-
-        # @!attribute ssl_version
-        #   @return [String] SSL version
-        attr_accessor :ssl_version
-
-
         # Checks if the target is Symantec Web Gateway. The login module should call this.
         #
         # @return [Boolean] TrueClass if target is SWG, otherwise FalseClass
