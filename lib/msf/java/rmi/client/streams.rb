@@ -30,17 +30,49 @@ module Msf
 
           # Builds a RMI call stream
           #
-          # @param opts [Hash{Symbol => <Fixnum, Rex::Java::Serialization::Model::Stream>}]
+          # @param opts [Hash{Symbol => <Fixnum, Array>}]
           # @option opts [Fixnum] :message_id
-          # @option opts [Rex::Java::Serialization::Model::Stream] :call_data
+          # @option opts [Fixnum] :object_number Random to identify the object.
+          # @option opts [Fixnum] :uid_number Identifies the VM where the object was generated.
+          # @option opts [Fixnum] :uid_time Time where the object was generated.
+          # @option opts [Fixnum] :uid_count Identifies different instance of the same object generated from the same VM
+          #   at the same time.
+          # @option opts [Fixnum] :operation On JDK 1.1 stub protocol the operation index in the interface. On JDK 1.2
+          #   it is -1.
+          # @option opts [Fixnum] :method_hash On JDK 1.1 stub protocol the stub's interface hash. On JDK1.2 is a hash
+          #   representing the method to call.
+          # @option opts [Array] :arguments
           # @return [Rex::Proto::Rmi::Model::Call]
           def build_call(opts = {})
             message_id = opts[:message_id] || Rex::Proto::Rmi::Model::CALL_MESSAGE
-            call_data = opts[:call_data] || Rex::Java::Serialization::Model::Stream.new
+            object_number = opts[:object_number] || 0
+            uid_number = opts[:uid_number] || 0
+            uid_time = opts[:uid_time] ||  0
+            uid_count = opts[:uid_count] || 0
+            operation = opts[:operation] || -1
+            method_hash = opts[:method_hash] || 0
+            arguments = opts[:arguments] || []
+
+            block_data = Rex::Java::Serialization::Model::BlockData.new
+            block_data.contents = [
+              object_number,
+              uid_number,
+              uid_time,
+              uid_count,
+              operation,
+              method_hash
+            ].pack('qlqslq')
+            block_data.length = block_data.contents.length
+
+            call_data = Rex::Java::Serialization::Model::Stream.new
+            call_data.contents << block_data
+            arguments.each do |arg|
+              call_data.contents << arg
+            end
 
             call = Rex::Proto::Rmi::Model::Call.new(
-                message_id: message_id,
-                call_data: call_data
+              message_id: message_id,
+              call_data: call_data
             )
 
             call

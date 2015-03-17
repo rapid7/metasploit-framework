@@ -9,7 +9,9 @@ module Msf
       module Client
 
         require 'msf/java/rmi/client/streams'
+        require 'msf/java/rmi/util'
 
+        include Msf::Java::Rmi::Util
         include Msf::Java::Rmi::Client::Streams
         include Exploit::Remote::Tcp
 
