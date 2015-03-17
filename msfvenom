@@ -331,6 +331,8 @@ if __FILE__ == $0
     output_stream = $stdout
     output_stream.binmode
     output_stream.write payload
+    # trailing newline for pretty output
+    $stderr.puts unless payload =~ /\n$/
   end
 
 end

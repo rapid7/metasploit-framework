@@ -51,7 +51,7 @@ module Metasploit
       # These values should be #demodularized from subclasses of
       # `Metasploit::Credential::Private`
       validates :private_type,
-        inclusion: { in: [ :password, :ntlm_hash, :ssh_key ] },
+        inclusion: { in: [ :password, :ntlm_hash, :postgres_md5, :ssh_key ] },
         if: "private_type.present?"
 
       # If we have no private we MUST have a public

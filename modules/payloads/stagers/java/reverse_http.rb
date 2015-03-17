@@ -8,6 +8,8 @@ require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
+  CachedSize = 5500
+
   include Msf::Payload::Stager
   include Msf::Payload::Java
 

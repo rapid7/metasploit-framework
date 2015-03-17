@@ -87,6 +87,12 @@ module Msf::HTTP::Wordpress::URIs
     normalize_uri(wordpress_url_backend, 'admin-post.php')
   end
 
+  # Returns the Wordpress Admin Update URL
+  #
+  # @return [String] Wordpress Admin Update URL
+  def wordpress_url_admin_update
+    normalize_uri(wordpress_url_backend, 'update.php')
+  end  
 
   # Returns the Wordpress wp-content dir URL
   #

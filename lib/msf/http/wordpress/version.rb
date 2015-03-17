@@ -92,8 +92,17 @@ module Msf::HTTP::Wordpress::Version
       'uri'    => readme_url,
       'method' => 'GET'
     )
-    # no readme.txt present
-    return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
+    
+    if res.nil? || res.code != 200
+      readme_url = normalize_uri(target_uri.path, wp_content_dir, folder, name, 'Readme.txt')
+      res = send_request_cgi(
+        'uri'    => readme_url,
+        'method' => 'GET'
+      )
+
+      # no Readme.txt present
+      return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
+    end
 
     # try to extract version from readme
     # Example line:

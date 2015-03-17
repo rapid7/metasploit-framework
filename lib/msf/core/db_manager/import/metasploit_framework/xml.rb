@@ -64,6 +64,30 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     import_msf_xml(args.merge(:data => data))
   end
 
+  # Imports `Mdm::Note` objects from the XML element.
+  #
+  # @param note [REXML::Element] The Note element
+  # @param allow_yaml [Boolean] whether to allow yaml
+  # @param note_data [Hash] hash containing note attributes to be passed along
+  # @return [void]
+  def import_msf_note_element(note, allow_yaml, note_data={})
+    note_data[:type] = nils_for_nulls(note.elements["ntype"].text.to_s.strip)
+    note_data[:data] = nils_for_nulls(unserialize_object(note.elements["data"], allow_yaml))
+
+    if note.elements["critical"].text
+      note_data[:critical] = true unless note.elements["critical"].text.to_s.strip == "NULL"
+    end
+    if note.elements["seen"].text
+      note_data[:seen] = true unless note.elements["critical"].text.to_s.strip == "NULL"
+    end
+    %W{created-at updated-at}.each { |datum|
+      if note.elements[datum].text
+        note_data[datum.gsub("-","_")] = nils_for_nulls(note.elements[datum].text.to_s.strip)
+      end
+    }
+    report_note(note_data)
+  end
+
   # Imports web_form element using {Msf::DBManager#report_web_form}.
   #
   # @param element [REXML::Element] web_form element.
@@ -280,21 +304,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
         note_data = {}
         note_data[:workspace] = wspace
         note_data[:host] = hobj
-        note_data[:type] = nils_for_nulls(note.elements["ntype"].text.to_s.strip)
-        note_data[:data] = nils_for_nulls(unserialize_object(note.elements["data"], allow_yaml))
-
-        if note.elements["critical"].text
-          note_data[:critical] = true unless note.elements["critical"].text.to_s.strip == "NULL"
-        end
-        if note.elements["seen"].text
-          note_data[:seen] = true unless note.elements["critical"].text.to_s.strip == "NULL"
-        end
-        %W{created-at updated-at}.each { |datum|
-          if note.elements[datum].text
-            note_data[datum.gsub("-","_")] = nils_for_nulls(note.elements[datum].text.to_s.strip)
-          end
-        }
-        report_note(note_data)
+        import_msf_note_element(note,allow_yaml,note_data)
       end
 
       host.elements.each('tags/tag') do |tag|
@@ -334,6 +344,13 @@ module Msf::DBManager::Import::MetasploitFramework::XML
         end
 
         vobj = report_vuln(vuln_data)
+
+        vuln.elements.each("notes/note") do |note|
+          note_data = {}
+          note_data[:workspace] = wspace
+          note_data[:vuln_id] = vobj.id
+          import_msf_note_element(note,allow_yaml,note_data)
+        end
 
         vuln.elements.each("vuln_details/vuln_detail") do |vdet|
           vdet_data = {}
