@@ -11,7 +11,7 @@ module Rex
           #   @return [Fixnum] the stream id
           attr_accessor :stream_id
           # @!attribute return value
-          #   @return [Rex::Java::Serialization::Model::Stream] the serialized return data
+          #   @return [Rex::Proto::Rmi::Model::ReturnValue] the return value
           attr_accessor :return_value
 
           private
@@ -33,9 +33,9 @@ module Rex
           # Reads and deserializes the return value from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Rex::Java::Serialization::Model::Stream]
+          # @return [Rex::Proto::Rmi::Model::ReturnValue]
           def decode_return_value(io)
-            return_value = Rex::Java::Serialization::Model::Stream.decode(io)
+            return_value = Rex::Proto::Rmi::Model::ReturnValue.decode(io)
 
             return_value
           end

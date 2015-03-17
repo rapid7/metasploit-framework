@@ -11,7 +11,7 @@ module Rex
           #   @return [Fixnum] the message id
           attr_accessor :message_id
           # @!attribute call_data
-          #   @return [Rex::Java::Serialization::Model::Stream] the serialized call data
+          #   @return [Rex::Proto::Rmi::Model::CallData] the call data
           attr_accessor :call_data
 
           private
@@ -35,7 +35,7 @@ module Rex
           # @param io [IO] the IO to read from
           # @return [Rex::Java::Serialization::Model::Stream]
           def decode_call_data(io)
-            call_data = Rex::Java::Serialization::Model::Stream.decode(io)
+            call_data = Rex::Proto::Rmi::Model::CallData.decode(io)
 
             call_data
           end

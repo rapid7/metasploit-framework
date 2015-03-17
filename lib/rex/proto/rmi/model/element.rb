@@ -115,10 +115,25 @@ module Rex
             raw = io.read(4)
 
             unless raw && raw.length == 4
-              raise ::RuntimeError, 'Failed to read short'
+              raise ::RuntimeError, 'Failed to read int'
             end
 
             raw.unpack('N')[0]
+          end
+
+          # Reads a 8 bytes long from an IO
+          #
+          # @param io [IO] the IO to read from
+          # @return [Fixnum]
+          # @raise [RuntimeError] if the long can't be read from io
+          def read_long(io)
+            raw = io.read(8)
+
+            unless raw && raw.length == 8
+              raise ::RuntimeError, 'Failed to read long'
+            end
+
+            raw.unpack('q>')[0]
           end
 
           # Reads an string from an IO

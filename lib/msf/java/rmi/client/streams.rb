@@ -7,7 +7,6 @@ module Msf
     module Rmi
       module Client
         module Streams
-
           # Builds a RMI header stream
           #
           # @param opts [Hash{Symbol => <String, Fixnum>}]
