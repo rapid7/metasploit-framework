@@ -61,7 +61,7 @@ module Msf
               uid_count,
               operation,
               hash
-            ].pack('qlqslq')
+            ].pack('q>l>q>s>l>q>')
             block_data.length = block_data.contents.length
 
             call_data = Rex::Java::Serialization::Model::Stream.new
