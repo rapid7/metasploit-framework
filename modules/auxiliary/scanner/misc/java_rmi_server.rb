@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
       uid_time: 0,
       uid_count: 0,
       operation: 0,
-      hash: dgc_interface_hash, # 0xf6b6898d8bf28643,
+      hash: dgc_interface_hash,
       arguments: build_dgc_clean_args(jar_url)
     )
     return_data = recv_return
