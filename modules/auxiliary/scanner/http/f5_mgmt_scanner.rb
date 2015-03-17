@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(
-        'Name'          => 'F5 management interface scanner',
+        'Name'          => 'F5 Management Interface Scanner',
         'Description'   => %q{
           This module simply detects web management interface of the following F5 Networks devices: BigIP, BigIQ, Enterprise Manager, ARX, and FirePass.
         },
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
     reply = probereply(self.capture, to)
 
     if (reply and reply.is_tcp? and reply.tcp_flags.syn == 1 and reply.tcp_flags.ack == 1)
-      
+
       res = send_request_raw('method' => 'GET', 'uri' => '/', 'rport' => rport)
 
       if res and res.code == 200
