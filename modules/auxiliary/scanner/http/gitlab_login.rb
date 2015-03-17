@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Gitlab Login Utility',
-      'Description'    => 'This module attempts to login to a Gitlab instance using a specific user/pass.',
+      'Name'           => 'GitLab Login Utility',
+      'Description'    => 'This module attempts to login to a GitLab instance using a specific user/pass.',
       'Author'         => [ 'Ben Campbell' ],
       'License'        => MSF_LICENSE
     )
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('USERNAME', [ true, 'The username to test', 'root' ]),
         OptString.new('PASSWORD', [ true, 'The password to test', '5iveL!fe' ]),
-        OptString.new('TARGETURI', [true, 'The path to Gitlab', '/'])
+        OptString.new('TARGETURI', [true, 'The path to GitLab', '/'])
       ], self.class)
 
     register_autofilter_ports([ 80, 443 ])
@@ -43,11 +43,11 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res && res.body && res.body.include?('user[email]')
-      vprint_status("#{peer} - Gitlab v5 login page")
+      vprint_status("#{peer} - GitLab v5 login page")
     elsif res && res.body && res.body.include?('user[login]')
-      vprint_status("#{peer} - Gitlab v7 login page")
+      vprint_status("#{peer} - GitLab v7 login page")
     else
-      vprint_error('Not a valid Gitlab login page')
+      vprint_error('Not a valid GitLab login page')
       return
     end
 
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
       user_as_pass: datastore['USER_AS_PASS']
     )
 
-    scanner = Metasploit::Framework::LoginScanner::Gitlab.new(
+    scanner = Metasploit::Framework::LoginScanner::GitLab.new(
       configure_http_login_scanner(
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],

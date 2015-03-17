@@ -3,8 +3,8 @@ require 'metasploit/framework/login_scanner/http'
 module Metasploit
   module Framework
     module LoginScanner
-      # Gitlab login scanner
-      class Gitlab < HTTP
+      # GitLab login scanner
+      class GitLab < HTTP
         # Inherit LIKELY_PORTS,LIKELY_SERVICE_NAMES, and REALM_KEY from HTTP
         CAN_GET_SESSION = false
         DEFAULT_PORT    = 80
@@ -53,7 +53,7 @@ module Metasploit
             elsif res.body.include? 'user[login]'
               user_field = 'user[login]'
             else
-              fail RuntimeError, 'Not a valid Gitlab login page'
+              fail RuntimeError, 'Not a valid GitLab login page'
             end
 
             local_session_cookie = res.get_cookies.scan(/(_gitlab_session=[A-Za-z0-9%-]+)/).flatten[0]
