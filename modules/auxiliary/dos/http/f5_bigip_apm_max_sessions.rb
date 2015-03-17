@@ -28,17 +28,18 @@ class Metasploit3 < Msf::Auxiliary
          ],
       'References'     =>
         [
-          ['URL', 'https://support.f5.com/kb/en-us/products/big-ip_apm/releasenotes/product/relnote-apm-11-6-0.html#id450940']
+          ['URL', 'https://support.f5.com/kb/en-us/products/big-ip_apm/releasenotes/product/relnote-apm-11-6-0.html']
         ],
       'License'        => MSF_LICENSE
     ))
 
     register_options(
       [
-        OptPort.new('RPORT', [true, 'The BigIP port to listen on', 443]),
-        OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', true]),        
+        OptPort.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
+        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),        
+        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL/TLS that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']]),
         OptString.new('TARGETURI', [true, 'The base path', '/']),       
-        OptInt.new('RLIMIT', [true, 'Number of requests to send', 10000])
+        OptInt.new('RLIMIT', [true, 'The number of requests to send', 10000])
       ], self.class)
   end
 
@@ -81,6 +82,8 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Errno::ECONNRESET
       print_error("#{peer} - The connection was reset. Probably BigIP \"Max In Progress Sessions Per Client IP\" counter was reached")
       print_status("#{peer} - DoS attack is unsuccessful")
+    rescue ::OpenSSL::SSL::SSLError
+     print_error("#{peer} - SSL/TLS connection error")
 
   end
 

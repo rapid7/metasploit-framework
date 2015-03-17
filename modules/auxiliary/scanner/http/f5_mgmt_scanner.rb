@@ -31,9 +31,10 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
 
     register_advanced_options([
-	      OptBool.new('SSL', [true, "Negotiate SSL connection", true])
-
+	      OptBool.new('SSL', [true, "Negotiate SSL/TLS connection", true]),
+        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL/TLS that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']]),
       ], self.class)
+
     deregister_options('PCAPFILE', 'FILTER', 'INTERFACE', 'SNAPLEN')
 
   end
@@ -83,36 +84,42 @@ class Metasploit3 < Msf::Auxiliary
     capture_sendto(probe, rhost)
     reply = probereply(self.capture, to)
     
-    # Detect BigIP and BigIQ management interfaces
     if (reply and reply.is_tcp? and reply.tcp_flags.syn == 1 and reply.tcp_flags.ack == 1)
       
       res = send_request_raw('method' => 'GET', 'uri' => '/', 'rport' => rport)
+
       if res and res.code == 200
+
+        # Detect BigIP management interface
         if res.body =~ /<title>BIG\-IP/
           print_status("#{peer} - F5 BigIP web management interface found")
           return
         end
+
+        # Detect EM management interface
         if res.body =~ /<title>Enterprise Manager/
           print_status("#{peer} - F5 Enterprise Manager web management interface found")
+          return
+        end
+
+        # Detect ARX management interface
+        if res.body =~ /<title>F5 ARX Manager Login<\/title>/
+          print_status("#{peer} - ARX web management interface found")
           return
         end
       end
 
       res = send_request_raw('method' => 'GET', 'uri' => '/ui/login/', 'rport' => rport)
+
+      # Detect BigIQ management interface
       if res and res.code == 200 and res.body =~ /<title>BIG\-IQ/
         print_status("#{peer} - F5 BigIQ web management interface found")
         return
       end
-
+      # Detect FirePass management interface
       res = send_request_raw('method' => 'GET', 'uri' => '/admin/', 'rport' => rport)
       if res and res.code == 200 and res.body =~ /<br><br><br><big><b>&nbsp;FirePass/
         print_status("#{peer} - F5 FirePass web management interface found")
-        return
-      end
-
-      res = send_request_raw('method' => 'GET', 'uri' => '/', 'rport' => rport)
-      if res and res.code == 200 and res.body =~ /<title>F5 ARX Manager Login<\/title>/
-        print_status("#{peer} - ARX web management interface found")
         return
       end
 
@@ -123,7 +130,9 @@ class Metasploit3 < Msf::Auxiliary
            ::Rex::HostUnreachable,
            ::Errno::ECONNRESET
     print_error("#{peer} - Connection failed")
-   
-  end
 
+    rescue ::OpenSSL::SSL::SSLError
+     print_error("#{peer} - SSL/TLS connection error")
+  
+  end
 end
