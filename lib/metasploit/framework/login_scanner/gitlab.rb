@@ -3,10 +3,8 @@ require 'metasploit/framework/login_scanner/http'
 module Metasploit
   module Framework
     module LoginScanner
-
       # Gitlab login scanner
       class Gitlab < HTTP
-
         # Inherit LIKELY_PORTS,LIKELY_SERVICE_NAMES, and REALM_KEY from HTTP
         CAN_GET_SESSION = false
         DEFAULT_PORT    = 80
@@ -14,19 +12,19 @@ module Metasploit
 
         # (see Base#set_sane_defaults)
         def set_sane_defaults
-          self.uri = '/users/sign_in' if self.uri.nil?
-          self.method = 'POST' if self.method.nil
+          self.uri = '/users/sign_in' if uri.nil?
+          self.method = 'POST' if method.nil
 
           super
         end
 
         def attempt_login(credential)
           result_opts = {
-              credential: credential,
-              host: host,
-              port: port,
-              protocol: 'tcp',
-              service_name: ssl ? 'https' : 'http'
+            credential: credential,
+            host: host,
+            port: port,
+            protocol: 'tcp',
+            service_name: ssl ? 'https' : 'http'
           }
           begin
             cli = Rex::Proto::Http::Client.new(host,
@@ -42,11 +40,11 @@ module Metasploit
             cli.connect
 
             # Get a valid session cookie and authenticity_token for the next step
-            req = cli.request_cgi({
+            req = cli.request_cgi(
               'method' => 'GET',
               'cookie' => 'request_method=GET',
-              'uri'    => self.uri
-            })
+              'uri'    => uri
+            )
 
             res = cli.send_recv(req)
 
@@ -55,20 +53,20 @@ module Metasploit
             elsif res.body.include? 'user[login]'
               user_field = 'user[login]'
             else
-              raise RuntimeError, 'Not a valid Gitlab login page'
+              fail RuntimeError, 'Not a valid Gitlab login page'
             end
 
             local_session_cookie = res.get_cookies.scan(/(_gitlab_session=[A-Za-z0-9%-]+)/).flatten[0]
             auth_token = res.body.scan(/<input name="authenticity_token" type="hidden" value="(.*?)"/).flatten[0]
 
-            raise RuntimeError, 'Unable to get Session Cookie' unless local_session_cookie
-            raise RuntimeError, 'Unable to get Authentication Token' unless auth_token
+            fail RuntimeError, 'Unable to get Session Cookie' unless local_session_cookie
+            fail RuntimeError, 'Unable to get Authentication Token' unless auth_token
 
             # Perform the actual login
-            req = cli.request_cgi({
+            req = cli.request_cgi(
                                     'method' => 'POST',
                                     'cookie' => local_session_cookie,
-                                    'uri'    => self.uri,
+                                    'uri'    => uri,
                                     'vars_post' =>
                                       {
                                         'utf8' => "\xE2\x9C\x93",
@@ -77,7 +75,7 @@ module Metasploit
                                         'user[password]' => credential.private,
                                         'user[remember_me]' => 0
                                       }
-            })
+            )
 
             res = cli.send_recv(req)
             if res && res.code == 302
