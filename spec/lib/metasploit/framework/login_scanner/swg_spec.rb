@@ -10,16 +10,28 @@ describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
       'PHPSESSID=FAKESESSIONID;'
     end
 
+    let(:username) do
+      'username'
+    end
+
+    let(:good_password) do
+      'good_password'
+    end
+
+    let(:bad_password) do
+      'bad_password'
+    end
+
     let(:successful_auth_response) do
       res = Rex::Proto::Http::Response.new(200, 'OK')
       res.headers['Location'] = 'executive_summary.php'
-      res.headers['Set-Cookie'] = 'PHPSESSID=NEWSESSIONID'
+      res.headers['Set-Cookie'] = 'PHPSESSID=NEWSESSIONID;'
       res
     end
 
     let(:fail_auth_response) do
       res = Rex::Proto::Http::Response.new(200, 'OK')
-      res.headers['Set-Cookie'] = 'PHPSESSID=NEWSESSIONID'
+      res.headers['Set-Cookie'] = 'PHPSESSID=NEWSESSIONID;'
       res
     end
 
@@ -94,24 +106,40 @@ describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
 
     describe '#get_login_state' do
       context 'when the credential is valid' do
-        it 'returns a hash indicating successful' do
+        it 'returns a hash indicating a successful login' do
+          mock_http_cli(successful_auth_response)
+          successful_status = Metasploit::Model::Login::Status::SUCCESSFUL
+          expect(subject.get_login_state(username, good_password)[:status]).to eq(successful_status)
         end
       end
 
       context 'when the creential is invalid' do
         it 'returns a hash indicating an incorrect cred' do
+          mock_http_cli(fail_auth_response)
+          incorrect_status = Metasploit::Model::Login::Status::INCORRECT
+          expect(subject.get_login_state(username, good_password)[:status]).to eq(incorrect_status)
         end
       end
     end
 
     describe '#attempt_login' do
       context 'when the credential is valid' do
-        it 'returns a Result object indicating successful' do
+        it 'returns a Result object indicating a successful login' do
+          cred_obj = Metasploit::Framework::Credential.new(public: username, private: good_password)
+          mock_http_cli(successful_auth_response)
+          result = subject.attempt_login(cred_obj)
+          expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
+          expect(result.status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
         end
       end
 
       context 'when the credential is invalid' do
         it 'returns a Result object indicating an incorrect cred' do
+          cred_obj = Metasploit::Framework::Credential.new(public: username, private: bad_password)
+          mock_http_cli(fail_auth_response)
+          result = subject.attempt_login(cred_obj)
+          expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
+          expect(result.status).to eq(Metasploit::Model::Login::Status::INCORRECT)
         end
       end
     end
