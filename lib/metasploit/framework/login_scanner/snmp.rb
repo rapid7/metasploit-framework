@@ -17,20 +17,21 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil
 
-        # @!attribute retries
-        #   @return [Fixnum] The number of retries
+        # The number of retries
+        # @return [Fixnum]
         attr_accessor :retries
+
+        # The SNMAP version to scan
+        #
+        # @return [String]
+        attr_accessor :version
 
         validates :retries,
                   presence: true,
                   numericality: {
-                    only_integer:             true,
+                    only_integer: true,
                     greater_than_or_equal_to: 0
                   }
-
-        # @!attribute version
-        #   @return [String] The SNMP version to scan
-        attr_accessor :version
 
         validates :version,
                   presence: true,
