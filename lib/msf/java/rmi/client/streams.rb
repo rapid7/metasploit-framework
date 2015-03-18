@@ -52,22 +52,19 @@ module Msf
             hash = opts[:hash] || 0
             arguments = opts[:arguments] || []
 
-            block_data = Rex::Java::Serialization::Model::BlockData.new
-            block_data.contents = [
-              object_number,
-              uid_number,
-              uid_time,
-              uid_count,
-              operation,
-              hash
-            ].pack('q>l>q>s>l>q>')
-            block_data.length = block_data.contents.length
+            uid = Rex::Proto::Rmi::Model::UniqueIdentifier.new(
+              number: uid_number,
+              time: uid_time,
+              count: uid_count
+            )
 
-            call_data = Rex::Java::Serialization::Model::Stream.new
-            call_data.contents << block_data
-            arguments.each do |arg|
-              call_data.contents << arg
-            end
+            call_data = Rex::Proto::Rmi::Model::CallData.new(
+              object_number: object_number,
+              uid: uid,
+              operation: operation,
+              hash: hash,
+              arguments: arguments
+            )
 
             call = Rex::Proto::Rmi::Model::Call.new(
               message_id: message_id,
