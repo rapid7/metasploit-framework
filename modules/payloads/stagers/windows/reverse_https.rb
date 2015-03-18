@@ -11,7 +11,7 @@ require 'msf/core/payload/windows/reverse_https'
 
 module Metasploit3
 
-  CachedSize = 326
+  CachedSize = 331
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
