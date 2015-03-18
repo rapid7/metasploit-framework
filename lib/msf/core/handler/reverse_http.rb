@@ -236,8 +236,9 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
-        if @proxy_settings[:host]
-          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(@proxy_settings[:info])}'")
+        unless datastore['PayloadProxyHost'].blank?
+          proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
+          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
         end
 
         resp.body = blob
