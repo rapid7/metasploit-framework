@@ -42,7 +42,7 @@ module Msf::Post::Windows::Runas
   end
 
   #
-  # Create a STARTUP_INFO struct for use with CreateProcessa
+  # Create a STARTUP_INFO struct for use with CreateProcessA
   #
   # This struct will cause the process to be hidden
   #
@@ -192,6 +192,9 @@ module Msf::Post::Windows::Runas
   # @return [Hash] The values from the process_information struct
   #
   def parse_process_information(process_information)
+    fail ArgumentError, 'process_information is nil' if process_information.nil?
+    fail ArgumentError, 'process_information is empty string' if process_information.empty?
+
     pi = process_information.unpack('LLLL')
     { :process_handle => pi[0], :thread_handle => pi[1], :process_id => pi[2], :thread_id => pi[3] }
   end
@@ -208,6 +211,8 @@ module Msf::Post::Windows::Runas
   # @return [True] True if username is in the correct format
   #
   def check_user_format(username, domain)
+    fail ArgumentError, 'username is nil' if username.nil?
+
     if domain && username.include?('@')
       raise ArgumentError, 'Username is in UPN format (user@domain) so the domain parameter must be nil'
     end
@@ -230,12 +235,17 @@ module Msf::Post::Windows::Runas
   # @return [True] True if the command_line is within the correct bounds
   #
   def check_command_length(application_name, command_line, max_length)
+    fail ArgumentError, 'max_length is nil' if max_length.nil?
+
     if application_name.nil? && command_line.nil?
       raise ArgumentError, 'Both application_name and command_line are nil'
-    elsif application_name.nil? && command_line && command_line.length > MAX_PATH
-      raise ArgumentError, "When application_name is nil the command line must be less than MAX_PATH #{MAX_PATH} characters (Currently #{command_line.length})"
-    elsif application_name && command_line && command_line.length > max_length
-      raise ArgumentError, "When application_name is set, command line must be less than #{max_length} characters (Currently #{command_line.length})"
+    elsif command_line && command_line.length > max_length
+      raise ArgumentError, "Command line must be less than #{max_length} characters (Currently #{command_line.length})"
+    elsif application_name.nil? && command_line
+      cl = command_line.split(' ')
+      if cl[0] && cl[0].length > MAX_PATH
+        raise ArgumentError, "When application_name is nil the command line module must be less than MAX_PATH #{MAX_PATH} characters (Currently #{cl[0].length})"
+      end
     end
 
     true
