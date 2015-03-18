@@ -126,7 +126,10 @@ module Msf::Post::Windows::Runas
   # @param domain [String] The target user domain
   # @param user [String] The target user
   # @param password [String] The target user password
-  # @param application_name [String] The executable to be run, can be
+  # @param application_name [String] Thn executableived :CloseHandle
+  # with unexpected arguments
+  #          expected: ("testPhToken")
+  #                        got: (n be run, can be
   #   nil
   # @param command_line [String] The command line or process arguments
   #
@@ -195,7 +198,7 @@ module Msf::Post::Windows::Runas
     fail ArgumentError, 'process_information is nil' if process_information.nil?
     fail ArgumentError, 'process_information is empty string' if process_information.empty?
 
-    pi = process_information.unpack('LLLL')
+    pi = process_information.unpack('VVVV')
     { :process_handle => pi[0], :thread_handle => pi[1], :process_id => pi[2], :thread_id => pi[3] }
   end
 
