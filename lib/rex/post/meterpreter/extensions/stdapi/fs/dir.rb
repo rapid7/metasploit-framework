@@ -79,6 +79,7 @@ class Dir < Rex::Post::Dir
     response = client.send_request(request)
 
     fname = response.get_tlvs(TLV_TYPE_FILE_NAME)
+    fsname = response.get_tlvs(TLV_TYPE_FILE_SHORT_NAME)
     fpath = response.get_tlvs(TLV_TYPE_FILE_PATH)
     sbuf  = response.get_tlvs(TLV_TYPE_STAT_BUF)
 
@@ -98,6 +99,7 @@ class Dir < Rex::Post::Dir
         {
           'FileName' => file_name.value,
           'FilePath' => fpath[idx].value,
+          'FileShortName' => fsname[idx] ? fsname[idx].value : nil,
           'StatBuf'  => st,
         }
     }
