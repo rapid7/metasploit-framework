@@ -88,7 +88,7 @@ module Rex
             raw = io.read(1)
             raise ::RuntimeError, 'Failed to read byte' unless raw
 
-            raw.unpack('C')[0]
+            raw.unpack('c')[0]
           end
 
           # Reads a two bytes short from an IO
@@ -103,7 +103,7 @@ module Rex
               raise ::RuntimeError, 'Failed to read short'
             end
 
-            raw.unpack('n')[0]
+            raw.unpack('s>')[0]
           end
 
           # Reads a four bytes int from an IO
@@ -118,7 +118,7 @@ module Rex
               raise ::RuntimeError, 'Failed to read int'
             end
 
-            raw.unpack('N')[0]
+            raw.unpack('l>')[0]
           end
 
           # Reads a 8 bytes long from an IO
