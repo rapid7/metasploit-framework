@@ -885,7 +885,7 @@ describe 'modules/payloads', :content do
                               'stagers/java/reverse_http',
                               'stages/java/meterpreter'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/meterpreter/reverse_http'
   end
@@ -896,7 +896,7 @@ describe 'modules/payloads', :content do
                               'stagers/java/reverse_https',
                               'stages/java/meterpreter'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'java/meterpreter/reverse_https'
   end
