@@ -141,9 +141,9 @@ module Rex
 
     def report_web_page(&block)
       return unless(in_issue && has_text)
-      return unless @state[:web_site]
-      return unless @state[:response_headers]
-      return unless @state[:uri]
+      return unless @state[:web_site].present?
+      return unless @state[:response_headers].present?
+      return unless @state[:uri].present?
       web_page_info = {}
       web_page_info[:web_site] = @state[:web_site]
       web_page_info[:path] = @state[:uri].path
