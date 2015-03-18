@@ -71,15 +71,15 @@ class Metasploit3 < Msf::Auxiliary
       hash: dgc_interface_hash,
       arguments: build_dgc_clean_args(jar_url)
     )
-    return_data = recv_return
+    return_value = recv_return
 
-    if return_data.nil?
+    if return_value.nil?
       print_error("#{peer} - Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
       return
     end
 
-    if loader_enabled?(return_data)
+    if return_value.is_exception? && loader_enabled?(return_value.value)
       print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
       svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
       report_vuln(
@@ -95,13 +95,13 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def loader_enabled?(stream)
-    stream.contents.each do |content|
-      if content.class == Rex::Java::Serialization::Model::NewObject &&
-          content.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
-          content.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
-          content.class_data[0].class == Rex::Java::Serialization::Model::NullReference &&
-          !content.class_data[1].contents.include?('RMI class loader disabled')
+  def loader_enabled?(exception_stack)
+    exception_stack.each do |exception|
+      if exception.class == Rex::Java::Serialization::Model::NewObject &&
+          exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
+          exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
+          exception.class_data[0].class == Rex::Java::Serialization::Model::NullReference &&
+          !exception.class_data[1].contents.include?('RMI class loader disabled')
           return true
       end
     end

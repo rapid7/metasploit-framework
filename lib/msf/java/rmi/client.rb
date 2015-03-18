@@ -8,8 +8,8 @@ module Msf
     module Rmi
       module Client
 
-        require 'msf/java/rmi/client/streams'
         require 'msf/java/rmi/util'
+        require 'msf/java/rmi/client/streams'
 
         include Msf::Java::Rmi::Util
         include Msf::Java::Rmi::Client::Streams

@@ -53,6 +53,13 @@ module Rex
             self
           end
 
+          # Answers if the ReturnValue is an exception
+          #
+          # @return [Boolean]
+          def is_exception?
+            code == RETURN_EXCEPTION
+          end
+
           private
 
           # Reads the return code from the IO
