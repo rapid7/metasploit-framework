@@ -123,8 +123,8 @@ module Rex
             options[:proxy_type]
           )
           patch_proxy_auth!(blob,
-            options[:proxy_username],
-            options[:proxy_password],
+            options[:proxy_user],
+            options[:proxy_pass],
             options[:proxy_type]
           )
 

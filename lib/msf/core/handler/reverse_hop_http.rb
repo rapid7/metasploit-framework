@@ -259,8 +259,8 @@ module ReverseHopHttp
       :proxy_host     => datastore['PayloadProxyHost'],
       :proxy_port     => datastore['PayloadProxyPort'],
       :proxy_type     => datastore['PayloadProxyType'],
-      :proxy_username => datastore['PayloadProxyUser'],
-      :proxy_password => datastore['PayloadProxyPass']
+      :proxy_user => datastore['PayloadProxyUser'],
+      :proxy_pass => datastore['PayloadProxyPass']
 
     blob = encode_stage(blob)
 
