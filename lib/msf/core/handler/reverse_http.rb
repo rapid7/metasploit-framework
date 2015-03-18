@@ -3,6 +3,7 @@ require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
 require 'msf/core/handler/reverse_http/uri_checksum'
 require 'rex/payloads/meterpreter/patch'
+require 'rex/parser/x509_certificate'
 
 module Msf
 module Handler
@@ -356,56 +357,18 @@ protected
     port > 0 ? port : datastore['LPORT'].to_i
   end
 
-  # TODO: remove all that is below this when HD's PR has been landed
   def get_ssl_cert_hash
-    unless datastore['StagerVerifySslCert'].to_s =~ /^(t|y|1)/i
+    unless datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
       return nil
     end
 
     unless datastore['HandlerSSLCert']
-      raise ArgumentError, "StagerVerifySslCert is enabled but no HandlerSSLCert is configured"
+      raise ArgumentError, "StagerVerifySSLCert is enabled but no HandlerSSLCert is configured"
     end
 
-    # TODO: fix this up when HD's PR has landed.
-    #hcert = Rex::Parser::X509Certificate.parse_pem_file(datastore['HandlerSSLCert'])
-    hcert = parse_pem_file(datastore['HandlerSSLCert'])
-    unless hcert and hcert[0] and hcert[1]
-      raise ArgumentError, "Could not parse a private key and certificate from #{datastore['HandlerSSLCert']}"
-    end
-
-    hash = Rex::Text.sha1_raw(hcert[1].to_der)
+    hash = Rex::Parser::X509Certificate.get_cert_file_hash(datastore['HandlerSSLCert'])
     print_status("Meterpreter will verify SSL Certificate with SHA1 hash #{hash.unpack("H*").first}")
     hash
-    nil
-  end
-
-  def parse_pem(ssl_cert)
-    cert  = nil
-    key   = nil
-    chain = nil
-
-    certs = []
-    ssl_cert.scan(/-----BEGIN\s*[^\-]+-----+\r?\n[^\-]*-----END\s*[^\-]+-----\r?\n?/nm).each do |pem|
-      if pem =~ /PRIVATE KEY/
-        key = OpenSSL::PKey::RSA.new(pem)
-      elsif pem =~ /CERTIFICATE/
-        certs << OpenSSL::X509::Certificate.new(pem)
-      end
-    end
-
-    cert = certs.shift
-    if certs.length > 0
-      chain = certs
-    end
-
-    [key, cert, chain]
-  end
-  def parse_pem_file(ssl_cert_file)
-    data = ''
-    ::File.open(ssl_cert_file, 'rb') do |fd|
-      data << fd.read(fd.stat.size)
-    end
-    parse_pem(data)
   end
 
 end
