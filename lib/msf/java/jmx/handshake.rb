@@ -37,23 +37,6 @@ module Msf
           )
 
           call
-=begin
-          block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{obj_id}\xff\xff\xff\xff\xf0\xe0\x74\xea\xad\x0c\xae\xa8")
-
-          stream = Rex::Java::Serialization::Model::Stream.new
-          stream.contents << block_data
-
-          if jmx_role
-            username = jmx_role
-            password = jmx_password || ''
-
-            stream.contents << auth_array_stream(username, password)
-          else
-            stream.contents << Rex::Java::Serialization::Model::NullReference.new
-          end
-
-          stream
-=end
         end
 
         # Builds a Rex::Java::Serialization::Model::NewArray with credentials
