@@ -42,8 +42,8 @@ module Text
   UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
   Numerals     = "0123456789"
-  Base32	     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-  Alpha	     = UpperAlpha + LowerAlpha
+  Base32       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+  Alpha        = UpperAlpha + LowerAlpha
   AlphaNumeric = Alpha + Numerals
   HighAscii    = [*(0x80 .. 0xff)].pack("C*")
   LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
@@ -1132,6 +1132,20 @@ module Text
   #
   def self.decode_base64(str)
     str.to_s.unpack("m")[0]
+  end
+
+  #
+  # Base64 encoder (URL-safe RFC6920)
+  #
+  def self.encode_base64url(str, delim='')
+    encode_base64(str, delim).tr('+/', '-_').gsub('=', '')
+  end
+
+  #
+  # Base64 decoder (URL-safe RFC6920)
+  #
+  def self.decode_base64url(str)
+    decode_base64(str.tr('-_', '+/'))
   end
 
   #
