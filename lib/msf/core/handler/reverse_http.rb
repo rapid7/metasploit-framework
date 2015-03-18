@@ -175,14 +175,14 @@ protected
     info = {}
     return @proxy_settings if @proxy_settings
 
-    if datastore['PROXY_HOST'].to_s == ""
+    if datastore['PayloadProxyHost'].to_s == ""
       @proxy_settings = info
       return @proxy_settings
     end
 
-    info[:host] = datastore['PROXY_HOST'].to_s
-    info[:port] = (datastore['PROXY_PORT'] || 8080).to_i
-    info[:type] = datastore['PROXY_TYPE'].to_s
+    info[:host] = datastore['PayloadProxyHost'].to_s
+    info[:port] = (datastore['PayloadProxyPort'] || 8080).to_i
+    info[:type] = datastore['PayloadProxyType'].to_s
 
     uri_host = info[:host]
 
@@ -196,11 +196,11 @@ protected
       info[:info] = "socks=#{info[:info]}"
     else
       info[:info] = "http://#{info[:info]}"
-      if datastore['PROXY_USERNAME'].to_s != ""
-        info[:username] = datastore['PROXY_USERNAME'].to_s
+      if datastore['PayloadProxyUser'].to_s != ""
+        info[:username] = datastore['PayloadProxyUser'].to_s
       end
-      if datastore['PROXY_PASSWORD'].to_s != ""
-        info[:password] = datastore['PROXY_PASSWORD'].to_s
+      if datastore['PayloadProxyPass'].to_s != ""
+        info[:password] = datastore['PayloadProxyPass'].to_s
       end
     end
 
@@ -299,11 +299,11 @@ protected
           :expiration     => datastore['SessionExpirationTimeout'],
           :comm_timeout   => datastore['SessionCommunicationTimeout'],
           :ua             => datastore['MeterpreterUserAgent'],
-          :proxyhost      => datastore['PROXY_HOST'],
-          :proxyport      => datastore['PROXY_PORT'],
-          :proxy_type     => datastore['PROXY_TYPE'],
-          :proxy_username => datastore['PROXY_USERNAME'],
-          :proxy_password => datastore['PROXY_PASSWORD']
+          :proxyhost      => datastore['PayloadProxyHost'],
+          :proxyport      => datastore['PayloadProxyPort'],
+          :proxy_type     => datastore['PayloadProxyType'],
+          :proxy_username => datastore['PayloadProxyUser'],
+          :proxy_password => datastore['PayloadProxyPass']
 
         resp.body = encode_stage(blob)
 

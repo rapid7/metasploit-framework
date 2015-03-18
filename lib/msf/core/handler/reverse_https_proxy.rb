@@ -40,11 +40,11 @@ module ReverseHttpsProxy
       [
         OptString.new('LHOST', [ true, "The local listener hostname" ,"127.0.0.1"]),
         OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
-        OptString.new('PROXY_HOST', [true, "The proxy server's IP address", "127.0.0.1"]),
-        OptPort.new('PROXY_PORT', [true, "The proxy port to connect to", 8080 ]),
-        OptEnum.new('PROXY_TYPE', [true, 'The proxy type, HTTP or SOCKS', 'HTTP', ['HTTP', 'SOCKS']]),
-        OptString.new('PROXY_USERNAME', [ false, "An optional username for HTTP proxy authentication"]),
-        OptString.new('PROXY_PASSWORD', [ false, "An optional password for HTTP proxy authentication"])
+        OptString.new('PayloadProxyHost', [true, "The proxy server's IP address", "127.0.0.1"]),
+        OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ]),
+        OptEnum.new('PayloadProxyType', [true, 'The proxy type, HTTP or SOCKS', 'HTTP', ['HTTP', 'SOCKS']]),
+        OptString.new('PayloadProxyUser', [ false, "An optional username for HTTP proxy authentication"]),
+        OptString.new('PayloadProxyPass', [ false, "An optional password for HTTP proxy authentication"])
       ], Msf::Handler::ReverseHttpsProxy)
 
     register_advanced_options(

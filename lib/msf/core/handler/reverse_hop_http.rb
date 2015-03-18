@@ -256,11 +256,11 @@ module ReverseHopHttp
       :expiration     => datastore['SessionExpirationTimeout'],
       :comm_timeout   => datastore['SessionCommunicationTimeout'],
       :ua             => datastore['MeterpreterUserAgent'],
-      :proxyhost      => datastore['PROXY_HOST'],
-      :proxyport      => datastore['PROXY_PORT'],
-      :proxy_type     => datastore['PROXY_TYPE'],
-      :proxy_username => datastore['PROXY_USERNAME'],
-      :proxy_password => datastore['PROXY_PASSWORD']
+      :proxyhost      => datastore['PayloadProxyHost'],
+      :proxyport      => datastore['PayloadProxyPort'],
+      :proxy_type     => datastore['PayloadProxyType'],
+      :proxy_username => datastore['PayloadProxyUser'],
+      :proxy_password => datastore['PayloadProxyPass']
 
     blob = encode_stage(blob)
 

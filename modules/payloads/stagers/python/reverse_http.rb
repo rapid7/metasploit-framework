@@ -26,8 +26,8 @@ module Metasploit3
 
     register_options(
       [
-        OptString.new('PROXY_HOST', [false, "The proxy server's IP address"]),
-        OptPort.new('PROXY_PORT', [true, "The proxy port to connect to", 8080 ])
+        OptString.new('PayloadProxyHost', [false, "The proxy server's IP address"]),
+        OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ])
       ], self.class)
   end
 
@@ -52,8 +52,8 @@ module Metasploit3
     target_url << '/'
     target_url << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITP)
 
-    proxy_host = datastore['PROXY_HOST'].to_s
-    proxy_port = datastore['PROXY_PORT'].to_i
+    proxy_host = datastore['PayloadProxyHost'].to_s
+    proxy_port = datastore['PayloadProxyPort'].to_i
 
     cmd  = "import sys\n"
     if proxy_host == ''
