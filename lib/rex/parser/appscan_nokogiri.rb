@@ -193,12 +193,12 @@ module Rex
       return unless(request_headers && response_headers)
       req_header = Rex::Proto::Http::Packet::Header.new
       res_header = Rex::Proto::Http::Packet::Header.new
-      req_header.from_s request_headers.dup
-      res_header.from_s response_headers.dup
+      req_header.from_s request_headers.lstrip
+      res_header.from_s response_headers.lstrip
       @state[:request_headers] = req_header
-      @state[:request_body] = request_body
+      @state[:request_body] = request_body.lstrip
       @state[:response_headers] = res_header
-      @state[:response_body] = response_body
+      @state[:response_body] = response_body.lstrip
     end
 
     # Appscan tab-indents which makes parsing a little difficult. They
