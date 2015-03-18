@@ -34,7 +34,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 85f12581bed55f128ddc18645316b969098fea12
+  revision: 93ef9c08b19d6ba2e484cb527f470ca92274563c
   branch: staging/rails-4.0
   specs:
     metasploit_data_models (0.23.1.pre.rails.pre.4.0)

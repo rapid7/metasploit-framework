@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150212214222) do
+ActiveRecord::Schema.define(version: 20150317145455) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -300,14 +300,14 @@ ActiveRecord::Schema.define(version: 20150212214222) do
     t.text    "name"
   end
 
-  add_index "module_actions", ["detail_id"], name: "index_module_actions_on_module_detail_id", using: :btree
+  add_index "module_actions", ["detail_id"], name: "index_module_actions_on_detail_id", using: :btree
 
   create_table "module_archs", force: true do |t|
     t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_archs", ["detail_id"], name: "index_module_archs_on_module_detail_id", using: :btree
+  add_index "module_archs", ["detail_id"], name: "index_module_archs_on_detail_id", using: :btree
 
   create_table "module_authors", force: true do |t|
     t.integer "detail_id"
@@ -315,7 +315,7 @@ ActiveRecord::Schema.define(version: 20150212214222) do
     t.text    "email"
   end
 
-  add_index "module_authors", ["detail_id"], name: "index_module_authors_on_module_detail_id", using: :btree
+  add_index "module_authors", ["detail_id"], name: "index_module_authors_on_detail_id", using: :btree
 
   create_table "module_details", force: true do |t|
     t.datetime "mtime"
@@ -345,21 +345,21 @@ ActiveRecord::Schema.define(version: 20150212214222) do
     t.text    "name"
   end
 
-  add_index "module_mixins", ["detail_id"], name: "index_module_mixins_on_module_detail_id", using: :btree
+  add_index "module_mixins", ["detail_id"], name: "index_module_mixins_on_detail_id", using: :btree
 
   create_table "module_platforms", force: true do |t|
     t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_platforms", ["detail_id"], name: "index_module_platforms_on_module_detail_id", using: :btree
+  add_index "module_platforms", ["detail_id"], name: "index_module_platforms_on_detail_id", using: :btree
 
   create_table "module_refs", force: true do |t|
     t.integer "detail_id"
     t.text    "name"
   end
 
-  add_index "module_refs", ["detail_id"], name: "index_module_refs_on_module_detail_id", using: :btree
+  add_index "module_refs", ["detail_id"], name: "index_module_refs_on_detail_id", using: :btree
   add_index "module_refs", ["name"], name: "index_module_refs_on_name", using: :btree
 
   create_table "module_targets", force: true do |t|
@@ -368,7 +368,7 @@ ActiveRecord::Schema.define(version: 20150212214222) do
     t.text    "name"
   end
 
-  add_index "module_targets", ["detail_id"], name: "index_module_targets_on_module_detail_id", using: :btree
+  add_index "module_targets", ["detail_id"], name: "index_module_targets_on_detail_id", using: :btree
 
   create_table "nexpose_consoles", force: true do |t|
     t.datetime "created_at",                  null: false
