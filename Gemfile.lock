@@ -137,10 +137,10 @@ GEM
     diff-lcs (1.2.5)
     docile (1.1.5)
     erubis (2.7.0)
-    factory_girl (4.4.0)
+    factory_girl (4.5.0)
       activesupport (>= 3.0.0)
-    factory_girl_rails (4.4.1)
-      factory_girl (~> 4.4.0)
+    factory_girl_rails (4.5.0)
+      factory_girl (~> 4.5.0)
       railties (>= 3.0.0)
     ffi (1.9.3)
     fivemat (1.2.1)
@@ -254,8 +254,7 @@ PLATFORMS
 DEPENDENCIES
   aruba
   cucumber-rails
-  factory_girl (>= 4.1.0)
-  factory_girl_rails
+  factory_girl_rails (~> 4.5.0)
   fivemat (= 1.2.1)
   metasploit-concern!
   metasploit-credential!
