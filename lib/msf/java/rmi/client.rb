@@ -9,10 +9,10 @@ module Msf
       module Client
 
         require 'msf/java/rmi/util'
-        require 'msf/java/rmi/client/streams'
+        require 'msf/java/rmi/builder'
 
         include Msf::Java::Rmi::Util
-        include Msf::Java::Rmi::Client::Streams
+        include Msf::Java::Rmi::Builder
         include Exploit::Remote::Tcp
 
         # Returns the target host
