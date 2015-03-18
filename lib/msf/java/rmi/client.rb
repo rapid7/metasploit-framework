@@ -52,12 +52,13 @@ module Msf
         #
         # @param opts [Hash]
         # @option opts [Rex::Socket::Tcp] :sock
+        # @option opts [Rex::Proto::Rmi::Model::Call] :call
         # @return [Fixnum] the number of bytes sent
         # @see Msf::Rmi::Client::Streams#build_call
         def send_call(opts = {})
           nsock = opts[:sock] || sock
-          stream = build_call(opts)
-          nsock.put(stream.encode)
+          call = opts[:call] || build_call(opts)
+          nsock.put(call.encode)
         end
 
         # Sends a RMI DGCACK stream
@@ -76,7 +77,8 @@ module Msf
         #
         # @param opts [Hash]
         # @option opts [Rex::Socket::Tcp] :sock
-        # @return [Rex::Proto::Rmi::Model::ProtocolAck]
+        # @return [Rex::Proto::Rmi::Model::ProtocolAck] if success
+        # @return [NilClass] otherwise
         # @see Rex::Proto::Rmi::Model::ProtocolAck.decode
         def recv_protocol_ack(opts = {})
           nsock = opts[:sock] || sock
@@ -95,7 +97,8 @@ module Msf
         #
         # @param opts [Hash]
         # @option opts [Rex::Socket::Tcp] :sock
-        # @return [Rex::Java::Serialization::Stream]
+        # @return [Rex::Proto::Rmi::Model::ReturnValue] if success
+        # @return [NilClass] otherwise
         # @see Rex::Proto::Rmi::Model::ReturnData.decode
         def recv_return(opts = {})
           nsock = opts[:sock] || sock

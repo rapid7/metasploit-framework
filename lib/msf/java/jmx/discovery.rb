@@ -5,23 +5,23 @@ module Msf
     module Jmx
       # This module provides methods which help to handle JMX end points discovery
       module Discovery
-        # Builds a Rex::Java::Serialization::Model::Stream to discover
+        # Builds a Rex::Proto::Rmi::Model::Call to discover
         # an JMX RMI endpoint
         #
-        # @return [Rex::Java::Serialization::Model::Stream]
+        # @return [Rex::Proto::Rmi::Model::Call]
+        # @TODO it should be moved to a Registry mixin
         def discovery_stream
-          obj_id = "\x00" * 22 # Padding since there isn't an UnicastRef ObjId to use still
-
-          block_data = Rex::Java::Serialization::Model::BlockData.new(
-            nil,
-            "#{obj_id}\x00\x00\x00\x02\x44\x15\x4d\xc9\xd4\xe6\x3b\xdf"
+          call = build_call(
+            object_number: 0,
+            uid_number: 0,
+            uid_time: 0,
+            uid_count: 0,
+            operation: 2, # java.rmi.Remote lookup(java.lang.String)
+            hash: 0x44154dc9d4e63bdf, #ReferenceRegistryStub
+            arguments: [Rex::Java::Serialization::Model::Utf.new(nil, 'jmxrmi')]
           )
 
-          stream = Rex::Java::Serialization::Model::Stream.new
-          stream.contents << block_data
-          stream.contents << Rex::Java::Serialization::Model::Utf.new(nil, 'jmxrmi')
-
-          stream
+          call
         end
       end
     end

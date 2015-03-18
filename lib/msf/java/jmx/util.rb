@@ -13,14 +13,14 @@ module Msf
         # @param stream [Rex::Java::Serialization::Model::Stream] the stream to extract the object from
         # @param id [Fixnum] the content position storing the object
         # @return [Rex::Java::Serialization::Model::NewObject, nil] the extracted object if success, nil otherwise
-        def extract_object(stream, id)
-          new_object = nil
+        def extract_object(new_object)#stream, id)
+          #new_object = nil
 
-          if stream.contents[id]
-            new_object = stream.contents[id]
-          else
-            return nil
-          end
+          #if stream.contents[id]
+            #new_object = stream.contents[id]
+          #else
+            #return nil
+          #end
 
           unless new_object.class == Rex::Java::Serialization::Model::NewObject
             return nil
@@ -62,6 +62,20 @@ module Msf
           int
         end
 
+        # Extracts a long from an IO
+        #
+        # @param io [IO] the io to extract the long from
+        # @return [Fixnum, nil] the extracted int if success, nil otherwise
+        def extract_long(io)
+          int_raw = io.read(8)
+          unless int_raw && int_raw.length == 8
+            return nil
+          end
+          int = int_raw.unpack('q>')[0]
+
+          int
+        end
+
         # Extracts an UnicastRef (endpoint) information from an IO
         #
         # @param io [IO] the io to extract the int from
@@ -78,9 +92,10 @@ module Msf
           port = extract_int(io)
           return nil unless port
 
-          id = io.read
+          object_number = extract_long(io)
+          uid = Rex::Proto::Rmi::Model::UniqueIdentifier.decode(io)
 
-          { address: address, port: port, id: id }
+          { address: address, port: port, object_number: object_number, uid: uid }
         end
 
       end

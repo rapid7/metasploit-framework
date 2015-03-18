@@ -11,7 +11,33 @@ module Msf
         #
         # @param id [String] The endpoint UnicastRef ObjId
         # @return [Rex::Java::Serialization::Model::Stream]
-        def handshake_stream(obj_id)
+        def handshake_stream(opts = {})
+          object_number = opts[:object_number] || 0
+          uid_number = opts[:uid_number] || 0
+          uid_time = opts[:uid_time] || 0
+          uid_count = opts[:uid_count] || 0
+
+          arguments = []
+          if jmx_role
+            username = jmx_role
+            password = jmx_password || ''
+            arguments << auth_array_stream(username, password)
+          else
+            arguments << Rex::Java::Serialization::Model::NullReference.new
+          end
+
+          call = build_call(
+            object_number: object_number,
+            uid_number: uid_number,
+            uid_time: uid_time,
+            uid_count: uid_count,
+            operation: -1,
+            hash: -1089742558549201240,
+            arguments: arguments
+          )
+
+          call
+=begin
           block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{obj_id}\xff\xff\xff\xff\xf0\xe0\x74\xea\xad\x0c\xae\xa8")
 
           stream = Rex::Java::Serialization::Model::Stream.new
@@ -27,6 +53,7 @@ module Msf
           end
 
           stream
+=end
         end
 
         # Builds a Rex::Java::Serialization::Model::NewArray with credentials
