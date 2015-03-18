@@ -13,14 +13,7 @@ module Msf
         # @param stream [Rex::Java::Serialization::Model::Stream] the stream to extract the object from
         # @param id [Fixnum] the content position storing the object
         # @return [Rex::Java::Serialization::Model::NewObject, nil] the extracted object if success, nil otherwise
-        def extract_object(new_object)#stream, id)
-          #new_object = nil
-
-          #if stream.contents[id]
-            #new_object = stream.contents[id]
-          #else
-            #return nil
-          #end
+        def extract_object(new_object)
 
           unless new_object.class == Rex::Java::Serialization::Model::NewObject
             return nil
