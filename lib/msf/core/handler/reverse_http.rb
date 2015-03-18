@@ -158,6 +158,7 @@ module ReverseHttp
       'VirtualDirectory' => true)
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
+    lookup_proxy_settings
   end
 
   #
@@ -174,6 +175,43 @@ module ReverseHttp
   attr_accessor :service # :nodoc:
 
 protected
+
+  #
+  # Parses the proxy settings and returns a hash
+  #
+  def lookup_proxy_settings
+    info = {}
+    return @proxy_settings if @proxy_settings
+
+    if datastore['PROXY_HOST'].to_s == ""
+      @proxy_settings = info
+      return @proxy_settings
+    end
+
+    info[:host] = datastore['PROXY_HOST'].to_s
+    info[:port] = (datastore['PROXY_PORT'] || 8080).to_i
+    info[:type] = datastore['PROXY_TYPE'].to_s
+
+    if info[:port] == 80
+      info[:info] = info[:host]
+    else
+      info[:info] = "#{info[:host]}:#{info[:port]}"
+    end
+
+    if info[:type] == "HTTP"
+      info[:info] = "http://#{info[:info]}"
+      if datastore['PROXY_USERNAME'].to_s != ""
+        info[:username] = datastore['PROXY_USERNAME'].to_s
+      end
+      if datastore['PROXY_PASSWORD'].to_s != ""
+        info[:password] = datastore['PROXY_PASSWORD'].to_s
+      end
+    else
+      info[:info] = "socks=#{info[:info]}"
+    end
+
+    @proxy_settings = info
+  end
 
   #
   # Parses the HTTPS request
@@ -204,9 +242,8 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
-        unless datastore['PROXY_HOST'].blank?
-          proxy_url = "http://#{datastore['PROXY_HOST']}:#{datastore['PROXY_PORT']}"
-          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
+        if @proxy_settings[:host] && @proxy_settings[:type] == "HTTP"
+          blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(@proxy_settings[:info])}'")
         end
 
         resp.body = blob
