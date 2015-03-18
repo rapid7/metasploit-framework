@@ -256,8 +256,8 @@ module ReverseHopHttp
       :expiration     => datastore['SessionExpirationTimeout'],
       :comm_timeout   => datastore['SessionCommunicationTimeout'],
       :ua             => datastore['MeterpreterUserAgent'],
-      :proxyhost      => datastore['PayloadProxyHost'],
-      :proxyport      => datastore['PayloadProxyPort'],
+      :proxy_host     => datastore['PayloadProxyHost'],
+      :proxy_port     => datastore['PayloadProxyPort'],
       :proxy_type     => datastore['PayloadProxyType'],
       :proxy_username => datastore['PayloadProxyUser'],
       :proxy_password => datastore['PayloadProxyPass']
