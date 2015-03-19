@@ -312,6 +312,13 @@ class Payload < Msf::Module
   end
 
   #
+  # Generates the payload and returns the raw buffer to the caller,
+  # handling any post-processing tasks, such as prepended code stubs.
+  def generate_complete
+    apply_prepends(generate)
+  end
+
+  #
   # Substitutes variables with values from the module's datastore in the
   # supplied raw buffer for a given set of named offsets.  For instance,
   # RHOST is substituted with the RHOST value from the datastore which will
@@ -463,6 +470,13 @@ class Payload < Msf::Module
     }
 
     return nops
+  end
+
+  #
+  # A placeholder stub, to be overriden by mixins
+  #
+  def apply_prepends(raw)
+    raw
   end
 
   ##

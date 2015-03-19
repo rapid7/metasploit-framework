@@ -380,13 +380,20 @@ class Registry
   # Returns the integer value associated with the supplied registry value
   # type (like REG_SZ).
   #
+  # @see https://msdn.microsoft.com/en-us/library/windows/desktop/ms724884(v=vs.85).aspx
+  # @param type [String] A Windows registry type constant name, e.g. 'REG_SZ'
+  # @return [Integer] one of the `REG_*` constants
   def self.type2str(type)
-    return REG_SZ if (type == 'REG_SZ')
-    return REG_DWORD if (type == 'REG_DWORD')
-    return REG_BINARY if (type == 'REG_BINARY')
-    return REG_EXPAND_SZ if (type == 'REG_EXPAND_SZ')
-    return REG_NONE if (type == 'REG_NONE')
-    return nil
+    case type
+    when 'REG_BINARY'    then REG_BINARY
+    when 'REG_DWORD'     then REG_DWORD
+    when 'REG_EXPAND_SZ' then REG_EXPAND_SZ
+    when 'REG_MULTI_SZ'  then REG_MULTI_SZ
+    when 'REG_NONE'      then REG_NONE
+    when 'REG_SZ'        then REG_SZ
+    else
+      nil
+    end
   end
 
   #
