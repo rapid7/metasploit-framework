@@ -15,7 +15,14 @@ module Msf
                 return nil
               end
 
-              return_value.value[0].class_desc.description.class_name.contents
+              case return_value.value[0].class_desc.description
+              when Rex::Java::Serialization::Model::NewClassDesc
+                return return_value.value[0].class_desc.description.class_name.contents
+              when Rex::Java::Serialization::Model::ProxyClassDesc
+                return return_value.value[0].class_desc.description.interfaces[0].contents
+              else
+                return nil
+              end
             end
 
             def parse_registry_list(return_value)
