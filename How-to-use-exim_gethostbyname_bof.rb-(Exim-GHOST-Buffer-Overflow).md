@@ -21,6 +21,17 @@ http://ftp.cae.tntech.edu/debian-cd/dvd/debian-7.7.0-i386-DVD-1.iso
 
 * The attacker's IPv4 address must have both forward and reverse DNS entries that match each other (Forward-Confirmed reverse DNS). For testing purposes, you can also edit the server's /etc/hosts file to meet this requirement.
 
+## The check method
+
+The GHOST exploit module comes with a check method. It is explicit, which means the check will actually try to trigger the vulnerability to determine if the host is vulnerable or not.
+
+The check is also enforced when you use the "exploit" or "run" command. However, you can turn off the enforcement by setting the ```I_KNOW_WHAT_I_AM_DOING``` datastore option to true. For example:
+
+```
+set I_KNOW_WHAT_I_AM_DOING true
+run
+```
+
 ## Troubleshooting
 
 If the exim_gethostbyname_bof.rb module has failed on you:
