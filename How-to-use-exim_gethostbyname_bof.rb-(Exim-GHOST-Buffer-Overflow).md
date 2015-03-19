@@ -38,9 +38,9 @@ If the exim_gethostbyname_bof.rb module has failed on you:
 
 | Failure  | Explanation |
 | -------- | ----------- |
-| bad SENDER_HOST_ADDRESS (nil) | The SENDER_HOST_ADDRESS option was not specified |
-| bad SENDER_HOST_ADDRESS (not in IPv4 dotted-decimal notation) | The SENDER_HOST_ADDRESS option was specified, but not in IPv4 dotted-decimal notation |
-| bad SENDER_HOST_ADDRESS (helo_verify_hosts) | The SENDER_HOST_ADDRESS option does not match the IPv4 address of the SMTP client (Metasploit), as seen by the SMTP server (Exim). |
+| bad SENDER_HOST_ADDRESS (nil) | The SENDER_HOST_ADDRESS datastore option was not specified |
+| bad SENDER_HOST_ADDRESS (not in IPv4 dotted-decimal notation) | The SENDER_HOST_ADDRESS datastore option was specified, but not in IPv4 dotted-decimal notation |
+| bad SENDER_HOST_ADDRESS (helo_verify_hosts) | The SENDER_HOST_ADDRESS datastore option does not match the IPv4 address of the SMTP client (Metasploit), as seen by the SMTP server (Exim). |
 | bad SENDER_HOST_ADDRESS (no FCrDNS) | the IPv4 address of the SMTP client (Metasploit) has no Forward-Confirmed reverse DNS. |
 | not vuln? old glibc? (no leaked_arch) | the remote Exim server is either not vulnerable, or not exploitable (glibc versions older than glibc-2.6 have no fd_nextsize member in their malloc_chunk structure). |
 | NUL, CR, LF in addr? (no leaked_addr) | Exim's heap address contains bad characters (NUL, CR, LF) and was therefore mangled during the information leak; this exploit is able to reconstruct most of these addresses, but not all (worst-case probability is ~1/85, but could be further improved). |
