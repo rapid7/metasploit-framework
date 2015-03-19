@@ -118,13 +118,13 @@ module Rex
           patch_comm_timeout! blob, options[:comm_timeout]
           patch_ua! blob, options[:ua]
           patch_proxy!(blob,
-            options[:proxyhost],
-            options[:proxyport],
+            options[:proxy_host],
+            options[:proxy_port],
             options[:proxy_type]
           )
           patch_proxy_auth!(blob,
-            options[:proxy_username],
-            options[:proxy_password],
+            options[:proxy_user],
+            options[:proxy_pass],
             options[:proxy_type]
           )
 
