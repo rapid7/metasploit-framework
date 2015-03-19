@@ -38,6 +38,7 @@ If the exim_gethostbyname_bof.rb module has failed on you:
 
 ## References:
 
+* https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-0235
 * https://community.qualys.com/blogs/laws-of-vulnerabilities/2015/03/17/ghost-remote-code-execution-exploit
 * https://www.qualys.com/research/security-advisories/GHOST-CVE-2015-0235.txt?_ga=1.171218720.101498705.1426692159
 * https://www.qualys.com/research/security-advisories/GHOST-CVE-2015-0235.txt?_ga=1.136230833.101498705.1426692159
