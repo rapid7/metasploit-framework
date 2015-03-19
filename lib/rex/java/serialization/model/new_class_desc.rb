@@ -12,16 +12,16 @@ module Rex
           # @!attribute class_name
           #   @return [Rex::Java::Serialization::Model::Utf] The name of the class
           attr_accessor :class_name
-          # @!attribute name
-          #   @return [Integer] The java class serial version
+          # @!attribute serial_version
+          #   @return [Fixnum] The java class serial version
           attr_accessor :serial_version
           # @!attribute flags
-          #   @return [Integer] The java class flags
+          #   @return [Fixnum] The java class flags
           attr_accessor :flags
           # @!attribute fields
           #   @return [Array] The java class fields
           attr_accessor :fields
-          # @!attribute fields
+          # @!attribute class_annotation
           #   @return [Rex::Java::Serialization::Model::Annotation] The java class annotations
           attr_accessor :class_annotation
           # @!attribute super_class
@@ -39,7 +39,7 @@ module Rex
             self.super_class = nil
           end
 
-          # Deserializes a Rex::Java::Serialization::Model::ClassDescription
+          # Deserializes a Rex::Java::Serialization::Model::NewClassDesc
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
@@ -74,7 +74,6 @@ module Rex
             encoded = ''
             encoded << class_name.encode
             encoded << [serial_version].pack('Q>')
-            stream.add_reference(self) unless stream.nil?
             encoded << [flags].pack('C')
             encoded << [fields.length].pack('n')
             fields.each do |field|

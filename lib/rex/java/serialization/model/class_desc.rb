@@ -24,7 +24,7 @@ module Rex
           # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             content = decode_content(io, stream)
-            allowed_contents = [NullReference, NewClassDesc, Reference]
+            allowed_contents = [NullReference, NewClassDesc, Reference, ProxyClassDesc]
 
             unless allowed_contents.include?(content.class)
               raise ::RuntimeError, 'ClassDesc unserialize failed'
@@ -40,7 +40,7 @@ module Rex
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
             encoded = ''
-            allowed_contents = [NullReference, NewClassDesc, Reference]
+            allowed_contents = [NullReference, NewClassDesc, Reference, ProxyClassDesc]
 
             unless allowed_contents.include?(description.class)
               raise ::RuntimeError, 'Failed to serialize ClassDesc'

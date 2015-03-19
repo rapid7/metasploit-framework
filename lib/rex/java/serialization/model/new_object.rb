@@ -74,6 +74,8 @@ module Rex
             case class_desc.description
             when NewClassDesc
               str << class_desc.description.class_name.to_s
+            when ProxyClassDesc
+              str << class_desc.description.interfaces.collect { |iface| iface.contents }.join(',')
             when Reference
               str << (class_desc.description.handle - BASE_WIRE_HANDLE).to_s(16)
             end

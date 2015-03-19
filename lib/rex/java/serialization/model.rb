@@ -15,6 +15,7 @@ module Rex
         autoload :Field,          'rex/java/serialization/model/field'
         autoload :LongUtf,        'rex/java/serialization/model/long_utf'
         autoload :NewArray,       'rex/java/serialization/model/new_array'
+        autoload :ProxyClassDesc, 'rex/java/serialization/model/proxy_class_desc'
         autoload :NewClassDesc,   'rex/java/serialization/model/new_class_desc'
         autoload :NewEnum,        'rex/java/serialization/model/new_enum'
         autoload :NewObject,      'rex/java/serialization/model/new_object'

@@ -42,7 +42,7 @@ module Rex
             when TC_CLASSDESC
               content = NewClassDesc.decode(io, stream)
             when TC_PROXYCLASSDESC
-              raise ::RuntimeError, 'Failed to unserialize unsupported TC_PROXYCLASSDESC content'
+              content = ProxyClassDesc.decode(io, stream)
             when TC_REFERENCE
               content = Reference.decode(io, stream)
             when TC_NULL
@@ -87,6 +87,8 @@ module Rex
               encoded << [TC_ENUM].pack('C')
             when NewClassDesc
               encoded << [TC_CLASSDESC].pack('C')
+            when ProxyClassDesc
+              content = [TC_PROXYCLASSDESC].pack('C')
             when NullReference
               encoded << [TC_NULL].pack('C')
             when Reset
@@ -128,6 +130,8 @@ module Rex
             when NewEnum
               str << "#{print_class(content)} { #{content.to_s} }"
             when NewClassDesc
+              str << "#{print_class(content)} { #{content.to_s} }"
+            when ProxyClassDesc
               str << "#{print_class(content)} { #{content.to_s} }"
             when NullReference
               str << "#{print_class(content)}"
