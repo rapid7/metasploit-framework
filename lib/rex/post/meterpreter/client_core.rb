@@ -411,11 +411,11 @@ class ClientCore < Extension
         :expiration     => self.client.expiration,
         :comm_timeout   =>  self.client.comm_timeout,
         :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
-        :proxy_host     =>  client.exploit_datastore['PayloadProxyHost'],
-        :proxy_port     =>  client.exploit_datastore['PayloadProxyPort'],
-        :proxy_type     =>  client.exploit_datastore['PayloadProxyType'],
-        :proxy_user     =>  client.exploit_datastore['PayloadProxyUser'],
-        :proxy_pass     =>  client.exploit_datastore['PayloadProxyPass']
+        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
+        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
+        :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
+        :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
+        :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
 
     end
 

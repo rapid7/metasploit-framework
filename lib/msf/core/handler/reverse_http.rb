@@ -58,12 +58,18 @@ module ReverseHttp
       ], Msf::Handler::ReverseHttp)
   end
 
+  # Toggle for IPv4 vs IPv6 mode
+  #
+  def ipv6?
+    Rex::Socket.is_ipv6?(datastore['LHOST'])
+  end
+
   # Determine where to bind the server
   #
   # @return [String]
   def listener_address
-    if datastore['ReverseListenerBindAddress'].to_s == ""
-      bindaddr = Rex::Socket.is_ipv6?(datastore['LHOST']) ? '::' : '0.0.0.0'
+    if datastore['ReverseListenerBindAddress'].to_s.empty?
+      bindaddr = (ipv6?) ? '::' : '0.0.0.0'
     else
       bindaddr = datastore['ReverseListenerBindAddress']
     end
@@ -71,12 +77,14 @@ module ReverseHttp
     bindaddr
   end
 
-  # Return a URI suitable for placing in a payload
-  #
   # @return [String] A URI of the form +scheme://host:port/+
   def listener_uri
-    uri_host = Rex::Socket.is_ipv6?(listener_address) ? "[#{listener_address}]" : listener_address
-    "#{scheme}://#{uri_host}:#{datastore['LPORT']}/"
+    if ipv6?
+      listen_host = "[#{listener_address}]"
+    else
+      listen_host = listener_address
+    end
+    "#{scheme}://#{listen_host}:#{datastore['LPORT']}/"
   end
 
   # Return a URI suitable for placing in a payload.
@@ -150,7 +158,6 @@ module ReverseHttp
       'VirtualDirectory' => true)
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
-    lookup_proxy_settings
   end
 
   #
@@ -167,45 +174,6 @@ module ReverseHttp
   attr_accessor :service # :nodoc:
 
 protected
-
-  #
-  # Parses the proxy settings and returns a hash
-  #
-  def lookup_proxy_settings
-    info = {}
-    return @proxy_settings if @proxy_settings
-
-    if datastore['PayloadProxyHost'].to_s == ""
-      @proxy_settings = info
-      return @proxy_settings
-    end
-
-    info[:host] = datastore['PayloadProxyHost'].to_s
-    info[:port] = (datastore['PayloadProxyPort'] || 8080).to_i
-    info[:type] = datastore['PayloadProxyType'].to_s
-
-    uri_host = info[:host]
-
-    if Rex::Socket.is_ipv6?(uri_host)
-      uri_host = "[#{info[:host]}]"
-    end
-
-    info[:info] = "#{uri_host}:#{info[:port]}"
-
-    if info[:type] == "SOCKS"
-      info[:info] = "socks=#{info[:info]}"
-    else
-      info[:info] = "http://#{info[:info]}"
-      if datastore['PayloadProxyUser'].to_s != ""
-        info[:username] = datastore['PayloadProxyUser'].to_s
-      end
-      if datastore['PayloadProxyPass'].to_s != ""
-        info[:password] = datastore['PayloadProxyPass'].to_s
-      end
-    end
-
-    @proxy_settings = info
-  end
 
   #
   # Parses the HTTPS request
@@ -236,8 +204,8 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
 
-        unless datastore['PayloadProxyHost'].blank?
-          proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
+        unless datastore['PROXYHOST'].blank?
+          proxy_url = "http://#{datastore['PROXYHOST']}:#{datastore['PROXYPORT']}"
           blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
         end
 
@@ -300,11 +268,11 @@ protected
           :expiration     => datastore['SessionExpirationTimeout'],
           :comm_timeout   => datastore['SessionCommunicationTimeout'],
           :ua             => datastore['MeterpreterUserAgent'],
-          :proxy_host     => datastore['PayloadProxyHost'],
-          :proxy_port     => datastore['PayloadProxyPort'],
-          :proxy_type     => datastore['PayloadProxyType'],
-          :proxy_user     => datastore['PayloadProxyUser'],
-          :proxy_pass     => datastore['PayloadProxyPass']
+          :proxyhost      => datastore['PROXYHOST'],
+          :proxyport      => datastore['PROXYPORT'],
+          :proxy_type     => datastore['PROXY_TYPE'],
+          :proxy_username => datastore['PROXY_USERNAME'],
+          :proxy_password => datastore['PROXY_PASSWORD']
 
         resp.body = encode_stage(blob)
 
