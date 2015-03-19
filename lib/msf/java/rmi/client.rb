@@ -10,9 +10,11 @@ module Msf
 
         require 'msf/java/rmi/util'
         require 'msf/java/rmi/builder'
+        require 'msf/java/rmi/client/registry'
 
         include Msf::Java::Rmi::Util
         include Msf::Java::Rmi::Builder
+        include Msf::Java::Rmi::Client::Registry
         include Exploit::Remote::Tcp
 
         # Returns the target host
@@ -105,7 +107,7 @@ module Msf
           data = safe_get_once(nsock)
           begin
             return_data = Rex::Proto::Rmi::Model::ReturnData.decode(StringIO.new(data))
-          rescue ::RuntimeError
+          rescue ::RuntimeError => e
             return nil
           end
 

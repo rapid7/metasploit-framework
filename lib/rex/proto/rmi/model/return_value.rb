@@ -60,6 +60,18 @@ module Rex
             code == RETURN_EXCEPTION
           end
 
+          # The object returned in the returned value
+          #
+          # @return [String] the object class is the returned value is an object indeed
+          # @return [NilClass] otherwise
+          def object_name
+            unless value[0] && value[0].class == Rex::Java::Serialization::Model::NewObject
+              return nil
+            end
+
+            value[0].class_desc.description.class_name.contents
+          end
+
           private
 
           # Reads the return code from the IO
