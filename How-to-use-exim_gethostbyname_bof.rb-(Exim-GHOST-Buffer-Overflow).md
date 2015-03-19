@@ -19,7 +19,7 @@ http://ftp.cae.tntech.edu/debian-cd/dvd/debian-7.7.0-i386-DVD-1.iso
 
 **On the attacker's side:**
 
-* The attacker's IPv4 address must have both forward and reverse DNS entries that match each other (Forward-Confirmed reverse DNS). For testing purposes, you can also edit the server's /etc/hosts file to meet this requirement.
+* The attacker's IPv4 address must have both forward and reverse DNS entries that match each other (Forward-Confirmed reverse DNS).
 
 ## The check method
 
