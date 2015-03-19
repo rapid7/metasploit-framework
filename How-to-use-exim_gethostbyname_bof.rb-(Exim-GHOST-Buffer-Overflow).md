@@ -26,6 +26,15 @@ http://ftp.cae.tntech.edu/debian-cd/dvd/debian-7.7.0-i386-DVD-1.iso
 If the exim_gethostbyname_bof.rb module has failed on you:
 
 | Failure  | Explanation |
+| -------- | ----------- |
+| bad SENDER_HOST_ADDRESS (nil) | The SENDER_HOST_ADDRESS option was not specified |
+| bad SENDER_HOST_ADDRESS (not in IPv4 dotted-decimal notation) | The SENDER_HOST_ADDRESS option was specified, but not in IPv4 dotted-decimal notation |
+| bad SENDER_HOST_ADDRESS (helo_verify_hosts) | The SENDER_HOST_ADDRESS option does not match the IPv4 address of the SMTP client (Metasploit), as seen by the SMTP server (Exim). |
+| bad SENDER_HOST_ADDRESS (no FCrDNS) | the IPv4 address of the SMTP client (Metasploit) has no Forward-Confirmed reverse DNS. |
+| not vuln? old glibc? (no leaked_arch) | the remote Exim server is either not vulnerable, or not exploitable (glibc versions older than glibc-2.6 have no fd_nextsize member in their malloc_chunk structure). |
+| NUL, CR, LF in addr? (no leaked_addr) | Exim's heap address contains bad characters (NUL, CR, LF) and was therefore mangled during the information leak; this exploit is able to reconstruct most of these addresses, but not all (worst-case probability is ~1/85, but could be further improved). |
+| Brute-force SUCCESS" followed by a nil reply, but no shell | the remote Unix command was executed, but spawned a bind-shell or a reverse-shell that failed to connect (maybe because of a firewall, or a NAT, etc). |
+| Brute-force SUCCESS" followed by a non-nil reply, and no shell | The remote Unix command was executed, but failed to spawn the shell (maybe because the setsid command doesn't exist, or awk isn't gawk, or netcat doesn't support the -6 or -e option, or telnet doesn't support the -z option, etc). |
 
 ## References:
 
