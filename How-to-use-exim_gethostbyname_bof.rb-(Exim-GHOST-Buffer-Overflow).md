@@ -2,7 +2,7 @@ The Exim GHOST buffer overflow is a vulnerability found by researchers from Qual
 
 When Qualys released the exploit, it included a lot of technical details for debugging and usage purposes. We decided to put all that here in a more readable format.
 
-## What is "GHOST":
+## What is "GHOST"
 
 This is a heap based buffer overflow found in GNU C Library's **g**et**host**byname functions since glibc-2.2 (November 10, 2000), which is part of the Linux operating system, such as: Debian, Red Hat, CentOS, and Ubuntu.
 
@@ -10,7 +10,7 @@ This is a heap based buffer overflow found in GNU C Library's **g**et**host**byn
 
 **On the server-side (victim):**
 
-* glibc-2.6 - glibc-2.17. The exploit depends on the newer versions' fd_nextsize (a member of the malloc_chunk structure) to remotely obtain the address of Exim's smtp_cmd_buffer in the heap.
+* glibc-2.6 - glibc-2.17: The exploit depends on the newer versions' fd_nextsize (a member of the malloc_chunk structure) to remotely obtain the address of Exim's smtp_cmd_buffer in the heap.
 * Exim server. The first exploitable version is Exim-4.77, maybe older. The exploit depends on the newer versions' 16-KB smtp_cmd_buffer to reliably set up the heap as described in the advisory.
 * The Exim server also must enable helo_try_verify_hosts or helo_verify_hosts in the /etc/exim4/exim4.conf.template file. The "verify = helo" ACL might be exploitable too, but the attack vector isn't as reliable, therefore not supported by the module.
 
@@ -23,7 +23,10 @@ http://ftp.cae.tntech.edu/debian-cd/dvd/debian-7.7.0-i386-DVD-1.iso
 
 ## Troubleshooting
 
+If the exim_gethostbyname_bof.rb module has failed on you:
 
+| -------- | ----------- |
+| Failure  | Explanation |
 
 ## References:
 
