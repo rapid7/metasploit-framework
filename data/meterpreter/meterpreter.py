@@ -45,9 +45,11 @@ else:
 	if isinstance(__builtins__, dict):
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
 		str = lambda x: __builtins__['str'](x, 'UTF-8')
+		unicode = __builtins__['str']
 	else:
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
 		str = lambda x: __builtins__.str(x, 'UTF-8')
+		unicode = __builtins__.str
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
@@ -262,7 +264,9 @@ def tlv_pack(*args):
 		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
 	else:
 		value = tlv['value']
-		if not is_bytes(value):
+		if sys.version_info[0] < 3 and isinstance(value, unicode):
+			value = value.encode('UTF-8')
+		elif not is_bytes(value):
 			value = bytes(value, 'UTF-8')
 		if (tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
 			data = struct.pack('>II', 8 + len(value) + 1, tlv['type']) + value + NULL_BYTE
