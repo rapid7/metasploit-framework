@@ -13,15 +13,19 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Java RMI Registry Endpoint Information Gathering',
+      'Name'        => 'Java RMI Registry Interfaces Enumeration',
+      'Description'    => %q{
+        This module gathers information from an RMI endpoint running an RMI registry
+        interface. It enumerates the names bound into a registry and lookups each
+        remote reference.
+      },
       'Description' => 'Information gathering from Java RMI Registry endpoints',
-      'Author'     => ['juan vazquez'],
+      'Author'      => ['juan vazquez'],
       'License'     => MSF_LICENSE,
-      'References'     =>
+      'References'  =>
         [
-          [ 'URL', 'http://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmiTOC.html']
-        ],
-      'DisclosureDate' => 'Mar 18 2015'
+          ['URL', 'http://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmiTOC.html']
+        ]
     )
 
     register_options(
@@ -58,10 +62,27 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{peer} - #{names.length} names found in the Registry")
 
     names.each do |name|
-      object = send_registry_lookup(name: name)
-      next if object.nil?
-      print_good("#{peer} - name: #{name} remote object: #{object}")
-      #report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "#{name} / #{object}")
+      lookup_call = build_registry_lookup(name: name)
+      send_call(call: lookup_call)
+      return_value = recv_return
+      if return_value.nil?
+        print_error("#{peer} - Failed to lookup #{name}")
+        next
+      end
+
+      remote_stub = parse_registry_lookup(return_value)
+      if remote_stub.nil?
+        print_error("#{peer} - Failed to lookup #{name}")
+        next
+      end
+
+      location = parse_registry_lookup_endpoint(return_value)
+      if location.nil?
+        print_error("#{peer} - Failed to locate #{name} / #{remote_stub}")
+      end
+
+      print_good("#{peer} - Name #{name} (#{remote_stub}) found on #{location[:address]}:#{location[:port]}")
+      report_service(:host => location[:address], :port => location[:port], :name => 'java-rmi', :info => "Name: #{name}, Stub: #{remote_stub}")
     end
   end
 end

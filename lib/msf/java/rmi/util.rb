@@ -43,6 +43,53 @@ module Msf
 
           sha1.unpack('Q<')[0]
         end
+
+        # Extracts an string from an IO
+        #
+        # @param io [IO] the io to extract the string from
+        # @return [String, nil] the extracted string if success, nil otherwise
+        def extract_string(io)
+          raw_length = io.read(2)
+          unless raw_length && raw_length.length == 2
+            return nil
+          end
+          length = raw_length.unpack('s>')[0]
+
+          string = io.read(length)
+          unless string && string.length == length
+            return nil
+          end
+
+          string
+        end
+
+        # Extracts an int from an IO
+        #
+        # @param io [IO] the io to extract the int from
+        # @return [Fixnum, nil] the extracted int if success, nil otherwise
+        def extract_int(io)
+          int_raw = io.read(4)
+          unless int_raw && int_raw.length == 4
+            return nil
+          end
+          int = int_raw.unpack('l>')[0]
+
+          int
+        end
+
+        # Extracts a long from an IO
+        #
+        # @param io [IO] the io to extract the long from
+        # @return [Fixnum, nil] the extracted int if success, nil otherwise
+        def extract_long(io)
+          int_raw = io.read(8)
+          unless int_raw && int_raw.length == 8
+            return nil
+          end
+          int = int_raw.unpack('q>')[0]
+
+          int
+        end
       end
     end
   end
