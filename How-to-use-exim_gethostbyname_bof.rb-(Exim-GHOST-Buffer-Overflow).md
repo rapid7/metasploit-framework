@@ -4,7 +4,7 @@ When Qualys released the exploit, it included a lot of technical details for deb
 
 ## What is "GHOST":
 
-This is a heap based buffer overflow found in GNU C Library's gethostbyname functions since glibc-2.2 (November 10, 2000), which is part of the Linux operating system, such as: Debian, Red Hat, CentOS, and Ubuntu.
+This is a heap based buffer overflow found in GNU C Library's **g**et**host**byname functions since glibc-2.2 (November 10, 2000), which is part of the Linux operating system, such as: Debian, Red Hat, CentOS, and Ubuntu.
 
 ## Exploitable Requirements
 
