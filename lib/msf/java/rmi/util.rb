@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'rex/java/serialization'
 require 'rex/text'
+
 module Msf
   module Java
     module Rmi

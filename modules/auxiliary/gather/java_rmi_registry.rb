@@ -19,7 +19,6 @@ class Metasploit3 < Msf::Auxiliary
         interface. It enumerates the names bound into a registry and lookups each
         remote reference.
       },
-      'Description' => 'Information gathering from Java RMI Registry endpoints',
       'Author'      => ['juan vazquez'],
       'License'     => MSF_LICENSE,
       'References'  =>
@@ -62,27 +61,21 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{peer} - #{names.length} names found in the Registry")
 
     names.each do |name|
-      lookup_call = build_registry_lookup(name: name)
-      send_call(call: lookup_call)
-      return_value = recv_return
-      if return_value.nil?
+
+      remote_reference = send_registry_lookup(name: name)
+
+      if remote_reference.nil?
         print_error("#{peer} - Failed to lookup #{name}")
         next
       end
 
-      remote_stub = parse_registry_lookup(return_value)
-      if remote_stub.nil?
-        print_error("#{peer} - Failed to lookup #{name}")
-        next
-      end
-
-      location = parse_registry_lookup_endpoint(return_value)
-      if location.nil?
-        print_error("#{peer} - Failed to locate #{name} / #{remote_stub}")
-      end
-
-      print_good("#{peer} - Name #{name} (#{remote_stub}) found on #{location[:address]}:#{location[:port]}")
-      report_service(:host => location[:address], :port => location[:port], :name => 'java-rmi', :info => "Name: #{name}, Stub: #{remote_stub}")
+      print_good("#{peer} - Name #{name} (#{remote_reference[:object]}) found on #{remote_reference[:address]}:#{remote_reference[:port]}")
+      report_service(
+        :host => remote_reference[:address],
+        :port => remote_reference[:port],
+        :name => 'java-rmi',
+        :info => "Name: #{name}, Stub: #{remote_reference[:object]}"
+      )
     end
   end
 end

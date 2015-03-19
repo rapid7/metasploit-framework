@@ -6,6 +6,14 @@ module Msf
       module Client
         module Registry
           module Builder
+
+            # Builds an RMI call to java.rmi.registry.Registry.lookup() used to
+            # retrieve the remote reference bound to a name.
+            #
+            # @param opts [Hash]
+            # @option opts [String] :name the name to lookup
+            # @return [Rex::Proto::Rmi::Model::Call]
+            # @see Msf::Java::Rmi::Builder.build_call
             def build_registry_lookup(opts = {})
               object_number = opts[:object_number] || 0
               uid_number = opts[:uid_number] || 0
@@ -26,6 +34,12 @@ module Msf
               call
             end
 
+            # Builds an RMI call to java.rmi.registry.Registry.list() used to
+            # enumerate the names bound in a registry
+            #
+            # @param opts [Hash]
+            # @return [Rex::Proto::Rmi::Model::Call]
+            # @see Msf::Java::Rmi::Builder.build_call
             def build_registry_list(opts = {})
               object_number = opts[:object_number] || 0
               uid_number = opts[:uid_number] || 0
