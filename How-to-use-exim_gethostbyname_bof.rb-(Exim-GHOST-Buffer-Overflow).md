@@ -1,4 +1,4 @@
-The Exim GHOST buffer overflow is a vulnerability found by researchers from Qualys. On March 17th 2015, Qualys released an exploit module demonstrating the exploitability of this software flaw, which is now exim_gethostbyname_bof.rb in Metasploit Framework.
+The Exim GHOST buffer overflow is a vulnerability found by researchers from Qualys. On March 17th 2015, Qualys released an exploit module demonstrating the exploitability of this flaw, which is now exim_gethostbyname_bof.rb in Metasploit Framework.
 
 When Qualys released the exploit, it included a lot of technical details for debugging and usage purposes. We decided to put all that here in a more readable format.
 
