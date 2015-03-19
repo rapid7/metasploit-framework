@@ -41,18 +41,18 @@ if sys.version_info[0] < 3:
 	is_bytes = lambda obj: issubclass(obj.__class__, str)
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
+	unicode = lambda x: (x.decode('UTF-8') if isinstance(x, str) else x)
 else:
 	if isinstance(__builtins__, dict):
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
 		str = lambda x: __builtins__['str'](x, 'UTF-8')
-		unicode = __builtins__['str']
 	else:
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
 		str = lambda x: __builtins__.str(x, 'UTF-8')
-		unicode = __builtins__.str
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
+	unicode = lambda x: (x.decode('UTF-8') if isinstance(x, bytes) else x)
 
 #
 # Constants
@@ -264,7 +264,7 @@ def tlv_pack(*args):
 		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
 	else:
 		value = tlv['value']
-		if sys.version_info[0] < 3 and isinstance(value, unicode):
+		if sys.version_info[0] < 3 and isinstance(value, __builtins__['unicode']):
 			value = value.encode('UTF-8')
 		elif not is_bytes(value):
 			value = bytes(value, 'UTF-8')

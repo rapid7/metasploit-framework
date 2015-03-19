@@ -59,18 +59,18 @@ if sys.version_info[0] < 3:
 	is_bytes = lambda obj: issubclass(obj.__class__, str)
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
+	unicode = lambda x: (x.decode('UTF-8') if isinstance(x, str) else x)
 else:
 	if isinstance(__builtins__, dict):
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
 		str = lambda x: __builtins__['str'](x, 'UTF-8')
-		unicode = __builtins__['str']
 	else:
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__.str)
 		str = lambda x: __builtins__.str(x, 'UTF-8')
-		unicode = __builtins__.str
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
+	unicode = lambda x: (x.decode('UTF-8') if isinstance(x, bytes) else x)
 
 if has_ctypes:
 	#
@@ -925,25 +925,19 @@ def stdapi_sys_process_get_processes(request, response):
 @meterpreter.register_function
 def stdapi_fs_chdir(request, response):
 	wd = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
-	if sys.version_info[0] < 3:
-		wd = wd.decode('UTF-8')
-	os.chdir(wd)
+	os.chdir(unicode(wd))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
 def stdapi_fs_delete(request, response):
 	file_path = packet_get_tlv(request, TLV_TYPE_FILE_NAME)['value']
-	if sys.version_info[0] < 3:
-		file_path = file_path.decode('UTF-8')
-	os.unlink(file_path)
+	os.unlink(unicode(file_path))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
 def stdapi_fs_delete_dir(request, response):
 	dir_path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
-	if sys.version_info[0] < 3:
-		dir_path = dir_path.decode('UTF-8')
-	if os.path.islink(dir_path):
+	if os.path.islink(unicode(dir_path)):
 		del_func = os.unlink
 	else:
 		del_func = shutil.rmtree
@@ -953,9 +947,7 @@ def stdapi_fs_delete_dir(request, response):
 @meterpreter.register_function
 def stdapi_fs_delete_file(request, response):
 	file_path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	if sys.version_info[0] < 3:
-		file_path = file_path.decode('UTF-8')
-	os.unlink(file_path)
+	os.unlink(unicode(file_path))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -986,7 +978,11 @@ def stdapi_fs_file_move(request, response):
 
 @meterpreter.register_function
 def stdapi_fs_getwd(request, response):
-	response += tlv_pack(TLV_TYPE_DIRECTORY_PATH, os.getcwd())
+	if hasattr(os, 'getcwdu'):
+		wd = os.getcwdu()
+	else:
+		wd = os.getcwd()
+	response += tlv_pack(TLV_TYPE_DIRECTORY_PATH, wd)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -1066,7 +1062,7 @@ def stdapi_fs_sha1(request, response):
 @meterpreter.register_function
 def stdapi_fs_stat(request, response):
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	st_buf = get_stat_buffer(path)
+	st_buf = get_stat_buffer(unicode(path))
 	response += tlv_pack(TLV_TYPE_STAT_BUF, st_buf)
 	return ERROR_SUCCESS, response
 
