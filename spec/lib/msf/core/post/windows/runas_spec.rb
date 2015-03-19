@@ -14,10 +14,10 @@ describe Msf::Post::Windows::Runas do
 
   let(:advapi32) do
     advapi32 = double('advapi32')
-    advapi32.stub(:CreateProcessWithLogonW).and_return(
+    advapi32.stub(:CreateProcessWithLogonW).and_return({
                         'return' => true,
                         'lpProcessInformation' => process_info
-                     )
+    })
     advapi32.stub(:CreateProcessAsUserA).and_return ({
       'return' => true,
       'lpProcessInformation' => process_info
@@ -33,7 +33,7 @@ describe Msf::Post::Windows::Runas do
     double('kernel32', CloseHandle: nil)
   end
 
-  subject do
+  let(:subject) do
     mod = Module.new
     mod.extend described_class
     stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error ]
