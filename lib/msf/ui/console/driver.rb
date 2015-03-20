@@ -423,7 +423,7 @@ class Driver < Msf::Ui::Driver
     elsif ::File.readable?(path)
       resource_file = ::File.read(path)
     else
-      print_error "Cannot find resource script: #{path}"
+      print_error("Cannot find resource script: #{path}")
       return
     end
 
