@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'metasploit/framework/login_scanner/swg'
+require 'metasploit/framework/login_scanner/symantec_web_gateway'
 
 describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
 
