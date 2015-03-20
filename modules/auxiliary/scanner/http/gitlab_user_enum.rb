@@ -15,20 +15,20 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'        => 'GitLab User Enumeration',
-      'Description' => "
+      'Name'           => 'GitLab User Enumeration',
+      'Description'    => "
         The GitLab 'internal' API is exposed unauthenticated on GitLab. This
         allows the username for each SSH Key ID number to be retrieved. Users
         who do not have an SSH Key cannot be enumerated in this fashion. LDAP
         users, e.g. Active Directory users will also be returned. This issue
         was fixed in GitLab v7.5.0 and is present from GitLab v5.0.0.
       ",
-      'Author'      => 'Ben Campbell',
-      'License'     => MSF_LICENSE,
+      'Author'         => 'Ben Campbell',
+      'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Nov 21 2014',
-      'References'    =>
+      'References'     =>
         [
-          [ 'URL', 'https://labs.mwrinfosecurity.com/blog/2015/03/20/gitlab-user-enumeration/']
+          ['URL', 'https://labs.mwrinfosecurity.com/blog/2015/03/20/gitlab-user-enumeration/']
         ]
     ))
 
