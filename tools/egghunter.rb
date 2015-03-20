@@ -69,6 +69,7 @@ module Egghunter
         end
 
         opt.on('-a', '--arch <String>', "(Optional) Architecture") do |v|
+          # Although this is an option, this is currently useless because we don't have x64 egghunters
           options[:arch] = v
         end
 
