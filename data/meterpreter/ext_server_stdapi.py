@@ -632,7 +632,7 @@ def channel_open_stdapi_fs_file(request, response):
 		fmode = fmode.replace('bb', 'b')
 	else:
 		fmode = 'rb'
-	file_h = open(fpath, fmode)
+	file_h = open(unicode(fpath), fmode)
 	channel_id = meterpreter.add_channel(MeterpreterFile(file_h))
 	response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 	return ERROR_SUCCESS, response
@@ -937,7 +937,8 @@ def stdapi_fs_delete(request, response):
 @meterpreter.register_function
 def stdapi_fs_delete_dir(request, response):
 	dir_path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
-	if os.path.islink(unicode(dir_path)):
+	dir_path = unicode(dir_path)
+	if os.path.islink(dir_path):
 		del_func = os.unlink
 	else:
 		del_func = shutil.rmtree
@@ -973,7 +974,7 @@ def stdapi_fs_file_expand_path(request, response):
 def stdapi_fs_file_move(request, response):
 	oldname = packet_get_tlv(request, TLV_TYPE_FILE_NAME)['value']
 	newname = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	os.rename(oldname, newname)
+	os.rename(unicode(oldname), unicode(newname))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -988,8 +989,8 @@ def stdapi_fs_getwd(request, response):
 @meterpreter.register_function
 def stdapi_fs_ls(request, response):
 	path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
-	path = os.path.abspath(path)
-	dir_contents = os.listdir(unicode(path))
+	path = os.path.abspath(unicode(path))
+	dir_contents = os.listdir(path)
 	dir_contents.sort()
 	for file_name in dir_contents:
 		file_path = os.path.join(path, file_name)
@@ -1014,6 +1015,7 @@ def stdapi_fs_md5(request, response):
 @meterpreter.register_function
 def stdapi_fs_mkdir(request, response):
 	dir_path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
+	dir_path = unicode(dir_path)
 	if not os.path.isdir(dir_path):
 		os.mkdir(dir_path)
 	return ERROR_SUCCESS, response
@@ -1022,6 +1024,7 @@ def stdapi_fs_mkdir(request, response):
 def stdapi_fs_search(request, response):
 	search_root = packet_get_tlv(request, TLV_TYPE_SEARCH_ROOT).get('value', '.')
 	search_root = ('' or '.') # sometimes it's an empty string
+	search_root = unicode(search_root)
 	glob = packet_get_tlv(request, TLV_TYPE_SEARCH_GLOB)['value']
 	recurse = packet_get_tlv(request, TLV_TYPE_SEARCH_RECURSE)['value']
 	if recurse:
@@ -1033,7 +1036,7 @@ def stdapi_fs_search(request, response):
 				file_tlv += tlv_pack(TLV_TYPE_FILE_SIZE, os.stat(os.path.join(root, f)).st_size)
 				response += tlv_pack(TLV_TYPE_SEARCH_RESULTS, file_tlv)
 	else:
-		for f in filter(lambda f: fnmatch.fnmatch(f, glob), os.listdir(unicode(search_root))):
+		for f in filter(lambda f: fnmatch.fnmatch(f, glob), os.listdir(search_root)):
 			file_tlv  = ''
 			file_tlv += tlv_pack(TLV_TYPE_FILE_PATH, search_root)
 			file_tlv += tlv_pack(TLV_TYPE_FILE_NAME, f)
