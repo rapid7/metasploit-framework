@@ -18,7 +18,7 @@ module Rex
 
         # Replace the URL
         def self.patch_url!(blob, url)
-          patch_string!(blob, "https://#{"X" * 256}", url)
+          patch_string!(blob, "https://#{'X' * 512}", url)
         end
 
         # Replace the session expiration timeout
