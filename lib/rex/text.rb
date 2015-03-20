@@ -43,6 +43,8 @@ module Text
   LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
   Numerals     = "0123456789"
   Base32       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+  Base64       = UpperAlpha + LowerAlpha + Numerals + '+/'
+  Base64Url    = UpperAlpha + LowerAlpha + Numerals + '-_'
   Alpha        = UpperAlpha + LowerAlpha
   AlphaNumeric = Alpha + Numerals
   HighAscii    = [*(0x80 .. 0xff)].pack("C*")
@@ -1285,6 +1287,18 @@ module Text
   def self.rand_text_highascii(len, bad='')
     foo = []
     foo += (0x80 .. 0xff).map{ |c| c.chr }
+    rand_base(len, bad, *foo )
+  end
+
+  # Generate random bytes of base64 data
+  def self.rand_text_base64(len, bad='')
+    foo = Base64.unpack('C*').map{ |c| c.chr }
+    rand_base(len, bad, *foo )
+  end
+
+  # Generate random bytes of base64url data
+  def self.rand_text_base64url(len, bad='')
+    foo = Base64Url.unpack('C*').map{ |c| c.chr }
     rand_base(len, bad, *foo )
   end
 

@@ -54,7 +54,6 @@ module Msf
 
           # This allows 'random' strings to be used as markers for
           # the INIT and CONN request types, based on a checksum
-          uri_strip, uri_conn = uri_match.split('_', 2)
           uri_strip.sub!(/^\//, '')
           uri_check = Rex::Text.checksum8(uri_strip)
 
@@ -67,57 +66,46 @@ module Msf
             when URI_CHECKSUM_INITJ
               uri_match = "/INITJM"
             when URI_CHECKSUM_CONN
-              uri_match = "/CONN_" + ( uri_conn || Rex::Text.rand_text_alphanumeric(16) )
+              uri_match = "/CONN_" + ( uri_conn || Rex::Text.rand_text_base64url(16) )
           end
 
           uri_match
         end
 
-        # Create a URI that matches a given checksum
-        #
-        # @param sum [Fixnum] The checksum value you are trying to create a URI for
-        # @param len [Fixnum] An optional length value for the created URI
-        # @return [String] The URI string that checksums to the given value
-        def generate_uri_checksum(sum,len=nil)
-          return generate_uri_checksum_with_length(sum, len) if len
-
-          chk = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
-          32.times do
-            uri = Rex::Text.rand_text_alphanumeric(3)
-            chk.sort_by {rand}.each do |x|
-              return(uri + x) if Rex::Text.checksum8(uri + x) == sum
-            end
-          end
-
-          # Otherwise return one of the pre-calculated strings
-          return URI_CHECKSUM_PRECALC[sum]
-        end
-
         # Create an arbitrary length URI that matches a given checksum
         #
-        # @param sum [Fixnum] The checksum value you are trying to create a URI for
-        # @param len [Fixnum] The length of the created URI
+        # @param sum [Fixnum] The checksum value that the generated URI should match
+        # @param len [Fixnum] The length of the URI to generate
+        # @param prefix [String] The optional prefix to use to build the URI
         # @return [String] The URI string that checksums to the given value
-        def generate_uri_checksum_with_length(sum, len)
+        def generate_uri_checksum(sum, len=5, prefix="")
+
           # Lengths shorter than 4 bytes are unable to match all possible checksums
           # Lengths of exactly 4 are relatively slow to find for high checksum values
           # Lengths of 5 or more bytes find a matching checksum fairly quickly (~80ms)
-          raise ArgumentError, "Length must be 5 bytes or greater" if len < 5
+          if len < 5
+            raise ArgumentError, "Length must be 5 bytes or greater"
+          end
 
-          # Funny enough, this was more efficient than calculating checksum offsets
-          if len < 40
+          gen_len = len-prefix.length
+          if gen_len < 5
+            raise ArgumentError, "Prefix must be at least 5 bytes smaller than total length"
+          end
+
+          # Brute force a matching checksum for shorter URIs
+          if gen_len < 40
             loop do
-              uri = Rex::Text.rand_text_alphanumeric(len)
+              uri = prefix + Rex::Text.rand_text_base64url(gen_len)
               return uri if Rex::Text.checksum8(uri) == sum
             end
           end
 
-          # The rand_text_alphanumeric() method becomes a bottleneck at around 40 bytes
+          # The rand_text_base64url() method becomes a bottleneck at around 40 bytes
           # Calculating a static prefix flattens out the average runtime for longer URIs
-          prefix = Rex::Text.rand_text_alphanumeric(len-20)
+          prefix << Rex::Text.rand_text_base64url(gen_len-20)
 
           loop do
-            uri = prefix + Rex::Text.rand_text_alphanumeric(20)
+            uri = prefix + Rex::Text.rand_text_base64url(20)
             return uri if Rex::Text.checksum8(uri) == sum
           end
         end
