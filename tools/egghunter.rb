@@ -30,12 +30,36 @@ module Egghunter
           options[:badchars] = v
         end
 
-        opt.on('-e', '--egg <String>', "Egg") do |v|
+        opt.on('-e', '--egg <String>', "The egg (Please give 4 bytes)") do |v|
           options[:eggtag] = v
         end
 
         opt.on('-p', '--platform <String>', "(Optional) Platform") do |v|
           options[:platform] = v
+        end
+
+        opt.on('--startreg <String>', "(Optional) The starting register") do |v|
+          options[:startreg] = v
+        end
+
+        opt.on('--forward', "(Optional) To search forward") do |v|
+          options[:startreg] = true
+        end
+
+        opt.on('--depreg <String>', "(Optional) The DEP register") do |v|
+          options[:depreg] = v
+        end
+
+        opt.on('--depdest <String>', "(Optional) The DEP destination") do |v|
+          options[:depdest] = v
+        end
+
+        opt.on('--depsize <Fixnum>', "(Optional) The DEP size") do |v|
+          options[:depsize] = v
+        end
+
+        opt.on('--depmethod <String>', "(Optional) The DEP method to use (virtualprotect/virtualalloc/copy/copy_size)") do |v|
+          options[:depmethod] = v
         end
 
         opt.on('-a', '--arch <String>', "(Optional) Architecture") do |v|
@@ -62,6 +86,8 @@ module Egghunter
         raise OptionParser::InvalidOption, "#{options[:format]} is not a valid format"
       elsif options[:eggtag].blank?
         raise OptionParser::MissingArgument, '-e is required'
+      elsif options[:depsize] && options[:depsize] =~ /^\d+$/
+        raise OptionParser::InvalidOption, "--depsize must be a Fixnum"
       end
 
       options
