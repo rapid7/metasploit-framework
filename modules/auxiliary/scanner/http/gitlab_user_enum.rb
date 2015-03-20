@@ -25,7 +25,11 @@ class Metasploit3 < Msf::Auxiliary
       ",
       'Author'      => 'Ben Campbell',
       'License'     => MSF_LICENSE,
-      'DisclosureDate' => 'Nov 21 2014'
+      'DisclosureDate' => 'Nov 21 2014',
+      'References'    =>
+        [
+          [ 'URL', 'https://labs.mwrinfosecurity.com/blog/2015/03/20/gitlab-user-enumeration/']
+        ]
     ))
 
     register_options(
