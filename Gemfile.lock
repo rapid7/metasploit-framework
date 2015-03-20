@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/rapid7/metasploit_data_models.git
-  revision: a077ac0b6e5d939da9e1b8f017bd3780aac07ef9
-  branch: feature/MSP-11925/move-automatic-expoitation-factories
+  revision: 76d57173e5b7d7ecb79e0d2da20b89abc47dee94
+  branch: staging/single-vuln-push
   specs:
-    metasploit_data_models (0.23.2.pre.move.pre.automatic.pre.expoitation.pre.factories)
+    metasploit_data_models (0.23.2.pre.automatic.pre.exploitation.pre.migration)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
