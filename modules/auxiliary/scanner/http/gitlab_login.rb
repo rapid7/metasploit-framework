@@ -15,10 +15,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'GitLab Login Utility',
-      'Description'    => 'This module attempts to login to a GitLab instance using a specific user/pass.',
-      'Author'         => [ 'Ben Campbell' ],
-      'License'        => MSF_LICENSE
+      'Name'        => 'GitLab Login Utility',
+      'Description' => 'This module attempts to login to a GitLab instance using a specific user/pass.',
+      'Author'      => [ 'Ben Campbell' ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          ['URL', 'https://labs.mwrinfosecurity.com/blog/2015/03/20/gitlab-user-enumeration/']
+        ]
     )
 
     register_options(
