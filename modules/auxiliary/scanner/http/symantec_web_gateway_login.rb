@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'metasploit/framework/login_scanner/swg'
+require 'metasploit/framework/login_scanner/symantec_web_gateway'
 require 'metasploit/framework/credential_collection'
 
 class Metasploit3 < Msf::Auxiliary
