@@ -39,26 +39,32 @@ module Egghunter
         end
 
         opt.on('--startreg <String>', "(Optional) The starting register") do |v|
+          # Do not change this key. This should matching the one in Rex::Exploitation::Egghunter
           options[:startreg] = v
         end
 
         opt.on('--forward', "(Optional) To search forward") do |v|
+          # Do not change this key. This should matching the one in Rex::Exploitation::Egghunter
           options[:startreg] = true
         end
 
         opt.on('--depreg <String>', "(Optional) The DEP register") do |v|
+          # Do not change this key. This should matching the one in Rex::Exploitation::Egghunter
           options[:depreg] = v
         end
 
         opt.on('--depdest <String>', "(Optional) The DEP destination") do |v|
+          # Do not change this key. This should matching the one in Rex::Exploitation::Egghunter
           options[:depdest] = v
         end
 
         opt.on('--depsize <Fixnum>', "(Optional) The DEP size") do |v|
+          # Do not change this key. This should matching the one in Rex::Exploitation::Egghunter
           options[:depsize] = v
         end
 
         opt.on('--depmethod <String>', "(Optional) The DEP method to use (virtualprotect/virtualalloc/copy/copy_size)") do |v|
+          # Do not change this key. This should matching the one in Rex::Exploitation::Egghunter
           options[:depmethod] = v
         end
 
