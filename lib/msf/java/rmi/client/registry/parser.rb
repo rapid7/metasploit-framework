@@ -10,7 +10,7 @@ module Msf
             # Parses a java.rmi.registry.Registry.lookup() return value to find out
             # the remote object bound.
             #
-            # @param return_value [Rex::Java::Serialization::Model::ReturnValue]
+            # @param return_value [Rex::Proto::Rmi::Model::ReturnValue]
             # @return [String, NilClass] The remote object name if success, nil otherwise
             def parse_registry_lookup(return_value)
               if return_value.nil? || return_value.is_exception?
