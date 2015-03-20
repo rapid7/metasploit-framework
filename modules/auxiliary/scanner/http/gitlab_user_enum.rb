@@ -46,7 +46,12 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res && res.code == 200 && res.body
-      version = JSON.parse(res.body)
+      begin
+        version = JSON.parse(res.body)
+      rescue JSON::ParserError
+        fail_with(Failure::Unknown, 'Failed to parse banner version from JSON')
+      end
+
       git_version = version['gitlab_version']
       git_revision = version['gitlab_rev']
       print_good("GitLab version: #{git_version} revision: #{git_revision}")
