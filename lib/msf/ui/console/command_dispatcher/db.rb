@@ -224,7 +224,7 @@ class Db
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
         framework.db.hosts.update(id, :info => data)
-        framework.db.report_note({:host=>ip, :type=>'host.info', :note=>data})
+        framework.db.report_note(:host => ip, :type => 'host.info', :note => data)
       end
     end
   end
@@ -234,7 +234,7 @@ class Db
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
         framework.db.hosts.update(id, :name => data)
-        framework.db.report_note({:host=>ip, :type=>'host.name', :note=>data})
+        framework.db.report_note(:host => ip, :type => 'host.name', :note => data)
       end
     end
   end
@@ -244,7 +244,7 @@ class Db
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
         framework.db.hosts.update(id, :comments => data)
-        framework.db.report_note({:host=>ip, :type=>'host.comments', :note=>data})
+        framework.db.report_note(:host => ip, :type => 'host.comments', :note => data)
       end
     end
   end
