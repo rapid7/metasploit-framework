@@ -63,6 +63,7 @@ module Metasploit
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
           cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => self}, ssl, ssl_version, proxies)
+          configure_http_client(cli)
           cli.connect
           req = cli.request_raw(opts)
           res = cli.send_recv(req)

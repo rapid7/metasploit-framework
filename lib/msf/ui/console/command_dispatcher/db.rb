@@ -219,6 +219,36 @@ class Db
     cmd_hosts("-h")
   end
 
+  def change_host_info(rws, data)
+    rws.each do |rw|
+      rw.each do |ip|
+        id = framework.db.get_host(:address => ip).id
+        framework.db.hosts.update(id, :info => data)
+        framework.db.report_note(:host => ip, :type => 'host.info', :data => data)
+      end
+    end
+  end
+
+  def change_host_name(rws, data)
+    rws.each do |rw|
+      rw.each do |ip|
+        id = framework.db.get_host(:address => ip).id
+        framework.db.hosts.update(id, :name => data)
+        framework.db.report_note(:host => ip, :type => 'host.name', :data => data)
+      end
+    end
+  end
+
+  def change_host_comment(rws, data)
+    rws.each do |rw|
+      rw.each do |ip|
+        id = framework.db.get_host(:address => ip).id
+        framework.db.hosts.update(id, :comments => data)
+        framework.db.report_note(:host => ip, :type => 'host.comments', :data => data)
+      end
+    end
+  end
+
   def cmd_hosts(*args)
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
@@ -266,7 +296,15 @@ class Db
         set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
-
+      when '-i', '--info'
+        mode = :new_info
+        info_data = args.shift
+      when '-n', '--name'
+        mode = :new_name
+        name_data = args.shift
+      when '-m', '--comment'
+        mode = :new_comment
+        comment_data = args.shift
       when '-h','--help'
         print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
         print_line
@@ -279,6 +317,9 @@ class Db
         print_line "  -o <file>         Send output to a file in csv format"
         print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
         print_line "  -S,--search       Search string to filter by"
+        print_line "  -i,--info         Change the info of a host"
+        print_line "  -n,--name         Change the name of a host"
+        print_line "  -m,--comment      Change the comment of a host"
         print_line
         print_line "Available columns: #{default_columns.join(", ")}"
         print_line
@@ -316,6 +357,18 @@ class Db
 
     # Sentinal value meaning all
     host_ranges.push(nil) if host_ranges.empty?
+
+    case mode
+    when :new_info
+      change_host_info(host_ranges, info_data)
+      return
+    when :new_name
+      change_host_name(host_ranges, name_data)
+      return
+    when :new_comment
+      change_host_comment(host_ranges, comment_data)
+      return
+    end
 
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
@@ -674,6 +727,7 @@ class Db
     print_line "General options"
     print_line "  -h,--help             Show this help information"
     print_line "  -o <file>             Send output to a file in csv format"
+    print_line "  -d                    Delete one or more credentials"
     print_line
     print_line "Filter options for listing"
     print_line "  -P,--password <regex> List passwords that match this regex"
@@ -700,6 +754,11 @@ class Db
     print_line "  creds add-password bob '' contosso"
     print_line "  # Add a user with an SSH key"
     print_line "  creds add-ssh-key root /root/.ssh/id_rsa"
+    print_line
+
+    print_line "Example, deleting:"
+    print_line "  # Delete all SMB credentials"
+    print_line "  creds -d -s smb"
     print_line
   end
 
@@ -1681,12 +1740,12 @@ class Db
     return if not db_check_driver
 
     if framework.db.connection_established?
-      cdb = ""
-      ::ActiveRecord::Base.connection_pool.with_connection { |conn|
-        if conn.respond_to? :current_database
+      cdb = ''
+      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
           cdb = conn.current_database
         end
-      }
+      end
       print_status("#{framework.db.driver} connected to #{cdb}")
     else
       print_status("#{framework.db.driver} selected, no connection")
@@ -1700,6 +1759,17 @@ class Db
 
   def cmd_db_connect(*args)
     return if not db_check_driver
+    if args[0] != '-h' && framework.db.connection_established?
+      cdb = ''
+      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
+          cdb = conn.current_database
+        end
+      end
+      print_error("#{framework.db.driver} already connected to #{cdb}")
+      print_error('Run db_disconnect first if you wish to connect to a different database')
+      return
+    end
     if (args[0] == "-y")
       if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
         print_error("File not found")

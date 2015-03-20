@@ -76,8 +76,11 @@ module Msf
         # Create a URI that matches a given checksum
         #
         # @param sum [Fixnum] The checksum value you are trying to create a URI for
+        # @param len [Fixnum] An optional length value for the created URI
         # @return [String] The URI string that checksums to the given value
-        def generate_uri_checksum(sum)
+        def generate_uri_checksum(sum,len=nil)
+          return generate_uri_checksum_with_length(sum, len) if len
+
           chk = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
           32.times do
             uri = Rex::Text.rand_text_alphanumeric(3)
@@ -88,6 +91,35 @@ module Msf
 
           # Otherwise return one of the pre-calculated strings
           return URI_CHECKSUM_PRECALC[sum]
+        end
+
+        # Create an arbitrary length URI that matches a given checksum
+        #
+        # @param sum [Fixnum] The checksum value you are trying to create a URI for
+        # @param len [Fixnum] The length of the created URI
+        # @return [String] The URI string that checksums to the given value
+        def generate_uri_checksum_with_length(sum, len)
+          # Lengths shorter than 4 bytes are unable to match all possible checksums
+          # Lengths of exactly 4 are relatively slow to find for high checksum values
+          # Lengths of 5 or more bytes find a matching checksum fairly quickly (~80ms)
+          raise ArgumentError, "Length must be 5 bytes or greater" if len < 5
+
+          # Funny enough, this was more efficient than calculating checksum offsets
+          if len < 40
+            loop do
+              uri = Rex::Text.rand_text_alphanumeric(len)
+              return uri if Rex::Text.checksum8(uri) == sum
+            end
+          end
+
+          # The rand_text_alphanumeric() method becomes a bottleneck at around 40 bytes
+          # Calculating a static prefix flattens out the average runtime for longer URIs
+          prefix = Rex::Text.rand_text_alphanumeric(len-20)
+
+          loop do
+            uri = prefix + Rex::Text.rand_text_alphanumeric(20)
+            return uri if Rex::Text.checksum8(uri) == sum
+          end
         end
 
       end

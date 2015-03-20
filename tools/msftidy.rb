@@ -237,7 +237,7 @@ class Msftidy
 
   def check_comment_splat
     if @source =~ /^# This file is part of the Metasploit Framework and may be subject to/
-      warn("Module contains old license comment, use tools/dev/resplat.rb <filename>.")
+      warn("Module contains old license comment.")
     end
   end
 

@@ -9,6 +9,7 @@ describe Msf::Handler::ReverseHttp::UriChecksum do
   subject(:dummy_object) { DummyClass.new }
 
   it { should respond_to :generate_uri_checksum}
+  it { should respond_to :generate_uri_checksum_with_length}
   it { should respond_to :process_uri_resource}
 
   describe '#generate_uri_checksum' do
@@ -26,6 +27,18 @@ describe Msf::Handler::ReverseHttp::UriChecksum do
       end
 
     end
+  end
+
+  describe '#generate_uri_checksum_with_length' do
+    [0, 80, 88, 90, 92, 98, 255, 127].each do |checksum_value|
+      [5,30,50,100,127].each do |uri_length|
+        it "generates a #{uri_length} byte string that checksums back to the original value (#{checksum_value})" do
+          uri_string = dummy_object.generate_uri_checksum_with_length(checksum_value, uri_length)
+          expect(Rex::Text.checksum8(uri_string)).to eq checksum_value
+        end
+      end
+    end
+
   end
 
   describe '#process_uri_resource' do
