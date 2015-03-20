@@ -391,6 +391,9 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -o <file>         Send output to a file in csv format",
           "  -R,--rhosts       Set RHOSTS from the results of the search",
           "  -S,--search       Search string to filter by",
+          "  -i,--info         Change the info of a host",
+          "  -n,--name         Change the name of a host",
+          "  -m,--comment      Change the comment of a host",
           "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count"
         ]
       end
