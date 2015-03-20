@@ -63,41 +63,49 @@ module Msf::Payload::UUID
   }
 
   #
-  # Generate a raw 12-byte payload UUID given a seed, platform, and architecture
+  # Generate a raw 16-byte payload UUID given a seed, platform, architecture, and timestamp
   #
   # @options opts [String] :seed A optional string to use for generated the unique payload ID, deterministic
   # @options opts [String] :arch The hardware architecture for this payload
   # @options opts [String] :platform The operating system platform for this payload
+  # @options opts [String] :timestamp The timestamp in UTC Unix epoch format
   #
   def self.payload_uuid_generate_raw(opts={})
-    plat_id = opts[:platform] ? find_platform_id(opts[:platform]) : 0
-    arch_id = opts[:arch]     ? find_architecture_id(opts[:arch]) : 0
+    plat_id = find_platform_id(opts[:platform]) || 0
+    arch_id = find_architecture_id(opts[:arch]) || 0
     seed    = opts[:seed] || Rex::Text.rand_text(16)
+    tstamp  = opts[:timestamp] || Time.now.utc.to_i
 
     plat_xor = rand(255)
     arch_xor = rand(255)
 
+    # Recycle the previous two XOR bytes to keep our output small
+    time_xor = [plat_xor, arch_xor, plat_xor, arch_xor].pack('C4').unpack('N').first
+
     # Combine the last 64-bits of the SHA1 of seed with the arch/platform
-    # Use XOR to obscure the platform and architecture IDs
+    # Use XOR to obscure the platform, architecture, and timestamp
     Rex::Text.sha1_raw(seed)[12,8] +
       [
         plat_xor, arch_xor,
         plat_xor ^ plat_id,
-        arch_xor ^ arch_id
-      ].pack('C*')
+        arch_xor ^ arch_id,
+        time_xor ^ tstamp
+      ].pack('C4N')
   end
 
   #
-  # Parse a raw 12-byte payload UUID and return the payload ID, platform, and architecture
+  # Parse a raw 16-byte payload UUID and return the payload ID, platform, architecture, and timestamp
   #
-  # @param raw [String] The raw 12-byte payload UUID to parse
-  # @return [Array] The Payload ID, platform, and architecture
+  # @param raw [String] The raw 16-byte payload UUID to parse
+  # @return [Array] The Payload ID, platform, architecture, and timestamp
   #
   def self.payload_uuid_parse_raw(raw)
-    puid, plat_xor, arch_xor, plat_id, arch_id = raw.unpack('A8C4')
-    plat = find_platform_name(plat_xor ^ plat_id)
-    arch = find_architecture_name(arch_xor ^ arch_id)
-    [puid, plat, arch]
+    puid, plat_xor, arch_xor, plat_id, arch_id, tstamp = raw.unpack('A8C4N')
+    plat     = find_platform_name(plat_xor ^ plat_id)
+    arch     = find_architecture_name(arch_xor ^ arch_id)
+    time_xor = [plat_xor, arch_xor, plat_xor, arch_xor].pack('C4').unpack('N').first
+    time     = time_xor ^ tstamp
+    [puid, plat, arch, time]
   end
 
   # Alias for the class method
