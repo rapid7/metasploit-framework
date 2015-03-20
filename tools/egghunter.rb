@@ -82,10 +82,10 @@ module Egghunter
         raise OptionParser::MissingArgument, 'No options set, try -h for usage'
       elsif options[:format].blank? && !options[:list_formats]
         raise OptionParser::MissingArgument, '-f is required'
+      elsif options[:eggtag].blank? && !options[:list_formats]
+        raise OptionParser::MissingArgument, '-e is required'
       elsif options[:format] && !::Msf::Simple::Buffer.transform_formats.include?(options[:format])
         raise OptionParser::InvalidOption, "#{options[:format]} is not a valid format"
-      elsif options[:eggtag].blank?
-        raise OptionParser::MissingArgument, '-e is required'
       elsif options[:depsize] && options[:depsize] =~ /^\d+$/
         raise OptionParser::InvalidOption, "--depsize must be a Fixnum"
       end
