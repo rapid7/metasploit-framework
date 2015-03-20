@@ -140,9 +140,6 @@ if __FILE__ == $PROGRAM_NAME
   driver = Egghunter::Driver.new
   begin
     driver.run
-  rescue Interrupt
-    $stdout.puts
-    $stdout.puts "Good bye"
   rescue ::Exception => e
     elog("#{e.class}: #{e.message}\n#{e.backtrace * "\n"}")
     $stderr.puts "[x] #{e.class}: #{e.message}"
