@@ -264,7 +264,7 @@ def tlv_pack(*args):
 		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
 	else:
 		value = tlv['value']
-		if sys.version_info[0] < 3 and isinstance(value, __builtins__['unicode']):
+		if sys.version_info[0] < 3 and value.__class__.__name__ == 'unicode':
 			value = value.encode('UTF-8')
 		elif not is_bytes(value):
 			value = bytes(value, 'UTF-8')
@@ -394,7 +394,8 @@ class PythonMeterpreter(object):
 
 	def driver_init_http(self):
 		if HTTP_PROXY:
-			proxy_handler = urllib.ProxyHandler({'http': HTTP_PROXY})
+			scheme = HTTP_CONNECTION_URL.split(':', 1)[0]
+			proxy_handler = urllib.ProxyHandler({scheme: HTTP_PROXY})
 			opener = urllib.build_opener(proxy_handler)
 		else:
 			opener = urllib.build_opener()
