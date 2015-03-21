@@ -8,7 +8,7 @@ require 'rex/text'
 # This module provides methods for calculating, extracting, and parsing
 # unique ID values used by payloads.
 #
-module Msf::Payload::UUID
+class Msf::Payload::UUID
 
   Architectures = {
      0 => nil,
@@ -62,6 +62,9 @@ module Msf::Payload::UUID
     23 => 'firefox'
   }
 
+  RawLength = 16
+  UriLength = 22
+
   #
   # Generate a raw 16-byte payload UUID given a seed, platform, architecture, and timestamp
   #
@@ -69,6 +72,7 @@ module Msf::Payload::UUID
   # @options opts [String] :arch The hardware architecture for this payload
   # @options opts [String] :platform The operating system platform for this payload
   # @options opts [String] :timestamp The timestamp in UTC Unix epoch format
+  # @return [String] The encoded payoad UUID as a binary string
   #
   def self.payload_uuid_generate_raw(opts={})
     plat_id = find_platform_id(opts[:platform]) || 0
@@ -97,7 +101,7 @@ module Msf::Payload::UUID
   # Parse a raw 16-byte payload UUID and return the payload ID, platform, architecture, and timestamp
   #
   # @param raw [String] The raw 16-byte payload UUID to parse
-  # @return [Array] The Payload ID, platform, architecture, and timestamp
+  # @return [Hash] A hash containing the Payload ID, platform, architecture, and timestamp
   #
   def self.payload_uuid_parse_raw(raw)
     puid, plat_xor, arch_xor, plat_id, arch_id, tstamp = raw.unpack('A8C4N')
@@ -105,7 +109,7 @@ module Msf::Payload::UUID
     arch     = find_architecture_name(arch_xor ^ arch_id)
     time_xor = [plat_xor, arch_xor, plat_xor, arch_xor].pack('C4').unpack('N').first
     time     = time_xor ^ tstamp
-    [puid, plat, arch, time]
+    { puid: puid, platform: plat, arch: arch, timestamp: time }
   end
 
   # Alias for the class method
@@ -133,6 +137,7 @@ module Msf::Payload::UUID
   end
 
   def self.find_architecture_id(name)
+    name = name.first if name.kind_of? ::Array
     Architectures.keys.select{ |k|
       Architectures[k] == name
     }.first || Architectures[0]

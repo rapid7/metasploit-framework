@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+
+require 'msf/core/payload/uuid'
+
 module Msf
   module Handler
     module ReverseHttp
@@ -9,67 +12,85 @@ module Msf
         # These are based on charset frequency
         #
         URI_CHECKSUM_INITW = 92 # Windows
+        URI_CHECKSUM_INITN = 92 # Native (same as Windows)
         URI_CHECKSUM_INITP = 80 # Python
         URI_CHECKSUM_INITJ = 88 # Java
-        URI_CHECKSUM_CONN  = 98
+        URI_CHECKSUM_CONN  = 98 # Existing session
 
-        #
-        # Precalculated checkums as fallback
-        #
-        URI_CHECKSUM_PRECALC = [
-            "Zjjaq", "pIlfv", "UvoxP", "sqnx9", "zvoVO", "Pajqy", "7ziuw", "vecYp", "yfHsn", "YLzzp",
-            "cEzvr", "abmri", "9tvwr", "vTarp", "ocrgc", "mZcyl", "xfcje", "nihqa", "40F17", "zzTWt",
-            "E3192", "wygVh", "pbqij", "rxdVs", "ajtsf", "wvuOh", "hwRwr", "pUots", "rvzoK", "vUwby",
-            "tLzyk", "zxbuV", "niaoy", "ukxtU", "vznoU", "zuxyC", "ymvag", "Jxtxw", "404KC", "DE563",
-            "0A7G9", "yorYv", "zzuqP", "czhwo", "949N8", "a1560", "5A2S3", "Q652A", "KR201", "uixtg",
-            "U0K02", "4EO56", "H88H4", "5M8E6", "zudkx", "ywlsh", "luqmy", "09S4I", "L0GG0", "V916E",
-            "KFI11", "A4BN8", "C3E2Q", "UN804", "E75HG", "622eB", "1OZ71", "kynyx", "0RE7F", "F8CR2",
-            "1Q2EM", "txzjw", "5KD1S", "GLR40", "11BbD", "MR8B2", "X4V55", "W994P", "13d2T", "6J4AZ",
-            "HD2EM", "766bL", "8S4MF", "MBX39", "UJI57", "eIA51", "9CZN2", "WH6AA", "a6BF9", "8B1Gg",
-            "J2N6Z", "144Kw", "7E37v", "9I7RR", "PE6MF", "K0c4M", "LR3IF", "38p3S", "39ab3", "O0dO1",
-            "k8H8A", "0Fz3B", "o1PE1", "h7OI0", "C1COb", "bMC6A", "8fU4C", "3IMSO", "8DbFH", "2YfG5",
-            "bEQ1E", "MU6NI", "UCENE", "WBc0E", "T1ATX", "tBL0A", "UGPV2", "j3CLI", "7FXp1", "yN07I",
-            "YE6k9", "KTMHE", "a7VBJ", "0Uq3R", "70Ebn", "H2PqB", "83edJ", "0w5q2", "72djI", "wA5CQ",
-            "KF0Ix", "i7AZH", "M9tU5", "Hs3RE", "F9m1i", "7ecBF", "zS31W", "lUe21", "IvCS5", "j97nC",
-            "CNtR5", "1g8gV", "7KwNG", "DB7hj", "ORFr7", "GCnUD", "K58jp", "5lKo8", "GPIdP", "oMIFJ",
-            "2xYb1", "LQQPY", "FGQlN", "l5COf", "dA3Tn", "v9RWC", "VuAGI", "3vIr9", "aO3zA", "CIfx5",
-            "Gk6Uc", "pxL94", "rKYJB", "TXAFp", "XEOGq", "aBOiJ", "qp6EJ", "YGbq4", "dR8Rh", "g0SVi",
-            "iMr6L", "HMaIl", "yOY1Z", "UXr5Y", "PJdz6", "OQdt7", "EmZ1s", "aLIVe", "cIeo2", "mTTNP",
-            "eVKy5", "hf5Co", "gFHzG", "VhTWN", "DvAWf", "RgFJp", "MoaXE", "Mrq4W", "hRQAp", "hAzYA",
-            "oOSWV", "UKMme", "oP0Zw", "Mxd6b", "RsRCh", "dlk7Q", "YU6zf", "VPDjq", "ygERO", "dZZcL",
-            "dq5qM", "LITku", "AZIxn", "bVwPL", "jGvZK", "XayKP", "rTYVY", "Vo2ph", "dwJYR", "rLTlS",
-            "BmsfJ", "Dyv1o", "j9Hvs", "w0wVa", "iDnBy", "uKEgk", "uosI8", "2yjuO", "HiOue", "qYi4t",
-            "7nalj", "ENekz", "rxca0", "rrePF", "cXmtD", "Xlr2y", "S7uxk", "wJqaP", "KmYyZ", "cPryG",
-            "kYcwH", "FtDut", "xm1em", "IaymY", "fr6ew", "ixDSs", "YigPs", "PqwBs", "y2rkf", "vwaTM",
-            "aq7wp", "fzc4z", "AyzmQ", "epJbr", "culLd", "CVtnz", "tPjPx", "nfry8", "Nkpif", "8kuzg",
-            "zXvz8", "oVQly", "1vpnw", "jqaYh", "2tztj", "4tslx"
+        # Mapping between checksums and modes
+        URI_CHECKSUM_MODES = Hash[
+          URI_CHECKSUM_INITN, :init_native,
+          URI_CHECKSUM_INITP, :init_python,
+          URI_CHECKSUM_INITJ, :init_java,
+          URI_CHECKSUM_CONN,  :connect
         ]
+
+        URI_CHECKSUM_MIN_LEN = 5
+
+        # Limit how long :connect URLs are to stay within 256 bytes when including
+        # the hostname, colon, port, and leading slash
+        URI_CHECKSUM_CONN_MAX_LEN = 128
+
+        URI_CHECKSUM_UUID_MIN_LEN = URI_CHECKSUM_MIN_LEN + Msf::Payload::UUID::UriLength
 
         # Map "random" URIs to static strings, allowing us to randomize
         # the URI sent in the first request.
         #
-        # @param uri_match [String] The URI string to convert back to the original static value
-        # @return [String] The static URI value derived from the checksum
-        def process_uri_resource(uri_match)
+        # @param uri_match [String] The URI string from the HTTP request
+        # @return [Hash] The attributes extracted from the URI
+        def process_uri_resource(uri)
 
-          # This allows 'random' strings to be used as markers for
-          # the INIT and CONN request types, based on a checksum
-          uri_strip.sub!(/^\//, '')
-          uri_check = Rex::Text.checksum8(uri_strip)
+          # Ignore non-base64url characters in the URL
+          uri_bare = uri.gsub(/[^a-zA-Z0-9_\-]/, '')
 
-          # Match specific checksums and map them to static URIs
-          case uri_check
-            when URI_CHECKSUM_INITW
-              uri_match = "/INITM"
-            when URI_CHECKSUM_INITP
-              uri_match = "/INITPY"
-            when URI_CHECKSUM_INITJ
-              uri_match = "/INITJM"
-            when URI_CHECKSUM_CONN
-              uri_match = "/CONN_" + ( uri_conn || Rex::Text.rand_text_base64url(16) )
+          # Figure out the mode based on the checksum
+          uri_csum = Rex::Text.checksum8(uri_bare)
+
+          uri_uuid = nil
+
+          if uri_bare.length >= URI_CHECKSUM_UUID_MIN_LEN
+            uri_uuid =
+              Msf::Payload::UUID.payload_uuid_parse_raw(
+                Rex::Text.decode_base64url(
+                  uri_bare[0, Msf::Payload::UUID::UriLength]))
+
+            # Verify the uri_uuid fields and unset everything but
+            # the unique ID itself unless it looks wonky.
+            if uri_uuid[:timestamp] > (Time.now.utc.to_i + (24*3600*365)) ||
+               uri_uuid[:timestamp] < (Time.now.utc.to_i - (24*3600*365)) ||
+               (uri_uuid[:arch].nil? && uri_uuid[:platform].nil?)
+               uri_uuid = { puid: uri_uuid[:puid] }
+            end
           end
 
-          uri_match
+          uri_mode = URI_CHECKSUM_MODES[uri_csum]
+
+          # Return a hash of URI attributes to the caller
+          {
+             uri: uri_bare,
+             sum: uri_csum,
+            uuid: uri_uuid,
+            mode: uri_mode
+          }
+        end
+
+        # Create a URI that matches the :connect mode with optional UUID, Arch, and Platform
+        #
+        # @param uuid [Hash] An optional hash with the UUID parameters
+        # @param arch [String] An optional architecture name to use if no UUID is provided
+        # @param platform [String] An optional platform name to use if no UUID is provided
+        # @return [String] The URI string that checksums to the given value
+        def generate_uri_connect_uuid(uuid=nil, arch=nil, platform=nil)
+          curl_uri_len = URI_CHECKSUM_UUID_MIN_LEN+rand(URI_CHECKSUM_CONN_MAX_LEN-URI_CHECKSUM_UUID_MIN_LEN)
+          curl_prefix  = Rex::Text.encode_base64url(
+            Msf::Payload::UUID.payload_uuid_generate_raw(
+                   uuid: uuid[:puid],
+                   arch: uuid[:arch] || arch,
+               platform: uuid[:platform] || platform,
+              timestamp: uuid[:timestamp] ))
+
+          # Pad out the URI and make the checksum match :connect
+          "/" + generate_uri_checksum(URI_CHECKSUM_CONN, curl_uri_len, curl_prefix)
         end
 
         # Create an arbitrary length URI that matches a given checksum
@@ -83,13 +104,13 @@ module Msf
           # Lengths shorter than 4 bytes are unable to match all possible checksums
           # Lengths of exactly 4 are relatively slow to find for high checksum values
           # Lengths of 5 or more bytes find a matching checksum fairly quickly (~80ms)
-          if len < 5
-            raise ArgumentError, "Length must be 5 bytes or greater"
+          if len < URI_CHECKSUM_MIN_LEN
+            raise ArgumentError, "Length must be #{URI_CHECKSUM_MIN_LEN} bytes or greater"
           end
 
           gen_len = len-prefix.length
-          if gen_len < 5
-            raise ArgumentError, "Prefix must be at least 5 bytes smaller than total length"
+          if gen_len < URI_CHECKSUM_MIN_LEN
+            raise ArgumentError, "Prefix must be at least {URI_CHECKSUM_MIN_LEN} bytes smaller than total length"
           end
 
           # Brute force a matching checksum for shorter URIs
