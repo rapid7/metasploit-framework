@@ -532,7 +532,7 @@ def get_stat_buffer(path):
 	if hasattr(si, 'st_blocks'):
 		blocks = si.st_blocks
 	st_buf = struct.pack('<IHHH', si.st_dev, min(0xffff, si.st_ino), si.st_mode, si.st_nlink)
-	st_buf += struct.pack('<HHHI', si.st_uid, si.st_gid, 0, rdev)
+	st_buf += struct.pack('<HHHI', si.st_uid & 0xffff, si.st_gid & 0xffff, 0, rdev)
 	st_buf += struct.pack('<IIII', si.st_size, long(si.st_atime), long(si.st_mtime), long(si.st_ctime))
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
