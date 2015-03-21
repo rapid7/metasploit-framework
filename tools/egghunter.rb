@@ -130,6 +130,7 @@ module Egghunter
       output_stream = $stdout
       output_stream.binmode
       output_stream.write ::Msf::Simple::Buffer.transform(raw_code, @opts[:format], @opts[:var_name])
+      $stderr.puts
     end
 
     private
