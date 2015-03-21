@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('LPORT',
           [false, 'Port for payload to connect to.', 4433]),
         OptBool.new('HANDLER',
-          [ true, 'Start exploit/multi/handler to receive the connection.', true])
+          [ true, 'Start an exploit/multi/handler to receive the connection', true])
       ], self.class)
     register_advanced_options([
       OptInt.new('HANDLE_TIMEOUT',
