@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
