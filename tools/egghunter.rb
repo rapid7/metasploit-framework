@@ -93,7 +93,7 @@ module Egghunter
         raise OptionParser::MissingArgument, '-e is required'
       elsif options[:format] && !::Msf::Simple::Buffer.transform_formats.include?(options[:format])
         raise OptionParser::InvalidOption, "#{options[:format]} is not a valid format"
-      elsif options[:depsize] && options[:depsize] =~ /^\d+$/
+      elsif options[:depsize] && options[:depsize] !~ /^\d+$/
         raise OptionParser::InvalidOption, "--depsize must be a Fixnum"
       end
 
