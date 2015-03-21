@@ -102,6 +102,7 @@ module Egghunter
       options[:badchars] = '' unless options[:badchars]
       options[:platform] = 'windows' unless options[:platform]
       options[:arch]     = ARCH_X86  unless options[:arch]
+      options[:var_name] = 'buf'     unless options[:var_name]
 
       options
     end
