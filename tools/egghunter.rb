@@ -14,7 +14,7 @@ module Egghunter
     def self.parse(args)
       options = {}
       parser = OptionParser.new do |opt|
-        opt.banner = "Usage: #{__FILE__} [options]"
+        opt.banner = "Usage: #{__FILE__} [options]\nExample: #{__FILE__} -f python -e W00T"
         opt.separator ''
         opt.separator 'Specific options:'
 
