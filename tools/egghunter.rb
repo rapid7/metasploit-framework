@@ -20,10 +20,6 @@ module Egghunter
         opt.separator ''
         opt.separator 'Specific options:'
 
-        options[:badchars] = ''
-        options[:platform] = 'windows'
-        options[:arch]     = ARCH_X86 # 'x86'
-
         opt.on('-f', '--format <String>', "See --list-formats for a list of supported output formats") do |v|
           options[:format] = v
         end
@@ -47,7 +43,7 @@ module Egghunter
 
         opt.on('--forward', "(Optional) To search forward") do |v|
           # Do not change this key. This should matching the one in Rex::Exploitation::Egghunter
-          options[:startreg] = true
+          options[:searchforward] = true
         end
 
         opt.on('--depreg <String>', "(Optional) The DEP register") do |v|
@@ -98,6 +94,10 @@ module Egghunter
       elsif options[:depsize] && options[:depsize] !~ /^\d+$/
         raise OptionParser::InvalidOption, "--depsize must be a Fixnum"
       end
+
+      options[:badchars] = '' unless options[:badchars]
+      options[:platform] = 'windows' unless options[:platform]
+      options[:arch]     = ARCH_X86  unless options[:arch]
 
       options
     end
