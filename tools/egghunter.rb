@@ -75,6 +75,10 @@ module Egghunter
           options[:list_formats] = true
         end
 
+        opt.on('-v', '--var-name <name>', String, '(Optional) Specify a custom variable name to use for certain output formats') do |v|
+          options[:var_name] = v
+        end
+
         opt.on_tail('-h', '--help', 'Show this message') do
           $stdout.puts opt
           exit
@@ -124,7 +128,7 @@ module Egghunter
       raw_code = egghunter.hunter_stub('', @opts[:badchars], @opts)
       output_stream = $stdout
       output_stream.binmode
-      output_stream.write ::Msf::Simple::Buffer.transform(raw_code, @opts[:format])
+      output_stream.write ::Msf::Simple::Buffer.transform(raw_code, @opts[:format], @opts[:var_name])
     end
 
     private
