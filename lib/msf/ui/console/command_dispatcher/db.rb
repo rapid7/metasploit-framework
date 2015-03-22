@@ -1594,7 +1594,6 @@ class Db
       print_status("Usage: db_nmap [nmap options]")
       return
     end
-    
     save = false
     arguments = ''
     while (arg = args.shift)
@@ -1637,7 +1636,7 @@ class Db
     end
 
     begin
-      nmap_pipe = ::Open3::popen3([nmap, "nmap"], arguments)
+      nmap_pipe = ::Open3::popen3([nmap, 'nmap'], arguments)
       temp_nmap_threads = []
       temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
         np_1.each_line do |nmap_out|
@@ -1706,7 +1705,7 @@ class Db
       print_error(err_line.strip)
     end
 
-    return tabs
+    tabs
   end
 
   #
