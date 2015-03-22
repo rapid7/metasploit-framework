@@ -1,5 +1,6 @@
 # -*- coding => binary -*-
 
+require 'msf/core'
 require 'msf/core/module/platform'
 require 'rex/constants'
 require 'rex/text'
@@ -9,6 +10,11 @@ require 'rex/text'
 # unique ID values used by payloads.
 #
 class Msf::Payload::UUID
+
+
+  #
+  # Constants
+  #
 
   Architectures = {
      0 => nil,
@@ -62,33 +68,57 @@ class Msf::Payload::UUID
     23 => 'firefox'
   }
 
+  # The raw length of the UUID structure
   RawLength = 16
+
+  # The base64url-encoded length of the UUID structure
   UriLength = 22
+
+  # Validity constraints for UUID timestamps in UTC
+  TimestampMaxFuture = Time.now.utc.to_i + (30*24*3600) # Up to 30 days in the future
+  TimestampMaxPast   = 1420070400                       # Since 2015-01-01 00:00:00 UTC
+
+  #
+  # Class Methods
+  #
 
   #
   # Generate a raw 16-byte payload UUID given a seed, platform, architecture, and timestamp
   #
-  # @options opts [String] :seed A optional string to use for generated the unique payload ID, deterministic
+  # @options opts [String] :seed An optional string to use for generated the unique payload ID, deterministic
+  # @options opts [String] :puid An optional 8-byte string to use as the unique payload ID
   # @options opts [String] :arch The hardware architecture for this payload
   # @options opts [String] :platform The operating system platform for this payload
   # @options opts [String] :timestamp The timestamp in UTC Unix epoch format
+  # @options opts [Fixnum] :xor1 An optional 8-bit XOR ID for obfuscation
+  # @options opts [Fixnum] :xor2 An optional 8-bit XOR ID for obfuscation
   # @return [String] The encoded payoad UUID as a binary string
   #
-  def self.payload_uuid_generate_raw(opts={})
+  def self.generate_raw(opts={})
     plat_id = find_platform_id(opts[:platform]) || 0
     arch_id = find_architecture_id(opts[:arch]) || 0
-    seed    = opts[:seed] || Rex::Text.rand_text(16)
     tstamp  = opts[:timestamp] || Time.now.utc.to_i
+    puid    = opts[:puid]
 
-    plat_xor = rand(255)
-    arch_xor = rand(255)
+    if opts[:seed]
+      puid = seed_to_puid(opts[:seed])
+    end
+
+    puid ||= Rex::Text.rand_text(8)
+
+    if puid.length != 8
+      raise ArgumentError, "The :puid parameter must be exactly 8 bytes"
+    end
+
+    plat_xor = opts[:xor1] || rand(256)
+    arch_xor = opts[:xor2] || rand(256)
 
     # Recycle the previous two XOR bytes to keep our output small
     time_xor = [plat_xor, arch_xor, plat_xor, arch_xor].pack('C4').unpack('N').first
 
-    # Combine the last 64-bits of the SHA1 of seed with the arch/platform
-    # Use XOR to obscure the platform, architecture, and timestamp
-    Rex::Text.sha1_raw(seed)[12,8] +
+    # Combine the payload UID with the arch/platform and use xor to
+    # obscure the platform, architecture, and timestamp
+    puid +
       [
         plat_xor, arch_xor,
         plat_xor ^ plat_id,
@@ -103,23 +133,57 @@ class Msf::Payload::UUID
   # @param raw [String] The raw 16-byte payload UUID to parse
   # @return [Hash] A hash containing the Payload ID, platform, architecture, and timestamp
   #
-  def self.payload_uuid_parse_raw(raw)
+  def self.parse_raw(raw)
+    if raw.to_s.length < 16
+      raise ArgumentError, "Raw UUID must be at least 16 bytes"
+    end
+
     puid, plat_xor, arch_xor, plat_id, arch_id, tstamp = raw.unpack('A8C4N')
     plat     = find_platform_name(plat_xor ^ plat_id)
     arch     = find_architecture_name(arch_xor ^ arch_id)
     time_xor = [plat_xor, arch_xor, plat_xor, arch_xor].pack('C4').unpack('N').first
     time     = time_xor ^ tstamp
-    { puid: puid, platform: plat, arch: arch, timestamp: time }
+    { puid: puid, platform: plat, arch: arch, timestamp: time, xor1: plat_xor, xor2: arch_xor }
   end
 
-  # Alias for the class method
-  def payload_uuid_generate_raw(opts)
-    self.class.payload_uuid_generate_raw(opts)
+  #
+  # Generate a 8-byte payload ID given a seed string
+  #
+  # @param seed [String] The seed to use to calculate a deterministic payload ID
+  # @return [String] The 8-byte payload ID
+  #
+  def self.seed_to_puid(seed)
+    Rex::Text.sha1_raw(seed)[12,8]
   end
 
-  # Alias for the class method
-  def parse_payload_uuid_raw(raw)
-    self.class.payload_uuid_parse_raw(raw)
+  #
+  # Filter out UUIDs with obviously invalid fields and return either
+  # a validated UUID or a UUID with the arch, platform, and timestamp
+  # fields strippped out.
+  #
+  # @param uuid [Hash] The UUID in hash format
+  # @return [Hash] The filtered UUID in hash format
+  #
+  def self.filter_invalid(uuid)
+    # Verify the UUID fields and return just the Payload ID unless the
+    # timestamp is within our constraints and the UUID has either a
+    # valid architecture or platform
+    if uuid[:timestamp] > TimestampMaxFuture ||
+       uuid[:timestamp] < TimestampMaxPast   ||
+       (uuid[:arch].nil? && uuid[:platform].nil?)
+       return { puid: uuid[:puid] }
+    end
+    uuid
+  end
+
+  #
+  # Parse a 22-byte base64url-encoded payload UUID and return the hash
+  #
+  # @param uri [String] The 22-byte base64url-encoded payload UUID to parse
+  # @return [Hash] A hash containing the Payload ID, platform, architecture, and timestamp
+  #
+  def self.parse_uri(uri)
+    parse_raw(Rex::Text.decode_base64url(uri))
   end
 
   def self.find_platform_id(platform)
@@ -130,17 +194,16 @@ class Msf::Payload::UUID
 
     # Map a platform abbreviation to the real name
     name = Msf::Platform::Abbrev[platform]
-
-    Platforms.keys.select{ |k|
+    ( Platforms.keys.select{ |k|
       Platforms[k] == name
-    }.first || Platforms[0]
+    }.first || Platforms[0] ).to_i
   end
 
   def self.find_architecture_id(name)
     name = name.first if name.kind_of? ::Array
-    Architectures.keys.select{ |k|
+    ( Architectures.keys.select{ |k|
       Architectures[k] == name
-    }.first || Architectures[0]
+    }.first || Architectures[0] ).to_i
   end
 
   def self.find_platform_name(num)
@@ -151,4 +214,118 @@ class Msf::Payload::UUID
     Architectures[num]
   end
 
+
+  #
+  # Instance methods
+  #
+
+  def initialize(opts=nil)
+    opts = load_new if opts.nil?
+    opts = load_uri(opts[:uri]) if opts[:uri]
+    opts = load_raw(opts[:raw]) if opts[:raw]
+
+    self.puid      = opts[:puid]
+    self.timestamp = opts[:timestamp]
+    self.arch      = opts[:arch]
+    self.platform  = opts[:platform]
+    self.xor1      = opts[:xor1]
+    self.xor2      = opts[:xor2]
+
+    if opts[:seed]
+      self.puid = self.class.seed_to_puid(opts[:seed])
+    end
+
+    # Generate some sensible defaults
+    self.puid ||= Rex::Text.rand_text(8)
+    self.xor1 ||= rand(256)
+    self.xor2 ||= rand(256)
+    self.timestamp ||= Time.now.utc.to_i
+  end
+
+  def load_raw(raw)
+    self.class.filter_invalid(self.class.parse_raw(raw))
+  end
+
+  def load_uri(uri)
+    self.class.filter_invalid(self.class.parse_uri(uri))
+  end
+
+  def load_new
+   self.class.parse_raw(self.class.generate_raw())
+  end
+
+  def to_s
+    arch_id   = self.class.find_architecture_id(self.arch).to_s
+    plat_id   = self.class.find_platform_id(self.platform).to_s
+    [
+      self.puid_hex,
+      [ self.arch     || "noarch",     arch_id ].join("="),
+      [ self.platform || "noplatform", plat_id ].join("="),
+      Time.at(self.timestamp.to_i).utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+    ].join("/")
+  end
+
+  def to_h
+    {
+        puid: self.puid,
+        arch: self.arch, platform: self.platform,
+        timestamp: self.timestamp,
+        xor1: self.xor1, xor2: self.xor2
+    }
+  end
+
+  def to_raw
+    self.class.generate_raw(self.to_h)
+  end
+
+  def to_uri
+    Rex::Text.encode_base64url(self.to_raw)
+  end
+
+  def xor_reset
+    self.xor1 = self.xor2 = nil
+    self
+  end
+
+  def puid_hex
+    self.puid.unpack('H*').first
+  end
+
+  attr_reader :arch
+  attr_reader :platform
+
+  def arch=(arch_str)
+    if arch_str.nil?
+      @arch = nil
+      return
+    end
+
+    arch_id   = self.class.find_architecture_id(arch_str)
+    if arch_id == 0
+      raise ArgumentError, "Invalid architecture: '#{arch_str}'"
+    end
+
+    arch_name = self.class.find_architecture_name(arch_id)
+    @arch = arch_name
+  end
+
+  def platform=(plat_str)
+    if plat_str.nil?
+      @platform = nil
+      return
+    end
+
+    plat_id = self.class.find_platform_id(plat_str)
+    if plat_id == 0
+      raise ArgumentError, "Invalid platform: '#{plat_str}'"
+    end
+
+    plat_name = self.class.find_platform_name(plat_id)
+    @platform = plat_name
+  end
+
+  attr_accessor :timestamp
+  attr_accessor :puid
+  attr_accessor :xor1
+  attr_accessor :xor2
 end

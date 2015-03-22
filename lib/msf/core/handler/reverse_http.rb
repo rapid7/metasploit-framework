@@ -212,14 +212,18 @@ protected
   #
   def on_request(cli, req, obj)
     resp = Rex::Proto::Http::Response.new
-
-    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
-
     info = process_uri_resource(req.relative_resource)
+    uuid = info[:uuid] || Msf::Payload::UUID.new
+
+    # Configure the UUID architecture and payload if necessary
+    uuid.arch      = obj.arch if uuid.arch.nil?
+    uuid.platform  = obj.platform if uuid.platform.nil?
+
+    print_status "#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}... (UUID:#{uuid.to_s})"
 
     conn_id = nil
     if info[:mode] && info[:mode] != :connect
-      conn_id = generate_uri_connect_uuid(info[:uuid], obj.arch, obj.platform)
+      conn_id = generate_uri_connect_uuid(uuid)
     end
 
     # Process the requested resource.
@@ -255,6 +259,7 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
+          :uuid               => uuid
         })
         self.pending_connections += 1
 
@@ -282,7 +287,8 @@ protected
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-          :ssl                => ssl?
+          :ssl                => ssl?,
+          :uuid               => uuid
         })
 
       when :init_native
@@ -318,6 +324,7 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
+          :uuid               => uuid
         })
 
       when :connect
@@ -333,6 +340,7 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
+          :uuid               => uuid
         })
 
       else

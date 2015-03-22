@@ -46,48 +46,25 @@ module Msf
           # Figure out the mode based on the checksum
           uri_csum = Rex::Text.checksum8(uri_bare)
 
+          # Extract the UUID if the URI is long enough
           uri_uuid = nil
-
           if uri_bare.length >= URI_CHECKSUM_UUID_MIN_LEN
-            uri_uuid =
-              Msf::Payload::UUID.payload_uuid_parse_raw(
-                Rex::Text.decode_base64url(
-                  uri_bare[0, Msf::Payload::UUID::UriLength]))
-
-            # Verify the uri_uuid fields and unset everything but
-            # the unique ID itself unless it looks wonky.
-            if uri_uuid[:timestamp] > (Time.now.utc.to_i + (24*3600*365)) ||
-               uri_uuid[:timestamp] < (Time.now.utc.to_i - (24*3600*365)) ||
-               (uri_uuid[:arch].nil? && uri_uuid[:platform].nil?)
-               uri_uuid = { puid: uri_uuid[:puid] }
-            end
+            uri_uuid = Msf::Payload::UUID.new(uri: uri_bare)
           end
 
           uri_mode = URI_CHECKSUM_MODES[uri_csum]
 
-          # Return a hash of URI attributes to the caller
-          {
-             uri: uri_bare,
-             sum: uri_csum,
-            uuid: uri_uuid,
-            mode: uri_mode
-          }
+          # Return a hash of URI attributes
+          { uri: uri_bare, sum: uri_csum, uuid: uri_uuid, mode: uri_mode }
         end
 
         # Create a URI that matches the :connect mode with optional UUID, Arch, and Platform
         #
-        # @param uuid [Hash] An optional hash with the UUID parameters
-        # @param arch [String] An optional architecture name to use if no UUID is provided
-        # @param platform [String] An optional platform name to use if no UUID is provided
-        # @return [String] The URI string that checksums to the given value
-        def generate_uri_connect_uuid(uuid=nil, arch=nil, platform=nil)
+        # @param uuid [Msf::Payload::UUID] A valid UUID object
+        # @return [String] The URI string for connections
+        def generate_uri_connect_uuid(uuid)
           curl_uri_len = URI_CHECKSUM_UUID_MIN_LEN+rand(URI_CHECKSUM_CONN_MAX_LEN-URI_CHECKSUM_UUID_MIN_LEN)
-          curl_prefix  = Rex::Text.encode_base64url(
-            Msf::Payload::UUID.payload_uuid_generate_raw(
-                   uuid: uuid[:puid],
-                   arch: uuid[:arch] || arch,
-               platform: uuid[:platform] || platform,
-              timestamp: uuid[:timestamp] ))
+          curl_prefix  = uuid.to_uri
 
           # Pad out the URI and make the checksum match :connect
           "/" + generate_uri_checksum(URI_CHECKSUM_CONN, curl_uri_len, curl_prefix)
