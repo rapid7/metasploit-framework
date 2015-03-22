@@ -249,6 +249,26 @@ class Db
     end
   end
 
+  def add_host_tag(rws, tag_name)
+    addrs = []
+    rws.each do |rw|
+      rw.each do |ip|
+        addrs << ip
+        wspace = framework.db.workspace
+        host = framework.db.get_host(:workspace => wspace, :address => ip)
+        possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name).order("tags.id DESC").limit(1)
+        tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
+        tag.name = tag_name
+        tag.hosts = [host]
+        tag.save! if tag.changed?
+      end
+    end
+  end
+
+  def find_tags(host)
+    Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
+  end
+
   def cmd_hosts(*args)
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
@@ -263,9 +283,10 @@ class Db
 
     output = nil
     default_columns = ::Mdm::Host.column_names.sort
+    default_columns << 'tags' # Special case
     virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
 
-    col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
+    col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments', 'tags']
 
     default_columns.delete_if {|v| (v[-2,2] == "id")}
     while (arg = args.shift)
@@ -305,6 +326,9 @@ class Db
       when '-m', '--comment'
         mode = :new_comment
         comment_data = args.shift
+      when '-t', '--tag'
+        mode = :new_tag
+        tag_name = args.shift
       when '-h','--help'
         print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
         print_line
@@ -320,6 +344,7 @@ class Db
         print_line "  -i,--info         Change the info of a host"
         print_line "  -n,--name         Change the name of a host"
         print_line "  -m,--comment      Change the comment of a host"
+        print_line "  -t,--tag          Add a new tag to a range of hosts"
         print_line
         print_line "Available columns: #{default_columns.join(", ")}"
         print_line
@@ -368,13 +393,27 @@ class Db
     when :new_comment
       change_host_comment(host_ranges, comment_data)
       return
+    when :new_tag
+      begin
+        add_host_tag(host_ranges, tag_name)
+      rescue ::Exception => e
+        if e.message =~ /Validation failed/
+          print_error(e.message)
+        else
+          raise e
+        end
+      end
+      return
     end
 
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
         if search_term
-          next unless host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) }
+          next unless host.attribute_names.any? { |a|
+            host[a.intern].to_s.match(search_term) || !find_tags(host).empty?
+          }
         end
+
         columns = col_names.map do |n|
           # Deal with the special cases
           if virtual_columns.include?(n)
@@ -384,6 +423,11 @@ class Db
             when "workspace"; host.workspace.name
             end
           # Otherwise, it's just an attribute
+          elsif n == 'tags'
+            found_tags = find_tags(host)
+            tag_names = []
+            found_tags.each {|t| tag_names << t.name}
+            found_tags * ", "
           else
             host.attributes[n] || ""
           end
