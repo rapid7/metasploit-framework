@@ -220,6 +220,11 @@ class Db
   end
 
   def change_host_info(rws, data)
+    if rws == [nil]
+      print_error("In order to change the host info, you must provide a range of hosts")
+      return
+    end
+
     rws.each do |rw|
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
@@ -230,6 +235,11 @@ class Db
   end
 
   def change_host_name(rws, data)
+    if rws == [nil]
+      print_error("In order to change the host name, you must provide a range of hosts")
+      return
+    end
+
     rws.each do |rw|
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
@@ -240,6 +250,11 @@ class Db
   end
 
   def change_host_comment(rws, data)
+    if rws == [nil]
+      print_error("In order to change the comment, you must provide a range of hosts")
+      return
+    end
+
     rws.each do |rw|
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
@@ -250,6 +265,11 @@ class Db
   end
 
   def add_host_tag(rws, tag_name)
+    if rws == [nil]
+      print_error("In order to add a tag, you must provide a range of hosts")
+      return
+    end
+
     addrs = []
     rws.each do |rw|
       rw.each do |ip|
