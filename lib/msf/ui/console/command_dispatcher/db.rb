@@ -256,17 +256,15 @@ class Db
         addrs << ip
         wspace = framework.db.workspace
         host = framework.db.get_host(:workspace => wspace, :address => ip)
-        possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name).order("tags.id DESC").limit(1)
-        tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
-        tag.name = tag_name
-        tag.hosts = [host]
-        tag.save! if tag.changed?
+        if host
+          possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+          tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
+          tag.name = tag_name
+          tag.hosts = [host]
+          tag.save! if tag.changed?
+        end
       end
     end
-  end
-
-  def find_tags(host)
-    Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
   end
 
   def cmd_hosts(*args)
@@ -409,9 +407,10 @@ class Db
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
         if search_term
-          next unless host.attribute_names.any? { |a|
-            host[a.intern].to_s.match(search_term) || !find_tags(host).empty?
-          }
+          next unless (
+            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } or
+            !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).order("tags.id DESC").empty?
+          )
         end
 
         columns = col_names.map do |n|
@@ -424,7 +423,7 @@ class Db
             end
           # Otherwise, it's just an attribute
           elsif n == 'tags'
-            found_tags = find_tags(host)
+            found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
             tag_names = []
             found_tags.each {|t| tag_names << t.name}
             found_tags * ", "
