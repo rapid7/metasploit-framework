@@ -1140,14 +1140,18 @@ module Text
   # Base64 encoder (URL-safe RFC6920)
   #
   def self.encode_base64url(str, delim='')
-    encode_base64(str, delim).tr('+/', '-_').gsub('=', '')
+    encode_base64(str, delim).
+      tr('+/', '-_').
+      gsub('=', '')
   end
 
   #
-  # Base64 decoder (URL-safe RFC6920)
+  # Base64 decoder (URL-safe RFC6920, ignores invalid characters)
   #
   def self.decode_base64url(str)
-    decode_base64(str.tr('-_', '+/'))
+    decode_base64(
+      str.gsub(/[^a-zA-Z0-9_\-]/, '').
+      tr('-_', '+/'))
   end
 
   #
