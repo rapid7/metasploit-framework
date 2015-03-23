@@ -27,15 +27,18 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'http://support.f5.com/kb/en-us/solutions/public/6000/900/sol6917.html'],
           ['URL', 'http://support.f5.com/kb/en-us/solutions/public/7000/700/sol7784.html?sr=14607726']
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' =>
+        {
+          'SSLVersion' => 'TLS1'
+        }
     ))
 
     register_options(
       [
         OptInt.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
+        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
-        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL/TLS that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']]),
         OptInt.new('REQUESTS', [true, 'The number of requests to send', 10])
       ], self.class)
   end
@@ -151,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
       )
     end
 
-    rescue ::Rex::ConnectionRefused, ::Rex::ConnectionTimeout, ::Errno::ECONNRESET, ::Rex::HostUnreachable, ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Rex::ConnectionError
       print_error("#{peer} - Network connection error")
     rescue ::OpenSSL::SSL::SSLError
      print_error("#{peer} - SSL/TLS connection error")
