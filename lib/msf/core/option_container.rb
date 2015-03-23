@@ -191,14 +191,6 @@ class OptString < OptBase
   end
 
   def normalize(value)
-    if (value =~ /^file:(.*)/)
-      path = $1
-      begin
-        value = File.read(path)
-      rescue ::Errno::ENOENT, ::Errno::EISDIR
-        value = nil
-      end
-    end
     value
   end
 
@@ -220,14 +212,6 @@ class OptRaw < OptBase
   end
 
   def normalize(value)
-    if (value =~ /^file:(.*)/)
-      path = $1
-      begin
-        value = File.read(path)
-      rescue ::Errno::ENOENT, ::Errno::EISDIR
-        value = nil
-      end
-    end
     value
   end
 
@@ -394,11 +378,7 @@ class OptAddressRange < OptBase
 
   def normalize(value)
     return nil unless value.kind_of?(String)
-    if (value =~ /^file:(.*)/)
-      path = $1
-      return false if not File.exists?(path) or File.directory?(path)
-      return File.readlines(path).map{ |s| s.strip}.join(" ")
-    elsif (value =~ /^rand:(.*)/)
+    if (value =~ /^rand:(.*)/)
       count = $1.to_i
       return false if count < 1
       ret = ''

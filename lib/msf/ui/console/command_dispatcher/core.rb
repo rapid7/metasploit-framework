@@ -806,7 +806,7 @@ class Core
     end
 
     # This is not respecting the Protected access control, but this seems to be the only way
-    # to rename a job. If you know a more appropriate way, patches accepted. 
+    # to rename a job. If you know a more appropriate way, patches accepted.
     framework.jobs[job_id].send(:name=, job_name)
     print_status("Job #{job_id} updated")
 
@@ -2066,6 +2066,16 @@ class Core
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
       return true
+    end
+
+    # If the value starts with file: and exists, load the file as the value
+    if value =~ /^file:(.*)/ && ::File.file?($1)
+      fname = $1
+      if ::File.size(fname) > (1024*1024)
+        print_error("The file name specified is too big (over 1Mb)")
+      else
+        ::File.open(fname, "rb") {|fd| value = fd.read(fd.stat.size) }
+      end
     end
 
     if append
