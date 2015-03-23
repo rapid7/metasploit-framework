@@ -27,19 +27,17 @@ module Msf
               sock: opts[:sock] || sock
             )
 
-            remote_object = parse_jmx_new_client(return_value)
-
-            if remote_object.nil?
+            if return_value.nil?
               return nil
             end
 
-            remote_location = parse_jmx_new_client_endpoint(return_value)
-
-            if remote_location.nil?
-              return nil
+            if return_value.is_exception?
+              raise ::Rex::Proto::Rmi::Exception, return_value.get_class_name
             end
 
-            {object: remote_object}.merge(remote_location)
+            ref = parse_jmx_new_client(return_value)
+
+            ref
           end
         end
       end
