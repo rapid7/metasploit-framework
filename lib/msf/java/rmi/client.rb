@@ -11,10 +11,12 @@ module Msf
         require 'msf/java/rmi/util'
         require 'msf/java/rmi/builder'
         require 'msf/java/rmi/client/registry'
+        require 'msf/java/rmi/client/jmx'
 
         include Msf::Java::Rmi::Util
         include Msf::Java::Rmi::Builder
         include Msf::Java::Rmi::Client::Registry
+        include Msf::Java::Rmi::Client::Jmx
         include Exploit::Remote::Tcp
 
         # Returns the target host
