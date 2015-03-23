@@ -9,14 +9,12 @@ module Msf
       require 'msf/java/rmi/util'
       require 'msf/java/rmi/builder'
       require 'msf/java/jmx/util'
-      require 'msf/java/jmx/discovery'
       require 'msf/java/jmx/handshake'
       require 'msf/java/jmx/mbean'
 
       include Msf::Java::Rmi::Util
       include Msf::Java::Rmi::Builder
       include Msf::Java::Jmx::Util
-      include Msf::Java::Jmx::Discovery
       include Msf::Java::Jmx::Handshake
       include Msf::Java::Jmx::Mbean
 
