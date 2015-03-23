@@ -1731,7 +1731,7 @@ class Db
 
     stdout.each_line do |out_line|
       next if out_line.strip.empty?
-      print_status(out_line.strip);
+      print_status(out_line.strip)
     end
 
     stderr.each_line do |err_line|
