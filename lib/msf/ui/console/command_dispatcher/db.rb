@@ -326,9 +326,9 @@ class Db
     output = nil
     default_columns = ::Mdm::Host.column_names.sort
     default_columns << 'tags' # Special case
-    virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
+    virtual_columns = [ 'svcs', 'vulns', 'workspace', 'tags' ]
 
-    col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments', 'tags']
+    col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
 
     default_columns.delete_if {|v| (v[-2,2] == "id")}
     while (arg = args.shift)
@@ -469,13 +469,13 @@ class Db
             when "svcs";      host.services.length
             when "vulns";     host.vulns.length
             when "workspace"; host.workspace.name
+            when "tags"
+              found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
+              tag_names = []
+              found_tags.each {|t| tag_names << t.name}
+              found_tags * ", "
             end
           # Otherwise, it's just an attribute
-          elsif n == 'tags'
-            found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
-            tag_names = []
-            found_tags.each {|t| tag_names << t.name}
-            found_tags * ", "
           else
             host.attributes[n] || ""
           end
