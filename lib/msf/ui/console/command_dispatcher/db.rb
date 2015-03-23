@@ -441,7 +441,7 @@ class Db
       begin
         add_host_tag(host_ranges, tag_name)
       rescue ::Exception => e
-        if e.message =~ /Validation failed/
+        if e.message.include?('Validation failed')
           print_error(e.message)
         else
           raise e
@@ -457,7 +457,7 @@ class Db
       framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
         if search_term
           next unless (
-            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } or
+            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } ||
             !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).order("tags.id DESC").empty?
           )
         end
@@ -472,7 +472,7 @@ class Db
             when "tags"
               found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
               tag_names = []
-              found_tags.each {|t| tag_names << t.name}
+              found_tags.each { |t| tag_names << t.name }
               found_tags * ", "
             end
           # Otherwise, it's just an attribute
