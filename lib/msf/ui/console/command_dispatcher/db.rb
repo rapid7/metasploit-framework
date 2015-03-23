@@ -287,20 +287,27 @@ class Db
 
   def delete_host_tag(rws, tag_name)
     wspace = framework.db.workspace
+    tag_ids = []
     if rws == [nil]
       found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name)
       found_tags.each do |t|
-        t.delete
+        tag_ids << t.id
       end
     else
       rws.each do |rw|
         rw.each do |ip|
           found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name)
             found_tags.each do |t|
-            t.delete
+            tag_ids << t.id
           end
         end
       end
+    end
+
+    tag_ids.each do |id|
+      tag = Mdm::Tag.find_by_id(id)
+      tag.hosts.delete
+      tag.destroy
     end
   end
 
