@@ -270,10 +270,8 @@ class Db
       return
     end
 
-    addrs = []
     rws.each do |rw|
       rw.each do |ip|
-        addrs << ip
         wspace = framework.db.workspace
         host = framework.db.get_host(:workspace => wspace, :address => ip)
         if host
@@ -287,12 +285,31 @@ class Db
     end
   end
 
+  def delete_host_tag(rws, tag_name)
+    wspace = framework.db.workspace
+    if rws == [nil]
+      found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name).order("tags.id DESC")
+      found_tags.each do |t|
+        t.delete
+      end
+    else
+      rws.each do |rw|
+        rw.each do |ip|
+          found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC")
+            found_tags.each do |t|
+            t.delete
+          end
+        end
+      end
+    end
+  end
+
   def cmd_hosts(*args)
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     onlyup = false
     set_rhosts = false
-    mode = :search
+    mode = []
     delete_count = 0
 
     rhosts = []
@@ -310,9 +327,9 @@ class Db
     while (arg = args.shift)
       case arg
       when '-a','--add'
-        mode = :add
+        mode << :add
       when '-d','--delete'
-        mode = :delete
+        mode << :delete
       when '-c'
         list = args.shift
         if(!list)
@@ -336,16 +353,16 @@ class Db
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
       when '-i', '--info'
-        mode = :new_info
+        mode << :new_info
         info_data = args.shift
       when '-n', '--name'
-        mode = :new_name
+        mode << :new_name
         name_data = args.shift
       when '-m', '--comment'
-        mode = :new_comment
+        mode << :new_comment
         comment_data = args.shift
       when '-t', '--tag'
-        mode = :new_tag
+        mode << :tag
         tag_name = args.shift
       when '-h','--help'
         print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
@@ -362,7 +379,7 @@ class Db
         print_line "  -i,--info         Change the info of a host"
         print_line "  -n,--name         Change the name of a host"
         print_line "  -m,--comment      Change the comment of a host"
-        print_line "  -t,--tag          Add a new tag to a range of hosts"
+        print_line "  -t,--tag          Add or specify a tag to a range of hosts"
         print_line
         print_line "Available columns: #{default_columns.join(", ")}"
         print_line
@@ -381,7 +398,9 @@ class Db
       col_names = default_columns + virtual_columns
     end
 
-    if mode == :add
+    mode << :search if mode.empty?
+
+    if mode == [:add]
       host_ranges.each do |range|
         range.each do |address|
           host = framework.db.find_or_create_host(:host => address)
@@ -401,17 +420,17 @@ class Db
     # Sentinal value meaning all
     host_ranges.push(nil) if host_ranges.empty?
 
-    case mode
-    when :new_info
+    case
+    when mode == [:new_info]
       change_host_info(host_ranges, info_data)
       return
-    when :new_name
+    when mode == [:new_name]
       change_host_name(host_ranges, name_data)
       return
-    when :new_comment
+    when mode == [:new_comment]
       change_host_comment(host_ranges, comment_data)
       return
-    when :new_tag
+    when mode == [:tag]
       begin
         add_host_tag(host_ranges, tag_name)
       rescue ::Exception => e
@@ -421,6 +440,9 @@ class Db
           raise e
         end
       end
+      return
+    when mode.include?(:tag) && mode.include?(:delete)
+      delete_host_tag(host_ranges, tag_name)
       return
     end
 
@@ -457,7 +479,7 @@ class Db
           addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
         end
-        if mode == :delete
+        if mode == [:delete]
           host.destroy
           delete_count += 1
         end
