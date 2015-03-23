@@ -288,14 +288,14 @@ class Db
   def delete_host_tag(rws, tag_name)
     wspace = framework.db.workspace
     if rws == [nil]
-      found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name).order("tags.id DESC")
+      found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name)
       found_tags.each do |t|
         t.delete
       end
     else
       rws.each do |rw|
         rw.each do |ip|
-          found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC")
+          found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name)
             found_tags.each do |t|
             t.delete
           end
