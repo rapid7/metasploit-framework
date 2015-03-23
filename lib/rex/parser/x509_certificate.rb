@@ -58,7 +58,7 @@ class X509Certificate
 
   #
   # Parse a certificate in unified PEM format and retrieve
-  #   the SHA1 hash.
+  # the SHA1 hash.
   #
   # @param [String] ssl_cert 
   # @return [String]
@@ -74,7 +74,7 @@ class X509Certificate
 
   #
   # Parse a file that contains a certificate in unified PEM
-  #   format and retrieve the SHA1 hash.
+  # format and retrieve the SHA1 hash.
   #
   # @param [String] ssl_cert_file
   # @return [String]

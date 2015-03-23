@@ -4,6 +4,7 @@ require 'rex/sync/ref'
 require 'msf/core/handler/reverse_http/uri_checksum'
 require 'rex/payloads/meterpreter/patch'
 require 'rex/parser/x509_certificate'
+require 'msf/core/payload/windows/verify_ssl'
 
 module Msf
 module Handler
@@ -17,6 +18,7 @@ module ReverseHttp
 
   include Msf::Handler
   include Msf::Handler::ReverseHttp::UriChecksum
+  include Msf::Payload::Windows::VerifySsl
 
   #
   # Returns the string representation of the handler type
@@ -292,13 +294,15 @@ protected
 
         blob = obj.stage_payload
 
+        verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                             datastore['HandlerSSLCert'])
         #
         # Patch options into the payload
         #
-        Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+        Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
           :ssl            => ssl?,
           :url            => url,
-          :ssl_cert_hash  => get_ssl_cert_hash,
+          :ssl_cert_hash  => verify_cert_hash,
           :expiration     => datastore['SessionExpirationTimeout'],
           :comm_timeout   => datastore['SessionCommunicationTimeout'],
           :ua             => datastore['MeterpreterUserAgent'],
@@ -306,7 +310,7 @@ protected
           :proxy_port     => datastore['PayloadProxyPort'],
           :proxy_type     => datastore['PayloadProxyType'],
           :proxy_user     => datastore['PayloadProxyUser'],
-          :proxy_pass     => datastore['PayloadProxyPass']
+          :proxy_pass     => datastore['PayloadProxyPass'])
 
         resp.body = encode_stage(blob)
 
@@ -355,20 +359,6 @@ protected
   def bind_port
     port = datastore['ReverseListenerBindPort'].to_i
     port > 0 ? port : datastore['LPORT'].to_i
-  end
-
-  def get_ssl_cert_hash
-    unless datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
-      return nil
-    end
-
-    unless datastore['HandlerSSLCert']
-      raise ArgumentError, "StagerVerifySSLCert is enabled but no HandlerSSLCert is configured"
-    end
-
-    hash = Rex::Parser::X509Certificate.get_cert_file_hash(datastore['HandlerSSLCert'])
-    print_status("Meterpreter will verify SSL Certificate with SHA1 hash #{hash.unpack("H*").first}")
-    hash
   end
 
 end

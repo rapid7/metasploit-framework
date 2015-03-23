@@ -99,12 +99,12 @@ module Rex
         # Patch options into metsrv for reverse HTTP payloads
         def self.patch_passive_service!(blob, options)
 
-          patch_transport! blob, options[:ssl]
-          patch_url! blob, options[:url]
-          patch_expiration! blob, options[:expiration]
-          patch_comm_timeout! blob, options[:comm_timeout]
-          patch_ua! blob, options[:ua]
-          patch_ssl_check! blob, options[:ssl_cert_hash]
+          patch_transport!(blob, options[:ssl])
+          patch_url!(blob, options[:url])
+          patch_expiration!(blob, options[:expiration])
+          patch_comm_timeout!(blob, options[:comm_timeout])
+          patch_ua!(blob, options[:ua])
+          patch_ssl_check!(blob, options[:ssl_cert_hash])
           patch_proxy!(blob,
             options[:proxy_host],
             options[:proxy_port],

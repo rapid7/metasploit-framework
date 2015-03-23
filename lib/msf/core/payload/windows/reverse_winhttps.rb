@@ -2,7 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/reverse_winhttp'
-require 'rex/parser/x509_certificate'
+require 'msf/core/payload/windows/verify_ssl'
 
 module Msf
 
@@ -17,6 +17,7 @@ module Msf
 module Payload::Windows::ReverseWinHttps
 
   include Msf::Payload::Windows::ReverseWinHttp
+  include Msf::Payload::Windows::VerifySsl
 
   #
   # Register reverse_winhttps specific options
@@ -49,7 +50,8 @@ module Payload::Windows::ReverseWinHttps
   #
   def generate
 
-    verify_cert_hash = get_ssl_cert_hash
+    verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                         datastore['HandlerSSLCert'])
 
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
@@ -95,23 +97,6 @@ module Payload::Windows::ReverseWinHttps
     end
 
     space
-  end
-
-  #
-  # Get the SSL hash from the certificate, if required.
-  #
-  def get_ssl_cert_hash
-    unless datastore['StagerVerifySSLCert'].to_s =~ /^(t|y|1)/i
-      return nil
-    end
-
-    unless datastore['HandlerSSLCert']
-      raise ArgumentError, "StagerVerifySSLCert is enabled but no HandlerSSLCert is configured"
-    end
-
-    hash = Rex::Parser::X509Certificate.get_cert_file_hash(datastore['HandlerSSLCert'])
-    print_status("Meterpreter will verify SSL Certificate with SHA1 hash #{hash.unpack("H*").first}")
-    hash
   end
 
 end
