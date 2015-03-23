@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
            'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
            'Nikita Oleksov <neoleksov[at]gmail.com>'
            ],
-      'DefaultOptions' => 
+      'DefaultOptions' =>
         {
           'SSL' => true,
           'SSLVersion' => 'TLS1',
@@ -96,6 +96,6 @@ class Metasploit3 < Msf::Auxiliary
     rescue Timeout::Error
       print_error("#{peer} - HTTP connection timed out") if verbose
     end
-    
+
   end
 end

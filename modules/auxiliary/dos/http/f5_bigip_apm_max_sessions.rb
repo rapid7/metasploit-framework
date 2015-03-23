@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'https://support.f5.com/kb/en-us/products/big-ip_apm/releasenotes/product/relnote-apm-11-6-0.html']
         ],
       'License'        => MSF_LICENSE,
-      'DefaultOptions' => 
+      'DefaultOptions' =>
         {
           'SSLVersion' => 'TLS1'
         }
