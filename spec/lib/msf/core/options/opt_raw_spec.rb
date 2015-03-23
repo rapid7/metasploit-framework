@@ -6,8 +6,7 @@ require 'msf/core/option_container'
 describe Msf::OptRaw do
 
   valid_values = [
-      { :value => 'foo',    :normalized => 'foo'     },
-      { :value => "file:#{File.expand_path('string_list.txt',FILE_FIXTURES_PATH)}",:normalized => "foo\nbar\nbaz" },
+      { :value => 'foo',    :normalized => 'foo'     }
   ]
   invalid_values = []
 
