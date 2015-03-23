@@ -3,7 +3,7 @@
 module Rex
   module Proto
     module Rmi
-      class Exception
+      class Exception < ::RuntimeError
       end
     end
   end

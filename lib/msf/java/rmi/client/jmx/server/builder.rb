@@ -20,10 +20,14 @@ module Msf
                 uid_number = opts[:uid_number] || 0
                 uid_time = opts[:uid_time] || 0
                 uid_count = opts[:uid_count] || 0
-                username = opts[:username] || ''
+                username = opts[:username]
                 password = opts[:password] || ''
 
-                arguments = build_jmx_new_client_args(username, password)
+                if username
+                  arguments = build_jmx_new_client_args(username, password)
+                else
+                  arguments = [Rex::Java::Serialization::Model::NullReference.new]
+                end
 
                 call = build_call(
                   object_number: object_number,
