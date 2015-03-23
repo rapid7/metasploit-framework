@@ -195,6 +195,9 @@ module Rex
       res_header = Rex::Proto::Http::Packet::Header.new
       req_header.from_s request_headers.lstrip
       res_header.from_s response_headers.lstrip
+      if response_body.blank?
+        response_body = ''
+      end
       @state[:request_headers] = req_header
       @state[:request_body] = request_body.lstrip
       @state[:response_headers] = res_header
