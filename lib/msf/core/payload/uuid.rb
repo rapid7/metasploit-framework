@@ -6,7 +6,7 @@ require 'rex/constants'
 require 'rex/text'
 
 #
-# This module provides methods for calculating, extracting, and parsing
+# This class provides methods for calculating, extracting, and parsing
 # unique ID values used by payloads.
 #
 class Msf::Payload::UUID
@@ -213,7 +213,6 @@ class Msf::Payload::UUID
   def self.find_architecture_name(num)
     Architectures[num]
   end
-
 
   #
   # Instance methods
