@@ -63,13 +63,26 @@ describe Rex::Proto::Rmi::Model::ReturnValue do
       return_value.decode(return_value_stream_io)
       expect(return_value.value[0].class_desc.description.class_name.contents).to eq('java.rmi.dgc.Lease')
     end
-
   end
 
   describe "#encode" do
     it "re-encodes a ReturnData stream correctly" do
       return_value.decode(return_value_stream_io)
       expect(return_value.encode).to eq(return_value_stream)
+    end
+  end
+
+  describe "#is_exception?" do
+    it "return false unless the return value is an exception" do
+      return_value.decode(return_value_stream_io)
+      expect(return_value.is_exception?).to be_falsey
+    end
+  end
+
+  describe "#get_class_name" do
+    it "returns the class name of the object in the return value" do
+      return_value.decode(return_value_stream_io)
+      expect(return_value.get_class_name).to eq('java.rmi.dgc.Lease')
     end
   end
 end
