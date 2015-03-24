@@ -62,7 +62,7 @@ module Rex
 
           # The object/exception class of the returned value
           #
-          # @return [String, NilClass] the returned value class, nil if errors
+          # @return [String, NilClass] the returned value class, nil it cannot be retrieved
           def get_class_name
             unless value[0] && value[0].is_a?(Rex::Java::Serialization::Model::NewObject)
               return nil
