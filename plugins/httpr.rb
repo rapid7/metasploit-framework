@@ -13,12 +13,12 @@ class Plugin::HTTPRequests < Msf::Plugin
 
     def commands
       {
-        'http_request' => 'Make an HTTP request'
+        'httpr' => 'Make an HTTP request'
       }
     end
 
     def parse_args(args)
-      help_line = 'Usage: http_request [options] uri'
+      help_line = 'Usage: httpr [options] uri'
       opt_parser = Rex::Parser::Arguments.new(
         '-0' => [ false, 'Use HTTP 1.0' ],
         '-1' => [ false, 'Use TLSv1 (SSL)' ],
@@ -118,7 +118,7 @@ class Plugin::HTTPRequests < Msf::Plugin
       end
     end
 
-    def cmd_http_request(*args)
+    def cmd_httpr(*args)
       opts = parse_args(args)
       return unless opts
 
