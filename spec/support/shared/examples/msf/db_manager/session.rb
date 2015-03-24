@@ -125,8 +125,8 @@ shared_examples_for 'Msf::DBManager::Session' do
           context 'with a match in user_data' do
             let(:user_data) do
               {
-                match: FactoryGirl.create(:automatic_exploitation_match),
-                match_set: FactoryGirl.create(:automatic_exploitation_match_set),
+                match: FactoryGirl.build(:automatic_exploitation_match),
+                match_set: FactoryGirl.build(:automatic_exploitation_match_set),
                 run: FactoryGirl.build(:automatic_exploitation_run, workspace: session_workspace),
               }
             end
