@@ -121,7 +121,6 @@ module Msf::DBManager::Session
     else
       raise ArgumentError.new("Missing option :session or :host")
     end
-    ret = {}
 
     # Truncate the session data if necessary
     if sess_data[:desc]
@@ -145,61 +144,80 @@ module Msf::DBManager::Session
       end
     end
 
-
     if opts[:session]
       session.db_record = s
-    end
-
-    # If this is a live session, we know the host is vulnerable to something.
-    if opts[:session] and session.via_exploit
-      mod = framework.modules.create(session.via_exploit)
-
-      if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
-        mod_fullname = sess_data[:datastore]['ParentModule']
-        mod_name = ::Mdm::Module::Detail.find_by_fullname(mod_fullname).name
-      else
-        mod_name = mod.name
-        mod_fullname = mod.fullname
+      if session.assoc_exploit.user_data_is_match?
+        # do some shit with the match
+        MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
+          match: session.assoc_exploit.user_data[:match],
+          match_set: session.assoc_exploit.user_data[:match_set],
+          run: session.assoc_exploit.user_data[:run],
+          state: 'succeeded',
+        )
+      elsif session.via_exploit
+        # This is a live session, we know the host is vulnerable to something.
+        infer_vuln_from_session(session, wspace)
       end
-
-      vuln_info = {
-        :host => host.address,
-        :name => mod_name,
-        :refs => mod.references,
-        :workspace => wspace,
-        :exploited_at => Time.now.utc,
-        :info => "Exploited by #{mod_fullname} to create Session #{s.id}"
-      }
-
-      port    = session.exploit_datastore["RPORT"]
-      service = (port ? host.services.find_by_port(port.to_i) : nil)
-
-      vuln_info[:service] = service if service
-
-      vuln = framework.db.report_vuln(vuln_info)
-
-      if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
-        via_exploit = sess_data[:datastore]['ParentModule']
-      else
-        via_exploit = session.via_exploit
-      end
-      attempt_info = {
-        :timestamp   => Time.now.utc,
-        :workspace   => wspace,
-        :module      => via_exploit,
-        :username    => session.username,
-        :refs        => mod.references,
-        :session_id  => s.id,
-        :host        => host,
-        :service     => service,
-        :vuln        => vuln
-      }
-
-      framework.db.report_exploit_success(attempt_info)
-
     end
 
     s
   }
   end
+
+  protected
+
+  # @param session [Msf::Session] A session with a {db_record Msf::Session#db_record}
+  # @param wspace [Mdm::Workspace]
+  # @return [void]
+  def infer_vuln_from_session(session, wspace)
+    s = session.db_record
+    host = session.db_record.host
+
+    mod = framework.modules.create(session.via_exploit)
+
+    if session.via_exploit == "exploit/multi/handler" and session.exploit_datastore['ParentModule']
+      mod_fullname = session.exploit_datastore['ParentModule']
+      mod_name = ::Mdm::Module::Detail.find_by_fullname(mod_fullname).name
+    else
+      mod_name = mod.name
+      mod_fullname = mod.fullname
+    end
+
+    vuln_info = {
+      :host => host.address,
+      :name => mod_name,
+      :refs => mod.references,
+      :workspace => wspace,
+      :exploited_at => Time.now.utc,
+      :info => "Exploited by #{mod_fullname} to create Session #{s.id}"
+    }
+
+    port    = session.exploit_datastore["RPORT"]
+    service = (port ? host.services.find_by_port(port.to_i) : nil)
+
+    vuln_info[:service] = service if service
+
+    vuln = framework.db.report_vuln(vuln_info)
+
+    if session.via_exploit == "exploit/multi/handler" and session.exploit_datastore['ParentModule']
+      via_exploit = session.exploit_datastore['ParentModule']
+    else
+      via_exploit = session.via_exploit
+    end
+    attempt_info = {
+      :timestamp   => Time.now.utc,
+      :workspace   => wspace,
+      :module      => via_exploit,
+      :username    => session.username,
+      :refs        => mod.references,
+      :session_id  => s.id,
+      :host        => host,
+      :service     => service,
+      :vuln        => vuln
+    }
+
+    framework.db.report_exploit_success(attempt_info)
+
+  end
+
 end
