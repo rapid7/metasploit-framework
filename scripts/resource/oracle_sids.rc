@@ -8,7 +8,7 @@ hosts = []
 begin
 	framework.db.services.each do |service|
 		if ( (service.port == 1521 or service.port == 1522 or service.port == 1526) and (service.name =~ /oracle/i) and service.state == 'open')
-			hosts << {'ip' => service.host.address, 'port' => service.port}
+			hosts << {'ip' => service.host.address.to_s, 'port' => service.port}
 		end
 	end
 	rescue ActiveRecord::ConnectionNotEstablished

@@ -68,7 +68,7 @@ shared_examples_for 'Msf::DBManager::Session' do
               session.exploit_datastore = exploit_datastore
               session.info = 'Info'
               session.platform = 'Platform'
-              session.session_host = host.address
+              session.session_host = host.address.to_s
               session.sid = rand(100)
               session.type = 'Session Type'
               session.via_exploit = 'exploit/multi/handler'

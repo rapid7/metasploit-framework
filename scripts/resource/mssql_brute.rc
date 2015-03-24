@@ -10,7 +10,7 @@ hosts = []
 begin
 	framework.db.services.each do |service|
 		if ( service.name =~ /mssql/i and service.state == 'open' and service.proto == 'tcp')
-			hosts << {'ip' => service.host.address, 'port' => service.port}
+			hosts << {'ip' => service.host.address.to_s, 'port' => service.port}
 		end
 	end
 rescue ActiveRecord::ConnectionNotEstablished

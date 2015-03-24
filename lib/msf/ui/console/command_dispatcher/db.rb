@@ -301,7 +301,7 @@ class Db
       host_ranges.each do |range|
         range.each do |address|
           host = framework.db.find_or_create_host(:host => address)
-          print_status("Time: #{host.created_at} Host: host=#{host.address}")
+          print_status("Time: #{host.created_at} Host: host=#{host.address.to_s}")
         end
       end
       return
@@ -338,7 +338,7 @@ class Db
 
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address.to_s + '%' + host.scope : host.address.to_s )
           rhosts << addr
         end
         if mode == :delete
@@ -489,7 +489,7 @@ class Db
           info[:name]  = names.first.downcase if names and names.first
 
           svc = framework.db.find_or_create_service(info)
-          print_status("Time: #{svc.created_at} Service: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
+          print_status("Time: #{svc.created_at} Service: host=#{svc.host.address.to_s} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
         end
       end
       return
@@ -520,10 +520,10 @@ class Db
           )
         end
 
-        columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
+        columns = [host.address.to_s] + col_names.map { |n| service[n].to_s || "" }
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address.to_s + '%' + host.scope : host.address.to_s )
           rhosts << addr
         end
 
@@ -638,12 +638,12 @@ class Db
             next unless ports.empty? or ports.include? vuln.service.port
             # Same for service names
             next unless svcs.empty? or svcs.include?(vuln.service.name)
-            print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
+            print_status("Time: #{vuln.created_at} Vuln: host=#{host.address.to_s} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
 
           else
             # This vuln has no service, so it can't match
             next unless ports.empty? and svcs.empty?
-            print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
+            print_status("Time: #{vuln.created_at} Vuln: host=#{host.address.to_s} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
           end
         end
       end
@@ -920,11 +920,11 @@ class Db
             # the user-supplied RangeWalker, then we don't have any reason to
             # print it out. However, we treat the absence of ranges as meaning
             # all hosts.
-            if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
+            if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address.to_s) }
               next
             end
-            row = [ login.service.host.address ]
-            rhosts << login.service.host.address
+            row = [ login.service.host.address.to_s ]
+            rhosts << login.service.host.address.to_s
             if login.service.name.present?
               row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
             else
@@ -1089,7 +1089,7 @@ class Db
           break if not host
           note = framework.db.find_or_create_note(:host => host, :type => type, :data => data)
           break if not note
-          print_status("Time: #{note.created_at} Note: host=#{host.address} type=#{note.ntype} data=#{note.data}")
+          print_status("Time: #{note.created_at} Note: host=#{host.address.to_s} type=#{note.ntype} data=#{note.data}")
         }
       }
       return
@@ -1156,9 +1156,9 @@ class Db
       msg = "Time: #{note.created_at} Note:"
       if (note.host)
         host = note.host
-        msg << " host=#{note.host.address}"
+        msg << " host=#{note.host.address.to_s}"
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address.to_s + '%' + host.scope : host.address.to_s )
           rhosts << addr
         end
       end
@@ -1314,7 +1314,7 @@ class Db
           )
           end
           row = []
-          row.push( (loot.host ? loot.host.address : "") )
+          row.push( (loot.host ? loot.host.address.to_s : "") )
           if (loot.service)
             svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
             row.push svc

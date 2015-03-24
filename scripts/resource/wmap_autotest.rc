@@ -24,9 +24,9 @@ end
 
 #we look in the global datastore for a global VERBOSE option and use it
 if (framework.datastore['VERBOSE'] == "true")
-	verbose = 1 
+	verbose = 1
 else
-	verbose = 0 
+	verbose = 0
 end
 
 if (framework.plugins.to_s =~ /[Ww]map/)
@@ -53,7 +53,7 @@ framework.db.hosts.each do |host|
 		if(verbose == 1)
 			print_line("")
 			print_line("====================================")
-			print_line("IP #{host.address}")
+			print_line("IP #{host.address.to_s}")
 			print_line("OS #{host.os_name}")
 			print_line("Servicename #{serv.name}")
 			print_line("Service Port #{serv.port.to_i}")
@@ -64,10 +64,10 @@ framework.db.hosts.each do |host|
 		print_line("available sites:")
 		run_single("wmap_sites -l")
 		print_line("site which will get analyzed:")
-		run_single("wmap_sites -s #{host.address}:#{serv.port}")
-		run_single("wmap_targets -t #{host.address}:#{serv.port}")
+		run_single("wmap_sites -s #{host.address.to_s}:#{serv.port}")
+		run_single("wmap_targets -t #{host.address.to_s}:#{serv.port}")
 		serv.web_sites.each do |site|
-			run_single("wmap_targets -t #{site.vhost},#{host.address}:#{serv.port}")
+			run_single("wmap_targets -t #{site.vhost},#{host.address.to_s}:#{serv.port}")
 		end
 		print_line("defined target:")
 		run_single("wmap_targets -l")

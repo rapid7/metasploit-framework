@@ -36,9 +36,9 @@ framework.db.workspace.hosts.each do |host|
 		next if not serv.host
 		next if (serv.state != Msf::ServiceState::Open)
 		next if (serv.name !~ /http/)
-		
+
 		if(verbose == 1)
-			print_line("IP: #{host.address}")
+			print_line("IP: #{host.address.to_s}")
 			print_line("OS: #{host.os_name}")
 			print_line("Servicename: #{serv.name}")
 			print_line("Service Port: #{serv.port.to_i}")
@@ -46,7 +46,7 @@ framework.db.workspace.hosts.each do |host|
 		end
 		run_single("use auxiliary/scanner/http/crawler")
 		run_single("set MAX_THREADS #{threadspercrawler}")
-		run_single("set RHOST #{host.address}")
+		run_single("set RHOST #{host.address.to_s}")
 		run_single("set RPORT #{serv.port.to_i}")
 		if(serv.name == "https")
 			run_single("set SSL true")

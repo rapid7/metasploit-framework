@@ -205,7 +205,7 @@ module Auxiliary::Report
       port         = opts[:service].port
       proto        = opts[:service].proto
       service_name = opts[:service].name
-      host         = opts[:service].host.address
+      host         = opts[:service].host.address.to_s
     else
       port         = opts.fetch(:port)
       service_name = opts.fetch(:sname, nil)

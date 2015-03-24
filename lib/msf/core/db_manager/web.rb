@@ -242,7 +242,7 @@ module Msf::DBManager::Web
     host.save!
 =end
 
-    vhost ||= host.address
+    vhost ||= host.address.to_s
     site = ::Mdm::WebSite.where(vhost: vhost, service_id: serv[:id]).first_or_initialize
     site.options = opts[:options] if opts[:options]
 
