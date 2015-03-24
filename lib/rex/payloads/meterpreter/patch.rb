@@ -18,7 +18,12 @@ module Rex
 
         # Replace the URL
         def self.patch_url!(blob, url)
-          patch_string!(blob, "https://#{'X' * 512}", url)
+          unless patch_string!(blob, "https://#{'X' * 512}", url)
+            # If the patching failed this could mean that we are somehow
+            # working with outdated binaries, so try to patch with the
+            # old stuff.
+            patch_string!(blob, "https://#{'X' * 256}", url)
+          end
         end
 
         # Replace the session expiration timeout
@@ -122,16 +127,22 @@ module Rex
         # Patch an ASCII value in the given payload. If not found, try WCHAR instead.
         #
         def self.patch_string!(blob, search, replacement)
+          result = false
+
           i = blob.index(search)
           if i
             blob[i, replacement.length] = replacement
+            result = true
           else
             i = blob.index(wchar(search))
             if i
               r = wchar(replacement)
               blob[i, r.length] = r
+              result = true
             end
           end
+
+          result
         end
 
         private
