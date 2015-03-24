@@ -27,7 +27,15 @@ module Msf
               sock: opts[:sock] || sock
             )
 
-            remote_object = parse_registry_lookup(return_value)
+            if return_value.nil?
+              return nil
+            end
+
+            if return_value.is_exception?
+              raise ::Rex::Proto::Rmi::Exception, return_value.get_class_name
+            end
+
+            remote_object = return_value.get_class_name
 
             if remote_object.nil?
               return nil
@@ -39,7 +47,7 @@ module Msf
               return nil
             end
 
-            {object: remote_object}.merge(remote_location)
+            remote_location.merge(object: remote_object)
           end
 
           # Sends a Registry list call to the RMI endpoint
@@ -57,6 +65,14 @@ module Msf
             return_value = recv_return(
               sock: opts[:sock] || sock
             )
+
+            if return_value.nil?
+              return nil
+            end
+
+            if return_value.is_exception?
+              raise ::Rex::Proto::Rmi::Exception, return_value.get_class_name
+            end
 
             names = parse_registry_list(return_value)
 

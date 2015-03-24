@@ -64,7 +64,7 @@ module Rex
           #
           # @return [String, NilClass] the returned value class, nil if errors
           def get_class_name
-            unless value[0] && value[0].class == Rex::Java::Serialization::Model::NewObject
+            unless value[0] && value[0].is_a?(Rex::Java::Serialization::Model::NewObject)
               return nil
             end
 

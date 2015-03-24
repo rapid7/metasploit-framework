@@ -46,7 +46,13 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     print_status("#{peer} - Listing names in the Registry...")
-    names = send_registry_list
+
+    begin
+      names = send_registry_list
+    rescue ::Rex::Proto::Rmi::Exception => e
+      print_error("#{peer} - List raised exception #{e.message}")
+      return
+    end
 
     if names.nil?
       print_error("#{peer} - Failed to list names")
@@ -62,7 +68,12 @@ class Metasploit3 < Msf::Auxiliary
 
     names.each do |name|
 
-      remote_reference = send_registry_lookup(name: name)
+      begin
+        remote_reference = send_registry_lookup(name: name)
+      rescue ::Rex::Proto::Rmi::Exception => e
+        print_error("#{peer} - Lookup of #{name} raised exception #{e.message}")
+        next
+      end
 
       if remote_reference.nil?
         print_error("#{peer} - Failed to lookup #{name}")

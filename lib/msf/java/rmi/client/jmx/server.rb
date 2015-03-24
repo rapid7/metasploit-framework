@@ -36,9 +36,15 @@ module Msf
                 raise ::Rex::Proto::Rmi::Exception, return_value.get_class_name
               end
 
-              ref = parse_jmx_new_client(return_value)
+              remote_object = return_value.get_class_name
 
-              ref
+              unless remote_object && remote_object == 'javax.management.remote.rmi.RMIConnectionImpl_Stub'
+                return nil
+              end
+
+              reference = parse_jmx_new_client_endpoint(return_value)
+
+              reference
             end
           end
         end
