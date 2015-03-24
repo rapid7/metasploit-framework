@@ -323,7 +323,16 @@ protected
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
         })
-
+      when /^\/ECHOUA/
+        
+        # Request to echo back the user agent, useful to avoid detection
+        print_status("Reflecting the user agent and updating the meterpreter user agent")
+        
+        # Update the currently configured meterpreter UA to what came from the client
+	datastore['MeterpreterUserAgent'] = req.headers["User-Agent"]
+        resp.body="<html><body>"+ req.headers["User-Agent"] + "</body></html>"
+        resp.code    = 200
+        resp.message = "OK"
       when /^\/CONN_.*\//
         resp.body = ""
         # Grab the checksummed version of CONN from the payload's request.
