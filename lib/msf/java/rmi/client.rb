@@ -107,6 +107,7 @@ module Msf
         def recv_return(opts = {})
           nsock = opts[:sock] || sock
           data = safe_get_once(nsock)
+          puts "#{Rex::Text.to_hex(data)}"
           begin
             return_data = Rex::Proto::Rmi::Model::ReturnData.decode(StringIO.new(data))
           rescue ::RuntimeError => e
