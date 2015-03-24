@@ -238,7 +238,7 @@ protected
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         
         # Override default behavior with client's user agent if set and allowed
-        if datastore['AllowClientUserAgentOverride']==true && cli_ua != ""
+        if datastore['AllowClientUserAgentOverride']==true
             blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(req.headers['User-Agent'])}'")
         else
             blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
