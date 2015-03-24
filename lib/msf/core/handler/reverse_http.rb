@@ -239,7 +239,7 @@ protected
         
         # Override default behavior with client's user agent if set and allowed
         if datastore['AllowClientUserAgentOverride']==true && cli_ua != ""
-            blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(cli_ua)}'")
+            blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(req.headers['User-Agent'])}'")
         else
             blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
         end
