@@ -1740,7 +1740,7 @@ class Db
       return
     end
     save = false
-    arguments = ''
+    arguments = []
     while (arg = args.shift)
       case arg
       when 'save'
@@ -1749,7 +1749,7 @@ class Db
         cmd_db_nmap_help
         return
       else
-        arguments << arg + ' '
+        arguments << arg
       end
     end
 
@@ -1773,15 +1773,15 @@ class Db
       # Custom function needed because cygpath breaks on 8.3 dirs
       tout = Rex::Compat.cygwin_to_win32(fd.path)
       fout = Rex::Compat.cygwin_to_win32(fo.path)
-      args.push('-oX', tout)
-      args.push('-oN', fout)
+      arguments.push('-oX', tout)
+      arguments.push('-oN', fout)
     else
-      args.push('-oX', fd.path)
-      args.push('-oN', fo.path)
+      arguments.push('-oX', fd.path)
+      arguments.push('-oN', fo.path)
     end
 
     begin
-      nmap_pipe = ::Open3::popen3([nmap, 'nmap'], arguments)
+      nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
       temp_nmap_threads = []
       temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
         np_1.each_line do |nmap_out|
