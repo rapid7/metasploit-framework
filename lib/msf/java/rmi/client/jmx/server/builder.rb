@@ -8,11 +8,12 @@ module Msf
           module Server
             module Builder
 
-              # Builds an RMI call to java.rmi.registry.Registry.lookup() used to
-              # retrieve the remote reference bound to a name.
+              # Builds an RMI call to javax/management/remote/rmi/RMIServer_Stub#newClient()
+              # used to enumerate the names bound in a registry
               #
               # @param opts [Hash]
-              # @option opts [String] :name the name to lookup
+              # @option opts [String] :username the JMX role to establish the connection if needed
+              # @option opts [String] :password the JMX password to establish the connection if needed
               # @return [Rex::Proto::Rmi::Model::Call]
               # @see Msf::Java::Rmi::Builder.build_call
               def build_jmx_new_client(opts = {})
@@ -43,11 +44,11 @@ module Msf
               end
 
               # Builds a Rex::Java::Serialization::Model::NewArray with credentials
-              # to make an authenticated handshake
+              # to make an javax/management/remote/rmi/RMIServer_Stub#newClient call
               #
               # @param username [String] The username (role) to authenticate with
               # @param password [String] The password to authenticate with
-              # @return [Rex::Java::Serialization::Model::NewArray]
+              # @return [Array<Rex::Java::Serialization::Model::NewArray>]
               def build_jmx_new_client_args(username = '', password = '')
                 builder = Rex::Java::Serialization::Builder.new
 

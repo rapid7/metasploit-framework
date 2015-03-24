@@ -4,6 +4,8 @@ module Msf
   module Java
     module Rmi
       module Client
+        # This mixin provides methods to simulate calls to the Java java/rmi/registry/RegistryImpl_Stub
+        # interface
         module Registry
           require 'msf/java/rmi/client/registry/builder'
           require 'msf/java/rmi/client/registry/parser'
@@ -11,11 +13,13 @@ module Msf
           include Msf::Java::Rmi::Client::Registry::Builder
           include Msf::Java::Rmi::Client::Registry::Parser
 
-          # Sends a Registry lookup call to the RMI endpoint
+          # Sends a Registry lookup call to the RMI endpoint. Simulates a call to the Java
+          # java/rmi/registry/RegistryImpl_Stub#lookup() method.
           #
           # @param opts [Hash]
           # @option opts [Rex::Socket::Tcp] :sock
           # @return [Hash, NilClass] The remote reference information if success, nil otherwise
+          # @raise [Rex::Proto::Rmi::Exception] if the endpoint raises a remote exception
           # @see Msf::Java::Rmi::Client::Registry::Builder.build_registry_lookup
           def send_registry_lookup(opts = {})
             send_call(
@@ -50,11 +54,13 @@ module Msf
             remote_location.merge(object: remote_object)
           end
 
-          # Sends a Registry list call to the RMI endpoint
+          # Sends a Registry list call to the RMI endpoint. Simulates a call to the Java
+          # java/rmi/registry/RegistryImpl_Stub#list() method
           #
           # @param opts [Hash]
           # @option opts [Rex::Socket::Tcp] :sock
           # @return [Array, NilClass] The set of names if success, nil otherwise
+          # @raise [Rex::Proto::Rmi::Exception] if the endpoint raises a remote exception
           # @see Msf::Java::Rmi::Client::Registry::Builder.build_registry_list
           def send_registry_list(opts = {})
             send_call(

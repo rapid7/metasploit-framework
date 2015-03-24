@@ -7,8 +7,8 @@ module Msf
         module Jmx
           module Server
             module Parser
-              # Parses a java.rmi.registry.Registry.lookup() return value to find out
-              # the remote reference information.
+              # Parses a javax/management/remote/rmi/RMIServer_Stub#newClient() return value
+              # to find out the remote reference information.
               #
               # @param return_value [Rex::Java::Serialization::Model::ReturnValue]
               # @return [Hash, NilClass] The remote interface information if success, nil otherwise

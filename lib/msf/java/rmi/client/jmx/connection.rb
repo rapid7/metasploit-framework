@@ -5,11 +5,23 @@ module Msf
     module Rmi
       module Client
         module Jmx
+          # This mixin provides methods to simulate calls to the Java
+          # javax/management/remote/rmi/RMIConnectionImpl_Stub
+          # interface
           module Connection
             require 'msf/java/rmi/client/jmx/connection/builder'
 
             include Msf::Java::Rmi::Client::Jmx::Connection::Builder
 
+            # Sends a call to the JMXRMI endpoint to retrieve an MBean instance. Simulates a call
+            # to the Java javax/management/remote/rmi/RMIConnectionImpl_Stub#getObjectInstance()
+            # method.
+            #
+            # @param opts [Hash]
+            # @option opts [Rex::Socket::Tcp] :sock
+            # @return [TrueClass, NilClass] true if success, nil otherwise
+            # @raise [Rex::Proto::Rmi::Exception] if the endpoint raises a remote exception
+            # @see Msf::Java::Rmi::Client::Registry::Builder.build_jmx_get_object_instance
             def send_jmx_get_object_instance(opts = {})
               send_call(
                 sock: opts[:sock] || sock,
@@ -35,6 +47,15 @@ module Msf
               true
             end
 
+            # Sends a call to the JMXRMI endpoint to create an MBean instance. Simulates a call
+            # to the Java javax/management/remote/rmi/RMIConnectionImpl_Stub#createMBean()
+            # method.
+            #
+            # @param opts [Hash]
+            # @option opts [Rex::Socket::Tcp] :sock
+            # @return [TrueClass, NilClass] true if success, nil otherwise
+            # @raise [Rex::Proto::Rmi::Exception] if the endpoint raises a remote exception
+            # @see Msf::Java::Rmi::Client::Registry::Builder.build_jmx_create_mbean
             def send_jmx_create_mbean(opts = {})
               send_call(
                 sock: opts[:sock] || sock,
@@ -60,6 +81,15 @@ module Msf
               true
             end
 
+            # Sends a call to the JMXRMI endpoint to invoke an MBean method. Simulates a call
+            # to the Java javax/management/remote/rmi/RMIConnectionImpl_Stub#invoke()
+            # method.
+            #
+            # @param opts [Hash]
+            # @option opts [Rex::Socket::Tcp] :sock
+            # @return [TrueClass, NilClass] true if success, nil otherwise
+            # @raise [Rex::Proto::Rmi::Exception] if the endpoint raises a remote exception
+            # @see Msf::Java::Rmi::Client::Registry::Builder.build_jmx_invoke
             def send_jmx_invoke(opts = {})
               send_call(
                 sock: opts[:sock] || sock,

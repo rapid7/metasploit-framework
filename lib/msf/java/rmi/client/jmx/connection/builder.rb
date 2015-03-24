@@ -7,11 +7,12 @@ module Msf
         module Jmx
           module Connection
             module Builder
-              # Builds an RMI call to java.rmi.registry.Registry.lookup() used to
-              # retrieve the remote reference bound to a name.
+
+              # Builds an RMI call to javax/management/remote/rmi/RMIConnectionImpl_Stub#getObjectInstance()
+              # used to retrieve an MBean instance
               #
               # @param opts [Hash]
-              # @option opts [String] :name the name to lookup
+              # @option opts [String] :name the MBean name
               # @return [Rex::Proto::Rmi::Model::Call]
               # @see Msf::Java::Rmi::Builder.build_call
               def build_jmx_get_object_instance(opts = {})
@@ -36,7 +37,12 @@ module Msf
                 call
               end
 
-              # javax.management.ObjectName $param_ObjectName_1, javax.security.auth.Subject $param_Subject_2
+              # Builds an an array of arguments o build a call to
+              # javax/management/remote/rmi/RMIConnectionImpl_Stub#getObjectInstance()
+              #
+              # @param opts [Hash]
+              # @option opts [String] :name the MBean name
+              # @return [Array]
               def build_jmx_get_object_instance_args(name = '')
                 builder = Rex::Java::Serialization::Builder.new
 
@@ -56,9 +62,13 @@ module Msf
                 arguments
               end
 
-
-              #// implementation of createMBean(String, ObjectName, Subject)
-              #public javax.management.ObjectInstance createMBean(java.lang.String $param_String_1, javax.management.ObjectName $param_ObjectName_2, javax.security.auth.Subject $param_Subject_3)
+              # Builds an RMI call to javax/management/remote/rmi/RMIConnectionImpl_Stub#createMBean()
+              # used to retrieve an MBean instance
+              #
+              # @param opts [Hash]
+              # @option opts [String] :name the MBean name
+              # @return [Rex::Proto::Rmi::Model::Call]
+              # @see Msf::Java::Rmi::Builder.build_call
               def build_jmx_create_mbean(opts = {})
                 name = opts[:name] || ''
                 object_number = opts[:object_number] || 0
@@ -81,7 +91,12 @@ module Msf
                 call
               end
 
-              #(String, ObjectName, Subject)
+              # Builds an an array of arguments o build a call to
+              # javax/management/remote/rmi/RMIConnectionImpl_Stub#createMBean()
+              #
+              # @param opts [Hash]
+              # @option opts [String] :name the MBean name
+              # @return [Array]
               def build_jmx_create_mbean_args(name = '')
                 arguments = [
                   Rex::Java::Serialization::Model::Utf.new(nil, name),
@@ -94,8 +109,14 @@ module Msf
             end
 
 
-            #implementation of invoke(ObjectName, String, MarshalledObject, String[], Subject)
-            #public java.lang.Object invoke(javax.management.ObjectName $param_ObjectName_1, java.lang.String $param_String_2, java.rmi.MarshalledObject $param_MarshalledObject_3, java.lang.String[] $param_arrayOf_String_4, javax.security.auth.Subject $param_Subject_5)            def build_jmx_invoke(opts = {})
+            # Builds an RMI call to javax/management/remote/rmi/RMIConnectionImpl_Stub#invoke()
+            # used to invoke an MBean method
+            #
+            # @param opts [Hash]
+            # @option opts [String] :name the MBean name
+            # @return [Rex::Proto::Rmi::Model::Call]
+            # @see Msf::Java::Rmi::Builder.build_call
+            # @see #build_jmx_invoke_args
             def build_jmx_invoke(opts = {})
               object_number = opts[:object_number] || 0
               uid_number = opts[:uid_number] || 0
@@ -117,7 +138,14 @@ module Msf
               call
             end
 
-            #(ObjectName, String, MarshalledObject, String[], Subject)
+            # Builds an an array of arguments o build a call to
+            # javax/management/remote/rmi/RMIConnectionImpl_Stub#invoke()
+            #
+            # @param opts [Hash]
+            # @option opts [String] :object the MBean name
+            # @option opts [String] :method the method name
+            # @option opts [Hash] :args the method arguments
+            # @return [Array]
             def build_jmx_invoke_args(opts = {})
               object_name = opts[:object] || ''
               method_name = opts[:method] || ''
@@ -142,15 +170,15 @@ module Msf
                 name: 'java.rmi.MarshalledObject',
                 serial: 0x7cbd1e97ed63fc3e, # serialVersionUID
                 fields: [
-                        ['int', 'hash'],
-                        ['array', 'locBytes', '[B'],
-                        ['array', 'objBytes', '[B']
-                      ],
+                  ['int', 'hash'],
+                  ['array', 'locBytes', '[B'],
+                  ['array', 'objBytes', '[B']
+                ],
                 data: [
-                        ["int", 1919492550],
-                        Rex::Java::Serialization::Model::NullReference.new,
-                        data_binary
-                      ]
+                  ["int", 1919492550],
+                  Rex::Java::Serialization::Model::NullReference.new,
+                  data_binary
+                ]
               )
 
               new_array = builder.new_array(
@@ -174,7 +202,8 @@ module Msf
             end
 
             # Builds a Rex::Java::Serialization::Model::Stream with the arguments to
-            # simulate a call to the Java invoke method method.
+            # simulate a call to the Java javax/management/remote/rmi/RMIConnectionImpl_Stub#invoke()
+            # method.
             #
             # @param args [Hash] the arguments of the method to invoke
             # @return [Rex::Java::Serialization::Model::Stream]
@@ -194,7 +223,6 @@ module Msf
 
               stream
             end
-
           end
         end
       end

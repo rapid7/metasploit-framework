@@ -12,12 +12,15 @@ module Msf
             include Msf::Java::Rmi::Client::Jmx::Server::Builder
             include Msf::Java::Rmi::Client::Jmx::Server::Parser
 
-            # Sends a Registry lookup call to the RMI endpoint
+            # Sends a call to the JMXRMI endpoint to retrieve an MBean instance. Simulates a call
+            # to the Java javax/management/remote/rmi/RMIServer_Stub#newClient()
+            # method.
             #
             # @param opts [Hash]
             # @option opts [Rex::Socket::Tcp] :sock
-            # @return [Hash, NilClass] The remote reference information if success, nil otherwise
-            # @see Msf::Java::Rmi::Client::Registry::Builder.build_registry_lookup
+            # @return [Hash, NilClass] The connection information if success, nil otherwise
+            # @raise [Rex::Proto::Rmi::Exception] if the endpoint raises a remote exception
+            # @see Msf::Java::Rmi::Client::Registry::Builder.build_jmx_new_client
             def send_new_client(opts = {})
               send_call(
                 sock: opts[:sock] || sock,

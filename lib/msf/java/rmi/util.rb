@@ -94,8 +94,11 @@ module Msf
 
         # Extract an RMI interface reference from an IO
         #
-        # @param io [IO] the io to extract the reference from
+        # @param io [IO] the io to extract the reference from, should contain the data
+        #   inside a BlockData with the reference information.
         # @return [Hash, nil] the extracted reference if success, nil otherwise
+        # @see Msf::Java::Rmi::Client::Jmx:Server::Parser#parse_jmx_new_client_endpoint
+        # @see Msf::Java::Rmi::Client::Registry::Parser#parse_registry_lookup_endpoint
         def extract_reference(io)
           ref = extract_string(io)
           unless ref && ref == 'UnicastRef'

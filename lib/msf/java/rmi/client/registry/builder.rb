@@ -7,7 +7,7 @@ module Msf
         module Registry
           module Builder
 
-            # Builds an RMI call to java.rmi.registry.Registry.lookup() used to
+            # Builds an RMI call to java/rmi/registry/RegistryImpl_Stub#lookup() used to
             # retrieve the remote reference bound to a name.
             #
             # @param opts [Hash]
@@ -34,7 +34,7 @@ module Msf
               call
             end
 
-            # Builds an RMI call to java.rmi.registry.Registry.list() used to
+            # Builds an RMI call to java/rmi/registry/RegistryImpl_Stub#list() used to
             # enumerate the names bound in a registry
             #
             # @param opts [Hash]

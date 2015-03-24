@@ -6,7 +6,7 @@ module Msf
       module Client
         module Registry
           module Parser
-            # Parses a java.rmi.registry.Registry.lookup() return value to find out
+            # Parses a java/rmi/registry/RegistryImpl_Stub#lookup() return value to find out
             # the remote reference information.
             #
             # @param return_value [Rex::Java::Serialization::Model::ReturnValue]
@@ -25,7 +25,7 @@ module Msf
               reference
             end
 
-            # Parses a java.rmi.registry.Registry.list() return value to find out
+            # Parses a java/rmi/registry/RegistryImpl_Stub#list() return value to find out
             # the list of names registered.
             #
             # @param return_value [Rex::Java::Serialization::Model::ReturnValue]
