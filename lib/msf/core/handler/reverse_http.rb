@@ -55,7 +55,8 @@ module ReverseHttp
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptBool.new('OverrideRequestHost', [ false, 'Forces clients to connect to LHOST:LPORT instead of keeping original payload host', false ]),
         OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>']),
-        OptBool.new('AllowClientUserAgentOverride', [ false, 'Allows a connecting client to set the meterpreter user agent string by sending an ECHOUA request', false])
+        OptEnum.new('UserAgentBehavior', [ false, 'Specifies how the handler should determine the user-agent string for communication', 'user-set', ['remove', 'reflect', 'user-set']])
+        
             
       ], Msf::Handler::ReverseHttp)
   end
@@ -237,10 +238,13 @@ protected
         blob.sub!('HTTP_EXPIRATION_TIMEOUT = 604800', "HTTP_EXPIRATION_TIMEOUT = #{datastore['SessionExpirationTimeout']}")
         blob.sub!('HTTP_COMMUNICATION_TIMEOUT = 300', "HTTP_COMMUNICATION_TIMEOUT = #{datastore['SessionCommunicationTimeout']}")
         
-        # Override default behavior with client's user agent if set and allowed
-        if datastore['AllowClientUserAgentOverride']==true
+        # Determine the user agent behavior
+        case datastore['UserAgentBehavior']
+            when 'Reflect'
             blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(req.headers['User-Agent'])}'")
-        else
+            when 'Remove'
+            # Don't patch a user agent
+            when 'User-Set'
             blob.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(datastore['MeterpreterUserAgent'])}'")
         end
        
@@ -303,11 +307,15 @@ protected
         # Patch options into the payload
         #
         
-        # Path in client's user agent if allowed
-        if datastore['AllowClientUserAgentOverride']==true
-            active_ua = req.headers['User-Agent']
-        else
-            active_ua = datastore['MeterpreterUserAgent']
+        ## Patch in the UA based upon the set UA behavior
+     
+        case datastore['UserAgentBehavior']
+        when 'Reflect'
+          active_ua = req.headers['User-Agent']
+        when 'Remove'
+          active_ua = ""
+        when 'User-Set'
+          active_ua = datastore['MeterpreterUserAgent']
         end
                                                
        Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
