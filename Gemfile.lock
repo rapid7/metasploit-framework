@@ -10,7 +10,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: 0468528ebc25dbd9cc0b2d52495f8f7c0778ed61
+  revision: 6a005a8cad5e72cc07c1dc8c2575726727ee3fba
   branch: staging/rails-4.0
   specs:
     metasploit-credential (1.14.1.pre.rails.pre.4.0)
@@ -34,7 +34,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 2aa1c08e64bb10600291f41fbcc76c6bc4ca9b22
+  revision: ef2a85e934514ef17e1597dc44a5c8a334fffb5f
   branch: staging/rails-4.0
   specs:
     metasploit_data_models (0.23.1.pre.rails.pre.4.0)
