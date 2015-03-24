@@ -61,12 +61,6 @@ describe Msf::Java::Rmi::Client::Registry::Parser do
 
   let(:names) { ['jmxrmi'] }
 
-  describe "#parse_registry_lookup" do
-    it "returns the remote object" do
-      expect(mod.parse_registry_lookup(lookup_return)).to eq(remote_object)
-    end
-  end
-
   describe "#parse_registry_lookup_endpoint" do
     it "returns the remote reference information in a Hash" do
       expect(mod.parse_registry_lookup_endpoint(lookup_return)).to be_a(Hash)

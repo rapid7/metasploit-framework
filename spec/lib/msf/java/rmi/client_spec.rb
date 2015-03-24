@@ -86,7 +86,7 @@ describe Msf::Java::Rmi::Client do
   describe "#recv_return" do
     context "when end point returns a value to the call" do
       it "returns a Rex::Java::Serialization::Model::Stream" do
-        expect(mod.recv_return(sock: return_io)).to be_a(Rex::Java::Serialization::Model::Stream)
+        expect(mod.recv_return(sock: return_io)).to be_a(Rex::Proto::Rmi::Model::ReturnValue)
       end
     end
 
