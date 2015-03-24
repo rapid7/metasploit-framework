@@ -41,10 +41,10 @@ shared_examples_for 'Msf::DBManager::Session' do
 
             d = double(
                 'Msf::Exploit',
-                :user_data => user_data,
-                :fullname => "exploit/#{name}",
-                :framework => framework,
-                :name => name
+                user_data: user_data,
+                fullname: "exploit/#{name}",
+                framework: framework,
+                name: name
             )
             allow(d).to receive(:user_data_is_match?).and_return(false)
             d
@@ -127,7 +127,7 @@ shared_examples_for 'Msf::DBManager::Session' do
               {
                 match: FactoryGirl.create(:automatic_exploitation_match),
                 match_set: FactoryGirl.create(:automatic_exploitation_match_set),
-                run: FactoryGirl.create(:automatic_exploitation_run),
+                run: FactoryGirl.build(:automatic_exploitation_run, workspace: session_workspace),
               }
             end
 
@@ -136,7 +136,9 @@ shared_examples_for 'Msf::DBManager::Session' do
             end
 
             it 'should make a MatchResult' do
-              expect { report_session }.to change(MetasploitDataModels::AutomaticExploitation::MatchResult, :count).by(1)
+              expect {
+                report_session
+              }.to change(MetasploitDataModels::AutomaticExploitation::MatchResult, :count).by(1)
             end
           end
 
