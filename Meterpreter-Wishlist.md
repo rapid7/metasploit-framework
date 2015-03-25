@@ -154,9 +154,9 @@ Related open tickets (slightly broader than Meterpreter):
  * Being able to use Meterpreter instances to easily forward commands & exfil
  * Supporting a set URI path for reverse_http(s), so you can use other webservers as a reverse proxy.
 
-### Session handlers
+### Session Handlers
  * Generate a unique ID for each session (target-side) [**IN PROGRESS**]
- * Generate a unique ID for each generated payload (part of the session uuid?)  Backdooring/Persisting on more than 10 machines over months it gets very difficult to know when a host hasn’t called back in a while or when a new host arrives. This would need not to be based on gateway, local IP, or any other transient information. This can be processed at any step as long as when STDAPI is loaded I can quickly identify if it’s a system that I’ve known about, and how long it’s been since I’ve seen it. [**IN PROGRESS**]
+ * Generate a unique ID for each generated payload  Backdooring/Persisting on more than 10 machines over months it gets very difficult to know when a host hasn’t called back in a while or when a new host arrives. This would need not to be based on gateway, local IP, or any other transient information. This can be processed at any step as long as when STDAPI is loaded I can quickly identify if it’s a system that I’ve known about, and how long it’s been since I’ve seen it. [**IN PROGRESS**]
  * Shared listeners that can stage multiple payload architectures and platforms (using tags). Depends on new stagers and a new listener and unique IDs. [**IN PROGRESS**]
  * Handlers will stay open after a session connects in order to support re-connects [**IN PROGRESS**]
  * Track the last time a given session checked in [**IN PROGRESS**]
