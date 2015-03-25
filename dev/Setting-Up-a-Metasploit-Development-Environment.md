@@ -1016,9 +1016,9 @@ git config --global user.email "YOUR_USERNAME_FOR_EMAIL"
 ```
 ----
 
-That's it! It's still on you to set up your shell aliases, git aliases,
-and PGP key for signing commits if you ever care to land things, but
-other than that, you're good to go.
+That's it! It's still on you to set up your [aliases](#handy-aliases)
+and PGP key for [signing commits](#signing-commits) if you ever
+care to land pull requests, but other than that, you're good to go.
 
 Again, if there are any errors, omissions, or better ways to do any of
 these things, by all means, open an [issue][issues] and we'll see about
