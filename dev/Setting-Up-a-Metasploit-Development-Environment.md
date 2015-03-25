@@ -837,7 +837,6 @@ apt-get -y --force-yes install kali-archive-keyring &&
 apt-get update &&
 apt-get -y upgrade
 ```
-----
 
 ----
 ```bash
@@ -848,7 +847,6 @@ ufw allow 8080:8090/tcp &&
 ufw allow ssh &&
 service ssh start
 ```
-----
 
 ----
 ```bash
@@ -876,7 +874,6 @@ echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get -y install \
   libapr1 libaprutil1 libsvn1 \
   libpcap-dev libsqlite3-dev
 ```
-----
 
 ----
 ```bash
@@ -887,14 +884,12 @@ ruby -v && # See that it's 2.1.5
 sudo gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
   --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true
 ```
-----
 
 ----
 ```
 echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get install vim-gnome -y &&
 curl -Lo- https://bit.ly/janus-bootstrap | bash
 ```
-----
 
 ----
 ```bash
@@ -924,7 +919,6 @@ unset PUBKEY_GIT &&
 unset PASS &&
 ssh -T github
 ```
-----
 
 ----
 ```bash
@@ -937,7 +931,6 @@ sleep 300 &&
 git clone github:YOUR_USERNAME_FOR_GITHUB/metasploit-framework &&
 cd metasploit-framework
 ```
-----
 
 ----
 ```bash
@@ -947,7 +940,6 @@ bundle config --global jobs $BUNDLEJOBS) &&
 bundle install &&
 ./msfconsole -x exit
 ```
-----
 
 ----
 ```
@@ -994,7 +986,6 @@ EOF
 ```
 ----
 
-----
 ```bash
 cd $HOME/git/metasploit-framework &&
 ./msfconsole -qx "db_status; exit" &&
@@ -1002,7 +993,6 @@ rake spec
 ```
 ----
 
-----
 ```bash
 cd $HOME/git/metasploit-framework &&
 git remote add upstream github:rapid7/metasploit-framework.git &&
