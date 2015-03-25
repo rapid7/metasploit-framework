@@ -245,7 +245,7 @@ ruby -v
 
 It should say `ruby 2.1.5p273`, unless there is a later version and this doc hasn't been updated yet.
 
-# Install an editor
+# Install an Editor
 
 #### TLDR (as msfdev)
 
