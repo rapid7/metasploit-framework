@@ -24,13 +24,15 @@ module Msf
 
                 arguments = build_jmx_get_object_instance_args(name)
 
+                method_hash = calculate_method_hash('getObjectInstance(Ljavax/management/ObjectName;Ljavax/security/auth/Subject;)Ljavax/management/ObjectInstance;')
+
                 call = build_call(
                   object_number: object_number,
                   uid_number: uid_number,
                   uid_time: uid_time,
                   uid_count: uid_count,
                   operation: -1,
-                  hash: 6950095694996159938, # RMIConnectionImpl_Stub.getObjectInstance()
+                  hash: method_hash,
                   arguments: arguments
                 )
 
@@ -76,6 +78,8 @@ module Msf
                 uid_time = opts[:uid_time] || 0
                 uid_count = opts[:uid_count] || 0
 
+                method_hash = calculate_method_hash('createMBean(Ljava/lang/String;Ljavax/management/ObjectName;Ljavax/security/auth/Subject;)Ljavax/management/ObjectInstance;')
+
                 arguments = build_jmx_create_mbean_args(name)
 
                 call = build_call(
@@ -84,7 +88,7 @@ module Msf
                   uid_time: uid_time,
                   uid_count: uid_count,
                   operation: -1,
-                  hash: 2510753813974665446,
+                  hash: method_hash,
                   arguments: arguments
                 )
 
@@ -123,6 +127,8 @@ module Msf
               uid_time = opts[:uid_time] || 0
               uid_count = opts[:uid_count] || 0
 
+              method_hash = calculate_method_hash('invoke(Ljavax/management/ObjectName;Ljava/lang/String;Ljava/rmi/MarshalledObject;[Ljava/lang/String;Ljavax/security/auth/Subject;)Ljava/lang/Object;')
+
               arguments = build_jmx_invoke_args(opts)
 
               call = build_call(
@@ -131,7 +137,7 @@ module Msf
                 uid_time: uid_time,
                 uid_count: uid_count,
                 operation: -1,
-                hash: 1434350937885235744,
+                hash: method_hash,
                 arguments: arguments
               )
 
