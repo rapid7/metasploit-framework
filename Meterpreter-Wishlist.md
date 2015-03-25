@@ -35,6 +35,7 @@ Related open tickets (slightly broader than Meterpreter):
  * Reverse pivoting from the target machine back to the attacker (TCP/UDP) . For many years I’ve asked for this feature. Basically Meterpreter needs to be able to say, listen on port 8080 on victim 1 and it go through the Meterpreter session to port whatever (9060) on the attacker’s machine or a designated alternate IP. then, whenever someone hits that port it’s auto forwarded through the session. This could help out a lot for SMB capture, Post exploitation phishing, and other things like setting a user’s proxy to use your forwarded port instead of the corporate proxy.
  * Improved pivoting speed and latency
  * Pivoting that is reliable and works well with different transports.  In particular, I want the ability to pivot one session through another even if the first session is reverse_tcp or reverse_https, regardless of the second sessions transport.  This will be difficult without installing drivers, but I would like several useful, working transports that I know I can pivot reliably with.
+ * Carry portforwards and other channels along with a migrate.
 
 ### Privilege Escalation
  * Allow privilege escalation modules to increase the privileges of the current session instead of firing off a new session.
