@@ -148,7 +148,7 @@ chsh -s /bin/bash msfdev
 
 Once this is complete, switch to this user by logging out of `root` and logging back in as `msfdev`. While some steps down the line will still require sudoer access, you should resist the temptation to keep being root. You will invariably forget to switch and start getting mystery errors about unable to read critical resources that RVM and Git need.
 
-# Install the base dev pacakages
+# Install the base dev packages
 
 #### TLDR (as msfdev)
 
