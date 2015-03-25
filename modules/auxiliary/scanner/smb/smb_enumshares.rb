@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
           'sinn3r',
           'r3dy',
           'altonjx',
-	  'snar5'
+	        'snar5'
         ],
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
@@ -215,6 +215,13 @@ class Metasploit3 < Msf::Auxiliary
       scoff     = data[(i * 20) + 16, 2].unpack('v')[0]
       scoff -= lconv if lconv != 0
       scomm,tmp = data[scoff, data.length - scoff].split("\x00")
+      if datastore['Check_Write_Access']
+                writeable = check_write_access(ip,sname)
+                  if writeable
+                   scomm += "\033[1;32m[Write Access]\033[0;00m"
+                end
+
+      end
       shares << [ sname, share_type(stype), scomm]
     end
 
