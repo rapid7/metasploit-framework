@@ -222,6 +222,20 @@ class ClientCore < Extension
     return true
   end
 
+  def change_transport(opts={})
+    request = Packet.create_request('core_change_transport')
+
+    url = "#{opts[:scheme]}://#{opts[:lhost]}:#{opts[:lport]}"
+    url <<  '/' + opts[:suffix] if opts[:suffix]
+
+    request.add_tlv(TLV_TYPE_TRANSPORT_TYPE, opts[:type])
+    request.add_tlv(TLV_TYPE_TRANSPORT_URL, url)
+
+    response = client.send_request(request)
+
+    # TODO: shut this baby down.
+  end
+
   #
   # Migrates the meterpreter instance to the process specified
   # by pid.  The connection to the server remains established.

@@ -50,6 +50,7 @@ class Console::CommandDispatcher::Core
       "irb"        => "Drop into irb scripting mode",
       "use"        => "Deprecated alias for 'load'",
       "load"       => "Load one or more meterpreter extensions",
+      "transport"  => "Change the current transport mechanism",
       "quit"       => "Terminate the meterpreter session",
       "resource"   => "Run the commands stored in a file",
       "read"       => "Reads data from a channel",
@@ -318,6 +319,53 @@ class Console::CommandDispatcher::Core
     session = client
     framework = client.framework
     Rex::Ui::Text::IrbShell.new(binding).run
+  end
+
+  def cmd_transport(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      #cmd_transport_help
+      return true
+    end
+
+    # the order of these is important (hacky!)
+    valid_transports = ['reverse_tcp', 'reverse_http', 'reverse_https', 'bind_tcp']
+
+    transport = args.shift.downcase
+    unless valid_transports.include?(transport)
+      #cmd_transport_help
+    end
+
+    if transport == 'bind_tcp'
+      unless args.length == 1
+        #cmd_transport_help
+      end
+
+      lhost = ""
+      lport = args.shift.to_i
+      type = 0
+    else
+      unless args.length == 2
+        #cmd_transport_help
+      end
+
+      lhost = args.shift
+      lport = args.shift.to_i
+      type = valid_transports.index(transport)
+    end
+
+    suffix = nil
+    unless transport.ends_with?("tcp")
+      suffix = "some magic URL"
+    end
+
+    client.core.change_transport({
+      :type   => type,
+      :scheme => transport.split('_')[1],
+      :lhost  => lhost,
+      :lport  => lport,
+      :suffix => suffix
+    })
+
   end
 
   def cmd_migrate_help
