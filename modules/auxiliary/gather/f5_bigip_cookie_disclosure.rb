@@ -148,7 +148,6 @@ class Metasploit3 < Msf::Auxiliary
     unless backends.empty?
       report_note(host: rhost, type: "f5_load_balancer_backends", data: backends)
     end
-
     rescue ::Rex::ConnectionError
       print_error("#{peer} - Network connection error")
     rescue ::OpenSSL::SSL::SSLError
