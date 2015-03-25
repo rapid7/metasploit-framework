@@ -172,7 +172,7 @@ Meterpreter Proxy Support
 ### Android Meterpreter Features
  * Android gather modules for auth tokens & sqlite databases (call logs, contacts,  email, etc)
  * Android lock screen removal (as well as cracking the original code/gesture)
- * Synergy integration
+ * Remote screen control
  * Add record_mic_stream (trigger based on event, like phone call)
  * Grab photos from front and rear cameras
  * Android desktop background, sound play, vibrate, screenshot
