@@ -297,8 +297,14 @@ if __FILE__ == $0
       exit
     end
 
-    $stderr.puts "Options for #{payload_mod.fullname}\n\n"
-    $stdout.puts ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
+    $stderr.puts "Options for #{payload_mod.fullname}:\n\n"
+    $stdout.puts ::Msf::Serializer::ReadableText.dump_module(payload_mod, '    ')
+
+    $stderr.puts "Advanced options for #{payload_mod.fullname}:\n\n"
+    $stdout.puts ::Msf::Serializer::ReadableText.dump_advanced_options(payload_mod, '    ')
+
+    $stderr.puts "Evasion options for #{payload_mod.fullname}:\n\n"
+    $stdout.puts ::Msf::Serializer::ReadableText.dump_evasion_options(payload_mod, '    ')
     exit(0)
   end
 

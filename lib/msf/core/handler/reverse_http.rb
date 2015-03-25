@@ -3,6 +3,8 @@ require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
 require 'msf/core/handler/reverse_http/uri_checksum'
 require 'rex/payloads/meterpreter/patch'
+require 'rex/parser/x509_certificate'
+require 'msf/core/payload/windows/verify_ssl'
 
 module Msf
 module Handler
@@ -16,6 +18,7 @@ module ReverseHttp
 
   include Msf::Handler
   include Msf::Handler::ReverseHttp::UriChecksum
+  include Msf::Payload::Windows::VerifySsl
 
   #
   # Returns the string representation of the handler type
@@ -291,12 +294,15 @@ protected
 
         blob = obj.stage_payload
 
+        verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                             datastore['HandlerSSLCert'])
         #
         # Patch options into the payload
         #
-        Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+        Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
           :ssl            => ssl?,
           :url            => url,
+          :ssl_cert_hash  => verify_cert_hash,
           :expiration     => datastore['SessionExpirationTimeout'],
           :comm_timeout   => datastore['SessionCommunicationTimeout'],
           :ua             => datastore['MeterpreterUserAgent'],
@@ -304,7 +310,7 @@ protected
           :proxy_port     => datastore['PayloadProxyPort'],
           :proxy_type     => datastore['PayloadProxyType'],
           :proxy_user     => datastore['PayloadProxyUser'],
-          :proxy_pass     => datastore['PayloadProxyPass']
+          :proxy_pass     => datastore['PayloadProxyPass'])
 
         resp.body = encode_stage(blob)
 
