@@ -1024,6 +1024,10 @@ Again, if there are any errors, omissions, or better ways to do any of
 these things, by all means, open an [issue][issues] and we'll see about
 updating this HOWTO.
 
+Thanks especially to [@kernelsmith](https://github.com/kernelsmith)
+and [@corelanc0d3r](https://github.com/corelanc0d3r) for their
+invaluable help and feedback on this dev environment documentation guide.
+
 [contribute]:http://r-7.co/MSF-CONTRIB
 [issues]:https://github.com/rapid7/metasploit-framework/issues
 [ffmike-gist]: https://gist.github.com/ffmike/877447
