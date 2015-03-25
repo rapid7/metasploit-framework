@@ -126,7 +126,7 @@ Related open tickets (slightly broader than Meterpreter):
  * Session listing output should indicate what URL and URL alias a particular session is associated with [**IN PROGRESS**]
  * URLs can be anywhere from 1 to 256 bytes long [**IN PROGRESS**]
 
-Meterpreter Proxy Support
+### Meterpreter Proxy Support
  * Use Windows Credentials with NTLM Authentication to connect via System Proxy back to attacker [**IN PROGRESS**]
  * If Meterpreter executes as system - option to find a user, and use that users proxy settings for comms (temporarily or cleanup on exit) - maybe something like RunAsCurrentUser
  * Better proxy support and the ability to sleep or perform burst updates would be fantastic [**IN PROGRESS**]
