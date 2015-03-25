@@ -1,4 +1,4 @@
-# Metasploit Development Environmnet
+# Metasploit Development Environment
 
 <sup>*The shortlink to this wiki page is http://r-7.co/MSF-DEV*</sup>
 
