@@ -208,11 +208,7 @@ module Metasploit
             cli.connect
             req = cli.request_cgi(opts)
             res = cli.send_recv(req)
-          rescue ::Errno::EPIPE, ::Timeout::Error => e
-            # We are trying to mimic the same type of exception rescuing in
-            # Msf::Exploit::Remote::HttpClient. But instead of returning nil, we'll consistently
-            # raise Rex::ConnectionError so the #attempt_login can return the error message back
-            # to the login module.
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
             raise Rex::ConnectionError, e.message
           ensure
             cli.close
