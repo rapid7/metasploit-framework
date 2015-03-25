@@ -198,6 +198,7 @@ module Metasploit
         # @option opts['Hash'] 'context' A context
         # @raise [Rex::ConnectionError] One of these errors has occured: EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
         # @return [Rex::Proto::Http::Response] The HTTP response
+        # @return [NilClass] An error has occured while reading the response (see #Rex::Proto::Http::Client#read_response)
         def send_request(opts)
           rhost           = opts['host'] || host
           rport           = opts['rport'] || port
