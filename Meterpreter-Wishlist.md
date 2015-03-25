@@ -56,7 +56,7 @@ Related open tickets (slightly broader than Meterpreter):
  * Remote (target-side) scripting
  * Builtin userland persistence 
  * Builtin rootkit/bootkit payload persistence
- * Create payloads that only "install" on specific computers (like Gauss)
+ * Create payloads that only "install" on specific computers (based on hardware, windows domain, etc)
  * Acquire a physical RAM image without touching the disk. This currently requires uploading winpmem[64].sys to windows\system32 and invoking it through post/windows/manage/driver_loader. As loaded winpmem.sys exposes the RAM as disk device I can then suck it through post/windows/manage/nbd_server. Please make this possible without dropping winpmem.sys to system32 folder if possible
  * Manage multiple Meterpreter processes as one session as described in #4715. Many times there have been situations where a keyscan, or sniffer was going and something else occurred that required migration or cancelling to perform an action. “Installing” jobs in processes less likely to die would allow a pentester to still move around as needed but also be able to have persistent tasks going. A pipe dream of this feature would be to install a “rev2system” jobs whereby I could migrate to a low priv status for accessing Cryptolib encrypted storage but also get back to SYSTEM when I’m done without needing to pop a shell again. Another pipe dream here would be to also have jobs that if the user logged out, then back in the next day and I had a shell come back then, I could re-attach to my running jobs and get their results
 
