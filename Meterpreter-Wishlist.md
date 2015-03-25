@@ -93,7 +93,7 @@ Related open tickets (slightly broader than Meterpreter):
  * OLE / Office Controls: This is basically an open ended feature request asking for support of for Office, mostly Outlook (like read newest emails, search email, etc).
 
 
-### Metepreter Stager Support:
+### Metepreter Stager Support
  * Network error tolerant versions of existing stagers [**IN PROGRESS**]
  * Tagged stagers that send the payload type, arch, platform during the staging process to enable shared listeners [**IN PROGRESS**]
  * Stagers that contain an embedded unique ID that can be used to identify which payload triggered what session [**IN PROGRESS**]
