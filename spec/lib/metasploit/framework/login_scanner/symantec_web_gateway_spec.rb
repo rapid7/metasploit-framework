@@ -72,14 +72,6 @@ describe Metasploit::Framework::LoginScanner::SymantecWebGateway do
       end
     end
 
-    describe '#send_request' do
-      context 'when a valid request is sent' do
-        it 'returns a response object' do
-          expect(subject.send_request({'uri'=>'/'})).to be_kind_of(Rex::Proto::Http::Response)
-        end
-      end
-    end
-
     describe '#get_last_sid' do
       let(:response) do
         res = Rex::Proto::Http::Response.new(200, 'OK')
