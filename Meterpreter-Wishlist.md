@@ -133,7 +133,7 @@ Meterpreter Proxy Support
 
 ### Communication Protection
  * Authenticated callbacks: This is pretty straight forward, when a pentester no longer controls the IP they were attacking from and failed to clean up every binary and phishing email there is a chance of compromise by proxy. The problem was somewhat solved with  SessionExpirationTimeout and SessionCommunicationTimeout but both of them are loaded in the stage, not hard coded into any binary built, so it’s very easy to get into this situation. Authenticated callbacks would allow a pentester to add a small layer of protections if this event were to happen and a callback from a client was sent to an IP no longer in the pentester’s control
- * Embedded TLS cert or hash of cert to verify Meterpreter instance on the Metasploit side [**DONE**]
+ * Embedded TLS cert or hash of cert to verify Meterpreter instance on the Metasploit side
  * Embedded TLS cert or hash of cert to verify Metasploit instance on the Meterpreter side [**DONE**] 
  * Embedded password to verify Meterpreter instance on the Metasploit side (challenge-response)
  * Embedded password to verify Metasploit instance on the Meterpreter side (challenge-response)
