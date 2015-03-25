@@ -227,5 +227,11 @@ describe Msf::Java::Rmi::Client::Registry do
       end
     end
   end
+
+  describe "#registry_interface_hash" do
+    it "calculates the hash for the java/rmi/registry/RegistryImpl_Stub correctly" do
+      expect(mod.registry_interface_hash).to eq(4905912898345647071)
+    end
+  end
 end
 

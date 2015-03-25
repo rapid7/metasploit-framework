@@ -25,7 +25,7 @@ module Msf
         # @param exceptions [Array] set of declared exceptions
         # @return [Fixnum] The interface hash
         # @see http://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmi-stubs24.html The RemoteRef Interface documentation to understand how interface hashes are calculated
-        def calculate_interface_hash(methods, exceptions)
+        def calculate_interface_hash(methods)
           stream = ''
           stream << [1].pack('N') # stub version number
 
@@ -34,7 +34,7 @@ module Msf
             utf_descriptor = Rex::Java::Serialization::Model::Utf.new(nil, m[:descriptor])
             stream << utf_method.encode
             stream << utf_descriptor.encode
-            exceptions.each do |e|
+            m[:exceptions].each do |e|
               utf_exception = Rex::Java::Serialization::Model::Utf.new(nil, e)
               stream << utf_exception.encode
             end

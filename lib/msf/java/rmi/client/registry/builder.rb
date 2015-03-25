@@ -27,7 +27,7 @@ module Msf
                 uid_time: uid_time,
                 uid_count: uid_count,
                 operation: 2, # java.rmi.Remote lookup(java.lang.String)
-                hash: 0x44154dc9d4e63bdf, # RegistryImpl_Stub
+                hash: registry_interface_hash,
                 arguments: [Rex::Java::Serialization::Model::Utf.new(nil, name)]
               )
 
@@ -52,7 +52,7 @@ module Msf
                 uid_time: uid_time,
                 uid_count: uid_count,
                 operation: 1, # java.lang.String list()[]
-                hash: 0x44154dc9d4e63bdf, # RegistryImpl_Stub
+                hash: registry_interface_hash,
                 arguments: []
               )
 

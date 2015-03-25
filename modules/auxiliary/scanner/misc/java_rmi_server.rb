@@ -53,10 +53,17 @@ class Metasploit3 < Msf::Auxiliary
 
     dgc_interface_hash = calculate_interface_hash(
       [
-        {name: 'clean', descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/VMID;Z)V'},
-        {name: 'dirty', descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/Lease;)Ljava/rmi/dgc/Lease;'}
-      ],
-      ['java.rmi.RemoteException']
+        {
+          name: 'clean',
+          descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/VMID;Z)V',
+          exceptions: ['java.rmi.RemoteException']
+        },
+        {
+          name: 'dirty',
+          descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/Lease;)Ljava/rmi/dgc/Lease;',
+          exceptions: ['java.rmi.RemoteException']
+        }
+      ]
     )
 
     # JDK 1.1 stub protocol

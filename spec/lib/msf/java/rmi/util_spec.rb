@@ -12,18 +12,14 @@ describe Msf::Java::Rmi::Util do
     mod
   end
 
-  let(:interface_methods) do
+  let(:example_interface) do
     [
-      {name: 'sayHello', descriptor: '()Ljava/lang/String;'},
-      {name: 'sayHelloTwo', descriptor: '(Ljava/lang/String;)Ljava/lang/String;'}
+      {name: 'sayHello', descriptor: '()Ljava/lang/String;', exceptions: ['java.rmi.RemoteException']},
+      {name: 'sayHelloTwo', descriptor: '(Ljava/lang/String;)Ljava/lang/String;', exceptions: ['java.rmi.RemoteException']}
     ]
   end
 
-  let(:interface_exceptions) do
-    ['java.rmi.RemoteException']
-  end
-
-  let(:interface_hash) do
+  let(:example_hash) do
     0x3e664fcbd9e953bb
   end
 
@@ -35,15 +31,11 @@ describe Msf::Java::Rmi::Util do
     0x53e0822d3e3724df
   end
 
-  let(:dgc_methods) do
+  let(:dgc_interface) do
     [
-      {name: 'clean', descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/VMID;Z)V'},
-      {name: 'dirty', descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/Lease;)Ljava/rmi/dgc/Lease;'}
+      {name: 'clean', descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/VMID;Z)V', exceptions: ['java.rmi.RemoteException']},
+      {name: 'dirty', descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/Lease;)Ljava/rmi/dgc/Lease;', exceptions: ['java.rmi.RemoteException']}
     ]
-  end
-
-  let(:dgc_exceptions) do
-    ['java.rmi.RemoteException']
   end
 
   let(:dgc_hash) do
@@ -83,13 +75,13 @@ describe Msf::Java::Rmi::Util do
   describe "#calculate_interface_hash" do
     context "when an example interface is provided" do
       it "generates a correct interface hash" do
-        expect(mod.calculate_interface_hash(interface_methods, interface_exceptions)).to eq(interface_hash)
+        expect(mod.calculate_interface_hash(example_interface)).to eq(example_hash)
       end
     end
 
     context "when a DGC interface is provided" do
       it "generates a correct interface hash" do
-        expect(mod.calculate_interface_hash(dgc_methods, dgc_exceptions)).to eq(dgc_hash)
+        expect(mod.calculate_interface_hash(dgc_interface)).to eq(dgc_hash)
       end
     end
   end

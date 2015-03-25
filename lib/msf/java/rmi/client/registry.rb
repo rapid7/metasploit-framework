@@ -84,6 +84,44 @@ module Msf
 
             names
           end
+
+          # Calculates the hash to make RMI calls for the
+          # java/rmi/registry/RegistryImpl_Stub interface
+          #
+          # @return [Fixnum] The interface's hash
+          def registry_interface_hash
+            hash = calculate_interface_hash(
+              [
+                {
+                  name: 'bind',
+                  descriptor: '(Ljava/lang/String;Ljava/rmi/Remote;)V',
+                  exceptions: ['java.rmi.AccessException', 'java.rmi.AlreadyBoundException', 'java.rmi.RemoteException']
+                },
+                {
+                  name: 'list',
+                  descriptor: '()[Ljava/lang/String;',
+                  exceptions: ['java.rmi.AccessException', 'java.rmi.RemoteException']
+                },
+                {
+                  name: 'lookup',
+                  descriptor: '(Ljava/lang/String;)Ljava/rmi/Remote;',
+                  exceptions: ['java.rmi.AccessException', 'java.rmi.NotBoundException', 'java.rmi.RemoteException']
+                },
+                {
+                  name: 'rebind',
+                  descriptor: '(Ljava/lang/String;Ljava/rmi/Remote;)V',
+                  exceptions: ['java.rmi.AccessException', 'java.rmi.RemoteException']
+                },
+                {
+                  name: 'unbind',
+                  descriptor: '(Ljava/lang/String;)V',
+                  exceptions: ['java.rmi.AccessException', 'java.rmi.NotBoundException', 'java.rmi.RemoteException']
+                }
+              ]
+            )
+
+            hash
+          end
         end
       end
     end
