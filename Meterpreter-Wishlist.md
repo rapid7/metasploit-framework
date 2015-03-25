@@ -20,7 +20,7 @@ Related open tickets (slightly broader than Meterpreter):
  * Powershell Meterpreter
  * Some users indicated that the Python/PHP Meterpreters were important because the POSIX/Linux Meterpreter was not working for them
 
-### Mimikatz
+### Mimikatz Integration
  * In-memory pass-the-hash (basically this runs a process as “netonly” I believe, then injects real credential hashes supplied by the user in order to perform network based auth to things with only a hash)
  * Exporting of certificates, keys, and tickets in base64 format (already supported) then down to real files on disk for the attacker [info](https://github.com/gentilkiwi/mimikatz/wiki/module-~-standard#base64)
  * Add on-target minidump extraction
