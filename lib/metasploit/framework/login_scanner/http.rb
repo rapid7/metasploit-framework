@@ -218,7 +218,7 @@ module Metasploit
             cli.connect
             req = cli.request_cgi(opts)
             res = cli.send_recv(req)
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e]
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
             raise Rex::ConnectionError, e.message
           ensure
             cli.close
