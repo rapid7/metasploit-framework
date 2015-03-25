@@ -193,22 +193,32 @@ module Metasploit
         # @raise [Rex::ConnectionError] Something has gone wrong while sending the HTTP request
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
+          rhost           = opts['host'] || host
+          rport           = opts['rport'] || port
+          cli_ssl         = opts['ssl'] || ssl
+          cli_ssl_version = opts['ssl_version'] || ssl_version
+          cli_proxies     = opts['proxies'] || proxies
+          username        = opts['username'] || ''
+          password        = opts['password'] || ''
+          context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
+
           res = nil
-          cli = Rex::Proto::Http::Client.new(host, port,
-            {
-              'Msf' => framework,
-              'MsfExploit' => framework_module
-            },
-            ssl,
-            ssl_version,
-            proxies
+          cli = Rex::Proto::Http::Client.new(
+            rhost,
+            rport,
+            context,
+            cli_ssl,
+            cli_ssl_version,
+            cli_proxies,
+            username,
+            password
           )
           configure_http_client(cli)
           begin
             cli.connect
             req = cli.request_cgi(opts)
             res = cli.send_recv(req)
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e]
             raise Rex::ConnectionError, e.message
           ensure
             cli.close
