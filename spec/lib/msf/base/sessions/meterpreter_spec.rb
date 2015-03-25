@@ -26,8 +26,6 @@ describe Msf::Sessions::Meterpreter do
     ]
   end
 
-  it { should respond_to(:find_internet_connected_address) }
-
   describe "#find_internet_connected_address" do
 
     subject(:connected_address) do
