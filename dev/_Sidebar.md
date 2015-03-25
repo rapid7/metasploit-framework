@@ -1,22 +1,20 @@
 #### Contents
 ***
-* [Apt-Get Install](#apt-get-install)
-* [Getting Ruby](#getting-ruby)
-* [Your Editor](#your-editor)
-* [Using GitHub](#using-github)
-* [Using Git](#working-with-git)
-* [Git Aliases](#git-aliases)
-* [Forking Metasploit](#forking-metasploit)
-* [Setting your Prompt](#setting-your-prompt)
-* [Bundle Install](#bundle-install)
-* [The Database](#configure-your-database)
-* [Keeping in Sync](#keeping-in-sync)
-* [Pull Requests](#pull-requests)
-* [Git Hooks](#git-hooks)
-* [Signed Commits](#signed-commits)
-* [Rspec Tests](#rspec-tests)
-* [Next Steps](#next-steps)
-* [Development on OS X](#Development-on-OS-X)
+
+* [Update Kali Linux](#update-kali-linux)
+* [Enable Remote Access](#enable-remote-access)
+* [Create a Dev User](#create-a-dev-user)
+* [Install packages](#install-the-base-dev-packages)
+* [Install RVM](#install-rvm)
+* [Install an editor](#install-an-editor)
+* [Generate an SSH Key](#generate-an-ssh-key)
+* [Fork and Clone](#fork-and-clone-metasploit-framework)
+* [Install Bundled Gems](#install-bundled-gems)
+* [Set up PostgreSQL](#set-up-postgresql)
+* [Run Specs](#run-specs)
+* [Configure Git](#configure-git)
+* [Handy Aliases](#handy-aliases)
+* [TLDR of TLDRs](#tldr-of-tldrs)
 
 <br>
 
