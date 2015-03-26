@@ -77,6 +77,7 @@ module Msf::DBManager::Session
   # @raise ArgumentError if :host and :session is +nil+
   def report_session(opts)
     return if not active
+
   ::ActiveRecord::Base.connection_pool.with_connection {
     if opts[:session]
       raise ArgumentError.new("Invalid :session, expected Msf::Session") unless opts[:session].kind_of? Msf::Session
@@ -88,35 +89,35 @@ module Msf::DBManager::Session
       h_opts[:workspace] = wspace
       host = find_or_create_host(h_opts)
       sess_data = {
-        :host_id     => host.id,
-        :stype       => session.type,
-        :desc        => session.info,
-        :platform    => session.platform,
-        :via_payload => session.via_payload,
-        :via_exploit => session.via_exploit,
-        :routes      => [],
-        :datastore   => session.exploit_datastore.to_h,
-        :port        => session.session_port,
-        :opened_at   => Time.now.utc,
-        :last_seen   => Time.now.utc,
-        :local_id    => session.sid
+        host_id: host.id,
+        stype: session.type,
+        desc: session.info,
+        platform: session.platform,
+        via_payload: session.via_payload,
+        via_exploit: session.via_exploit,
+        routes: [],
+        datastore: session.exploit_datastore.to_h,
+        port: session.session_port,
+        opened_at: Time.now.utc,
+        last_seen: Time.now.utc,
+        local_id: session.sid
       }
     elsif opts[:host]
       raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? ::Mdm::Host
       host = opts[:host]
       sess_data = {
-        :host_id => host.id,
-        :stype => opts[:stype],
-        :desc => opts[:desc],
-        :platform => opts[:platform],
-        :via_payload => opts[:via_payload],
-        :via_exploit => opts[:via_exploit],
-        :routes => opts[:routes] || [],
-        :datastore => opts[:datastore],
-        :opened_at => opts[:opened_at],
-        :closed_at => opts[:closed_at],
-        :last_seen => opts[:last_seen] || opts[:closed_at],
-        :close_reason => opts[:close_reason],
+        host_id: host.id,
+        stype: opts[:stype],
+        desc: opts[:desc],
+        platform: opts[:platform],
+        via_payload: opts[:via_payload],
+        via_exploit: opts[:via_exploit],
+        routes: opts[:routes] || [],
+        datastore: opts[:datastore],
+        opened_at: opts[:opened_at],
+        closed_at: opts[:closed_at],
+        last_seen: opts[:last_seen] || opts[:closed_at],
+        close_reason: opts[:close_reason],
       }
     else
       raise ArgumentError.new("Missing option :session or :host")
