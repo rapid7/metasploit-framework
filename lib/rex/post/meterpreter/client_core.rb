@@ -40,6 +40,40 @@ class ClientCore < Extension
   # Core commands
   #
   ##
+  #
+  #
+  # Get a list of loaded commands for the given extension.
+  #
+  def get_loaded_extension_commands(extension_name)
+    request = Packet.create_request('core_enumextcmd')
+    request.add_tlv(TLV_TYPE_STRING, extension_name)
+
+    begin
+      response = self.client.send_packet_wait_response(request, self.client.response_timeout)
+    rescue
+      # In the case where orphaned shells call back with OLD copies of the meterpreter
+      # binaries, we end up with a case where this fails. So here we just return the
+      # empty list of supported commands.
+      return []
+    end
+
+    # No response?
+    if response.nil?
+      raise RuntimeError, "No response was received to the core_enumextcmd request.", caller
+    elsif response.result != 0
+      # This case happens when the target doesn't support the core_enumextcmd message.
+      # If this is the case, then we just want to ignore the error and return an empty
+      # list. This will force the caller to load any required modules.
+      return []
+    end
+
+    commands = []
+    response.each(TLV_TYPE_STRING) { |c|
+      commands << c.value
+    }
+
+    commands
+  end
 
   #
   # Loads a library on the remote meterpreter instance.  This method
@@ -153,25 +187,36 @@ class ClientCore < Extension
     if mod.nil?
       raise RuntimeError, "No modules were specified", caller
     end
-    # Get us to the installation root and then into data/meterpreter, where
-    # the file is expected to be
-    modname = "ext_server_#{mod.downcase}"
-    path = MeterpreterBinaries.path(modname, client.binary_suffix)
 
-    if opts['ExtensionPath']
-      path = ::File.expand_path(opts['ExtensionPath'])
+    # Query the remote instance to see if commands for the extension are
+    # already loaded
+    commands = get_loaded_extension_commands(mod.downcase)
+
+    # if there are existing commands for the given extension, then we can use
+    # what's already there
+    unless commands.length > 0
+      # Get us to the installation root and then into data/meterpreter, where
+      # the file is expected to be
+      modname = "ext_server_#{mod.downcase}"
+      path = MeterpreterBinaries.path(modname, client.binary_suffix)
+
+      if opts['ExtensionPath']
+        path = ::File.expand_path(opts['ExtensionPath'])
+      end
+
+      if path.nil?
+        raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
+      end
+
+      # Load the extension DLL
+      commands = load_library(
+          'LibraryFilePath' => path,
+          'UploadLibrary'   => true,
+          'Extension'       => true,
+          'SaveToDisk'      => opts['LoadFromDisk'])
     end
 
-    if path.nil?
-      raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
-    end
-
-    # Load the extension DLL
-    commands = load_library(
-        'LibraryFilePath' => path,
-        'UploadLibrary'   => true,
-        'Extension'       => true,
-        'SaveToDisk'      => opts['LoadFromDisk'])
+    # wire the commands into the client
     client.add_extension(mod, commands)
 
     return true
@@ -411,11 +456,11 @@ class ClientCore < Extension
         :expiration     => self.client.expiration,
         :comm_timeout   =>  self.client.comm_timeout,
         :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
-        :proxyhost      =>  client.exploit_datastore['PROXYHOST'],
-        :proxyport      =>  client.exploit_datastore['PROXYPORT'],
-        :proxy_type     =>  client.exploit_datastore['PROXY_TYPE'],
-        :proxy_username =>  client.exploit_datastore['PROXY_USERNAME'],
-        :proxy_password =>  client.exploit_datastore['PROXY_PASSWORD']
+        :proxy_host     =>  client.exploit_datastore['PayloadProxyHost'],
+        :proxy_port     =>  client.exploit_datastore['PayloadProxyPort'],
+        :proxy_type     =>  client.exploit_datastore['PayloadProxyType'],
+        :proxy_user     =>  client.exploit_datastore['PayloadProxyUser'],
+        :proxy_pass     =>  client.exploit_datastore['PayloadProxyPass']
 
     end
 

@@ -9,6 +9,8 @@ require 'msf/core/handler/reverse_hop_http'
 
 module Metasploit3
 
+  CachedSize = 353
+
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 

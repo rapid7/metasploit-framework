@@ -243,16 +243,16 @@ class Core
 
     args.each do |res|
       good_res = nil
-      if (File.file? res and File.readable? res)
+      if ::File.exists?(res)
         good_res = res
       elsif
         # let's check to see if it's in the scripts/resource dir (like when tab completed)
         [
-          ::Msf::Config.script_directory + File::SEPARATOR + "resource",
-          ::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+          ::Msf::Config.script_directory + ::File::SEPARATOR + "resource",
+          ::Msf::Config.user_script_directory + ::File::SEPARATOR + "resource"
         ].each do |dir|
-          res_path = dir + File::SEPARATOR + res
-          if (File.file?(res_path) and File.readable?(res_path))
+          res_path = dir + ::File::SEPARATOR + res
+          if ::File.exists?(res_path)
             good_res = res_path
             break
           end

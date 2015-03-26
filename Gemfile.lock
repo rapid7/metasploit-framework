@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/rapid7/metasploit_data_models.git
-  revision: a077ac0b6e5d939da9e1b8f017bd3780aac07ef9
-  branch: feature/MSP-11925/move-automatic-expoitation-factories
+  revision: 6835d9cf61ad998db4184405ab21a92ef92caaa5
+  branch: staging/single-vuln-push
   specs:
-    metasploit_data_models (0.23.2.pre.move.pre.automatic.pre.expoitation.pre.factories)
+    metasploit_data_models (0.23.2.pre.single.pre.vuln.pre.push)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
       arel-helpers
@@ -24,7 +24,7 @@ PATH
       json
       metasploit-concern (~> 0.3.0)
       metasploit-model (~> 0.29.0)
-      meterpreter_bins (= 0.0.14)
+      meterpreter_bins (= 0.0.17)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
@@ -37,7 +37,7 @@ PATH
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 3.2.21, < 4.0.0)
-      metasploit-credential (~> 0.14.0)
+      metasploit-credential (~> 0.14.3)
       metasploit-framework (= 4.11.0.pre.dev)
       metasploit_data_models (~> 0.23.0)
       pg (>= 0.11)
@@ -127,7 +127,7 @@ GEM
     metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.14.0)
+    metasploit-credential (0.14.3)
       metasploit-concern (~> 0.3.0)
       metasploit-model (~> 0.29.0)
       metasploit_data_models (~> 0.23.0)
@@ -138,7 +138,7 @@ GEM
     metasploit-model (0.29.0)
       activesupport
       railties (< 4.0.0)
-    meterpreter_bins (0.0.14)
+    meterpreter_bins (0.0.17)
     method_source (0.8.2)
     mime-types (1.25.1)
     mini_portile (0.6.1)
@@ -205,7 +205,7 @@ GEM
       rspec-core (~> 2.99.0)
       rspec-expectations (~> 2.99.0)
       rspec-mocks (~> 2.99.0)
-    rubyntlm (0.4.0)
+    rubyntlm (0.5.0)
     rubyzip (1.1.7)
     shoulda-matchers (2.6.2)
     simplecov (0.5.4)

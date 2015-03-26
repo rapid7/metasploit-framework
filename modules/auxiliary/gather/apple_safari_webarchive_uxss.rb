@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'open-uri'
+require 'uri'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -732,7 +732,7 @@ class Metasploit3 < Msf::Auxiliary
       results = []
       print_status "Fetching URL #{url}..."
       # fetch and parse the HTML document
-      doc = Nokogiri::HTML(open(url))
+      doc = Nokogiri::HTML(URI.parse(url).open)
       # recursively add scripts from iframes
       doc.css('iframe').each do |iframe|
         print_status "Checking iframe..."
@@ -771,7 +771,7 @@ class Metasploit3 < Msf::Auxiliary
             if url.to_s.starts_with? '//'
               url = "#{page_uri.scheme}:#{url}"
             end
-            io = open(url)
+            io = URI.parse(url).open
           rescue URI::InvalidURIError, OpenURI::HTTPError
             next
           end

@@ -61,7 +61,7 @@ File.open('log/untested-payloads.log') { |f|
 
          $stderr.puts
          $stderr.puts "  context '#{reference_name}' do\n" \
-                      "    it_should_behave_like 'payload can be instantiated',\n" \
+                      "    it_should_behave_like 'payload cached size is consistent',\n" \
                       "                          ancestor_reference_names: ["
 
          ancestor_reference_names = options[:ancestor_reference_names]
@@ -74,6 +74,7 @@ File.open('log/untested-payloads.log') { |f|
          end
 
          $stderr.puts "                          ],\n" \
+                      "                          dynamic_size: false,\n" \
                       "                          modules_pathname: modules_pathname,\n" \
                       "                          reference_name: '#{reference_name}'\n" \
                       "  end"

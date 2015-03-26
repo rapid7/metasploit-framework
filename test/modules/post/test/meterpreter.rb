@@ -19,7 +19,10 @@ class Metasploit4 < Msf::Post
         'Platform'      => [ 'windows', 'linux', 'java' ],
         'SessionTypes'  => [ 'meterpreter' ]
       ))
-
+    register_options(
+      [
+        OptString.new("BaseFileName" , [true, "File/dir base name", "meterpreter-test"])
+      ], self.class)
   end
 
   #
@@ -164,11 +167,12 @@ class Metasploit4 < Msf::Post
     end
 
     it "should create and remove a dir" do
-      session.fs.dir.rmdir("meterpreter-test-dir") rescue nil
-      res = create_directory("meterpreter-test-dir")
+      dir_name = "#{datastore["BaseFileName"]}-dir"
+      session.fs.dir.rmdir(dir_name) rescue nil
+      res = create_directory(dir_name)
       if (res)
-        session.fs.dir.rmdir("meterpreter-test-dir")
-        res &&= !session.fs.dir.entries.include?("meterpreter-test-dir")
+        session.fs.dir.rmdir(dir_name)
+        res &&= !session.fs.dir.entries.include?(dir_name)
         vprint_status("Directory removed successfully")
       end
 
@@ -176,26 +180,27 @@ class Metasploit4 < Msf::Post
     end
 
     it "should change directories" do
-      session.fs.dir.rmdir("meterpreter-test-dir") rescue nil
-      res = create_directory("meterpreter-test-dir")
+      dir_name = "#{datastore["BaseFileName"]}-dir"
+      session.fs.dir.rmdir(dir_name) rescue nil
+      res = create_directory(dir_name)
 
       old_wd = session.fs.dir.pwd
       vprint_status("Old CWD: #{old_wd}")
 
       if res
-        session.fs.dir.chdir("meterpreter-test-dir")
+        session.fs.dir.chdir(dir_name)
         new_wd = session.fs.dir.pwd
         vprint_status("New CWD: #{new_wd}")
-        res &&= (new_wd =~ /meterpreter-test-dir$/)
 
+        res &&= new_wd.include? dir_name
         if res
           session.fs.dir.chdir("..")
           wd = session.fs.dir.pwd
           vprint_status("Back to old CWD: #{wd}")
         end
       end
-      session.fs.dir.rmdir("meterpreter-test-dir")
-      res &&= !session.fs.dir.entries.include?("meterpreter-test-dir")
+      session.fs.dir.rmdir(dir_name)
+      res &&= !session.fs.dir.entries.include?(dir_name)
       vprint_status("Directory removed successfully")
 
       res
@@ -203,27 +208,27 @@ class Metasploit4 < Msf::Post
 
     it "should create and remove files" do
       res = true
-      res &&= session.fs.file.open("meterpreter-test", "wb") { |fd|
+      file_name = datastore["BaseFileName"]
+      res &&= session.fs.file.open(file_name, "wb") { |fd|
         fd.write("test")
       }
 
-      vprint_status("Wrote to meterpreter-test, checking contents")
-      res &&= session.fs.file.open("meterpreter-test", "rb") { |fd|
+      vprint_status("Wrote to #{file_name}, checking contents")
+      res &&= session.fs.file.open(file_name, "rb") { |fd|
         contents = fd.read
         vprint_status("Wrote #{contents}")
         (contents == "test")
       }
 
-      session.fs.file.rm("meterpreter-test")
-      res &&= !session.fs.dir.entries.include?("meterpreter-test")
+      session.fs.file.rm(file_name)
+      res &&= !session.fs.dir.entries.include?(file_name)
 
       res
     end
 
     it "should upload a file" do
       res = true
-
-      remote = "meterpreter-test-file.txt"
+      remote = "#{datastore["BaseFileName"]}-file.txt"
       local  = __FILE__
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)
@@ -249,23 +254,25 @@ class Metasploit4 < Msf::Post
     if session.commands.include?("stdapi_fs_file_move")
       it "should move files" do
         res = true
+        src_name = datastore["BaseFileName"]
+        dst_name = "#{datastore["BaseFileName"]}-moved"
 
         # Make sure we don't have leftovers from a previous run
-        session.fs.file.rm("meterpreter-test") rescue nil
-        session.fs.file.rm("meterpreter-test-moved") rescue nil
+        session.fs.file.rm(src_name) rescue nil
+        session.fs.file.rm(dst_name) rescue nil
 
         # touch a new file
-        fd = session.fs.file.open("meterpreter-test", "wb")
+        fd = session.fs.file.open(src_name, "wb")
         fd.close
 
-        session.fs.file.mv("meterpreter-test", "meterpreter-test-moved")
+        session.fs.file.mv(src_name, dst_name)
         entries = session.fs.dir.entries
-        res &&= entries.include?("meterpreter-test-moved")
-        res &&= !entries.include?("meterpreter-test")
+        res &&= entries.include?(dst_name)
+        res &&= !entries.include?(src_name)
 
         # clean up
-        session.fs.file.rm("meterpreter-test") rescue nil
-        session.fs.file.rm("meterpreter-test-moved") rescue nil
+        session.fs.file.rm(src_name) rescue nil
+        session.fs.file.rm(dst_name) rescue nil
 
         res
       end
@@ -273,7 +280,7 @@ class Metasploit4 < Msf::Post
 
     it "should do md5 and sha1 of files" do
       res = true
-      remote = "meterpreter-test-file.txt"
+      remote = "#{datastore["BaseFileName"]}-file.txt"
       local  = __FILE__
       vprint_status("uploading")
       session.fs.file.upload_file(remote, local)

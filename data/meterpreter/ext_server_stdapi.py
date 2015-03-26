@@ -59,6 +59,7 @@ if sys.version_info[0] < 3:
 	is_bytes = lambda obj: issubclass(obj.__class__, str)
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
+	unicode = lambda x: (x.decode('UTF-8') if isinstance(x, str) else x)
 else:
 	if isinstance(__builtins__, dict):
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
@@ -69,6 +70,7 @@ else:
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
+	unicode = lambda x: (x.decode('UTF-8') if isinstance(x, bytes) else x)
 
 if has_ctypes:
 	#
@@ -530,7 +532,7 @@ def get_stat_buffer(path):
 	if hasattr(si, 'st_blocks'):
 		blocks = si.st_blocks
 	st_buf = struct.pack('<IHHH', si.st_dev, min(0xffff, si.st_ino), si.st_mode, si.st_nlink)
-	st_buf += struct.pack('<HHHI', si.st_uid, si.st_gid, 0, rdev)
+	st_buf += struct.pack('<HHHI', si.st_uid & 0xffff, si.st_gid & 0xffff, 0, rdev)
 	st_buf += struct.pack('<IIII', si.st_size, long(si.st_atime), long(si.st_mtime), long(si.st_ctime))
 	st_buf += struct.pack('<II', blksize, blocks)
 	return st_buf
@@ -630,7 +632,7 @@ def channel_open_stdapi_fs_file(request, response):
 		fmode = fmode.replace('bb', 'b')
 	else:
 		fmode = 'rb'
-	file_h = open(fpath, fmode)
+	file_h = open(unicode(fpath), fmode)
 	channel_id = meterpreter.add_channel(MeterpreterFile(file_h))
 	response += tlv_pack(TLV_TYPE_CHANNEL_ID, channel_id)
 	return ERROR_SUCCESS, response
@@ -923,18 +925,19 @@ def stdapi_sys_process_get_processes(request, response):
 @meterpreter.register_function
 def stdapi_fs_chdir(request, response):
 	wd = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
-	os.chdir(wd)
+	os.chdir(unicode(wd))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
 def stdapi_fs_delete(request, response):
 	file_path = packet_get_tlv(request, TLV_TYPE_FILE_NAME)['value']
-	os.unlink(file_path)
+	os.unlink(unicode(file_path))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
 def stdapi_fs_delete_dir(request, response):
 	dir_path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
+	dir_path = unicode(dir_path)
 	if os.path.islink(dir_path):
 		del_func = os.unlink
 	else:
@@ -945,7 +948,7 @@ def stdapi_fs_delete_dir(request, response):
 @meterpreter.register_function
 def stdapi_fs_delete_file(request, response):
 	file_path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	os.unlink(file_path)
+	os.unlink(unicode(file_path))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -971,25 +974,29 @@ def stdapi_fs_file_expand_path(request, response):
 def stdapi_fs_file_move(request, response):
 	oldname = packet_get_tlv(request, TLV_TYPE_FILE_NAME)['value']
 	newname = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	os.rename(oldname, newname)
+	os.rename(unicode(oldname), unicode(newname))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
 def stdapi_fs_getwd(request, response):
-	response += tlv_pack(TLV_TYPE_DIRECTORY_PATH, os.getcwd())
+	if hasattr(os, 'getcwdu'):
+		wd = os.getcwdu()
+	else:
+		wd = os.getcwd()
+	response += tlv_pack(TLV_TYPE_DIRECTORY_PATH, wd)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
 def stdapi_fs_ls(request, response):
 	path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
-	path = os.path.abspath(path)
-	contents = os.listdir(path)
-	contents.sort()
-	for x in contents:
-		y = os.path.join(path, x)
-		response += tlv_pack(TLV_TYPE_FILE_NAME, x)
-		response += tlv_pack(TLV_TYPE_FILE_PATH, y)
-		response += tlv_pack(TLV_TYPE_STAT_BUF, get_stat_buffer(y))
+	path = os.path.abspath(unicode(path))
+	dir_contents = os.listdir(path)
+	dir_contents.sort()
+	for file_name in dir_contents:
+		file_path = os.path.join(path, file_name)
+		response += tlv_pack(TLV_TYPE_FILE_NAME, file_name)
+		response += tlv_pack(TLV_TYPE_FILE_PATH, file_path)
+		response += tlv_pack(TLV_TYPE_STAT_BUF, get_stat_buffer(file_path))
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function
@@ -1008,6 +1015,7 @@ def stdapi_fs_md5(request, response):
 @meterpreter.register_function
 def stdapi_fs_mkdir(request, response):
 	dir_path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
+	dir_path = unicode(dir_path)
 	if not os.path.isdir(dir_path):
 		os.mkdir(dir_path)
 	return ERROR_SUCCESS, response
@@ -1016,6 +1024,7 @@ def stdapi_fs_mkdir(request, response):
 def stdapi_fs_search(request, response):
 	search_root = packet_get_tlv(request, TLV_TYPE_SEARCH_ROOT).get('value', '.')
 	search_root = ('' or '.') # sometimes it's an empty string
+	search_root = unicode(search_root)
 	glob = packet_get_tlv(request, TLV_TYPE_SEARCH_GLOB)['value']
 	recurse = packet_get_tlv(request, TLV_TYPE_SEARCH_RECURSE)['value']
 	if recurse:
@@ -1056,7 +1065,7 @@ def stdapi_fs_sha1(request, response):
 @meterpreter.register_function
 def stdapi_fs_stat(request, response):
 	path = packet_get_tlv(request, TLV_TYPE_FILE_PATH)['value']
-	st_buf = get_stat_buffer(path)
+	st_buf = get_stat_buffer(unicode(path))
 	response += tlv_pack(TLV_TYPE_STAT_BUF, st_buf)
 	return ERROR_SUCCESS, response
 
@@ -1334,10 +1343,12 @@ def stdapi_net_socket_tcp_shutdown(request, response):
 	channel.shutdown(how)
 	return ERROR_SUCCESS, response
 
+def _wreg_close_key(hkey):
+	ctypes.windll.advapi32.RegCloseKey(hkey)
+
 @meterpreter.register_function_windll
 def stdapi_registry_close_key(request, response):
-	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
-	result = ctypes.windll.advapi32.RegCloseKey(hkey)
+	_wreg_close_key(packet_get_tlv(request, TLV_TYPE_HKEY)['value'])
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function_windll
@@ -1372,11 +1383,9 @@ def stdapi_registry_delete_value(request, response):
 	result = ctypes.windll.advapi32.RegDeleteValueA(root_key, ctypes.byref(value_name))
 	return result, response
 
-@meterpreter.register_function_windll
-def stdapi_registry_enum_key(request, response):
+def _wreg_enum_key(request, response, hkey):
 	ERROR_MORE_DATA = 0xea
 	ERROR_NO_MORE_ITEMS = 0x0103
-	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
 	name = (ctypes.c_char * 4096)()
 	index = 0
 	tries = 0
@@ -1399,10 +1408,22 @@ def stdapi_registry_enum_key(request, response):
 	return result, response
 
 @meterpreter.register_function_windll
-def stdapi_registry_enum_value(request, response):
+def stdapi_registry_enum_key(request, response):
+	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
+	return _wreg_enum_key(request, response, hkey)
+
+@meterpreter.register_function_windll
+def stdapi_registry_enum_key_direct(request, response):
+	err, hkey = _wreg_open_key(request)
+	if err != ERROR_SUCCESS:
+		return err, response
+	ret = _wreg_enum_key(request, response, hkey)
+	_wreg_close_key(hkey)
+	return ret
+
+def _wreg_enum_value(request, response, hkey):
 	ERROR_MORE_DATA = 0xea
 	ERROR_NO_MORE_ITEMS = 0x0103
-	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
 	name = (ctypes.c_char * 4096)()
 	name_sz = ctypes.c_uint32()
 	index = 0
@@ -1427,6 +1448,20 @@ def stdapi_registry_enum_value(request, response):
 	return result, response
 
 @meterpreter.register_function_windll
+def stdapi_registry_enum_value(request, response):
+	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
+	return _wreg_enum_value(request, response, hkey)
+
+@meterpreter.register_function_windll
+def stdapi_registry_enum_value_direct(request, response):
+	err, hkey = _wreg_open_key(request)
+	if err != ERROR_SUCCESS:
+		return err, response
+	ret = _wreg_enum_value(request, response, hkey)
+	_wreg_close_key(hkey)
+	return ret
+
+@meterpreter.register_function_windll
 def stdapi_registry_load_key(request, response):
 	root_key = packet_get_tlv(request, TLV_TYPE_ROOT_KEY)
 	sub_key = packet_get_tlv(request, TLV_TYPE_BASE_KEY)
@@ -1434,16 +1469,22 @@ def stdapi_registry_load_key(request, response):
 	result = ctypes.windll.advapi32.RegLoadKeyA(root_key, sub_key, file_name)
 	return result, response
 
-@meterpreter.register_function_windll
-def stdapi_registry_open_key(request, response):
+def _wreg_open_key(request):
 	root_key = packet_get_tlv(request, TLV_TYPE_ROOT_KEY)['value']
 	base_key = packet_get_tlv(request, TLV_TYPE_BASE_KEY)['value']
 	base_key = ctypes.create_string_buffer(bytes(base_key, 'UTF-8'))
 	permission = packet_get_tlv(request, TLV_TYPE_PERMISSION).get('value', winreg.KEY_ALL_ACCESS)
 	handle_id = ctypes.c_void_p()
 	if ctypes.windll.advapi32.RegOpenKeyExA(root_key, ctypes.byref(base_key), 0, permission, ctypes.byref(handle_id)) != ERROR_SUCCESS:
-		return error_result_windows(), response
-	response += tlv_pack(TLV_TYPE_HKEY, handle_id.value)
+		return error_result_windows(), 0
+	return ERROR_SUCCESS, handle_id.value
+
+@meterpreter.register_function_windll
+def stdapi_registry_open_key(request, response):
+	err, hkey = _wreg_open_key(request)
+	if err != ERROR_SUCCESS:
+		return err, response
+	response += tlv_pack(TLV_TYPE_HKEY, hkey)
 	return ERROR_SUCCESS, response
 
 @meterpreter.register_function_windll
@@ -1467,9 +1508,7 @@ def stdapi_registry_query_class(request, response):
 	response += tlv_pack(TLV_TYPE_VALUE_DATA, ctypes.string_at(value_data))
 	return ERROR_SUCCESS, response
 
-@meterpreter.register_function_windll
-def stdapi_registry_query_value(request, response):
-	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
+def _query_value(request, response, hkey):
 	value_name = packet_get_tlv(request, TLV_TYPE_VALUE_NAME)['value']
 	value_name = ctypes.create_string_buffer(bytes(value_name, 'UTF-8'))
 	value_type = ctypes.c_uint32()
@@ -1496,14 +1535,40 @@ def stdapi_registry_query_value(request, response):
 	return error_result_windows(), response
 
 @meterpreter.register_function_windll
-def stdapi_registry_set_value(request, response):
+def stdapi_registry_query_value(request, response):
 	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
+	return _query_value(request, response, hkey)
+
+@meterpreter.register_function_windll
+def stdapi_registry_query_value_direct(request, response):
+	err, hkey = _wreg_open_key(request)
+	if err != ERROR_SUCCESS:
+		return err, response
+	ret = _query_value(request, response, hkey)
+	_wreg_close_key(hkey)
+	return ret
+
+def _set_value(request, response, hkey):
 	value_name = packet_get_tlv(request, TLV_TYPE_VALUE_NAME)['value']
 	value_name = ctypes.create_string_buffer(bytes(value_name, 'UTF-8'))
 	value_type = packet_get_tlv(request, TLV_TYPE_VALUE_TYPE)['value']
 	value_data = packet_get_tlv(request, TLV_TYPE_VALUE_DATA)['value']
 	result = ctypes.windll.advapi32.RegSetValueExA(hkey, ctypes.byref(value_name), 0, value_type, value_data, len(value_data))
 	return result, response
+
+@meterpreter.register_function_windll
+def stdapi_registry_set_value(request, response):
+	hkey = packet_get_tlv(request, TLV_TYPE_HKEY)['value']
+	return _set_value(request, response, hkey)
+
+@meterpreter.register_function_windll
+def stdapi_registry_set_value_direct(request, response):
+	err, hkey = _wreg_open_key(request)
+	if err != ERROR_SUCCESS:
+		return err, response
+	ret = _set_value(request, response, hkey)
+	_wreg_close_key(hkey)
+	return ret
 
 @meterpreter.register_function_windll
 def stdapi_registry_unload_key(request, response):
