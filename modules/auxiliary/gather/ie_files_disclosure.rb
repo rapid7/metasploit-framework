@@ -18,7 +18,11 @@ class Metasploit3 < Msf::Auxiliary
         c:\\\\windows\\\\system32\\\\calc.exe
       },
       'License'        => MSF_LICENSE,
-      'Author'         => [ 'sinn3r' ],
+      'Author'         =>
+        [
+          'Soroush Dalili', # @irsdl - Original discovery. MSF module is from his PoC
+          'sinn3r'
+        ],
       'References'     =>
         [
           [ 'CVE', '2013-7331'],
