@@ -14,6 +14,7 @@ var XMLDOMRESULTS = {
 };
 
 ie_addons_detect.validateXML = function (txt) {
+  // This is CVE-2013-7331. See auxiliary/gather/ie_files_disclosure
   var result = XMLDOMRESULTS.UNKNOWN;
   if (window.ActiveXObject) {
     var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
