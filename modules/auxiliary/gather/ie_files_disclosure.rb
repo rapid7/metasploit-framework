@@ -11,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "MS14-052 Microsoft Internet Explorer XMLDOM Information Disclosure",
+      'Name'           => "MS14-052 Microsoft Internet Explorer XMLDOM Filename Disclosure",
       'Description'    => %q{
         This module will use the Microsoft XMLDOM object to enumerate a remote user's filenames.
         To use it, you must supply your own list of file paths. Each file's format should look like this:
@@ -52,7 +52,6 @@ class Metasploit3 < Msf::Auxiliary
     var foundFileString = "";
 
     window.onload = function() {
-      //var files = ['c:\\\\windows\\\\system32\\\\calc.exe'];
       var files = [#{js_target_files}];
       var foundFiles = ie_addons_detect.checkFiles(files);
       for (var file in foundFiles) {
