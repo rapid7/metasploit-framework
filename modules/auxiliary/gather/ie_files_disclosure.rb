@@ -191,11 +191,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def is_target_suitable?(user_agent)
     info = fingerprint_user_agent(user_agent)
-    if info[:ua_name] == HttpClients::IE
+    if info[:ua_name] == HttpClients::IE && (info[:ua_ver] == '8.0' || info[:ua_ver] == '9.0')
       return true
     end
 
-    true
+    false
   end
 
   def on_request_uri(cli, req)
