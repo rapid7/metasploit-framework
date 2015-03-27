@@ -151,7 +151,7 @@ shared_examples_for 'Msf::DBManager::Session' do
               it 'should not find workspace from session' do
                 db_manager.should_not_receive(:find_workspace)
 
-                report_session
+                expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
             end
 
@@ -169,7 +169,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     )
                 ).and_return(host)
 
-                report_session
+                expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
             end
 
@@ -205,7 +205,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       )
                   ).and_call_original
 
-                  report_session
+                  expect { report_session }.to change(Mdm::Vuln, :count).by(1)
                 end
               end
 
@@ -217,7 +217,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       )
                   ).and_call_original
 
-                  report_session
+                  expect { report_session }.to change(Mdm::Vuln, :count).by(1)
                 end
               end
 
@@ -239,7 +239,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                 it 'should create session.via_exploit module' do
                   framework.modules.should_receive(:create).with(session.via_exploit).and_call_original
 
-                  report_session
+                  expect { report_session }.to change(Mdm::Vuln, :count).by(1)
                 end
 
                 it 'should create Mdm::Vuln' do
