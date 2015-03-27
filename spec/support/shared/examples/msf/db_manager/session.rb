@@ -138,6 +138,14 @@ shared_examples_for 'Msf::DBManager::Session' do
             it 'should make a MatchResult' do
               expect { report_session }.to change(MetasploitDataModels::AutomaticExploitation::MatchResult, :count).by(1)
             end
+
+            it 'should not increase the host count' do
+              expect { report_session }.not_to change(Mdm::Host, :count)
+            end
+
+            it 'should not increase the vuln count' do
+              expect { report_session }.not_to change(Mdm::Vuln, :count)
+            end
           end
 
           context 'without user_data' do
