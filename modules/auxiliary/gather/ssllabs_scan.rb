@@ -1,0 +1,764 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'active_support/inflector'
+require 'json'
+require 'active_support/core_ext/hash'
+
+class Metasploit3 < Msf::Auxiliary
+  class InvocationError < StandardError; end
+  class RequestRateTooHigh < StandardError; end
+  class InternalError < StandardError; end
+  class ServiceNotAvailable < StandardError; end
+  class ServiceOverloaded < StandardError; end
+
+  class Api
+    attr_reader :max_assessments, :current_assessments
+
+    def initialize
+      @max_assessments = 0
+      @current_assessments = 0
+    end
+
+    def request(name, params = {})
+      api_host = "api.ssllabs.com"
+      api_port = "443"
+      api_path = "/api/v2/"
+      user_agent = "Msf_ssllabs_scan"
+
+      name = name.to_s.camelize(:lower)
+      uri = api_path + name
+      cli = Rex::Proto::Http::Client.new(api_host, api_port, {}, true, 'TLS1')
+      cli.connect
+      req = cli.request_cgi({
+          'uri' => uri,
+          'agent' => user_agent,
+          'method' => 'GET',
+          'vars_get' => params
+      })
+      res = cli.send_recv(req)
+      cli.close
+
+      if res && res.code.to_i == 200
+        @max_assessments = res.headers['X-Max-Assessments']
+        @current_assessments = res.headers['X-Current-Assessments']
+        r = JSON.load(res.body)
+        fail InvocationError, "API returned: #{r['errors']}" if r.key?('errors')
+        return r
+      end
+
+      case res.code.to_i
+      when 400
+        fail InvocationError, "invalid parameters"
+      when 429
+        fail RequestRateTooHigh, "request rate is too high, please slow down"
+      when 500
+        fail InternalError, "service encountered an error, sleep 5 minutes"
+      when 503
+        fail ServiceNotAvailable, "service is not available, sleep 15 minutes"
+      when 529
+        fail ServiceOverloaded, "service is overloaded, sleep 30 minutes"
+      else
+        fail StandardError, "http error code #{r.code}"
+      end
+    end
+
+    def info
+      Info.load request(:info)
+    end
+
+    def analyse(params = {})
+      Host.load request(:analyze, params)
+    end
+
+    def get_endpoint_data(params = {})
+      Endpoint.load request(:get_endpoint_data, params)
+    end
+
+    def get_status_codes
+      StatusCodes.load request(:get_status_codes)
+    end
+  end
+
+  class ApiObject
+
+    class << self;
+      attr_accessor :all_attributes
+      attr_accessor :fields
+      attr_accessor :lists
+      attr_accessor :refs
+    end
+
+    def self.inherited(base)
+      base.all_attributes = []
+      base.fields = []
+      base.lists = {}
+      base.refs = {}
+    end
+
+    def self.to_api_name(name)
+      name.to_s.gsub(/\?$/, '').camelize(:lower)
+    end
+
+    def self.to_attr_name(name)
+      name.to_s.gsub(/\?$/, '').underscore
+    end
+
+    def self.field_methods(name)
+      is_bool = name.to_s.end_with?('?')
+      attr_name = to_attr_name(name)
+      api_name = to_api_name(name)
+      class_eval <<-EOF, __FILE__, __LINE__
+        def #{attr_name}#{'?' if is_bool}
+          @#{api_name}
+        end
+        def #{attr_name}=(value)
+          @#{api_name} = value
+        end
+      EOF
+    end
+
+    def self.has_fields(*names)
+      names.each do |name|
+        @all_attributes << to_api_name(name)
+        @fields << to_api_name(name)
+        field_methods(name)
+      end
+    end
+
+    def self.has_objects_list(name, klass)
+      @all_attributes << to_api_name(name)
+      @lists[to_api_name(name)] = klass
+      field_methods(name)
+    end
+
+    def self.has_object_ref(name, klass)
+      @all_attributes << to_api_name(name)
+      @refs[to_api_name(name)] = klass
+      field_methods(name)
+    end
+
+    def self.load(attributes = {})
+      obj = self.new
+      attributes.each do |name, value|
+        if @fields.include?(name)
+          obj.instance_variable_set("@#{name}", value)
+        elsif @lists.key?(name)
+          obj.instance_variable_set("@#{name}", value.map { |v| @lists[name].load(v) }) unless value.nil?
+        elsif @refs.key?(name)
+          obj.instance_variable_set("@#{name}", @refs[name].load(value)) unless value.nil?
+        else
+          fail ArgumentError, "#{name} is not an attribute of object #{self.name}"
+        end
+      end
+      obj
+    end
+
+    def to_json(opts = {})
+      obj = {}
+      self.class.all_attributes.each do |api_name|
+        v = instance_variable_get("@#{api_name}")
+        obj[api_name] = v
+      end
+      obj.to_json
+    end
+  end
+
+  class Cert < ApiObject
+    has_fields :subject,
+               :commonNames,
+               :altNames,
+               :notBefore,
+               :notAfter,
+               :issuerSubject,
+               :sigAlg,
+               :issuerLabel,
+               :revocationInfo,
+               :crlURIs,
+               :ocspURIs,
+               :revocationStatus,
+               :sgc?,
+               :validationType,
+               :issues
+
+    def valid?
+      issues == 0
+    end
+
+    def invalid?
+      !valid?
+    end
+  end
+
+  class ChainCert < ApiObject
+    has_fields :subject,
+               :label,
+               :issuerSubject,
+               :issuerLabel,
+               :issues,
+               :raw
+
+    def valid?
+      issues == 0
+    end
+
+    def invalid?
+      !valid?
+    end
+  end
+
+  class Chain < ApiObject
+    has_objects_list :certs, ChainCert
+    has_fields :subject,
+               :label,
+               :issuerSubject,
+               :issuerLabel,
+               :issues,
+               :raw
+
+    def valid?
+      issues == 0
+    end
+
+    def invalid?
+      !valid?
+    end
+  end
+
+  class Key < ApiObject
+    has_fields :size,
+               :strength,
+               :alg,
+               :debianFlaw?,
+               :q
+
+    def insecure?
+      debian_flaw? || q == 0
+    end
+
+    def secure?
+      !insecure?
+    end
+  end
+
+  class Protocol < ApiObject
+    has_fields :id,
+               :name,
+               :version,
+               :v2SuitesDisabled?,
+               :q
+
+    def insecure?
+      q == 0
+    end
+
+    def secure?
+      !insecure?
+    end
+
+  end
+
+  class Info < ApiObject
+    has_fields :engineVersion,
+               :criteriaVersion,
+               :clientMaxAssessments,
+               :maxAssessments,
+               :currentAssessments,
+               :messages
+  end
+
+  class SimClient < ApiObject
+    has_fields :id,
+               :name,
+               :platform,
+               :version,
+               :isReference?
+  end
+
+  class Simulation < ApiObject
+    has_object_ref :client, SimClient
+    has_fields :errorCode,
+               :attempts,
+               :protocolId,
+               :suiteId
+
+    def success?
+      error_code == 0
+    end
+
+    def error?
+      !success?
+    end
+  end
+
+  class SimDetails < ApiObject
+    has_objects_list :results, Simulation
+  end
+
+  class StatusCodes < ApiObject
+    has_fields :statusDetails
+
+    def [](name)
+      status_details[name]
+    end
+  end
+
+  class Suite < ApiObject
+    has_fields :id,
+               :name,
+               :cipherStrength,
+               :dhStrength,
+               :dhP,
+               :dhG,
+               :dhYs,
+               :ecdhBits,
+               :ecdhStrength,
+               :q
+
+    def insecure?
+      q == 0
+    end
+
+    def secure?
+      !insecure?
+    end
+  end
+
+  class Suites < ApiObject
+    has_objects_list :list, Suite
+    has_fields :preference?
+  end
+
+  class EndpointDetails < ApiObject
+    has_fields :hostStartTime
+    has_object_ref :key, Key
+    has_object_ref :cert, Cert
+    has_object_ref :chain, Chain
+    has_objects_list :protocols, Protocol
+    has_object_ref :suites, Suites
+    has_fields :serverSignature,
+               :prefixDelegation?,
+               :nonPrefixDelegation?,
+               :vulnBeast?,
+               :renegSupport,
+               :stsResponseHeader,
+               :stsMaxAge,
+               :stsSubdomains?,
+               :pkpResponseHeader,
+               :sessionResumption,
+               :compressionMethods,
+               :supportsNpn?,
+               :npnProtocols,
+               :sessionTickets,
+               :ocspStapling?,
+               :sniRequired?,
+               :httpStatusCode,
+               :httpForwarding,
+               :supportsRc4?,
+               :forwardSecrecy,
+               :rc4WithModern?
+    has_object_ref :sims, SimDetails
+    has_fields :heartbleed?,
+               :heartbeat?,
+               :openSslCcs,
+               :poodleTls,
+               :fallbackScsv?
+  end
+
+  class Endpoint < ApiObject
+    has_fields :ipAddress,
+               :serverName,
+               :statusMessage,
+               :statusDetails,
+               :statusDetailsMessage,
+               :grade,
+               :hasWarnings?,
+               :isExceptional?,
+               :progress,
+               :duration,
+               :eta,
+               :delegation
+    has_object_ref :details, EndpointDetails
+  end
+
+  class Host < ApiObject
+    has_fields :host,
+               :port,
+               :protocol,
+               :isPublic?,
+               :status,
+               :statusMessage,
+               :startTime,
+               :testTime,
+               :engineVersion,
+               :criteriaVersion,
+               :cacheExpiryTime
+    has_objects_list :endpoints, Endpoint
+    has_fields :certHostnames
+  end
+
+  def initialize(info = {})
+    super(update_info(info,
+        'Name'          => 'SSL Labs API Client',
+        'Description'   => %q{
+          This module is a simple client for the SSL Labs APIs, designed for SSL/TLS assessmen during a penetration testing.
+        },
+        'License'       => MSF_LICENSE,
+        'Author'         =>
+          [
+            'Denis Kolegov <dnkolegov[at]gmail.com>',
+            'Francois Chagnon' # ssllab.rb author (https://github.com/Shopify/ssllabs.rb)
+           ],
+        'DefaultOptions' =>
+          {
+            'RPORT'      => 443,
+            'SSL'        => true,
+            'SSLVersion' => 'TLS1'
+          }
+    ))
+    register_options(
+      [
+        OptString.new('HOSTNAME', [true, 'The target hostname']),
+        OptInt.new('DELAY', [true, 'The delay in seconds between  API requests', 5]),
+        OptBool.new('USECACHE', [true, 'Use cached results (if available), else force live scan', 'true']),
+        OptBool.new('GRADE', [true, 'Output only the hostname: grade', 'false']),
+        OptBool.new('IGNOREMISMATCH', [true, 'Proceed with assessments even when the server certificate doesn\'t match the assessment hostname', 'true'])
+      ], self.class)
+  end
+
+  def contain?(dictionary, b)
+  end
+
+  def output_endpoint_data(r)
+    ssl_protocols = [
+      {id: 771, name: "TLS", version: "1.2", secure: true, active: false},
+      {id: 770, name: "TLS", version: "1.1", secure: true, active: false},
+      {id: 769, name: "TLS", version: "1.0", secure: true, active: false},
+      {id: 768, name: "SSL", version: "3.0", secure: false, active: false},
+      {id: 2, name: "SSL", version: "2.0", secure: false, active: false}
+    ]
+
+    puts "-----------------------------------------------------------------\n"
+    print_status "Report for #{r.server_name} (#{r.ip_address})"
+    puts "-----------------------------------------------------------------\n"
+
+    case r.grade.to_s
+    when "A+", "A", "A-"
+       print_good "Overal rating: #{r.grade}"
+    when "B"
+      print_warning "Overal rating: #{r.grade}"
+    when "C", "D", "E", "F"
+      print_error "Overal rating: #{r.grade}"
+    when "M"
+      print_error "Overal rating: #{r.grade} - Certificate name mismatch"
+    when "T"
+      print_error "Overal rating: #{r.grade} - Server's certificate is not trusted"
+    end
+
+    # Supported protocols
+    r.details.protocols.each do |i|
+      p = ssl_protocols.detect {|x| x[:id] == i.id }
+      p.store(:active, true) if p
+    end
+
+    ssl_protocols.each do |proto|
+      if proto[:active]
+        if proto[:secure]
+          print_good "#{proto[:name]} #{proto[:version]} - Yes"
+        elsif
+          print_error "#{proto[:name]} #{proto[:version]} - Yes"
+        end
+      else
+        print_status "#{proto[:name]} #{proto[:version]} - No"
+      end
+    end
+
+    # Renegotioation
+    case
+    when r.details.reneg_support == 0
+      print_warning "Secure renegotiation is not supported"
+    when r.details.reneg_support[0] == 1
+      print_error "Insecure client-initiated renegotiation is supported"
+    when r.details.reneg_support[1] == 1
+      print_good "Secure renegotiation is supported"
+    when r.details.reneg_support[2] == 1
+      print_warning "Secure client-initiated renegotiation is supported"
+    when r.details.reneg_support[3] == 1
+      print_warning "Server requires secure renegotiation support"
+    end
+
+    # BEAST
+    if r.details.vuln_beast?
+      print_error "BEAST attack - Yes"
+    else
+      print_good "BEAST attack - No"
+    end
+
+    # puts "POODLE (SSLv3)- ?"
+
+    # POODLE TLS
+    case r.details.poodle_tls
+    when -1
+      print_warning "POODLE TLS - Test failed"
+    when 0
+      print_warning "POODLE TLS - Unknown"
+    when 1
+      print_good "POODLE TLS - No"
+    when 2
+      print_error "POODLE TLS - Yes"
+    end
+
+    # Downgrade attack prevention
+    if r.details.fallback_scsv?
+      print_good "Downgrade attack prevention - Yes"
+    else
+      print_error "Downgrade attack prevention - No"
+    end
+
+    # RC4
+    if r.details.supports_rc4?
+      print_warning "RC4 - Server supports at least one RC4 suite"
+    else
+      print_good "RC4 - No"
+    end
+
+    # RC4 with modern browsers
+    print_warning "RC4 is used with modern clients" if r.details.rc4_with_modern?
+
+    # Heartbeat
+    if r.details.heartbeat?
+      print_status "Heartbeat (extension) - Yes"
+    else
+      print_status "Heartbeat (extension) - No"
+    end
+
+    # Heartbleed
+    if r.details.heartbleed?
+      print_error "Heartbleed (vulnerability) - Yes"
+    else
+      print_good "Heartbeat (vulnerability) - No"
+    end
+
+    # OpenSSL CCS
+    case r.details.open_ssl_ccs
+    when -1
+      print_warning "OpenSSL CCS vulnerability (CVE-2014-0224) - Test failed"
+    when 0
+      print_warning "OpenSSL CCS vulnerability (CVE-2014-0224) - Unknown"
+    when 1
+      print_good "OpenSSL CCS vulnerability (CVE-2014-0224) - No"
+    when 2
+      print_error "OpenSSL CCS vulnerability (CVE-2014-0224) - Possibly vulnerable, but not exploitable"
+    when 3
+      print_error "OpenSSL CCS vulnerability (CVE-2014-0224) - Vulnerable and exploitable"
+    end
+
+    # Forward Secrecy
+    case
+    when r.details.forward_secrecy == 0
+      print_error "Forward Secrecy - No"
+    when r.details.forward_secrecy[0] == 1
+      print_error "Forward Secrecy - With some browsers"
+    when r.details.forward_secrecy[1] == 1
+      print_good "Forward Secrecy - With modern browsers"
+    when r.details.forward_secrecy[2] == 1
+      print_good "Forward Secrecy - Yes (with most browsers)"
+    end
+
+    # HSTS
+    if r.details.sts_response_header
+      str = "Strict Transport Security (HSTS) - Yes"
+      if r.details.sts_max_age && r.details.sts_max_age != -1
+        str += ":max-age=#{r.details.sts_max_age}"
+      end
+      str += ":includeSubdomains" if r.details.sts_subdomains?
+      print_good str
+    else
+      print_error "Strict Transport Security (HSTS) - No"
+    end
+
+    # HPKP
+    if r.details.pkp_response_header
+      print_good "Public Key Pinning (HPKP) - Yes"
+    else
+      print_warning "Public Key Pinning (HPKP) - No"
+    end
+
+    # Compression
+    if r.details.compression_methods == 0
+      print_good "Compression - No"
+    elsif (r.details.session_tickets & 1) != 0
+      print_warning "Compression - Yes (Deflate)"
+    end
+
+    # Session Resumption
+    case r.details.session_resumption
+    when 0
+      print_status "Session resumption - No"
+    when 1
+      print_warning "Session resumption - No (IDs assigned but not accepted)"
+    when 2
+      print_status "Session resumption - Yes"
+    end
+
+    # Session Tickets
+    case
+    when r.details.session_tickets == 0
+      print_status "Session tickets - No"
+    when r.details.session_tickets[0] == 1
+      print_status "Session tickets - Yes"
+    when r.details.session_tickets[1] == 1
+      print_good "Session tickets - Implementation is faulty"
+    when r.details.session_tickets[2] == 1
+      print_warning "Session tickets - Server is intolerant to the extension"
+    end
+
+    # OCSP stapling
+    if r.details.ocsp_stapling?
+      print_status "OCSP Stapling - Yes"
+    else
+      print_status "OCSP Stapling - No"
+    end
+
+    # NPN
+    if r.details.supports_npn?
+      print_status "Next Protocol Negotiation (NPN) - Yes (#{r.details.npn_protocols})"
+    else
+      print_status "Next Protocol Negotiation (NPN) - No"
+    end
+
+    # SNI
+    print_status "SNI Required - Yes" if r.details.sni_required?
+  end
+
+  def output_grades_only(r)
+    r.endpoints.each do |e|
+      if e.status_message == "Ready"
+        print_status "Server: #{e.server_name} (#{e.ip_address}) - Grade:#{e.grade}"
+      else
+        print_status "Server: #{e.server_name} (#{e.ip_address} - Status:#{e.status_message}"
+      end
+    end
+  end
+
+  def output_common_info(r)
+    return unless r
+    print_status "Host: #{r.host}"
+
+    r.endpoints.each do |e|
+      puts "\t  #{e.ip_address}\n"
+    end
+  end
+
+  def output_result(r, grade)
+    return unless r
+    output_common_info(r)
+    if grade
+      output_grades_only(r)
+    else
+      r.endpoints.each do |e|
+        if e.status_message == "Ready"
+          output_endpoint_data(e)
+        else
+          print_status "#{e.status_message}"
+        end
+      end
+    end
+  end
+
+  def output_testing_details(r)
+    return unless r.status == "IN_PROGRESS"
+
+    if r.endpoints.length == 1
+      print_status "#{r.host} (#{r.endpoints[0].ip_address}) - Progress #{r.endpoints[0].progress}% (#{r.endpoints[0].status_details_message})"
+    elsif r.endpoints.length > 1
+      in_progress_srv_num = 0
+      ready_srv_num = 0
+      pending_srv_num = 0
+      r.endpoints.each do |e|
+        case e.status_message.to_s
+        when "In progress"
+          in_progress_srv_num += 1
+          print_status "Scanned host: #{e.ip_address} (#{e.server_name})- #{e.progress}% complete (#{e.status_details_message})"
+        when "Pending"
+          pending_srv_num += 1
+        when "Ready"
+          ready_srv_num += 1
+        end
+      end
+      progress = ((ready_srv_num.to_f / (pending_srv_num + in_progress_srv_num + ready_srv_num)) * 100.0).round(0)
+      print_status "Ready: #{ready_srv_num}, In progress: #{in_progress_srv_num}, Pending: #{pending_srv_num}"
+      print_status "#{r.host} - Progress #{progress}%"
+    end
+  end
+
+  def valid_hostname?(hostname)
+    hostname =~ /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
+  end
+
+  def run
+    delay = datastore['DELAY']
+
+    hostname = datastore['HOSTNAME']
+    unless valid_hostname?(hostname)
+      print_status "Invalid hostname"
+      return
+    end
+
+    usecache = datastore['USECACHE']
+    grade = datastore['GRADE']
+
+    # Use cached results
+    if usecache
+      from_cache = 'on'
+      start_new = 'off'
+    else
+      from_cache = 'off'
+      start_new = 'on'
+    end
+
+    # Ignore mismatch
+    ignore_mismatch = datastore['IGNOREMISMATCH'] ? 'on' : 'off'
+
+    api = Api.new
+    info = api.info
+    print_status "SSL Labs API info"
+    print_status "API version: #{info.engine_version}"
+    print_status "Evaluation criteria: #{info.criteria_version}"
+    print_status "Running assessments: #{info.current_assessments} (max #{info.max_assessments})"
+
+    if api.current_assessments >= api.max_assessments
+      print_status "Too many active assessments"
+      return
+    end
+
+    if usecache
+      r = api.analyse(host: hostname, fromCache: from_cache, ignoreMismatch: ignore_mismatch, all: 'done')
+    else
+      r = api.analyse(host: hostname, startNew: start_new, ignoreMismatch: ignore_mismatch, all: 'done')
+    end
+
+    loop do
+      case r.status
+      when "DNS"
+        print_status "Server: #{r.host} - #{r.status_message}"
+      when "IN_PROGRESS"
+        output_testing_details(r)
+      when "READY"
+        output_result(r, grade)
+        return
+      when "ERROR"
+        print_error "#{r.status_message}"
+        return
+      else
+        print_error "Unknown assessment status"
+        return
+      end
+      sleep delay
+      r = api.analyse(host: hostname, all: 'done')
+    end
+  end
+end
