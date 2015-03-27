@@ -163,7 +163,7 @@ module ReverseHttp
   def stop_handler
     if self.service
       self.service.remove_resource("/")
-      Rex::ServiceManager.stop_service(self.service) if self.pending_connections == 0
+      Rex::ServiceManager.stop_service(self.service) if self.sessions == 0
     end
   end
 
@@ -220,6 +220,8 @@ protected
 
     uri_match = process_uri_resource(req.relative_resource)
 
+    self.pending_connections += 1
+
     # Process the requested resource.
     case uri_match
       when /^\/INITPY/
@@ -255,7 +257,6 @@ protected
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
         })
-        self.pending_connections += 1
 
       when /^\/INITJM/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
@@ -346,6 +347,7 @@ protected
         resp.code    = 200
         resp.message = "OK"
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+        self.pending_connections -= 1
     end
 
     cli.send_response(resp) if (resp)
