@@ -441,9 +441,9 @@ class Metasploit3 < Msf::Auxiliary
       {id: 2, name: "SSL", version: "2.0", secure: false, active: false}
     ]
 
-    puts "-----------------------------------------------------------------\n"
+    print_status "-----------------------------------------------------------------"
     print_status "Report for #{r.server_name} (#{r.ip_address})"
-    puts "-----------------------------------------------------------------\n"
+    print_status "-----------------------------------------------------------------"
 
     case r.grade.to_s
     when "A+", "A", "A-"
@@ -649,7 +649,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status "Host: #{r.host}"
 
     r.endpoints.each do |e|
-      puts "\t  #{e.ip_address}\n"
+      print_status "\t  #{e.ip_address}\n"
     end
   end
 
