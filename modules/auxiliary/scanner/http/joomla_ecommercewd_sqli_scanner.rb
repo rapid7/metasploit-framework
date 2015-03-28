@@ -64,7 +64,7 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     unless res && res.body
-      vprint_error("#{peer} - Server didn't not respond in an expected way")
+      vprint_error("#{peer} - Server didn't respond in an expected way")
       return
     end
 
