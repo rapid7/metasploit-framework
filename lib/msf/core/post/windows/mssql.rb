@@ -24,13 +24,21 @@ module Msf
           each_service do |service|
             if instance.to_s.strip.empty?
               # Target default instance
-              if service[:display] =~ /SQL Server \(| MSSQLSERVER/i &&
+              if service[:display] =~ /SQL Server \(|^MSSQLSERVER|^MSSQL\$/i &&
+                 service[:display] !~ /OLAPService|ADHelper/i &&
                  service[:pid].to_i > 0
+
                 target_service = service
                 break
               end
             else
-              if service[:display].downcase.include?("SQL Server (#{instance}".downcase) &&
+              if (
+                  service[:display].downcase.include?("SQL Server (#{instance}".downcase) || #2k8
+                  service[:display].downcase.include?("MSSQL$#{instance}".downcase) || #2k
+                  service[:display].downcase.include?("MSSQLServer#{instance}".downcase) || #2k5
+                  service[:display].downcase == instance.downcase # If the user gets very specific
+                 ) &&
+                 service[:display] !~ /OLAPService|ADHelper/i &&
                  service[:pid].to_i > 0
                 target_service = service
                 break
