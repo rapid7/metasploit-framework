@@ -7,12 +7,18 @@ module Msf
   class Post
     module Windows
       module MSSQL
+
+        # @return [String, nil] contains the identified SQL command line client
         attr_accessor :sql_client
 
         include Msf::Exploit::Remote::MSSQL_COMMANDS
         include Msf::Post::Windows::Services
         include Msf::Post::Windows::Priv
 
+        # Identifies the Windows Service matching the SQL Server instance name
+        #
+        # @param [String] instance the SQL Server instance name to locate
+        # @return [Hash, nil] the Windows Service instance
         def check_for_sqlserver(instance = nil)
           target_service = nil
           each_service do |service|
@@ -39,6 +45,11 @@ module Msf
           target_service
         end
 
+        # Identifies a valid SQL Server command line client on the host and sets
+        # @sql_client
+        #
+        # @see #sql_client
+        # @return [String, nil] the SQL command line client
         def get_sql_client
           client = nil
 
@@ -52,12 +63,18 @@ module Msf
           client
         end
 
+        # Attempts to run the osql command line tool
+        #
+        # @return [Boolean] true if osql is present
         def check_osql
           running_services1 = run_cmd("osql -?")
           services_array1 = running_services1.split("\n")
           services_array1.join =~ /(SQL Server Command Line Tool)|(usage: osql)/i
         end
 
+        # Attempts to run the sqlcmd command line tool
+        #
+        # @return [Boolean] true if sqlcmd is present
         def check_sqlcmd
           running_services = run_cmd("sqlcmd -?")
           services_array = running_services.split("\n")
@@ -66,6 +83,12 @@ module Msf
           end
         end
 
+        # Runs a SQL query using the identified command line tool
+        #
+        # @param [String] query the query to execute
+        # @param [String] instance the SQL instance to target
+        # @param [String] server the SQL server to target
+        # @return [String] the result of query
         def run_sql(query, instance = nil, server = '.')
           target = server
           if instance && instance.downcase != 'mssqlserver'
@@ -76,13 +99,15 @@ module Msf
           run_cmd(cmd)
         end
 
-        ## ----------------------------------------------
-        ## Method for executing cmd and returning the response
-        ##
-        ## Note: This may fail as SYSTEM if the current process
-        ## doesn't have sufficient privileges to duplicate a token,
-        ## e.g. SeAssignPrimaryToken
-        ##----------------------------------------------
+        # Executes a hidden command
+        #
+        # @param [String] cmd the command line to execute
+        # @param [Boolean] token use the current thread token
+        # @return [String] the results from the command
+        #
+        # @note This may fail as SYSTEM if the current process
+        #  doesn't have sufficient privileges to duplicate a token,
+        #  e.g. SeAssignPrimaryToken
         def run_cmd(cmd, token = true)
           opts = { 'Hidden' => true, 'Channelized' => true, 'UseThreadToken' => token }
           process = session.sys.process.execute("cmd.exe /c #{cmd}", nil, opts)
@@ -97,6 +122,15 @@ module Msf
           res
         end
 
+        # Attempts to impersonate the user of the supplied service
+        # If the process has the appropriate privileges it will attempt to
+        # steal a token to impersonate, otherwise it will attempt to migrate
+        # into the service process.
+        #
+        # @note This may cause the meterpreter session to migrate!
+        #
+        # @param [Hash] service the service to target
+        # @return [Boolean] true if impersonated successfully
         def impersonate_sql_user(service)
           pid = service[:pid]
           vprint_status("Current user: #{session.sys.config.getuid}")
@@ -140,11 +174,15 @@ module Msf
           true
         end
 
+        # Attempts to escalate the meterpreter session to SYSTEM
+        #
+        # @return [Boolean] true if escalated successfully or user is already SYSTEM
         def get_system
           print_status("Checking if user is SYSTEM...")
 
           if is_system?
             print_good("User is SYSTEM")
+            return true
           else
             # Attempt to get LocalSystem privileges
             print_warning("Attempting to get SYSTEM privileges...")
