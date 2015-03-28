@@ -30,6 +30,10 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'DisclosureDate' => 'Mar 20 2015'))
 
+      register_options(
+        [
+          OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/'])
+        ], self.class)
   end
 
   def run_host(ip)
@@ -76,7 +80,7 @@ class Metasploit4 < Msf::Auxiliary
         :host  => rhost,
         :port  => rport,
         :proto => 'tcp',
-        :name  => "Web-Dorado ECommerce WD search_category SQL injection",
+        :name  => "Web-Dorado ECommerce WD search_category_id SQL injection",
         :refs  => self.references.select { |ref| ref.ctx_val == "2015-2562" }
       })
     end
