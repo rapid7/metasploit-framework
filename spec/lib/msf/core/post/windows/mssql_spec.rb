@@ -268,4 +268,64 @@ describe Msf::Post::Windows::MSSQL do
       end
     end
   end
+
+  describe "#run_cmd" do
+
+  end
+
+  let(:osql) do
+    'osql'
+  end
+
+  let(:sql_command) do
+    'sqlcmd'
+  end
+
+  describe "#check_osql" do
+    it "should return nil if no osql" do
+      expect(subject).to receive(:run_cmd).with('osql -?').and_return('blah')
+      subject.check_osql.should be_falsey
+    end
+
+    it "should return true if present" do
+      expect(subject).to receive(:run_cmd).with('osql -?').and_return('(usage: osql)')
+      subject.check_osql.should be_truthy
+    end
+  end
+
+  describe "#check_sqlcmd" do
+    it "should return nil if no sqlcmd" do
+      expect(subject).to receive(:run_cmd).and_return('blah')
+      subject.check_sqlcmd.should be_falsey
+    end
+
+    it "should return true if present" do
+      expect(subject).to receive(:run_cmd).and_return('SQL Server Command Line Tool')
+      subject.check_sqlcmd.should be_truthy
+    end
+
+  end
+
+  describe "#get_sql_client" do
+    it "should return nil if no client is available" do
+      expect(subject).to receive(:check_sqlcmd).and_return(false)
+      expect(subject).to receive(:check_osql).and_return(false)
+      subject.get_sql_client.should be_nil
+      subject.sql_client.should be_nil
+    end
+
+    it "should return 'osql' if osql is available" do
+      expect(subject).to receive(:check_sqlcmd).and_return(false)
+      expect(subject).to receive(:check_osql).and_return(true)
+      subject.get_sql_client.should eq osql
+      subject.sql_client.should eq osql
+    end
+
+    it "should return 'sqlcmd' if sqlcmd is available" do
+      allow(subject).to receive(:check_osql).and_return(true)
+      expect(subject).to receive(:check_sqlcmd).and_return(true)
+      subject.get_sql_client.should eq sql_command
+      subject.sql_client.should eq sql_command
+    end
+  end
 end

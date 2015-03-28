@@ -75,20 +75,16 @@ module Msf
         #
         # @return [Boolean] true if osql is present
         def check_osql
-          running_services1 = run_cmd("osql -?")
-          services_array1 = running_services1.split("\n")
-          services_array1.join =~ /(SQL Server Command Line Tool)|(usage: osql)/i
+          result = run_cmd('osql -?')
+          result =~ /(SQL Server Command Line Tool)|(usage: osql)/i
         end
 
         # Attempts to run the sqlcmd command line tool
         #
         # @return [Boolean] true if sqlcmd is present
         def check_sqlcmd
-          running_services = run_cmd("sqlcmd -?")
-          services_array = running_services.split("\n")
-          services_array.each do |service|
-            return true if service =~ /SQL Server Command Line Tool/i
-          end
+          result = run_cmd('sqlcmd -?')
+          result =~ /SQL Server Command Line Tool/i
         end
 
         # Runs a SQL query using the identified command line tool
