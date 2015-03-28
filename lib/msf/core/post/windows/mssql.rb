@@ -19,7 +19,7 @@ module MSSQL
     target_service = nil
     each_service do |service|
       unless instance.to_s.strip.empty?
-        if service[:display].downcase.include?(instance.downcase) &&
+        if service[:display].downcase.include?("SQL Server (#{instance}".downcase) &&
           service[:pid].to_i > 0
           target_service = service
           break
