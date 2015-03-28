@@ -14,7 +14,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Web-Dorado ECommerce WD for Joomla! search_category_id SQL injection Scanner',
+      'Name'        => 'Web-Dorado ECommerce WD for Joomla! search_category_id SQL Injection Scanner',
       'Description' => %q{
       This module will scan for hosts vulnerable to an unauthenticated SQL injection within the
       advanced search feature of the Web-Dorado ECommerce WD 1.2.5 and likely prior.
@@ -64,14 +64,14 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     unless res && res.body
-      vprint_error("#{peer} - Server didn't respond in an expected way")
+      vprint_error("#{peer} - Server did not respond in an expected way")
       return
     end
 
     result = res.body =~ /#{left_marker}#{flag}#{right_marker}/
 
     if result
-      print_good("#{peer} - Vulnerable to CVE-2015-2562 (search_category parameter SQL injection)")
+      print_good("#{peer} - Vulnerable to CVE-2015-2562 (search_category_id parameter SQL injection)")
       report_vuln({
         :host  => rhost,
         :port  => rport,
@@ -80,5 +80,7 @@ class Metasploit4 < Msf::Auxiliary
         :refs  => self.references.select { |ref| ref.ctx_val == "2015-2562" }
       })
     end
+
   end
+
 end
