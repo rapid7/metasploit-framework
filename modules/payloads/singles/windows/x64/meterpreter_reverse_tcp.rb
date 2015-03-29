@@ -26,6 +26,7 @@ module Metasploit4
       'Platform'    => 'win',
       'Arch'        => ARCH_X64,
       'Handler'     => Msf::Handler::ReverseTcp,
+      'EncoderType' => Msf::Encoder::Type::Raw,
       'Session'     => Msf::Sessions::Meterpreter_x64_Win
       ))
 

