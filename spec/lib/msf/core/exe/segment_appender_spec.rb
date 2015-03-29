@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'msf/core/exe/segment_injector'
+require 'msf/core/exe/segment_appender'
 
-describe Msf::Exe::SegmentInjector do
+describe Msf::Exe::SegmentAppender do
 
   let(:opts) do
     option_hash = {
@@ -42,10 +42,6 @@ describe Msf::Exe::SegmentInjector do
         injector.buffer_register.should == 'eax'
       end
     end
-
-    it 'should set a buffer register for the payload' do
-      injector.create_thread_stub.should include('lea edx, [thread_hook]')
-    end
   end
 
   describe '#generate_pe' do
@@ -67,10 +63,10 @@ describe Msf::Exe::SegmentInjector do
         exe.sections.count.should == 5
       end
 
-      it 'should have all the right section names' do
+      it 'should have all the right original section names' do
         s_names = []
         exe.sections.collect {|s| s_names << s.name}
-        s_names.should == [".text", ".rdata", ".data", ".rsrc", ".text"]
+        s_names[0,4].should == [".text", ".rdata", ".data", ".rsrc"]
       end
 
       it 'should have the last section set to RWX' do
