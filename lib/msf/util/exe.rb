@@ -199,9 +199,6 @@ require 'msf/core/exe/segment_appender'
       return injector.generate_pe
     end
 
-
-    # dead, dead code.
-
     raise RuntimeError, "No .text section found in the template" unless text
 
     unless text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
