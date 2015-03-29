@@ -270,7 +270,81 @@ describe Msf::Post::Windows::MSSQL do
   end
 
   describe "#run_cmd" do
+    it 'should return a string' do
+      p = double('process')
+      c = double('channel')
+      p.stub(:channel).and_return(c)
+      subject.stub_chain('session.sys.process.execute').and_return(p)
+      expect(c).to receive(:read).and_return('hello')
+      expect(c).to receive(:read).and_return(nil)
+      expect(c).to receive(:close)
+      expect(p).to receive(:close)
+      subject.run_cmd(nil).should eq 'hello'
+    end
+  end
 
+  describe "#run_sql" do
+    let(:sqlclient) do
+      'blah'
+    end
+
+    before(:each) do
+      subject.sql_client = sqlclient
+    end
+
+    let(:query) do
+      'SELECT * FROM TABLE;'
+    end
+
+    let(:instance) do
+      'commandInstance'
+    end
+
+    let(:server) do
+      'mssql1231'
+    end
+
+    context 'when only a query is supplied' do
+      it 'should pass the @sql_client, and query to run_cmd' do
+        expect(subject).to receive(:run_cmd) do |*args|
+          args.first.include?(sqlclient).should be_truthy
+          args.first.include?("-Q \"#{query}\" ").should be_truthy
+          args.first.include?("-S . ").should be_truthy
+        end
+        subject.run_sql(query)
+      end
+    end
+
+    context 'when a query and instance is supplied' do
+      it 'should pass the @sql_client, query, and instance to run_cmd' do
+        expect(subject).to receive(:run_cmd) do |*args|
+          args.first.include?(sqlclient).should be_truthy
+          args.first.include?("-Q \"#{query}\" ").should be_truthy
+          args.first.include?("-S .\\#{instance} ").should be_truthy
+        end
+        subject.run_sql(query, instance)
+      end
+
+      it 'should shouldnt supply an instance if the target is mssqlserver (7/2000)' do
+        expect(subject).to receive(:run_cmd) do |*args|
+          args.first.include?(sqlclient).should be_truthy
+          args.first.include?("-Q \"#{query}\" ").should be_truthy
+          args.first.include?("-S . ").should be_truthy
+        end
+        subject.run_sql(query, 'mssqlsErver')
+      end
+    end
+
+    context 'when a query, instance, and server is supplied' do
+      it 'should pass the @sql_client, query, instance, and server to run_cmd' do
+        expect(subject).to receive(:run_cmd) do |*args|
+          args.first.include?(sqlclient).should be_truthy
+          args.first.include?("-Q \"#{query}\" ").should be_truthy
+          args.first.include?("-S #{server}\\#{instance} ").should be_truthy
+        end
+        subject.run_sql(query, instance, server)
+      end
+    end
   end
 
   let(:osql) do
