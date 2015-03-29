@@ -23,7 +23,11 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Mike Manzotti <mike.manzotti[at]dionach.com>'],
         'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        'SessionTypes'  => [ 'meterpreter' ],
+        'References'  =>
+          [
+            ['URL', 'https://www.dionach.com/blog/easily-grabbing-microsoft-sql-server-password-hashes']
+          ]
       ))
 
     register_options(
