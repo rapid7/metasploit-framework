@@ -27,41 +27,6 @@ module Metasploit
         end
 
 
-        # Sends a HTTP request with Rex
-        #
-        # @param (see Rex::Proto::Http::Request#request_raw)
-        # @raise [Rex::ConnectionError] Something has gone wrong while sending the HTTP request
-        # @return [Rex::Proto::Http::Response] The HTTP response
-        def send_request(opts)
-          res = nil
-          cli = Rex::Proto::Http::Client.new(host, port,
-            {
-              'Msf' => framework,
-              'MsfExploit' => framework_module
-            },
-            ssl,
-            ssl_version,
-            proxies
-          )
-          configure_http_client(cli)
-          begin
-            cli.connect
-            req = cli.request_cgi(opts)
-            res = cli.send_recv(req)
-          rescue ::Errno::EPIPE, ::Timeout::Error => e
-            # We are trying to mimic the same type of exception rescuing in
-            # Msf::Exploit::Remote::HttpClient. But instead of returning nil, we'll consistently
-            # raise Rex::ConnectionError so the #attempt_login can return the error message back
-            # to the login module.
-            raise Rex::ConnectionError, e.message
-          ensure
-            cli.close
-          end
-
-          res
-        end
-
-
         # Returns the latest sid from Symantec Web Gateway.
         #
         # @returns [String] The PHP Session ID for Symantec Web Gateway login

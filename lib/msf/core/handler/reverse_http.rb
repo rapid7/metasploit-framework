@@ -3,6 +3,8 @@ require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
 require 'msf/core/handler/reverse_http/uri_checksum'
 require 'rex/payloads/meterpreter/patch'
+require 'rex/parser/x509_certificate'
+require 'msf/core/payload/windows/verify_ssl'
 
 module Msf
 module Handler
@@ -16,6 +18,7 @@ module ReverseHttp
 
   include Msf::Handler
   include Msf::Handler::ReverseHttp::UriChecksum
+  include Msf::Payload::Windows::VerifySsl
 
   #
   # Returns the string representation of the handler type
@@ -160,7 +163,7 @@ module ReverseHttp
   def stop_handler
     if self.service
       self.service.remove_resource("/")
-      Rex::ServiceManager.stop_service(self.service) if self.pending_connections == 0
+      Rex::ServiceManager.stop_service(self.service) if self.sessions == 0
     end
   end
 
@@ -217,6 +220,8 @@ protected
 
     uri_match = process_uri_resource(req.relative_resource)
 
+    self.pending_connections += 1
+
     # Process the requested resource.
     case uri_match
       when /^\/INITPY/
@@ -252,7 +257,6 @@ protected
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
         })
-        self.pending_connections += 1
 
       when /^\/INITJM/
         conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
@@ -291,12 +295,15 @@ protected
 
         blob = obj.stage_payload
 
+        verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                             datastore['HandlerSSLCert'])
         #
         # Patch options into the payload
         #
-        Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+        Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
           :ssl            => ssl?,
           :url            => url,
+          :ssl_cert_hash  => verify_cert_hash,
           :expiration     => datastore['SessionExpirationTimeout'],
           :comm_timeout   => datastore['SessionCommunicationTimeout'],
           :ua             => datastore['MeterpreterUserAgent'],
@@ -304,7 +311,7 @@ protected
           :proxy_port     => datastore['PayloadProxyPort'],
           :proxy_type     => datastore['PayloadProxyType'],
           :proxy_user     => datastore['PayloadProxyUser'],
-          :proxy_pass     => datastore['PayloadProxyPass']
+          :proxy_pass     => datastore['PayloadProxyPass'])
 
         resp.body = encode_stage(blob)
 
@@ -340,6 +347,7 @@ protected
         resp.code    = 200
         resp.message = "OK"
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+        self.pending_connections -= 1
     end
 
     cli.send_response(resp) if (resp)
