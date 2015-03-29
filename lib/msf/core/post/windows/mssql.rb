@@ -136,6 +136,8 @@ module Msf
         # @param [Hash] service the service to target
         # @return [Boolean] true if impersonated successfully
         def impersonate_sql_user(service)
+          return false if service.nil? || service[:pid].nil? || service[:pid] <= 0
+
           pid = service[:pid]
           vprint_status("Current user: #{session.sys.config.getuid}")
           current_privs = client.sys.config.getprivs
@@ -149,6 +151,8 @@ module Msf
                 break
               end
             end
+
+            return false unless username
 
             session.core.use('incognito') unless session.incognito
             vprint_status("Attemping to impersonate user: #{username}")

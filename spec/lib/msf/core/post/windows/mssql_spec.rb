@@ -7,7 +7,7 @@ describe Msf::Post::Windows::MSSQL do
   let(:subject) do
     mod = Module.new
     mod.extend described_class
-    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error ]
+    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error, :print_warning ]
     stubs.each { |meth| mod.stub(meth) }
     mod.stub(:service_info).and_return({})
     mod
@@ -235,8 +235,8 @@ describe Msf::Post::Windows::MSSQL do
       end
 
       it "should identify only a named SQL instance" do
-        allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service).
-          and_yield(running_2k_sql_instance).and_yield(running_named_2k_sql_instance)
+        allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service)
+          .and_yield(running_2k_sql_instance).and_yield(running_named_2k_sql_instance)
         result = subject.check_for_sqlserver(instance)
         result.should eq running_named_2k_sql_instance
       end
@@ -248,8 +248,8 @@ describe Msf::Post::Windows::MSSQL do
       end
 
       it "should identify only a named SQL instance" do
-        allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service).
-          and_yield(running_2k5_sql_instance).and_yield(running_named_2k5_sql_instance)
+        allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service)
+          .and_yield(running_2k5_sql_instance).and_yield(running_named_2k5_sql_instance)
         result = subject.check_for_sqlserver(instance)
         result.should eq running_named_2k5_sql_instance
       end
@@ -261,11 +261,99 @@ describe Msf::Post::Windows::MSSQL do
       end
 
       it "should identify only a named SQL instance" do
-        allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service).
-          and_yield(running_2k8_sql_instance).and_yield(running_named_2k8_sql_instance)
+        allow(subject).to receive(:each_service).and_yield(normal_service).and_yield(running_analysis_service)
+          .and_yield(running_2k8_sql_instance).and_yield(running_named_2k8_sql_instance)
         result = subject.check_for_sqlserver(instance)
         result.should eq running_named_2k8_sql_instance
       end
+    end
+  end
+
+  describe "#impersonate_sql_user" do
+    let(:pid) do
+      8787
+    end
+
+    let(:user) do
+      'sqluser'
+    end
+
+    let(:service) do
+      { pid: pid }
+    end
+
+    let(:process) do
+      { 'pid' => pid, 'user' => user }
+    end
+
+    it 'should return false if service is invalid or pid is invalid' do
+      subject.impersonate_sql_user(nil).should be_falsey
+      subject.impersonate_sql_user(pid: nil).should be_falsey
+      subject.impersonate_sql_user(pid: 0).should be_falsey
+    end
+
+    context 'user has privs to impersonate' do
+      before(:each) do
+        subject.stub_chain('session.sys.config.getuid').and_return('Superman')
+        subject.stub_chain('client.sys.config.getprivs').and_return(['SeAssignPrimaryTokenPrivilege'])
+        subject.stub_chain('session.incognito').and_return(true)
+        subject.stub_chain('session.sys.process.each_process').and_yield(process)
+      end
+
+      it 'should return true if successful impersonating' do
+        subject.stub_chain('session.incognito.incognito_impersonate_token').with(user).and_return('Successfully')
+        subject.impersonate_sql_user(service).should be true
+      end
+
+      it 'should return false if fails impersonating' do
+        subject.stub_chain('session.incognito.incognito_impersonate_token').with(user).and_return('guff')
+        subject.impersonate_sql_user(service).should be false
+      end
+
+      it 'should return false if unable to find process username' do
+        subject.stub_chain('session.sys.process.each_process').and_yield('pid' => 0)
+        subject.impersonate_sql_user(service).should be false
+      end
+    end
+
+    context 'user does not have privs to impersonate' do
+      before(:each) do
+        subject.stub_chain('session.sys.config.getuid').and_return('Superman')
+        subject.stub_chain('client.sys.config.getprivs').and_return([])
+      end
+
+      it 'should return true if successful' do
+        expect(subject).to receive(:print_warning)
+        subject.stub_chain('session.core.migrate').with(pid).and_return(true)
+        subject.impersonate_sql_user(service).should be true
+      end
+
+      it 'should rescue an exception if migration fails' do
+        expect(subject).to receive(:print_warning)
+        subject.stub_chain('session.core.migrate').with(pid).and_raise(Rex::RuntimeError)
+        subject.impersonate_sql_user(service).should be false
+      end
+    end
+  end
+
+  describe "#get_system" do
+    it 'should return true if already SYSTEM' do
+      expect(subject).to receive(:is_system?).and_return(true)
+      subject.get_system.should be_truthy
+    end
+
+    it 'should return true if able to get SYSTEM and print a warning' do
+      expect(subject).to receive(:is_system?).and_return(false)
+      expect(subject).to receive(:print_warning)
+      subject.stub_chain('session.priv.getsystem').and_return([true])
+      subject.get_system.should be_truthy
+    end
+
+    it 'should return false if unable to get SYSTEM and print a warning' do
+      expect(subject).to receive(:is_system?).and_return(false)
+      expect(subject).to receive(:print_warning)
+      subject.stub_chain('session.priv.getsystem').and_return([false])
+      subject.get_system.should be_falsey
     end
   end
 
@@ -377,7 +465,6 @@ describe Msf::Post::Windows::MSSQL do
       expect(subject).to receive(:run_cmd).and_return('SQL Server Command Line Tool')
       subject.check_sqlcmd.should be_truthy
     end
-
   end
 
   describe "#get_sql_client" do
