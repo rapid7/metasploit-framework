@@ -77,6 +77,9 @@ module Handler
     # Initialize the pending_connections counter to 0
     self.pending_connections = 0
 
+    # Initialize the sessions counter to 0
+    self.sessions = 0
+
     # Create the waiter event with auto_reset set to false so that
     # if a session is ever created, waiting on it returns immediately.
     self.session_waiter_event = Rex::Sync::Event.new(false, false)
@@ -234,10 +237,14 @@ protected
     # Decrement the pending connections counter now that we've processed
     # one session.
     self.pending_connections -= 1
+
+    # Count the number of sessions we have registered
+    self.sessions += 1
   end
 
   attr_accessor :session_waiter_event # :nodoc:
   attr_accessor :pending_connections  # :nodoc:
+  attr_accessor :sessions # :nodoc:
 
 end
 
