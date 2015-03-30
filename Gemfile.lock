@@ -1,18 +1,3 @@
-GIT
-  remote: https://github.com/rapid7/metasploit_data_models.git
-  revision: 6835d9cf61ad998db4184405ab21a92ef92caaa5
-  branch: staging/single-vuln-push
-  specs:
-    metasploit_data_models (0.23.2.pre.single.pre.vuln.pre.push)
-      activerecord (>= 3.2.13, < 4.0.0)
-      activesupport
-      arel-helpers
-      metasploit-concern (~> 0.3.0)
-      metasploit-model (~> 0.29.0)
-      pg
-      railties (< 4.0.0)
-      recog (~> 1.0)
-
 PATH
   remote: .
   specs:
@@ -39,7 +24,7 @@ PATH
       activerecord (>= 3.2.21, < 4.0.0)
       metasploit-credential (~> 0.14.3)
       metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (~> 0.23.0)
+      metasploit_data_models (~> 0.23.2)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
@@ -138,6 +123,15 @@ GEM
     metasploit-model (0.29.0)
       activesupport
       railties (< 4.0.0)
+    metasploit_data_models (0.23.2)
+      activerecord (>= 3.2.13, < 4.0.0)
+      activesupport
+      arel-helpers
+      metasploit-concern (~> 0.3.0)
+      metasploit-model (~> 0.29.0)
+      pg
+      railties (< 4.0.0)
+      recog (~> 1.0)
     meterpreter_bins (0.0.17)
     method_source (0.8.2)
     mime-types (1.25.1)
@@ -242,7 +236,6 @@ DEPENDENCIES
   metasploit-framework!
   metasploit-framework-db!
   metasploit-framework-pcap!
-  metasploit_data_models!
   pry
   rake (>= 10.0.0)
   redcarpet

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150312155312) do
+ActiveRecord::Schema.define(:version => 20150326183742) do
 
   create_table "api_keys", :force => true do |t|
     t.text     "token"
@@ -26,6 +26,9 @@ ActiveRecord::Schema.define(:version => 20150312155312) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  add_index "automatic_exploitation_match_results", ["match_id"], :name => "index_automatic_exploitation_match_results_on_match_id"
+  add_index "automatic_exploitation_match_results", ["run_id"], :name => "index_automatic_exploitation_match_results_on_run_id"
 
   create_table "automatic_exploitation_match_sets", :force => true do |t|
     t.integer  "workspace_id"
@@ -59,6 +62,10 @@ ActiveRecord::Schema.define(:version => 20150312155312) do
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
   end
+
+  add_index "automatic_exploitation_runs", ["match_set_id"], :name => "index_automatic_exploitation_runs_on_match_set_id"
+  add_index "automatic_exploitation_runs", ["user_id"], :name => "index_automatic_exploitation_runs_on_user_id"
+  add_index "automatic_exploitation_runs", ["workspace_id"], :name => "index_automatic_exploitation_runs_on_workspace_id"
 
   create_table "clients", :force => true do |t|
     t.integer  "host_id"
@@ -407,8 +414,7 @@ ActiveRecord::Schema.define(:version => 20150312155312) do
     t.datetime "attempted_at"
     t.text     "fail_detail"
     t.string   "fail_reason"
-    t.integer  "module_detail_id"
-    t.text     "module_full_name"
+    t.text     "module_fullname"
     t.integer  "port"
     t.string   "proto"
     t.integer  "session_id"
@@ -417,9 +423,12 @@ ActiveRecord::Schema.define(:version => 20150312155312) do
     t.string   "trackable_type"
     t.integer  "user_id"
     t.string   "username"
-    t.datetime "created_at",       :null => false
-    t.datetime "updated_at",       :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
   end
+
+  add_index "module_runs", ["session_id"], :name => "index_module_runs_on_session_id"
+  add_index "module_runs", ["user_id"], :name => "index_module_runs_on_user_id"
 
   create_table "module_targets", :force => true do |t|
     t.integer "detail_id"
