@@ -236,7 +236,6 @@ DEPENDENCIES
   metasploit-framework!
   metasploit-framework-db!
   metasploit-framework-pcap!
-  metasploit_data_models (= 0.23.2)
   pry
   rake (>= 10.0.0)
   redcarpet

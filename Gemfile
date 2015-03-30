@@ -3,8 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-gem 'metasploit_data_models', '0.23.2'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
