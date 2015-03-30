@@ -37,7 +37,7 @@ module Metasploit3
   def generate
     # blank LHOST indicates bind payload
     url = "tcp://:#{datastore['LPORT']}"
-    generate_stageless_meterpreter(url)
+    generate_stageless_x86(url)
   end
 
 end

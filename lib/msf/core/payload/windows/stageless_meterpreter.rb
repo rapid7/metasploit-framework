@@ -51,7 +51,7 @@ module Payload::Windows::StagelessMeterpreter
     asm
   end
 
-  def generate_stageless_meterpreter(url = nil)
+  def generate_stageless_x86(url = nil)
     dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x86.dll'))
 
     conf = {

