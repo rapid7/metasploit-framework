@@ -244,11 +244,6 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               context 'with session.via_exploit' do
-                it 'should create session.via_exploit module' do
-                  framework.modules.should_receive(:create).with(session.via_exploit).and_call_original
-
-                  expect { report_session }.to change(Mdm::Vuln, :count).by(1)
-                end
 
                 it 'should create Mdm::Vuln' do
                   expect {
