@@ -28,7 +28,7 @@ require 'msf/core/payload_generator'
 
   # Creates a new framework object.
   #
-  # @note Ignores any previously cached value
+  # @note Ignores any previously cached value.
   # @param (see ::Msf::Simple::Framework.create)
   # @return [Msf::Framework]
   def init_framework(create_opts={})
@@ -38,7 +38,7 @@ require 'msf/core/payload_generator'
     @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
   end
 
-  # Cached framework object
+  # Cached framework object.
   #
   # @return [Msf::Framework]
   def framework
@@ -66,7 +66,7 @@ require 'msf/core/payload_generator'
       end
     end
 
-    opt.on('-l', '--list       [module_type]', Array, 'List a module type example: payloads, encoders, nops, all') do |l|
+    opt.on('-l', '--list       [module_type]', Array, 'List a module type. The options are: payloads, encoders, nops, or all') do |l|
       if l.nil? or l.empty?
         l = ["all"]
       end
@@ -77,7 +77,7 @@ require 'msf/core/payload_generator'
       opts[:nops] = n.to_i
     end
 
-    opt.on('-f', '--format     <format>', String, "Output format (use --help-formats for a list)") do |f|
+    opt.on('-f', '--format     <format>', String, 'Output format (use --help-formats for a list)') do |f|
       opts[:format] = f
     end
 
@@ -117,7 +117,7 @@ require 'msf/core/payload_generator'
       opts[:keep] = true
     end
 
-    opt.on('--payload-options', "List the payload's standard options") do
+    opt.on('--payload-options', 'List the payload's standard options') do
       opts[:list_options] = true
     end
 
@@ -164,7 +164,7 @@ require 'msf/core/payload_generator'
       end
     end
 
-    if opts[:payload].nil? # if no payload option is selected assume we are reading it from stdin
+    if opts[:payload].nil? # If no payload option is selected, assume we are reading it from stdin.
       opts[:payload] = "stdin"
     end
 
@@ -319,7 +319,7 @@ if __FILE__ == $0
     $stderr.puts e.message
   end
 
-  # No payload generated, no point to go on
+  # No payload generated, so there's no point to go on.
   exit(-1) unless payload
 
   if generator_opts[:out]
@@ -337,7 +337,7 @@ if __FILE__ == $0
     output_stream = $stdout
     output_stream.binmode
     output_stream.write payload
-    # trailing newline for pretty output
+    # Trailing newline for pretty output.
     $stderr.puts unless payload =~ /\n$/
   end
 
