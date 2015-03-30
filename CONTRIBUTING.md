@@ -1,9 +1,9 @@
 # Hello, World!
 
-Thanks for your interest in making Metasploit, and therefore, the
-world, a better place!
+Thanks for your interest in making Metasploit -- and therefore, the
+world -- a better place!
 
-Are you about to report a bug? Sorry to hear about it. Here's our [Issue tracker].
+Are you about to report a bug? Sorry to hear it. Here's our [Issue tracker].
 Please try to be as specific as you can about your problem; include steps
 to reproduce (cut and paste from your console output if it's helpful) and
 what you were expecting to happen.
@@ -53,7 +53,7 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
 
 * **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up.
   - It would be even better to set up `msftidy.rb` as a [pre-commit hook].
-* **Do** use the many module mixin [API]s. Wheel improvements are welcome- wheel reinventions, not so much.
+* **Do** use the many module mixin [API]s. Wheel improvements are welcome; wheel reinventions, not so much.
 * **Don't** include more than one module per pull request.
 
 #### Scripts
