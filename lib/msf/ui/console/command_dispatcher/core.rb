@@ -243,16 +243,16 @@ class Core
 
     args.each do |res|
       good_res = nil
-      if (File.file? res and File.readable? res)
+      if ::File.exists?(res)
         good_res = res
       elsif
         # let's check to see if it's in the scripts/resource dir (like when tab completed)
         [
-          ::Msf::Config.script_directory + File::SEPARATOR + "resource",
-          ::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+          ::Msf::Config.script_directory + ::File::SEPARATOR + "resource",
+          ::Msf::Config.user_script_directory + ::File::SEPARATOR + "resource"
         ].each do |dir|
-          res_path = dir + File::SEPARATOR + res
-          if (File.file?(res_path) and File.readable?(res_path))
+          res_path = dir + ::File::SEPARATOR + res
+          if ::File.exists?(res_path)
             good_res = res_path
             break
           end
@@ -806,7 +806,7 @@ class Core
     end
 
     # This is not respecting the Protected access control, but this seems to be the only way
-    # to rename a job. If you know a more appropriate way, patches accepted. 
+    # to rename a job. If you know a more appropriate way, patches accepted.
     framework.jobs[job_id].send(:name=, job_name)
     print_status("Job #{job_id} updated")
 
@@ -2973,11 +2973,18 @@ class Core
           res << addr
         end
       when 'LHOST'
-        rh = self.active_module.datastore["RHOST"]
+        rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
         else
-          res << Rex::Socket.source_address()
+          res << Rex::Socket.source_address
+          # getifaddrs was introduced in 2.1.2
+          if Socket.respond_to?(:getifaddrs)
+            ifaddrs = Socket.getifaddrs.find_all { |ifaddr|
+              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) && ifaddr.addr.ip?
+            }
+            res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+          end
         end
       else
       end
