@@ -1,8 +1,8 @@
-This is an example of how to write a module that uses the [HttpClient](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html) mixin to send a basic HTTP request.
+This is an example of how to write a module that uses the [HttpClient](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html) mixin to send a basic HTTP request.
 
 ### There are mainly two common methods you will see:
 
-* **[send_request_raw](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#send_request_raw-instance_method)** - You use this to send a raw HTTP request. Usually, you will want this method if you need something that violates the specification; in most other cases, you should prefer `send_request_cgi`.  If you wish to learn about how this method works, look at the documentation for [`Rex::Proto::Http::Client#request_raw`](https://dev.metasploit.com/api/Rex/Proto/Http/Client.html#request_raw-instance_method).
+* **[send_request_raw](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_raw-instance_method)** - You use this to send a raw HTTP request. Usually, you will want this method if you need something that violates the specification; in most other cases, you should prefer `send_request_cgi`.  If you wish to learn about how this method works, look at the documentation for [`Rex::Proto::Http::Client#request_raw`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_raw-instance_method).
  
 Here's a basic example of how to use `send_request_raw`:
 
@@ -10,7 +10,7 @@ Here's a basic example of how to use `send_request_raw`:
 	send_request_raw({'uri'=>'/index.php'})
 ```
 
-* **[send_request_cgi](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#send_request_cgi-instance_method)** - You use this to send a more CGI-compatible HTTP request. If your request contains a query string (or POST data), then you should use this.  If you wish to learn about how this method works, check out [`Rex::Proto::Http::Client#request_cgi`](https://dev.metasploit.com/api/Rex/Proto/Http/Client.html#request_cgi-instance_method).
+* **[send_request_cgi](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_cgi-instance_method)** - You use this to send a more CGI-compatible HTTP request. If your request contains a query string (or POST data), then you should use this.  If you wish to learn about how this method works, check out [`Rex::Proto::Http::Client#request_cgi`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_cgi-instance_method).
 
 Both methods can automatically do the HTTP authentication if the user sets the "USERNAME" and "PASSWORD" advanced options.
 
@@ -44,7 +44,7 @@ Example:
 		], self.class)
 ```
 
-**2** - Load your TARGETURI with [`target_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way the URI input validation will kick in, and then you get a real `URI` object:
+**2** - Load your TARGETURI with [`target_uri`](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way the URI input validation will kick in, and then you get a real `URI` object:
 
 In this example, we'll just load the path:
 
@@ -52,7 +52,7 @@ In this example, we'll just load the path:
 	uri = target_uri.path
 ```
 
-**3** - When you want to join another URI, always use [`normalize_uri`](https://dev.metasploit.com/api/Msf/Exploit/Remote/HttpClient.html#normalize_uri-instance_method):
+**3** - When you want to join another URI, always use [`normalize_uri`](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#normalize_uri-instance_method):
 
 Example:
 
