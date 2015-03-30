@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-gem 'metasploit_data_models', git: 'https://github.com/rapid7/metasploit_data_models.git', branch: 'staging/single-vuln-push'
+gem 'metasploit_data_models', '0.23.2'
 
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
