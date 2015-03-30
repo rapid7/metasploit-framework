@@ -223,19 +223,19 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_del :cmd_rm
 
-        #   
+        #
         # Move source to destination
-        #   
+        #
         def cmd_mv(*args)
                 if (args.length < 2)
                         print_line("Usage: mv oldfile newfile")
                         return true
-                end 
+                end
 
                 client.fs.file.mv(args[0],args[1])
 
                 return true
-        end 
+        end
 
         alias :cmd_move :cmd_mv
   alias :cmd_rename :cmd_mv
@@ -349,6 +349,50 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias cmd_getlwd cmd_lpwd
 
+  def list_path(path, columns, sort, order, short, recursive = false)
+    tbl = Rex::Ui::Text::Table.new(
+      'Header'  => "Listing: #{path}",
+      'SortIndex' => columns.index(sort),
+      'SortOrder' => order,
+      'Columns' => columns)
+
+    items = 0
+    pathname = Pathname.new(path)
+
+    # Enumerate each item...
+    # No need to sort as Table will do it for us
+    client.fs.dir.entries_with_info(path).each do |p|
+
+      ffstat = p['StatBuf']
+      fname = p['FileName'] || 'unknown'
+
+      row = [
+          ffstat ? ffstat.prettymode : '',
+          ffstat ? ffstat.size       : '',
+          ffstat ? ffstat.ftype[0,3] : '',
+          ffstat ? ffstat.mtime      : '',
+          fname
+        ]
+      row.insert(4, p['FileShortName'] || '') if short
+
+      if fname != '.' && fname != '..'
+        tbl << row
+        items += 1
+
+        if recursive && ffstat && ffstat.directory?
+          child = pathname.join(fname)
+          list_path(child.to_s, columns, sort, order, short, recursive)
+        end
+      end
+    end
+
+    if (items > 0)
+      print("\n" + tbl.to_s + "\n")
+    else
+      print_line("No entries exist in #{path}")
+    end
+  end
+
   #
   # Lists files
   #
@@ -368,6 +412,11 @@ class Console::CommandDispatcher::Stdapi::Fs
     order = args.include?('-r') ? :reverse : :forward
     args.delete('-r')
 
+    recursive = args.include?('-R')
+    args.delete('-R')
+
+    args.delete('-l')
+
     # Check for cries of help
     if args.length > 1 || args.any? { |a| a[0] == '-' }
       print_line('Usage: ls [dir] [-x] [-S] [-t] [-r]')
@@ -375,6 +424,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line('   -S Sort by size')
       print_line('   -t Sort by time modified')
       print_line('   -r Reverse sort order')
+      print_line('   -l List in long format (default)')
+      print_line('   -R Recursively list subdirectories encountered.')
       return true
     end
 
@@ -383,38 +434,9 @@ class Console::CommandDispatcher::Stdapi::Fs
     columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
     columns.insert(4, 'Short Name') if short
 
-    tbl  = Rex::Ui::Text::Table.new(
-      'Header'  => "Listing: #{path}",
-      'SortIndex' => columns.index(sort),
-      'SortOrder' => order,
-      'Columns' => columns)
-
-    items = 0
-    stat = client.fs.file.stat(path)
+    stat = client.fs.file.stat(path.to_s.include?('*') ? Pathname.new(path).dirname : path)
     if stat.directory?
-      # Enumerate each item...
-      # No need to sort as Table will do it for us
-      client.fs.dir.entries_with_info(path).each { |p|
-
-        row = [
-            p['StatBuf'] ? p['StatBuf'].prettymode : '',
-            p['StatBuf'] ? p['StatBuf'].size       : '',
-            p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '',
-            p['StatBuf'] ? p['StatBuf'].mtime      : '',
-            p['FileName'] || 'unknown'
-          ]
-        row.insert(4, p['FileShortName'] || '') if short
-
-        tbl << row
-
-        items += 1
-      }
-
-      if (items > 0)
-        print("\n" + tbl.to_s + "\n")
-      else
-        print_line("No entries exist in #{path}")
-      end
+      list_path(path, columns, sort, order, short, recursive)
     else
       print_line("#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
     end
