@@ -52,17 +52,17 @@ class Metasploit3 < Msf::Auxiliary
 
       case res.code.to_i
       when 400
-        fail InvocationError, "invalid parameters"
+        fail InvocationError
       when 429
-        fail RequestRateTooHigh, "request rate is too high, please slow down"
+        fail RequestRateTooHigh
       when 500
-        fail InternalError, "service encountered an error, sleep 5 minutes"
+        fail InternalError
       when 503
-        fail ServiceNotAvailable, "service is not available, sleep 15 minutes"
+        fail ServiceNotAvailable
       when 529
-        fail ServiceOverloaded, "service is overloaded, sleep 30 minutes"
+        fail ServiceOverloaded
       else
-        fail StandardError, "http error code #{r.code}"
+        fail StandardError, "HTTP error code #{r.code}", caller
       end
     end
 
@@ -429,16 +429,13 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  def contain?(dictionary, b)
-  end
-
   def output_endpoint_data(r)
     ssl_protocols = [
-      {id: 771, name: "TLS", version: "1.2", secure: true, active: false},
-      {id: 770, name: "TLS", version: "1.1", secure: true, active: false},
-      {id: 769, name: "TLS", version: "1.0", secure: true, active: false},
-      {id: 768, name: "SSL", version: "3.0", secure: false, active: false},
-      {id: 2, name: "SSL", version: "2.0", secure: false, active: false}
+      { id: 771, name: "TLS", version: "1.2", secure: true, active: false },
+      { id: 770, name: "TLS", version: "1.1", secure: true, active: false },
+      { id: 769, name: "TLS", version: "1.0", secure: true, active: false },
+      { id: 768, name: "SSL", version: "3.0", secure: false, active: false },
+      { id: 2, name: "SSL", version: "2.0", secure: false, active: false }
     ]
 
     print_status "-----------------------------------------------------------------"
@@ -447,7 +444,7 @@ class Metasploit3 < Msf::Auxiliary
 
     case r.grade.to_s
     when "A+", "A", "A-"
-       print_good "Overal rating: #{r.grade}"
+      print_good "Overal rating: #{r.grade}"
     when "B"
       print_warning "Overal rating: #{r.grade}"
     when "C", "D", "E", "F"
@@ -460,7 +457,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # Supported protocols
     r.details.protocols.each do |i|
-      p = ssl_protocols.detect {|x| x[:id] == i.id }
+      p = ssl_protocols.detect { |x| x[:id] == i.id }
       p.store(:active, true) if p
     end
 
@@ -468,7 +465,7 @@ class Metasploit3 < Msf::Auxiliary
       if proto[:active]
         if proto[:secure]
           print_good "#{proto[:name]} #{proto[:version]} - Yes"
-        elsif
+        else
           print_error "#{proto[:name]} #{proto[:version]} - Yes"
         end
       else
@@ -760,5 +757,16 @@ class Metasploit3 < Msf::Auxiliary
       sleep delay
       r = api.analyse(host: hostname, all: 'done')
     end
+
+    rescue
+      print_error "Invalid parameters"
+    rescue RequestRateTooHigh
+      print_error "Request rate is too high, please slow down"
+    rescue InternalError
+      print_error "Service encountered an error, sleep 5 minutes"
+    rescue ServiceNotAvailable
+      print_error "Service is not available, sleep 15 minutes"
+    rescue ServiceOverloaded
+      print_error "Service is overloaded, sleep 30 minutes"
   end
 end
