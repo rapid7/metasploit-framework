@@ -24,7 +24,7 @@ PATH
       activerecord (>= 3.2.21, < 4.0.0)
       metasploit-credential (~> 0.14.3)
       metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (~> 0.23.0)
+      metasploit_data_models (~> 0.23.2)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
