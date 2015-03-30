@@ -92,11 +92,11 @@ module Msf::DBManager::Session
 
     if opts[:session]
       session.db_record = s
-      if session.assoc_exploit.user_data_is_match?
+      if session.exploit.user_data_is_match?
         MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
-          match: session.assoc_exploit.user_data[:match],
-          match_set: session.assoc_exploit.user_data[:match_set],
-          run: session.assoc_exploit.user_data[:run],
+          match: session.exploit.user_data[:match],
+          match_set: session.exploit.user_data[:match_set],
+          run: session.exploit.user_data[:run],
           state: 'succeeded',
         )
       elsif session.via_exploit
@@ -132,7 +132,7 @@ module Msf::DBManager::Session
         host: host,
         info: "Exploited by #{mod_fullname} to create Session #{s.id}",
         name: mod_name,
-        refs: mod_detail.refs,
+        refs: mod_detail.refs.map { |ref| ref.name },
         workspace: wspace,
       }
 
