@@ -14,27 +14,31 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => '',
+      'Name'        => 'Gallery WD for Joomla! Unauthenticated SQL Injection Scanner',
       'Description' => %q{
+      This module will scan for Joomla! instances vulnerable to an unauthenticated SQL injection
+      within the Gallery WD for Joomla! extension version 1.2.5 and likely prior.
       },
       'Author'       =>
         [
+          'CrashBandicoot', #independent discovery/0day drop
+          'bperry' #discovery/metasploit module
         ],
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          [ 'CVE', '2013-3621' ],
-          [ 'CVE', '2013-3623' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities']
+          [ 'EDB', '36563']
         ],
-      'DisclosureDate' => 'Nov 06 2013'))
+      'DisclosureDate' => 'Mar 30 2015'))
 
+    register_options([
+      OptString.new('TARGETURI', [true, 'Target URI of the Joomla! instance', '/'])
+    ], self.class)
   end
 
   def run_host(ip)
-
-    left_marker = Rex::Text.rand_text_alpha(5)
     right_marker = Rex::Text.rand_text_alpha(5)
+    left_marker = Rex::Text.rand_text_alpha(5)
     flag = Rex::Text.rand_text_alpha(5)
 
     vprint_status("#{peer} - Checking host")
@@ -88,13 +92,13 @@ class Metasploit4 < Msf::Auxiliary
     result = res.body =~ /#{left_marker}#{flag}#{right_marker}/
 
     if result
-      print_good("#{peer} - Vulnerable to CVE-2013-3623 (close_window.cgi Buffer Overflow)")
+      print_good("#{peer} - Vulnerable to unauthenticated SQL injection within Gallery WD for Joomla!")
       report_vuln({
         :host  => rhost,
         :port  => rport,
         :proto => 'tcp',
-        :name  => "Supermicro Onboard IPMI close_window.cgi Buffer Overflow",
-        :refs  => self.references.select { |ref| ref.ctx_val == "2013-3623" }
+        :name  => "Unauthenticated error-based SQL injection in Gallery WD for Joomla!",
+        :refs  => self.references.select { |ref| ref.ctx_val == "36563" }
       })
     end
 
