@@ -4,10 +4,12 @@
 ##
 
 require 'msf/core'
+require 'msf/core/exploit/jsobfu'
 
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Exploit::JSObfu
 
   def initialize(info={})
     super(update_info(info,
@@ -146,13 +148,14 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def html
+    new_js = js_obfuscate(js)
     %Q|
     <html>
     <head>
     </head>
     <body>
     <script>
-    #{js}
+    #{new_js}
     </script>
     </body>
     </html>
