@@ -128,12 +128,12 @@ module Msf::DBManager::Session
       mod_name = mod_detail.name
 
       vuln_info = {
-        :host => host,
-        :name => mod_name,
-        :refs => mod_detail.refs,
-        :workspace => wspace,
-        :exploited_at => Time.now.utc,
-        :info => "Exploited by #{mod_fullname} to create Session #{s.id}"
+        exploited_at: Time.now.utc,
+        host: host,
+        info: "Exploited by #{mod_fullname} to create Session #{s.id}",
+        name: mod_name,
+        refs: mod_detail.refs,
+        workspace: wspace,
       }
 
       port    = session.exploit_datastore["RPORT"]
@@ -144,15 +144,15 @@ module Msf::DBManager::Session
       vuln = framework.db.report_vuln(vuln_info)
 
       attempt_info = {
-        :host        => host,
-        :module      => mod_fullname,
-        :refs        => mod_detail.refs,
-        :service     => service,
-        :session_id  => s.id,
-        :timestamp   => Time.now.utc,
-        :username    => session.username,
-        :vuln        => vuln,
-        :workspace   => wspace,
+        host: host,
+        module: mod_fullname,
+        refs: mod_detail.refs,
+        service: service,
+        session_id: s.id,
+        timestamp: Time.now.utc,
+        username: session.username,
+        vuln: vuln,
+        workspace: wspace,
       }
 
       framework.db.report_exploit_success(attempt_info)
@@ -172,24 +172,24 @@ module Msf::DBManager::Session
       h_opts[:workspace] = wspace
       host = find_or_create_host(h_opts)
       sess_data = {
-        host_id: host.id,
-        stype: session.type,
-        desc: session.info,
-        platform: session.platform,
-        via_payload: session.via_payload,
-        via_exploit: session.via_exploit,
-        routes: [],
         datastore: session.exploit_datastore.to_h,
-        port: session.session_port,
-        opened_at: Time.now.utc,
+        desc: session.info,
+        host_id: host.id,
         last_seen: Time.now.utc,
-        local_id: session.sid
+        local_id: session.sid,
+        opened_at: Time.now.utc,
+        platform: session.platform,
+        port: session.session_port,
+        routes: [],
+        stype: session.type,
+        via_exploit: session.via_exploit,
+        via_payload: session.via_payload,
       }
 
       if session.exploit_task and session.exploit_task.record
         session_task = session.exploit_task.record
         if session_task.class == Mdm::Task
-          Mdm::TaskSession.create(:task => session_task, :session => s )
+          Mdm::TaskSession.create(task: session_task, session: s )
         end
       end
 
