@@ -80,75 +80,19 @@ module Msf::DBManager::Session
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     if opts[:session]
-      raise ArgumentError.new("Invalid :session, expected Msf::Session") unless opts[:session].kind_of? Msf::Session
       session = opts[:session]
-      wspace = opts[:workspace] || find_workspace(session.workspace)
-      h_opts = { }
-      h_opts[:host]      = normalize_host(session)
-      h_opts[:arch]      = session.arch if session.respond_to?(:arch) and session.arch
-      h_opts[:workspace] = wspace
-      host = find_or_create_host(h_opts)
-      sess_data = {
-        host_id: host.id,
-        stype: session.type,
-        desc: session.info,
-        platform: session.platform,
-        via_payload: session.via_payload,
-        via_exploit: session.via_exploit,
-        routes: [],
-        datastore: session.exploit_datastore.to_h,
-        port: session.session_port,
-        opened_at: Time.now.utc,
-        last_seen: Time.now.utc,
-        local_id: session.sid
-      }
+      s = create_mdm_session_from_session(opts)
     elsif opts[:host]
-      raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? ::Mdm::Host
-      host = opts[:host]
-      sess_data = {
-        host_id: host.id,
-        stype: opts[:stype],
-        desc: opts[:desc],
-        platform: opts[:platform],
-        via_payload: opts[:via_payload],
-        via_exploit: opts[:via_exploit],
-        routes: opts[:routes] || [],
-        datastore: opts[:datastore],
-        opened_at: opts[:opened_at],
-        closed_at: opts[:closed_at],
-        last_seen: opts[:last_seen] || opts[:closed_at],
-        close_reason: opts[:close_reason],
-      }
+      s = create_mdm_session_from_host(opts)
     else
       raise ArgumentError.new("Missing option :session or :host")
     end
 
-    # Truncate the session data if necessary
-    if sess_data[:desc]
-      sess_data[:desc] = sess_data[:desc][0,255]
-    end
-
-    # In the case of multi handler we cannot yet determine the true
-    # exploit responsible. But we can at least show the parent versus
-    # just the generic handler:
-    if session and session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
-      sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
-    end
-
-    s = ::Mdm::Session.new(sess_data)
-    s.save!
-
-    if session and session.exploit_task and session.exploit_task.record
-      session_task =  session.exploit_task.record
-      if session_task.class == Mdm::Task
-        Mdm::TaskSession.create(:task => session_task, :session => s )
-      end
-    end
+    wspace = s.workspace
 
     if opts[:session]
       session.db_record = s
       if session.assoc_exploit.user_data_is_match?
-        # do some shit with the match
         MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
           match: session.assoc_exploit.user_data[:match],
           match_set: session.assoc_exploit.user_data[:match_set],
@@ -171,54 +115,129 @@ module Msf::DBManager::Session
   # @param wspace [Mdm::Workspace]
   # @return [void]
   def infer_vuln_from_session(session, wspace)
-    s = session.db_record
-    host = session.db_record.host
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      s = session.db_record
+      host = session.db_record.host
 
-    mod = framework.modules.create(session.via_exploit)
+      if session.via_exploit == "exploit/multi/handler" and session.exploit_datastore['ParentModule']
+        mod_fullname = session.exploit_datastore['ParentModule']
+      else
+        mod_fullname = session.via_exploit
+      end
+      mod_detail = ::Mdm::Module::Detail.find_by_fullname(mod_fullname)
+      mod_name = mod_detail.name
 
-    if session.via_exploit == "exploit/multi/handler" and session.exploit_datastore['ParentModule']
-      mod_fullname = session.exploit_datastore['ParentModule']
-      mod_name = ::Mdm::Module::Detail.find_by_fullname(mod_fullname).name
-    else
-      mod_name = mod.name
-      mod_fullname = mod.fullname
-    end
+      vuln_info = {
+        :host => host,
+        :name => mod_name,
+        :refs => mod_detail.refs,
+        :workspace => wspace,
+        :exploited_at => Time.now.utc,
+        :info => "Exploited by #{mod_fullname} to create Session #{s.id}"
+      }
 
-    vuln_info = {
-      :host => host,
-      :name => mod_name,
-      :refs => mod.references,
-      :workspace => wspace,
-      :exploited_at => Time.now.utc,
-      :info => "Exploited by #{mod_fullname} to create Session #{s.id}"
+      port    = session.exploit_datastore["RPORT"]
+      service = (port ? host.services.find_by_port(port.to_i) : nil)
+
+      vuln_info[:service] = service if service
+
+      vuln = framework.db.report_vuln(vuln_info)
+
+      attempt_info = {
+        :host        => host,
+        :module      => mod_fullname,
+        :refs        => mod_detail.refs,
+        :service     => service,
+        :session_id  => s.id,
+        :timestamp   => Time.now.utc,
+        :username    => session.username,
+        :vuln        => vuln,
+        :workspace   => wspace,
+      }
+
+      framework.db.report_exploit_success(attempt_info)
+
+      vuln
     }
-
-    port    = session.exploit_datastore["RPORT"]
-    service = (port ? host.services.find_by_port(port.to_i) : nil)
-
-    vuln_info[:service] = service if service
-
-    vuln = framework.db.report_vuln(vuln_info)
-
-    if session.via_exploit == "exploit/multi/handler" and session.exploit_datastore['ParentModule']
-      via_exploit = session.exploit_datastore['ParentModule']
-    else
-      via_exploit = session.via_exploit
-    end
-    attempt_info = {
-      :timestamp   => Time.now.utc,
-      :workspace   => wspace,
-      :module      => via_exploit,
-      :username    => session.username,
-      :refs        => mod.references,
-      :session_id  => s.id,
-      :host        => host,
-      :service     => service,
-      :vuln        => vuln
-    }
-
-    framework.db.report_exploit_success(attempt_info)
-
   end
 
+  def create_mdm_session_from_session(opts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      raise ArgumentError.new("Invalid :session, expected Msf::Session") unless opts[:session].kind_of? Msf::Session
+      session = opts[:session]
+      wspace = opts[:workspace] || find_workspace(session.workspace)
+      h_opts = { }
+      h_opts[:host]      = normalize_host(session)
+      h_opts[:arch]      = session.arch if session.respond_to?(:arch) and session.arch
+      h_opts[:workspace] = wspace
+      host = find_or_create_host(h_opts)
+      sess_data = {
+        host_id: host.id,
+        stype: session.type,
+        desc: session.info,
+        platform: session.platform,
+        via_payload: session.via_payload,
+        via_exploit: session.via_exploit,
+        routes: [],
+        datastore: session.exploit_datastore.to_h,
+        port: session.session_port,
+        opened_at: Time.now.utc,
+        last_seen: Time.now.utc,
+        local_id: session.sid
+      }
+
+      if session.exploit_task and session.exploit_task.record
+        session_task = session.exploit_task.record
+        if session_task.class == Mdm::Task
+          Mdm::TaskSession.create(:task => session_task, :session => s )
+        end
+      end
+
+      # In the case of multi handler we cannot yet determine the true
+      # exploit responsible. But we can at least show the parent versus
+      # just the generic handler:
+      if session.via_exploit == "exploit/multi/handler" and sess_data[:datastore]['ParentModule']
+        sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
+      end
+
+      # Truncate the session data if necessary
+      if sess_data[:desc]
+        sess_data[:desc] = sess_data[:desc][0,255]
+      end
+
+      s = ::Mdm::Session.new(sess_data)
+      s.save!
+      s
+    }
+  end
+
+  def create_mdm_session_from_host(opts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? ::Mdm::Host
+      host = opts[:host]
+      sess_data = {
+        host_id: host.id,
+        stype: opts[:stype],
+        desc: opts[:desc],
+        platform: opts[:platform],
+        via_payload: opts[:via_payload],
+        via_exploit: opts[:via_exploit],
+        routes: opts[:routes] || [],
+        datastore: opts[:datastore],
+        opened_at: opts[:opened_at],
+        closed_at: opts[:closed_at],
+        last_seen: opts[:last_seen] || opts[:closed_at],
+        close_reason: opts[:close_reason],
+      }
+
+      # Truncate the session data if necessary
+      if sess_data[:desc]
+        sess_data[:desc] = sess_data[:desc][0,255]
+      end
+
+      s = ::Mdm::Session.new(sess_data)
+      s.save!
+      s
+    }
+  end
 end
