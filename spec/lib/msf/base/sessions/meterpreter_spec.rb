@@ -4,6 +4,10 @@ require 'rex/post/meterpreter/extensions/stdapi/net/interface'
 require 'rex/post/meterpreter/extensions/stdapi/net/route'
 
 describe Msf::Sessions::Meterpreter do
+  before do
+    allow_any_instance_of(Rex::Post::Meterpreter::PacketDispatcher).to receive(:monitor_socket)
+  end
+
   subject(:meterpreter) { described_class.new(StringIO.new(""), skip_ssl: true) }
 
   let(:v6_gateway) { "2607:f8b0:4004:0802::1014" }
