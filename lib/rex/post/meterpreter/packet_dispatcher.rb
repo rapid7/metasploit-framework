@@ -114,9 +114,6 @@ module PacketDispatcher
       cli.send_response(resp)
     end
 
-    # Force a closure for older WinInet implementations
-    self.passive_service.close_client( cli )
-
     rescue ::Exception => e
       elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
     end
