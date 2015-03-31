@@ -132,7 +132,7 @@ module Msf::DBManager::Session
         host: host,
         info: "Exploited by #{mod_fullname} to create Session #{s.id}",
         name: mod_name,
-        refs: mod_detail.refs.map { |ref| ref.name },
+        refs: mod_detail.refs.map(&:name),
         workspace: wspace,
       }
 
