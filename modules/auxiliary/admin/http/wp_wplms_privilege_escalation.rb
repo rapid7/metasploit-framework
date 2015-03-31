@@ -13,15 +13,16 @@ class Metasploit3 < Msf::Auxiliary
       info,
       'Name'            => 'WordPress WPLMS Theme Privilege Escalation',
       'Description'     => %q{
-          The WordPress WPLMS theme from version 1.5.2 to 1.8.4.1 allows authenticated users of
-          any user level to set any system option via a lack of validation in the import_data function
-          of /includes/func.php.
+          The WordPress WPLMS theme from version 1.5.2 to 1.8.4.1 allows an
+          authenticated user of any user level to set any system option due to a lack of
+          validation in the import_data function of /includes/func.php.
 
           The module first changes the admin e-mail address to prevent any
-          notifications being sent to the actual administrator during the attack, re-enables user
-          registration in case it has been disabled and sets the default role to be administrator.
-          This will allow for the user to create a new account with admin privileges via the default
-          registration page found at /wp-login.php?action=register.
+          notifications being sent to the actual administrator during the attack,
+          re-enables user registration in case it has been disabled and sets the default
+          role to be administrator.  This will allow for the user to create a new account
+          with admin privileges via the default registration page found at
+          /wp-login.php?action=register.
       },
       'Author'          =>
         [
