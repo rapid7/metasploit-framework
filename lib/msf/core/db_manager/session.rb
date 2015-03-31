@@ -163,8 +163,9 @@ module Msf::DBManager::Session
 
   def create_mdm_session_from_session(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
-      raise ArgumentError.new("Invalid :session, expected Msf::Session") unless opts[:session].kind_of? Msf::Session
       session = opts[:session]
+      raise ArgumentError.new("Invalid :session, expected Msf::Session") unless session.kind_of? Msf::Session
+
       wspace = opts[:workspace] || find_workspace(session.workspace)
       h_opts = { }
       h_opts[:host]      = normalize_host(session)
@@ -205,16 +206,15 @@ module Msf::DBManager::Session
         sess_data[:desc] = sess_data[:desc][0,255]
       end
 
-      s = ::Mdm::Session.new(sess_data)
-      s.save!
+      s = ::Mdm::Session.create!(sess_data)
       s
     }
   end
 
   def create_mdm_session_from_host(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
-      raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? ::Mdm::Host
       host = opts[:host]
+      raise ArgumentError.new("Invalid :host, expected Host object") unless host.kind_of? ::Mdm::Host
       sess_data = {
         host_id: host.id,
         stype: opts[:stype],
@@ -235,8 +235,7 @@ module Msf::DBManager::Session
         sess_data[:desc] = sess_data[:desc][0,255]
       end
 
-      s = ::Mdm::Session.new(sess_data)
-      s.save!
+      s = ::Mdm::Session.create!(sess_data)
       s
     }
   end
