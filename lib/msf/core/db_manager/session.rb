@@ -74,7 +74,7 @@ module Msf::DBManager::Session
   #   @raise [ActiveRecord::RecordInvalid] if session is invalid and cannot be
   #     saved.
   #
-  # @raise ArgumentError if :host and :session is +nil+
+  # @raise ArgumentError if :host and :session are both +nil+
   def report_session(opts)
     return if not active
 
@@ -82,6 +82,7 @@ module Msf::DBManager::Session
     if opts[:session]
       session = opts[:session]
       s = create_mdm_session_from_session(opts)
+      session.db_record = s
     elsif opts[:host]
       s = create_mdm_session_from_host(opts)
     else
@@ -90,8 +91,7 @@ module Msf::DBManager::Session
 
     wspace = s.workspace
 
-    if opts[:session]
-      session.db_record = s
+    if session
       if session.exploit.user_data_is_match?
         MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
           match: session.exploit.user_data[:match],
@@ -117,7 +117,7 @@ module Msf::DBManager::Session
   def infer_vuln_from_session(session, wspace)
     ::ActiveRecord::Base.connection_pool.with_connection {
       s = session.db_record
-      host = session.db_record.host
+      host = s.host
 
       if session.via_exploit == "exploit/multi/handler" and session.exploit_datastore['ParentModule']
         mod_fullname = session.exploit_datastore['ParentModule']
