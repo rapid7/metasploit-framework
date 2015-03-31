@@ -69,8 +69,8 @@ module Metasploit3
         :proxy_host     => datastore['PayloadProxyHost'],
         :proxy_port     => datastore['PayloadProxyPort'],
         :proxy_type     => datastore['PayloadProxyType'],
-        :proxy_username => datastore['PayloadProxyUser'],
-        :proxy_password => datastore['PayloadProxyPass'])
+        :proxy_user     => datastore['PayloadProxyUser'],
+        :proxy_pass     => datastore['PayloadProxyPass'])
     end
 
   end
