@@ -187,13 +187,66 @@ module Metasploit
           error_message
         end
 
+        # Sends a HTTP request with Rex
+        #
+        # @param [Hash] Native support includes the following (also see Rex::Proto::Http::Request#request_cgi)
+        # @option opts[String] 'host' The remote host
+        # @option opts[Fixnum] 'port' The remote port
+        # @option opts[Boolean] 'ssl' The SSL setting, TrueClass or FalseClass
+        # @option opts[String]  'proxies' The proxies setting
+        # @option opts[Credential] 'credential' A credential object
+        # @option opts['Hash'] 'context' A context
+        # @raise [Rex::ConnectionError] One of these errors has occured: EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+        # @return [Rex::Proto::Http::Response] The HTTP response
+        # @return [NilClass] An error has occured while reading the response (see #Rex::Proto::Http::Client#read_response)
+        def send_request(opts)
+          rhost           = opts['host'] || host
+          rport           = opts['rport'] || port
+          cli_ssl         = opts['ssl'] || ssl
+          cli_ssl_version = opts['ssl_version'] || ssl_version
+          cli_proxies     = opts['proxies'] || proxies
+          username        = opts['credential'] ? opts['credential'].public : ''
+          password        = opts['credential'] ? opts['credential'].private : ''
+          realm           = opts['credential'] ? opts['credential'].realm : nil
+          context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
+
+          res = nil
+          cli = Rex::Proto::Http::Client.new(
+            rhost,
+            rport,
+            context,
+            cli_ssl,
+            cli_ssl_version,
+            cli_proxies,
+            username,
+            password
+          )
+          configure_http_client(cli)
+
+          if realm
+            cli.set_config('domain' => credential.realm)
+          end
+
+          begin
+            cli.connect
+            req = cli.request_cgi(opts)
+            res = cli.send_recv(req)
+          rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
+            raise Rex::ConnectionError, e.message
+          ensure
+            cli.close
+          end
+
+          res
+        end
+
+
         # Attempt a single login with a single credential against the target.
         #
         # @param credential [Credential] The credential object to attempt to
         #   login with.
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
-
           result_opts = {
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
@@ -209,32 +262,13 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
 
-          http_client = Rex::Proto::Http::Client.new(
-            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version,
-            proxies, credential.public, credential.private
-          )
-
-          configure_http_client(http_client)
-
-          if credential.realm
-            http_client.set_config('domain' => credential.realm)
-          end
-
           begin
-            http_client.connect
-            request = http_client.request_cgi(
-              'uri' => uri,
-              'method' => method
-            )
-
-            response = http_client.send_recv(request)
+            response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
             if response && response.code == 200
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
+          rescue Rex::ConnectionError => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
-          ensure
-            http_client.close
           end
 
           Result.new(result_opts)

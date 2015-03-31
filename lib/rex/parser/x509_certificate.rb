@@ -56,6 +56,36 @@ class X509Certificate
     parse_pem(data)
   end
 
+  #
+  # Parse a certificate in unified PEM format and retrieve
+  # the SHA1 hash.
+  #
+  # @param [String] ssl_cert 
+  # @return [String]
+  def self.get_cert_hash(ssl_cert)
+    hcert = parse_pem(ssl_cert)
+
+    unless hcert and hcert[0] and hcert[1]
+      raise ArgumentError, "Could not parse a private key and certificate"
+    end
+
+    Rex::Text.sha1_raw(hcert[1].to_der)
+  end
+
+  #
+  # Parse a file that contains a certificate in unified PEM
+  # format and retrieve the SHA1 hash.
+  #
+  # @param [String] ssl_cert_file
+  # @return [String]
+  def self.get_cert_file_hash(ssl_cert_file)
+    data = ''
+    ::File.open(ssl_cert_file, 'rb') do |fd|
+      data << fd.read(fd.stat.size)
+    end
+    get_cert_hash(data)
+  end
+
 end
 
 end

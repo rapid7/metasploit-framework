@@ -48,7 +48,14 @@ class ClientCore < Extension
     request = Packet.create_request('core_enumextcmd')
     request.add_tlv(TLV_TYPE_STRING, extension_name)
 
-    response = self.client.send_packet_wait_response(request, self.client.response_timeout)
+    begin
+      response = self.client.send_packet_wait_response(request, self.client.response_timeout)
+    rescue
+      # In the case where orphaned shells call back with OLD copies of the meterpreter
+      # binaries, we end up with a case where this fails. So here we just return the
+      # empty list of supported commands.
+      return []
+    end
 
     # No response?
     if response.nil?

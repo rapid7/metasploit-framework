@@ -117,9 +117,6 @@ module PacketDispatcher
       cli.send_response(resp)
     end
 
-    # Force a closure for older WinInet implementations
-    self.passive_service.close_client( cli )
-
     rescue ::Exception => e
       elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
     end
@@ -181,7 +178,6 @@ module PacketDispatcher
   # Sends a packet and waits for a timeout for the given time interval.
   #
   def send_request(packet, t = self.response_timeout)
-
     if not t
       send_packet(packet)
       return nil

