@@ -68,7 +68,7 @@ shared_examples_for 'Msf::DBManager::Session' do
 
           let(:session) do
             session_class.new.tap do |session|
-              session.assoc_exploit = module_instance
+              session.exploit = module_instance
               session.exploit_datastore = exploit_datastore
               session.info = 'Info'
               session.platform = 'Platform'
@@ -85,7 +85,7 @@ shared_examples_for 'Msf::DBManager::Session' do
             Class.new do
               include Msf::Session
 
-              attr_accessor :assoc_exploit
+              attr_accessor :exploit
               attr_accessor :datastore
               attr_accessor :platform
               attr_accessor :type
@@ -140,6 +140,14 @@ shared_examples_for 'Msf::DBManager::Session' do
                 report_session
               }.to change(MetasploitDataModels::AutomaticExploitation::MatchResult, :count).by(1)
             end
+
+            it 'should not increase the host count' do
+              expect { report_session }.not_to change(Mdm::Host, :count)
+            end
+
+            it 'should not increase the vuln count' do
+              expect { report_session }.not_to change(Mdm::Vuln, :count)
+            end
           end
 
           context 'without user_data' do
@@ -153,7 +161,7 @@ shared_examples_for 'Msf::DBManager::Session' do
               it 'should not find workspace from session' do
                 db_manager.should_not_receive(:find_workspace)
 
-                report_session
+                expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
             end
 
@@ -171,7 +179,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                     )
                 ).and_return(host)
 
-                report_session
+                expect { report_session }.to change(Mdm::Vuln, :count).by(1)
               end
             end
 
@@ -207,7 +215,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       )
                   ).and_call_original
 
-                  report_session
+                  expect { report_session }.to change(Mdm::Vuln, :count).by(1)
                 end
               end
 
@@ -219,7 +227,7 @@ shared_examples_for 'Msf::DBManager::Session' do
                       )
                   ).and_call_original
 
-                  report_session
+                  expect { report_session }.to change(Mdm::Vuln, :count).by(1)
                 end
               end
 
@@ -238,11 +246,6 @@ shared_examples_for 'Msf::DBManager::Session' do
               end
 
               context 'with session.via_exploit' do
-                it 'should create session.via_exploit module' do
-                  framework.modules.should_receive(:create).with(session.via_exploit).and_call_original
-
-                  report_session
-                end
 
                 it 'should create Mdm::Vuln' do
                   expect {
