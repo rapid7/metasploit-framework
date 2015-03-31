@@ -58,16 +58,27 @@ module Msf
           { uri: uri_bare, sum: uri_csum, uuid: uri_uuid, mode: uri_mode }
         end
 
-        # Create a URI that matches the :connect mode with optional UUID, Arch, and Platform
+        # Create a URI that matches the specified checksum and payload uuid
         #
+        # @param sum [Fixnum] A checksum mode value to use for the generated url
         # @param uuid [Msf::Payload::UUID] A valid UUID object
+        # @param len [Fixnum] An optional URI length value, including the leading slash
         # @return [String] The URI string for connections
-        def generate_uri_connect_uuid(uuid)
+        def generate_uri_uuid(sum, uuid, len=nil)
           curl_uri_len = URI_CHECKSUM_UUID_MIN_LEN+rand(URI_CHECKSUM_CONN_MAX_LEN-URI_CHECKSUM_UUID_MIN_LEN)
           curl_prefix  = uuid.to_uri
 
-          # Pad out the URI and make the checksum match :connect
-          "/" + generate_uri_checksum(URI_CHECKSUM_CONN, curl_uri_len, curl_prefix)
+          if len
+            # Subtract a byte to take into account the leading /
+            curl_uri_len = len - 1
+          end
+
+          if curl_uri_len < URI_CHECKSUM_UUID_MIN_LEN
+            raise ArgumentError, "Length must be #{URI_CHECKSUM_UUID_MIN_LEN+1} bytes or greater"
+          end
+
+          # Pad out the URI and make the checksum match the specified sum
+          "/" + generate_uri_checksum(sum, curl_uri_len, curl_prefix)
         end
 
         # Create an arbitrary length URI that matches a given checksum
@@ -77,7 +88,6 @@ module Msf
         # @param prefix [String] The optional prefix to use to build the URI
         # @return [String] The URI string that checksums to the given value
         def generate_uri_checksum(sum, len=5, prefix="")
-
           # Lengths shorter than 4 bytes are unable to match all possible checksums
           # Lengths of exactly 4 are relatively slow to find for high checksum values
           # Lengths of 5 or more bytes find a matching checksum fairly quickly (~80ms)
@@ -108,6 +118,17 @@ module Msf
           end
         end
 
+        # Return the numerical checksum for a given mode symbol
+        #
+        # @param mode [Symbol] The mode symbol to lookup (:connect, :init_native, :init_python, :init_java)
+        # @return [Fixnum] The URI checksum value corresponding with the mode
+        def uri_checksum_lookup(mode)
+          sum = URI_CHECKSUM_MODES.keys.select{|ksum| URI_CHECKSUM_MODES[ksum] == mode}.first
+          unless sum
+            raise ArgumentError, "Unknown checksum mode: #{mode}"
+          end
+          sum
+        end
       end
     end
   end

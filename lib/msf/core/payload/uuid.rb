@@ -104,6 +104,8 @@ class Msf::Payload::UUID
       puid = seed_to_puid(opts[:seed])
     end
 
+    p opts
+
     puid ||= Rex::Text.rand_text(8)
 
     if puid.length != 8
@@ -281,13 +283,13 @@ class Msf::Payload::UUID
     Rex::Text.encode_base64url(self.to_raw)
   end
 
+  def puid_hex
+    self.puid.unpack('H*').first
+  end
+
   def xor_reset
     self.xor1 = self.xor2 = nil
     self
-  end
-
-  def puid_hex
-    self.puid.unpack('H*').first
   end
 
   attr_reader :arch

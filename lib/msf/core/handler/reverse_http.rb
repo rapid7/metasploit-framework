@@ -226,7 +226,7 @@ protected
 
     conn_id = nil
     if info[:mode] && info[:mode] != :connect
-      conn_id = generate_uri_connect_uuid(uuid)
+      conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
     end
 
     self.pending_connections += 1
@@ -264,7 +264,7 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
-          :uuid               => uuid
+          :payload_uuid       => uuid
         })
 
       when :init_java
@@ -292,7 +292,7 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
-          :uuid               => uuid
+          :payload_uuid       => uuid
         })
 
       when :init_native
@@ -331,7 +331,7 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
-          :uuid               => uuid
+          :payload_uuid       => uuid
         })
 
       when :connect
@@ -347,7 +347,7 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
-          :uuid               => uuid
+          :payload_uuid       => uuid
         })
 
       else
