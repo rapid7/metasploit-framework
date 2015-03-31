@@ -183,7 +183,7 @@ module Metasploit
               status = try_glassfish_3(credential)
               result_opts.merge!(status)
             end
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
