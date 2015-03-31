@@ -17,11 +17,14 @@ class Metasploit3 < Msf::Post
     super( update_info( info,
         'Name'          => 'Windows Gather Local SQL Server Hash Dump',
         'Description'   => %q{ This module extracts the usernames and password
-        hashes from a MSSQL server and stores them in the loot using the
-        same technique in mssql_local_auth_bypass (Credits: Scott Sutherland)
+        hashes from an MSSQL server and stores them as loot. It uses the
+        same technique in mssql_local_auth_bypass.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Mike Manzotti <mike.manzotti[at]dionach.com>'],
+        'Author'        => [
+            'Mike Manzotti <mike.manzotti[at]dionach.com>',
+            'nullbind' # Original technique
+          ],
         'Platform'      => [ 'win' ],
         'SessionTypes'  => [ 'meterpreter' ],
         'References'  =>
