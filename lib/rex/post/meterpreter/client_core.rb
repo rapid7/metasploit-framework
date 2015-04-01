@@ -230,6 +230,16 @@ class ClientCore < Extension
     return true
   end
 
+  def machine_id
+    request = Packet.create_request('core_machine_id')
+
+    response = client.send_request(request)
+
+    id = response.get_tlv_value(TLV_TYPE_MACHINE_ID)
+    # TODO: Determine if we're going to MD5/SHA1 this
+    return Rex::Text.md5(id)
+  end
+
   def change_transport(opts={})
     request = Packet.create_request('core_change_transport')
 

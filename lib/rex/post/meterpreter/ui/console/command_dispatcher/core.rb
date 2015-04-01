@@ -63,6 +63,7 @@ class Console::CommandDispatcher::Core
       "use"        => "Deprecated alias for 'load'",
       "load"       => "Load one or more meterpreter extensions",
       "transport"  => "Change the current transport mechanism",
+      "machine_id" => "Get the MSF ID of the machine attached to the session",
       "quit"       => "Terminate the meterpreter session",
       "resource"   => "Run the commands stored in a file",
       "read"       => "Reads data from a channel",
@@ -331,6 +332,10 @@ class Console::CommandDispatcher::Core
     session = client
     framework = client.framework
     Rex::Ui::Text::IrbShell.new(binding).run
+  end
+
+  def cmd_machine_id(*args)
+    print_good("Machine ID: #{client.core.machine_id}")
   end
 
   def cmd_transport(*args)
