@@ -34,6 +34,18 @@ class ClientCore < Extension
   UNIX_PATH_MAX = 108
   DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
 
+  METERPRETER_TRANSPORT_SSL   = 0
+  METERPRETER_TRANSPORT_HTTP  = 1
+  METERPRETER_TRANSPORT_HTTPS = 2
+
+  VALID_TRANSPORTS = {
+    'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
+    'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
+    'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
+    'bind_tcp'      => METERPRETER_TRANSPORT_SSL
+  }
+
+
   include Rex::Payloads::Meterpreter::UriChecksum
 
   #
@@ -241,20 +253,28 @@ class ClientCore < Extension
   end
 
   def change_transport(opts={})
+    transport = opts[:type].downcase
+
+    unless valid_transport?(transport)
+      raise ArgumentError, "#{transport} is not a valid transport"
+    end
+
     request = Packet.create_request('core_change_transport')
 
-    url = "#{opts[:scheme]}://#{opts[:lhost]}:#{opts[:lport]}"
+    scheme = transport.split('_')[1]
+    url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
 
-    if opts[:adduri]
+    unless transport.ends_with?('tcp')
       checksum = generate_uri_checksum(URI_CHECKSUM_CONN)
       rand = Rex::Text.rand_text_alphanumeric(16)
       url <<  "/#{checksum}_#{rand}/"
     end
 
-    request.add_tlv(TLV_TYPE_TRANSPORT_TYPE, opts[:type])
+    request.add_tlv(TLV_TYPE_TRANSPORT_TYPE, VALID_TRANSPORTS[transport])
     request.add_tlv(TLV_TYPE_TRANSPORT_URL, url)
 
-    response = client.send_request(request)
+    client.send_request(request)
+    return true
   end
 
   #
@@ -437,6 +457,13 @@ class ClientCore < Extension
       self.client.send_packet_wait_response(request, 10)
     end
     true
+  end
+
+  #
+  # Indicates if the given transport is a valid transport option.
+  #
+  def valid_transport?(transport)
+    VALID_TRANSPORTS.has_key?(transport.downcase)
   end
 
   private

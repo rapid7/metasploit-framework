@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'msf/core/handler/reverse_http/uri_checksum'
+require 'rex/payloads/meterpreter/uri_checksum'
 
 describe Msf::Handler::ReverseHttp::UriChecksum do
    class DummyClass

@@ -578,7 +578,7 @@ class PythonMeterpreter(object):
 			k32 = ctypes.windll.kernel32
 			sys_dir = ctypes.create_unicode_buffer(260)
 			if not k32.GetSystemDirectoryW(ctypes.byref(sys_dir), 260):
-				return ERROR_FAILURE
+				return ERROR_FAILURE_WINDOWS
 
 			vol_buf = ctypes.create_unicode_buffer(260)
 			fs_buf = ctypes.create_unicode_buffer(260)
@@ -587,7 +587,7 @@ class PythonMeterpreter(object):
 			if not k32.GetVolumeInformationW(ctypes.c_wchar_p(sys_dir.value[:3]),
 					vol_buf, ctypes.sizeof(vol_buf), ctypes.byref(serial_num), None,
 					None, fs_buf, ctypes.sizeof(fs_buf)):
-				return ERROR_FAILURE
+				return ERROR_FAILURE_WINDOWS
 			serial_num = serial_num.value
 			serial = "{0:04x}-{1:04x}".format((serial_num >> 16) & 0xFFFF, serial_num & 0xFFFF)
 		else:

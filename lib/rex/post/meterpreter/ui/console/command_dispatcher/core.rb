@@ -18,18 +18,6 @@ class Console::CommandDispatcher::Core
 
   include Console::CommandDispatcher
 
-  METERPRETER_TRANSPORT_SSL   = 0
-  METERPRETER_TRANSPORT_HTTP  = 1
-  METERPRETER_TRANSPORT_HTTPS = 2
-
-  VALID_TRANSPORTS = {
-    'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
-    'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
-    'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
-    'bind_tcp'      => METERPRETER_TRANSPORT_SSL
-  }
-
-
   #
   # Initializes an instance of the core command set using the supplied shell
   # for interactivity.
@@ -341,17 +329,19 @@ class Console::CommandDispatcher::Core
   def cmd_transport(*args)
     if ( args.length == 0 or args.include?("-h") )
       #cmd_transport_help
-      return true
+      return
     end
 
     transport = args.shift.downcase
-    unless VALID_TRANSPORTS.has_key?(transport)
+    unless client.core.valid_transport?(transport)
       #cmd_transport_help
+      return
     end
 
     if transport == 'bind_tcp'
       unless args.length == 1
         #cmd_transport_help
+        return
       end
 
       lhost = ""
@@ -359,19 +349,18 @@ class Console::CommandDispatcher::Core
     else
       unless args.length == 2
         #cmd_transport_help
+        return
       end
 
       lhost = args.shift
       lport = args.shift.to_i
     end
 
-    print_status("Swapping transport ...")
+    print_status("Swapping transport to #{transport} at #{lhost}:#{lport} ...")
     client.core.change_transport({
-      :type   => VALID_TRANSPORTS[transport],
-      :scheme => transport.split('_')[1],
+      :type   => transport,
       :lhost  => lhost,
-      :lport  => lport,
-      :adduri => !transport.ends_with?('tcp')
+      :lport  => lport
     })
     client.shutdown_passive_dispatcher
     shell.stop
