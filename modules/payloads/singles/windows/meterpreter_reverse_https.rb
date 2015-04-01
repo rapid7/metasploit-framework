@@ -66,11 +66,11 @@ module Metasploit3
         :expiration     => datastore['SessionExpirationTimeout'].to_i,
         :comm_timeout   => datastore['SessionCommunicationTimeout'].to_i,
         :ua             => datastore['MeterpreterUserAgent'],
-        :proxyhost      => datastore['PROXYHOST'],
-        :proxyport      => datastore['PROXYPORT'],
-        :proxy_type     => datastore['PROXY_TYPE'],
-        :proxy_username => datastore['PROXY_USERNAME'],
-        :proxy_password => datastore['PROXY_PASSWORD'])
+        :proxy_host     => datastore['PayloadProxyHost'],
+        :proxy_port     => datastore['PayloadProxyPort'],
+        :proxy_type     => datastore['PayloadProxyType'],
+        :proxy_user     => datastore['PayloadProxyUser'],
+        :proxy_pass     => datastore['PayloadProxyPass'])
     end
 
   end

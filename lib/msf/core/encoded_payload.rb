@@ -110,7 +110,7 @@ class EncodedPayload
   def encode
     # If the exploit has bad characters, we need to run the list of encoders
     # in ranked precedence and try to encode without them.
-    if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
+    if reqs['BadChars'].to_s.length > 0 or reqs['Encoder'] or reqs['ForceEncode']
       encoders = pinst.compatible_encoders
 
       # Make sure the encoder name from the user has the same String#encoding
