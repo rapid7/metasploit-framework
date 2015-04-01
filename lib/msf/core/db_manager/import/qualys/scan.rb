@@ -70,7 +70,7 @@ module Msf::DBManager::Import::Qualys::Scan
             refs.push(ref.elements['ID'].text.to_s)
           end
           vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
-            refs.push('CVE-' + /C..-([0-9\-]{9})/.match(ref.elements['ID'].text.to_s)[1])
+            refs.push('CVE-' + /C..-([0-9\-]{9,})/.match(ref.elements['ID'].text.to_s)[1])
           end
           vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
             refs.push('BID-' + ref.elements['ID'].text.to_s)
