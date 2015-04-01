@@ -63,7 +63,7 @@ module Rex
             if proxyport == "80"
               proxyinfo = proxyhost
             end
-            if proxy_type.to_s == 'HTTP'
+            if proxy_type.to_s.upcase == 'HTTP'
               proxyinfo = 'http://' + proxyinfo
             else #socks
               proxyinfo = 'socks=' + proxyinfo
@@ -76,17 +76,21 @@ module Rex
         # Proxy authentification
         def self.patch_proxy_auth!(blob, proxy_username, proxy_password, proxy_type)
 
-          unless (proxy_username.nil? or proxy_username.empty?) or
-            (proxy_password.nil? or proxy_password.empty?) or
-            proxy_type == 'SOCKS'
+          return if proxy_type.nil? || proxy_type.upcase == 'SOCKS'
 
-            patch_string!(blob, "METERPRETER_USERNAME_PROXY#{"\x00" * 10}",
+          if proxy_username && !proxy_username.empty?
+            unless patch_string!(blob, "METERPRETER_USERNAME_PROXY#{"\x00" * 10}",
                           proxy_username + "\x00")
-
-            patch_string!(blob, "METERPRETER_PASSWORD_PROXY#{"\x00" * 10}",
-                          proxy_password + "\x00")
+              raise ArgumentError, "Unable to patch Proxy Username"
+            end
           end
 
+          if proxy_password && !proxy_password.empty?
+            unless patch_string!(blob, "METERPRETER_PASSWORD_PROXY#{"\x00" * 10}",
+                          proxy_password + "\x00")
+              raise ArgumentError, "Unable to patch Proxy Password"
+            end
+          end
         end
 
         # Patch the ssl cert hash
