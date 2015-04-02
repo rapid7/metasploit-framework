@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'rex/payloads/meterpreter/uri_checksum'
 
-describe Msf::Handler::ReverseHttp::UriChecksum do
+describe Rex::Payloads::Meterpreter::UriChecksum do
    class DummyClass
-     include Msf::Handler::ReverseHttp::UriChecksum
+     include Rex::Payloads::Meterpreter::UriChecksum
    end
 
   subject(:dummy_object) { DummyClass.new }
@@ -23,7 +23,7 @@ describe Msf::Handler::ReverseHttp::UriChecksum do
     context 'when it fails to generate a random URI' do
       it 'should use the pre-calculated checksum string' do
         Rex::Text.stub(:checksum8) { false }
-        expect(dummy_object.generate_uri_checksum(checksum_value)).to eq Msf::Handler::ReverseHttp::UriChecksum::URI_CHECKSUM_PRECALC[checksum_value]
+        expect(dummy_object.generate_uri_checksum(checksum_value)).to eq Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_PRECALC[checksum_value]
       end
 
     end
