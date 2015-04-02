@@ -61,7 +61,7 @@ module Auxiliary::Report
   # This method safely get the workspace ID. It handles if the db is not active
   #
   # @return [NilClass] if there is no DB connection
-  # @return [Fixnum] the ID of the current {::Mdm::Workspace}
+  # @return [Fixnum] the ID of the current {Mdm::Workspace}
   def myworkspace_id
     if framework.db.active
       myworkspace.id
