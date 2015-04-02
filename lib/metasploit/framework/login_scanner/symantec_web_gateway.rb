@@ -95,7 +95,14 @@ module Metasploit
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
-          result_opts = { credential: credential }
+          result_opts = {
+            credential: credential,
+            status: Metasploit::Model::Login::Status::INCORRECT,
+            proof: nil,
+            host: host,
+            port: port,
+            protocol: 'tcp'
+          }
 
           begin
             result_opts.merge!(get_login_state(credential.public, credential.private))
