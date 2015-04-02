@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => "MS14-052 Microsoft Internet Explorer XMLDOM Filename Disclosure",
       'Description'    => %q{
-        This module will use the Microsoft XMLDOM object to enumerate a remote user's filenames.
+        This module will use the Microsoft XMLDOM object to enumerate a remote machine's filenames.
         It will try to do so against Internet Explorer 8 and Internet Explorer 9. To use it, you
-        must supply your own list of file paths. Each file's format should look like this:
+        must supply your own list of file paths. Each file path should look like this:
         c:\\\\windows\\\\system32\\\\calc.exe
       },
       'License'        => MSF_LICENSE,

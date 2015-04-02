@@ -23,6 +23,10 @@ require 'msf/core/service_state'
 class Msf::DBManager
   extend Metasploit::Framework::Require
 
+  # Default proto for making new `Mdm::Service`s. This should probably be a
+  # const on `Mdm::Service`
+  DEFAULT_SERVICE_PROTO = "tcp"
+
   autoload :Adapter, 'msf/core/db_manager/adapter'
   autoload :Client, 'msf/core/db_manager/client'
   autoload :Connection, 'msf/core/db_manager/connection'
