@@ -109,8 +109,8 @@ module Msf
 
         # Helper method to read fragmented data from a ```Rex::Socket::Tcp```
         #
-        # @param opts [Hash]
-        # @option opts [Rex::Socket::Tcp] :sock
+        # @param [Hash] nsock
+        # @option [Rex::Socket::Tcp] sock
         # @return [String]
         def safe_get_once(nsock = sock)
           data = ''

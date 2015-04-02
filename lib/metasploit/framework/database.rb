@@ -22,7 +22,7 @@ module Metasploit
       #
       # @param options [Hash{Symbol=>String}]
       # @option options [String] :path Path to use instead of first element of {configurations_pathnames}
-      # @return [Pathname] if configuration pathname exists.
+      # @return [String] pathname if configuration pathname exists.
       # @return [nil] if configuration pathname does not exist.
       def self.configurations_pathname(options={})
         options.assert_valid_keys(:path)

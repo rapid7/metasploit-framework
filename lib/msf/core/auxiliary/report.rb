@@ -61,7 +61,7 @@ module Auxiliary::Report
   # This method safely get the workspace ID. It handles if the db is not active
   #
   # @return [NilClass] if there is no DB connection
-  # @return [Fixnum] the ID of the current {Mdm::Workspace}
+  # @return [Fixnum] the ID of the current {::Mdm::Workspace}
   def myworkspace_id
     if framework.db.active
       myworkspace.id
@@ -115,7 +115,7 @@ module Auxiliary::Report
   # Report a client connection
   #
   # opts must contain
-  #	:host      the address of the client connecting
+  #	:host the address of the client connecting
   #	:ua_string a string that uniquely identifies this client
   # opts can contain
   #	:ua_name a brief identifier for the client, e.g. "Firefox"
@@ -161,7 +161,7 @@ module Auxiliary::Report
   # by a module. This method is deprecated and the new Metasploit::Credential methods
   # should be used directly instead.
   #
-  # @param :opts [Hash] the option hash
+  # @param opts [Hash] the option hash
   # @option opts [String] :host the address of the host (also takes a {Mdm::Host})
   # @option opts [Fixnum] :port the port of the connected service
   # @option opts [Mdm::Service] :service an optional Service object to build the cred for

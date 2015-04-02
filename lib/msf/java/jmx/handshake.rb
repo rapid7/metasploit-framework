@@ -9,7 +9,7 @@ module Msf
         # Builds a Rex::Java::Serialization::Model::Stream to make
         # a JMX handshake with an endpoint
         #
-        # @param id [String] The endpoint UnicastRef ObjId
+        # @param obj_id [String] The endpoint UnicastRef ObjId
         # @return [Rex::Java::Serialization::Model::Stream]
         def handshake_stream(obj_id)
           block_data = Rex::Java::Serialization::Model::BlockData.new(nil, "#{obj_id}\xff\xff\xff\xff\xf0\xe0\x74\xea\xad\x0c\xae\xa8")

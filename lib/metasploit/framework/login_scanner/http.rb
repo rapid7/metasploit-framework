@@ -189,7 +189,7 @@ module Metasploit
 
         # Sends a HTTP request with Rex
         #
-        # @param [Hash] Native support includes the following (also see Rex::Proto::Http::Request#request_cgi)
+        # @param [Hash] opts native support includes the following (also see Rex::Proto::Http::Request#request_cgi)
         # @option opts[String] 'host' The remote host
         # @option opts[Fixnum] 'port' The remote port
         # @option opts[Boolean] 'ssl' The SSL setting, TrueClass or FalseClass
@@ -356,7 +356,7 @@ module Metasploit
 
         # Combine the base URI with the target URI in a sane fashion
         #
-        # @param [String] The target URL
+        # @param [String] target_uri the target URL
         # @return [String] the final URL mapped against the base
         def normalize_uri(target_uri)
           (self.uri.to_s + "/" + target_uri.to_s).gsub(/\/+/, '/')

@@ -32,7 +32,7 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @faise [RuntimeError] if deserialization doesn't succeed
+          # @return [RuntimeError] false if deserialization doesn't succeed
           def decode(io)
             code = io.read(1)
 
