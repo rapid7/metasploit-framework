@@ -322,48 +322,99 @@ class Console::CommandDispatcher::Core
     Rex::Ui::Text::IrbShell.new(binding).run
   end
 
+  #
+  # Get the machine ID of the target
+  #
   def cmd_machine_id(*args)
     print_good("Machine ID: #{client.core.machine_id}")
   end
 
+  #
+  # Arguments for transport switching
+  #
+  @@transport_opts = Rex::Parser::Arguments.new(
+    '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
+    '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
+    '-p'  => [ true,  'LPORT parameter' ],
+    '-ua' => [ true,  'User agent for http(s) transports (optional)' ],
+    '-ph' => [ true,  'Proxy host for http(s) transports (optional)' ],
+    '-pp' => [ true,  'Proxy port for http(s) transports (optional)' ],
+    '-pu' => [ true,  'Proxy username for http(s) transports (optional)' ],
+    '-ps' => [ true,  'Proxy password for http(s) transports (optional)' ],
+    '-pt' => [ true,  'Proxy type for http(s) transports (optional: http, socks; default: http)' ],
+    '-c'  => [ true,  'SSL certificate path for https transport verification (optional)' ],
+    '-to' => [ true,  "Comms timeout (seconds) for http(s) transports (default: #{Rex::Post::Meterpreter::ClientCore::DEFAULT_COMMS_TIMEOUT})" ],
+    '-ex' => [ true,  "Expiration timout (seconds) for http(s) transports (default: #{Rex::Post::Meterpreter::ClientCore::DEFAULT_SESSION_EXPIRATION})" ],
+    '-h'  => [ false, 'Help menu' ])
+
+  def cmd_transport_help
+    print_line('Usage: transport [options]')
+    print_line
+    print_line('Change the current Meterpreter transport mechanism')
+    print_line(@@transport_opts.usage)
+  end
+
   def cmd_transport(*args)
     if ( args.length == 0 or args.include?("-h") )
-      #cmd_transport_help
+      cmd_transport_help
       return
     end
 
-    transport = args.shift.downcase
-    unless client.core.valid_transport?(transport)
-      #cmd_transport_help
-      return
-    end
+    opts = {
+      :transport     => nil,
+      :lhost         => nil,
+      :lport         => nil,
+      :ua            => nil,
+      :proxy_host    => nil,
+      :proxy_port    => nil,
+      :proxy_type    => nil,
+      :proxy_user    => nil,
+      :proxy_pass    => nil,
+      :comms_timeout => nil,
+      :session_exp   => nil,
+      :cert          => nil
+    }
 
-    if transport == 'bind_tcp'
-      unless args.length == 1
-        #cmd_transport_help
-        return
+    @@transport_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-c'
+        opts[:cert] = val
+      when '-ph'
+        opts[:proxy_host] = val
+      when '-pp'
+        opts[:proxy_port] = val.to_i
+      when '-pt'
+        opts[:proxy_type] = val
+      when '-pu'
+        opts[:proxy_user] = val
+      when '-ps'
+        opts[:proxy_pass] = val
+      when '-ua'
+        opts[:ua] = val
+      when '-to'
+        opts[:comms_timeout] = val.to_i
+      when '-ex'
+        opts[:session_exp] = val.to_i
+      when '-p'
+        opts[:lport] = val.to_i
+      when '-l'
+        opts[:lhost] = val
+      when '-t'
+        unless client.core.valid_transport?(val)
+          cmd_transport_help
+          return
+        end
+        opts[:transport] = val
       end
+    end
 
-      lhost = ""
-      lport = args.shift.to_i
+    print_status("Swapping transport ...")
+    if client.core.change_transport(opts)
+      client.shutdown_passive_dispatcher
+      shell.stop
     else
-      unless args.length == 2
-        #cmd_transport_help
-        return
-      end
-
-      lhost = args.shift
-      lport = args.shift.to_i
+      print_error("Failed to switch transport, please check the parameters")
     end
-
-    print_status("Swapping transport to #{transport} at #{lhost}:#{lport} ...")
-    client.core.change_transport({
-      :type   => transport,
-      :lhost  => lhost,
-      :lport  => lport
-    })
-    client.shutdown_passive_dispatcher
-    shell.stop
   end
 
   def cmd_migrate_help
