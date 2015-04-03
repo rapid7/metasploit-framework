@@ -108,8 +108,8 @@ class Metasploit3 < Msf::Auxiliary
 
   # For debugging only.
   #rescue ::Exception
-  #	print_error("#{$!}")
-  #	return :abort
+  #  print_error("#{$!}")
+  #return :abort
 
   ensure
     disconnect()

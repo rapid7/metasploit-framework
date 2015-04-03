@@ -122,18 +122,12 @@ class Post
       print_error("Post interrupted by the console user")
     rescue ::Exception => e
       print_error("Post failed: #{e.class} #{e}")
-
-      elog("Post failed: #{e.class} #{e}", 'core', LEV_0)
-
-      if e.kind_of?(Msf::OptionValidateError)
-        dlog("Call stack:\n#{e.backtrace.join("\n")}", 'core', LEV_3)
-      else
+      if (e.class.to_s != 'Msf::OptionValidateError')
         print_error("Call stack:")
         e.backtrace.each do |line|
           break if line =~ /lib.msf.base.simple/
           print_error("  #{line}")
         end
-        elog("Call stack:\n#{e.backtrace.join("\n")}", 'core', LEV_0)
       end
 
       return false
@@ -160,3 +154,4 @@ class Post
 end
 
 end end end end
+

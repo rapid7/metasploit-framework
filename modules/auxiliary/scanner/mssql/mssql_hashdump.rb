@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 
     create_credential_login(login_data)
 
-    #Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
+    # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
     instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
@@ -89,8 +89,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  #Stores the grabbed hashes as loot for later cracking
-  #The hash format is slightly different between 2k and 2k5/2k8
+  # Stores the grabbed hashes as loot for later cracking
+  # The hash format is slightly different between 2k and 2k5/2k8
   def report_hashes(mssql_hashes, version_year)
 
     case version_year
@@ -154,8 +154,8 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  #Grabs the user tables depending on what Version of MSSQL
-  #The queries are different between 2k and 2k/2k8
+  # Grabs the user tables depending on what Version of MSSQL
+  # The queries are different between 2k and 2k/2k8
   def mssql_hashdump(version_year)
     is_sysadmin = mssql_query(mssql_is_sysadmin())[:rows][0][0]
 

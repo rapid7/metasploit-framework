@@ -52,7 +52,7 @@ module Rex
           # @return [String] if serialization succeeds
           # @raise [RuntimeError] if serialization doesn't succeed
           def encode
-            unless array_description.class == ClassDesc
+            unless array_description.kind_of?(ClassDesc)
               raise ::RuntimeError, 'Failed to serialize NewArray'
             end
 
@@ -103,11 +103,16 @@ module Rex
               raise ::RuntimeError, 'Empty NewArray description'
             end
 
-            unless array_description.class == ClassDesc
+            unless array_description.kind_of?(ClassDesc)
               raise ::RuntimeError, 'Unsupported NewArray description class'
             end
 
             desc = array_description.description
+
+            if desc.class == Reference
+              ref = desc.handle - BASE_WIRE_HANDLE
+              desc = stream.references[ref]
+            end
 
             unless desc.class_name.contents[0] == '[' # Array
               raise ::RuntimeError, 'Unsupported NewArray description'

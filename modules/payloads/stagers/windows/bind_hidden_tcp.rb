@@ -10,6 +10,8 @@ require 'msf/core/handler/bind_tcp'
 
 module Metasploit3
 
+  CachedSize = 343
+
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 
@@ -21,7 +23,7 @@ module Metasploit3
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Hidden Bind TCP Stager',
-      'Description'   => 'Listen for a connection from a hidden port and spawn a command shell to the allowed host',
+      'Description'   => 'Listen for a connection from a hidden port and spawn a command shell to the allowed host.',
       'Author'        =>
         [
           'hdm',        # original payload module (stager bind_tcp)

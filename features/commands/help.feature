@@ -19,6 +19,8 @@ Feature: Help command
           connect       Communicate with a host
           edit          Edit the current module with $VISUAL or $EDITOR
           exit          Exit the console
+          get           Gets the value of a context-specific variable
+          getg          Gets the value of a global variable
           go_pro        Launch Metasploit web GUI
           grep          Grep the output of another command
           help          Help menu
@@ -34,19 +36,20 @@ Feature: Help command
           pushm         Pushes the active or list of modules onto the module stack
           quit          Exit the console
           reload_all    Reloads all modules from all defined module paths
+          rename_job    Rename a job
           resource      Run the commands stored in a file
           route         Route traffic through a session
           save          Saves the active datastores
           search        Searches module names and descriptions
           sessions      Dump session listings and display information about sessions
-          set           Sets a variable to a value
+          set           Sets a context-specific variable to a value
           setg          Sets a global variable to a value
           show          Displays modules of a given type, or all modules
           sleep         Do nothing for the specified number of seconds
           spool         Write console output into a file as well the screen
           threads       View and manipulate background threads
           unload        Unload a framework plugin
-          unset         Unsets one or more variables
+          unset         Unsets one or more context-specific variables
           unsetg        Unsets one or more global variables
           use           Selects a module by name
           version       Show the framework and console library version numbers

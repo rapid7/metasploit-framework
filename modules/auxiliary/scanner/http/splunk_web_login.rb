@@ -154,24 +154,30 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
 
-      if not res or res.code != 303
+      if not res
+        vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' returned no response")
+        return :skip_pass
+      end
+
+      unless res.code == 303 || (res.code == 200 && res.body.to_s.index('{"status":0}'))
         vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")
         return :skip_pass
-      else
-        print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'splunk-web',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
-        report_auth_info(report_hash)
-        return :next_user
       end
+
+      print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+
+      report_hash = {
+        :host   => datastore['RHOST'],
+        :port   => datastore['RPORT'],
+        :sname  => 'splunk-web',
+        :user   => user,
+        :pass   => pass,
+        :active => true,
+        :type => 'password'}
+
+      report_auth_info(report_hash)
+      return :next_user
+
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")
       return :abort

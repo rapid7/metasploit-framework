@@ -38,7 +38,7 @@ module Metasploit
                 :Timeout => connection_timeout,
                 :Retries => 2,
                 :Transport => ::SNMP::RexUDPTransport,
-                :Socket => ::Rex::Socket::Udp.create
+                :Socket => ::Rex::Socket::Udp.create('Context' => { 'Msf' => framework, 'MsfExploit' => framework_module })
             )
 
             result_options[:proof] = test_read_access(snmp_client)

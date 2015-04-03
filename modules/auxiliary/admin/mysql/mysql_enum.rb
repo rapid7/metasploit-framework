@@ -32,11 +32,11 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Running MySQL Enumerator...")
     print_status("Enumerating Parameters")
     #-------------------------------------------------------
-    #getting all variables
+    # getting all variables
     vparm = {}
     res = mysql_query("show variables") || []
     res.each do |row|
-      #print_status(" | #{row.join(" | ")} |")
+      # print_status(" | #{row.join(" | ")} |")
       vparm[row[0]] = row[1]
     end
 
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
     query = "use mysql"
     mysql_query(query)
 
-    #Account Enumeration
+    # Account Enumeration
     # Enumerate all accounts with their password hashes
     print_status("Enumerating Accounts:")
     query = "select user, host, password from mysql.user"

@@ -44,7 +44,11 @@ module Metasploit
             # convert port to FTP syntax
             datahost = "#{$1}.#{$2}.#{$3}.#{$4}"
             dataport = ($5.to_i * 256) + $6.to_i
-            self.datasocket = Rex::Socket::Tcp.create('PeerHost' => datahost, 'PeerPort' => dataport)
+            self.datasocket = Rex::Socket::Tcp.create(
+              'PeerHost' => datahost,
+              'PeerPort' => dataport,
+              'Context'  => { 'Msf' => framework, 'MsfExploit' => framework_module }
+            )
           end
           self.datasocket
         end

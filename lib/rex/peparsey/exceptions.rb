@@ -21,7 +21,7 @@ end
 class BoundsError < PeError
 end
 
-class WtfError < PeError
+class PeParseyError < PeError
 end
 
 class SkipError < PeError

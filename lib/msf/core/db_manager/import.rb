@@ -119,7 +119,7 @@ module Msf::DBManager::Import
         # Msf::DBManager::Import::MetasploitFramework::Zip becomes resolvable as Zip here, so need to use ::Zip so Zip
         # is resolved as one from rubyzip gem.
         data = ::Zip::File.open(filename)
-      when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
+      when "\xd4\xc3\xb2\xa1".force_encoding('ASCII-8BIT'), "\xa1\xb2\xc3\xd4".force_encoding('ASCII-8BIT')
         data = PacketFu::PcapFile.new(:filename => filename)
       else
         ::File.open(filename, 'rb') do |f|

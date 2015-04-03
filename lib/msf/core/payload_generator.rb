@@ -176,13 +176,15 @@ module Msf
     def encode_payload(shellcode)
       shellcode = shellcode.dup
       encoder_list = get_encoders
-      cli_print "Found #{encoder_list.count} compatible encoders"
       if encoder_list.empty?
+        cli_print "No encoder or badchars specified, outputting raw payload"
         shellcode
       else
+        cli_print "Found #{encoder_list.count} compatible encoders"
         encoder_list.each do |encoder_mod|
           cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
           begin
+            encoder_mod.available_space = @space
             return run_encoder(encoder_mod, shellcode.dup)
           rescue ::Msf::EncoderSpaceViolation => e
             cli_print "#{encoder_mod.refname} failed with #{e.message}"
@@ -297,9 +299,11 @@ module Msf
         end
 
         payload_module.generate_simple(
-            'Format'   => 'raw',
-            'Options'  => datastore,
-            'Encoder'  => nil
+            'Format'      => 'raw',
+            'Options'     => datastore,
+            'Encoder'     => nil,
+            'MaxSize'     => @space,
+            'DisableNops' => true
         )
       end
     end

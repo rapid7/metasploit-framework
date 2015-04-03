@@ -12,6 +12,8 @@ require 'msf/core/handler/find_shell'
 
 module Metasploit3
 
+  CachedSize = :dynamic
+
   include Msf::Payload::Single
   include Msf::Payload::Php
   include Msf::Sessions::CommandShellOptions

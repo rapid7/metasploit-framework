@@ -235,7 +235,8 @@ class Driver < Msf::Ui::Driver
     # Process any resource scripts
     if opts['Resource'].blank?
       # None given, load the default
-      load_resource(File.join(Msf::Config.config_directory, 'msfconsole.rc'))
+      default_resource = ::File.join(Msf::Config.config_directory, 'msfconsole.rc')
+      load_resource(default_resource) if ::File.exists?(default_resource)
     else
       opts['Resource'].each { |r|
         load_resource(r)
@@ -417,8 +418,15 @@ class Driver < Msf::Ui::Driver
   # @param path [String] Path to a resource file to run
   # @return [void]
   def load_resource(path)
-    return if not ::File.readable?(path)
-    resource_file = ::File.read(path)
+    if path == '-'
+      resource_file = $stdin.read
+      path = 'stdin'
+    elsif ::File.exists?(path)
+      resource_file = ::File.read(path)
+    else
+      print_error("Cannot find resource script: #{path}")
+      return
+    end
 
     self.active_resource = resource_file
 
@@ -719,7 +727,7 @@ protected
     if opts['RealReadline']
       # Remove the gem version from load path to be sure we're getting the
       # stdlib readline.
-      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
+      gem_dir = Gem::Specification.find_all_by_name('rb-readline-r7').first.gem_dir
       rb_readline_path = File.join(gem_dir, "lib")
       index = $LOAD_PATH.index(rb_readline_path)
       # Bundler guarantees that the gem will be there, so it should be safe to

@@ -91,9 +91,7 @@ module Msf::Payload::Linux
   #
   # Overload the generate() call to prefix our stubs
   #
-  def generate(*args)
-    # Call the real generator to get the payload
-    buf = super(*args)
+  def apply_prepends(buf)
     pre = ''
     app = ''
 

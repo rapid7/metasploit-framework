@@ -10,8 +10,8 @@ require 'metasploit/framework/credential_collection'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -77,6 +77,8 @@ class Metasploit3 < Msf::Auxiliary
       connection_timeout: 5,
       max_send_size: datastore['TCP::max_send_size'],
       send_delay: datastore['TCP::send_delay'],
+      framework: framework,
+      framework_module: self,
     )
 
     bogus_result = @scanner.attempt_bogus_login(domain)

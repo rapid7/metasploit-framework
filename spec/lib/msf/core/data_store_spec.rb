@@ -24,6 +24,12 @@ shared_examples "datastore" do
       subject.to_h.should == { "foo" => "bar", "fizz" => "buzz" }
     end
   end
+  context "#delete" do
+    it "should delete the specified case-insensitive key" do
+      subject.delete("foo").should == "bar"
+      subject.delete("Fizz").should == "buzz"
+    end
+  end
 end
 
 describe Msf::DataStore do

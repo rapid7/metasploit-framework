@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
     hash_list = hash_file
 
-    #generate our wordlist and close the file handle
+    # generate our wordlist and close the file handle
     wordlist = wordlist_file
     wordlist.close
 
@@ -48,6 +48,11 @@ class Metasploit3 < Msf::Auxiliary
       cracker_instance = cracker.dup
       cracker_instance.format = format
       print_status "Cracking #{format} hashes in normal wordlist mode..."
+      # Turn on KoreLogic rules if the user asked for it
+      if datastore['KoreLogic']
+        cracker_instance.rules = 'KoreLogicRules'
+        print_status "Applying KoreLogic ruleset..."
+      end
       cracker_instance.crack do |line|
         print_status line.chomp
       end
@@ -103,11 +108,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def hash_file
     hashlist = Rex::Quickfile.new("hashes_tmp")
-    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: 'raw-md5,postgres').each do |hash|
+    Metasploit::Credential::PostgresMD5.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }).each do |hash|
       hash.cores.each do |core|
         user = core.public.username
         @username_set << user
         hash_string = "#{hash.data}"
+        hash_string.gsub!(/^md5/, '')
         id = core.id
         hashlist.puts "#{user}:#{hash_string}:#{id}:"
       end

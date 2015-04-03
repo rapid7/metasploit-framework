@@ -4,6 +4,7 @@
 module Msf
   module HTTP
     module Wordpress
+      require 'msf/http/wordpress/admin'
       require 'msf/http/wordpress/base'
       require 'msf/http/wordpress/helpers'
       require 'msf/http/wordpress/login'
@@ -11,8 +12,10 @@ module Msf
       require 'msf/http/wordpress/uris'
       require 'msf/http/wordpress/users'
       require 'msf/http/wordpress/version'
+      require 'msf/http/wordpress/xml_rpc'
 
       include Msf::Exploit::Remote::HttpClient
+      include Msf::HTTP::Wordpress::Admin
       include Msf::HTTP::Wordpress::Base
       include Msf::HTTP::Wordpress::Helpers
       include Msf::HTTP::Wordpress::Login
@@ -20,6 +23,7 @@ module Msf
       include Msf::HTTP::Wordpress::URIs
       include Msf::HTTP::Wordpress::Users
       include Msf::HTTP::Wordpress::Version
+      include Msf::HTTP::Wordpress::XmlRpc
 
       def initialize(info = {})
         super

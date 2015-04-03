@@ -10,6 +10,8 @@ require 'msf/core/handler/find_tag'
 
 module Metasploit3
 
+  CachedSize = 92
+
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 

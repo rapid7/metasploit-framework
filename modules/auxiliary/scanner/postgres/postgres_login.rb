@@ -21,14 +21,16 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module attempts to authenticate against a PostgreSQL
         instance using username and password combinations indicated
-        by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+        by the USER_FILE, PASS_FILE, and USERPASS_FILE options. Note that
+        passwords may be either plaintext or MD5 formatted hashes.
       },
       'Author'         => [ 'todb' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
           [ 'URL', 'http://www.postgresql.org' ],
-          [ 'CVE', '1999-0502'] # Weak password
+          [ 'CVE', '1999-0502'], # Weak password
+          [ 'URL', 'https://hashcat.net/forum/archive/index.php?thread-4148.html' ] # Pass the Hash
         ]
     ))
 
@@ -70,7 +72,9 @@ class Metasploit3 < Msf::Auxiliary
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: 30
+      connection_timeout: 30,
+      framework: framework,
+      framework_module: self,
     )
 
     scanner.scan! do |result|

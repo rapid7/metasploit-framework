@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Windows Outbound-Filering Rules',
+      'Name'          => 'Windows Outbound-Filtering Rules',
       'Description'   => %q{
         This module makes some kind of TCP traceroute to get outbound-filtering rules.
         It will try to make a TCP connection to a certain public IP address (this IP
