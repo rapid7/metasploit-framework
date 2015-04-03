@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
                 report successful logins.
       },
       'Author'      => ['theLightCosine'],
-      'References'     =>
+      'References'  =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],

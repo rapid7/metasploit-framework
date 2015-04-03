@@ -91,9 +91,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     if( response.result == 0 )
       response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |
         files << {
-          'path' => client.unicode_filter_encode( results.get_tlv_value( TLV_TYPE_FILE_PATH ).chomp( '\\' ) ),
-          'name' => client.unicode_filter_encode( results.get_tlv_value( TLV_TYPE_FILE_NAME ) ),
-          'size' => results.get_tlv_value( TLV_TYPE_FILE_SIZE )
+          'path' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_PATH).chomp( '\\' )),
+          'name' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_NAME)),
+          'size' => results.get_tlv_value(TLV_TYPE_FILE_SIZE)
         }
       end
     end
@@ -138,7 +138,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    return client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_FILE_PATH) )
+    return client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_FILE_PATH))
   end
 
 

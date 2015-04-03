@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
         vprint_status("[#{rhost}] Verifying manual testing is not required...")
 
         manual = false
-        #request a non-existent page first to make sure the server doesn't respond with a 200 to everything.
+        # request a non-existent page first to make sure the server doesn't respond with a 200 to everything.
         res_test = send_request_cgi({
           'uri'          => "http://#{datastore['CANARY_IP']}:80",
           'method'       => 'GET',

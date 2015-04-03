@@ -360,21 +360,42 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   # Lists files
   #
-  # TODO: make this more useful
-  #
   def cmd_ls(*args)
+
+    # Check sort column
+    sort = args.include?('-S') ? 'Size' : 'Name'
+    sort = args.include?('-t') ? 'Last modified' : sort
+    args.delete('-S')
+    args.delete('-t')
+
+    # Check whether to include the short name option
+    short = args.include?('-x')
+    args.delete('-x')
+
+    # Check sort order
+    order = args.include?('-r') ? :reverse : :forward
+    args.delete('-r')
+
+    # Check for cries of help
+    if args.length > 1 || args.any? { |a| a[0] == '-' }
+      print_line('Usage: ls [dir] [-x] [-S] [-t] [-r]')
+      print_line('   -x Show short file names')
+      print_line('   -S Sort by size')
+      print_line('   -t Sort by time modified')
+      print_line('   -r Reverse sort order')
+      return true
+    end
+
     path = args[0] || client.fs.dir.getwd
+
+    columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
+    columns.insert(4, 'Short Name') if short
+
     tbl  = Rex::Ui::Text::Table.new(
       'Header'  => "Listing: #{path}",
-      'SortIndex' => 4,
-      'Columns' =>
-        [
-          'Mode',
-          'Size',
-          'Type',
-          'Last modified',
-          'Name',
-        ])
+      'SortIndex' => columns.index(sort),
+      'SortOrder' => order,
+      'Columns' => columns)
 
     items = 0
     stat = client.fs.file.stat(path)
@@ -383,14 +404,16 @@ class Console::CommandDispatcher::Stdapi::Fs
       # No need to sort as Table will do it for us
       client.fs.dir.entries_with_info(path).each { |p|
 
-        tbl <<
-          [
+        row = [
             p['StatBuf'] ? p['StatBuf'].prettymode : '',
             p['StatBuf'] ? p['StatBuf'].size       : '',
             p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '',
             p['StatBuf'] ? p['StatBuf'].mtime      : '',
             p['FileName'] || 'unknown'
           ]
+        row.insert(4, p['FileShortName'] || '') if short
+
+        tbl << row
 
         items += 1
       }
