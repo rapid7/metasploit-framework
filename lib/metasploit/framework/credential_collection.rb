@@ -79,7 +79,7 @@ class Metasploit::Framework::CredentialCollection
   # Adds a string as an addition private credential
   # to be combined in the collection.
   #
-  # @param [String] :private_str the string to use as a private
+  # @param [String] private_str the string to use as a private
   # @return [void]
   def add_private(private_str='')
     additional_privates << private_str
@@ -88,7 +88,7 @@ class Metasploit::Framework::CredentialCollection
   # Adds a string as an addition public credential
   # to be combined in the collection.
   #
-  # @param [String] :public_str the string to use as a public
+  # @param [String] public_str the string to use as a public
   # @return [void]
   def add_public(public_str='')
     additional_publics << public_str

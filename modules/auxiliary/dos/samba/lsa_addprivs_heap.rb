@@ -51,9 +51,9 @@ class Metasploit3 < Msf::Auxiliary
     dcerpc_bind(handle)
     print_status("Bound to #{handle} ...")
 
-    #    Linux: Needs heap magic to work around glibc (or TALLOC mode for 3.0.20+)
+    # Linux: Needs heap magic to work around glibc (or TALLOC mode for 3.0.20+)
     # Mac OS X: PC control via memcpy to stack ptr
-    #  Solaris: PC control via memcpy to stack ptr
+    # Solaris: PC control via memcpy to stack ptr
 
     stub = lsa_open_policy(dcerpc)
     stub << NDR.long(1)

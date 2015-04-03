@@ -26,8 +26,8 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'dun',    #Discovery, PoC
-          'sinn3r'  #Metasploit
+          'dun',    # Discovery, PoC
+          'sinn3r'  # Metasploit module
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Jul 13 2012"

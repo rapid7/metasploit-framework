@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    # Start caputure
+    # Start capture
     open_pcap({'FILTER' => "icmp6"})
 
     @netifaces = true

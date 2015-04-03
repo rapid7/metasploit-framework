@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
     return save_array
   end
 
-  #traversal every file
+  # traverse every file
   def find_files(file,user,pass)
     traversal = '/../../'
 
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
 
-    #test login
+    # test login
     begin
       res = send_request_cgi({
         'uri'        => '/',
