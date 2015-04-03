@@ -33,8 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      OptInt.new('STARTRID', [true, 'RID to start fuzzing at.', 500]),
-      OptInt.new('ENDRID', [true, 'RID to stop fuzzing at.', 3000])
+      OptInt.new('START_RID', [true, 'RID to start fuzzing at.', 500]),
+      OptInt.new('END_RID', [true, 'RID to stop fuzzing at.', 3000])
     ], self.class)
   end
 
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Get a list of windows users, groups, and computer accounts using SUSER_NAME()
-    total_rids = datastore['ENDRID'] - datastore['STARTRID']
+    total_rids = datastore['END_RID'] - datastore['START_RID']
     print_status("#{peer} - Brute forcing #{total_rids} RIDs via SQL injection, be patient...")
     domain_users = get_win_domain_users(windows_domain_sid)
     if domain_users.nil?
@@ -174,10 +174,10 @@ class Metasploit3 < Msf::Auxiliary
 
     windows_logins = []
 
+    total_rids = datastore['END_RID'] - datastore['START_RID']
     # Fuzz the principal_id parameter (RID in this case) passed to the SUSER_NAME function
-    (datastore['STARTRID']..datastore['ENDRID']).each do |principal_id|
-      total_rids = datastore['ENDRID'] - datastore['STARTRID']
-      rid_diff = (datastore['ENDRID'] - (datastore['ENDRID'] - principal_id)) - datastore['STARTRID']
+    (datastore['START_RID']..datastore['END_RID']).each do |principal_id|
+      rid_diff = principal_id - datastore['START_RID']
       if principal_id % 100 == 0
         print_status("#{peer} - #{rid_diff} of #{total_rids } RID queries complete")
       end
