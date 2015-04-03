@@ -99,14 +99,14 @@ module Payload::Windows::ReverseHttp
       raise ArgumentError, "Minimum StagerURILength is 5"
     end
 
-    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, uri_req_len)
+    "/" + generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW, uri_req_len)
   end
 
   #
   # Generate the URI for the initial stager
   #
   def generate_small_uri
-    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW)
+    "/" + generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW)
   end
 
   #

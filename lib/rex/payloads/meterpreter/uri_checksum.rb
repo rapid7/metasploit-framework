@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
-module Msf
-  module Handler
-    module ReverseHttp
+module Rex
+  module Payloads
+    module Meterpreter
       module UriChecksum
 
         #
