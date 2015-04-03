@@ -63,7 +63,7 @@ module Rex
 
           # Adds an element to the references array
           #
-          # @param io [Rex::Java::Serialization::Model::Element] the object to save as reference dst
+          # @param ref [Rex::Java::Serialization::Model::Element] the object to save as reference dst
           def add_reference(ref)
             self.references.push(ref)
           end
