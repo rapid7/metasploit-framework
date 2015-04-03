@@ -392,11 +392,7 @@ class Driver < Msf::Ui::Driver
           when 'activeworkspace'
             if framework.db.active
               workspace = framework.db.find_workspace(v)
-              if workspace
-                framework.db.workspace = workspace
-              else
-                framework.db.workspace = framework.db.add_workspace(v)
-              end
+              framework.db.workspace = workspace if workspace
             end
         end
       }
