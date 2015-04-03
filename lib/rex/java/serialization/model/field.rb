@@ -11,13 +11,13 @@ module Rex
           include Rex::Java::Serialization::Model::Contents
 
           # @!attribute type
-          #   @return [String] The type of the field.
+          # @return [String] The type of the field.
           attr_accessor :type
           # @!attribute name
-          #   @return [Rex::Java::Serialization::Model::Utf] The name of the field.
+          # @return [Rex::Java::Serialization::Model::Utf] The name of the field.
           attr_accessor :name
           # @!attribute field_type
-          #   @return [Rex::Java::Serialization::Model::Utf] The type of the field on object types.
+          # @return [Rex::Java::Serialization::Model::Utf] The type of the field on object types.
           attr_accessor :field_type
 
           # @param stream [Rex::Java::Serialization::Model::Stream] the stream where it belongs to
@@ -32,7 +32,7 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @return [RuntimeError] false if deserialization doesn't succeed
+          # @raise [RuntimeError] if deserialization doesn't succeed
           def decode(io)
             code = io.read(1)
 

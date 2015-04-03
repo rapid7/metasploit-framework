@@ -113,13 +113,11 @@ module Auxiliary::Report
 
   #
   # Report a client connection
-  #
-  # opts must contain
-  #	:host the address of the client connecting
-  #	:ua_string a string that uniquely identifies this client
-  # opts can contain
-  #	:ua_name a brief identifier for the client, e.g. "Firefox"
-  #	:ua_ver  the version number of the client, e.g. "3.0.11"
+  # @param opts [Hash] report client information based on user-agent
+  # @option opts [String] :host the address of the client connecting
+  # @option opts [String] :ua_string a string that uniquely identifies this client
+  # @option opts [String] :ua_name a brief identifier for the client, e.g. "Firefox"
+  # @option opts [String] :ua_ver  the version number of the client, e.g. "3.0.11"
   #
   def report_client(opts={})
     return if not db
