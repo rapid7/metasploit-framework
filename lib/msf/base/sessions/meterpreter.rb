@@ -323,9 +323,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         nhost = find_internet_connected_address
 
         original_session_host = self.session_host
-        # If we found a better IP address for this session, change it up
-        # only handle cases where the DB is not connected here
-        if !(framework.db && framework.db.active)
+        # If we found a better IP address for this session, change it
+        # up.  Only handle cases where the DB is not connected here
+        if nhost && !(framework.db && framework.db.active)
           self.session_host = nhost
         end
 
@@ -461,6 +461,8 @@ protected
   # @see Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_routes
   # @return [String] The address from which this host reaches the
   #   internet, as ASCII. e.g.: "192.168.100.156"
+  # @return [nil] If there is an interface with an address that matches
+  #   {#session_host}
   def find_internet_connected_address
 
     ifaces = self.net.config.get_interfaces().flatten rescue []
@@ -497,7 +499,9 @@ protected
       end
 
       if !nhost
-        # Find the first non-loopback address
+        # No internal address matches what we see externally and no
+        # interface has a default route. Fall back to the first
+        # non-loopback address
         non_loopback = ifaces.find { |i| i.ip != "127.0.0.1" && i.ip != "::1" }
         if non_loopback
           nhost = non_loopback.ip

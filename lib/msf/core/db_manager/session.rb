@@ -187,13 +187,6 @@ module Msf::DBManager::Session
         via_payload: session.via_payload,
       }
 
-      if session.exploit_task and session.exploit_task.record
-        session_task = session.exploit_task.record
-        if session_task.class == Mdm::Task
-          Mdm::TaskSession.create(task: session_task, session: s )
-        end
-      end
-
       # In the case of multi handler we cannot yet determine the true
       # exploit responsible. But we can at least show the parent versus
       # just the generic handler:
@@ -202,6 +195,14 @@ module Msf::DBManager::Session
       end
 
       s = ::Mdm::Session.create!(sess_data)
+
+      if session.exploit_task and session.exploit_task.record
+        session_task = session.exploit_task.record
+        if session_task.class == Mdm::Task
+          Mdm::TaskSession.create(task: session_task, session: s )
+        end
+      end
+
       s
     }
   end

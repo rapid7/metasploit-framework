@@ -183,11 +183,7 @@ require 'msf/core/exe/segment_appender'
     payload = win32_rwx_exec(code)
 
     # Create a new PE object and run through sanity checks
-    fsize = File.size(opts[:template])
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
-
-    text = nil
-    pe.sections.each {|sec| text = sec if sec.name == ".text"}
 
     #try to inject code into executable by adding a section without affecting executable behavior
     if opts[:inject]
@@ -198,6 +194,9 @@ require 'msf/core/exe/segment_appender'
       })
       return injector.generate_pe
     end
+
+    text = nil
+    pe.sections.each {|sec| text = sec if sec.name == ".text"}
 
     raise RuntimeError, "No .text section found in the template" unless text
 
@@ -521,19 +520,16 @@ require 'msf/core/exe/segment_appender'
       return injector.generate_pe
     end
 
-    opts[:exe_type] = :exe_sub
-    return exe_sub_method(code,opts)
+    #opts[:exe_type] = :exe_sub
+    #return exe_sub_method(code,opts)
 
-    #
-    # TODO: 64-bit support is currently failing to stage
-    #
     # Append a new section instead
-    # appender = Msf::Exe::SegmentAppender.new({
-    #   :payload  => code,
-    #   :template => opts[:template],
-    #   :arch     => :x64
-    # })
-    # return appender.generate_pe
+    appender = Msf::Exe::SegmentAppender.new({
+      :payload  => code,
+      :template => opts[:template],
+      :arch     => :x64
+    })
+    return appender.generate_pe
   end
 
   # Embeds shellcode within a Windows PE file implementing the Windows
