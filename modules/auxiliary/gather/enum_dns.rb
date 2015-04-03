@@ -69,8 +69,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
     end
-  end
-  
+  end  
   def wildcard(target)
     rendsub = rand(10000).to_s
     query = @res.query("#{rendsub}.#{target}", "A")
@@ -84,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
       return false
     end
   end
-  
+
   def genrcd(target)
     print_status("Retrieving general DNS records")
     query = @res.search(target)
@@ -166,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-  
+
   def tldexpnd(targetdom,nssrv)
     target = targetdom.scan(/(\S*)[.]\w*\z/).join
     target.chomp!
@@ -323,7 +322,7 @@ class Metasploit3 < Msf::Auxiliary
       tl.delete_if { |t| not t.alive? }
     end
   end
-  
+
   # SRV Record Enumeration
   def srvqry(dom,nssrv)
     print_status("Enumerating SRV records for #{dom}")
