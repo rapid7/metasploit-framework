@@ -51,6 +51,8 @@ class Metasploit3 < Msf::Auxiliary
         rescue ::OpenSSL::SSL::SSLError
           print_error("#{peer} - SSL/TLS connection error") if verbose
           return false
+        rescue => e
+          print_error("#{peer} - Connection failed") if verbose
         end
       end
     rescue Timeout::Error
