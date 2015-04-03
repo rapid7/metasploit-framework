@@ -235,7 +235,8 @@ class Driver < Msf::Ui::Driver
     # Process any resource scripts
     if opts['Resource'].blank?
       # None given, load the default
-      load_resource(File.join(Msf::Config.config_directory, 'msfconsole.rc'))
+      default_resource = ::File.join(Msf::Config.config_directory, 'msfconsole.rc')
+      load_resource(default_resource) if ::File.exists?(default_resource)
     else
       opts['Resource'].each { |r|
         load_resource(r)
@@ -420,9 +421,10 @@ class Driver < Msf::Ui::Driver
     if path == '-'
       resource_file = $stdin.read
       path = 'stdin'
-    elsif ::File.readable?(path)
+    elsif ::File.exists?(path)
       resource_file = ::File.read(path)
     else
+      print_error("Cannot find resource script: #{path}")
       return
     end
 

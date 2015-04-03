@@ -175,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
               return false
             else
               print_status("Server #{wmap_target_host}:#{datastore['RPORT']} responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
-              ## Add Report
+              # Add Report
               report_note(
                 host: ip,
                 proto: 'tcp',

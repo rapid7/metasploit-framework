@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
     hash_list = hash_file
 
-    #generate our wordlist and close the file handle
+    # generate our wordlist and close the file handle
     wordlist = wordlist_file
     wordlist.close
 

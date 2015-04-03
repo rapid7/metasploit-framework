@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       return Exploit::CheckCode::Unknown
     end
 
-    #Check PhP
+    # Check PhP
     php_version = res['X-Powered-By']
     if php_version
       php_version = "#{php_version}"
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
       php_version = "PHP version unknown"
     end
 
-    #Check Web-Server
+    # Check Web-Server
     web_server = res['Server']
     if web_server
       web_server = "#{web_server}"
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
       web_server = "unknown web server"
     end
 
-    #Check forum MyBB
+    # Check forum MyBB
     if res.body.match("&#077;&#089;&#066;&#066;")
       print_good("#{peer} - MyBB forum found running on #{web_server} / #{php_version}")
       return Exploit::CheckCode::Detected
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #Resolve response
+    # Resolve response
     if response.body.match(/SELECT COUNT\(\*\) AS users FROM mybb_users u WHERE 1=1 AND u.username NOT REGEXP\(\'\[a-zA-Z\]\'\)/)
       print_good("#{peer} - Running PostgreSQL Database")
     elsif response.body.match(/General error\: 1 no such function\: REGEXP/)

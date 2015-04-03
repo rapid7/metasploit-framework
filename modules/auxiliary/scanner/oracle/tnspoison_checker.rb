@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
       packet = sock.read(100)
       find_packet = packet.include? "(ERROR_STACK=(ERROR="
       find_packet == true ? print_error("#{ip}:#{rport} is not vulnerable ") : print_good("#{ip}:#{rport} is vulnerable")
-      #TODO: Module should report_vuln if this finding is solid.
+      # TODO: Module should report_vuln if this finding is solid.
       rescue ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{ip}:#{rport} unable to connect to the server")
     end

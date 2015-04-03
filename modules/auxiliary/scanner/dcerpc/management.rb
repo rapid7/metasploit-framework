@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
           #reportdata << "name: #{princ.unpack("H*")[0]}"
         end
 
-        ## Add Report
+        # Add Report
         report_note(
           :host   => ip,
           :proto  => 'tcp',

