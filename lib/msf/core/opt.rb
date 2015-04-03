@@ -2,24 +2,6 @@
 
 module Msf
 
-###
-#
-# The core supported option types are:
-#
-# OptString  - Multi-byte character string
-# OptRaw     - Multi-byte raw string
-# OptBool    - Boolean true or false indication
-# OptPort    - TCP/UDP service port
-# OptAddress - IP address or hostname
-# OptPath    - Path name on disk or an Object ID
-# OptInt     - An integer value
-# OptEnum    - Select from a set of valid values
-# OptAddressRange - A subnet or range of addresses
-# OptSession - A session identifier
-# OptRegexp  - Valid Ruby regular expression
-#
-###
-
 #
 # Builtin framework options with shortcut methods
 #

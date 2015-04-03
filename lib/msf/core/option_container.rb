@@ -3,17 +3,27 @@
 module Msf
   require 'msf/core/opt_base'
 
-  ###
   #
-  # The options purpose in life is to associate named options
-  # with arbitrary values at the most simplistic level.  Each
-  # module contains a OptionContainer that is used to hold the
-  # various options that the module depends on.  Example of options
-  # that are stored in the OptionContainer are rhost and rport for
-  # payloads or exploits that need to connect to a host and
-  # port, for instance.
+  # The options purpose in life is to associate named options with arbitrary
+  # values at the most simplistic level. Each {Msf::Module} contains an
+  # OptionContainer that is used to hold the various options that the module
+  # depends on. Example of options that are stored in the OptionContainer are
+  # rhost and rport for payloads or exploits that need to connect to a host
+  # and port, for instance.
   #
-  ###
+  # The core supported option types are:
+  #
+  # * {OptString}  - Multi-byte character string
+  # * {OptRaw}     - Multi-byte raw string
+  # * {OptBool}    - Boolean true or false indication
+  # * {OptPort}    - TCP/UDP service port
+  # * {OptAddress} - IP address or hostname
+  # * {OptPath}    - Path name on disk or an Object ID
+  # * {OptInt}     - An integer value
+  # * {OptEnum}    - Select from a set of valid values
+  # * {OptAddressRange} - A subnet or range of addresses
+  # * {OptRegexp}  - Valid Ruby regular expression
+  #
   class OptionContainer < Hash
 
     #
