@@ -190,7 +190,8 @@ module Rex
 
           # Serializes an NewArray value
           #
-          # @param value [Fixnum, Float] the value to serialize
+          # @param value [Fixnum] the value to serialize
+          # @param value [Float] the value to serialize
           # @return [String] the serialized value
           # @raise [RuntimeError] if serialization fails
           def encode_value(value)
