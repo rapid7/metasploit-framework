@@ -105,7 +105,7 @@ class Metasploit4 < Msf::Auxiliary
       # print table
       print_line(membertbl.to_s)
 
-      #store username to loot
+      # store username to loot
       report_note({
         :host => rhost,
         :port => rport,

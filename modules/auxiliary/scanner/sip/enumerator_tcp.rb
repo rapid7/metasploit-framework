@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
     case resp
     when /^401/
       print_status("Found user: #{testn} [Auth]")
-      #Add Report
+      # Add Report
       report_note(
         :host	=> rhost,
         :proto	=> 'sip',
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
       )
     when /^200/
       print_status("Found user: #{testn} [Open]")
-      #Add Report
+      # Add Report
       report_note(
         :host	=> rhost,
         :proto	=> 'sip',

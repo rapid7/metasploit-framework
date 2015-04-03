@@ -84,10 +84,10 @@ class Metasploit4 < Msf::Auxiliary
       fail_with("Error in server response")
     end
 
-    #qgjuq is prepended to the result of the sql injection
-    #qirpq is appended to the result of the sql injection
-    #This allows the use of a simple regex to grab the contents
-    #of the file easily from the page source.
+    # qgjuq is prepended to the result of the sql injection
+    # qirpq is appended to the result of the sql injection
+    # This allows the use of a simple regex to grab the contents
+    # of the file easily from the page source.
     file = /qgjuq(.*)qirpq/.match(resp.body)
 
     file = file[0].gsub('qgjuq', '').gsub('qirpq', '')
