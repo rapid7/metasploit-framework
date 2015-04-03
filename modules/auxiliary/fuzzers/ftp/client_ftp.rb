@@ -46,7 +46,8 @@ class Metasploit3 < Msf::Auxiliary
   # Not compatible today
   def support_ipv6?
     false
-  end  
+  end
+
   def setup
     super
     @state = {}

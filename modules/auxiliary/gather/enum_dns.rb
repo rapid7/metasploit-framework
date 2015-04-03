@@ -69,7 +69,8 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
     end
-  end  
+  end
+
   def wildcard(target)
     rendsub = rand(10000).to_s
     query = @res.query("#{rendsub}.#{target}", "A")
