@@ -482,7 +482,7 @@ class Export
       end
 
       site = e
-      el = create_xml_element("host", site.service.host.address)
+      el = create_xml_element("host", site.service.host.address.to_s)
       report_file.write("      #{el}\n")
 
       el = create_xml_element("port", site.service.port)
@@ -509,7 +509,7 @@ class Export
       el = create_xml_element("vhost", site.vhost)
       report_file.write("      #{el}\n")
 
-      el = create_xml_element("host", site.service.host.address)
+      el = create_xml_element("host", site.service.host.address.to_s)
       report_file.write("      #{el}\n")
 
       el = create_xml_element("port", site.service.port)

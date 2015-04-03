@@ -17,8 +17,8 @@ framework.db.hosts.each do |host|
 	host.services.each do |serv|
 		next if not serv.host
 		if (serv.state != Msf::ServiceState::Open)
-			print_line("cleaning closed services (Port: #{serv.port.to_i} / Host: #{host.address})")
-			run_single("services -d -p #{serv.port.to_i} -r #{serv.proto} #{host.address}")
+			print_line("cleaning closed services (Port: #{serv.port.to_i} / Host: #{host.address.to_s})")
+			run_single("services -d -p #{serv.port.to_i} -r #{serv.proto} #{host.address.to_s}")
 			counter = counter + 1
 			next
 		end

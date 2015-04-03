@@ -806,7 +806,7 @@ class Core
     end
 
     # This is not respecting the Protected access control, but this seems to be the only way
-    # to rename a job. If you know a more appropriate way, patches accepted. 
+    # to rename a job. If you know a more appropriate way, patches accepted.
     framework.jobs[job_id].send(:name=, job_name)
     print_status("Job #{job_id} updated")
 
@@ -3108,7 +3108,7 @@ class Core
       hosts = {}
       framework.db.each_service(framework.db.workspace) do |service|
         if (service.port == mport)
-          hosts[ service.host.address ] = true
+          hosts[ service.host.address.to_s ] = true
         end
       end
 
@@ -3119,7 +3119,7 @@ class Core
     # List all hosts in the database
     else
       framework.db.each_host(framework.db.workspace) do |host|
-        res << host.address
+        res << host.address.to_s
       end
     end
 

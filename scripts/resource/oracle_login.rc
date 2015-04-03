@@ -11,7 +11,7 @@ host_id_to_ip = {}
 begin
 	framework.db.hosts.each do |host|
 		# don't really like having to do that but only way I could tie them together as notes were missing ip
-		host_id_to_ip[host.id] = host.address
+		host_id_to_ip[host.id] = host.address.to_s
 	end
 	rescue ActiveRecord::ConnectionNotEstablished
 		puts "DB not connected..."

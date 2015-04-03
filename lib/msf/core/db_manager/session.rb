@@ -163,7 +163,7 @@ module Msf::DBManager::Session
       end
 
       vuln_info = {
-        :host => host.address,
+        :host => host.address.to_s,
         :name => mod_name,
         :refs => mod.references,
         :workspace => wspace,

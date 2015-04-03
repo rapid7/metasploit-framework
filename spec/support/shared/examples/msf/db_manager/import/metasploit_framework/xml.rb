@@ -280,7 +280,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           web_site = web_vuln.web_site
           service = web_site.service
 
-          xml.host(service.host.address)
+          xml.host(service.host.address.to_s)
           xml.path(web_vuln.path)
           xml.port(service.port)
           xml.query(web_vuln.query)
@@ -1121,7 +1121,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
               xml.category(web_vuln.category)
 
               service = web_vuln.web_site.service
-              xml.host(service.host.address)
+              xml.host(service.host.address.to_s)
 
               xml.method(web_vuln.method)
               xml.name(web_vuln.name)

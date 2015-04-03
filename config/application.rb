@@ -20,6 +20,7 @@ Bundler.require(
 #
 
 # For compatibility with jquery-rails (and other engines that need action_view) in pro
+require 'action_controller/railtie'
 require 'action_view/railtie'
 
 #

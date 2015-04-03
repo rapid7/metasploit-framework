@@ -1245,9 +1245,9 @@ class Plugin::Wmap < Msf::Plugin
       end
       to_del.each do |widx,wsite|
         if wsite.delete
-          print_status("Deleted #{wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
+          print_status("Deleted #{wsite.vhost} on #{wsite.service.host.address.to_s} at index #{widx}")
         else
-          print_error("Could note delete {wsite.vhost} on #{wsite.service.host.address} at index #{widx}")
+          print_error("Could note delete {wsite.vhost} on #{wsite.service.host.address.to_s} at index #{widx}")
         end
       end
     end
@@ -1279,7 +1279,7 @@ class Plugin::Wmap < Msf::Plugin
           serv.web_sites.each do |web|
             c = web.web_pages.count
             f = web.web_forms.count
-            tbl << [ idx.to_s, bdhost.address, web.vhost, serv.port, serv.name, c.to_s, f.to_s ]
+            tbl << [ idx.to_s, bdhost.address.to_s, web.vhost, serv.port, serv.name, c.to_s, f.to_s ]
             idx += 1
 
             turl = web.vhost + "," + serv.name + "://" +bdhost.address.to_s + ":" + serv.port.to_s + "/"
@@ -1419,13 +1419,13 @@ class Plugin::Wmap < Msf::Plugin
           end
 
           #site.web_forms.where(path: target.path).each do |form|
-            ckey = [ site.vhost, host.address, serv.port, inipath].join("|")
+            ckey = [ site.vhost, host.address.to_s, serv.port, inipath].join("|")
 
             if not self.targets[ckey]
               self.targets[ckey] = WebTarget.new
               self.targets[ckey].merge!({
                 :vhost => site.vhost,
-                :host  => host.address,
+                :host  => host.address.to_s,
                 :port  => serv.port,
                 :ssl   => (serv.name == "https"),
                 :path  => inipath
@@ -2223,7 +2223,7 @@ class Plugin::Wmap < Msf::Plugin
         host.services.each do |serv|
           serv.web_sites.each do |site|
             site.web_vulns.each do |wv|
-              print_status("+ [#{host.address}] (#{site.vhost}): #{wv.category} #{wv.path}")
+              print_status("+ [#{host.address.to_s}] (#{site.vhost}): #{wv.category} #{wv.path}")
               print_status("\t#{wv.name} #{wv.description}")
               print_status("\t#{wv.method} #{wv.proof}")
             end

