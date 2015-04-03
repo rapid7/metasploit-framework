@@ -15,14 +15,19 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'RIPS Scanner Directory Traversal',
       'Description'    => %q{
-        This module exploits a directory traversal vulnerability in the RIPS Scanner v0.54
-        The vulnerability affects to Windows and Linux systems.
+        This module exploits a directory traversal vulnerability in the RIPS Scanner v0.54,
+        allowing to read arbitrary files with the web server privileges.
       },
       'References'     =>
         [
+          ['EDB', '18660'],
           ['URL', 'http://codesec.blogspot.com.br/2015/03/rips-scanner-v-054-local-file-include.html']
         ],
-      'Author'         => 'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
+      'Author'         =>
+        [
+          'localh0t', # Vulnerability discovery
+          'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit module
+        ],
       'License'        => MSF_LICENSE
     ))
 
