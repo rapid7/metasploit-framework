@@ -28,7 +28,7 @@ module Banner
     fdata = "<< Missing banner: #{pathname} >>"
     begin
       raise ArgumentError unless File.readable?(pathname)
-      raise ArgumentError unless File.stat(pathname).size < 4096
+      raise ArgumentError unless File.stat(pathname).size < 16384
       fdata = File.open(pathname) {|f| f.read f.stat.size}
     rescue SystemCallError, ArgumentError
       nil
@@ -47,6 +47,8 @@ module Banner
     # Easter egg (always a halloween themed logo): export/set THISISHALLOWEEN=1
     elsif ( ENV['THISISHALLOWEEN'] || Time.now.strftime("%m%d") == "1031" )
       logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + '*.hwtxt'))
+    elsif ( ENV['APRILFOOLSPONIES'] || Time.now.strftime("%m%d") == "0401" )
+      logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + '*.aftxt'))
     else
       logos.concat(Dir.glob(::Msf::Config.logos_directory + File::SEPARATOR + '*.txt'))
       logos.concat(Dir.glob(::Msf::Config.user_logos_directory + File::SEPARATOR + '*.txt'))

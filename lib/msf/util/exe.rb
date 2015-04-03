@@ -18,6 +18,7 @@ require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
+require 'msf/core/exe/segment_appender'
 
   ##
   #
@@ -182,11 +183,7 @@ require 'msf/core/exe/segment_injector'
     payload = win32_rwx_exec(code)
 
     # Create a new PE object and run through sanity checks
-    fsize = File.size(opts[:template])
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
-
-    text = nil
-    pe.sections.each {|sec| text = sec if sec.name == ".text"}
 
     #try to inject code into executable by adding a section without affecting executable behavior
     if opts[:inject]
@@ -198,6 +195,9 @@ require 'msf/core/exe/segment_injector'
       return injector.generate_pe
     end
 
+    text = nil
+    pe.sections.each {|sec| text = sec if sec.name == ".text"}
+
     raise RuntimeError, "No .text section found in the template" unless text
 
     unless text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
@@ -205,12 +205,15 @@ require 'msf/core/exe/segment_injector'
     end
 
     p_length = payload.length + 256
+
+    # If the .text section is too small, append a new section instead
     if text.size < p_length
-      fname = ::File.basename(opts[:template])
-      msg  = "The .text section for '#{fname}' is too small. "
-      msg << "Minimum is #{p_length.to_s} bytes, your .text section is " +
-             "#{text.size.to_s} bytes"
-      raise RuntimeError, msg
+      appender = Msf::Exe::SegmentAppender.new({
+          :payload  => code,
+          :template => opts[:template],
+          :arch     => :x86
+      })
+      return appender.generate_pe
     end
 
     # Store some useful offsets
@@ -506,7 +509,8 @@ require 'msf/core/exe/segment_injector'
   def self.to_win64pe(framework, code, opts = {})
     # Allow the user to specify their own EXE template
     set_template_default(opts, "template_x64_windows.exe")
-    #try to inject code into executable by adding a section without affecting executable behavior
+
+    # Try to inject code into executable by adding a section without affecting executable behavior
     if opts[:inject]
       injector = Msf::Exe::SegmentInjector.new({
          :payload  => code,
@@ -515,8 +519,17 @@ require 'msf/core/exe/segment_injector'
       })
       return injector.generate_pe
     end
-    opts[:exe_type] = :exe_sub
-    exe_sub_method(code,opts)
+
+    #opts[:exe_type] = :exe_sub
+    #return exe_sub_method(code,opts)
+
+    # Append a new section instead
+    appender = Msf::Exe::SegmentAppender.new({
+      :payload  => code,
+      :template => opts[:template],
+      :arch     => :x64
+    })
+    return appender.generate_pe
   end
 
   # Embeds shellcode within a Windows PE file implementing the Windows

