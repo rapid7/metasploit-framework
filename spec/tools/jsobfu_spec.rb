@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 load Metasploit::Framework.root.join('tools/jsobfu.rb').to_path
 
 require 'stringio'
@@ -19,18 +21,6 @@ describe Jsobfu do
     end
 
     describe '#run' do
-
-      def get_stdout(&block)
-        out = $stdout
-        $stdout = fake = StringIO.new
-        begin
-          yield
-        ensure
-          $stdout = out
-        end
-        fake.string
-      end
-
       let(:default_opts) {
         { :input => fname, :iteration => 1 }
       }
@@ -38,15 +28,31 @@ describe Jsobfu do
       before(:each) do
         allow(Jsobfu::OptsConsole).to receive(:parse).with(any_args).and_return(default_opts)
         allow(File).to receive(:open).with(fname, 'rb').and_yield(StringIO.new(js))
+        @out = $stdout
+        $stdout = StringIO.new
+        $stdout.string = ''
+      end
+
+      after(:each) do
+        $stdout = @out
       end
 
       context 'when a javascript file is given' do
-        it 'returns the obfuscated version of the js code' do
-          output = get_stdout { subject.run }
-          expect(output).to include('String.fromCharCode')
+        it 'returns an String' do
+          subject.run
+          expect($stdout.string).to be_a(String)
+        end
+
+        it 'returns a non empty String' do
+          subject.run
+          expect($stdout.string).not_to be_empty
+        end
+
+        it 'returns an String different than the original' do
+          subject.run
+          expect($stdout.string).not_to eq(js)
         end
       end
-
     end
   end
 
