@@ -2,47 +2,73 @@
 
 module Msf
 
-#
-# Builtin framework options with shortcut methods
-#
-module Opt
+  #
+  # Builtin framework options with shortcut methods
+  #
+  # @example
+  #   register_options(
+  #     [
+  #       Opt::RHOST,
+  #       Opt::RPORT(21),
+  #     ]
+  #   )
+  #   register_advanced_options([Opt::Proxies])
+  #
+  module Opt
 
-@@builtin_opts =
-  {
-    'RHOST' => [ Msf::OptAddress, 'nil',   true,  '"The target address"' ],
-    'RPORT' => [ Msf::OptPort,    'nil',   true,  '"The target port"' ],
-    'LHOST' => [ Msf::OptAddress, 'nil',   true,  '"The listen address"' ],
-    'LPORT' => [ Msf::OptPort,    'nil',   true,  '"The listen port"' ],
-    'CPORT' => [ Msf::OptPort,    'nil',   false, '"The local client port"' ],
-    'CHOST' => [ Msf::OptAddress, 'nil',   false, '"The local client address"' ],
-    'Proxies' => [ Msf::OptString, 'nil',  'false', '"A proxy chain of format type:host:port[,type:host:port][...]"']
-  }
+    # @return [OptAddress]
+    def self.CHOST(default=nil, required=false, desc="The local client address")
+      Msf::OptAddress.new(__method__.to_s, [ required, desc, default ])
+    end
 
-#
-# Build the builtin_xyz methods on the fly using the type information for each
-# of the builtin framework options, such as RHOST.
-#
-class <<self
-  @@builtin_opts.each_pair { |opt, info|
-    eval(
-      "
-      def builtin_#{opt.downcase}(default = #{info[1]}, required = #{info[2]}, desc = #{info[3]})
-        #{info[0]}.new('#{opt}', [ required, desc, default ])
-      end
+    # @return [OptPort]
+    def self.CPORT(default=nil, required=false, desc="The local client port")
+      Msf::OptPort.new(__method__.to_s, [ required, desc, default ])
+    end
 
-      alias #{opt} builtin_#{opt.downcase}
-      ")
-  }
-end
+    # @return [OptAddress]
+    def self.LHOST(default=nil, required=true, desc="The listen address")
+      Msf::OptAddress.new(__method__.to_s, [ required, desc, default ])
+    end
 
-#
-# Define the constant versions of the options which are merely redirections to
-# the class methods.
-#
-@@builtin_opts.each_pair { |opt, info|
-  eval("#{opt} = Msf::Opt::builtin_#{opt.downcase}")
-}
+    # @return [OptPort]
+    def self.LPORT(default=nil, required=true, desc="The listen port")
+      Msf::OptPort.new(__method__.to_s, [ required, desc, default ])
+    end
 
-end
+    # @return [OptString]
+    def self.Proxies(default=nil, required=false, desc="A proxy chain of format type:host:port[,type:host:port][...]")
+      Msf::OptString.new(__method__.to_s, [ required, desc, default ])
+    end
+
+    # @return [OptAddress]
+    def self.RHOST(default=nil, required=true, desc="The target address")
+      Msf::OptAddress.new(__method__.to_s, [ required, desc, default ])
+    end
+
+    # @return [OptPort]
+    def self.RPORT(default=nil, required=true, desc="The target port")
+      Msf::OptPort.new(__method__.to_s, [ required, desc, default ])
+    end
+
+    # These are unused but remain for historical reasons
+    class << self
+      alias builtin_chost CHOST
+      alias builtin_cport CPORT
+      alias builtin_lhost LHOST
+      alias builtin_lport LPORT
+      alias builtin_proxies Proxies
+      alias builtin_rhost RHOST
+      alias builtin_rport RPORT
+    end
+
+    CHOST = CHOST()
+    CPORT = CPORT()
+    LHOST = LHOST()
+    LPORT = LPORT()
+    Proxies = Proxies()
+    RHOST = RHOST()
+    RPORT = RPORT()
+  end
 
 end
