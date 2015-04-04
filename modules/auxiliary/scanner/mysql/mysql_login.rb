@@ -18,11 +18,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'			=> 'MySQL Login Utility',
+      'Name'		=> 'MySQL Login Utility',
       'Description'	=> 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
       'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
       'License'		=> MSF_LICENSE,
-      'References'     =>
+      'References'      =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ]

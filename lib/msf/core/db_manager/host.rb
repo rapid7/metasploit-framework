@@ -73,7 +73,7 @@ module Msf::DBManager::Host
   # address
   #
   def normalize_host(host)
-    return host if host.kind_of? ::Mdm::Host
+    return host if defined?(::Mdm) and host.kind_of? ::Mdm::Host
     norm_host = nil
 
     if (host.kind_of? String)
@@ -92,12 +92,11 @@ module Msf::DBManager::Host
       else
         norm_host = Rex::Socket.getaddress(host, true)
       end
-    elsif host.kind_of? ::Mdm::Session
+    elsif defined?(::Mdm) and host.kind_of? ::Mdm::Session
       norm_host = host.host
     elsif host.respond_to?(:session_host)
       # Then it's an Msf::Session object
-      thost = host.session_host
-      norm_host = thost
+      norm_host = host.session_host
     end
 
     # If we got here and don't have a norm_host yet, it could be a

@@ -434,6 +434,12 @@ class Encoder < Module
     false
   end
 
+  #
+  # The amount of space available to the encoder, which may be nil,
+  # indicating that the smallest possible encoding should be used.
+  #
+  attr_accessor :available_space
+
 protected
 
   #

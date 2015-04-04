@@ -176,7 +176,7 @@ class Msftidy
 
         case identifier
         when 'CVE'
-          warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4}$/
+          warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4,}$/
         when 'OSVDB'
           warn("Invalid OSVDB format: '#{value}'") if value !~ /^\d+$/
         when 'BID'
@@ -237,7 +237,7 @@ class Msftidy
 
   def check_comment_splat
     if @source =~ /^# This file is part of the Metasploit Framework and may be subject to/
-      warn("Module contains old license comment, use tools/dev/resplat.rb <filename>.")
+      warn("Module contains old license comment.")
     end
   end
 
@@ -529,12 +529,6 @@ class Msftidy
         next if ln =~ /^[\s]*["][^"]+\$std(?:out|err)/
         no_stdio = false
         error("Writes to stdout", idx)
-      end
-
-      # You should not change datastore in code. See
-      # https://github.com/rapid7/metasploit-framework/issues/3853
-      if ln =~ /(?<!\.)datastore\[["'][^"']+["']\]\s*(=|<<)(?![=~>])/
-        info("datastore is modified in code with '#{Regexp.last_match(1)}': #{ln}", idx)
       end
 
       # do not read Set-Cookie header (ignore commented lines)

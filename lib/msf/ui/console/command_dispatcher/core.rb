@@ -107,47 +107,48 @@ class Core
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
-      "?"        => "Help menu",
-      "back"     => "Move back from the current context",
-      "banner"   => "Display an awesome metasploit banner",
-      "cd"       => "Change the current working directory",
-      "connect"  => "Communicate with a host",
-      "color"    => "Toggle color",
-      "exit"     => "Exit the console",
-      "edit"     => "Edit the current module with $VISUAL or $EDITOR",
-      "get"      => "Gets the value of a context-specific variable",
-      "getg"     => "Gets the value of a global variable",
-      "go_pro"   => "Launch Metasploit web GUI",
-      "grep"     => "Grep the output of another command",
-      "help"     => "Help menu",
-      "info"     => "Displays information about one or more module",
-      "irb"      => "Drop into irb scripting mode",
-      "jobs"     => "Displays and manages jobs",
-      "kill"     => "Kill a job",
-      "load"     => "Load a framework plugin",
-      "loadpath" => "Searches for and loads modules from a path",
-      "popm"     => "Pops the latest module off the stack and makes it active",
-      "pushm"    => "Pushes the active or list of modules onto the module stack",
-      "previous" => "Sets the previously loaded module as the current module",
-      "quit"     => "Exit the console",
-      "resource" => "Run the commands stored in a file",
-      "makerc"   => "Save commands entered since start to a file",
+      "?"          => "Help menu",
+      "back"       => "Move back from the current context",
+      "banner"     => "Display an awesome metasploit banner",
+      "cd"         => "Change the current working directory",
+      "connect"    => "Communicate with a host",
+      "color"      => "Toggle color",
+      "exit"       => "Exit the console",
+      "edit"       => "Edit the current module with $VISUAL or $EDITOR",
+      "get"        => "Gets the value of a context-specific variable",
+      "getg"       => "Gets the value of a global variable",
+      "go_pro"     => "Launch Metasploit web GUI",
+      "grep"       => "Grep the output of another command",
+      "help"       => "Help menu",
+      "info"       => "Displays information about one or more module",
+      "irb"        => "Drop into irb scripting mode",
+      "jobs"       => "Displays and manages jobs",
+      "rename_job" => "Rename a job",
+      "kill"       => "Kill a job",
+      "load"       => "Load a framework plugin",
+      "loadpath"   => "Searches for and loads modules from a path",
+      "popm"       => "Pops the latest module off the stack and makes it active",
+      "pushm"      => "Pushes the active or list of modules onto the module stack",
+      "previous"   => "Sets the previously loaded module as the current module",
+      "quit"       => "Exit the console",
+      "resource"   => "Run the commands stored in a file",
+      "makerc"     => "Save commands entered since start to a file",
       "reload_all" => "Reloads all modules from all defined module paths",
-      "route"    => "Route traffic through a session",
-      "save"     => "Saves the active datastores",
-      "search"   => "Searches module names and descriptions",
-      "sessions" => "Dump session listings and display information about sessions",
-      "set"      => "Sets a context-specific variable to a value",
-      "setg"     => "Sets a global variable to a value",
-      "show"     => "Displays modules of a given type, or all modules",
-      "sleep"    => "Do nothing for the specified number of seconds",
-      "threads"  => "View and manipulate background threads",
-      "unload"   => "Unload a framework plugin",
-      "unset"    => "Unsets one or more context-specific variables",
-      "unsetg"   => "Unsets one or more global variables",
-      "use"      => "Selects a module by name",
-      "version"  => "Show the framework and console library version numbers",
-      "spool"    => "Write console output into a file as well the screen"
+      "route"      => "Route traffic through a session",
+      "save"       => "Saves the active datastores",
+      "search"     => "Searches module names and descriptions",
+      "sessions"   => "Dump session listings and display information about sessions",
+      "set"        => "Sets a context-specific variable to a value",
+      "setg"       => "Sets a global variable to a value",
+      "show"       => "Displays modules of a given type, or all modules",
+      "sleep"      => "Do nothing for the specified number of seconds",
+      "threads"    => "View and manipulate background threads",
+      "unload"     => "Unload a framework plugin",
+      "unset"      => "Unsets one or more context-specific variables",
+      "unsetg"     => "Unsets one or more global variables",
+      "use"        => "Selects a module by name",
+      "version"    => "Show the framework and console library version numbers",
+      "spool"      => "Write console output into a file as well the screen"
     }
   end
 
@@ -242,16 +243,16 @@ class Core
 
     args.each do |res|
       good_res = nil
-      if (File.file? res and File.readable? res)
+      if ::File.exists?(res)
         good_res = res
       elsif
         # let's check to see if it's in the scripts/resource dir (like when tab completed)
         [
-          ::Msf::Config.script_directory + File::SEPARATOR + "resource",
-          ::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+          ::Msf::Config.script_directory + ::File::SEPARATOR + "resource",
+          ::Msf::Config.user_script_directory + ::File::SEPARATOR + "resource"
         ].each do |dir|
-          res_path = dir + File::SEPARATOR + res
-          if (File.file?(res_path) and File.readable?(res_path))
+          res_path = dir + ::File::SEPARATOR + res
+          if ::File.exists?(res_path)
             good_res = res_path
             break
           end
@@ -778,6 +779,50 @@ class Core
     if (driver.input.supports_readline)
       driver.input.reset_tab_completion
     end
+  end
+
+  def cmd_rename_job_help
+    print_line "Usage: rename_job [ID] [Name]"
+    print_line
+    print_line "Example: rename_job 0 \"meterpreter HTTPS special\""
+    print_line
+    print_line "Rename a job that's currently active."
+    print_line "You may use the jobs command to see what jobs are available."
+    print_line
+  end
+
+  def cmd_rename_job(*args)
+    if args.include?('-h') || args.length != 2 || args[0] !~ /^\d+$/
+      cmd_rename_job_help
+      return false
+    end
+
+    job_id   = args[0].to_s
+    job_name = args[1].to_s
+
+    unless framework.jobs[job_id]
+      print_error("Job #{job_id} does not exist.")
+      return false
+    end
+
+    # This is not respecting the Protected access control, but this seems to be the only way
+    # to rename a job. If you know a more appropriate way, patches accepted.
+    framework.jobs[job_id].send(:name=, job_name)
+    print_status("Job #{job_id} updated")
+
+    true
+  end
+
+  #
+  # Tab completion for the rename_job command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+
+  def cmd_rename_job_tabs(str, words)
+    return [] if words.length > 1
+    framework.jobs.keys
   end
 
   def cmd_jobs_help
@@ -2928,11 +2973,18 @@ class Core
           res << addr
         end
       when 'LHOST'
-        rh = self.active_module.datastore["RHOST"]
+        rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
         else
-          res << Rex::Socket.source_address()
+          res << Rex::Socket.source_address
+          # getifaddrs was introduced in 2.1.2
+          if Socket.respond_to?(:getifaddrs)
+            ifaddrs = Socket.getifaddrs.find_all { |ifaddr|
+              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) && ifaddr.addr.ip?
+            }
+            res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+          end
         end
       else
       end

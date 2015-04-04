@@ -16,6 +16,8 @@ require 'msf/core/handler/reverse_tcp'
 ###
 module Metasploit3
 
+  CachedSize = 123
+
   include Msf::Payload::Stager
 
   def initialize(info = { })

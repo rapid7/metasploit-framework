@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
           'Riku', # Vulnerability discovery
           'Antti', # Vulnerability discovery
           'Matti', # Vulnerability discovery
-          'hdm' # MSF module
+          'hdm' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
       'Actions'        => [['Capture']],

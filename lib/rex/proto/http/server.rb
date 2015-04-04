@@ -81,7 +81,6 @@ class Server
       "htm"   => "text/htm",
       "jpg"   => "image/jpeg",
       "jpeg"  => "image/jpeg",
-      "jpeg"  => "image/jpeg",
       "gif"   => "image/gif",
       "png"   => "image/png",
       "bmp"   => "image/bmp",

@@ -46,6 +46,17 @@ describe Msf::Module do
     it { is_expected.to respond_to :is_usable }
   end
 
+  describe '#user_data_is_match?' do
+    subject(:msf_module) {
+      msf_module = described_class.new
+      msf_module.user_data = { match: 'match', match_set: 'match_set', run: 'run' }
+      msf_module
+    }
+    specify do
+      expect(msf_module.user_data_is_match?).to eq(true)
+    end
+  end
+
   describe "cloning modules into replicants" do
     module MsfExtensionTestFoo; def my_test1; true; end; end;
     module MsfExtensionTestBar; def my_test2; true; end; end;

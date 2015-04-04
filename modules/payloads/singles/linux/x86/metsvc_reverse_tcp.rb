@@ -11,6 +11,8 @@ require 'msf/base/sessions/meterpreter_options'
 
 module Metasploit3
 
+  CachedSize = 0
+
   include Msf::Payload::Linux
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
