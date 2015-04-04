@@ -20,25 +20,26 @@ class Msf::Payload::UUID
      0 => nil,
      1 => ARCH_X86,
      2 => ARCH_X86_64,
-     3 => ARCH_MIPS,
-     4 => ARCH_MIPSLE,
-     5 => ARCH_MIPSBE,
-     6 => ARCH_PPC,
-     7 => ARCH_PPC64,
-     8 => ARCH_CBEA,
-     9 => ARCH_CBEA64,
-    10 => ARCH_SPARC,
-    11 => ARCH_ARMLE,
-    12 => ARCH_ARMBE,
-    13 => ARCH_CMD,
-    14 => ARCH_PHP,
-    15 => ARCH_TTY,
-    16 => ARCH_JAVA,
-    17 => ARCH_RUBY,
-    18 => ARCH_DALVIK,
-    19 => ARCH_PYTHON,
-    20 => ARCH_NODEJS,
-    21 => ARCH_FIREFOX
+     3 => ARCH_X64,     # Should be merged into X86_64 sometime
+     4 => ARCH_MIPS,
+     5 => ARCH_MIPSLE,
+     6 => ARCH_MIPSBE,
+     7 => ARCH_PPC,
+     8 => ARCH_PPC64,
+     9 => ARCH_CBEA,
+    10 => ARCH_CBEA64,
+    11 => ARCH_SPARC,
+    12 => ARCH_ARMLE,
+    13 => ARCH_ARMBE,
+    14 => ARCH_CMD,
+    15 => ARCH_PHP,
+    16 => ARCH_TTY,
+    17 => ARCH_JAVA,
+    18 => ARCH_RUBY,
+    19 => ARCH_DALVIK,
+    20 => ARCH_PYTHON,
+    21 => ARCH_NODEJS,
+    22 => ARCH_FIREFOX
   }
 
   Platforms = {
@@ -103,8 +104,6 @@ class Msf::Payload::UUID
     if opts[:seed]
       puid = seed_to_puid(opts[:seed])
     end
-
-    p opts
 
     puid ||= Rex::Text.rand_text(8)
 

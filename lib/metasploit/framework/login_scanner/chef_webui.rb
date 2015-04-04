@@ -24,7 +24,14 @@ module Metasploit
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result]
         def attempt_login(credential)
-          result_opts = { credential: credential }
+          result_opts = {
+            credential: credential,
+            status: Metasploit::Model::Login::Status::INCORRECT,
+            proof: nil,
+            host: host,
+            port: port,
+            protocol: 'tcp'
+          }
 
           begin
             status = try_login(credential)

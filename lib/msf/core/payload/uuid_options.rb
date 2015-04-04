@@ -2,14 +2,14 @@
 
 require 'msf/core'
 require 'msf/core/payload/uuid'
-require 'msf/core/handler/reverse_http/uri_checksum'
+require 'rex/payloads/meterpreter/uri_checksum.rb'
 
 #
 # This module provides datastore option definitions and helper methods for payload modules that support UUIDs
 #
 module Msf::Payload::UUIDOptions
 
-  include Msf::Handler::ReverseHttp::UriChecksum
+  include Rex::Payloads::Meterpreter::UriChecksum
 
   def initialize(info = {})
     super

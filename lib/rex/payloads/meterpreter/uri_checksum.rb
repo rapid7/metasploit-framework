@@ -1,10 +1,9 @@
 # -*- coding: binary -*-
-
 require 'msf/core/payload/uuid'
 
-module Msf
-  module Handler
-    module ReverseHttp
+module Rex
+  module Payloads
+    module Meterpreter
       module UriChecksum
 
         #

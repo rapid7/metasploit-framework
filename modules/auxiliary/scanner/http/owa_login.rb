@@ -186,8 +186,8 @@ class Metasploit3 < Msf::Auxiliary
         return :abort
     end
     if action.name == "OWA_2013"
-      #Check for a response code to make sure login was valid. Changes from 2010 to 2013.
-      #Check if the password needs to be changed.
+      # Check for a response code to make sure login was valid. Changes from 2010 to 2013.
+      # Check if the password needs to be changed.
       if res.headers['location'] =~ /expiredpassword/
         print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}': NOTE password change required")
         report_hash = {
@@ -203,7 +203,7 @@ class Metasploit3 < Msf::Auxiliary
         return :next_user
       end
 
-      #No password change required moving on.
+      # No password change required moving on.
       unless location = res.headers['location']
         print_error("#{msg} No HTTP redirect.  This is not OWA 2013, aborting.")
         return :abort
@@ -212,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
       if reason == nil
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
-      #Login didn't work. no point on going on.
+      # Login didn't work. no point on going on.
         vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
         return :Skip_pass
       end

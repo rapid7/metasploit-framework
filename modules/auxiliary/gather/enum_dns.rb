@@ -51,7 +51,6 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
-  #---------------------------------------------------------------------------------
   def switchdns(target)
     if not datastore['NS'].nil?
       print_status("Using DNS Server: #{datastore['NS']}")
@@ -71,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-  #---------------------------------------------------------------------------------
+
   def wildcard(target)
     rendsub = rand(10000).to_s
     query = @res.query("#{rendsub}.#{target}", "A")
@@ -85,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
       return false
     end
   end
-  #---------------------------------------------------------------------------------
+
   def genrcd(target)
     print_status("Retrieving general DNS records")
     query = @res.search(target)
@@ -167,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-  #---------------------------------------------------------------------------------
+
   def tldexpnd(targetdom,nssrv)
     target = targetdom.scan(/(\S*)[.]\w*\z/).join
     target.chomp!
@@ -178,13 +177,13 @@ class Metasploit3 < Msf::Auxiliary
     i, a = 0, []
     tlds = [
       "com", "org", "net", "edu", "mil", "gov", "uk", "af", "al", "dz",
-      "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "ac","au",
+      "as", "ad", "ao", "ai", "aq", "ag", "ar", "am", "aw", "ac", "au",
       "at", "az", "bs", "bh", "bd", "bb", "by", "be", "bz", "bj", "bm",
       "bt", "bo", "ba", "bw", "bv", "br", "io", "bn", "bg", "bf", "bi",
       "kh", "cm", "ca", "cv", "ky", "cf", "td", "cl", "cn", "cx", "cc",
-      "co", "km", "cd", "cg", "ck", "cr", "ci", "hr",	"cu", "cy", "cz",
+      "co", "km", "cd", "cg", "ck", "cr", "ci", "hr", "cu", "cy", "cz",
       "dk", "dj", "dm", "do", "tp", "ec", "eg", "sv", "gq", "er", "ee",
-      "et", "fk", "fo", "fj",	"fi", "fr", "gf", "pf", "tf", "ga", "gm",
+      "et", "fk", "fo", "fj", "fi", "fr", "gf", "pf", "tf", "ga", "gm",
       "ge", "de", "gh", "gi", "gr", "gl", "gd", "gp", "gu", "gt", "gg",
       "gn", "gw", "gy", "ht", "hm", "va", "hn", "hk", "hu", "is", "in",
       "id", "ir", "iq", "ie", "im", "il", "it", "jm", "jp", "je", "jo",
@@ -221,7 +220,6 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  #-------------------------------------------------------------------------------
   def dnsbrute(target, wordlist, nssrv)
     print_status("Running bruteforce against domain #{target}")
     arr = []
@@ -250,7 +248,6 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  #-------------------------------------------------------------------------------
   def bruteipv6(target, wordlist, nssrv)
     print_status("Bruteforcing IPv6 addresses against domain #{target}")
     arr = []
@@ -283,7 +280,6 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-  #-------------------------------------------------------------------------------
   def reverselkp(iprange,nssrv)
     print_status("Running reverse lookup against IP range #{iprange}")
     if not nssrv.nil?
@@ -327,12 +323,12 @@ class Metasploit3 < Msf::Auxiliary
       tl.delete_if { |t| not t.alive? }
     end
   end
-  #-------------------------------------------------------------------------------
-  #SRV Record Enumeration
+
+  # SRV Record Enumeration
   def srvqry(dom,nssrv)
     print_status("Enumerating SRV records for #{dom}")
     i, a = 0, []
-    #Most common SRV Records
+    # Most common SRV Records
     srvrcd = [
       "_gc._tcp.","_kerberos._tcp.", "_kerberos._udp.","_ldap._tcp","_test._tcp.",
       "_sips._tcp.","_sip._udp.","_sip._tcp.","_aix._tcp.","_aix._tcp.","_finger._tcp.",
@@ -354,8 +350,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  #-------------------------------------------------------------------------------
-  #For Performing Zone Transfers
+  # For Performing Zone Transfers
   def axfr(target, nssrv)
     print_status("Performing zone transfer against all nameservers in #{target}")
     if not nssrv.nil?
@@ -387,7 +382,7 @@ class Metasploit3 < Msf::Auxiliary
               :type => 'dns.enum',
               :update => :unique_data,
               :data => "Zone transfer successful")
-            #Prints each record according to its type
+            # Prints each record according to its type
             zone.each do |response|
               response.answer.each do |rr|
                 begin
@@ -475,7 +470,7 @@ class Metasploit3 < Msf::Auxiliary
                     :data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
                 end
                 rescue ActiveRecord::RecordInvalid
-                  #Do nothing. Probably tried to store :host => 127.0.0.1
+                  # Do nothing. Probably tried to store :host => 127.0.0.1
                 end
               end
             end

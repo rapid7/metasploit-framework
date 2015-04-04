@@ -1,8 +1,8 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'msf/core/handler/reverse_http/uri_checksum'
 require 'rex/payloads/meterpreter/patch'
+require 'rex/payloads/meterpreter/uri_checksum'
 require 'rex/parser/x509_certificate'
 require 'msf/core/payload/windows/verify_ssl'
 
@@ -17,7 +17,7 @@ module Handler
 module ReverseHttp
 
   include Msf::Handler
-  include Msf::Handler::ReverseHttp::UriChecksum
+  include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
 
   #
