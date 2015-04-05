@@ -110,7 +110,7 @@ module Msf
 
           begin
             return_data = Rex::Proto::Rmi::Model::ReturnData.decode(StringIO.new(data))
-          rescue ::RuntimeError => e
+          rescue ::RuntimeError
             return nil
           end
 
