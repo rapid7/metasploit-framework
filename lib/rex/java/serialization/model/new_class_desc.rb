@@ -73,7 +73,7 @@ module Rex
             end
             encoded = ''
             encoded << class_name.encode
-            encoded << [serial_version].pack('Q>')
+            encoded << [serial_version].pack('q>')
             encoded << [flags].pack('C')
             encoded << [fields.length].pack('n')
             fields.each do |field|

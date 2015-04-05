@@ -7,7 +7,6 @@ module Msf
         module Jmx
           module Connection
             module Builder
-
               # Builds an RMI call to javax/management/remote/rmi/RMIConnectionImpl_Stub#getObjectInstance()
               # used to retrieve an MBean instance
               #
@@ -50,7 +49,7 @@ module Msf
 
                 new_object = builder.new_object(
                   name: 'javax.management.ObjectName',
-                  serial: 0xf03a71beb6d15cf, # serialVersionUID
+                  serial: Msf::Java::Rmi::Client::Jmx::OBJECT_NAME_UID, # serialVersionUID
                   flags: 3
                 )
 
@@ -161,20 +160,20 @@ module Msf
 
               new_object = builder.new_object(
                 name: 'javax.management.ObjectName',
-                serial: 0xf03a71beb6d15cf, # serialVersionUID
+                serial: Msf::Java::Rmi::Client::Jmx::OBJECT_NAME_UID, # serialVersionUID
                 flags: 3
               )
 
               data_binary = builder.new_array(
                 name: '[B',
-                serial: 0xacf317f8060854e0, # serialVersionUID
+                serial: Msf::Java::Rmi::Client::Jmx::BYTE_ARRAY_UID, # serialVersionUID
                 values_type: 'byte',
                 values: build_invoke_arguments_obj_bytes(args).encode.unpack('C*')
               )
 
               marshall_object = builder.new_object(
                 name: 'java.rmi.MarshalledObject',
-                serial: 0x7cbd1e97ed63fc3e, # serialVersionUID
+                serial: Msf::Java::Rmi::Client::Jmx::MARSHALLED_OBJECT_UID, # serialVersionUID
                 fields: [
                   ['int', 'hash'],
                   ['array', 'locBytes', '[B'],
@@ -189,7 +188,7 @@ module Msf
 
               new_array = builder.new_array(
                 name: '[Ljava.lang.String;',
-                serial: 0xadd256e7e91d7b47, # serialVersionUID
+                serial: Msf::Java::Rmi::Client::Jmx::STRING_ARRAY_UID, # serialVersionUID
                 values_type: 'java.lang.String;',
                 values: args.keys.collect { |k| Rex::Java::Serialization::Model::Utf.new(nil, k) }
               )
@@ -218,7 +217,7 @@ module Msf
 
               new_array = builder.new_array(
                 name: '[Ljava.lang.Object;',
-                serial: 0x90ce589f1073296c, # serialVersionUID
+                serial: Msf::Java::Rmi::Client::Jmx::OBJECT_ARRAY_UID, # serialVersionUID
                 annotations: [Rex::Java::Serialization::Model::EndBlockData.new],
                 values_type: 'java.lang.Object;',
                 values: args.values.collect { |arg| Rex::Java::Serialization::Model::Utf.new(nil, arg) }
