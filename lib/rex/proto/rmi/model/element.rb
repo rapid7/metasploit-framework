@@ -83,10 +83,10 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [Fixnum]
-          # @raise [RuntimeError] if the byte can't be read from io
+          # @raise [Rex::Proto::Rmi::DecodeError] if the byte can't be read from io
           def read_byte(io)
             raw = io.read(1)
-            raise ::RuntimeError, 'Failed to read byte' unless raw
+            raise Rex::Proto::Rmi::DecodeError, 'Failed to read byte' unless raw
 
             raw.unpack('c')[0]
           end
@@ -95,12 +95,12 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [Fixnum]
-          # @raise [RuntimeError] if the short can't be read from io
+          # @raise [Rex::Proto::Rmi::DecodeError] if the short can't be read from io
           def read_short(io)
             raw = io.read(2)
 
             unless raw && raw.length == 2
-              raise ::RuntimeError, 'Failed to read short'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to read short'
             end
 
             raw.unpack('s>')[0]
@@ -110,12 +110,12 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [Fixnum]
-          # @raise [RuntimeError] if the int can't be read from io
+          # @raise [Rex::Proto::Rmi::DecodeError] if the int can't be read from io
           def read_int(io)
             raw = io.read(4)
 
             unless raw && raw.length == 4
-              raise ::RuntimeError, 'Failed to read int'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to read int'
             end
 
             raw.unpack('l>')[0]
@@ -125,12 +125,12 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [Fixnum]
-          # @raise [RuntimeError] if the long can't be read from io
+          # @raise [Rex::Proto::Rmi::DecodeError] if the long can't be read from io
           def read_long(io)
             raw = io.read(8)
 
             unless raw && raw.length == 8
-              raise ::RuntimeError, 'Failed to read long'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to read long'
             end
 
             raw.unpack('q>')[0]
@@ -141,12 +141,12 @@ module Rex
           # @param io [IO] the IO to read from
           # @param length [Fixnum] the string length
           # @return [String]
-          # @raise [RuntimeError] if the string can't be read from io
+          # @raise [Rex::Proto::Rmi::DecodeError] if the string can't be read from io
           def read_string(io, length)
             raw = io.read(length)
 
             unless raw && raw.length == length
-              raise ::RuntimeError, 'Failed to read string'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to read string'
             end
 
             raw

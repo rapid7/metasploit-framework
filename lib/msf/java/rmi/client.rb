@@ -89,7 +89,7 @@ module Msf
           data = safe_get_once(nsock)
           begin
             ack = Rex::Proto::Rmi::Model::ProtocolAck.decode(StringIO.new(data))
-          rescue ::RuntimeError
+          rescue Rex::Proto::Rmi::DecodeError
             return nil
           end
 
@@ -110,7 +110,7 @@ module Msf
 
           begin
             return_data = Rex::Proto::Rmi::Model::ReturnData.decode(StringIO.new(data))
-          rescue ::RuntimeError
+          rescue Rex::Proto::Rmi::DecodeError
             return nil
           end
 

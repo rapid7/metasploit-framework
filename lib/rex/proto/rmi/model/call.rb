@@ -20,11 +20,11 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [String]
-          # @raise [RuntimeError] if fails to decode the message id
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode the message id
           def decode_message_id(io)
             message_id = read_byte(io)
             unless message_id == CALL_MESSAGE
-              raise ::RuntimeError, 'Failed to decode Call message id'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode Call message id'
             end
 
             message_id

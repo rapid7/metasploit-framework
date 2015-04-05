@@ -20,11 +20,11 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [String]
-          # @raise [RuntimeError] if fails to decode the stream id
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode the stream id
           def decode_stream_id(io)
             stream_id = read_byte(io)
             unless stream_id == RETURN_DATA
-              raise ::RuntimeError, 'Failed to decode ReturnData stream id'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode ReturnData stream id'
             end
 
             stream_id

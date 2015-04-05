@@ -84,11 +84,11 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [String]
-          # @raise [RuntimeError] if fails to decode the return code
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode the return code
           def decode_code(io)
             code = read_byte(io)
             unless code == RETURN_VALUE || code == RETURN_EXCEPTION
-              raise ::RuntimeError, 'Failed to decode the ReturnValue code'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode the ReturnValue code'
             end
 
             code
