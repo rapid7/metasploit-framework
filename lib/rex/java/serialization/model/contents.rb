@@ -11,10 +11,10 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [Rex::Java::Serialization::Model::Element] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed or unsupported content
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed or unsupported content
           def decode_content(io, stream)
             opcode = io.read(1)
-            raise ::RuntimeError, 'Failed to unserialize content' if opcode.nil?
+            raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize content' if opcode.nil?
             opcode = opcode.unpack('C')[0]
             content = nil
 
@@ -48,11 +48,11 @@ module Rex
             when TC_NULL
               content = NullReference.decode(io, stream)
             when TC_EXCEPTION
-              raise ::RuntimeError, 'Failed to unserialize unsupported TC_EXCEPTION content'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize unsupported TC_EXCEPTION content'
             when TC_RESET
               content = Reset.decode(io, stream)
             else
-              raise ::RuntimeError, 'Failed to unserialize content'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize content'
             end
 
             content
@@ -62,7 +62,7 @@ module Rex
           #
           # @param content [Rex::Java::Serialization::Model::Element] the content to serialize
           # @return [String] if serialization succeeds
-          # @raise [RuntimeError] if serialization doesn't succeed
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization doesn't succeed
           def encode_content(content)
             encoded = ''
 
@@ -96,7 +96,7 @@ module Rex
             when Reference
               encoded << [TC_REFERENCE].pack('C')
             else
-              raise ::RuntimeError, 'Failed to serialize content'
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize content'
             end
 
             encoded << content.encode
@@ -107,6 +107,7 @@ module Rex
           #
           # @param content [Rex::Java::Serialization::Model::Element] the content to print
           # @return [String]
+          # @raise [Rex::Java::Serialization::EncodeError] if the content is unknown
           def print_content(content)
             str = ''
 
@@ -140,7 +141,7 @@ module Rex
             when Reference
               str << "#{print_class(content)} { #{content.to_s} }"
             else
-              raise ::RuntimeError, 'Failed to serialize content'
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize content'
             end
 
             str

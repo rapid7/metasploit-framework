@@ -31,7 +31,7 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode(io)
             stream.add_reference(self) unless stream.nil?
 
@@ -49,11 +49,11 @@ module Rex
           # Serializes the Rex::Java::Serialization::Model::ProxyClassDesc
           #
           # @return [String] if serialization succeeds
-          # @raise [RuntimeError] if serialization doesn't succeed
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization doesn't succeed
           def encode
             unless class_annotation.class == Rex::Java::Serialization::Model::Annotation ||
                     super_class.class == Rex::Java::Serialization::Model::ClassDesc
-              raise ::RuntimeError, 'Filed to serialize ProxyClassDesc'
+              raise Rex::Java::Serialization::EncodeError, 'Filed to serialize ProxyClassDesc'
             end
             encoded = ''
             encoded << [interfaces.length].pack('N')
@@ -93,11 +93,11 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [Fixnum] if deserialization is possible
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode_interfaces_length(io)
             fields_length = io.read(4)
             if fields_length.nil? || fields_length.length != 4
-              raise ::RuntimeError, 'Failed to unserialize ProxyClassDesc'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize ProxyClassDesc'
             end
 
             fields_length.unpack('N')[0]
