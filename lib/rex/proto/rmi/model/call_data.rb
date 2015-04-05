@@ -33,10 +33,7 @@ module Rex
             block_data = Rex::Java::Serialization::Model::BlockData.new(nil, encode_object_number + encode_uid + encode_operation + encode_hash)
 
             stream.contents << block_data
-
-            arguments.each do |v|
-              stream.contents << v
-            end
+            stream.contents += arguments
 
             stream.encode
           end
