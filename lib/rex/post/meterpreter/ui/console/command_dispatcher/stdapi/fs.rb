@@ -434,7 +434,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
     columns.insert(4, 'Short Name') if short
 
-    stat = client.fs.file.stat(path.to_s.include?('*') ? Pathname.new(path).dirname : path)
+    stat = client.fs.file.stat(/\*|\[|\?/ === path.to_s ? Pathname.new(path).dirname : path)
     if stat.directory?
       list_path(path, columns, sort, order, short, recursive)
     else

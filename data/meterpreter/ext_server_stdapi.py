@@ -991,7 +991,7 @@ def stdapi_fs_ls(request, response):
 	path = packet_get_tlv(request, TLV_TYPE_DIRECTORY_PATH)['value']
 	path = os.path.abspath(unicode(path))
 	glob = '*'
-	if '*' in path:
+	if any((c in ['*','[','?']) for c in path):
 		glob = os.path.basename(path)
 		path = os.path.dirname(path)
 	for file_name in filter(lambda f: fnmatch.fnmatch(f, glob), os.listdir(path)):
