@@ -219,8 +219,8 @@ protected
     uuid = info[:uuid] || Msf::Payload::UUID.new
 
     # Configure the UUID architecture and payload if necessary
-    uuid.arch      = obj.arch if uuid.arch.nil?
-    uuid.platform  = obj.platform if uuid.platform.nil?
+    uuid.arch      ||= obj.arch
+    uuid.platform  ||= obj.platform
 
     print_status "#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}... (UUID:#{uuid.to_s})"
 
