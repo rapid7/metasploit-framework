@@ -15,7 +15,8 @@ module Msf::Payload::UUIDOptions
     super
     register_advanced_options(
       [
-        Msf::OptString.new('PayloadUUIDSeed', [ false, 'A string to use when generating the payload UUID (deterministic)'])
+        Msf::OptString.new('PayloadUUIDSeed', [ false, 'A string to use when generating the payload UUID (deterministic)']),
+        Msf::OptString.new('PayloadUUIDRaw', [ false, 'A hex string representing the raw 8-byte PUID value for the UUID']),
       ], self.class)
   end
 
@@ -33,8 +34,8 @@ module Msf::Payload::UUIDOptions
     # The URI length may not have room for an embedded checksum
     if len && len < URI_CHECKSUM_UUID_MIN_LEN
       # Throw an error if the user set a seed, but there is no room for it
-      if datastore['PayloadUUIDSeed'].to_s.length > 0
-        raise ArgumentError, "A PayloadUUIDSeed was specified, but this payload doesn't have enough room for a UUID"
+      if datastore['PayloadUUIDSeed'].to_s.length > 0 ||datastore['PayloadUUIDRaw'].to_s.length > 0
+        raise ArgumentError, "A PayloadUUIDSeed or PayloadUUIDRaw value was specified, but this payload doesn't have enough room for a UUID"
       end
       return "/" + generate_uri_checksum(sum, len, prefix="")
     end
@@ -50,8 +51,19 @@ module Msf::Payload::UUIDOptions
       platform: self.platform
     }
 
+    # Handle user-specified seed values
     if datastore['PayloadUUIDSeed'].to_s.length > 0
       conf[:seed] = datastore['PayloadUUIDSeed'].to_s
+    end
+
+    # Handle user-specified raw payload UID values
+    if datastore['PayloadUUIDRaw'].to_s.length > 0
+      puid_raw = [datastore['PayloadUUIDRaw'].to_s].pack("H*")
+      if puid_raw.length != 8
+        raise ArgumentError, "The PayloadUUIDRaw value must be exactly 16 bytes of hex"
+      end
+      conf.delete(:seed)
+      conf[:puid] = puid_raw
     end
 
     Msf::Payload::UUID.new(conf)
