@@ -357,7 +357,6 @@ class Console::CommandDispatcher::Stdapi::Fs
       'Columns' => columns)
 
     items = 0
-    pathname = Pathname.new(path)
 
     # Enumerate each item...
     # No need to sort as Table will do it for us
@@ -380,8 +379,16 @@ class Console::CommandDispatcher::Stdapi::Fs
         items += 1
 
         if recursive && ffstat && ffstat.directory?
-          child = pathname.join(fname)
-          list_path(child.to_s, columns, sort, order, short, recursive)
+          if /\*|\[|\?/ === path.to_s
+            child_path = ::File.dirname(path) + ::File::SEPARATOR + fname
+            child_path += ::File::SEPARATOR + ::File.basename(path)
+          else
+            child_path = path + ::File::SEPARATOR + fname
+          end
+          begin
+            list_path(child_path, columns, sort, order, short, recursive)
+          rescue RequestError
+          end
         end
       end
     end
@@ -412,7 +419,8 @@ class Console::CommandDispatcher::Stdapi::Fs
     order = args.include?('-r') ? :reverse : :forward
     args.delete('-r')
 
-    recursive = args.delete('-R')
+    # Check for recursive mode
+    recursive = !args.delete('-R').nil?
 
     args.delete('-l')
 
