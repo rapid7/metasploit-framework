@@ -311,7 +311,7 @@ class Metasploit3 < Msf::Post
     end
 
     print_status("Enumerating DCs for #{domain} on the network...")
-    results = net_server_enum(SV_TYPE_DOMAIN_CTRL || SV_TYPE_DOMAIN_BAKCTRL, domain)
+    results = net_server_enum(SV_TYPE_DOMAIN_CTRL | SV_TYPE_DOMAIN_BAKCTRL, domain)
 
     if results.blank?
       print_error("No Domain Controllers found for #{domain}")

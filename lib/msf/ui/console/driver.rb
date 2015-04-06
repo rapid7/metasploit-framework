@@ -387,8 +387,13 @@ class Driver < Msf::Ui::Driver
     if (conf.group?(ConfigGroup))
       conf[ConfigGroup].each_pair { |k, v|
         case k.downcase
-          when "activemodule"
+          when 'activemodule'
             run_single("use #{v}")
+          when 'activeworkspace'
+            if framework.db.active
+              workspace = framework.db.find_workspace(v)
+              framework.db.workspace = workspace if workspace
+            end
         end
       }
     end
@@ -403,6 +408,12 @@ class Driver < Msf::Ui::Driver
 
     if (active_module)
       group['ActiveModule'] = active_module.fullname
+    end
+
+    if framework.db.active
+      unless framework.db.workspace.default?
+        group['ActiveWorkspace'] = framework.db.workspace.name
+      end
     end
 
     # Save it

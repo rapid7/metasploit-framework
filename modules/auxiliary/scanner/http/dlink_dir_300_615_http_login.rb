@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'hdm',	#http_login module
-          'Michael Messner <devnull[at]s3cur1ty.de>'	#dlink login included
+          'hdm', # http_login module
+          'Michael Messner <devnull[at]s3cur1ty.de>' #dlink login included
         ],
       'References'     =>
         [
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
     }
   end
 
-  #default to user=admin without password (default on most dlink routers)
+  # default to user=admin without password (default on most dlink routers)
   def do_login(user='admin', pass='')
     vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 

@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'References'      =>
         [
+          ['CVE', '2015-2673'],
           ['WPVDB', '7808'],
           ['URL', 'http://blog.rastating.com/wp-easycart-privilege-escalation-information-disclosure']
         ],

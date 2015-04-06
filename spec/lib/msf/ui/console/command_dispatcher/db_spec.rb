@@ -394,7 +394,8 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -i,--info         Change the info of a host",
           "  -n,--name         Change the name of a host",
           "  -m,--comment      Change the comment of a host",
-          "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count"
+          "  -t,--tag          Add or specify a tag to a range of hosts",
+          "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count, tags"
         ]
       end
     end

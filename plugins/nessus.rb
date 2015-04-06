@@ -1017,7 +1017,7 @@ module Msf
         complete = false
         status = @n.scan_list
         status["scans"].each { |scan|
-        if scan["id"] == scan_id.to_i && scan["status"] == "completed"
+        if scan["id"] == scan_id.to_i && (scan["status"] == "completed" || scan["status"] == "imported")
           complete = true
         end
         }

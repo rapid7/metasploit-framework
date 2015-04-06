@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
 
-    #Query the Postgres Shadow table for username and password hashes and report them
+    # Query the Postgres Shadow table for username and password hashes and report them
     res = postgres_query('SELECT usename, passwd FROM pg_shadow',false)
 
     service_data = {
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 
     credential_data.merge!(service_data)
 
-    #Error handling routine here, borrowed heavily from todb
+    # Error handling routine here, borrowed heavily from todb
     case res.keys[0]
     when :conn_error
       print_error("A Connection Error occured")

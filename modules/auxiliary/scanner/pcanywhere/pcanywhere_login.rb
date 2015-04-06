@@ -74,19 +74,19 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def do_login(user, pass, nsock=self.sock)
-    #Check if we are already at a logon prompt
+    # Check if we are already at a logon prompt
     res = nsock.get_once(-1,5)
     euser = encryption_header(encrypt(user))
     nsock.put(euser)
     res = nsock.get_once(-1,5)
 
-    #See if this knocked a login prompt loose
+    # See if this knocked a login prompt loose
     if pca_at_login?(res)
       nsock.put(euser)
       res = nsock.get_once(-1,5)
     end
 
-    #Check if we are now at the password prompt
+    # Check if we are now at the password prompt
     unless res and res.include? "Enter password"
       print_error "Problem Sending Login: #{res.inspect}"
       return :abort

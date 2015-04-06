@@ -87,17 +87,17 @@ class Metasploit3 < Msf::Auxiliary
       if datastore['VERBOSE'] == true
         vprint_good("#{rhost}:#{rport} - Response - File #{file}:")
         res.body.each_line do |line|
-          #the following is the last line of the useless response
+          # the following is the last line of the useless response
           if line.to_s =~ /\/\/--><\/SCRIPT>/
-            #setting out = true to print all of the following stuff
+            # setting out = true to print all of the following stuff
             out = true
             next
           end
           if out == true
             if line =~ /<META/ or line =~ /<Script/
-              #we are finished :)
-              #the next line is typical code from the website and nothing from us
-              #this means we can skip this stuff ...
+              # we are finished :)
+              # the next line is typical code from the website and nothing from us
+              # this means we can skip this stuff ...
               out = false
               next
             else

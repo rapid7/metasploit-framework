@@ -108,8 +108,7 @@ module Payload::Windows::ReverseWinHttp
   # @option opts [String] :url The URI to request during staging
   # @option opts [String] :host The host to connect to
   # @option opts [Fixnum] :port The port to connect to
-  # @option opts [Bool] :verify_ssl Whether or not to do SSL certificate validation
-  # @option opts [String] :verify_cert_hash A 20-byte raw SHA-1 hash of the certificate to verify
+  # @option opts [String] :verify_cert_hash A 20-byte raw SHA-1 hash of the certificate to verify, or nil
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
   # @option opts [Fixnum] :retry_count The number of times to retry a failed request before giving up
   #
@@ -121,7 +120,7 @@ module Payload::Windows::ReverseWinHttp
     encoded_url       = asm_generate_wchar_array(opts[:url])
     encoded_host      = asm_generate_wchar_array(opts[:host])
 
-    if opts[:ssl] && opts[:verify_cert] && opts[:verify_cert_hash]
+    if opts[:ssl] && opts[:verify_cert_hash]
       verify_ssl = true
       encoded_cert_hash = opts[:verify_cert_hash].unpack("C*").map{|c| "0x%.2x" % c }.join(",")
     end
