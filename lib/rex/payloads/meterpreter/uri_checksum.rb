@@ -35,7 +35,7 @@ module Rex
         # Map "random" URIs to static strings, allowing us to randomize
         # the URI sent in the first request.
         #
-        # @param uri_match [String] The URI string from the HTTP request
+        # @param uri [String] The URI string from the HTTP request
         # @return [Hash] The attributes extracted from the URI
         def process_uri_resource(uri)
 
