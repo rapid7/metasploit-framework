@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: 6a005a8cad5e72cc07c1dc8c2575726727ee3fba
+  revision: d1e0401715452433fe3d52b3050be41d77d9c03a
   branch: staging/rails-4.0
   specs:
-    metasploit-credential (1.14.1.pre.rails.pre.4.0)
+    metasploit-credential (1.14.3.pre.rails.pre.4.0)
       metasploit-concern
       metasploit-model
       metasploit_data_models
@@ -24,19 +24,19 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: 2dac547bdabb1e90acaf2db80663ad6b50c3f7a8
+  revision: 4bb2a7aed0575c892294df8d0470eb4a9fe4ca68
   branch: staging/rails-4.0
   specs:
-    metasploit-model (1.0.1.pre.rails.pre.4.0)
+    metasploit-model (1.29.2.pre.rails.pre.4.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: ef2a85e934514ef17e1597dc44a5c8a334fffb5f
+  revision: 6add26dc6aa83905db698fe9072d1d9901b1a2d6
   branch: staging/rails-4.0
   specs:
-    metasploit_data_models (0.23.1.pre.rails.pre.4.0)
+    metasploit_data_models (0.23.3.pre.rails.pre.4.0)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       arel-helpers
