@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'sinn3r',  #Metasploit
+          'sinn3r', # Metasploit module
         ],
       'References'     =>
         [

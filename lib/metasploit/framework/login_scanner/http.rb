@@ -189,13 +189,13 @@ module Metasploit
 
         # Sends a HTTP request with Rex
         #
-        # @param [Hash] Native support includes the following (also see Rex::Proto::Http::Request#request_cgi)
-        # @option opts[String] 'host' The remote host
-        # @option opts[Fixnum] 'port' The remote port
-        # @option opts[Boolean] 'ssl' The SSL setting, TrueClass or FalseClass
-        # @option opts[String]  'proxies' The proxies setting
-        # @option opts[Credential] 'credential' A credential object
-        # @option opts['Hash'] 'context' A context
+        # @param [Hash] opts native support includes the following (also see Rex::Proto::Http::Request#request_cgi)
+        # @option opts [String] 'host' The remote host
+        # @option opts [Fixnum] 'port' The remote port
+        # @option opts [Boolean] 'ssl' The SSL setting, TrueClass or FalseClass
+        # @option opts [String]  'proxies' The proxies setting
+        # @option opts [Credential] 'credential' A credential object
+        # @option opts ['Hash'] 'context' A context
         # @raise [Rex::ConnectionError] One of these errors has occured: EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
         # @return [Rex::Proto::Http::Response] The HTTP response
         # @return [NilClass] An error has occured while reading the response (see #Rex::Proto::Http::Client#read_response)
@@ -356,7 +356,7 @@ module Metasploit
 
         # Combine the base URI with the target URI in a sane fashion
         #
-        # @param [String] The target URL
+        # @param [String] target_uri the target URL
         # @return [String] the final URL mapped against the base
         def normalize_uri(target_uri)
           (self.uri.to_s + "/" + target_uri.to_s).gsub(/\/+/, '/')

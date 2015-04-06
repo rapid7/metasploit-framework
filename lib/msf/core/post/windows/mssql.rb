@@ -54,9 +54,9 @@ module Msf
         end
 
         # Identifies a valid SQL Server command line client on the host and sets
-        # @sql_client
+        # sql_client
         #
-        # @see #sql_client
+        # @see sql_client
         # @return [String, nil] the SQL command line client
         def get_sql_client
           client = nil

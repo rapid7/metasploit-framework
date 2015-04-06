@@ -20,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
     'Description' => 'This module attempts to authenticate to an POP3 service.',
     'Author'      =>
     [
-      '==[ Alligator Security Team ]==',
       'Heyder Andrade <heyder[at]alligatorteam.org>'
     ],
       'References'     =>
