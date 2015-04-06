@@ -27,7 +27,7 @@ module Handler::ReverseHttp::Stageless
   end
 
   def generate_stageless(&block)
-    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}" + generate_uri_uuid_mode(:connect)
+    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}#{generate_uri_uuid_mode(:connect)}/"
 
     unless block_given?
       raise ArgumentError, "Stageless generation requires a block argument"
