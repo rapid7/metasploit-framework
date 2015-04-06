@@ -412,8 +412,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     order = args.include?('-r') ? :reverse : :forward
     args.delete('-r')
 
-    recursive = args.include?('-R')
-    args.delete('-R')
+    recursive = args.delete('-R')
 
     args.delete('-l')
 
@@ -434,7 +433,11 @@ class Console::CommandDispatcher::Stdapi::Fs
     columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
     columns.insert(4, 'Short Name') if short
 
-    stat = client.fs.file.stat(/\*|\[|\?/ === path.to_s ? Pathname.new(path).dirname : path)
+    stat_path = path
+    if /\*|\[|\?/ === path.to_s
+      stat_path = ::File.dirname(path)
+    end
+    stat = client.fs.file.stat(stat_path)
     if stat.directory?
       list_path(path, columns, sort, order, short, recursive)
     else
