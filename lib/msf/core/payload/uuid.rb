@@ -187,6 +187,13 @@ class Msf::Payload::UUID
     parse_raw(Rex::Text.decode_base64url(uri))
   end
 
+
+  #
+  # Look up the numeric platform ID given a string or PlatformList as input
+  #
+  # @param platform [String] The name of the platform to lookup
+  # @return [Fixnum] The integer value of this platform
+  #
   def self.find_platform_id(platform)
     # Handle a PlatformList input by grabbing the first entry
     if platform.respond_to? :platforms
@@ -200,6 +207,12 @@ class Msf::Payload::UUID
     }.first || Platforms[0] ).to_i
   end
 
+  #
+  # Look up the numeric architecture ID given a string as input
+  #
+  # @param name [String] The name of the architecture to lookup
+  # @return [Fixnum] The integer value of this architecture
+  #
   def self.find_architecture_id(name)
     name = name.first if name.kind_of? ::Array
     ( Architectures.keys.select{ |k|
@@ -242,10 +255,22 @@ class Msf::Payload::UUID
     self.timestamp ||= Time.now.utc.to_i
   end
 
+  #
+  # Initializes a UUID object given a raw 16+ byte blob
+  #
+  # @param raw [String] The string containing at least 16 bytes of encoded data
+  # @return [Hash] The attributes encoded into this UUID
+  #
   def load_raw(raw)
     self.class.filter_invalid(self.class.parse_raw(raw))
   end
 
+  #
+  # Initializes a UUID object given a 22+ byte URI
+  #
+  # @param uri [String] The URI containing at least 22 bytes of encoded data
+  # @return [Hash] The attributes encoded into this UUID
+  #
   def load_uri(uri)
     self.class.filter_invalid(self.class.parse_uri(uri))
   end
@@ -254,6 +279,11 @@ class Msf::Payload::UUID
    self.class.parse_raw(self.class.generate_raw())
   end
 
+  #
+  # Provides a string representation of a UUID
+  #
+  # @return [String] The human-readable version of the UUID data
+  #
   def to_s
     arch_id   = self.class.find_architecture_id(self.arch).to_s
     plat_id   = self.class.find_platform_id(self.platform).to_s
@@ -265,6 +295,11 @@ class Msf::Payload::UUID
     ].join("/")
   end
 
+  #
+  # Provides a hash representation of a UUID
+  #
+  # @return [Hash] The hash representation of the UUID suitable for creating a new one
+  #
   def to_h
     {
         puid: self.puid,
@@ -274,18 +309,36 @@ class Msf::Payload::UUID
     }
   end
 
+  #
+  # Provides a raw byte representation of a UUID
+  #
+  # @return [String] The 16-byte raw encoded version of the UUID
+  #
   def to_raw
     self.class.generate_raw(self.to_h)
   end
 
+  #
+  # Provides a URI-encoded representation of a UUID
+  #
+  # @return [String] The 22-byte URI encoded version of the UUID
+  #
   def to_uri
     Rex::Text.encode_base64url(self.to_raw)
   end
 
+  #
+  # Provides a hex representation of the Payload UID of the UUID
+  #
+  # @return [String] The 16-byte hex string representing the Payload UID
+  #
   def puid_hex
     self.puid.unpack('H*').first
   end
 
+  #
+  # Clears the two random XOR keys used for obfuscation
+  #
   def xor_reset
     self.xor1 = self.xor2 = nil
     self
