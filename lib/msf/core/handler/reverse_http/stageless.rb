@@ -36,19 +36,6 @@ module Handler::ReverseHttp::Stageless
     # invoke the given function to generate the architecture specific payload
     block.call(url) do |dll|
 
-      # TODO: figure out this bit
-      # patch the target ID into the URI if specified
-      #if opts[:target_id]
-      #  i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
-      #  if i
-      #    t = opts[:target_id].to_s
-      #    raise "Target ID must be less than 5 bytes" if t.length > 4
-      #    u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
-      #    print_status("Patching Target ID #{t} into DLL")
-      #    dll[i, u.length] = u
-      #  end
-      #end
-
       verify_cert_hash = nil
       if ssl
         verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
