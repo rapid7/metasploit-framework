@@ -278,7 +278,15 @@ class ClientCore < Extension
     # do more magic work for http(s) payloads
     unless opts[:transport].ends_with?('tcp')
       sum = uri_checksum_lookup(:connect)
-      url << generate_uri_uuid(sum, client.payload_uuid) + '/'
+      uuid = client.payload_uuid
+      unless uuid
+        arch, plat = client.platform.split('/')
+        uuid = Msf::Payload::UUID.new({
+          arch:     arch,
+          platform: plat.starts_with?('win') ? 'windows' : plat
+        })
+      end
+      url << generate_uri_uuid(sum, uuid) + '/'
 
       opts[:comms_timeout] ||= DEFAULT_COMMS_TIMEOUT
       request.add_tlv(TLV_TYPE_TRANS_COMMS_TIMEOUT, opts[:comms_timeout])
