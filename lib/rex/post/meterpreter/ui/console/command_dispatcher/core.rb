@@ -392,11 +392,11 @@ class Console::CommandDispatcher::Core
       when '-ua'
         opts[:ua] = val
       when '-to'
-        opts[:comms_timeout] = val.to_i
+        opts[:comms_timeout] = val.to_i if val
       when '-ex'
-        opts[:session_exp] = val.to_i
+        opts[:session_exp] = val.to_i if val
       when '-p'
-        opts[:lport] = val.to_i
+        opts[:lport] = val.to_i if val
       when '-l'
         opts[:lhost] = val
       when '-t'

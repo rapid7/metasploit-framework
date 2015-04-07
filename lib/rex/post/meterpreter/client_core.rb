@@ -11,11 +11,9 @@ require 'msf/core/payload/windows'
 # Provides methods to patch options into the metsrv stager.
 require 'rex/payloads/meterpreter/patch'
 
-# URI checksum calculation
+# URI uuid and checksum stuff
+require 'msf/core/payload/uuid'
 require 'rex/payloads/meterpreter/uri_checksum'
-
-# URI checksumming stuff
-require 'msf/core/handler/reverse_https'
 
 # certificate hash checking
 require 'rex/parser/x509_certificate'
@@ -50,7 +48,6 @@ class ClientCore < Extension
     'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
     'bind_tcp'      => METERPRETER_TRANSPORT_SSL
   }
-
 
   include Rex::Payloads::Meterpreter::UriChecksum
 
@@ -280,9 +277,8 @@ class ClientCore < Extension
 
     # do more magic work for http(s) payloads
     unless opts[:transport].ends_with?('tcp')
-      checksum = generate_uri_checksum(URI_CHECKSUM_CONN)
-      rand = Rex::Text.rand_text_alphanumeric(16)
-      url <<  "/#{checksum}_#{rand}/"
+      sum = uri_checksum_lookup(:connect)
+      url << generate_uri_uuid(sum, client.payload_uuid) + '/'
 
       opts[:comms_timeout] ||= DEFAULT_COMMS_TIMEOUT
       request.add_tlv(TLV_TYPE_TRANS_COMMS_TIMEOUT, opts[:comms_timeout])
