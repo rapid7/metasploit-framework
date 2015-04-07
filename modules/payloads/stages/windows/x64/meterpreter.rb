@@ -22,15 +22,21 @@ module Metasploit3
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Windows x64 Meterpreter',
-      'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (Windows x64) (staged)',
-      'Author'        => [ 'sf' ],
+      'Name'          => 'Windows Meterpreter (Reflective Injection x64)',
+      'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged x64)',
+      'Author'        => ['skape','sf'],
+      'PayloadCompat' => { 'Convention' => 'sockedi', },
       'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_x64_Win
-    ))
+      'Session'       => Msf::Sessions::Meterpreter_x64_Win))
 
-    options.remove_option( 'LibraryName' )
-    options.remove_option( 'DLL' )
+    # Don't let people set the library name option
+    options.remove_option('LibraryName')
+    options.remove_option('DLL')
+
+    # TODO: figure out of this is the best way to do it.
+    register_advanced_options([
+      OptBool.new('StagerCloseSocket', [false, "Close the listen socket in the stager", false]),
+    ], self.class)
   end
 
   def library_path
