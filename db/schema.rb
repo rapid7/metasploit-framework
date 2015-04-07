@@ -26,8 +26,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.integer  "match_id"
     t.integer  "run_id"
     t.string   "state",      null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "automatic_exploitation_match_results", ["match_id"], name: "index_automatic_exploitation_match_results_on_match_id", using: :btree
@@ -36,8 +36,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   create_table "automatic_exploitation_match_sets", force: true do |t|
     t.integer  "workspace_id"
     t.integer  "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   add_index "automatic_exploitation_match_sets", ["user_id"], name: "index_automatic_exploitation_match_sets_on_user_id", using: :btree
@@ -47,8 +47,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.integer  "module_detail_id"
     t.string   "state"
     t.integer  "nexpose_data_vulnerability_definition_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
     t.integer  "match_set_id"
     t.string   "matchable_type"
     t.integer  "matchable_id"
