@@ -1,9 +1,13 @@
 # -*- coding: binary -*-
+
+require 'msf/core/post/windows/error'
+
 module Msf
 class Post
 module Windows
 
 module Accounts
+  include Msf::Post::Windows::Error
 
   GUID = [
     ['Data1',:DWORD],
@@ -165,16 +169,42 @@ module Accounts
       end
     end
 
-    # A reference to the SID data structure. Generally needed when working with sids
     psid = conversion['pSid']
 
-    # http://msdn.microsoft.com/en-us/library/aa379166(v=vs.85).aspx
-    # TODO: The buffer sizes here need to be reviewed/adjusted/optimized
-    lookup = adv.LookupAccountSidA(system_name, psid, 100, 100, 100, 100, 1)
+    # Begin/Ensure so we free the pSid buffer...
+    begin
+      # A reference to the SID data structure. Generally needed when working with sids
 
-    # We no longer need the sid so free it.
-    # NOTE: We do not check to see if this call succeeded. Do we care?
-    adv.FreeSid(psid)
+      # http://msdn.microsoft.com/en-us/library/aa379166(v=vs.85).aspx
+      lp_name = lp_referenced_domain_name = 100
+      cch_name = cch_referenced_domain_name = 100
+      lookup = adv.LookupAccountSidA(system_name,
+                                    psid,
+                                    lp_name,
+                                    cch_name,
+                                    lp_referenced_domain_name,
+                                    cch_referenced_domain_name,
+                                    1)
+
+      if !lookup['return'] && lookup['GetLastError'] == INSUFFICIENT_BUFFER
+        lp_name = cch_name = lookup['cchName']
+        lp_referenced_domain_name = cch_referenced_domain_name = lookup['cchReferencedDomainName']
+
+        lookup = adv.LookupAccountSidA(system_name,
+                                      psid,
+                                      lp_name,
+                                      cch_name,
+                                      lp_referenced_domain_name,
+                                      cch_referenced_domain_name,
+                                      1)
+      elsif !lookup['return']
+        print_error "Unexpected windows error #{lookup['GetLastError']}"
+        return nil
+      end
+    ensure
+      # We no longer need the sid so free it.
+      adv.FreeSid(psid)
+    end
 
     # If the call failed, handle errors accordingly.
     unless lookup['return']

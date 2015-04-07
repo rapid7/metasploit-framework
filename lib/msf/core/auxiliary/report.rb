@@ -113,13 +113,11 @@ module Auxiliary::Report
 
   #
   # Report a client connection
-  #
-  # opts must contain
-  #	:host      the address of the client connecting
-  #	:ua_string a string that uniquely identifies this client
-  # opts can contain
-  #	:ua_name a brief identifier for the client, e.g. "Firefox"
-  #	:ua_ver  the version number of the client, e.g. "3.0.11"
+  # @param opts [Hash] report client information based on user-agent
+  # @option opts [String] :host the address of the client connecting
+  # @option opts [String] :ua_string a string that uniquely identifies this client
+  # @option opts [String] :ua_name a brief identifier for the client, e.g. "Firefox"
+  # @option opts [String] :ua_ver  the version number of the client, e.g. "3.0.11"
   #
   def report_client(opts={})
     return if not db
@@ -161,7 +159,7 @@ module Auxiliary::Report
   # by a module. This method is deprecated and the new Metasploit::Credential methods
   # should be used directly instead.
   #
-  # @param :opts [Hash] the option hash
+  # @param opts [Hash] the option hash
   # @option opts [String] :host the address of the host (also takes a {Mdm::Host})
   # @option opts [Fixnum] :port the port of the connected service
   # @option opts [Mdm::Service] :service an optional Service object to build the cred for
@@ -473,7 +471,7 @@ module Auxiliary::Report
     cred_opts = opts.merge(:workspace => myworkspace)
     cred_host = myworkspace.hosts.find_by_address(cred_opts[:host])
     unless opts[:port]
-      possible_services = myworkspace.services.find_all_by_host_id_and_name(cred_host[:id],cred_opts[:sname])
+      possible_services = myworkspace.services.where(host_id: cred_host[:id], name: cred_opts[:sname])
       case possible_services.size
       when 0
         case cred_opts[:sname].downcase
@@ -514,7 +512,7 @@ module Auxiliary::Report
       end
     end
     if opts[:collect_session]
-      session = myworkspace.sessions.find_all_by_local_id(opts[:collect_session]).last
+      session = myworkspace.sessions.where(local_id: opts[:collect_session]).last
       if !session.nil?
         cred_opts[:source_id] = session.id
         cred_opts[:source_type] = "exploit"

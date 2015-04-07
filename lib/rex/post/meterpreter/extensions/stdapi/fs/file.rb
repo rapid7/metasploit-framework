@@ -91,9 +91,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     if( response.result == 0 )
       response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |
         files << {
-          'path' => client.unicode_filter_encode( results.get_tlv_value( TLV_TYPE_FILE_PATH ).chomp( '\\' ) ),
-          'name' => client.unicode_filter_encode( results.get_tlv_value( TLV_TYPE_FILE_NAME ) ),
-          'size' => results.get_tlv_value( TLV_TYPE_FILE_SIZE )
+          'path' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_PATH).chomp( '\\' )),
+          'name' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_NAME)),
+          'size' => results.get_tlv_value(TLV_TYPE_FILE_SIZE)
         }
       end
     end
@@ -138,7 +138,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    return client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_FILE_PATH) )
+    return client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_FILE_PATH))
   end
 
 
@@ -246,9 +246,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Upload a single file.
   #
-  def File.upload_file(dest_file, src_file)
+  def File.upload_file(dest_file, src_file, &stat)
     # Open the file on the remote side for writing and read
     # all of the contents of the local file
+    stat.call('uploading', src_file, dest_file) if (stat)
     dest_fd = client.fs.file.new(dest_file, "wb")
     src_buf = ''
 
@@ -261,6 +262,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     ensure
       dest_fd.close
     end
+    stat.call('uploaded', src_file, dest_file) if (stat)
   end
 
   #

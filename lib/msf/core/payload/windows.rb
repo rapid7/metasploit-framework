@@ -38,9 +38,11 @@ module Msf::Payload::Windows
       'none'    => 0x5DE2C5AA, # GetLastError
     }
 
-
-  def generate
-    return prepends(super)
+  #
+  # Implement payload prepends for Windows payloads
+  #
+  def apply_prepends(raw)
+    apply_prepend_migrate(raw)
   end
 
   #
@@ -148,6 +150,13 @@ module Msf::Payload::Windows
     conn.put([ payload.length ].pack('V'))
 
     return true
+  end
+
+  #
+  # Share the EXITFUNC mappings with other classes
+  #
+  def self.exit_types
+    @@exit_types.dup
   end
 
 end

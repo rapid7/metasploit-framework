@@ -13,6 +13,8 @@ require 'msf/core/payload/windows/loadlibrary'
 ###
 module Metasploit3
 
+  CachedSize = 183
+
   include Msf::Payload::Windows::LoadLibrary
 
 end

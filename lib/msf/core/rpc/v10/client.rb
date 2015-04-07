@@ -31,7 +31,7 @@ class Client
 
   def login(user,pass)
     res = self.call("auth.login", user, pass)
-    if(not (res and res['result'] == "success"))
+    unless (res && res['result'] == "success")
       raise RuntimeError, "authentication failed"
     end
     self.token = res['token']
@@ -41,8 +41,8 @@ class Client
   # Prepend the authentication token as the first parameter
   # of every call except auth.login. Requires the
   def call(meth, *args)
-    if(meth != "auth.login")
-      if(not self.token)
+    unless meth == "auth.login"
+      unless self.token
         raise RuntimeError, "client not authenticated"
       end
       args.unshift(self.token)
@@ -50,7 +50,7 @@ class Client
 
     args.unshift(meth)
 
-    if not @cli
+    unless @cli
       @cli = Rex::Proto::Http::Client.new(info[:host], info[:port], info[:context], info[:ssl], info[:ssl_version])
       @cli.set_config(
         :vhost => info[:host],
@@ -69,10 +69,12 @@ class Client
     res = @cli.send_recv(req)
     @cli.close
 
-    if res and [200, 401, 403, 500].include?(res.code)
+    if res && [200, 401, 403, 500].include?(res.code)
       resp = MessagePack.unpack(res.body)
 
-      if resp and resp.kind_of?(::Hash) and resp['error'] == true
+      # Boolean true versus truthy check required here;
+      # RPC responses such as { "error" => "Here I am" } and { "error" => "" } must be accommodated.
+      if resp && resp.kind_of?(::Hash) && resp['error'] == true
         raise Msf::RPC::ServerException.new(resp['error_code'] || res.code, resp['error_message'] || resp['error_string'], resp['error_class'], resp['error_backtrace'])
       end
 
@@ -83,7 +85,7 @@ class Client
   end
 
   def close
-    if @cli and @cli.conn?
+    if @cli && @cli.conn?
       @cli.close
     end
     @cli = nil

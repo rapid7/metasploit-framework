@@ -23,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
       server.},
       'Author'         =>
         [
-          'Alligator Security Team',
           'Heyder Andrade <heyder.andrade[at]alligatorteam.org>',
         ],
       'References'     =>

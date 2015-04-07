@@ -49,7 +49,7 @@ module Msf::HTTP::JBoss::Base
 
   # Try to auto detect the target architecture and platform
   #
-  # @param [Array] The available targets
+  # @param [Array] available_targets The available targets
   # @return [Msf::Module::Target, nil] The detected target or nil
   def auto_target(available_targets)
     if http_verb == 'HEAD'

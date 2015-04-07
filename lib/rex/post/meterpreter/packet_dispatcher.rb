@@ -66,9 +66,12 @@ module PacketDispatcher
     self.waiters    = []
     self.alive      = true
 
+    # Ensure that there is only one leading and trailing slash on the URI
+    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+
     self.passive_service = self.passive_dispatcher
-    self.passive_service.remove_resource("/" + self.conn_id  + "/")
-    self.passive_service.add_resource("/" + self.conn_id + "/",
+    self.passive_service.remove_resource(resource_uri)
+    self.passive_service.add_resource(resource_uri,
       'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
       'VirtualDirectory' => true
     )
@@ -113,9 +116,6 @@ module PacketDispatcher
       end
       cli.send_response(resp)
     end
-
-    # Force a closure for older WinInet implementations
-    self.passive_service.close_client( cli )
 
     rescue ::Exception => e
       elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
@@ -178,7 +178,6 @@ module PacketDispatcher
   # Sends a packet and waits for a timeout for the given time interval.
   #
   def send_request(packet, t = self.response_timeout)
-
     if not t
       send_packet(packet)
       return nil
