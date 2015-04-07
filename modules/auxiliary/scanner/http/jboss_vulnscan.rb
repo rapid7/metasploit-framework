@@ -7,7 +7,6 @@ require 'rex/proto/http'
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -15,9 +14,9 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'                  => 'JBoss Vulnerability Scanner',
-      'Description'   => %q{
+      'Description'           => %q(
         This module scans a JBoss instance for a few vulnerablities.
-      },
+      ),
       'Author'                =>
         [
           'Tyler Krpata',
@@ -32,31 +31,29 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('VERB',  [ true,  "Verb for auth bypass testing", "HEAD"]),
+        OptString.new('VERB',  [ true,  "Verb for auth bypass testing", "HEAD"])
       ], self.class)
   end
 
-
   def run_host(ip)
-
     res = send_request_cgi(
       {
-        'uri'       => "/"+Rex::Text.rand_text_alpha(12),
+        'uri'       => "/" + Rex::Text.rand_text_alpha(12),
         'method'    => 'GET',
-        'ctype'     => 'text/plain',
-
+        'ctype'     => 'text/plain'
       }, 20)
 
     if res
 
-      info = http_fingerprint({ :response => res })
+      info = http_fingerprint(:response => res)
       print_status(info)
 
-      if(res.body and />(JBoss[^<]+)/.match(res.body) )
+      if res.body && />(JBoss[^<]+)/.match(res.body)
         print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
       end
 
-      apps = [ '/jmx-console/HtmlAdaptor',
+      apps = [
+        '/jmx-console/HtmlAdaptor',
         '/status',
         '/web-console/ServerInfo.jsp',
         # apps added per Patrick Hof
@@ -78,22 +75,21 @@ class Metasploit3 < Msf::Auxiliary
         4444 => 'RMI invoker'
       }
       print_status("#{rhost}:#{rport} Checking services...")
-      ports.each do |port,service|
-        status = test_connection(ip,port) == :up ? "open" : "closed";
+      ports.each do |port, service|
+        status = test_connection(ip, port) == :up ? "open" : "closed"
         print_status("#{rhost}:#{rport} #{service} tcp/#{port}: #{status}")
       end
     end
   end
 
   def check_app(app)
-
     res = send_request_cgi({
       'uri'       => app,
       'method'    => 'GET',
-      'ctype'     => 'text/plain',
+      'ctype'     => 'text/plain'
     }, 20)
 
-    if (res)
+    if res
       case
       when res.code == 200
         print_good("#{rhost}:#{rport} #{app} does not require authentication (200)")
@@ -115,35 +111,34 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def jboss_as_default_creds()
+  def jboss_as_default_creds
     print_status("#{rhost}:#{rport} Checking for JBoss AS default creds")
 
-      session = jboss_as_session_setup(rhost, rport)
-      if session.nil?
-        return
-      end
+    session = jboss_as_session_setup(rhost, rport)
+    return false if session.nil?
 
-      # Default AS creds
-      username = "admin"
-      password = "admin"
+    # Default AS creds
+    username = "admin"
+    password = "admin"
 
-      res = send_request_raw({
-        'uri'       => "/admin-console/login.seam",
-        'method'    => "POST",
-        'version'   => '1.1',
-        'vhost'     => "#{rhost}",
-        'headers'   => { "Content-Type" => "application/x-www-form-urlencoded",
-                        "Cookie" => "JSESSIONID=#{session["jsessionid"]}"},
-        'data'      => "login_form=login_form&login_form%3Aname=#{username}&login_form%3Apassword=#{password}&login_form%3Asubmit=Login&javax.faces.ViewState=#{session["viewstate"]}"
-      }, 20)
+    res = send_request_raw({
+      "uri"      => "/admin-console/login.seam",
+      "method"   => "POST",
+      "version"  => "1.1",
+      "vhost"    => "#{rhost}",
+      "headers"  => { "Content-Type"  => "application/x-www-form-urlencoded",
+                      "Cookie"        => "JSESSIONID=#{session['jsessionid']}"
+                    },
+      "data"     => "login_form=login_form&login_form%3Aname=#{username}&login_form%3Apassword=#{password}&login_form%3Asubmit=Login&javax.faces.ViewState=#{session["viewstate"]}"
+    }, 20)
 
-      # Valid creds if 302 redirected to summary.seam and not error.seam
-      if (res and res.code == 302 and /error.seam/m !~ res.headers.to_s and /summary.seam/m =~ res.headers.to_s)
-        print_good("#{rhost}:#{rport} Authenticated using #{username}:#{password} at /admin-console/")
-        add_creds(username, password)
-      else
-        print_status("#{rhost}:#{rport} Could not guess admin credentials")
-      end
+    # Valid creds if 302 redirected to summary.seam and not error.seam
+    if res && res.code == 302 && /error.seam/m !~ res.headers.to_s && /summary.seam/m =~ res.headers.to_s
+      print_good("#{rhost}:#{rport} Authenticated using #{username}:#{password} at /admin-console/")
+      add_creds(username, password)
+    else
+      print_status("#{rhost}:#{rport} Could not guess admin credentials")
+    end
   end
 
   def add_creds(username, password)
@@ -173,10 +168,10 @@ class Metasploit3 < Msf::Auxiliary
       'uri'       => "/admin-console/login.seam",
       'method'    => "GET",
       'version'   => "1.1",
-      'vhost'     => "#{rhost}",
+      'vhost'     => "#{rhost}"
     }, 20)
 
-    if (res)
+    if res
       begin
         viewstate = /javax.faces.ViewState" value="(.*)" auto/.match(res.body).captures[0]
         jsessionid = /JSESSIONID=(.*);/.match(res.headers.to_s).captures[0]
@@ -197,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
       'version'   => '1.0' # 1.1 makes the head request wait on timeout for some reason
     }, 20)
 
-    if (res and res.code == 200)
+    if res && res.code == 200
       print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering")
     else
       print_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
@@ -209,30 +204,29 @@ class Metasploit3 < Msf::Auxiliary
       'uri'       => app,
       'method'    => 'GET',
       'ctype'     => 'text/plain',
-      'authorization' => basic_auth('admin','admin')
+      'authorization' => basic_auth('admin', 'admin')
     }, 20)
 
-    if (res and res.code == 200)
+    if res && res.code == 200
       print_good("#{rhost}:#{rport} Authenticated using admin:admin at #{app}")
-      add_creds("admin","admin")
+      add_creds("admin", "admin")
     else
       print_status("#{rhost}:#{rport} Could not guess admin credentials")
     end
   end
 
   # function stole'd from mssql_ping
-  def test_connection(ip,port)
+  def test_connection(ip, port)
     begin
       sock = Rex::Socket::Tcp.create(
         'PeerHost' => ip,
         'PeerPort' => port,
         'Timeout' => 20
-        )
+      )
     rescue Rex::ConnectionError
       return :down
     end
     sock.close
     return :up
   end
-
 end
