@@ -162,8 +162,8 @@ class Metasploit3 < Msf::Auxiliary
   #
   # From the documentation:
   #
-  #  "In case of five consecutive failed login attempts, Zabbix interface will pause for 30
-  #   seconds in order to prevent brute force and dictionary attacks."
+  # "In case of five consecutive failed login attempts, Zabbix interface will pause for 30
+  # seconds in order to prevent brute force and dictionary attacks."
   #
 
   # Zabbix enables a Guest mode by default that allows access to the dashboard without auth

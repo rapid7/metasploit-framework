@@ -29,7 +29,7 @@ module Metasploit
 
         # Returns the latest sid from Symantec Web Gateway.
         #
-        # @returns [String] The PHP Session ID for Symantec Web Gateway login
+        # @return [String] The PHP Session ID for Symantec Web Gateway login
         def get_last_sid
           @last_sid ||= lambda {
             # We don't have a session ID. Well, let's grab one right quick from the login page.

@@ -33,7 +33,7 @@ module Msf
 
         # Builds a MIT Credential Cache principal
         #
-        # @param opts [Hash<{Symbol => <Fixnum, String, Array<String>}>]
+        # @param opts [Hash<{Symbol => <Fixnum, String, Array<String>>}>]
         # @option opts [Fixnum] :name_type
         # @option opts [String] :realm
         # @option opts [Array<String>] :components

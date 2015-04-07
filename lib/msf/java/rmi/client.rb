@@ -111,7 +111,6 @@ module Msf
         #
         # @param opts [Hash]
         # @option opts [Rex::Socket::Tcp] :sock
-        # @return [String]
         def safe_get_once(nsock = sock)
           data = ''
           begin

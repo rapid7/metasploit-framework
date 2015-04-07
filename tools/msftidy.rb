@@ -176,7 +176,7 @@ class Msftidy
 
         case identifier
         when 'CVE'
-          warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4}$/
+          warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4,}$/
         when 'OSVDB'
           warn("Invalid OSVDB format: '#{value}'") if value !~ /^\d+$/
         when 'BID'

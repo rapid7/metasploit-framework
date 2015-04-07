@@ -47,8 +47,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Eloi Vanderbeken <eloi.vanderbeken[at]gmail.com>', #Initial discovery, poc
-          'Matt "hostess" Andreko <mandreko[at]accuvant.com>' #Msf module
+          'Eloi Vanderbeken <eloi.vanderbeken[at]gmail.com>', # Initial discovery, poc
+          'Matt "hostess" Andreko <mandreko[at]accuvant.com>' # Msf module
         ],
       'References'     =>
         [
@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 
     unless length == data.length
       vprint_warning("#{peer} - Inconsistent length / data packet")
-      #return nil
+      # return nil
     end
 
     return { :length => length, :data => data }

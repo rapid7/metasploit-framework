@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        =>
         [
-          'SecurityXploded Team',  #www.SecurityXploded.com
+          'Unknown', # SecurityXploded Team, www.SecurityXploded.com
           'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
         ],
         'Platform'      => [ 'win' ],

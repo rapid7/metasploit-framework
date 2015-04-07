@@ -66,9 +66,12 @@ module PacketDispatcher
     self.waiters    = []
     self.alive      = true
 
+    # Ensure that there is only one leading and trailing slash on the URI
+    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+
     self.passive_service = self.passive_dispatcher
-    self.passive_service.remove_resource("/" + self.conn_id  + "/")
-    self.passive_service.add_resource("/" + self.conn_id + "/",
+    self.passive_service.remove_resource(resource_uri)
+    self.passive_service.add_resource(resource_uri,
       'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
       'VirtualDirectory' => true
     )
