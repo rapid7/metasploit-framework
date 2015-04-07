@@ -641,11 +641,11 @@ class Console::CommandDispatcher::Stdapi::Sys
         when "deletekey"
           open_key = nil
           if not rem
-            open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE + wowflag)
+            open_key = client.sys.registry.open_key(root_key, nil, KEY_WRITE + wowflag)
           else
             remote_key = client.sys.registry.open_remote_key(rem, root_key)
             if remote_key
-              open_key = remote_key.open_key(base_key, KEY_WRITE + wowflag)
+              open_key = remote_key.open_key(nil, KEY_WRITE + wowflag)
             end
           end
           open_key.delete_key(base_key)
