@@ -31,7 +31,7 @@ module Metasploit
         #
         # @param [Rex::Proto::Http::Response] 
         # @return [String] The session ID for MSP
-        def get_last_sid(res)
+        def get_sid(res)
           cookies = res.get_cookies
           sid = cookies.scan(/(DCJSESSIONID=\w+);*/).flatten[0] || ''
           sid
@@ -46,8 +46,8 @@ module Metasploit
         def get_hidden_inputs(res)
           found_inputs = {}
           res.body.scan(/(<input type="hidden" .+>)/).flatten.each do |input|
-            name  = input.scan(/name="(.+)"/).flatten[0] || ''
-            value = input.scan(/value="(.+)"/).flatten[0] || ''
+            name  = input.scan(/name="(\w+)"/).flatten[0] || ''
+            value = input.scan(/value="([\w\.\-]+)"/).flatten[0] || ''
             found_inputs[name] = value
           end
           found_inputs
@@ -62,7 +62,7 @@ module Metasploit
           login_uri = normalize_uri("#{uri}/configurations.do")
           res = send_request({'uri' => login_uri})
           return items unless res
-          items.merge!({'sid'=>get_last_sid(res)})
+          items.merge!({'sid'=>get_sid(res)})
           items.merge!(get_hidden_inputs(res))
           items
         end
