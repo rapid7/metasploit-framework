@@ -35,7 +35,7 @@ module Metasploit3
 
     # TODO: figure out of this is the best way to do it.
     register_advanced_options([
-      OptBool.new('StagerCloseSocket', [false, "Close the listen socket in the stager", false]),
+      OptBool.new('StagerCloseListenSocket', [false, "Close the listen socket in the stager", false]),
     ], self.class)
   end
 

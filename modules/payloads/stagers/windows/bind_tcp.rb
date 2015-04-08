@@ -5,7 +5,6 @@
 
 
 require 'msf/core'
-require 'msf/core/payload/windows/bind_tcp'
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/windows/bind_tcp'
 
@@ -31,7 +30,7 @@ module Metasploit4
   end
 
   def generate
-    generate_bind_tcp
+    generate_bind_tcp_from_datastore
   end
 
 end

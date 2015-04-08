@@ -33,9 +33,10 @@ module Metasploit3
     options.remove_option('LibraryName')
     options.remove_option('DLL')
 
-    # TODO: figure out of this is the best way to do it.
+    # TODO: figure out of this is the best way to do it. We need the bind stager to not
+    # close the listen socket so that we can figure out transports from within metsrv.
     register_advanced_options([
-      OptBool.new('StagerCloseSocket', [false, "Close the listen socket in the stager", false]),
+      OptBool.new('StagerCloseListenSocket', [false, "Close the listen socket in the stager", false]),
     ], self.class)
   end
 

