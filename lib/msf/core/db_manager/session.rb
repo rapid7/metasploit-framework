@@ -125,6 +125,11 @@ module Msf::DBManager::Session
         mod_fullname = session.via_exploit
       end
       mod_detail = ::Mdm::Module::Detail.find_by_fullname(mod_fullname)
+      if mod_detail.nil?
+        # Then the cache isn't built yet, take the hit for instantiating the
+        # module
+        mod_detail = framework.modules.create(mod_fullname)
+      end
       mod_name = mod_detail.name
 
       vuln_info = {

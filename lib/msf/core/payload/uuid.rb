@@ -196,12 +196,16 @@ class Msf::Payload::UUID
   #
   def self.find_platform_id(platform)
     # Handle a PlatformList input by grabbing the first entry
-    if platform.respond_to? :platforms
+    if platform.respond_to?(:platforms)
       platform = platform.platforms.first.realname.downcase
     end
 
     # Map a platform abbreviation to the real name
-    name = Msf::Platform::Abbrev[platform]
+    name = Msf::Platform.find_platform(platform)
+    if name && name.respond_to?(:realname)
+      name = name.realname.downcase
+    end
+
     ( Platforms.keys.select{ |k|
       Platforms[k] == name
     }.first || Platforms[0] ).to_i

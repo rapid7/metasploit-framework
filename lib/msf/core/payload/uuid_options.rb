@@ -2,7 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/uuid'
-require 'rex/payloads/meterpreter/uri_checksum.rb'
+require 'rex/payloads/meterpreter/uri_checksum'
 
 #
 # This module provides datastore option definitions and helper methods for payload modules that support UUIDs
