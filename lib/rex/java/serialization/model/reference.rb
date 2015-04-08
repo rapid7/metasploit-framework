@@ -21,11 +21,11 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode(io)
             handle_raw = io.read(4)
             unless handle_raw && handle_raw.length == 4
-              raise ::RuntimeError, 'Failed to unserialize Reference'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize Reference'
             end
 
             self.handle = handle_raw.unpack('N')[0]
@@ -36,10 +36,10 @@ module Rex
           # Serializes the Rex::Java::Serialization::Model::Reference
           #
           # @return [String] if serialization succeeds
-          # @raise [RuntimeError] if serialization doesn't succeed
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization doesn't succeed
           def encode
             if handle < BASE_WIRE_HANDLE
-              raise ::RuntimeError, 'Failed to serialize Reference'
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize Reference'
             end
 
             encoded = ''
