@@ -265,6 +265,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     stat.call('uploaded', src_file, dest_file) if (stat)
   end
 
+  def File.is_glob?(name)
+    /\*|\[|\?/ === name
+  end
+
   #
   # Download one or more files from the remote computer to the local
   # directory supplied in destination.

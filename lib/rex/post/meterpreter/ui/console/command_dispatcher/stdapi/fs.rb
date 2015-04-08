@@ -289,12 +289,21 @@ class Console::CommandDispatcher::Stdapi::Fs
       dest = last
     end
 
+    # Download to a directory, not a pattern
+    if client.fs.file.is_glob?(dest)
+      dest = ::File.dirname(dest)
+    end
+
     # Go through each source item and download them
     src_items.each { |src|
+      glob = nil
+      if client.fs.file.is_glob?(src)
+        glob = ::File.basename(src)
+        src = ::File.dirname(src)
+      end
       stat = client.fs.file.stat(src)
-
       if (stat.directory?)
-        client.fs.dir.download(dest, src, recursive, true) { |step, src, dst|
+        client.fs.dir.download(dest, src, recursive, true, glob) { |step, src, dst|
           print_status("#{step.ljust(11)}: #{src} -> #{dst}")
           client.framework.events.on_session_download(client, src, dest) if msf_loaded?
         }
@@ -379,7 +388,7 @@ class Console::CommandDispatcher::Stdapi::Fs
         items += 1
 
         if recursive && ffstat && ffstat.directory?
-          if /\*|\[|\?/ === path.to_s
+          if client.fs.file.is_glob?(path)
             child_path = ::File.dirname(path) + ::File::SEPARATOR + fname
             child_path += ::File::SEPARATOR + ::File.basename(path)
           else
@@ -442,7 +451,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     columns.insert(4, 'Short Name') if short
 
     stat_path = path
-    if /\*|\[|\?/ === path.to_s
+    if client.fs.file.is_glob?(path)
       stat_path = ::File.dirname(path)
     end
     stat = client.fs.file.stat(stat_path)
