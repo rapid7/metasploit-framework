@@ -524,6 +524,7 @@ describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -h,--help             Show this help information",
           "  -p,--port <portspec>  List vulns matching this port spec",
           "  -s <svc names>        List vulns matching these service names",
+          "  -R,--rhosts           Set RHOSTS from the results of the search",
           "  -S,--search           Search string to filter by",
           "  -i,--info             Display Vuln Info",
           "Examples:",
