@@ -706,6 +706,7 @@ class Db
     print_line "  -p,--port <portspec>  List vulns matching this port spec"
     print_line "  -s <svc names>        List vulns matching these service names"
     print_line "  -S,--search           Search string to filter by"
+    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -i,--info             Display Vuln Info"
     print_line
     print_line "Examples:"
@@ -721,7 +722,10 @@ class Db
     host_ranges = []
     port_ranges = []
     svcs        = []
+    rhosts    	= []
+
     search_term = nil
+    set_rhosts = nil
     show_info   = false
 
     # Short-circuit help
@@ -754,6 +758,8 @@ class Db
         search_term = /#{args.shift}/nmi
       when '-i', '--info'
         show_info = true
+      when '-R','--rhosts'
+        set_rhosts = true
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -790,9 +796,14 @@ class Db
             next unless ports.empty? and svcs.empty?
             print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
           end
+	  if set_rhosts
+          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          rhosts << addr
         end
       end
     end
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+  end
   }
   end
 
