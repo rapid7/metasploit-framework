@@ -32,11 +32,6 @@ module Metasploit3
     # Don't let people set the library name option
     options.remove_option('LibraryName')
     options.remove_option('DLL')
-
-    # TODO: figure out of this is the best way to do it.
-    register_advanced_options([
-      OptBool.new('StagerCloseListenSocket', [false, "Close the listen socket in the stager", false]),
-    ], self.class)
   end
 
   def library_path

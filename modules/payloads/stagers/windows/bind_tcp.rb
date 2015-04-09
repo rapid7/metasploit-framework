@@ -29,8 +29,4 @@ module Metasploit4
       ))
   end
 
-  def generate
-    generate_bind_tcp_from_datastore
-  end
-
 end

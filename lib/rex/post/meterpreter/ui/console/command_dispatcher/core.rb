@@ -343,8 +343,10 @@ class Console::CommandDispatcher::Core
     '-ps' => [ true,  'Proxy password for http(s) transports (optional)' ],
     '-pt' => [ true,  'Proxy type for http(s) transports (optional: http, socks; default: http)' ],
     '-c'  => [ true,  'SSL certificate path for https transport verification (optional)' ],
-    '-to' => [ true,  "Comms timeout (seconds) for http(s) transports (default: #{Rex::Post::Meterpreter::ClientCore::DEFAULT_COMMS_TIMEOUT})" ],
-    '-ex' => [ true,  "Expiration timout (seconds) for http(s) transports (default: #{Rex::Post::Meterpreter::ClientCore::DEFAULT_SESSION_EXPIRATION})" ],
+    '-to' => [ true,  'Comms timeout (seconds) (default: same as current session)' ],
+    '-ex' => [ true,  'Expiration timout (seconds) (default: same as current session)' ],
+    '-rt' => [ true,  'Retry total time (seconds) (default: same as current session)' ],
+    '-rw' => [ true,  'Retry wait time (seconds) (default: same as current session)' ],
     '-h'  => [ false, 'Help menu' ])
 
   def cmd_transport_help
@@ -370,8 +372,10 @@ class Console::CommandDispatcher::Core
       :proxy_type    => nil,
       :proxy_user    => nil,
       :proxy_pass    => nil,
-      :comms_timeout => nil,
+      :comm_timeout  => nil,
       :session_exp   => nil,
+      :retry_total   => nil,
+      :retry_wait    => nil,
       :cert          => nil
     }
 
@@ -392,9 +396,13 @@ class Console::CommandDispatcher::Core
       when '-ua'
         opts[:ua] = val
       when '-to'
-        opts[:comms_timeout] = val.to_i if val
+        opts[:comm_timeout] = val.to_i if val
       when '-ex'
         opts[:session_exp] = val.to_i if val
+      when '-rt'
+        opts[:retry_total] = val.to_i if val
+      when '-rw'
+        opts[:retry_wait] = val.to_i if val
       when '-p'
         opts[:lport] = val.to_i if val
       when '-l'

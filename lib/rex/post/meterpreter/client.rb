@@ -111,6 +111,8 @@ class Client
     self.ssl          = opts[:ssl]
     self.expiration   = opts[:expiration]
     self.comm_timeout = opts[:comm_timeout]
+    self.retry_total  = opts[:retry_total]
+    self.retry_wait   = opts[:retry_wait]
     self.passive_dispatcher = opts[:passive_dispatcher]
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
@@ -450,6 +452,14 @@ class Client
   # The Communication Timeout
   #
   attr_accessor :comm_timeout
+  #
+  # The total time for retrying connections
+  #
+  attr_accessor :retry_total
+  #
+  # The time to wait between retry attempts
+  #
+  attr_accessor :retry_wait
   #
   # The Passive Dispatcher
   #

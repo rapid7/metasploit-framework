@@ -85,6 +85,16 @@ module Payload::Windows::StagelessMeterpreter
       end
     end
 
+    # Patch in the timeout options
+    timeout_opts = {
+      :expiration   => datastore['SessionExpirationTimeout'].to_i,
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i
+    }
+
+    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(dll, timeout_opts)
+
     # if a block is given then call that with the meterpreter dll
     # so that custom patching can happen if required
     yield dll if block_given?

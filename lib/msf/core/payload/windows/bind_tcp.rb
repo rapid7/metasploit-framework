@@ -27,7 +27,7 @@ module Payload::Windows::BindTcp
   #
   # Generate the first stage
   #
-  def generate_bind_tcp_from_datastore
+  def generate
 
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space

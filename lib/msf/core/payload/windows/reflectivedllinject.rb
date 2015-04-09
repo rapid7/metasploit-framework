@@ -29,17 +29,11 @@ module Payload::Windows::ReflectiveDllInject
       ],
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'PayloadCompat' =>
-        {
-          'Convention' => 'sockedi -https',
-        },
+      'PayloadCompat' => { 'Convention' => 'sockedi -https', },
       'Stage'         =>
         {
-          'Offsets' =>
-            {
-              'EXITFUNC' => [ 33, 'V' ]
-            },
-          'Payload' => ""
+          'Offsets'   => { 'EXITFUNC' => [ 33, 'V' ] },
+          'Payload'   => ""
         }
       ))
 
@@ -84,6 +78,16 @@ module Payload::Windows::ReflectiveDllInject
 
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
+
+    # patch in the timeout options
+    timeout_opts = {
+      :expiration   => datastore['SessionExpirationTimeout'].to_i,
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i,
+    }
+
+    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(dll, timeout_opts)
 
     # patch the target ID into the URI if specified
     if target_id
