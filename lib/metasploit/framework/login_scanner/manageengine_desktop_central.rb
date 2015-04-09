@@ -76,9 +76,6 @@ module Metasploit
         #   * :status [Metasploit::Model::Login::Status]
         #   * :proof [String] the HTTP response body
         def get_login_state(username, password)
-          # Prep the data needed for login
-          #protocol  = ssl ? 'https' : 'http'
-          #peer      = "#{host}:#{port}"
           login_uri = normalize_uri("#{uri}/j_security_check")
           login_items = get_required_login_items
 
