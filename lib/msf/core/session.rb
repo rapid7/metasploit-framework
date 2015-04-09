@@ -385,6 +385,10 @@ module Session
   #
   attr_accessor :exploit_uuid
   #
+  # The unique identifier of the payload that created this session
+  #
+  attr_accessor :payload_uuid
+  #
   # The actual exploit module instance that created this session
   #
   attr_accessor :exploit

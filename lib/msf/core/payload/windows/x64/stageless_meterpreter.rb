@@ -76,7 +76,7 @@ module Payload::Windows::StagelessMeterpreter_x64
 
     # the URL might not be given, as it might be patched in some other way
     if url
-      # Patch the URL using the patcher as this upports both ASCII and WCHAR.
+      # Patch the URL using the patcher as this supports both ASCII and WCHAR.
       unless Rex::Payloads::Meterpreter::Patch.patch_string!(dll, "https://#{'X' * 512}", "s#{url}\x00")
         # If the patching failed this could mean that we are somehow
         # working with outdated binaries, so try to patch with the

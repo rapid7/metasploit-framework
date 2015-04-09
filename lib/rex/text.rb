@@ -42,8 +42,10 @@ module Text
   UpperAlpha   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   LowerAlpha   = "abcdefghijklmnopqrstuvwxyz"
   Numerals     = "0123456789"
-  Base32	     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-  Alpha	     = UpperAlpha + LowerAlpha
+  Base32       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+  Base64       = UpperAlpha + LowerAlpha + Numerals + '+/'
+  Base64Url    = UpperAlpha + LowerAlpha + Numerals + '-_'
+  Alpha        = UpperAlpha + LowerAlpha
   AlphaNumeric = Alpha + Numerals
   HighAscii    = [*(0x80 .. 0xff)].pack("C*")
   LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
@@ -1135,6 +1137,24 @@ module Text
   end
 
   #
+  # Base64 encoder (URL-safe RFC6920)
+  #
+  def self.encode_base64url(str, delim='')
+    encode_base64(str, delim).
+      tr('+/', '-_').
+      gsub('=', '')
+  end
+
+  #
+  # Base64 decoder (URL-safe RFC6920, ignores invalid characters)
+  #
+  def self.decode_base64url(str)
+    decode_base64(
+      str.gsub(/[^a-zA-Z0-9_\-]/, '').
+      tr('-_', '+/'))
+  end
+
+  #
   # Raw MD5 digest of the supplied string
   #
   def self.md5_raw(str)
@@ -1271,6 +1291,18 @@ module Text
   def self.rand_text_highascii(len, bad='')
     foo = []
     foo += (0x80 .. 0xff).map{ |c| c.chr }
+    rand_base(len, bad, *foo )
+  end
+
+  # Generate random bytes of base64 data
+  def self.rand_text_base64(len, bad='')
+    foo = Base64.unpack('C*').map{ |c| c.chr }
+    rand_base(len, bad, *foo )
+  end
+
+  # Generate random bytes of base64url data
+  def self.rand_text_base64url(len, bad='')
+    foo = Base64Url.unpack('C*').map{ |c| c.chr }
     rand_base(len, bad, *foo )
   end
 
