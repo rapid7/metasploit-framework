@@ -35,7 +35,9 @@ module Handler::ReverseHttp::Stageless
       raise ArgumentError, "Stageless generation requires an ssl argument"
     end
 
-    url = "http#{opts[:ssl] ? "s" : ""}://#{datastore['LHOST']}:#{datastore['LPORT']}"
+    host = datastore['LHOST']
+    host = "[#{host}]" if Rex::Socket.is_ipv6?(host)
+    url = "http#{opts[:ssl] ? "s" : ""}://#{host}:#{datastore['LPORT']}"
     url << "#{generate_uri_uuid_mode(:connect)}/"
 
     # invoke the given function to generate the architecture specific payload

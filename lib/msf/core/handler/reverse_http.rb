@@ -91,7 +91,7 @@ module ReverseHttp
   def payload_uri(req)
     if req and req.headers and req.headers['Host'] and not datastore['OverrideRequestHost']
       callback_host = req.headers['Host']
-    elsif ipv6?
+    elsif Rex::Socket.is_ipv6?(datastore['LHOST'])
       callback_host = "[#{datastore['LHOST']}]:#{datastore['LPORT']}"
     else
       callback_host = "#{datastore['LHOST']}:#{datastore['LPORT']}"
