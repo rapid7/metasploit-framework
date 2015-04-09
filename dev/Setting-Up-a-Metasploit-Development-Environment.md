@@ -179,6 +179,7 @@ or editor -- we'll get to those next.
 curl -sSL https://rvm.io/mpapis.asc | gpg --import - &&
 curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.5 &&
 source $HOME/.rvm/scripts/rvm &&
+gem install bundler &&
 ruby -v && # See that it's 2.1.5
 sudo gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
   --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true
@@ -213,12 +214,17 @@ cat rvm.sh # Read it and see it's all good
 cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.5
 ```
 
-Once that's done (it'll be a minute), fix your current terminal to use
-RVM's version of ruby:
+Once that's done, fix your current terminal to use RVM's version of ruby:
 
 ```
 source $HOME/.rvm/scripts/rvm
 ruby -v # See that it's 2.1.5
+```
+
+And finally, install the `bundler` gem in order to get all the other gems you'll need:
+
+```
+gem install bundler
 ```
 
 ## Configure Gnome Terminal to use RVM
@@ -880,6 +886,7 @@ echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get -y install \
 curl -sSL https://rvm.io/mpapis.asc | gpg --import - &&
 curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.5 &&
 source $HOME/.rvm/scripts/rvm &&
+gem install bundler &&
 ruby -v && # See that it's 2.1.5
 sudo gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
   --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true
