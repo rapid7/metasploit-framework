@@ -112,7 +112,7 @@ GEM
     metasploit-concern (0.3.0)
       activesupport (~> 3.0, >= 3.0.0)
       railties (< 4.0.0)
-    metasploit-credential (0.14.4)
+    metasploit-credential (0.14.3)
       metasploit-concern (~> 0.3.0)
       metasploit-model (~> 0.29.0)
       metasploit_data_models (~> 0.23.0)
@@ -120,7 +120,7 @@ GEM
       railties (< 4.0.0)
       rubyntlm
       rubyzip (~> 1.1)
-    metasploit-model (0.29.2)
+    metasploit-model (0.29.0)
       activesupport
       railties (< 4.0.0)
     metasploit_data_models (0.23.2)
@@ -175,7 +175,7 @@ GEM
     rb-readline-r7 (0.5.2.0)
     rdoc (3.12.2)
       json (~> 1.4)
-    recog (1.0.26)
+    recog (1.0.24)
       nokogiri
     redcarpet (3.1.2)
     rkelly-remix (0.0.6)
