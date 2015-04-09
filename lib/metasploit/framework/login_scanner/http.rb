@@ -257,6 +257,9 @@ module Metasploit
           noko.search("form").each_entry do |form|
             found_inputs = {}
             form.search("input").each_entry do |input|
+              input_type = input.attributes['type'] ? input.attributes['type'].value : ''
+              next if input_type !~ /hidden/i
+
               input_name = input.attributes['name'] ? input.attributes['name'].value : ''
               input_value = input.attributes['value'] ? input.attributes['value'].value : ''
               found_inputs[input_name] = input_value unless input_name.empty?

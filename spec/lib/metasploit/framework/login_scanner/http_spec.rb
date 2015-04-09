@@ -41,6 +41,7 @@ describe Metasploit::Framework::LoginScanner::HTTP do
         <input name="input_1" type="hidden" value="some_value_1" />
       </form>
       <form>
+        <input name="input_0" type="text" value="Not a hidden input" />
         <input name="input_1" type="hidden" value="some_value_1" />
         <INPUT name="input_2" type="hidden" value="" />
       </form>
