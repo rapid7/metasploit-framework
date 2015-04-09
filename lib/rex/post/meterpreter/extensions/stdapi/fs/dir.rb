@@ -210,8 +210,8 @@ class Dir < Rex::Post::Dir
       if (src_stat.file?)
         stat.call('downloading', src_item, dst_item) if (stat)
         begin
-          client.fs.file.download(dst_item, src_item)
-          stat.call('downloaded', src_item, dst_item) if (stat)
+          result = client.fs.file.download_file(dst_item, src_item)
+          stat.call(result, src_item, dst_item) if (stat)
         rescue ::Rex::Post::Meterpreter::RequestError => e
           if force
             stat.call('failed', src_item, dst_item) if (stat)
