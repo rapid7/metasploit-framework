@@ -301,17 +301,45 @@ class Console::CommandDispatcher::Stdapi::Fs
         glob = ::File.basename(src)
         src = ::File.dirname(src)
       end
-      stat = client.fs.file.stat(src)
-      if (stat.directory?)
-        client.fs.dir.download(dest, src, recursive, true, glob) { |step, src, dst|
-          print_status("#{step.ljust(11)}: #{src} -> #{dst}")
-          client.framework.events.on_session_download(client, src, dest) if msf_loaded?
-        }
-      elsif (stat.file?)
-        client.fs.file.download(dest, src) { |step, src, dst|
-          print_status("#{step.ljust(11)}: #{src} -> #{dst}")
-          client.framework.events.on_session_download(client, src, dest) if msf_loaded?
-        }
+
+      # Use search if possible for recursive pattern matching. It will work
+      # more intuitively since it will not try to match on intermediate
+      # directories, only file names.
+      if glob && recursive && client.commands.include?('stdapi_fs_search')
+
+        files = client.fs.file.search(src, glob, recursive)
+        if !files.empty?
+          print_line("Downloading #{files.length} file#{files.length > 1 ? 's' : ''}...")
+
+          files.each do |file|
+            src_separator = client.fs.file.separator
+            src_path = file['path'] + client.fs.file.separator + file['name']
+            dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
+
+            client.fs.file.download(dest_path, src_path) do |step, src, dst|
+              print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+              client.framework.events.on_session_download(client, src, dest) if msf_loaded?
+            end
+          end
+
+        else
+          print_status("No matching files found for download")
+        end
+
+      else
+        # Perform direct matching
+        stat = client.fs.file.stat(src)
+        if (stat.directory?)
+          client.fs.dir.download(dest, src, recursive, true, glob) do |step, src, dst|
+            print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+            client.framework.events.on_session_download(client, src, dest) if msf_loaded?
+          end
+        elsif (stat.file?)
+          client.fs.file.download(dest, src) do |step, src, dst|
+            print_status("#step.ljust(11)}: #{src} -> #{dst}")
+            client.framework.events.on_session_download(client, src, dest) if msf_loaded?
+          end
+        end
       end
     }
 

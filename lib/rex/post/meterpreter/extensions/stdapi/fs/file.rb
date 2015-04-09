@@ -300,7 +300,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     src_stat = client.fs.filestat.new(src_file)
     if ::File.exists?(dest_file)
       dst_stat = ::File.stat(dest_file)
-      if src_stat.size == dst_stat.size and src_stat.mtime == dst_stat.mtime
+      if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
         return 'skipped'
       end
     end
