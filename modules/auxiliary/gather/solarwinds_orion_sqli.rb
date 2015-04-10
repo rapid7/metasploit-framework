@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//:metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Solarwinds Orion AccountManagement.asmx GetAccounts Admin Creation',
       'Description'    => %q{
-      This module exploits a stacked SQL injection in order to add an administrator user to the
-      SolarWinds Orion database.
+        This module exploits a stacked SQL injection in order to add an administrator user to the
+        SolarWinds Orion database.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>

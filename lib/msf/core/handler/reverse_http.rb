@@ -215,17 +215,25 @@ protected
   #
   def on_request(cli, req, obj)
     resp = Rex::Proto::Http::Response.new
+    info = process_uri_resource(req.relative_resource)
+    uuid = info[:uuid] || Msf::Payload::UUID.new
 
-    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
+    # Configure the UUID architecture and payload if necessary
+    uuid.arch      ||= obj.arch
+    uuid.platform  ||= obj.platform
 
-    uri_match = process_uri_resource(req.relative_resource)
+    print_status "#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}... (UUID:#{uuid.to_s})"
+
+    conn_id = nil
+    if info[:mode] && info[:mode] != :connect
+      conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+    end
 
     self.pending_connections += 1
 
     # Process the requested resource.
-    case uri_match
-      when /^\/INITPY/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+    case info[:mode]
+      when :init_python
         url = payload_uri(req) + conn_id + '/'
 
         blob = ""
@@ -256,10 +264,10 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
-      when /^\/INITJM/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+      when :init_java
         url = payload_uri(req) + conn_id + "/\x00"
 
         blob = ""
@@ -283,11 +291,11 @@ protected
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-          :ssl                => ssl?
+          :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
-      when /^\/A?INITM?/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
+      when :init_native
         url = payload_uri(req) + conn_id + "/\x00"
 
         print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
@@ -323,13 +331,12 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
-      when /^\/CONN_.*\//
+      when :connect
         resp.body = ""
-        # Grab the checksummed version of CONN from the payload's request.
-        conn_id = req.relative_resource.gsub("/", "")
-
+        conn_id = req.relative_resource
         print_status("Incoming orphaned or stageless session #{conn_id}, attaching...")
 
         # Short-circuit the payload's handle_connection processing for create_session
@@ -340,10 +347,11 @@ protected
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
           :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
       else
-        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
+        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} #{req.inspect}...")
         resp.code    = 200
         resp.message = "OK"
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s

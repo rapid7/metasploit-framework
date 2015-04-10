@@ -7,6 +7,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_https'
 require 'msf/core/handler/reverse_http/stageless'
 require 'msf/core/payload/windows/stageless_meterpreter'
+require 'msf/core/payload/uuid_options'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
 

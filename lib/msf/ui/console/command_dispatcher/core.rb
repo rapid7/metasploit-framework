@@ -629,6 +629,8 @@ class Core
       n2c.kill
     end
 
+    c2n.join
+    n2c.join
 
     sock.close rescue nil
     infile.close if infile
