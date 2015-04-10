@@ -8,7 +8,7 @@ require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/core/payload/windows/reverse_tcp'
 
-module Metasploit3
+module Metasploit4
 
   CachedSize = 281
 

