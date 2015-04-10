@@ -21,7 +21,9 @@ describe Metasploit::Framework::LoginScanner::Nessus do
     end
 
     let(:successful_auth_response) do
-      Rex::Proto::Http::Response.new(200, 'OK')
+      res = Rex::Proto::Http::Response.new(200, 'OK')
+      res.body = 'token'
+      res
     end
 
     let(:fail_auth_response) do
@@ -63,11 +65,19 @@ describe Metasploit::Framework::LoginScanner::Nessus do
 
     describe '#get_login_state' do
       it 'sends a login request to /session' do
-        expect(http_scanner).to receive(:send_request).with(hash_including('uri'=>'/session'))
+        allow(http_scanner).to receive(:send_request).with(hash_including('uri'=>'/session')).and_return(response)
+        http_scanner.get_login_state(username, good_password)
       end
 
       it 'sends a login request containing the username and password' do
-        expect(http_scanner).to receive(:send_request).with(hash_including('data'=>"username=#{username}&password=#{password}"))
+        expected_hash = {
+          'vars_post' => {
+            "username" => username,
+            "password" => good_password
+          }
+        }
+        allow(http_scanner).to receive(:send_request).with(hash_including(expected_hash)).and_return(response)
+        http_scanner.get_login_state(username, good_password)
       end
 
       context 'when the credential is valid' do

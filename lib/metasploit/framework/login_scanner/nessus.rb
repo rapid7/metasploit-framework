@@ -34,9 +34,6 @@ module Metasploit
         #   * :status [Metasploit::Model::Login::Status]
         #   * :proof [String] the HTTP response body
         def get_login_state(username, password)
-          # Prep the data needed for login
-          #protocol  = ssl ? 'https' : 'http'
-          #peer      = "#{host}:#{port}"
           login_uri = "#{uri}"
 
           res = send_request({
@@ -81,6 +78,13 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        def set_sane_defaults
+          super
+          # nessus_reset_login has the same default in TARGETURI, but rspec doesn't check nessus_reset_login
+          # so we have to set the default here, too.
+          self.uri = '/session'
         end
 
       end
