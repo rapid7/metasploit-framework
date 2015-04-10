@@ -3,6 +3,8 @@ require 'metasploit/framework/login_scanner/nessus'
 
 describe Metasploit::Framework::LoginScanner::Nessus do
 
+    subject(:http_scanner) { described_class.new }
+
     it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: false
     it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
 
@@ -24,10 +26,6 @@ describe Metasploit::Framework::LoginScanner::Nessus do
 
     let(:fail_auth_response) do
       Rex::Proto::Http::Response.new(401, 'Unauthorized')
-    end
-
-    subject do
-      described_class.new
     end
 
     let(:response) do
@@ -52,13 +50,13 @@ describe Metasploit::Framework::LoginScanner::Nessus do
       context 'when target is Nessus' do
         let(:response) { msp_html_response }
         it 'returns true' do
-          expect(subject.check_setup).to be_truthy
+          expect(http_scanner.check_setup).to be_truthy
         end
       end
 
       context 'when target is not Nessus' do
         it 'returns false' do
-          expect(subject.check_setup).to be_falsey
+          expect(http_scanner.check_setup).to be_falsey
         end
       end
     end
@@ -76,7 +74,7 @@ describe Metasploit::Framework::LoginScanner::Nessus do
         let(:response) { successful_auth_response }
         it 'returns a hash indicating a successful login' do
           successful_status = Metasploit::Model::Login::Status::SUCCESSFUL
-          expect(subject.get_login_state(username, good_password)[:status]).to eq(successful_status)
+          expect(http_scanner.get_login_state(username, good_password)[:status]).to eq(successful_status)
         end
       end
 
@@ -84,7 +82,7 @@ describe Metasploit::Framework::LoginScanner::Nessus do
         let(:response) { fail_auth_response }
         it 'returns a hash indicating an incorrect cred' do
           incorrect_status = Metasploit::Model::Login::Status::INCORRECT
-          expect(subject.get_login_state(username, good_password)[:status]).to eq(incorrect_status)
+          expect(http_scanner.get_login_state(username, good_password)[:status]).to eq(incorrect_status)
         end
       end
     end
@@ -95,7 +93,7 @@ describe Metasploit::Framework::LoginScanner::Nessus do
 
         it 'returns a Result object indicating a successful login' do
           cred_obj = Metasploit::Framework::Credential.new(public: username, private: good_password)
-          result = subject.attempt_login(cred_obj)
+          result = http_scanner.attempt_login(cred_obj)
           expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
           expect(result.status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
         end
@@ -105,7 +103,7 @@ describe Metasploit::Framework::LoginScanner::Nessus do
         let(:response) { fail_auth_response }
         it 'returns a Result object indicating an incorrect cred' do
           cred_obj = Metasploit::Framework::Credential.new(public: username, private: bad_password)
-          result = subject.attempt_login(cred_obj)
+          result = http_scanner.attempt_login(cred_obj)
           expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
           expect(result.status).to eq(Metasploit::Model::Login::Status::INCORRECT)
         end
