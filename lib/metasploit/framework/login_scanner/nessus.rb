@@ -82,7 +82,7 @@ module Metasploit
 
         def set_sane_defaults
           super
-          # nessus_reset_login has the same default in TARGETURI, but rspec doesn't check nessus_reset_login
+          # nessus_rest_login has the same default in TARGETURI, but rspec doesn't check nessus_rest_login
           # so we have to set the default here, too.
           self.uri = '/session'
         end
