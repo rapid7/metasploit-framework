@@ -30,7 +30,7 @@ module Metasploit
         #
         # @param username [String] The username to try
         # @param password [String] The password to try
-        # @return [String]
+        # @return [Hash]
         #   * :status [Metasploit::Model::Login::Status]
         #   * :proof [String] the HTTP response body
         def get_login_state(username, password)
