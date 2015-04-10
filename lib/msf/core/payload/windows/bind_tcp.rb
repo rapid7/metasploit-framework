@@ -78,7 +78,7 @@ module Payload::Windows::BindTcp
     space += 14
 
     # if the payload doesn't need the listen socket closed then we save space. This is
-    # the case for meterpreter payloads, as metsrv now closes the listen socker once it
+    # the case for meterpreter payloads, as metsrv now closes the listen socket once it
     # kicks off (needed for more reliable shells).
     space -= 8 unless close_listen_socket
 

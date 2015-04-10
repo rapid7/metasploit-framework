@@ -17,8 +17,8 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Bind TCP Stager',
-      'Description'   => 'Listen for a connection',
+      'Name'          => 'Bind TCP Stager (Windows x86)',
+      'Description'   => 'Listen for a connection (Windows x86)',
       'Author'        => ['hdm', 'skape', 'sf'],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
