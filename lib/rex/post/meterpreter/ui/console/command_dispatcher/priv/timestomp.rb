@@ -61,7 +61,7 @@ class Console::CommandDispatcher::Priv::Timestomp
     args.each { |a| file_path = a unless a[0] == "-" }
 
     if file_path.nil?
-      print_line("\nNo filepath specified.")
+      print_line("\nNo file_path specified.")
       return
     end
 
