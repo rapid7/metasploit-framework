@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_options'
 
 module Metasploit3
 
-  CachedSize = 65
+  CachedSize = 0
 
   include Msf::Payload::Bsd
   include Msf::Payload::Single
