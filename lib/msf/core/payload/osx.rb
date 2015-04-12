@@ -73,10 +73,6 @@ module Msf::Payload::Osx
     ret
   end
 
-  def generate(*args)
-    apply_prepends(super(*args))
-  end
-
   def apply_prepends(buf)
     test_arch = [ *(self.arch) ]
     pre = ''
