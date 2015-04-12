@@ -87,10 +87,6 @@ module Msf::Payload::Linux
     ret
   end
 
-
-  #
-  # Overload the generate() call to prefix our stubs
-  #
   def apply_prepends(buf)
     pre = ''
     app = ''
