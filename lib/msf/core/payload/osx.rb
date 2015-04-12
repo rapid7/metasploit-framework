@@ -23,49 +23,49 @@ module Msf::Payload::Osx
           [
             false,
             "Prepend a stub that executes the setresuid(0, 0, 0) system call",
-            "false"
+            false
           ]
         ),
         Msf::OptBool.new('PrependSetreuid',
           [
             false,
             "Prepend a stub that executes the setreuid(0, 0) system call",
-            "false"
+            false
           ]
         ),
         Msf::OptBool.new('PrependSetuid',
           [
             false,
             "Prepend a stub that executes the setuid(0) system call",
-            "false"
+            false
           ]
         ),
         Msf::OptBool.new('PrependSetresgid',
           [
             false,
             "Prepend a stub that executes the setresgid(0, 0, 0) system call",
-            "false"
+            false
           ]
         ),
         Msf::OptBool.new('PrependSetregid',
           [
             false,
             "Prepend a stub that executes the setregid(0, 0) system call",
-            "false"
+            false
           ]
         ),
         Msf::OptBool.new('PrependSetgid',
           [
             false,
             "Prepend a stub that executes the setgid(0) system call",
-            "false"
+            false
           ]
         ),
         Msf::OptBool.new('AppendExit',
           [
             false,
             "Append a stub that executes the exit(0) system call",
-            "false"
+            false
           ]
         ),
       ], Msf::Payload::Osx)
