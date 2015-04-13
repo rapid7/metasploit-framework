@@ -182,7 +182,7 @@ class EncodedPayload
           next
         end
 
-        # If the caller explictly requires register preservation, make sure
+        # If the caller explicitly requires register preservation, make sure
         # that the module in question can handle it. This is mostly used by
         # the stage encoder path.
         if (reqs['ForceSaveRegisters'] and

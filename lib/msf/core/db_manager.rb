@@ -104,7 +104,7 @@ class Msf::DBManager
   attr_accessor :usable
 
   #
-  # iniitialize
+  # initialize
   #
 
   def initialize(framework, opts = {})

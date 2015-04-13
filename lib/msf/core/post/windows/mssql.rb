@@ -155,7 +155,7 @@ module Msf
             return false unless username
 
             session.core.use('incognito') unless session.incognito
-            vprint_status("Attemping to impersonate user: #{username}")
+            vprint_status("Attempting to impersonate user: #{username}")
             res = session.incognito.incognito_impersonate_token(username)
 
             if res =~ /Successfully/i
