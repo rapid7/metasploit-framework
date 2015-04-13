@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'set'
-require 'dotiw'
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
 
@@ -59,7 +58,8 @@ class Console::CommandDispatcher::Core
       "run"        => "Executes a meterpreter script or Post module",
       "bgrun"      => "Executes a meterpreter script as a background thread",
       "bgkill"     => "Kills a background meterpreter script",
-      "get_timeouts" => "Kills a background meterpreter script",
+      "get_timeouts" => "Get the current session timeout values",
+      "set_timeouts" => "Set the current session timeout values",
       "bglist"     => "Lists running background scripts",
       "write"      => "Writes data to a channel",
       "enable_unicode_encoding"  => "Enables encoding of unicode strings",
@@ -69,6 +69,7 @@ class Console::CommandDispatcher::Core
     if client.passive_service
       c["detach"] = "Detach the meterpreter session (for http/https)"
     end
+
     # The only meterp that implements this right now is native Windows and for
     # whatever reason it is not adding core_migrate to its list of commands.
     # Use a dumb platform til it gets sorted.
@@ -324,8 +325,50 @@ class Console::CommandDispatcher::Core
     Rex::Ui::Text::IrbShell.new(binding).run
   end
 
+  @@set_timeouts_opts = Rex::Parser::Arguments.new(
+    '-c' => [ true,  'Comms timeout (seconds)' ],
+    '-x' => [ true,  'Expiration timout (seconds)' ],
+    '-t' => [ true,  'Retry total time (seconds)' ],
+    '-w' => [ true,  'Retry wait time (seconds)' ],
+    '-h' => [ false, 'Help menu' ])
+
+  def cmd_set_timeouts(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      cmd_transport_help
+      return
+    end
+
+    opts = {}
+
+    @@set_timeouts_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-c'
+        opts[:comm_timeout] = val.to_i if val
+      when '-x'
+        opts[:session_exp] = val.to_i if val
+      when '-t'
+        opts[:retry_total] = val.to_i if val
+      when '-w'
+        opts[:retry_wait] = val.to_i if val
+      end
+    end
+
+    if opts.keys.length == 0
+      print_error("No options set")
+    else
+      timeouts = client.core.set_transport_timeouts(opts)
+      print_timeouts(timeouts)
+    end
+  end
+
   def cmd_get_timeouts(*args)
-    timeouts = client.core.get_transport_timeouts
+    # Calling set without passing values is the same as
+    # getting all the current timeouts
+    timeouts = client.core.set_transport_timeouts
+    print_timeouts(timeouts)
+  end
+
+  def print_timeouts(timeouts)
     print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
     print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")
     print_line("Retry Total Time: #{timeouts[:retry_total]} seconds")

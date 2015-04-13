@@ -100,8 +100,22 @@ class ClientCore < Extension
     commands
   end
 
-  def get_transport_timeouts
-    request = Packet.create_request('core_transport_get_timeouts')
+  def set_transport_timeouts(opts={})
+    request = Packet.create_request('core_transport_set_timeouts')
+
+    if opts[:session_exp]
+      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+    end
+    if opts[:comm_timeout]
+      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
+    end
+    if opts[:retry_total]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
+    end
+    if opts[:retry_wait]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
+    end
+
     response = client.send_request(request)
 
     {
