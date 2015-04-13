@@ -635,8 +635,9 @@ git checkout -b upstream-master --track upstream/master &&
 ruby tools/dev/add_pr_fetch.rb &&
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit &&
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge &&
-git config --global user.name  "YOUR_USERNAME_FOR_REAL_LIFE" &&
-git config --global user.email "YOUR_USERNAME_FOR_EMAIL"
+git config --global user.name   "YOUR_USERNAME_FOR_REAL_LIFE" &&
+git config --global user.email  "YOUR_USERNAME_FOR_EMAIL" &&
+git config --global github.user "YOUR_USERNAME_FOR_GITHUB" &&
 ```
 ----
 
@@ -746,11 +747,12 @@ Finally, if you ever want to contribute to Metasploit, you need to
 configure at least your username and e-mail address, like so:
 
 ```
-git config user.name  "YOUR_USERNAME_FOR_REAL_LIFE"
-git config user.email "YOUR_USERNAME_FOR_EMAIL"
+git config user.name   "YOUR_USERNAME_FOR_REAL_LIFE"
+git config user.email  "YOUR_USERNAME_FOR_EMAIL"
+git config github.user "YOUR_USERNAME_FOR_GITHUB"
 ```
 
-If you want this to be your default name for any other git repo you use,
+If you want this to be your default identity for any other git repo you use,
 just use the `--global` option to `git config`. Your e-mail address must
 match your GitHub-registered e-mail.
 
