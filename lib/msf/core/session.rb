@@ -84,7 +84,7 @@ module Session
     #self.routes = []
   end
 
-  # Direct descendents
+  # Direct descendants
   require 'msf/core/session/interactive'
   require 'msf/core/session/basic'
   require 'msf/core/session/comm'
