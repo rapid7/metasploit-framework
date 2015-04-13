@@ -100,6 +100,18 @@ class ClientCore < Extension
     commands
   end
 
+  def get_transport_timeouts
+    request = Packet.create_request('core_transport_get_timeouts')
+    response = client.send_request(request)
+
+    {
+      :session_exp  => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
+      :comm_timeout => response.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
+      :retry_total  => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
+      :retry_wait   => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT)
+    }
+  end
+
   #
   # Loads a library on the remote meterpreter instance.  This method
   # supports loading both extension and non-extension libraries and

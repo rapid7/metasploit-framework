@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'set'
+require 'dotiw'
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
 
@@ -58,6 +59,7 @@ class Console::CommandDispatcher::Core
       "run"        => "Executes a meterpreter script or Post module",
       "bgrun"      => "Executes a meterpreter script as a background thread",
       "bgkill"     => "Kills a background meterpreter script",
+      "get_timeouts" => "Kills a background meterpreter script",
       "bglist"     => "Lists running background scripts",
       "write"      => "Writes data to a channel",
       "enable_unicode_encoding"  => "Enables encoding of unicode strings",
@@ -320,6 +322,14 @@ class Console::CommandDispatcher::Core
     session = client
     framework = client.framework
     Rex::Ui::Text::IrbShell.new(binding).run
+  end
+
+  def cmd_get_timeouts(*args)
+    timeouts = client.core.get_transport_timeouts
+    print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
+    print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")
+    print_line("Retry Total Time: #{timeouts[:retry_total]} seconds")
+    print_line("Retry Wait Time : #{timeouts[:retry_wait]} seconds")
   end
 
   #
