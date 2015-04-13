@@ -126,7 +126,7 @@ module Msf::Post::Windows::Runas
   # @param domain [String] The target user domain
   # @param user [String] The target user
   # @param password [String] The target user password
-  # @param application_name [String] Thn executableived :CloseHandle
+  # @param application_name [String] The executable to run :CloseHandle
   # with unexpected arguments
   #          expected: ("testPhToken")
   #                        got: (n be run, can be

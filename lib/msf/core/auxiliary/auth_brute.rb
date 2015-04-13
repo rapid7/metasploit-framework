@@ -548,7 +548,7 @@ module Auxiliary::AuthBrute
   end
 
   # Provides a consistant way to display messages about AuthBrute-mixed modules.
-  # Acceptable opts are fairly self-explanitory, but :level can be tricky.
+  # Acceptable opts are fairly self-explanatory, but :level can be tricky.
   #
   # It can be one of status, good, error, or line (and corresponds to the usual
   # print_status, print_good, etc. methods).
