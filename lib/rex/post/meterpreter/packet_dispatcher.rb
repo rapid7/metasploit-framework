@@ -81,6 +81,11 @@ module PacketDispatcher
     return if not self.passive_service
     self.passive_service.remove_resource("/" + self.conn_id  + "/")
 
+    # If there are no more resources registered on the service, stop it entirely
+    if self.passive_service.resources.empty?
+      Rex::ServiceManager.stop_service(self.passive_service)
+    end
+
     self.alive      = false
     self.send_queue = []
     self.recv_queue = []
