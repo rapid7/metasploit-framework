@@ -20,6 +20,7 @@ PATH
       rubyzip (~> 1.1)
       sqlite3
       tzinfo
+      vagrant-wrapper
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 4.0.9, < 4.1.0)
       metasploit-credential (~> 1.0)
@@ -223,6 +224,7 @@ GEM
     tilt (1.4.1)
     timecop (0.7.3)
     tzinfo (0.3.44)
+    vagrant-wrapper (2.0.2)
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.8.7.6)
