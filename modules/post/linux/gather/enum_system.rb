@@ -11,7 +11,6 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::System
 
-
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Linux Gather System and User Information',
@@ -53,13 +52,15 @@ class Metasploit3 < Msf::Post
     users = execute("/bin/cat /etc/passwd | cut -d : -f 1")
     user = execute("/usr/bin/whoami")
 
+    print_good("\tModule running as \"#{user}\" user")
+
     installed_pkg = get_packages(distro[:distro])
     installed_svc = get_services(distro[:distro])
 
     mount = execute("/bin/mount -l")
     crons = get_crons(users, user)
     diskspace = execute("/bin/df -ahT")
-    disks = (mount +"\n\/"+ diskspace)
+    disks = (mount + "\n\/" + diskspace)
     logfiles = execute("find /var/log -type f -perm -4 2> /dev/null")
     uidgid = execute("find / -xdev -type f -perm +6000 -perm -1 2> /dev/null")
 
@@ -71,7 +72,6 @@ class Metasploit3 < Msf::Post
     save("Disk info", disks)
     save("Logfiles", logfiles)
     save("Setuid/setgid files", uidgid)
-
   end
 
 
@@ -107,16 +107,17 @@ class Metasploit3 < Msf::Post
   end
 
   def get_packages(distro)
-    packages_installed = nil
-    if distro =~ /fedora|redhat|suse|mandrake|oracle|amazon/
+    packages_installed = ""
+    case distro
+    when /fedora|redhat|suse|mandrake|oracle|amazon/
       packages_installed = execute("rpm -qa")
-    elsif distro =~ /slackware/
-      packages_installed = execute("ls /var/log/packages")
-    elsif distro =~ /ubuntu|debian/
-      packages_installed = execute("dpkg -l")
-    elsif distro =~ /gentoo/
+    when /slackware/
+      packages_installed = execute("/bin/ls /var/log/packages")
+    when /ubuntu|debian/
+      packages_installed = execute("/usr/bin/dpkg -l")
+    when /gentoo/
       packages_installed = execute("equery list")
-    elsif distro =~ /arch/
+    when /arch/
       packages_installed = execute("/usr/bin/pacman -Q")
     else
       print_error("Could not determine package manager to get list of installed packages")
@@ -126,46 +127,47 @@ class Metasploit3 < Msf::Post
 
   def get_services(distro)
     services_installed = ""
-    if distro =~ /fedora|redhat|suse|mandrake|oracle|amazon/
+    case distro
+    when /fedora|redhat|suse|mandrake|oracle|amazon/
       services_installed = execute("/sbin/chkconfig --list")
-    elsif distro =~ /slackware/
+    when /slackware/
       services_installed << "\nEnabled:\n*************************\n"
       services_installed << execute("ls -F /etc/rc.d | /bin/grep \'*$\'")
       services_installed << "\n\nDisabled:\n*************************\n"
       services_installed << execute("ls -F /etc/rc.d | /bin/grep \'[a-z0-9A-z]$\'")
-    elsif distro =~ /ubuntu|debian/
-      services_installed = execute("/usr/bin/service --status-all")
-    elsif distro =~ /gentoo/
+    when /ubuntu|debian/
+      services_installed = execute("/usr/sbin/service --status-all")
+    when /gentoo/
       services_installed = execute("/bin/rc-status --all")
-    elsif distro =~ /arch/
-      services_installed = execute("/bin/egrep '^DAEMONS' /etc/rc.conf")
+    when /arch/
+      services_installed = execute("/bin/grep '^DAEMONS' /etc/rc.conf")
     else
-      print_error("Could not determine the Linux Distribution to get list of configured services")
+      print_error("Could not determine the Linux Distribuition to get list of configured services")
     end
     return services_installed
   end
 
   def get_crons(users, user)
-    if user == "root" and users != nil
+    if user == "root" && users != nil
       users = users.chomp.split()
       users.each do |u|
         if u == "root"
           vprint_status("Enumerating as root")
           cron_data = ""
-          users.each do |u|
-            cron_data += "*****Listing cron jobs for #{u}*****\n"
-            cron_data += execute("crontab -u #{u} -l") + "\n\n"
+          users.each do |usr|
+            cron_data += "*****Listing cron jobs for #{usr}*****\n"
+            cron_data += execute("crontab -u #{usr} -l") + "\n\n"
           end
         end
       end
     else
-      vprint_status("Enumerating as #{user}")
+      vprint_status("Enumerating as \"#{user}\"")
       cron_data = "***** Listing cron jobs for #{user} *****\n\n"
       cron_data += execute("crontab -l")
     end
 
     # Save cron data to loot
     return cron_data
-
   end
+
 end
