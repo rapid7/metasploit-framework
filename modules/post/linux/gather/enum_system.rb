@@ -140,9 +140,9 @@ class Metasploit3 < Msf::Post
     when /gentoo/
       services_installed = execute("/bin/rc-status --all")
     when /arch/
-      services_installed = execute("/bin/grep '^DAEMONS' /etc/rc.conf")
+      services_installed = execute("/bin/egrep '^DAEMONS' /etc/rc.conf")
     else
-      print_error("Could not determine the Linux Distribuition to get list of configured services")
+      print_error("Could not determine the Linux Distribution to get list of configured services")
     end
     return services_installed
   end
@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Post
         end
       end
     else
-      vprint_status("Enumerating as \"#{user}\"")
+      vprint_status("Enumerating as #{user}")
       cron_data = "***** Listing cron jobs for #{user} *****\n\n"
       cron_data += execute("crontab -l")
     end
