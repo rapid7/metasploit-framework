@@ -24,12 +24,16 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'BSD Execute Command',
-      'Description'   => 'Execute an arbitrary command',
-      'Author'        => 'vlad902',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'bsd',
-      'Arch'          => ARCH_X86))
+      'Name'        => 'BSD Execute Command',
+      'Description' => 'Execute an arbitrary command',
+      'Author'      => [
+        'snagg <snagg[at]openssl.it>',
+        'argp <argp[at]census-labs.com>',
+        'joev'
+      ]
+      'License'     => BSD_LICENSE,
+      'Platform'    => 'bsd',
+      'Arch'        => ARCH_X86))
 
     # Register exec options
     register_options([
