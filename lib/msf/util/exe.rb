@@ -111,6 +111,10 @@ require 'msf/core/exe/segment_appender'
       if plat.index(Msf::Module::Platform::OSX)
         return to_osx_x64_macho(framework, code)
       end
+
+      if plat.index(Msf::Module::Platform::BSD)
+        return to_bsd_x64_elf(framework, code)
+      end
     end
 
     if arch.index(ARCH_ARMLE)
@@ -889,6 +893,11 @@ require 'msf/core/exe/segment_appender'
   # Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
   def self.to_bsd_x86_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x86_bsd.bin", code)
+  end
+
+  # Create a 64-bit Linux ELF containing the payload provided in +code+
+  def self.to_bsd_x64_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_x64_bsd.bin", code)
   end
 
   # Create a 32-bit Solaris ELF containing the payload provided in +code+
@@ -1870,10 +1879,8 @@ require 'msf/core/exe/segment_appender'
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
         when ARCH_X86,nil
-to_linux_x86_elf(framework, code, exeopts)
-        when ARCH_X86_64
-          to_linux_x64_elf(framework, code, exeopts)
-        when ARCH_X64
+          to_linux_x86_elf(framework, code, exeopts)
+        when ARCH_X86_64, ARCH_X64
           to_linux_x64_elf(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf(framework, code, exeopts)
@@ -1886,6 +1893,8 @@ to_linux_x86_elf(framework, code, exeopts)
         case arch
         when ARCH_X86,nil
           Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
+        when ARCH_X86_64, ARCH_X64
+          Msf::Util::EXE.to_bsd_x64_elf(framework, code, exeopts)
         end
       elsif plat && plat.index(Msf::Module::Platform::Solaris)
         case arch
@@ -1896,9 +1905,7 @@ to_linux_x86_elf(framework, code, exeopts)
     when 'elf-so'
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
-        when ARCH_X86_64
-          to_linux_x64_elf_dll(framework, code, exeopts)
-        when ARCH_X64
+        when ARCH_X86_64, ARCH_X64
           to_linux_x64_elf_dll(framework, code, exeopts)
         end
       end
@@ -1906,9 +1913,7 @@ to_linux_x86_elf(framework, code, exeopts)
       macho = case arch
       when ARCH_X86,nil
         to_osx_x86_macho(framework, code, exeopts)
-      when ARCH_X86_64
-        to_osx_x64_macho(framework, code, exeopts)
-      when ARCH_X64
+      when ARCH_X86_64, ARCH_X64
         to_osx_x64_macho(framework, code, exeopts)
       when ARCH_ARMLE
         to_osx_arm_macho(framework, code, exeopts)

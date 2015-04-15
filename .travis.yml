@@ -38,3 +38,6 @@ branches:
   except:
     - gh-pages
     - metakitty
+
+addons:
+  postgresql: '9.3'

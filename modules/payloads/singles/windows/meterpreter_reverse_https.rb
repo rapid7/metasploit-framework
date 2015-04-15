@@ -7,7 +7,6 @@ require 'msf/core'
 require 'msf/core/handler/reverse_https'
 require 'msf/core/handler/reverse_http/stageless'
 require 'msf/core/payload/windows/stageless_meterpreter'
-require 'msf/core/payload/uuid_options'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
 
@@ -38,8 +37,11 @@ module Metasploit4
   def generate
     # generate a stageless payload using the x86 version of
     # the stageless generator
-    generate_stageless(&method(:generate_stageless_x86))
+    opts = {
+      :ssl       => true,
+      :generator => method(:generate_stageless_x86)
+    }
+    generate_stageless(opts)
   end
 
 end
-

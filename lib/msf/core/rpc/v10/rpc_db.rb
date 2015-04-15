@@ -21,7 +21,7 @@ private
   def fix_cred_options(opts)
     new_opts = fix_options(opts)
 
-    # Convert some of are data back to symbols
+    # Convert some of the raw data back to symbols
     if new_opts[:origin_type]
       new_opts[:origin_type] = new_opts[:origin_type].to_sym
     end

@@ -425,7 +425,7 @@ module Auxiliary::Report
       fname = ctype || "local_#{Time.now.utc.to_i}"
     end
 
-    # Split by path seperator
+    # Split by path separator
     fname = ::File.split(fname).last
 
     case ctype # Probably could use more cases

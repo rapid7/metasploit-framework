@@ -99,7 +99,7 @@ class Encoder < Module
     #
     NonAlpha = "non_alpha"
     #
-    # tolower safe ascii - not 'A' - 'Z' (more flexable than nonalpha)
+    # tolower safe ascii - not 'A' - 'Z' (more flexible than nonalpha)
     #
     NonUpper = "non_upper"
     #

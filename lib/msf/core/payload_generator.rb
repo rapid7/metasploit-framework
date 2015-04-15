@@ -23,7 +23,7 @@ module Msf
   class PayloadGenerator
 
     # @!attribute  add_code
-    #   @return [String] The path to a shellcode file to execute in a seperate thread
+    #   @return [String] The path to a shellcode file to execute in a separate thread
     attr_accessor :add_code
     # @!attribute  arch
     #   @return [String] The CPU architecture to build the payload for
@@ -117,10 +117,10 @@ module Msf
     end
 
     # This method takes the shellcode generated so far and adds shellcode from
-    # a supplied file. The added shellcode is executed in a seperate thread
+    # a supplied file. The added shellcode is executed in a separate thread
     # from the main payload.
     # @param shellcode [String] The shellcode to add to
-    # @return [String] the combined shellcode which executes the added code in a seperate thread
+    # @return [String] the combined shellcode which executes the added code in a separate thread
     def add_shellcode(shellcode)
       if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
         cli_print "Adding shellcode from #{add_code} to the payload"
@@ -314,7 +314,7 @@ module Msf
     def get_encoders
       encoders = []
       if encoder.present?
-        # Allow comma seperated list of encoders so users can choose several
+        # Allow comma separated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
           e = framework.encoders.create(chosen_encoder)
           e.datastore.import_options_from_hash(datastore)
