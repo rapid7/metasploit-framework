@@ -35,8 +35,53 @@ RSpec.describe Msf::ModuleSet do
         end
 
         context 'does not return nil' do
+          #
+          # lets
+          #
+
+          let(:a_class) {
+            Class.new
+          }
+
+          let(:b_class) {
+            Class.new
+          }
+
+          let(:c_class) {
+            Class.new
+          }
+
+          #
+          # Callbacks
+          #
+
+          before(:each) do
+            allow(module_set).to receive(:create).with('a').and_return(a_class.new)
+            allow(module_set).to receive(:create).with('b').and_return(b_class.new)
+            allow(module_set).to receive(:create).with('c').and_return(c_class.new)
+          end
+
           context 'with Rank' do
-            it 'is ranked using Rank'
+            before(:each) do
+              stub_const('A', a_class)
+              stub_const('A::Rank', Msf::LowRanking)
+
+              stub_const('B', b_class)
+              stub_const('B::Rank', Msf::AverageRanking)
+
+              stub_const('C', c_class)
+              stub_const('C::Rank', Msf::GoodRanking)
+            end
+
+            it 'is ranked using Rank' do
+              expect(rank_modules).to eq(
+                                          [
+                                              ['c', Msf::SymbolicModule],
+                                              ['b', Msf::SymbolicModule],
+                                              ['a', Msf::SymbolicModule]
+                                          ]
+                                      )
+            end
           end
 
           context 'without Rank' do
