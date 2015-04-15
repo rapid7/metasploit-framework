@@ -21,8 +21,8 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'billbillthebillbill', # He did all the work (see the pastebin code)
-          'sinn3r'               # MSF version of bill's work
+          'Bill Finlayson', # He did all the work (see the pastebin code), twitter: @hectorh56193716
+          'sinn3r'          # MSF version of bill's work
         ],
       'References'     =>
         [
@@ -52,12 +52,18 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check_host(ip)
-    uri = target_uri.path
+    uri = normalize_uri(target_uri.path)
 
     res = send_request_raw({'uri'=>uri})
+
     unless res
       vprint_error("#{ip}:#{rport} - Connection timed out")
       return Exploit::CheckCode::Unknown
+    end
+
+    if res.code == 404
+      print_error("#{ip}:#{rport} - URI must be a valid resource")
+      return
     end
 
     if !res.headers['Server'].include?('Microsoft-IIS')
