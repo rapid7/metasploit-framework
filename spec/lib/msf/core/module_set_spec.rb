@@ -22,9 +22,30 @@ RSpec.describe Msf::ModuleSet do
       end
 
       context 'create' do
+        #
+        # lets
+        #
+
+        let(:b_class) {
+          Class.new
+        }
+
+        let(:c_class) {
+          Class.new
+        }
+
         context 'returns nil' do
           before(:each) do
-            allow(module_set).to receive(:create).and_return(nil)
+            hide_const('A::Rank')
+            allow(module_set).to receive(:create).with('a').and_return(nil)
+
+            stub_const('B', b_class)
+            stub_const('B::Rank', Msf::LowRanking)
+            allow(module_set).to receive(:create).with('b').and_return(b_class.new)
+
+            stub_const('C', c_class)
+            stub_const('C::Rank', Msf::AverageRanking)
+            allow(module_set).to receive(:create).with('c').and_return(c_class.new)
           end
 
           specify {
@@ -32,6 +53,16 @@ RSpec.describe Msf::ModuleSet do
               rank_modules
             }.not_to raise_error
           }
+
+          it 'is ranked as Manual' do
+            expect(rank_modules).to eq(
+                                        [
+                                            ['c', Msf::SymbolicModule],
+                                            ['b', Msf::SymbolicModule],
+                                            ['a', Msf::SymbolicModule]
+                                        ]
+                                    )
+          end
         end
 
         context 'does not return nil' do
@@ -40,14 +71,6 @@ RSpec.describe Msf::ModuleSet do
           #
 
           let(:a_class) {
-            Class.new
-          }
-
-          let(:b_class) {
-            Class.new
-          }
-
-          let(:c_class) {
             Class.new
           }
 
