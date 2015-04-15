@@ -85,7 +85,26 @@ RSpec.describe Msf::ModuleSet do
           end
 
           context 'without Rank' do
-            it 'is ranked as Normal'
+            before(:each) do
+              stub_const('A', a_class)
+              hide_const('A::Rank')
+
+              stub_const('B', b_class)
+              stub_const('B::Rank', Msf::AverageRanking)
+
+              stub_const('C', c_class)
+              stub_const('C::Rank', Msf::GoodRanking)
+            end
+
+            it 'is ranked as Normal' do
+              expect(rank_modules).to eq(
+                                          [
+                                              ['c', Msf::SymbolicModule],
+                                              ['a', Msf::SymbolicModule],
+                                              ['b', Msf::SymbolicModule]
+                                          ]
+                                      )
+            end
           end
         end
       end
