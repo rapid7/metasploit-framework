@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/rapid7/metasploit-concern.git
-  revision: 78ce97c4f41ec42fbb0b0eb45aec4c924c80cd56
+  revision: b4e7265963670a4e57e9550137216935cd3fea50
   branch: staging/rails-4.0
   specs:
     metasploit-concern (1.0.0.pre.rails.pre.4.0)
@@ -10,14 +10,15 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: d1e0401715452433fe3d52b3050be41d77d9c03a
+  revision: a4f8805fbe4c7359a86c31440ee377edf171b498
   branch: staging/rails-4.0
   specs:
-    metasploit-credential (1.14.3.pre.rails.pre.4.0)
+    metasploit-credential (1.14.5.pre.rails.pre.4.0)
       metasploit-concern
       metasploit-model
       metasploit_data_models
       pg
+      protected_attributes
       railties
       rubyntlm
       rubyzip (~> 1.1)
@@ -171,6 +172,8 @@ GEM
       activerecord (>= 4.0.0)
       arel (>= 4.0.1)
       pg_array_parser (~> 0.0.9)
+    protected_attributes (1.0.9)
+      activemodel (>= 4.0.1, < 5.0)
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
