@@ -93,11 +93,6 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    if !res.headers['Server'].include?('Microsoft-IIS')
-      vprint_error("#{ip}:#{rport} - Target isn't IIS")
-      return Exploit::CheckCode::Safe
-    end
-
     res = send_request_raw({
       'uri' => uri,
       'method' => 'GET',
