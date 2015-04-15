@@ -340,7 +340,11 @@ class Msf::ModuleSet < Hash
       # TODO don't create an instance just to get the Class.
       created_metasploit_module_instance = create(reference_name)
 
-      module_rank(reference_name, created_metasploit_module_instance.class)
+      if created_metasploit_module_instance.nil?
+        module_rank(reference_name, nil)
+      else
+        module_rank(reference_name, created_metasploit_module_instance.class)
+      end
     elsif metasploit_module_class.const_defined? :Rank
       metasploit_module_class.const_get :Rank
     else
