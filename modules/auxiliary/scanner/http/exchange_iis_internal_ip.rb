@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
           'method'   => 'GET',
           'vhost'  =>  ''
         }, timeout = datastore['TIMEOUT'])
-      
+
       rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
         print_error("#{msg} HTTP Connection Failed")
         next
