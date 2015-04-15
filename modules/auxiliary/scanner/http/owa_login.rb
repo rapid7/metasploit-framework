@@ -27,7 +27,8 @@ class Metasploit3 < Msf::Auxiliary
           'SecureState R&D Team',
           'sinn3r',
           'Brandon Knight',
-          'Pete (Bokojan) Arzamendi, #Outlook 2013 updates'
+          'Pete (Bokojan) Arzamendi - Outlook 2013 updates',
+          'Nate Power - HTTP timing option'
         ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
@@ -81,6 +82,7 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('RPORT', [ true, "The target port", 443]),
         OptAddress.new('RHOST', [ true, "The target address", true]),
         OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
+        OptBool.new('AUTH_TIME', [ false, "Time HTTP authentication response(in seconds)", true]),
       ], self.class)
 
 
@@ -163,6 +165,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     begin
+      start_time = Time.now
       res = send_request_cgi({
         'encode'   => true,
         'uri'      => auth_path,
@@ -170,6 +173,10 @@ class Metasploit3 < Msf::Auxiliary
         'headers'  => headers,
         'data'     => data
       })
+
+      if (datastore['AUTH_TIME'].to_s.match(/^(t|y|1)/i))
+        elapsed_time = Time.now - start_time
+      end
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")
@@ -186,10 +193,10 @@ class Metasploit3 < Msf::Auxiliary
         return :abort
     end
     if action.name == "OWA_2013"
-      # Check for a response code to make sure login was valid. Changes from 2010 to 2013.
-      # Check if the password needs to be changed.
+      #Check for a response code to make sure login was valid. Changes from 2010 to 2013.
+      #Check if the password needs to be changed.
       if res.headers['location'] =~ /expiredpassword/
-        print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}': NOTE password change required")
+        print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}': NOTE password change required")
         report_hash = {
           :host   => datastore['RHOST'],
           :port   => datastore['RPORT'],
@@ -203,7 +210,7 @@ class Metasploit3 < Msf::Auxiliary
         return :next_user
       end
 
-      # No password change required moving on.
+      #No password change required moving on.
       unless location = res.headers['location']
         print_error("#{msg} No HTTP redirect.  This is not OWA 2013, aborting.")
         return :abort
@@ -212,8 +219,8 @@ class Metasploit3 < Msf::Auxiliary
       if reason == nil
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
-      # Login didn't work. no point on going on.
-        vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
+      #Login didn't work. no point on going on.
+        vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
         return :Skip_pass
       end
     else
@@ -248,12 +255,12 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if res.redirect?
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
+      vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
       return :skip_pass
     end
 
     if res.body =~ login_check
-      print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+      print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}'")
 
       report_hash = {
         :host   => datastore['RHOST'],
@@ -267,7 +274,7 @@ class Metasploit3 < Msf::Auxiliary
       report_auth_info(report_hash)
       return :next_user
     else
-      vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}' (response body did not match)")
+      vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (response body did not match)")
       return :skip_pass
     end
   end
