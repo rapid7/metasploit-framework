@@ -16,7 +16,8 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module will check if your hosts are vulnerable to CVE-2015-1635 (MS15-034). A
         vulnerability in the HTTP Protocol stack (HTTP.sys) that could result in arbitrary code
-        execution.
+        execution. Please note this module could potentially cause a denail-of-service against
+        the servers you're testing.
       },
       'Author'         =>
         [
