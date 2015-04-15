@@ -11,8 +11,8 @@ class Metasploit3 < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::System
 
-  def initialize(info={})
-    super( update_info( info,
+  def initialize(info = {})
+    super(update_info(info,
         'Name'          => 'Linux Gather System and User Information',
         'Description'   => %q{
           This module gathers system information. We collect
@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Post
         'Platform'      => ['linux'],
         'SessionTypes'  => ['shell', 'meterpreter']
       ))
-
   end
 
   def run
@@ -60,7 +59,7 @@ class Metasploit3 < Msf::Post
     mount = execute("/bin/mount -l")
     crons = get_crons(users, user)
     diskspace = execute("/bin/df -ahT")
-    disks = (mount + "\n\/" + diskspace)
+    disks = (mount + "\n\n" + diskspace)
     logfiles = execute("find /var/log -type f -perm -4 2> /dev/null")
     uidgid = execute("find / -xdev -type f -perm +6000 -perm -1 2> /dev/null")
 
@@ -74,11 +73,10 @@ class Metasploit3 < Msf::Post
     save("Setuid/setgid files", uidgid)
   end
 
-
-  def save(msg, data, ctype="text/plain")
+  def save(msg, data, ctype = 'text/plain')
     ltype = "linux.enum.system"
     loot = store_loot(ltype, ctype, session, data, nil, msg)
-    print_status("#{msg} stored in #{loot.to_s}")
+    print_status("#{msg} stored in #{loot}")
   end
 
   def get_host
@@ -148,8 +146,8 @@ class Metasploit3 < Msf::Post
   end
 
   def get_crons(users, user)
-    if user == "root" && users != nil
-      users = users.chomp.split()
+    if user == "root" && !users.nil?
+      users = users.chomp.split
       users.each do |u|
         if u == "root"
           vprint_status("Enumerating as root")
@@ -164,10 +162,9 @@ class Metasploit3 < Msf::Post
       vprint_status("Enumerating as #{user}")
       cron_data = "***** Listing cron jobs for #{user} *****\n\n"
       cron_data += execute("crontab -l")
+
+      # Save cron data to loot
+      return cron_data
     end
-
-    # Save cron data to loot
-    return cron_data
   end
-
 end
