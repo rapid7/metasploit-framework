@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'MS15-034 HTTP Protocol Stack Handling Vulnerability',
+      'Name'           => 'MS15-034 HTTP Protocol Stack Request Handling Vulnerability',
       'Description'    => %q{
         This module will check if your hosts are vulnerable to CVE-2015-1635 (MS15-034). A
         vulnerability in the HTTP Protocol stack (HTTP.sys) that could result in arbitrary code
