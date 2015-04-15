@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.code == 404
       vprint_error("#{ip}:#{rport} - You got a 404. URI must be a valid resource.")
-      return
+      return Exploit::CheckCode::Unknown
     end
 
     res = send_request_raw({
