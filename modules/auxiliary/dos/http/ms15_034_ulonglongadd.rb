@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module will check if your hosts are vulnerable to CVE-2015-1635 (MS15-034). A
         vulnerability in the HTTP Protocol stack (HTTP.sys) that could result in arbitrary code
-        execution. This module will try to cause a denail-of-service.
+        execution. This module will try to cause a denial-of-service.
 
         Please note that you must supply a valid file resource for the TARGETURI option.
         By default, IIS may come with these settings that you could try: iisstart.htm,
