@@ -4,9 +4,10 @@ require 'msf/core'
 ###
 # Contains common x86 BSD code
 ###
-module Msf::Payload::Bsd::X86
+module Msf::Payload::Bsd
+module X86
 
-  def exec_payload
+  def bsd_x86_exec_payload
     cmd_str   = datastore['CMD'] || ''
     # Split the cmd string into arg chunks
     cmd_parts = Shellwords.shellsplit(cmd_str)
@@ -125,4 +126,5 @@ module Msf::Payload::Bsd::X86
     end
   end
 
+end
 end

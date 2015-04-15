@@ -5,7 +5,6 @@
 
 
 require 'msf/core'
-require 'msf/core/payload/bsd/x86'
 
 
 ###
@@ -21,7 +20,7 @@ module Metasploit3
   CachedSize = 16
 
   include Msf::Payload::Single
-  include Msf::Payload::Bsd::X86
+  include Msf::Payload::Bsd
 
   def initialize(info = {})
     super(merge_info(info,

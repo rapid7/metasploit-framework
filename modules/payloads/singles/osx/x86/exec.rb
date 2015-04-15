@@ -5,7 +5,6 @@
 
 
 require 'msf/core'
-require 'msf/core/payload/bsd/x86'
 
 ###
 #
