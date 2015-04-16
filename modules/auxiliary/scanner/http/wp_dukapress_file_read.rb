@@ -56,9 +56,7 @@ class Metasploit3 < Msf::Auxiliary
         }
     })
 
-    if res &&
-        res.code == 200 &&
-        res.body.length > 0
+    if res && res.code == 200 && res.body.length > 0
 
       print_status('Downloading file...')
       print_line("\n#{res.body}")
