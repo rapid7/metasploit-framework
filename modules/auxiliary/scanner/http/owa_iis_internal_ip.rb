@@ -110,4 +110,3 @@ class Metasploit3 < Msf::Auxiliary
     "#{rhost}:#{rport} -"
   end
 end
-
