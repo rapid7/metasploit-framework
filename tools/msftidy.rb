@@ -546,9 +546,7 @@ class Msftidy
       end
 
       if ln =~ /^\s*fail_with\(/
-        if ln =~ /^\s*fail_with\(['"].+['"]\)/
-          error("fail_with requires a Failure:: reason as first parameter: #{ln}", idx)
-        elsif ln !~ /^\s*fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),.+\)/
+        unless ln =~ /^\s*fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
           error("fail_with requires a valid Failure:: reason as first parameter: #{ln}", idx)
         end
       end
