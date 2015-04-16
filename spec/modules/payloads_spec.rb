@@ -286,16 +286,6 @@ describe 'modules/payloads', :content do
                           reference_name: 'bsd/x64/exec'
   end
 
-  context 'bsd/x64/shell_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/bsd/x64/shell_reverse_tcp'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'bsd/x64/shell_reverse_tcp'
-  end
-
   context 'bsd/x64/shell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -304,6 +294,16 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/x64/shell_bind_tcp'
+  end
+
+  context 'bsd/x64/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/bsd/x64/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'bsd/x64/shell_reverse_tcp'
   end
 
   context 'bsdi/x86/shell/bind_tcp' do
