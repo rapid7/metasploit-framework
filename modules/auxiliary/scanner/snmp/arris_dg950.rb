@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       print_line("Password: #{password}")
       wifi_info << "Password: #{password}" << "\n"
     else
-      fail_with("Does not appear to be an Arris DG950A")
+      fail_with(Failure::NoTarget, "Does not appear to be an Arris DG950A")
     end
 
     # check WPA Encryption Algorithm
