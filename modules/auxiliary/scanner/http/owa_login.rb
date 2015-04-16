@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('RPORT', [ true, "The target port", 443]),
         OptAddress.new('RHOST', [ true, "The target address", true]),
         OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
-        OptBool.new('AUTH_TIME', [ false, "Time HTTP authentication response(in seconds)", true]),
+        OptBool.new('AUTH_TIME', [ false, "Check HTTP authentication response time", true])
       ], self.class)
 
 
@@ -165,7 +165,9 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     begin
-      start_time = Time.now
+      if datastore['AUTH_TIME']
+        start_time = Time.now
+      end
 
       res = send_request_cgi({
         'encode'   => true,
@@ -175,7 +177,7 @@ class Metasploit3 < Msf::Auxiliary
         'data'     => data
       })
 
-      if (datastore['AUTH_TIME'].to_s.match(/^(t|y|1)/i))
+      if datastore['AUTH_TIME']
         elapsed_time = Time.now - start_time
       end
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
