@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Post
 
     if setpass
       print_status("Setting user password")
-      fail_with(Exploit::Failure::Unknown, 'Error resetting password') unless reset_pass(user, password)
+      fail_with(Failure::Unknown, 'Error resetting password') unless reset_pass(user, password)
     end
 
     system_temp = get_env('WINDIR') << '\\Temp'

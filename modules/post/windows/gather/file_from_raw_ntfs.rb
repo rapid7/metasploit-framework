@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
       )
     else
       fail_with(
-        Exploit::Failure::Unknown,
+        Failure::Unknown,
         "Unknown error locating #{file_path}. Windows Error Code: #{r['GetLastError']} - #{r['ErrorMessage']}"
       )
     end
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
 
     if r['GetLastError'] != ERROR::SUCCESS
       fail_with(
-        Exploit::Failure::Unknown,
+        Failure::Unknown,
         "Error opening #{drive}. Windows Error Code: #{r['GetLastError']} - #{r['ErrorMessage']}")
     end
 

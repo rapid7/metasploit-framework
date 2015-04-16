@@ -51,14 +51,14 @@ class Metasploit3 < Msf::Post
 
     # Identify available native SQL client
     get_sql_client
-    fail_with(Exploit::Failure::Unknown, 'Unable to identify a SQL client') unless @sql_client
+    fail_with(Failure::Unknown, 'Unable to identify a SQL client') unless @sql_client
 
     # Get LocalSystem privileges
     system_status = get_system
-    fail_with(Exploit::Failure::Unknown, 'Unable to get SYSTEM') unless system_status
+    fail_with(Failure::Unknown, 'Unable to get SYSTEM') unless system_status
     begin
       service = check_for_sqlserver(instance)
-      fail_with(Exploit::Failure::Unknown, 'Unable to identify MSSQL Service') unless service
+      fail_with(Failure::Unknown, 'Unable to identify MSSQL Service') unless service
 
       print_status("Identified service '#{service[:display]}', PID: #{service[:pid]}")
       instance_name = service[:display].gsub('SQL Server (','').gsub(')','').lstrip.rstrip
