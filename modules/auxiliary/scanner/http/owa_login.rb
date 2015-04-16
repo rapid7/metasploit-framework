@@ -166,6 +166,7 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       start_time = Time.now
+
       res = send_request_cgi({
         'encode'   => true,
         'uri'      => auth_path,
@@ -177,7 +178,6 @@ class Metasploit3 < Msf::Auxiliary
       if (datastore['AUTH_TIME'].to_s.match(/^(t|y|1)/i))
         elapsed_time = Time.now - start_time
       end
-
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")
       return :abort
@@ -325,4 +325,3 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 end
-
