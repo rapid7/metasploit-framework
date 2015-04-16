@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('FILEPATH', [true, "The path to the file to read", "/etc/passwd"]),
-        OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 6 ])
+        OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 7 ])
       ], self.class)
   end
 
