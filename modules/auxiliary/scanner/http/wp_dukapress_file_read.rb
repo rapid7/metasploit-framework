@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
       fname = datastore['FILEPATH']
 
       path = store_loot(
-        'mobileedition.traversal',
+        'dukapress.file',
         'text/plain',
         ip,
         res.body,
