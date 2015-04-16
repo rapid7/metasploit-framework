@@ -64,11 +64,11 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res.nil?
-      fail_with("Server didn't respond in an expected way")
+      fail_with(Failure::UnexpectedReply, "Server didn't respond in an expected way")
     end
 
     if res.code == 200
-      fail_with("Authentication failed with username #{username}")
+      fail_with(Failure::NoAccess, "Authentication failed with username #{username}")
     end
 
     return cookie + ';' + res.get_cookies
@@ -97,4 +97,3 @@ class Metasploit3 < Msf::Auxiliary
     print_good("The injection worked, log in with #{username} and a blank password")
   end
 end
-
