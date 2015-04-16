@@ -8,7 +8,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::HttpClient
   include Msf::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
 
@@ -42,6 +41,9 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def check
+    check_plugin_from_readme('dukapress', '2.5.7')
+  end
   def run_host(ip)
     traversal = "../" * datastore['DEPTH']
     filename = datastore['FILEPATH']
