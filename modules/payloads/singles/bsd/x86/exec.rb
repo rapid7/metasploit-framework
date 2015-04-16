@@ -30,10 +30,11 @@ module Metasploit3
         'snagg <snagg[at]openssl.it>',
         'argp <argp[at]census-labs.com>',
         'joev'
-      ]
+      ],
       'License'     => BSD_LICENSE,
       'Platform'    => 'bsd',
-      'Arch'        => ARCH_X86))
+      'Arch'        => ARCH_X86
+    ))
 
     # Register exec options
     register_options([
