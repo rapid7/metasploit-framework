@@ -586,6 +586,8 @@ class Client
         begin
 
           buff = conn.get_once(-1, 1)
+          return resp if buff.nil? or buff.empty?
+
           rv   = resp.parse( buff || '' )
 
         # Handle unexpected disconnects
