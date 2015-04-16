@@ -14,17 +14,16 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'CouchDB Enum Utility',
       'Description'    => %q{
-        This module enumerates databases and your values on CouchDB
-        (without authentication by default). It uses the REST API
-        in order to make it.
+        This module enumerates databases on CouchDB using the REST API
+        (without authentication by default).
       },
-      'References'    =>
+      'References'     =>
         [
           ['URL', 'https://wiki.apache.org/couchdb/HTTP_database_API']
         ],
       'Author'         => [ 'Roberto Soares Espreto <robertoespreto[at]gmail.com>' ],
       'License'        => MSF_LICENSE
-      ))
+    ))
 
     register_options(
       [
@@ -40,11 +39,11 @@ class Metasploit3 < Msf::Auxiliary
     password = datastore['PASSWORD']
 
     begin
-      res = send_request_cgi({
+      res = send_request_cgi(
         'uri'           => normalize_uri(target_uri.path),
         'method'        => 'GET',
         'authorization' => basic_auth(username, password)
-      })
+      )
 
       temp = JSON.parse(res.body)
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
@@ -52,8 +51,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    if res.code == 200 && res.headers['Server'] =~ /CouchDB/
-
+    if res.code == 200 && res.headers['Server'].include?('CouchDB')
       print_status('Enumerating...')
       results = JSON.pretty_generate(temp)
       print_good("Found:\n\n#{results}\n")
