@@ -17,12 +17,11 @@ module Metasploit
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil
 
-        # The number of retries
+        # The number of retries per community string
         # @return [Fixnum]
         attr_accessor :retries
 
-        # The SNMAP version to scan
-        #
+        # The SNMP version to scan
         # @return [String]
         attr_accessor :version
 
@@ -35,15 +34,20 @@ module Metasploit
 
         validates :version,
                   presence: true,
-                  inclusion: { in: ['1', '2c', 'all'] }
+                  inclusion: {
+                    in: ['1', '2c', 'all']
+                  }
 
-        # This method returns an array of versions to scan
+        # This method returns an array of versions to scan for
         # @return [Array] An array of versions
         def versions
           case version
-          when '1'; [:SNMPv1]
-          when '2c'; [:SNMPv2c]
-          when 'all'; [:SNMPv1,:SNMPv2c]
+          when '1'
+            [:SNMPv1]
+          when '2c'
+            [:SNMPv2c]
+          when 'all'
+            [:SNMPv1, :SNMPv2c]
           end
         end
 
