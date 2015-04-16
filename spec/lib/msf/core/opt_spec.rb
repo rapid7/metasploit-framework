@@ -1,3 +1,4 @@
+require 'msf/core/opt'
 
 describe Msf::Opt do
   subject(:opt) { described_class }
