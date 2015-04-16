@@ -22,14 +22,14 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['EDB', '00000'],
-          ['CVE', '2000-0001'],
-          ['WPVDB', '0000'],
-          ['OSVDB', '000000']
+          ['EDB', '35346'],
+          ['CVE', '2014-8799'],
+          ['WPVDB', '7731'],
+          ['OSVDB', '115130']
         ],
       'Author'         =>
         [
-          'TO DO', # Vulnerability discovery
+          'Kacper Szurek', # Vulnerability discovery
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit module
         ],
       'License'        => MSF_LICENSE
