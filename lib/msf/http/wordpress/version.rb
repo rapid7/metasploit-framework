@@ -107,18 +107,15 @@ module Msf::HTTP::Wordpress::Version
       fail("Unknown readme type #{type}")
     end
 
-    readme_url = normalize_uri(target_uri.path, wp_content_dir, folder, name, 'readme.txt')
-    res = send_request_cgi(
-      'uri'    => readme_url,
-      'method' => 'GET'
-    )
-    
-    if res.nil? || res.code != 200
-      readme_url = normalize_uri(target_uri.path, wp_content_dir, folder, name, 'Readme.txt')
+    readmes = ['readme.txt', 'Readme.txt', 'README.txt']
+
+    readmes.each do |r|
+      readme_url = normalize_uri(target_uri.path, wp_content_dir, folder, name, 'readme.txt')
       res = send_request_cgi(
         'uri'    => readme_url,
         'method' => 'GET'
       )
+      break if res && res.code == 200
     end
 
     if res.nil? || res.code != 200
