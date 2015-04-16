@@ -38,7 +38,7 @@ module Metasploit
                     in: ['1', '2c', 'all']
                   }
 
-        # This method returns an array of versions to scan for
+        # This method returns an array of versions to scan
         # @return [Array] An array of versions
         def versions
           case version
