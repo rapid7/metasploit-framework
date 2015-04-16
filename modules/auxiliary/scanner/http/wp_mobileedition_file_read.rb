@@ -8,7 +8,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::HttpClient
   include Msf::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
 
@@ -38,6 +37,10 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('FILEPATH', [true, "The path to the file to read", "/etc/passwd"]),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 6 ])
       ], self.class)
+  end
+
+  def check
+    check_plugin_version_from_readme('wp-mobile-edition', '2.3')
   end
 
   def run_host(ip)
