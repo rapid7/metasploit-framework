@@ -586,7 +586,7 @@ class Client
         begin
 
           buff = conn.get_once(-1, 1)
-          return resp if buff.nil? or buff.empty?
+          return resp if buff.to_s.length == 0
 
           rv   = resp.parse( buff || '' )
 
