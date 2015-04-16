@@ -1,7 +1,21 @@
 # -*- coding: binary -*-
 
 module Msf
-  require 'msf/core/opt_base'
+
+  autoload :Opt, 'msf/core/opt'
+
+  autoload :OptBase, 'msf/core/opt_base'
+
+  autoload :OptAddress, 'msf/core/opt_address'
+  autoload :OptAddressRange, 'msf/core/opt_address_range'
+  autoload :OptBool, 'msf/core/opt_bool'
+  autoload :OptEnum, 'msf/core/opt_enum'
+  autoload :OptInt, 'msf/core/opt_int'
+  autoload :OptPath, 'msf/core/opt_path'
+  autoload :OptPort, 'msf/core/opt_port'
+  autoload :OptRaw, 'msf/core/opt_raw'
+  autoload :OptRegexp, 'msf/core/opt_regexp'
+  autoload :OptString, 'msf/core/opt_string'
 
   #
   # The options purpose in life is to associate named options with arbitrary
