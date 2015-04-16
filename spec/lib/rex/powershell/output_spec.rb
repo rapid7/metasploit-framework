@@ -1,16 +1,16 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/exploitation/powershell'
+require 'rex/powershell'
 
-describe Rex::Exploitation::Powershell::Output do
+describe Rex::Powershell::Output do
 
   let(:example_script) do
     Rex::Text.rand_text_alpha(400)
   end
 
   let(:subject) do
-    Rex::Exploitation::Powershell::Script.new(example_script)
+    Rex::Powershell::Script.new(example_script)
   end
 
   let(:eof) do

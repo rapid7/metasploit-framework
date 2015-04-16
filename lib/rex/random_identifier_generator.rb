@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/text'
+
 # A quick way to produce unique random strings that follow the rules of
 # identifiers, i.e., begin with a letter and contain only alphanumeric
 # characters and underscore.

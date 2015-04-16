@@ -1,22 +1,12 @@
 # -*- coding:binary -*-
 require 'spec_helper'
-
 require 'msf/core'
-require 'msf/core/exploit/powershell'
 
 def decompress(code)
   Rex::Powershell::Script.new(code).decompress_code
 end
 
-describe Msf::Exploit::Powershell do
-  subject do
-    mod = Msf::Exploit.allocate
-    mod.extend described_class
-    mod.send(:initialize, {})
-    mod.datastore['Verbose'] = true
-    mod
-  end
-
+describe Rex::Powershell::Command do
   let(:example_script) do
     File.join(Msf::Config.data_directory, "exploits", "powershell", "powerdump.ps1")
   end
@@ -38,7 +28,7 @@ describe Msf::Exploit::Powershell do
   end
 
   describe "::compress_script" do
-    context 'when default datastore is set' do
+    context 'with default options' do
       it 'should create a compressed script' do
         script = File.read(example_script)
         compressed = subject.compress_script(script)
@@ -54,98 +44,64 @@ describe Msf::Exploit::Powershell do
     end
 
     context 'when strip_comments is true' do
-      before do
-        subject.datastore['Powershell::strip_comments'] = true
-        subject.options.validate(subject.datastore)
-      end
       it 'should strip comments' do
         script = File.read(example_script)
-        compressed = subject.compress_script(script)
+        compressed = subject.compress_script(script, nil, strip_comments: true)
         compressed.length.should be < script.length
       end
     end
     context 'when strip_comment is false' do
-      before do
-        subject.datastore['Powershell::strip_comments'] = false
-        subject.options.validate(subject.datastore)
-      end
       it 'shouldnt strip comments' do
         script = File.read(example_script)
-        compressed = subject.compress_script(script)
+        compressed = subject.compress_script(script, nil, strip_comments: false)
         compressed.length.should be < script.length
       end
     end
 
     context 'when strip_whitespace is true' do
-      before do
-        subject.datastore['Powershell::strip_comments'] = false
-        subject.datastore['Powershell::strip_whitespace'] = true
-        subject.options.validate(subject.datastore)
-      end
       it 'should strip whitespace' do
         script = File.read(example_script)
-        compressed = subject.compress_script(script)
+        compressed = subject.compress_script(script, nil, strip_comments: false, strip_whitespace: true)
         decompress(compressed).length.should be < script.length
       end
     end
 
     context 'when strip_whitespace is false' do
-      before do
-        subject.datastore['Powershell::strip_comments'] = false
-        subject.datastore['Powershell::strip_whitespace'] = false
-        subject.options.validate(subject.datastore)
-      end
       it 'shouldnt strip whitespace' do
         script = File.read(example_script)
-        compressed = subject.compress_script(script)
+        compressed = subject.compress_script(script, nil, strip_comments: false, strip_whitespace: false)
         expect(decompress(compressed).length).to eq(script.length)
       end
     end
 
     context 'when sub_vars is true' do
-      before do
-        subject.datastore['Powershell::sub_vars'] = true
-        subject.options.validate(subject.datastore)
-      end
       it 'should substitute variables' do
         script = File.read(example_script)
-        compressed = subject.compress_script(script)
+        compressed = subject.compress_script(script, nil, sub_vars: true)
         decompress(compressed).include?('$hashes').should be_falsey
       end
     end
 
     context 'when sub_vars is false' do
-      before do
-        subject.datastore['Powershell::sub_vars'] = false
-        subject.options.validate(subject.datastore)
-      end
       it 'shouldnt substitute variables' do
         script = File.read(example_script)
-        compressed = subject.compress_script(script)
+        compressed = subject.compress_script(script, nil, sub_vars: false)
         decompress(compressed).include?('$hashes').should be_truthy
       end
     end
 
     context 'when sub_funcs is true' do
-      before do
-        subject.datastore['Powershell::sub_funcs'] = true
-        subject.options.validate(subject.datastore)
-      end
       it 'should substitute functions' do
         script = File.read(example_script)
-        compressed = subject.compress_script(script)
+        compressed = subject.compress_script(script, nil, sub_funcs: true)
         decompress(compressed).include?('DumpHashes').should be_falsey
       end
     end
 
     context 'when sub_funcs is false' do
-      before do
-        subject.datastore['Powershell::sub_funcs'] = false
-        subject.options.validate(subject.datastore)
-      end
       it 'shouldnt substitute variables' do
         script = File.read(example_script)
-        compressed = subject.compress_script(script)
+        compressed = subject.compress_script(script, nil, sub_funcs: false)
         decompress(compressed).include?('DumpHashes').should be_truthy
       end
     end
@@ -185,23 +141,29 @@ describe Msf::Exploit::Powershell do
     end
 
     context 'when old' do
-      before do
-        subject.datastore['Powershell::method'] = 'old'
-        subject.options.validate(subject.datastore)
-      end
       it 'should generate a code including unshorted args' do
-        code = subject.run_hidden_psh(payload, arch, encoded)
+        code = subject.run_hidden_psh(payload, arch, encoded, method: 'old')
         code.include?('-NoProfile -WindowStyle hidden -NoExit -Command ').should be_truthy
       end
     end
   end
 
   describe "::cmd_psh_payload" do
+    let(:template_path) do
+      File.join(Msf::Config.data_directory,
+                "templates",
+                "scripts")
+    end
+
+    let(:psh_method) do
+      'reflection'
+    end
+
     context 'when payload is huge' do
       it 'should raise an exception' do
         except = false
         begin
-          code = subject.cmd_psh_payload(Rex::Text.rand_text_alpha(12000), arch)
+          code = subject.cmd_psh_payload(Rex::Text.rand_text_alpha(12000), arch, template_path, method: psh_method)
         rescue RuntimeError => e
           except = true
         end
@@ -211,110 +173,74 @@ describe Msf::Exploit::Powershell do
     end
 
     context 'when persist is true' do
-      before do
-        subject.datastore['Powershell::persist'] = true
-        subject.options.validate(subject.datastore)
-      end
       it 'should add a persistance loop' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, persist: true, method: psh_method)
         decompress(code).include?('while(1){Start-Sleep -s ').should be_truthy
       end
     end
 
     context 'when persist is false' do
-      before do
-        subject.datastore['Powershell::persist'] = false
-        subject.options.validate(subject.datastore)
-      end
       it 'shouldnt add a persistance loop' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, persist: false, method: psh_method)
         decompress(code).include?('while(1){Start-Sleep -s ').should be_falsey
       end
     end
 
     context 'when prepend_sleep is set' do
-      before do
-        subject.datastore['Powershell::prepend_sleep'] = 5
-        subject.options.validate(subject.datastore)
-      end
       it 'should prepend sleep' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, prepend_sleep: 5, method: psh_method)
         decompress(code).include?('Start-Sleep -s ').should be_truthy
       end
     end
 
     context 'when prepend_sleep isnt set' do
-      before do
-        subject.datastore['Powershell::prepend_sleep'] = nil
-        subject.options.validate(subject.datastore)
-      end
       it 'shouldnt prepend sleep' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, method: psh_method)
         decompress(code).include?('Start-Sleep -s ').should be_falsey
       end
     end
 
     context 'when prepend_sleep is 0' do
-      before do
-        subject.datastore['Powershell::prepend_sleep'] = 0
-        subject.options.validate(subject.datastore)
-      end
       it 'shouldnt prepend sleep' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, prepend_sleep: 0, method: psh_method)
         decompress(code).include?('Start-Sleep -s ').should be_falsey
       end
     end
 
     context 'when method is old' do
-      before do
-        subject.datastore['Powershell::method'] = 'old'
-        subject.options.validate(subject.datastore)
-      end
       it 'should generate a command line' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, method: 'old')
         decompress(code).include?('-namespace Win32Functions').should be_truthy
       end
       it 'shouldnt shorten args' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, method: 'old')
         code.include?('-NoProfile -WindowStyle hidden -Command').should be_truthy
       end
       it 'should include -NoExit' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, method: 'old')
         code.include?('-NoProfile -WindowStyle hidden -NoExit -Command').should be_truthy
       end
     end
 
     context 'when method is net' do
-      before do
-        subject.datastore['Powershell::method'] = 'net'
-        subject.options.validate(subject.datastore)
-      end
       it 'should generate a command line' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, method: 'net')
         decompress(code).include?('System.Runtime.InteropServices;').should be_truthy
       end
     end
 
     context 'when method is reflection' do
-      before do
-        subject.datastore['Powershell::method'] = 'reflection'
-        subject.options.validate(subject.datastore)
-      end
       it 'should generate a command line' do
-        code = subject.cmd_psh_payload(payload, arch)
+        code = subject.cmd_psh_payload(payload, arch, template_path, method: 'reflection')
         decompress(code).include?('GlobalAssemblyCache').should be_truthy
       end
     end
 
     context 'when method is msil' do
-      before do
-        subject.datastore['Powershell::method'] = 'msil'
-        subject.options.validate(subject.datastore)
-      end
       it 'should raise an exception' do
         except = false
         begin
-          subject.cmd_psh_payload(payload, arch)
+          subject.cmd_psh_payload(payload, arch, template_path, method: 'msil')
         rescue RuntimeError
           except = true
         end
@@ -323,27 +249,20 @@ describe Msf::Exploit::Powershell do
     end
 
     context 'when method is unknown' do
-      before do
-        subject.datastore['Powershell::method'] = 'blah'
-      end
       it 'should raise an exception' do
         except = false
         begin
-          subject.cmd_psh_payload(payload, arch)
+          subject.cmd_psh_payload(payload, arch, template_path, method: 'blah')
         rescue RuntimeError
           except = true
         end
         except.should be_truthy
       end
-      after do
-        subject.datastore['Powershell::method'] = 'reflection'
-        subject.options.validate(subject.datastore)
-      end
     end
 
     context 'when encode_inner_payload' do
       it 'should contain an inner payload with -e' do
-          code = subject.cmd_psh_payload(payload, arch, {:encode_inner_payload => true})
+          code = subject.cmd_psh_payload(payload, arch, template_path, encode_inner_payload: true, method: psh_method)
           code.include?(' -e ').should be_truthy
       end
 
@@ -351,7 +270,7 @@ describe Msf::Exploit::Powershell do
         it 'should raise an exception' do
           except = false
           begin
-            code = subject.cmd_psh_payload(payload, arch, {:encode_inner_payload => true, :no_equals => true})
+            code = subject.cmd_psh_payload(payload, arch, template_path, encode_inner_payload: true, no_equals: true, method: psh_method)
           rescue RuntimeError
             except = true
           end
@@ -363,14 +282,14 @@ describe Msf::Exploit::Powershell do
     context 'when encode_final_payload' do
       context 'when no_equals is false' do
         it 'should contain a final payload with -e' do
-          code = subject.cmd_psh_payload(payload, arch, {:encode_final_payload => true, :no_equals => false})
+          code = subject.cmd_psh_payload(payload, arch, template_path, encode_final_payload: true, no_equals: false, method: psh_method)
           code.include?(' -e ').should be_truthy
           code.include?(' -c ').should be_falsey
         end
       end
       context 'when no_equals is true' do
         it 'should contain a final payload with -e' do
-          code = subject.cmd_psh_payload(payload, arch, {:encode_final_payload => true, :no_equals => true})
+          code = subject.cmd_psh_payload(payload, arch, template_path, encode_final_payload: true, no_equals: true, method: psh_method)
           code.include?(' -e ').should be_truthy
           code.include?(' -c ').should be_falsey
           code.include?('=').should be_falsey
@@ -380,7 +299,7 @@ describe Msf::Exploit::Powershell do
         it 'should raise an exception' do
           except = false
           begin
-            subject.cmd_psh_payload(payload, arch, {:encode_final_payload => true, :encode_inner_payload => true})
+            subject.cmd_psh_payload(payload, arch, template_path, encode_final_payload: true, encode_inner_payload: true, method: psh_method)
           rescue RuntimeError
             except = true
           end
@@ -391,14 +310,14 @@ describe Msf::Exploit::Powershell do
 
     context 'when remove_comspec' do
       it 'shouldnt contain %COMSPEC%' do
-        code = subject.cmd_psh_payload(payload, arch, {:remove_comspec => true})
+        code = subject.cmd_psh_payload(payload, arch, template_path, remove_comspec: true, method: psh_method)
         code.include?('%COMSPEC%').should be_falsey
       end
     end
 
     context 'when use single quotes' do
       it 'should wrap in single quotes' do
-        code = subject.cmd_psh_payload(payload, arch, {:use_single_quotes => true})
+        code = subject.cmd_psh_payload(payload, arch, template_path, use_single_quotes: true, method: psh_method)
         code.include?(' -c \'').should be_truthy
       end
     end
