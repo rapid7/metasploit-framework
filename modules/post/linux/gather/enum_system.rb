@@ -13,24 +13,24 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-        'Name'          => 'Linux Gather System and User Information',
-        'Description'   => %q{
-          This module gathers system information. We collect
-          installed packages, installed services, mount information,
-          user list, user bash history and cron jobs
-        },
-        'License'       => MSF_LICENSE,
-        'Author'        =>
-          [
-            'Carlos Perez <carlos_perez[at]darkoperator.com>', # get_packages and get_services
-            'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
-            'sinn3r', # Testing and modification of original enum_linux
-            'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
-            'Roberto Espreto <robertoespreto[at]gmail.com>', # log files and setuid/setgid
-          ],
-        'Platform'      => ['linux'],
-        'SessionTypes'  => ['shell', 'meterpreter']
-      ))
+      'Name'          => 'Linux Gather System and User Information',
+      'Description'   => %q{
+        This module gathers system information. We collect
+        installed packages, installed services, mount information,
+        user list, user bash history and cron jobs
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        =>
+        [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>', # get_packages and get_services
+          'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
+          'sinn3r', # Testing and modification of original enum_linux
+          'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
+          'Roberto Espreto <robertoespreto[at]gmail.com>', # log files and setuid/setgid
+        ],
+      'Platform'      => ['linux'],
+      'SessionTypes'  => ['shell', 'meterpreter']
+    ))
   end
 
   def run
@@ -89,19 +89,19 @@ class Metasploit3 < Msf::Post
 
     print_status("Running module against #{host}")
 
-    return host
+    host
   end
 
   def execute(cmd)
     vprint_status("Execute: #{cmd}")
     output = cmd_exec(cmd)
-    return output
+    output
   end
 
   def cat_file(filename)
     vprint_status("Download: #{filename}")
     output = read_file(filename)
-    return output
+    output
   end
 
   def get_packages(distro)
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Post
     else
       print_error("Could not determine package manager to get list of installed packages")
     end
-    return packages_installed
+    packages_installed
   end
 
   def get_services(distro)
@@ -142,29 +142,29 @@ class Metasploit3 < Msf::Post
     else
       print_error("Could not determine the Linux Distribution to get list of configured services")
     end
-    return services_installed
+    services_installed
   end
 
   def get_crons(users, user)
-    if user == "root" && !users.nil?
+    if user == "root" && users
       users = users.chomp.split
       users.each do |u|
         if u == "root"
           vprint_status("Enumerating as root")
           cron_data = ""
           users.each do |usr|
-            cron_data += "*****Listing cron jobs for #{usr}*****\n"
-            cron_data += execute("crontab -u #{usr} -l") + "\n\n"
+            cron_data << "*****Listing cron jobs for #{usr}*****\n"
+            cron_data << execute("crontab -u #{usr} -l") + "\n\n"
           end
         end
       end
     else
       vprint_status("Enumerating as #{user}")
       cron_data = "***** Listing cron jobs for #{user} *****\n\n"
-      cron_data += execute("crontab -l")
+      cron_data << execute("crontab -l")
 
       # Save cron data to loot
-      return cron_data
+      cron_data
     end
   end
 end
