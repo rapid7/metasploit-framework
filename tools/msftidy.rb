@@ -545,10 +545,10 @@ class Msftidy
         warn("Please use snake case on method names: #{ln}", idx)
       end
 
-      if ln =~ /fail_with\(/
-        if ln =~ /fail_with\(['"].+['"]\)/
+      if ln =~ /^\s*fail_with\(/
+        if ln =~ /^\s*fail_with\(['"].+['"]\)/
           error("fail_with requires a Failure:: reason as first parameter: #{ln}", idx)
-        elsif ln !~ /fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),.+\)/
+        elsif ln !~ /^\s*fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),.+\)/
           error("fail_with requires a valid Failure:: reason as first parameter: #{ln}", idx)
         end
       end
