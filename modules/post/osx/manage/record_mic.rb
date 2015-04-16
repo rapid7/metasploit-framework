@@ -126,8 +126,4 @@ class Metasploit3 < Msf::Post
   def poll_timeout
     POLL_TIMEOUT
   end
-
-  def fail_with(msg)
-    raise msg
-  end
 end
