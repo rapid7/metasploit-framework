@@ -120,9 +120,9 @@ class Metasploit3 < Msf::Post
       print_good("Successfully added login \"#{dbuser}\" with password \"#{dbpass}\"")
       return true
     when /already exists/i
-      fail_with(Exploit::Failure::BadConfig, "Unable to add login #{dbuser}, user already exists")
+      fail_with(Failure::BadConfig, "Unable to add login #{dbuser}, user already exists")
     when /password validation failed/i
-      fail_with(Exploit::Failure::BadConfig, "Unable to add login #{dbuser}, password does not meet complexity requirements")
+      fail_with(Failure::BadConfig, "Unable to add login #{dbuser}, password does not meet complexity requirements")
     else
       print_error("Unable to add login #{dbuser}")
       print_error("Database Error:\n #{add_login_result}")
