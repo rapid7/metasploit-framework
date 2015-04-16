@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
         next
       end
 
-      if res and (res.code > 300 and res.code < 310) and (match = res['Location'].match(/^http[s]:\/\/(192\.168\.[0-9]{1,3}\.[0-9]{1,3}|10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|172\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\//i))
+      if res and (res.code > 300 and res.code < 310) and (match = res['Location'].match(/^https?:\/\/(192\.168\.[0-9]{1,3}\.[0-9]{1,3}|10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|172\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\//i))
         result = match.captures[0]
         print_status("#{msg} Status Code: #{res.code} response")
         print_status("#{msg} Found Path: " + url )
