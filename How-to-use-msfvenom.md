@@ -75,7 +75,7 @@ To find out what encoders you can use, you can use the -l flag:
 ./msfvenom -l encoders
 ```
 
-You can also encode the payload multiple times using the -i flag. Sometimes more iterations may help avoiding antivirus but understand encoding isn't really meant to be used a real AV evasion solution:
+You can also encode the payload multiple times using the -i flag. Sometimes more iterations may help avoiding antivirus, but know that encoding isn't really meant to be used a real AV evasion solution:
 
 ```
 ./msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3 
