@@ -5,15 +5,12 @@ module Serializer
 # This class formats information in a plain-text format that
 # is meant to be displayed on a console or some other non-GUI
 # medium.
-class ReadableText
+class ReadableText < Rex::Ui::Text::Output::Stdio
   extend Rex::Ui::Text::Color
   #Default number of characters to wrap at.
   DefaultColumnWrap = 70
   #Default number of characters to indent.
   DefaultIndent     = 2
-  def self.supports_color?
-    return true
-  end
 
   def self.format_text(txt, fmt)
     return "#{fmt}#{txt}%clr"
@@ -21,6 +18,7 @@ class ReadableText
 STYLES = {
   :bold => '%bld',
   :cyan =>'%cya',
+  :red => '%red',
   :green => '%grn',
   :blue => '%blu',
   :yellow => '%yel',
@@ -194,7 +192,7 @@ STYLES = {
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
-    output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << " Privileged: " + (mod.privileged? ? format_text("yes", STYLES[:green]): format_text("no", STYLES[:red])) + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
@@ -345,7 +343,7 @@ STYLES = {
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
     output << "       Arch: #{mod.arch_to_s}\n"
-    output << "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << "Needs Admin: " + (mod.privileged? ? format_text("yes", STYLES[:green]) : format_text("no", STYLES[:red])) + "\n"
     output << " Total size: #{mod.size}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "\n"
@@ -437,7 +435,7 @@ STYLES = {
       next if (opt.evasion?)
       next if (missing && opt.valid?(val))
 
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+      tbl << [ name, opt.display_value(val), opt.required? ? format_text("yes", STYLES[:green]) : format_text("no", STYLES[:red]), opt.desc ]
     }
 
     return tbl.to_s
