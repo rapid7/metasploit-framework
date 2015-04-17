@@ -26,7 +26,7 @@ Options:
 
 To generate a payload, there are two flags that you must supply (-p and -f):
 
-* The -p flag: Specifies what payload to generate
+* **The -p flag: Specifies what payload to generate**
 
 To see what payloads are available from Framework, you can do:
 
@@ -40,7 +40,7 @@ The -p flag also supports "-" as a way to accept a custom payload:
 cat payload_file.bin | ./msfvenom -p - -a x86 --platform win -e x86/shikata_ga_nai -f raw
 ```
 
-* The -f flag: Specifies the format of the payload
+* **The -f flag: Specifies the format of the payload**
 
 Syntax example:
 
