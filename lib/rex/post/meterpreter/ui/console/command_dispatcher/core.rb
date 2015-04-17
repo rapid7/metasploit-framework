@@ -620,8 +620,8 @@ class Console::CommandDispatcher::Core
       case opt
       when "-l"
         exts = SortedSet.new
-        msf_path = MeterpreterBinaries.metasploit_data_dir
-        gem_path = MeterpreterBinaries.local_dir
+        msf_path = MetasploitPayloads.msf_meterpreter_dir
+        gem_path = MetasploitPayloads.local_meterpreter_dir
         [msf_path, gem_path].each do |path|
           ::Dir.entries(path).each { |f|
             if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
@@ -668,8 +668,8 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
-    msf_path = MeterpreterBinaries.metasploit_data_dir
-    gem_path = MeterpreterBinaries.local_dir
+    msf_path = MetasploitPayloads.msf_meterpreter_dir
+    gem_path = MetasploitPayloads.local_meterpreter_dir
     [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
