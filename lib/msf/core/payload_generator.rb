@@ -144,8 +144,10 @@ module Msf
       if arch.blank?
         @arch = mod.arch.first
         cli_print "No Arch selected, selecting Arch: #{arch} from the payload"
+        datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return mod.arch.first
       elsif mod.arch.include? arch
+        datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return arch
       else
         return nil
@@ -157,7 +159,10 @@ module Msf
     # @param mod [Msf::Payload] The module class to choose a platform for
     # @return [Msf::Module::PlatformList] The selected platform list
     def choose_platform(mod)
+      # By default, platform_list will at least return Msf::Module::Platform
+      # if there is absolutely no pre-configured platform info at all
       chosen_platform = platform_list
+
       if chosen_platform.platforms.empty?
         chosen_platform = mod.platform
         cli_print "No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
@@ -165,6 +170,17 @@ module Msf
       elsif (chosen_platform & mod.platform).empty?
         chosen_platform = Msf::Module::PlatformList.new
       end
+
+      begin
+        platform_object = Msf::Module::Platform.find_platform(platform)
+      rescue ArgumentError
+        platform_object = nil
+      end
+
+      if mod.kind_of?(Msf::Payload::Generic) && mod.send(:module_info)['Platform'].empty? && platform_object
+        datastore['PLATFORM'] = platform
+      end
+
       chosen_platform
     end
 
