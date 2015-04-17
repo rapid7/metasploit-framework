@@ -21,9 +21,9 @@ class Metasploit3 < Msf::Post
       'Name'          => 'McAfee Virus Scan Enterprise Password Hashes Dump',
       'Description'   => %q(
         This module extracts the password hash from McAfee Virus Scan Enterprise (VSE)
-        used to lock down the user interface. Hashcat supports cracking this type of 
-        hash using hash type sha1($salt.unicode($pass)) (-m 140) and a hex salt 
-        (--hex-salt) of 01000f000d003300 (unicode "\x01\x0f\x0d\x33"). A dynamic 
+        used to lock down the user interface. Hashcat supports cracking this type of
+        hash using hash type sha1($salt.unicode($pass)) (-m 140) and a hex salt
+        (--hex-salt) of 01000f000d003300 (unicode "\x01\x0f\x0d\x33"). A dynamic
         format is available for John the Ripper at the referenced URL.
       ),
       'License'       => MSF_LICENSE,
