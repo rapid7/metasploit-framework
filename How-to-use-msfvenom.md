@@ -1,4 +1,6 @@
-Msfvenom is the combination of payload generation and encoding. It's a replacement for msfpayload and msfencode. It supports the following options:
+Msfvenom is the combination of payload generation and encoding. It will replace msfpayload and msfencode on June 8th 2015.
+
+To start using msfvenom, first please take a look at the options it supports:
 
 ```
 Options:
