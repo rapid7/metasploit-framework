@@ -42,8 +42,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
-    check_plugin_from_readme('dukapress', '2.5.7')
+    check_plugin_version_from_readme('dukapress', '2.5.7')
   end
+
   def run_host(ip)
     traversal = "../" * datastore['DEPTH']
     filename = datastore['FILEPATH']
