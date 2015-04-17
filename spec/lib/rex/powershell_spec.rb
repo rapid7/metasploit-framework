@@ -1,9 +1,9 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/exploitation/powershell'
+require 'rex/powershell'
 
-describe Rex::Exploitation::Powershell do
+describe Rex::Powershell do
 
   let(:example_script) do
     """function DumpHashes
@@ -24,7 +24,7 @@ DumpHashes"""
   describe "::read_script" do
     it 'should create a script from a string input' do
       script = described_class.read_script(example_script)
-      script.should be_a_kind_of Rex::Exploitation::Powershell::Script
+      script.should be_a_kind_of Rex::Powershell::Script
     end
   end
 

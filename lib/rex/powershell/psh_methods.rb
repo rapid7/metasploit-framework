@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 module Rex
-module Exploitation
 module Powershell
   ##
   # Convenience methods for generating powershell code in Ruby
@@ -74,6 +73,5 @@ module Powershell
       '[System.Net.ServicePointManager]::ServerCertificateValidationCallback={$true};'
     end
   end
-end
 end
 end

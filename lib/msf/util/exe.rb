@@ -15,6 +15,7 @@ require 'rex/peparsey'
 require 'rex/pescan'
 require 'rex/random_identifier_generator'
 require 'rex/zip'
+require 'rex/powershell'
 require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
@@ -110,6 +111,10 @@ require 'msf/core/exe/segment_appender'
 
       if plat.index(Msf::Module::Platform::OSX)
         return to_osx_x64_macho(framework, code)
+      end
+
+      if plat.index(Msf::Module::Platform::BSD)
+        return to_bsd_x64_elf(framework, code)
       end
     end
 
@@ -891,6 +896,11 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_x86_bsd.bin", code)
   end
 
+  # Create a 64-bit Linux ELF containing the payload provided in +code+
+  def self.to_bsd_x64_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_x64_bsd.bin", code)
+  end
+
   # Create a 32-bit Solaris ELF containing the payload provided in +code+
   def self.to_solaris_x86_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x86_solaris.bin", code)
@@ -1071,36 +1081,17 @@ require 'msf/core/exe/segment_appender'
   end
 
   def self.to_win32pe_psh_net(framework, code, opts={})
-    rig = Rex::RandomIdentifierGenerator.new()
-    rig.init_var(:var_code)
-    rig.init_var(:var_kernel32)
-    rig.init_var(:var_baseaddr)
-    rig.init_var(:var_threadHandle)
-    rig.init_var(:var_output)
-    rig.init_var(:var_codeProvider)
-    rig.init_var(:var_compileParams)
-    rig.init_var(:var_syscode)
-    rig.init_var(:var_temp)
-
-    hash_sub = rig.to_h
-    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
-
-    read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+    template_path = File.join(Msf::Config.data_directory,
+                                  "templates",
+                                  "scripts")
+    Rex::Powershell::Payload.to_win32pe_psh_net(template_path, code)
   end
 
   def self.to_win32pe_psh(framework, code, opts = {})
-    hash_sub = {}
-    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_win32_func]	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_payload] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_size] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_rwx] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_iter] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-
-    hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
-
-    read_replace_script_template("to_mem_old.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+    Rex::Powershell::Payload.to_win32pe_psh(template_path, code)
   end
 
   #
@@ -1109,25 +1100,21 @@ require 'msf/core/exe/segment_appender'
   # Originally from PowerSploit
   #
   def self.to_win32pe_psh_reflection(framework, code, opts = {})
-    # Intialize rig and value names
-    rig = Rex::RandomIdentifierGenerator.new()
-    rig.init_var(:func_get_proc_address)
-    rig.init_var(:func_get_delegate_type)
-    rig.init_var(:var_code)
-    rig.init_var(:var_module)
-    rig.init_var(:var_procedure)
-    rig.init_var(:var_unsafe_native_methods)
-    rig.init_var(:var_parameters)
-    rig.init_var(:var_return_type)
-    rig.init_var(:var_type_builder)
-    rig.init_var(:var_buffer)
-    rig.init_var(:var_hthread)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+    Rex::Powershell::Payload.to_win32pe_psh_reflection(template_path, code)
+  end
 
-    hash_sub = rig.to_h
-    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
-
-    read_replace_script_template("to_mem_pshreflection.ps1.template",
-                                  hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+  def self.to_powershell_command(framework, arch, code)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+    Rex::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    template_path,
+                    encode_final_payload: true,
+                    method: 'reflection')
   end
 
   def self.to_win32pe_vbs(framework, code, opts = {})
@@ -1870,10 +1857,8 @@ require 'msf/core/exe/segment_appender'
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
         when ARCH_X86,nil
-to_linux_x86_elf(framework, code, exeopts)
-        when ARCH_X86_64
-          to_linux_x64_elf(framework, code, exeopts)
-        when ARCH_X64
+          to_linux_x86_elf(framework, code, exeopts)
+        when ARCH_X86_64, ARCH_X64
           to_linux_x64_elf(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf(framework, code, exeopts)
@@ -1886,6 +1871,8 @@ to_linux_x86_elf(framework, code, exeopts)
         case arch
         when ARCH_X86,nil
           Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
+        when ARCH_X86_64, ARCH_X64
+          Msf::Util::EXE.to_bsd_x64_elf(framework, code, exeopts)
         end
       elsif plat && plat.index(Msf::Module::Platform::Solaris)
         case arch
@@ -1896,9 +1883,7 @@ to_linux_x86_elf(framework, code, exeopts)
     when 'elf-so'
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
-        when ARCH_X86_64
-          to_linux_x64_elf_dll(framework, code, exeopts)
-        when ARCH_X64
+        when ARCH_X86_64, ARCH_X64
           to_linux_x64_elf_dll(framework, code, exeopts)
         end
       end
@@ -1906,9 +1891,7 @@ to_linux_x86_elf(framework, code, exeopts)
       macho = case arch
       when ARCH_X86,nil
         to_osx_x86_macho(framework, code, exeopts)
-      when ARCH_X86_64
-        to_osx_x64_macho(framework, code, exeopts)
-      when ARCH_X64
+      when ARCH_X86_64, ARCH_X64
         to_osx_x64_macho(framework, code, exeopts)
       when ARCH_ARMLE
         to_osx_arm_macho(framework, code, exeopts)
@@ -1939,6 +1922,8 @@ to_linux_x86_elf(framework, code, exeopts)
       Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
     when 'psh-reflection'
       Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
+    when 'psh-cmd'
+      Msf::Util::EXE.to_powershell_command(framework, arch, code)
     end
   end
 
@@ -1962,6 +1947,7 @@ to_linux_x86_elf(framework, code, exeopts)
       "psh",
       "psh-net",
       "psh-reflection",
+      "psh-cmd",
       "vba",
       "vba-exe",
       "vbs",
