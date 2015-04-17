@@ -242,35 +242,6 @@ module Metasploit
         end
 
 
-        # Returns a collection of found hidden inputs
-        #
-        # @param res [Rex::Proto::Http::Response] A response object that contains a body
-        # @return [Array<Hash>] An array, each element represents a form that contains a hash of found hidden inputs
-        #  * 'name' [String] The hidden input's original name. The value is the hidden input's original value.
-        # @example
-        #  res = send_request('uri'=>'/')
-        #  inputs = get_hidden_inputs(res)
-        #  session_id = inputs[0]['sessionid'] # The first form's 'sessionid' hidden input
-        def get_hidden_inputs(res)
-          forms = []
-          noko = Nokogiri::HTML(res.body)
-          noko.search("form").each_entry do |form|
-            found_inputs = {}
-            form.search("input").each_entry do |input|
-              input_type = input.attributes['type'] ? input.attributes['type'].value : ''
-              next if input_type !~ /hidden/i
-
-              input_name = input.attributes['name'] ? input.attributes['name'].value : ''
-              input_value = input.attributes['value'] ? input.attributes['value'].value : ''
-              found_inputs[input_name] = input_value unless input_name.empty?
-            end
-            forms << found_inputs unless found_inputs.empty?
-          end
-
-          forms
-        end
-
-
         # Attempt a single login with a single credential against the target.
         #
         # @param credential [Credential] The credential object to attempt to
