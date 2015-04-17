@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'uri'
 require 'rex/proto/http'
+require 'nokogiri'
 
 module Rex
 module Proto
