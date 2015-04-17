@@ -3,7 +3,7 @@ require 'digest/md5'
 require 'digest/sha1'
 require 'stringio'
 require 'cgi'
-require 'rex/exploitation/powershell'
+require 'rex/powershell'
 
 %W{ iconv zlib }.each do |libname|
   begin
@@ -308,7 +308,7 @@ module Text
   # Converts a raw string to a powershell byte array
   #
   def self.to_powershell(str, name = "buf")
-    return Rex::Exploitation::Powershell::Script.to_byte_array(str, name)
+    return Rex::Powershell::Script.to_byte_array(str, name)
   end
 
   #

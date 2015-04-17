@@ -355,7 +355,7 @@ class Db
         onlyup = true
       when '-o'
         output = args.shift
-      when '-R','--rhosts'
+      when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
@@ -483,7 +483,7 @@ class Db
 
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
         if mode == [:delete]
@@ -523,7 +523,7 @@ class Db
     mode = :search
     onlyup = false
     output_file = nil
-    set_rhosts = nil
+    set_rhosts = false
     col_search = ['port', 'proto', 'name', 'state', 'info']
     default_columns = ::Mdm::Service.column_names.sort
     default_columns.delete_if {|v| (v[-2,2] == "id")}
@@ -581,7 +581,7 @@ class Db
           return
         end
         output_file = ::File.expand_path(output_file)
-      when '-R','--rhosts'
+      when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
@@ -668,7 +668,7 @@ class Db
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
 
@@ -705,6 +705,7 @@ class Db
     print_line "  -h,--help             Show this help information"
     print_line "  -p,--port <portspec>  List vulns matching this port spec"
     print_line "  -s <svc names>        List vulns matching these service names"
+    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -S,--search           Search string to filter by"
     print_line "  -i,--info             Display Vuln Info"
     print_line
@@ -721,8 +722,11 @@ class Db
     host_ranges = []
     port_ranges = []
     svcs        = []
+    rhosts    	= []
+
     search_term = nil
     show_info   = false
+    set_rhosts  = false
 
     # Short-circuit help
     if args.delete "-h"
@@ -750,6 +754,8 @@ class Db
           return
         end
         svcs = service.split(/[\s]*,[\s]*/)
+      when '-R', '--rhosts'
+        set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
       when '-i', '--info'
@@ -784,15 +790,22 @@ class Db
             # Same for service names
             next unless svcs.empty? or svcs.include?(vuln.service.name)
             print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
-
           else
             # This vuln has no service, so it can't match
             next unless ports.empty? and svcs.empty?
             print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
           end
+          if set_rhosts
+            addr = (host.scope ? host.address + '%' + host.scope : host.address)
+            rhosts << addr
+          end
         end
       end
     end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
   }
   end
 
@@ -1099,6 +1112,8 @@ class Db
         print_status("Wrote creds to #{output_file}")
       end
 
+      # Finally, handle the case where the user wants the resulting list
+      # of hosts to go into RHOSTS.
       set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
       print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
@@ -1303,7 +1318,7 @@ class Db
         host = note.host
         msg << " host=#{note.host.address}"
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
       end

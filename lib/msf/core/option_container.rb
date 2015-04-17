@@ -698,7 +698,7 @@ class OptionContainer < Hash
   end
 
   #
-  # Make sures that each of the options has a value of a compatible
+  # Make sure that each of the options has a value of a compatible
   # format and that all the required options are set.
   #
   def validate(datastore)

@@ -58,13 +58,13 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     if !resp or !resp.body
-      fail_with("Error in server response. Ensure the server IP is correct.")
+      fail_with(Failure::UnexpectedReply, "Error in server response. Ensure the server IP is correct.")
     end
 
     cookie = resp.get_cookies
 
     if cookie == ''
-      fail_with("Authentication failed")
+      fail_with(Failure::NoAccess, "Authentication failed")
     end
 
     filepath = datastore['FILEPATH'].unpack("H*")[0]
@@ -81,7 +81,7 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     if !resp or !resp.body
-      fail_with("Error in server response")
+      fail_with(Failure::UnexpectedReply, "Error in server response")
     end
 
     # qgjuq is prepended to the result of the sql injection
@@ -101,4 +101,3 @@ class Metasploit4 < Msf::Auxiliary
   end
 
 end
-

@@ -7,7 +7,7 @@ module Msf
 #
 # The module base class is responsible for providing the common interface
 # that is used to interact with modules at the most basic levels, such as
-# by inspecting a given module's attributes (name, dsecription, version,
+# by inspecting a given module's attributes (name, description, version,
 # authors, etc) and by managing the module's data store.
 #
 ###

@@ -264,7 +264,7 @@ class Payload < Msf::Module
   # payload's convention.
   #
   def compatible_convention?(conv)
-    # If we ourself don't have a convention or our convention is equal to
+    # If we don't have a convention or our convention is equal to
     # the one supplied, then we know we are compatible.
     if ((self.convention == nil) or
         (self.convention == conv))
@@ -324,7 +324,7 @@ class Payload < Msf::Module
   # RHOST is substituted with the RHOST value from the datastore which will
   # have been populated by the framework.
   #
-  # Supprted packing types:
+  # Supported packing types:
   #
   # - ADDR  (foo.com, 1.2.3.4)
   # - ADDR6 (foo.com, fe80::1234:5678:8910:1234)

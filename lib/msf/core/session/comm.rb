@@ -16,7 +16,7 @@ module Comm
 
   #
   # Session-based comm classes implement an instance specific method for
-  # creating network-based connections rather than the typicall class
+  # creating network-based connections rather than the typical class
   # specific methods.
   #
   def create(param)

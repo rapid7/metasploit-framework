@@ -283,7 +283,7 @@ class ClientCore < Extension
     return Rex::Text.md5(id)
   end
 
-  def change_transport(opts={})
+  def transport_change(opts={})
 
     unless valid_transport?(opts[:transport]) && opts[:lport]
       return false
@@ -298,7 +298,7 @@ class ClientCore < Extension
 
     transport = VALID_TRANSPORTS[opts[:transport]]
 
-    request = Packet.create_request('core_change_transport')
+    request = Packet.create_request('core_transport_change')
 
     scheme = opts[:transport].split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
@@ -362,6 +362,53 @@ class ClientCore < Extension
 
     client.send_request(request)
     return true
+  end
+
+  #
+  # Enable the SSL certificate has verificate
+  #
+  def enable_ssl_hash_verify
+    # Not supported unless we have a socket with SSL enabled
+    return nil unless self.client.sock.type? == 'tcp-ssl'
+
+    request = Packet.create_request('core_transport_setcerthash')
+
+    hash = Rex::Text.sha1_raw(self.client.sock.sslctx.cert.to_der)
+    request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
+
+    client.send_request(request)
+
+    return hash
+  end
+
+  #
+  # Disable the SSL certificate has verificate
+  #
+  def disable_ssl_hash_verify
+    # Not supported unless we have a socket with SSL enabled
+    return nil unless self.client.sock.type? == 'tcp-ssl'
+
+    request = Packet.create_request('core_transport_setcerthash')
+
+    # send an empty request to disable it
+    client.send_request(request)
+
+    return true
+  end
+
+  #
+  # Attempt to get the SSL hash being used for verificaton (if any).
+  #
+  # @return 20-byte sha1 hash currently being used for verification.
+  #
+  def get_ssl_hash_verify
+    # Not supported unless we have a socket with SSL enabled
+    return nil unless self.client.sock.type? == 'tcp-ssl'
+
+    request = Packet.create_request('core_transport_getcerthash')
+    response = client.send_request(request)
+
+    return response.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
   end
 
   #

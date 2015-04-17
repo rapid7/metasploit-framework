@@ -28,7 +28,6 @@ class Console::CommandDispatcher::Core
     self.extensions = []
     self.bgjobs     = []
     self.bgjob_id   = 0
-
   end
 
   @@load_opts = Rex::Parser::Arguments.new(
@@ -50,7 +49,6 @@ class Console::CommandDispatcher::Core
       "irb"        => "Drop into irb scripting mode",
       "use"        => "Deprecated alias for 'load'",
       "load"       => "Load one or more meterpreter extensions",
-      "transport"  => "Change the current transport mechanism",
       "machine_id" => "Get the MSF ID of the machine attached to the session",
       "quit"       => "Terminate the meterpreter session",
       "resource"   => "Run the commands stored in a file",
@@ -70,10 +68,16 @@ class Console::CommandDispatcher::Core
       c["detach"] = "Detach the meterpreter session (for http/https)"
     end
 
-    # The only meterp that implements this right now is native Windows and for
-    # whatever reason it is not adding core_migrate to its list of commands.
-    # Use a dumb platform til it gets sorted.
-    #if client.commands.include? "core_migrate"
+    # Currently we have some windows-specific core commands`
+    if client.platform =~ /win/
+      # only support the SSL switching for HTTPS
+      if client.passive_service && client.sock.type? == 'tcp-ssl'
+        c["ssl_verify"] = "Modify the SSL certificate verification setting"
+      end
+
+      c["transport"] = "Change the current transport mechanism"
+    end
+
     if client.platform =~ /win/ || client.platform =~ /linux/
       c["migrate"] = "Migrate the server to another process"
     end
@@ -383,6 +387,87 @@ class Console::CommandDispatcher::Core
   end
 
   #
+  # Arguments for ssl verification
+  #
+  @@ssl_verify_opts = Rex::Parser::Arguments.new(
+    '-e' => [ false, 'Enable SSL certificate verification' ],
+    '-d' => [ false, 'Disable SSL certificate verification' ],
+    '-q' => [ false, 'Query the statis of SSL certificate verification' ],
+    '-h' => [ false, 'Help menu' ])
+
+  #
+  # Help for ssl verification
+  #
+  def cmd_ssl_verify_help
+    print_line('Usage: ssl_verify [options]')
+    print_line
+    print_line('Change and query the current setting for SSL verification')
+    print_line('Only one of the following options can be used at a time')
+    print_line(@@ssl_verify_opts.usage)
+  end
+
+  #
+  # Handle the SSL verification querying and setting function.
+  #
+  def cmd_ssl_verify(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      cmd_ssl_verify_help
+      return
+    end
+
+    query = false
+    enable = false
+    disable = false
+
+    settings = 0
+
+    @@ssl_verify_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-q'
+        query = true
+        settings += 1
+      when '-e'
+        enable = true
+        settings += 1
+      when '-d'
+        disable = true
+        settings += 1
+      end
+    end
+
+    # Make sure only one action has been chosen
+    if settings != 1
+      cmd_ssl_verify_help
+      return
+    end
+
+    if query
+      hash = client.core.get_ssl_hash_verify
+      if hash
+        print_good("SSL verification is enabled. SHA1 Hash: #{hash.unpack("H*")[0]}")
+      else
+        print_good("SSL verification is disabled.")
+      end
+
+    elsif enable
+      hash = client.core.enable_ssl_hash_verify
+      if hash
+        print_good("SSL verification has been enabled. SHA1 Hash: #{hash.unpack("H*")[0]}")
+      else
+        print_error("Failed to enable SSL verification")
+      end
+
+    else
+      if client.core.disable_ssl_hash_verify
+        print_good('SSL verification has been disabled')
+      else
+        print_error("Failed to disable SSL verification")
+      end
+    end
+
+  end
+
+  #
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
@@ -402,6 +487,9 @@ class Console::CommandDispatcher::Core
     '-rw' => [ true,  'Retry wait time (seconds) (default: same as current session)' ],
     '-h'  => [ false, 'Help menu' ])
 
+  #
+  # Display help for transport switching
+  #
   def cmd_transport_help
     print_line('Usage: transport [options]')
     print_line
@@ -409,6 +497,9 @@ class Console::CommandDispatcher::Core
     print_line(@@transport_opts.usage)
   end
 
+  #
+  # Change the current transport setings.
+  #
   def cmd_transport(*args)
     if ( args.length == 0 or args.include?("-h") )
       cmd_transport_help
@@ -470,7 +561,7 @@ class Console::CommandDispatcher::Core
     end
 
     print_status("Swapping transport ...")
-    if client.core.change_transport(opts)
+    if client.core.transport_change(opts)
       client.shutdown_passive_dispatcher
       shell.stop
     else

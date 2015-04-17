@@ -201,7 +201,7 @@ class Msf::Payload::UUID
     end
 
     # Map a platform abbreviation to the real name
-    name = Msf::Platform.find_platform(platform)
+    name = platform ? Msf::Platform.find_platform(platform) : nil
     if name && name.respond_to?(:realname)
       name = name.realname.downcase
     end
