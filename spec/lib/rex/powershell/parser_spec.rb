@@ -1,9 +1,9 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/exploitation/powershell'
+require 'rex/powershell'
 
-describe Rex::Exploitation::Powershell::Parser do
+describe Rex::Powershell::Parser do
 
   let(:example_script) do
 """
@@ -58,7 +58,7 @@ function Find-4624Logons
   end
 
   let(:subject) do
-    Rex::Exploitation::Powershell::Script.new(example_script)
+    Rex::Powershell::Script.new(example_script)
   end
 
   describe "::get_var_names" do
@@ -142,7 +142,7 @@ function Find-4624Logons
     it 'should extract a function from the code' do
       function = subject.get_func('Find-4624Logons')
       function.should be
-      function.should be_kind_of Rex::Exploitation::Powershell::Function
+      function.should be_kind_of Rex::Powershell::Function
     end
 
     it 'should return nil if function doesnt exist' do

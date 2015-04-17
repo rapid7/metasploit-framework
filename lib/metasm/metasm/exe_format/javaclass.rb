@@ -96,7 +96,7 @@ class JavaClass < ExeFormat
       when 'NameAndType'
         @info = ConstantNameAndType.decode(c)
       else
-        raise 'unkown constant tag'
+        raise 'unknown constant tag'
         return
       end
     end

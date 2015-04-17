@@ -4,7 +4,6 @@ require 'zlib'
 require 'rex/text'
 
 module Rex
-module Exploitation
 module Powershell
   module Output
     #
@@ -146,6 +145,5 @@ module Powershell
       @code
     end
   end
-end
 end
 end

@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
 
     sock = connect
     if sock.nil?
-      fail_with(Exploit::Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
+      fail_with(Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
     else
       print_status("#{rhost}:#{rport} - Sending packet to ConfigurationService...")
     end
@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
         sock.close
         sock = connect
         if sock.nil?
-          fail_with(Exploit::Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
+          fail_with(Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
         else
           print_status("#{rhost}:#{rport} - Sending packet to ConfigurationService...")
         end

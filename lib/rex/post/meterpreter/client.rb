@@ -194,6 +194,7 @@ class Client
     self.sock.extend(Rex::Socket::SslTcp)
     self.sock.sslsock = ssl
     self.sock.sslctx  = ctx
+    self.sock.sslhash = Rex::Text.sha1_raw(ctx.cert.to_der)
 
     tag = self.sock.get_once(-1, 30)
     if(not tag or tag !~ /^GET \//)
@@ -206,6 +207,7 @@ class Client
     self.sock.sslsock.close
     self.sock.sslsock = nil
     self.sock.sslctx  = nil
+    self.sock.sslhash = nil
     self.sock = self.sock.fd
     self.sock.extend(::Rex::Socket::Tcp)
   end

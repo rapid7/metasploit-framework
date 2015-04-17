@@ -49,7 +49,7 @@ module Msf::DBManager::Session
   #   Creates an Mdm::Session from Mdm::Host.
   #
   #   @param opts [Hash{Symbol => Object}] options
-  #   @option opts [DateTime, Time] :closed_at The date and time the sesion was
+  #   @option opts [DateTime, Time] :closed_at The date and time the session was
   #     closed.
   #   @option opts [String] :close_reason Reason the session was closed.
   #   @option opts [Hash] :datastore {Msf::DataStore#to_h}.
