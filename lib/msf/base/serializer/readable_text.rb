@@ -6,11 +6,40 @@ module Serializer
 # is meant to be displayed on a console or some other non-GUI
 # medium.
 class ReadableText
-
+  extend Rex::Ui::Text::Color
   #Default number of characters to wrap at.
   DefaultColumnWrap = 70
   #Default number of characters to indent.
   DefaultIndent     = 2
+  def self.supports_color?
+    return true
+  end
+
+  def self.format_text(txt, fmt)
+    return "#{fmt}#{txt}%clr"
+  end
+STYLES = {
+  :bold => '%bld',
+  :cyan =>'%cya',
+  :green => '%grn',
+  :blue => '%blu',
+  :yellow => '%yel',
+  :white => '%whi',
+  :magenta => '%mag',
+  :black => '%blk',
+  :dark_red => '%dred',
+  :dark_green => '%dgrn',
+  :dark_blue => '%dblu',
+  :dark_yellow => '%dyel',
+  :dark_cyan => '%dcya',
+  :dark_white => '%dwhi',
+  :dark_magenta => '%dmag',
+  :underline => '%und',
+  :plain => '%clr'
+}
+  def self.format_title(txt)
+    return format_text(txt, STYLES[:underline])
+  end
 
   # Returns a formatted string that contains information about
   # the supplied module instance.
@@ -172,26 +201,26 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
     output << "\n"
 
     # Targets
-    output << "Available targets:\n"
+    output << format_title("Available targets:\n")
     output << dump_exploit_targets(mod, indent)
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Payload information
     if (mod.payload_info.length)
-      output << "Payload information:\n"
+      output << format_title("Payload information:\n")
       if (mod.payload_space)
         output << indent + "Space: " + mod.payload_space.to_s + "\n"
       end
@@ -202,7 +231,7 @@ class ReadableText
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -228,7 +257,7 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -236,19 +265,19 @@ class ReadableText
 
     # Actions
     if mod.action
-      output << "Available actions:\n"
+      output << format_title("Available actions:\n")
       output << dump_module_actions(mod, indent)
     end
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -274,7 +303,7 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -282,19 +311,19 @@ class ReadableText
 
     # Actions
     if mod.action
-      output << "Available actions:\n"
+      output << format_title("Available actions:\n")
       output << dump_module_actions(mod, indent)
     end
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -322,7 +351,7 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -330,13 +359,13 @@ class ReadableText
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n\n"
 
@@ -359,14 +388,14 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
     output << "\n"
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -476,7 +505,7 @@ class ReadableText
     output = ''
 
     if (mod.respond_to? :references and mod.references and mod.references.length > 0)
-      output << "References:\n"
+      output << format_title("References:\n")
       mod.references.each { |ref|
         output << indent + ref.to_s + "\n"
       }
