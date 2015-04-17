@@ -8,6 +8,9 @@ require 'msf/base/sessions/meterpreter_x86_linux'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/elfparsey'
 
+# Provides methods to patch options into the metsrv stager.
+require 'rex/payloads/meterpreter/patch'
+
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
 
@@ -100,10 +103,16 @@ module Metasploit3
     #file = File.join(Msf::Config.data_directory, "msflinker_linux_x86.elf")
     file = File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
 
-    met = File.open(file, "rb") {|f|
+    blob = File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
 
-    return met
+    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(blob,
+      :expiration    => datastore['SessionExpirationTimeout'].to_i,
+      :comm_timeout  => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total   => datastore['SessionRetryTotal'].to_i,
+      :retry_wait    => datastore['SessionRetryWait'].to_i)
+
+    return blob
   end
 end

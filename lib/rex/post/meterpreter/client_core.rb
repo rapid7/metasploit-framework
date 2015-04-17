@@ -659,7 +659,7 @@ class ClientCore < Extension
     # This should be done by the reflective loader payloads
     #else
     #  # Just patch the timeouts, which are consistent on each of the payloads.
-    #  Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
+    #  Rex::Payloads::Meterpreter::Patch.patch_timeouts!(blob,
     #    :expiration   => self.client.expiration,
     #    :comm_timeout => self.client.comm_timeout,
     #    :retry_total  => self.client.retry_total,
@@ -674,6 +674,12 @@ class ClientCore < Extension
     blob = ::File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
+
+    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(blob,
+      :expiration   => self.client.expiration,
+      :comm_timeout => self.client.comm_timeout,
+      :retry_total  => self.client.retry_total,
+      :retry_wait   => self.client.retry_wait)
 
     blob
   end
