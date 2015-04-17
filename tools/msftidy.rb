@@ -544,6 +544,13 @@ class Msftidy
       if ln =~ /^\s*def\s+(?:[^\(\)#]*[A-Z]+[^\(\)]*)(?:\(.*\))?$/
         warn("Please use snake case on method names: #{ln}", idx)
       end
+
+      if ln =~ /^\s*fail_with\(/
+        unless ln =~ /^\s*fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
+          error("fail_with requires a valid Failure:: reason as first parameter: #{ln}", idx)
+        end
+      end
+
     end
   end
 
