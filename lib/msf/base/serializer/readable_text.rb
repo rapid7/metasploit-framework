@@ -6,7 +6,7 @@ module Serializer
 # is meant to be displayed on a console or some other non-GUI
 # medium.
 class ReadableText < Rex::Ui::Text::Output::Stdio
-  extend Rex::Ui::Text::Color
+
   #Default number of characters to wrap at.
   DefaultColumnWrap = 70
   #Default number of characters to indent.
@@ -14,6 +14,20 @@ class ReadableText < Rex::Ui::Text::Output::Stdio
 
   def self.format_text(txt, fmt)
     return "#{fmt}#{txt}%clr"
+  end
+
+  def self.md_parse(text)
+    lines = text.split("\n")
+    lines.map! do |line|
+      if /^\s*#+\s*(.*)$/.match(line) # THIS REGEX LOOKS FOR '#' CHARACTER AND CAPTURES REST OF LINE
+        line = format_text(/^\s*#+\s*(.*)$/.match(line)[1], STYLES[:bold])
+      elsif /^\s*$/.match(line) # THIS REGEX HELPS US IGNORE A LINE THAT IS COMPLETELY WHITESPACE
+        line = ""
+      else
+        line = line = format_text(line, STYLES[:plain])
+      end
+    end
+    lines.join("\n")
   end
 STYLES = {
   :bold => '%bld',
@@ -230,7 +244,7 @@ STYLES = {
 
     # Description
     output << format_title("Description:\n")
-    output << word_wrap(Rex::Text.compress(mod.description))
+    output << word_wrap(Rex::Text.compress(md_parse(mod.description)))
     output << "\n"
 
     # References
