@@ -3,7 +3,7 @@ Msfvenom is the combination of payload generation and encoding. It's a replaceme
 ```
 Options:
     -p, --payload    <payload>       Payload to use. Specify a '-' or stdin to use custom payloads
-    -l, --list       [module_type]   List a module type example: payloads, encoders, nops, all
+    -l, --list       [module_type]   List a module type. Options are: payloads, encoders, nops, all
     -n, --nopsled    <length>        Prepend a nopsled of [length] size on to the payload
     -f, --format     <format>        Output format (use --help-formats for a list)
     -e, --encoder    [encoder]       The encoder to use
@@ -24,14 +24,14 @@ Options:
 
 **How to generate a payload**
 
-To generate a payload, you can use the -p flag. You will also most likely use the -f flag (also known as --format) to specify what the output should be. Format can be two things: either you're generating an executable type format, or you are generating a transform type format. The executable type means when you create the payload, the output is meant to be a file. The transform format means this is code, as in you probably copy and paste this to some exploit code you're working on.
+To generate a payload, there are two flags that you must supply (-p and -f):
 
-The executable format is pretty straight forward, so it needs no further explanation. But there is another flag that's specifically designed for some transform formats, and that is the -v flag (--var-name). This option allows you have a custom variable name in your output, and currently only the following transform formats support --var-name: bash, c, csharp, java, perl, powershell, py, rb, sh, vbapplication, vbscript.
+* The -p flag: Specifies what payload to generate
 
-The following is a basic example of how to generate a file:
+To see what payloads are available from Framework, you can do:
 
 ```
-./msfvenom -p windows/meterpreter/bind_tcp -f exe
+./msfvenom -l payloads
 ```
 
 The -p flag also supports "-" as a way to accept a custom payload:
@@ -40,18 +40,19 @@ The -p flag also supports "-" as a way to accept a custom payload:
 cat payload_file.bin | ./msfvenom -p - -a x86 --platform win -e x86/shikata_ga_nai -f raw
 ```
 
-This is an example of setting a custom variable for a Java format output:
+* The -f flag: Specifies the format of the payload
+
+Syntax example:
 
 ```
-echo AAAA | ./msfvenom -p - -a x86 --platform windows -v myVar -f java
+./msfvenom -p windows/meterpreter/bind_tcp -f exe
 ```
 
-If you'd like to know all the built-in Metasploit payloads available, you can use the -l flag:
+To see what formats are supported, you can do the following to find out:
 
 ```
-./msfvenom -l payloads
+./msfvenom --help-formats
 ```
-
 
 
 **How to encode a payload**
