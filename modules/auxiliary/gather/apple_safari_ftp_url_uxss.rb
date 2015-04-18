@@ -7,19 +7,29 @@ require 'msf/core'
 require 'rex/service_manager'
 
 class Metasploit3 < Msf::Auxiliary
-  Rank = NormalRanking
 
   include Msf::Exploit::Remote::FtpServer
 
   def initialize(info={})
     super(update_info(info,
-      'Name'        => "Apple OSX & iOS Safari UXSS",
+      'Name'        => "Apple OSX/iOS/Windows Safari UXSS",
       'Description' => %q{
+        A UXSS vulnerability exists in versions of OSX/iOS/Windows Safari released
+        before April 8, 2015. The vulnerability involves the encoding of the username
+        field of an FTP URL.
 
+        This exploit supplies a method for injecting script into the context of any
+        domain. Impact differs depending on the platform; an attacker can write scripts
+        to do any of the following:
+
+        - Steal response headers/bodies from any domain (which makes CSRF protection useless)
+        - Steal non-HTTPOnly cookies from any domain
+        - Steal password/form autofill from any domain
+        - On desktop Safari, silently install extensions by spoofing extensions.apple.com
       },
       'License'     => MSF_LICENSE,
       'Author'      => [
-        'Jouko Pynnönen', # Initial discovery and disclosure
+        'Jouko Pynnonen', # Initial discovery and disclosure
         'joev',           # msf module
       ],
       'References'  => [
