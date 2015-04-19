@@ -41,8 +41,7 @@ module Msf
               # Builds an an array of arguments o build a call to
               # javax/management/remote/rmi/RMIConnectionImpl_Stub#getObjectInstance()
               #
-              # @param opts [Hash]
-              # @option opts [String] :name the MBean name
+              # @param name [String] the MBean name
               # @return [Array]
               def build_jmx_get_object_instance_args(name = '')
                 builder = Rex::Java::Serialization::Builder.new
@@ -97,8 +96,7 @@ module Msf
               # Builds an an array of arguments o build a call to
               # javax/management/remote/rmi/RMIConnectionImpl_Stub#createMBean()
               #
-              # @param opts [Hash]
-              # @option opts [String] :name the MBean name
+              # @param name [Hash] the MBean name
               # @return [Array]
               def build_jmx_create_mbean_args(name = '')
                 arguments = [
