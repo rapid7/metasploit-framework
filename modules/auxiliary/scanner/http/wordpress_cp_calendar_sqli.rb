@@ -27,7 +27,8 @@ class Metasploit4 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          [ 'EDB', '36243']
+          [ 'EDB', '36243'],
+          [ 'WPVDB', '7910' ]
         ],
       'DisclosureDate' => 'Mar 03 2015'))
 
