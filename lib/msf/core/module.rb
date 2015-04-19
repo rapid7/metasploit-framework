@@ -276,7 +276,18 @@ class Module
   end
 
   #
-  # Support fail_with for all module types, allow specific classes to override
+  # Raises a RuntimeError failure message. This is meant to be used for all non-exploits,
+  # and allows specific classes to override.
+  #
+  # @param reason [String] A reason about the failure.
+  # @param msg [String] (Optional) A message about the failure.
+  # @raise [RuntimeError]
+  # @return [void]
+  # @note If you are writing an exploit, you don't use this API. Instead, please refer to the
+  #       API documentation from lib/msf/core/exploit.rb.
+  # @see Msf::Exploit#fail_with
+  # @example
+  #   fail_with('No Access', 'Unable to login')
   #
   def fail_with(reason, msg=nil)
     raise RuntimeError, "#{reason.to_s}: #{msg}"
