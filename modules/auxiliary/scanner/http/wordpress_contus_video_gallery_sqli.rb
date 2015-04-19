@@ -31,7 +31,7 @@ class Metasploit4 < Msf::Auxiliary
           [ 'CVE', '2015-2065'],
           [ 'WPVDB', '7793' ]
         ],
-      'DisclosureDate' => 'Mar 03 2015'))
+      'DisclosureDate' => 'Feb 24 2015'))
 
     register_options([
       OptString.new('TARGETURI', [true, 'Target URI of the Wordpress instance', '/'])
