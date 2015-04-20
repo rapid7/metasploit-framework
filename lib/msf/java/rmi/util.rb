@@ -22,7 +22,6 @@ module Msf
         # Calculates an interface hash to make RMI calls as defined by the JDK 1.1
         #
         # @param methods [Array] set of method names and their descriptors
-        # @param exceptions [Array] set of declared exceptions
         # @return [Fixnum] The interface hash
         # @see http://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmi-stubs24.html The RemoteRef Interface documentation to understand how interface hashes are calculated
         def calculate_interface_hash(methods)
