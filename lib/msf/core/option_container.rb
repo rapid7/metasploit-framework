@@ -725,13 +725,19 @@ class OptionContainer < Hash
         "One or more options failed to validate", caller
     end
 
+    return true
+  end
+
+  def check_warnings(datastore)
+    warnings = []
+
     # message about missing SSL
     if datastore.include?('RPORT') && [443, 8443].include?(datastore['RPORT']) &&
       datastore.include?('SSL') && datastore['SSL'] == false
-      puts('If you are testing a SSL enabled port be sure to execute \'set SSL true\'')
+      warnings.push('If you are testing a SSL enabled port be sure to execute \'set SSL true\'')
     end
 
-    return true
+    return warnings
   end
 
   #
