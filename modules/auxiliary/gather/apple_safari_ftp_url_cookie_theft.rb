@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
     proto = (datastore['SSL'] ? 'https' : 'http')
     print_status("Using URL: #{proto}://#{opts['ServerHost']}:#{opts['ServerPort']}#{uopts['Path']}")
 
-    if (opts['ServerHost'] == '0.0.0.0')
+    if opts['ServerHost'] == '0.0.0.0'
       print_status(" Local IP: #{proto}://#{Rex::Socket.source_address('1.2.3.4')}:#{opts['ServerPort']}#{uopts['Path']}")
     end
 
@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
   #
   def on_client_command_retr(c, arg)
     conn = establish_data_connection(c)
-    if not conn
+    unless conn
       c.put("425 can't build data connection\r\n")
       return
     end
@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Auxiliary
     super
 
     # Kill FTP
-    stop_service()
+    stop_service
 
     # clear my resource, deregister ref, stop/close the HTTP socket
     begin
