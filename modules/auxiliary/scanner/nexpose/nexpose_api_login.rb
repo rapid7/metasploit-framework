@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(3780),
         OptString.new('URI', [ true, "URI for NeXpose API. Default is /api/1.1/xml", "/api/1.1/xml" ]),
-        OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", false ])
+        OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", false ]),
         OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => datastore['URI'],
         'method'  => 'GET'
         }, timeout)
-)
+
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URI']} - #{e.to_s}")

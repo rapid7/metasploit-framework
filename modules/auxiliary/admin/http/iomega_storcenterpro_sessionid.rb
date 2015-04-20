@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptInt.new('SID_MAX', [ true, 'Maximum Session ID', 100 ]),
-        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ]
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
   end
 

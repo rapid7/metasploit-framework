@@ -104,7 +104,7 @@ class Metasploit4 < Msf::Auxiliary
       'method'   => 'POST',
       'ctype'    => 'text/xml; charset=UTF-8',
       'data'     => data,
-      'headers'  => 
+      'headers'  =>
         {
           'SOAPAction'    => '""'
         }
@@ -192,4 +192,3 @@ class Metasploit4 < Msf::Auxiliary
   end
 
 end
-

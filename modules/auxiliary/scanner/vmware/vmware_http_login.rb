@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('URI', [ true, "The default URI to login with", "/sdk" ]),
-        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ]),
         Opt::RPORT(443)
       ], self.class)
 

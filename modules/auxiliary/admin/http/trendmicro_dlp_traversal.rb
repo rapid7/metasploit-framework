@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('SSL', [ true, 'Use SSL', true ]),
         OptPath.new('SENSITIVE_FILES', [ true, "File containing senstive files, one per line",
         File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ]
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
   end
 

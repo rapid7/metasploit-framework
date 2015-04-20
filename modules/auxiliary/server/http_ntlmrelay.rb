@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
       OptBool.new('RSSL', [ true, "SSL on the remote connection ", false ]),
       OptEnum.new('RTYPE', [ true, "Type of action to perform on remote target", "HTTP_GET",
         [  "HTTP_GET", "HTTP_POST", "SMB_GET", "SMB_PUT", "SMB_RM", "SMB_ENUM",
-           "SMB_LS", "SMB_PWN" 
+           "SMB_LS", "SMB_PWN"
         ]
       ]),
       OptString.new('RURIPATH', [ true, "The path to relay credentials ", "/" ]),

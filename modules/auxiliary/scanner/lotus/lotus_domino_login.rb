@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
-      ]
+      ], self.class)
 
   end
 

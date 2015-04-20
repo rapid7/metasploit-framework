@@ -28,12 +28,12 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8180),
         OptString.new('TOMCAT_USER', [ false, 'The username to authenticate as', '' ]),
         OptString.new('TOMCAT_PASS', [ false, 'The password for the specified username', '' ]),
-        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 25 ]
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
   end
 
   def timeout
-    datastore['TIMEOUT']
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)

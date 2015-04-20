@@ -30,8 +30,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv') ]),
-        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
-        Opt::RPORT(8080),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ]),
+        Opt::RPORT(8080)
       ], self.class)
   end
 

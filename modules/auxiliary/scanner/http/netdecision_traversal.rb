@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         # 8087 = TrafficGrapherServer
         # 8090 = NOCVisionServer
         Opt::RPORT(8087),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini' ])
+        OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini' ]),
         OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
