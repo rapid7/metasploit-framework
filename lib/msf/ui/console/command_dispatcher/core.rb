@@ -2072,9 +2072,9 @@ class Core
     if value =~ /^file:(.*)/ && ::File.file?($1)
       fname = $1
       if ::File.size(fname) > (1024*1024)
-        print_error("The file name specified is too big (over 1Mb)")
+        print_error('The file name specified is too big (over 1Mb)')
       else
-        ::File.open(fname, "rb") {|fd| value = fd.read(fd.stat.size) }
+        ::File.open(fname, 'rb') {|fd| value = fd.read(fd.stat.size) }
       end
     end
 
