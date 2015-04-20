@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
     use_zlib
 
     comm = datastore['ListenerComm']
-    if (comm.to_s == 'local')
+    if comm.to_s == 'local'
       comm = ::Rex::Socket::Comm::Local
     else
       comm = nil
