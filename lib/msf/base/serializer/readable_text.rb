@@ -46,8 +46,7 @@ class ReadableText < Rex::Ui::Text::Output::Stdio
       elsif /^\s*$/.match(line) # THIS REGEX HELPS US IGNORE A LINE THAT IS COMPLETELY WHITESPACE
         line = ""
       elsif /\*+(.[^\*+]+[^\*+])\*+/.match(line) # THIS REGEX HELPS US TO DETECT WORDS THAT ARE SURROUNDED BY ASTERISKS
-        parts = /\*+(.[^\*+]+[^\*+])\*+/.match(line)
-        line.gsub!(parts[0], format_text(parts[1], :bold))
+        line.gsub(/\*+(.[^\*+]+[^\*+])\*+/) { |match| "%bld" + match.gsub('*', '') + "%clr" }
       else
         line = line = format_text(line, :plain)
       end
