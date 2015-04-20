@@ -378,17 +378,18 @@ class OptAddressRange < OptBase
 
   def normalize(value)
     return nil unless value.kind_of?(String)
-    if (value =~ /^rand:(.*)/)
+    if value =~ /^rand:(.*)/
       count = $1.to_i
       return false if count < 1
       ret = ''
-      count.times {
-        ret << " " if not ret.empty?
-        ret << [ rand(0x100000000) ].pack("N").unpack("C*").map{|x| x.to_s }.join(".")
-      }
+      count.times do
+        ret << ' ' unless ret.empty?
+        ret << [ rand(0x100000000) ].pack('N').unpack('C*').map{|x| x.to_s }.join('.')
+      end
       return ret
     end
-    return value
+
+    value
   end
 
   def valid?(value)
