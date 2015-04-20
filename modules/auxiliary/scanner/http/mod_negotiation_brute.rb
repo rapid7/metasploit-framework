@@ -28,10 +28,15 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
+        OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/' ]),
         OptPath.new('FILEPATH',[true, "path to file with file names",
-          File.join(Msf::Config.data_directory, "wmap", "wmap_files.txt")])
+          File.join(Msf::Config.data_directory, "wmap", "wmap_files.txt") ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -62,11 +67,11 @@ class Metasploit3 < Msf::Auxiliary
       reqpath = tpath+dirname
         # Send the request the accept header is key here
         res = send_request_cgi({
-          'uri'  		=>  reqpath,
-          'method'   	=> 'GET',
-          'ctype'     => 'text/html',
-          'headers'	=> {'Accept' => 'a/b'}
-        }, 20)
+          'uri'       =>  reqpath,
+          'method'    =>  'GET',
+          'ctype'     =>  'text/html',
+          'headers'   =>  {'Accept' => 'a/b'}
+        }, timeout)
 
         return if not res
 

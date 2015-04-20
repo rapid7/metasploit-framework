@@ -29,6 +29,15 @@ class Metasploit3 < Msf::Auxiliary
         [ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
       ],
       'DisclosureDate' => 'Jun 18 2013'))
+
+    register_options(
+    [
+      OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5 ])
+    ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def is_alive?
@@ -79,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
     send_request_cgi({
       'method'	=>	'GET',
       'uri'		=>	'/English/pages_MacUS/lan_set_content.html'
-    },5) #default timeout, we don't care about the response
+    }, timeout) #default timeout, we don't care about the response
 
     # Check to see if it worked or not
     if is_alive?

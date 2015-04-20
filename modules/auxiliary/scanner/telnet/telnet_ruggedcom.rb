@@ -36,10 +36,9 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(23),
         OptString.new('USERNAME', [ true, 'The username to authenticate as', 'factory']),
-        OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
+        OptInt.new('TIMEOUT', [ true, 'Timeout for the Telnet probe', 30])
       ], self.class)
   end
-
 
   def mac_to_password(mac)
     print_status ("MAC Address: #{mac}")

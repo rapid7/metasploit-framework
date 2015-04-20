@@ -38,16 +38,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to identify files", '/']),
-        OptInt.new('ERROR_CODE', [ true, "Error code for non existent directory", 404]),
-        OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use",
-            File.join(Msf::Config.data_directory, "wmap", "wmap_dirs.txt")
-          ]
-        ),
-        OptPath.new('HTTP404S',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
-          ]
-        )
+        OptString.new('PATH', [ true,  "The path to identify files", '/' ]),
+        OptInt.new('ERROR_CODE', [ true, "Error code for non existent directory", 404 ]),
+        OptPath.new('DICTIONARY', [ false, "Path of word dictionary to use",
+            File.join(Msf::Config.data_directory, "wmap", "wmap_dirs.txt") ]),
+        OptPath.new('HTTP404S', [ false, "Path of 404 signatures to use",
+            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt") ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
     register_advanced_options(
@@ -55,6 +52,10 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -81,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'  		=>  tpath+randdir,
         'method'   	=> 'GET',
         'ctype'		=> 'text/html'
-      }, 20)
+      }, timeout)
 
       return if not res
 
@@ -125,15 +126,14 @@ class Metasploit3 < Msf::Auxiliary
       begin
         testfdir = testf.chomp + '/'
         res = send_request_cgi({
-          'uri'  		=>  tpath + testfdir,
-          'method'   	=> 'PROPFIND',
-          'ctype'		=> 'application/xml',
-          'headers' 	=>
+          'uri'         =>  tpath + testfdir,
+          'method'      => 'PROPFIND',
+          'ctype'       => 'application/xml',
+          'headers'     =>
             {
             },
-          'data'		=> webdav_req + "\r\n\r\n",
-        }, 20)
-
+          'data'        => webdav_req + "\r\n\r\n",
+        }, timeout)
 
         if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
           if !datastore['NoDetailMessages']
@@ -152,15 +152,15 @@ class Metasploit3 < Msf::Auxiliary
           bogus = Rex::Text.uri_encode(Rex::Text.to_unicode( buff, 'utf-8', 'overlong', 2))
 
           res = send_request_cgi({
-            'uri'  		=>  tpath + bogus + testfdir,
+            'uri'       =>  tpath + bogus + testfdir,
             'method'   	=> 'PROPFIND',
-            'ctype'		=> 'application/xml',
+            'ctype'     => 'application/xml',
             'headers' 	=>
               {
                 #'Translate'	 => 'f', # Not required in PROPFIND, only GET - patrickw 20091518
               },
-            'data'		=> webdav_req + "\r\n\r\n",
-          }, 20)
+            'data'      => webdav_req + "\r\n\r\n",
+          }, timeout)
 
           if (res and res.code.to_i == 207)
             print_status("\tFound vulnerable WebDAV Unicode bypass target #{wmap_base_url}#{tpath}%c0%af#{testfdir} #{res.code} (#{wmap_target_host})")
@@ -170,12 +170,12 @@ class Metasploit3 < Msf::Auxiliary
 
             report_note(
               :host	=> ip,
-              :proto => 'tcp',
-              :sname => (ssl ? 'https' : 'http'),
+              :proto    => 'tcp',
+              :sname    => (ssl ? 'https' : 'http'),
               :port	=> rport,
               :type	=> 'UNICODE_WEBDAV_BYPASS',
               :data	=> "#{tpath}%c0%af#{testfdir} Code: #{res.code}",
-              :update => :unique_data
+              :update   => :unique_data
             )
 
           end

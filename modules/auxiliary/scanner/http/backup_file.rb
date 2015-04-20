@@ -27,9 +27,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path/file to identify backups", '/index.asp'])
+        OptString.new('PATH', [ true,  "The path/file to identify backups", '/index.asp' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -57,10 +62,10 @@ class Metasploit3 < Msf::Auxiliary
   def check_for_file(file)
     begin
       res = send_request_cgi({
-          'uri'  		=>  file,
+          'uri'         =>  file,
           'method'   	=> 'GET',
-          'ctype'		=> 'text/plain'
-          }, 20)
+          'ctype'       => 'text/plain'
+          }, timeout)
 
       if (res and res.code >= 200 and res.code < 300)
         print_status("Found #{wmap_base_url}#{file}")

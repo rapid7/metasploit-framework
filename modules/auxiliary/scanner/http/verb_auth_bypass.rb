@@ -28,8 +28,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to test", '/'])
+        OptString.new('PATH', [ true,  "The path to test", '/' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(ip)
@@ -46,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_raw({
       'uri'          => normalize_uri(datastore['PATH']),
       'method'       => 'GET'
-    }, 10)
+    }, timeout)
 
     return if not res
 
@@ -73,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       resauth = send_request_raw({
         'uri'          => normalize_uri(datastore['PATH']),
         'method'       => tv
-      }, 10)
+      }, timeout)
 
       next if not resauth
 

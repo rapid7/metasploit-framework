@@ -40,13 +40,13 @@ class Metasploit3 < Msf::Auxiliary
 
       register_options(
         [
-          OptEnum.new('SRCADDR', [true, 'The source address to use for sending the queries', 'Real', ['Real', 'Random'], 'Real']),
-          OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
-          OptString.new('HOSTNAME', [true, 'Hostname to hijack', 'pwned.example.com']),
-          OptAddress.new('NEWADDR', [true, 'New address for hostname', '1.3.3.7']),
-          OptAddress.new('RECONS', [true, 'The nameserver used for reconnaissance', '208.67.222.222']),
-          OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
-          OptInt.new('TTL', [true, 'The TTL for the malicious host entry', rand(20000)+30000]),
+          OptEnum.new('SRCADDR', [ true, 'The source address to use for sending the queries', 'Real', ['Real', 'Random'], 'Real' ]),
+          OptPort.new('SRCPORT', [ true, "The target server's source query port (0 for automatic)", nil ]),
+          OptString.new('HOSTNAME', [ true, 'Hostname to hijack', 'pwned.example.com' ]),
+          OptAddress.new('NEWADDR', [ true, 'New address for hostname', '1.3.3.7' ]),
+          OptAddress.new('RECONS', [ true, 'The nameserver used for reconnaissance', '208.67.222.222' ]),
+          OptInt.new('XIDS', [ true, 'The number of XIDs to try for each query (0 for automatic)', 0 ]),
+          OptInt.new('TTL', [ true, 'The TTL for the malicious host entry', rand(20000)+30000 ]),
 
         ], self.class)
 

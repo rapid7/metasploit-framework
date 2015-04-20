@@ -26,7 +26,15 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    register_options([Opt::RPORT(1158),], self.class)
+    register_options(
+      [
+        Opt::RPORT(1158),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5])
+      ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def run_host(ip)
@@ -34,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({
         'uri'     => '/em/console/logon/logon',
         'method'  => 'GET',
-      }, 5)
+      }, timeout)
 
       return if not res
         if (res.code == 200)

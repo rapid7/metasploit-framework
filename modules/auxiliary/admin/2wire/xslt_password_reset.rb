@@ -34,8 +34,13 @@ class Metasploit3 < Msf::Auxiliary
 
       register_options(
         [
-          OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin'])
+          OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin' ]),
+          OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the device to respond", 25 ])
         ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT']
   end
 
   def run
@@ -127,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'POST',
         'uri'     => '/xslt',
         'data'    => data,
-      }, 25)
+      }, timeout)
 
       if res and res.code == 200
         cookies = res.get_cookies

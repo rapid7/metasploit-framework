@@ -19,9 +19,14 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
       )
     register_options(
-            [
-              OptString.new('PATH', [ true,  "path", '/']),
-            ] )
+      [
+        OptString.new('PATH', [ true,  "path", '/' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
+      ])
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(ip)
@@ -53,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
         res = send_request_raw({
           'uri'          =>  normalize_uri(path, check),
           'method'       => 'GET'
-          }, 10)
+          }, timeout)
 
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")
@@ -101,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
         res = send_request_raw({
           'uri'          =>  normalize_uri(path, check),
           'method'       => 'GET'
-          }, 10)
+          }, timeout)
 
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")
@@ -137,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
         res = send_request_raw({
           'uri'          =>  normalize_uri(path, check),
           'method'       => 'GET'
-          }, 10)
+          }, timeout)
 
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")

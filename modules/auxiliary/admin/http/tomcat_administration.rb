@@ -26,9 +26,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8180),
-        OptString.new('TOMCAT_USER', [ false, 'The username to authenticate as', '']),
-        OptString.new('TOMCAT_PASS', [ false, 'The password for the specified username', '']),
+        OptString.new('TOMCAT_USER', [ false, 'The username to authenticate as', '' ]),
+        OptString.new('TOMCAT_PASS', [ false, 'The password for the specified username', '' ]),
+        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 25 ]
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT']
   end
 
   def run_host(ip)
@@ -38,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'method'  => 'GET',
           'uri'     => '/',
-        }, 25)
+        }, timeout)
 
       http_fingerprint({ :response => res })
 
@@ -71,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
             res = send_request_raw({
               'method'  => 'GET',
               'uri'     => '/admin/',
-            }, 25)
+            }, timeout)
 
             if res && res.code == 200
 
@@ -87,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
                   'content-type' => 'application/x-www-form-urlencoded',
                   'cookie'       => "JSESSIONID=#{jsessionid}",
                   'data'         => post_data,
-                }, 25)
+                }, timeout)
 
                 if (res and res.code == 302)
 
@@ -95,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
                     'uri'     => "/admin/",
                     'method'  => 'GET',
                     'cookie'  => "JSESSIONID=#{jsessionid}",
-                  }, 25)
+                  }, timeout)
 
                   if (res and res.code == 302)
 
@@ -103,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
                       'uri'     => "/admin/frameset.jsp",
                       'method'  => 'GET',
                       'cookie'  => "JSESSIONID=#{jsessionid}",
-                    }, 25)
+                    }, timeout)
 
                     if (res and res.code == 200)
                       print_status("http://#{target_host}:#{rport}/admin [#{res.headers['Server']}] [#{ver}] [Tomcat Server Administration] [#{username}/#{password}]")
@@ -114,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
                       'uri'          => '/admin/logOut.do',
                       'method'       => 'GET',
                       'cookie'       => "JSESSIONID=#{jsessionid}",
-                    }, 25)
+                    }, timeout)
                   end
                 end
               end

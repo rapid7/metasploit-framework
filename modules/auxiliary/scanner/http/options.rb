@@ -30,6 +30,14 @@ class Metasploit3 < Msf::Auxiliary
         [ 'BID', '9561']
       ]
     )
+    register_options(
+      [
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
+      ]
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(target_host)
@@ -39,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
         'version'      => '1.0',
         'uri'          => '/',
         'method'       => 'OPTIONS'
-      }, 10)
+      }, timeout)
 
       if (res and res.headers['Allow'])
         print_status("#{target_host} allows #{res.headers['Allow']} methods")

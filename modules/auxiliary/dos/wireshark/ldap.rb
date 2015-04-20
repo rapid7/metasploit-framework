@@ -27,8 +27,8 @@ class Metasploit3 < Msf::Auxiliary
       'DisclosureDate' => 'Mar 28 2008')
 
     register_options([
-      OptInt.new('RPORT', [true, 'The destination port', 389]),
-      OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil])
+      OptInt.new('RPORT', [true, 'The destination port', 389 ]),
+      OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil ])
     ], self.class)
 
     deregister_options('FILTER','PCAPFILE')

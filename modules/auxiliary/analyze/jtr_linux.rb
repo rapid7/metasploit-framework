@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('Crypt',[false, 'Try crypt() format hashes(Very Slow)', false])
+        OptBool.new('Crypt',[ false, 'Try crypt() format hashes(Very Slow)', false ])
       ]
     )
 

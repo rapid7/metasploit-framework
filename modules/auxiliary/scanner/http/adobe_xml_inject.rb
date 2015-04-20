@@ -34,7 +34,12 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8400),
         OptString.new('FILE', [ true,  "File to read", '/etc/passwd']),
+        OptInt.new(' TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25])
       ],self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -75,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
         'version'      => '1.1',
         'Content-Type' => 'application/x-amf',
         'data'         => postrequest
-      }, 25)
+      }, timeout)
 
       if (res.nil?)
         print_error("no response for #{ip}:#{rport} #{check}")

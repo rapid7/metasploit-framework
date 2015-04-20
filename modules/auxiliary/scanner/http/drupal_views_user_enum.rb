@@ -35,8 +35,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, "Drupal Path", "/"])
+        OptString.new('TARGETURI', [ true, "Drupal Path", "/" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def base_uri
@@ -48,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri'     => base_uri,
       'method'  => 'GET',
       'headers' => { 'Connection' => 'Close' }
-    }, 25)
+    }, timeout)
 
     if not res
       return Exploit::CheckCode::Unknown
@@ -80,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => base_uri+l,
         'method'  => 'GET',
         'headers' => { 'Connection' => 'Close' }
-      }, 25)
+      }, timeout)
 
       if (res and res.message == "OK")
         user_list = res.body.scan(/\w+/)

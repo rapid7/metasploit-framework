@@ -14,7 +14,7 @@ class Metasploit4 < Msf::Auxiliary
     super(
       'Name'           => 'TYPO3 sa-2009-001 Weak Encryption Key File Disclosure',
       'Description'    => %q{
-        This module exploits a flaw in TYPO3 encryption ey creation process to allow for
+        This module exploits a flaw in TYPO3 encryption key creation process to allow for
         file disclosure in the jumpUrl mechanism. This flaw can be used to read any file
         that the web server user account has access to view.
       },
@@ -31,10 +31,15 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, "TYPO3 Path", "/"]),
-        OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
-        OptString.new('ENC_KEY', [false, "Encryption key if known", '']),
+        OptString.new('URI', [ true, "TYPO3 Path", "/" ]),
+        OptString.new('RFILE', [ true, "The remote file to download", 'typo3conf/localconf.php' ]),
+        OptString.new('ENC_KEY', [ false, "Encryption key if known", '' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def enc_key(seed)
@@ -107,7 +112,7 @@ class Metasploit4 < Msf::Auxiliary
         {
           'Connection' => 'Close',
         }
-      },25)
+      }, timeout)
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE => e

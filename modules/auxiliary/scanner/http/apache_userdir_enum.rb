@@ -36,9 +36,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, 'The path to users Home Page', '/']),
+        OptString.new('URI', [ true, 'The path to users Home Page', '/' ]),
         OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "unix_users.txt") ]),
+            File.join(Msf::Config.data_directory, "wordlists", "unix_users.txt") ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     deregister_options(
@@ -49,6 +50,10 @@ class Metasploit3 < Msf::Auxiliary
       'BLANK_PASSWORDS',
       'USER_AS_PASS'
     )
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def target_url
@@ -89,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
           'method'  => 'GET',
           'uri'     => payload,
           'ctype'   => 'text/plain'
-        }, 20)
+        }, timeout)
 
       return unless res
       if ((res.code == 403) or (res.code == 200))

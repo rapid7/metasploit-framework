@@ -30,10 +30,11 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('COMPANY_NAME', [ true, "Search for companies with this name", ""]),
-        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1]),
-        OptString.new('LIMIT', [ true, "Limit the number of results returned", "5"]),
-        OptString.new('CORPWATCH_APIKEY', [ false, "Use this API key when getting the data", ""]),
+        OptString.new('COMPANY_NAME', [ true, "Search for companies with this name", "" ]),
+        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1 ]),
+        OptString.new('LIMIT', [ true, "Limit the number of results returned", "5" ]),
+        OptString.new('CORPWATCH_APIKEY', [ false, "Use this API key when getting the data", "" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     deregister_options('RHOST', 'RPORT', 'Proxies', 'VHOST')
@@ -45,6 +46,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def rport_corpwatch
     80
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run
@@ -65,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
         'limit'        => datastore['LIMIT'],
         'key'          => datastore['CORPWATCH_APIKEY']
       }
-    }, 25)
+    }, timeout)
 
     if not res
       print_error("Server down, bad response")

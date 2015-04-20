@@ -22,7 +22,15 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
       'License'        =>  MSF_LICENSE
     )
+    register_options(
+      [
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
+      ]
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -43,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'POST',
         'uri'     => '/names.nsf?Login',
         'data'    => post_data,
-      }, 20)
+      }, timeout)
 
       if res and res.code == 302
         if res.get_cookies.match(/DomAuthSessId=(.*);(.*)/i)

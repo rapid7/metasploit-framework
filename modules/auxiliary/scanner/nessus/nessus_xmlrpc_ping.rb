@@ -30,7 +30,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8834),
         OptInt.new('THREADS', [true, "The number of concurrent threads", 25]),
-        OptString.new('URI', [true, "URI for Nessus XMLRPC. Default is /", "/"])
+        OptString.new('URI', [true, "URI for Nessus XMLRPC. Default is /", "/"]),
+        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 25])
       ], self.class)
 
     register_advanced_options(
@@ -39,12 +40,17 @@ class Metasploit3 < Msf::Auxiliary
     ], self.class)
   end
 
+  def timeout
+    datastore['TIMEOUT']
+  end
+
   def run_host(ip)
     begin
       res = send_request_cgi({
         'uri'     => datastore['URI'],
         'method'  => 'GET'
-        }, 25)
+        }, timeout)
+
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URI']} - #{e.to_s}")

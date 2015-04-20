@@ -26,10 +26,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The test path to find robots.txt file", '/']),
-
+        OptString.new('PATH', [ true,  "The test path to find robots.txt file", '/' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(target_host)
@@ -46,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => turl,
         'method'  => 'GET',
         'version' => '1.0',
-      }, 10)
+      }, timeout)
 
 
       if not res

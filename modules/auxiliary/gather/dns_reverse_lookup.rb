@@ -27,16 +27,16 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptAddressRange.new('RANGE', [true, 'IP range to perform reverse lookup against.']),
+        OptAddressRange.new('RANGE', [ true, 'IP range to perform reverse lookup against.' ]),
         OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS." ]),
         OptString.new('OUT_FILE', [ false, "Specify a CSV output file" ])
       ], self.class)
 
     register_advanced_options(
       [
-        OptInt.new('RETRY', [ false, "Number of tries to resolve a record if no response is received.", 2]),
-        OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2]),
-        OptInt.new('THREADS', [ true, "The number of concurrent threads.", 1]),
+        OptInt.new('RETRY', [ false, "Number of tries to resolve a record if no response is received.", 2 ]),
+        OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry.", 2 ]),
+        OptInt.new('THREADS', [ true, "The number of concurrent threads.", 1 ]),
         OptInt.new('THROTTLE', [ false, "Specify the resolution throttle in query per sec. 0 means unthrottled",0 ])
       ], self.class)
   end

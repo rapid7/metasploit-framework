@@ -36,6 +36,10 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def timeout
+    datastore['TIMEOUT']
+  end
+
   def run
     print_status("#{peer} - Attempting to extract LDAP username and password...")
 
@@ -262,7 +266,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'    => method,
         'cookie'    => @auth_cookie,
         'data'      => post_data
-      }, datastore['TIMEOUT'].to_i)
+      }, timeout)
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       print_error("#{peer} - Connection failed.")

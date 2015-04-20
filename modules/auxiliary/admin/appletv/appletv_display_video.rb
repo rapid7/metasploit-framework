@@ -39,9 +39,9 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(7000),
-      OptInt.new('TIME', [true, 'Time in seconds to show the video', 60]),
-      OptString.new('URL', [true, 'URL of video to show. Must use an IP address']),
-      OptString.new('PASSWORD', [false, 'The password for AppleTV AirPlay'])
+      OptInt.new('TIME', [ true, 'Time in seconds to show the video', 60 ]),
+      OptString.new('URL', [ true, 'URL of video to show. Must use an IP address' ]),
+      OptString.new('PASSWORD', [ false, 'The password for AppleTV AirPlay' ])
     ], self.class)
 
     # We're not actually using any of these against AppleTV in our Rex HTTP client init,

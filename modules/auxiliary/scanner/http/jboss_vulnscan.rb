@@ -28,20 +28,24 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('VERB',  [ true,  "Verb for auth bypass testing", "HEAD"]),
+        OptString.new('VERB',  [ true,  "Verb for auth bypass testing", "HEAD" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
   end
 
+  def timeout
+    datastore['TIMEOUT'] || 20
+  end
 
   def run_host(ip)
 
     res = send_request_cgi(
       {
-        'uri'       => "/"+Rex::Text.rand_text_alpha(12),
+        'uri'       => "/" + Rex::Text.rand_text_alpha(12),
         'method'    => 'GET',
         'ctype'     => 'text/plain',
 
-      }, 20)
+      }, timeout)
 
     if res
 
@@ -85,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri'       => app,
       'method'    => 'GET',
       'ctype'     => 'text/plain',
-    }, 20)
+    }, timeout)
 
     if (res)
       case
@@ -116,7 +120,8 @@ class Metasploit3 < Msf::Auxiliary
       'uri'       => app,
       'method'    => datastore['VERB'],
       'version'   => '1.0' # 1.1 makes the head request wait on timeout for some reason
-    }, 20)
+    }, timeout)
+
     if (res and res.code == 200)
       print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering")
     else
@@ -128,7 +133,8 @@ class Metasploit3 < Msf::Auxiliary
       'method'    => 'GET',
       'ctype'     => 'text/plain',
       'authorization' => basic_auth('admin','admin')
-    }, 20)
+    }, timeout)
+
     if (res and res.code == 200)
       print_good("#{rhost}:#{rport} Authenticated using admin:admin")
     else

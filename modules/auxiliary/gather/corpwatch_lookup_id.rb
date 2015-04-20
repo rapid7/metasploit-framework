@@ -28,13 +28,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('CW_ID', [ true, "The CorpWatch ID of the company", ""]),
-        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1]),
-        OptBool.new('GET_LOCATIONS', [ false, "Get locations for company", true]),
-        OptBool.new('GET_NAMES', [ false, "Get all registered names ofr the company", true]),
+        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1 ]),
+        OptBool.new('GET_LOCATIONS', [ false, "Get locations for company", true ]),
+        OptBool.new('GET_NAMES', [ false, "Get all registered names ofr the company", true ]),
         OptBool.new('GET_FILINGS', [ false, "Get all filings", false ]),
-        OptBool.new('GET_CHILDREN', [false, "Get children companies", true]),
-        OptInt.new('CHILD_LIMIT', [false, "Set limit to how many children we can get", 5]),
-        OptBool.new('GET_HISTORY', [false, "Get company history", false])
+        OptBool.new('GET_CHILDREN', [ false, "Get children companies", true ]),
+        OptInt.new('CHILD_LIMIT', [ false, "Set limit to how many children we can get", 5 ]),
+        OptBool.new('GET_HISTORY', [ false, "Get company history", false ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     deregister_options('RHOST', 'RPORT', 'VHOST', 'Proxies')
@@ -46,6 +47,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def rport_corpwatch
     80
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run
@@ -60,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
       'rport'    => rport_corpwatch,
       'uri'      => uri + ".xml",
       'method'   => 'GET'
-    }, 25)
+    }, timeout)
 
     if res == nil
       print_error("No response from server.")
@@ -159,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
         'rport'   => rport_corpwatch,
         'uri'     => uri + "/locations.xml",
         'method'  => 'GET'
-      }, 25)
+      }, timeout)
 
       if res == nil
         print_error ("Server down or bad response")
@@ -231,7 +236,7 @@ class Metasploit3 < Msf::Auxiliary
         'rport'   => rport_corpwatch,
         'uri'     => uri + "/names.xml",
         'method'  => 'GET'
-      }, 25)
+      }, timeout)
 
       if res == nil
         print_error("Server down or bad response")
@@ -293,7 +298,7 @@ class Metasploit3 < Msf::Auxiliary
         'rport'   => rport_corpwatch,
         'uri'     => uri + "/filings.xml",
         'method'  => 'GET'
-      }, 25)
+      }, timeout)
 
       if res == nil
         print_error("Server down or response broken")
@@ -373,7 +378,7 @@ class Metasploit3 < Msf::Auxiliary
         'rport'   => rport_corpwatch,
         'uri'      => child_uri,
         'method'   => 'GET'
-      }, 25)
+      }, timeout)
 
       if res == nil
         print_error("Server down or bad response")
@@ -454,7 +459,7 @@ class Metasploit3 < Msf::Auxiliary
         'rport'   => rport_corpwatch,
         'uri'     => uri + "/history.xml",
         'method'  => 'GET'
-      }, 25)
+      }, timeout)
 
       if res == nil
         print_error("Server down or bad response")

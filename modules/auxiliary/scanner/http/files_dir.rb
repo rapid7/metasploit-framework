@@ -38,13 +38,16 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptInt.new('ErrorCode', [ true,  "The expected http code for non existant files", 404]),
         OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
-          ]
-        ),
+            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt") ]),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
-        OptInt.new('TestThreads', [ true, "Number of test threads", 25])
+        OptInt.new('TestThreads', [ true, "Number of test threads", 25 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -107,10 +110,10 @@ class Metasploit3 < Msf::Auxiliary
         randfile = Rex::Text.rand_text_alpha(5).chomp
 
         res = send_request_cgi({
-          'uri'  		=>  tpath+randfile+ext,
+          'uri'         =>  tpath+randfile+ext,
           'method'   	=> 'GET',
-          'ctype'		=> 'text/html'
-        }, 20)
+          'ctype'       => 'text/html'
+        }, timeout)
 
         return if not res
 
@@ -153,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
               'uri'  		=>  tpath+testfext,
               'method'   	=> 'GET',
               'ctype'		=> 'text/plain'
-            }, 20)
+            }, timeout)
 
             if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
               if dm == false

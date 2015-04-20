@@ -28,10 +28,15 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options(
-        [
-          OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
-          Opt::RPORT(8080),
-        ], self.class)
+      [
+        OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv') ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
+        Opt::RPORT(8080),
+      ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(ip)
@@ -41,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri'     => '/oradb/PUBLIC/GLOBAL_NAME',
       'version' => '1.0',
       'method'  => 'GET'
-    }, 5)
+    }, timeout)
     return if not res
 
     if(res.code == 200)
@@ -68,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
         }
-      }, 10)
+      }, timeout)
 
       if( not res )
         vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{dbuser} / #{dbpass}...")

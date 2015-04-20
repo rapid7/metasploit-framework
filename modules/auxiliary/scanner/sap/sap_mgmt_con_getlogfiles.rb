@@ -36,20 +36,25 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(50013),
-        OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-        OptString.new('RFILE', [ true, 'The name of the file to download ', 'sapstart.log']),
-        OptEnum.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE', ['TRACEFILE','LOGFILE']]),
-        OptBool.new('GETALL', [ false, 'Download all available files (WARNING: may take a long time!)', false])
+        OptString.new('URI', [ false, 'Path to the SAP Management Console ', '/' ]),
+        OptString.new('RFILE', [ true, 'The name of the file to download ', 'sapstart.log' ]),
+        OptEnum.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE', ['TRACEFILE','LOGFILE' ]]),
+        OptBool.new('GETALL', [ false, 'Download all available files (WARNING: may take a long time!)', false ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 120 ])
       ], self.class)
     register_autofilter_ports([ 50013 ])
     deregister_options('RHOST')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 120
   end
 
   def run_host(ip)
     res = send_request_cgi({
       'uri'      => normalize_uri(datastore['URI']),
       'method'   => 'GET'
-    }, 25)
+    }, timeout)
 
     if not res
       print_error("#{rhost}:#{rport} [SAP] Unable to connect")
@@ -104,7 +109,7 @@ class Metasploit4 < Msf::Auxiliary
             'SOAPAction'     => '""',
             'Content-Type'   => 'text/xml; charset=UTF-8',
           }
-      }, 30)
+      }, timeout)
 
       env = []
       if res and res.code == 200
@@ -193,7 +198,7 @@ class Metasploit4 < Msf::Auxiliary
             'SOAPAction'     => '""',
             'Content-Type'   => 'text/xml; charset=UTF-8',
           }
-      }, 120)
+      }, timeout)
 
       env = []
 

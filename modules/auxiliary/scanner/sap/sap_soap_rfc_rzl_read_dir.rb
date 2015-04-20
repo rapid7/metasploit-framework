@@ -50,10 +50,10 @@ class Metasploit4 < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('CLIENT', [true, 'SAP Client', '001']),
-      OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-      OptString.new('PASSWORD', [true, 'Password', '06071992']),
-      OptString.new('DIR',[true,'Directory path (e.g. /etc)','/etc'])
+      OptString.new('CLIENT', [ true, 'SAP Client', '001' ]),
+      OptString.new('USERNAME', [ true, 'Username', 'SAP*' ]),
+      OptString.new('PASSWORD', [ true, 'Password', '06071992' ]),
+      OptString.new('DIR',[ true,'Directory path (e.g. /etc)','/etc' ])
     ], self.class)
   end
 

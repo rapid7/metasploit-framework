@@ -36,11 +36,11 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
-        OptString.new('USERNAME', [true, "A specific username to authenticate as", 'clientless']),
-        OptString.new('PASSWORD', [true, "A specific password to authenticate with", 'clientless']),
-        OptString.new('GROUP', [true, "A specific VPN group to use", 'clientless']),
-        OptInt.new('RETRIES', [true, 'The number of exploit attempts to make', 10])
+        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true ]),
+        OptString.new('USERNAME', [ true, "A specific username to authenticate as", 'clientless' ]),
+        OptString.new('PASSWORD', [ true, "A specific password to authenticate with", 'clientless' ]),
+        OptString.new('GROUP', [ true, "A specific VPN group to use", 'clientless' ]),
+        OptInt.new('RETRIES', [ true, 'The number of exploit attempts to make', 10 ])
       ], self.class
     )
 

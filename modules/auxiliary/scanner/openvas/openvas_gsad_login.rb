@@ -27,16 +27,21 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('URI', [true, "URI for OpenVAS omp login. Default is /omp", "/omp"]),
-        OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
+        OptString.new('URI', [ true, "URI for OpenVAS omp login. Default is /omp", "/omp" ]),
+        OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", false ]),
+        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     register_advanced_options(
-    [
-      OptString.new('OMP_text', [true, "value for OpenVAS omp text login hidden field", "/omp?cmd=get_tasks&amp;overrides=1"]),
-      OptString.new('OMP_cmd', [true, "value for OpenVAS omp cmd login hidden field", "login"])
-    ], self.class)
+      [
+        OptString.new('OMP_text', [ true, "value for OpenVAS omp text login hidden field", "/omp?cmd=get_tasks&amp;overrides=1" ]),
+        OptString.new('OMP_cmd', [ true, "value for OpenVAS omp cmd login hidden field", "login" ]),
+      ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -44,7 +49,8 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'     => datastore['URI'],
         'method'  => 'GET'
-        }, 25)
+        }, timeout)
+
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{msg} #{datastore['URI']} - #{e}")
@@ -84,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
           'login' => user,
           'password' => pass
         }
-      }, 25)
+      }, timeout)
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")

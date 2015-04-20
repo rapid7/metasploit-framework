@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(5227),
-      OptString.new("COMMANDS", [true, "Command(s) to execute (one or more of #{commands_help})", commands_help])
+      OptString.new("COMMANDS", [ true, "Command(s) to execute (one or more of #{commands_help})", commands_help ])
     ], self.class)
   end
 

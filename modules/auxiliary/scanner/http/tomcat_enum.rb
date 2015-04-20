@@ -41,12 +41,17 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('URI', [true, 'The path of the Apache Tomcat Administration page', '/admin/j_security_check']),
+        OptString.new('URI', [true, 'The path of the Apache Tomcat Administration page', '/admin/j_security_check' ]),
         OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt") ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
     deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','USER_AS_PASS','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def target_url
@@ -56,7 +61,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def has_j_security_check?
     vprint_status("#{target_url} - Checking j_security_check...")
-    res = send_request_raw({'uri' => normalize_uri(datastore['URI'])})
+    res = send_request_raw({
+      'uri' => normalize_uri(datastore['URI'])
+    }, timeout)
     if res
       vprint_status("#{target_url} - Server returned: #{res.code.to_s}")
       return true if res.code == 200 or res.code == 302
@@ -99,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
           'method'  => 'POST',
           'uri'     => normalize_uri(datastore['URI']),
           'data'    => post_data,
-        }, 20)
+        }, timeout)
 
       if res and res.code == 200 and !res.get_cookies.empty?
         vprint_error("#{target_url} - Apache Tomcat #{user} not found ")

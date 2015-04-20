@@ -41,18 +41,18 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       #OptString.new('LOGFILE',     [ false, "The local filename to store the captured hashes", nil ]),
-      OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
-      OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
-      OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
+      OptString.new('CAINPWFILE', [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
+      OptString.new('JOHNPWFILE', [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
+      OptString.new('CHALLENGE',  [ true, "The 8 byte challenge ", "1122334455667788" ])
 
     ], self.class)
 
     register_advanced_options([
-      OptString.new('DOMAIN',  [ false, "The default domain to use for NTLM authentication", "DOMAIN"]),
-      OptString.new('SERVER',  [ false, "The default server to use for NTLM authentication", "SERVER"]),
-      OptString.new('DNSNAME',  [ false, "The default DNS server name to use for NTLM authentication", "SERVER"]),
-      OptString.new('DNSDOMAIN',  [ false, "The default DNS domain name to use for NTLM authentication", "example.com"]),
-      OptBool.new('FORCEDEFAULT',  [ false, "Force the default settings", false])
+      OptString.new('DOMAIN', [ false, "The default domain to use for NTLM authentication", "DOMAIN" ]),
+      OptString.new('SERVER', [ false, "The default server to use for NTLM authentication", "SERVER" ]),
+      OptString.new('DNSNAME', [ false, "The default DNS server name to use for NTLM authentication", "SERVER" ]),
+      OptString.new('DNSDOMAIN', [ false, "The default DNS domain name to use for NTLM authentication", "example.com" ]),
+      OptBool.new('FORCEDEFAULT', [ false, "Force the default settings", false ])
     ], self.class)
 
   end

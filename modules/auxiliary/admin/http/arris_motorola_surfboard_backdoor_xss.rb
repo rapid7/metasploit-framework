@@ -52,41 +52,13 @@ class Metasploit3 < Msf::Auxiliary
     ))
 
     register_options([
-      OptString.new('DEVICE_IP', [
-        false,
-        "Internal IP address of the vulnerable device.",
-        '192.168.0.1'
-      ]),
-      OptString.new('LOGINS', [
-        false,
-        "Comma-separated list of user/pass combinations to attempt.",
-        'technician/yZgO8Bvj,admin/motorola'
-      ]),
-      OptBool.new('DUMP_DHCP_LIST', [
-        true,
-        "Dump the MAC, IP, and hostnames of all registered DHCP clients.",
-        true
-      ]),
-      OptInt.new('SET_DMZ_HOST', [
-        false,
-        "The final octet of the IP address to set in the DMZ (1-255).",
-        nil
-      ]),
-      OptString.new('BLOCK_INTERNET_ACCESS', [
-        false,
-        "Comma-separated list of IP addresses to block internet access for.",
-        ''
-      ]),
-      OptString.new('CUSTOM_JS', [
-        false,
-        "A string of javascript to execute in the context of the device web interface.",
-        ''
-      ]),
-      OptString.new('REMOTE_JS', [
-        false,
-        "A URL to inject into a script tag in the context of the device web interface.",
-        ''
-      ])
+      OptString.new('DEVICE_IP', [ false, "Internal IP address of the vulnerable device.", '192.168.0.1' ]),
+      OptString.new('LOGINS', [ false, "Comma-separated list of user/pass combinations to attempt.", 'technician/yZgO8Bvj,admin/motorola' ]),
+      OptBool.new('DUMP_DHCP_LIST', [ true, "Dump the MAC, IP, and hostnames of all registered DHCP clients.", true ]),
+      OptInt.new('SET_DMZ_HOST', [ false, "The final octet of the IP address to set in the DMZ (1-255).", nil ]),
+      OptString.new('BLOCK_INTERNET_ACCESS', [ false, "Comma-separated list of IP addresses to block internet access for.", '' ]),
+      OptString.new('CUSTOM_JS', [ false, "A string of javascript to execute in the context of the device web interface.", '' ]),
+      OptString.new('REMOTE_JS', [ false, "A URL to inject into a script tag in the context of the device web interface.", '' ])
     ], self.class)
   end
 

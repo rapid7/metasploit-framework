@@ -43,11 +43,16 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [true,  "The path to attempt to write or delete", "/"]),
-        OptString.new('FILENAME', [true,  "The file to attempt to write or delete", "msf_http_put_test.txt"]),
-        OptString.new('FILEDATA', [false, "The data to upload into the file", "msf test file"]),
-        OptString.new('ACTION', [true, "PUT or DELETE", "PUT"])
+        OptString.new('PATH', [ true,  "The path to attempt to write or delete", "/" ]),
+        OptString.new('FILENAME', [ true,  "The file to attempt to write or delete", "msf_http_put_test.txt" ]),
+        OptString.new('FILEDATA', [ false, "The data to upload into the file", "msf test file" ]),
+        OptString.new('ACTION', [ true, "PUT or DELETE", "PUT" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   #
@@ -62,10 +67,9 @@ class Metasploit4 < Msf::Auxiliary
           'method' => 'GET',
           'ctype'  => 'text/plain',
           'data'   => data,
-        }, 20
-      ).to_s
+        }, timeout)
     rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
+      print_error("Error: #{e}")
       return nil
     end
 
@@ -83,10 +87,9 @@ class Metasploit4 < Msf::Auxiliary
           'method' => 'PUT',
           'ctype'  => 'text/plain',
           'data'   => data,
-        }, 20
-      )
+        }, timeout)
     rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
+      print_error("Error: #{e}")
       return nil
     end
 
@@ -103,10 +106,9 @@ class Metasploit4 < Msf::Auxiliary
           'uri'    => normalize_uri(path),
           'method' => 'DELETE',
           'ctype'  => 'text/html',
-        }, 20
-      )
+        }, timeout)
     rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
+      print_error("Error: #{e}")
       return nil
     end
 

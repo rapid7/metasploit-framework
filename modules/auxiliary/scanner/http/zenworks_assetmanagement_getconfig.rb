@@ -37,7 +37,12 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def run_host(ip)
@@ -49,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri'          => '/rtrlet/rtr',
       'method'       => 'POST',
       'data'         => post_data,
-    }, 5)
+    }, timeout)
 
     if res and res.code == 200 and res.body =~ /<b>Rtrlet Servlet Configuration Parameters \(live\)<\/b><br\/>/
       print_good("#{rhost}:#{rport} - File retrieved successfully!")

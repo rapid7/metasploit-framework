@@ -30,17 +30,22 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(50013),
-        OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
+        OptString.new('URI', [ false, 'Path to the SAP Management Console ', '/' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
     register_autofilter_ports([ 50013 ])
     deregister_options('RHOST')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
     res = send_request_cgi({
       'uri'      => normalize_uri(datastore['URI']),
       'method'   => 'GET'
-    }, 25)
+    }, timeout)
 
     if not res
       print_error("#{rhost}:#{rport} [SAP] Unable to connect")
@@ -83,7 +88,7 @@ class Metasploit4 < Msf::Auxiliary
             'SOAPAction'     => '""',
             'Content-Type'   => 'text/xml; charset=UTF-8',
           }
-      }, 15)
+      }, timeout)
 
       if res.nil?
         print_error("#{rhost}:#{rport} [SAP] Unable to connect")

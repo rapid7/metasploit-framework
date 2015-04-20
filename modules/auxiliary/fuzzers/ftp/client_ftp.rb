@@ -31,14 +31,14 @@ class Metasploit3 < Msf::Auxiliary
       [
       OptPort.new('SRVPORT', [ true, "The local port to listen on.", 21 ]),
       OptString.new('FUZZCMDS', [ true, "Comma separated list of commands to fuzz (Uppercase).", "LIST,NLST,LS,RETR", nil, /(?:[A-Z]+,?)+/ ]),
-      OptInt.new('STARTSIZE', [ true, "Fuzzing string startsize.",1000]),
-      OptInt.new('ENDSIZE', [ true, "Max Fuzzing string size.",200000]),
-      OptInt.new('STEPSIZE', [ true, "Increment fuzzing string each attempt.",1000]),
-      OptBool.new('RESET', [ true, "Reset fuzzing values after client disconnects with QUIT cmd.",true]),
-      OptString.new('WELCOME', [ true, "FTP Server welcome message.","Evil FTP Server Ready"]),
-      OptBool.new('CYCLIC', [ true, "Use Cyclic pattern instead of A's (fuzzing payload).",true]),
-      OptBool.new('ERROR', [ true, "Reply with error codes only",false]),
-      OptBool.new('EXTRALINE', [ true, "Add extra CRLF's in response to LIST",true])
+      OptInt.new('STARTSIZE', [ true, "Fuzzing string startsize.",1000 ]),
+      OptInt.new('ENDSIZE', [ true, "Max Fuzzing string size.",200000 ]),
+      OptInt.new('STEPSIZE', [ true, "Increment fuzzing string each attempt.",1000 ]),
+      OptBool.new('RESET', [ true, "Reset fuzzing values after client disconnects with QUIT cmd.",true ]),
+      OptString.new('WELCOME', [ true, "FTP Server welcome message.","Evil FTP Server Ready" ]),
+      OptBool.new('CYCLIC', [ true, "Use Cyclic pattern instead of A's (fuzzing payload).",true ]),
+      OptBool.new('ERROR', [ true, "Reply with error codes only",false ]),
+      OptBool.new('EXTRALINE', [ true, "Add extra CRLF's in response to LIST",true ])
       ], self.class)
   end
 

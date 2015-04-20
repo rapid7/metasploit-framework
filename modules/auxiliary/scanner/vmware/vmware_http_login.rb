@@ -30,13 +30,17 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, "The default URI to login with", "/sdk"]),
+        OptString.new('URI', [ true, "The default URI to login with", "/sdk" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
         Opt::RPORT(443)
       ], self.class)
 
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
+    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]), self.class ])
   end
 
+  def timeout
+    datastore['TIMEOUT'] || 25
+  end
 
   def run_host(ip)
     return unless is_vmware?
@@ -78,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'POST',
         'agent'   => 'VMware VI Client',
         'data'    => soap_data
-      }, 25)
+      }, timeout)
 
       if res
         fingerprint_vmware(res)

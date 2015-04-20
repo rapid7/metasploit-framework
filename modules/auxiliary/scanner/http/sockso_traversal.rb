@@ -35,10 +35,15 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(4444),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini'])
+        OptString.new('FILEPATH', [ false, 'The name of the file to download', 'windows\\system.ini' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     deregister_options('RHOST')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -54,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => uri
-    }, 25)
+    }, timemout)
 
     print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
 

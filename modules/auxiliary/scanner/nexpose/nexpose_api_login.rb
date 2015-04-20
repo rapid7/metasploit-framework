@@ -30,14 +30,19 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(3780),
-        OptString.new('URI', [true, "URI for NeXpose API. Default is /api/1.1/xml", "/api/1.1/xml"]),
-        OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
+        OptString.new('URI', [ true, "URI for NeXpose API. Default is /api/1.1/xml", "/api/1.1/xml" ]),
+        OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", false ])
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     register_advanced_options(
     [
-      OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
+      OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true ])
     ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -45,7 +50,8 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'     => datastore['URI'],
         'method'  => 'GET'
-        }, 25)
+        }, timeout)
+)
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URI']} - #{e.to_s}")
@@ -79,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'   => 'POST',
         'headers'  => headers,
         'data'     => data
-      }, 25)
+      }, timeout)
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")

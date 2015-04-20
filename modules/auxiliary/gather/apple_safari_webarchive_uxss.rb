@@ -46,17 +46,17 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('FILENAME', [ true, 'The file name.',  'msf.webarchive']),
-        OptString.new('URLS', [ true, 'A space-delimited list of URLs to UXSS (eg http://rapid7.com http://example.com']),
-        OptString.new('URIPATH', [false, 'The URI to receive the UXSS\'ed data', '/grab']),
-        OptString.new('DOWNLOAD_PATH', [ true, 'The path to download the webarchive.', '/msf.webarchive']),
-        OptString.new('URLS', [ true, 'The URLs to steal cookie and form data from.', '']),
-        OptString.new('FILE_URLS', [false, 'Additional file:// URLs to steal.', '']),
-        OptBool.new('STEAL_COOKIES', [true, "Enable cookie stealing.", true]),
-        OptBool.new('STEAL_FILES', [true, "Enable local file stealing.", true]),
-        OptBool.new('INSTALL_KEYLOGGERS', [true, "Attempt to poison the user's cache with a javascript keylogger.", true]),
-        OptBool.new('STEAL_FORM_DATA', [true, "Enable form autofill stealing.", true]),
-        OptBool.new('ENABLE_POPUPS', [false, "Enable the popup window fallback method for stealing form data.", true])
+        OptString.new('FILENAME', [ true, 'The file name.',  'msf.webarchive' ]),
+        OptString.new('URLS', [ true, 'A space-delimited list of URLs to UXSS (eg http://rapid7.com http://example.com' ]),
+        OptString.new('URIPATH', [false, 'The URI to receive the UXSS\'ed data', '/grab' ]),
+        OptString.new('DOWNLOAD_PATH', [ true, 'The path to download the webarchive.', '/msf.webarchive' ]),
+        OptString.new('URLS', [ true, 'The URLs to steal cookie and form data from.', '' ]),
+        OptString.new('FILE_URLS', [ false, 'Additional file:// URLs to steal.', '' ]),
+        OptBool.new('STEAL_COOKIES', [ true, "Enable cookie stealing.", true ]),
+        OptBool.new('STEAL_FILES', [true, "Enable local file stealing.", true ]),
+        OptBool.new('INSTALL_KEYLOGGERS', [ true, "Attempt to poison the user's cache with a javascript keylogger.", true ]),
+        OptBool.new('STEAL_FORM_DATA', [ true, "Enable form autofill stealing.", true ]),
+        OptBool.new('ENABLE_POPUPS', [ false, "Enable the popup window fallback method for stealing form data.", true ])
       ],
       self.class)
   end

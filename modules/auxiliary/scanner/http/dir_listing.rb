@@ -26,9 +26,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to identify directoy listing", '/']),
+        OptString.new('PATH', [ true,  "The path to identify directoy listing", '/' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -43,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'  		=>  tpath,
         'method'   	=> 'GET',
         'ctype'		=> 'text/plain'
-        }, 20)
+        }, timeout)
 
       if (res and res.code >= 200 and res.code < 300)
         if res.to_s.include? "<title>Index of /" and res.to_s.include? "<h1>Index of /"

@@ -37,10 +37,16 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-    register_options( [
-      Opt::RPORT(8080),
-      OptString.new('TARGETURI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
-    ], self.class)
+    register_options(
+      [
+        Opt::RPORT(8080),
+        OptString.new('TARGETURI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
+      ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   # For print_* methods
@@ -56,7 +62,8 @@ class Metasploit3 < Msf::Auxiliary
       send_request_cgi({
         'method'  => 'GET',
         'uri'     => uri
-      }, 20)
+      }, timeout)
+
     rescue => e
       print_error("Failed to retrieve Axis2 login page at #{target_url}")
       print_error("Error: #{e.class}: #{e}")

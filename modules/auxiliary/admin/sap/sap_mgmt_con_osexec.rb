@@ -31,12 +31,17 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(50013),
-        OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-        OptString.new('USERNAME', [true, 'Username to use', '']),
-        OptString.new('PASSWORD', [true, 'Password to use', '']),
-        OptString.new('CMD', [true, 'Command to run', 'set']),
+        OptString.new('URI', [ false, 'Path to the SAP Management Console ', '/' ]),
+        OptString.new('USERNAME', [ true, 'Username to use', '' ]),
+        OptString.new('PASSWORD', [ true, 'Password to use', '' ]),
+        OptString.new('CMD', [ true, 'Command to run', 'set' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 60 ])
       ], self.class)
     register_autofilter_ports([ 50013 ])
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 60
   end
 
   def run_host(ip)
@@ -74,7 +79,7 @@ class Metasploit4 < Msf::Auxiliary
             'SOAPAction'      => '""',
             'Content-Type'    => 'text/xml; charset=UTF-8',
           }
-      }, 60)
+      }, timeout)
 
     rescue ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} [SAP] Unable to communicate")
@@ -140,7 +145,7 @@ class Metasploit4 < Msf::Auxiliary
             'Authorization'   => 'Basic ' + user_pass,
             'Content-Type'    => 'text/xml; charset=UTF-8',
           }
-      }, 60)
+      }, timeout)
 
       if res and res.code == 200
         success = true

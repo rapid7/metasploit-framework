@@ -48,9 +48,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('URI', [ true,  "The request URI", '/']),
-        OptInt.new('RLIMIT', [ true,  "Number of requests to send",50])
+        OptString.new('URI', [ true,  "The request URI", '/' ]),
+        OptInt.new('RLIMIT', [ true,  "Number of requests to send",50 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 1 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 1
   end
 
   def run_host(ip)
@@ -113,7 +118,8 @@ class Metasploit3 < Msf::Auxiliary
           'method'  => 'HEAD',
           'headers' => {
             "HOST" => rhost,
-            "Range" => "bytes=0-#{ranges}"}},1)
+            "Range" => "bytes=0-#{ranges}"}
+        }, timeout)
 
       rescue ::Rex::ConnectionRefused
         print_status("Unable to connect to #{rhost}:#{rport}.")

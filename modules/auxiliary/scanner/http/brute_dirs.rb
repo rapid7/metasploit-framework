@@ -27,8 +27,9 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to identify directories", '/']),
-        OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'a,aa,aaa'])
+        OptString.new('PATH', [ true,  "The path to identify directories", '/' ]),
+        OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'a,aa,aaa' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
     register_advanced_options(
@@ -42,6 +43,10 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('TestThreads', [ true, "Number of test threads", 25])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def wmap_enabled
@@ -77,10 +82,10 @@ class Metasploit3 < Msf::Auxiliary
         randdir = Rex::Text.rand_text_alpha(5).chomp
         randdir << exte
         res = send_request_cgi({
-          'uri'  		=>  tpath+randdir,
-          'method'   	=> 'GET',
-          'ctype'		=> 'text/html'
-        }, 20)
+          'uri'         =>  tpath+randdir,
+          'method'      => 'GET',
+          'ctype'       => 'text/html'
+        }, timeout)
 
         return if not res
 
@@ -151,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
               'uri'  		=>  teststr,
               'method'   	=> 'GET',
               'ctype'		=> 'text/plain'
-            }, 5)
+            }, timeout)
 
             if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
               if dm == false

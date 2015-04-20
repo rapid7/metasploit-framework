@@ -32,14 +32,17 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptInt.new('ErrorCode', [ true, "Error code for non existent directory", 404]),
-        OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
-          ]
-        ),
-        OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
+        OptInt.new('ErrorCode', [ true, "Error code for non existent directory", 404 ]),
+        OptPath.new('HTTP404Sigs', [ false, "Path of 404 signatures to use",
+            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt") ]),
+        OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -82,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
             'uri'  		=>  filec,
             'method'   	=> 'GET',
             'ctype'		=> 'text/html'
-          }, 20)
+          }, timeout)
 
           return if not res
 

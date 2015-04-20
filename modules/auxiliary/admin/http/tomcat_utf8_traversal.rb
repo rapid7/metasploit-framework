@@ -40,9 +40,14 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-        OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),
+            File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
+        OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def extract_words(wordfile)
@@ -67,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'method'  => 'GET',
           'uri'     => try + files,
-          }, 25)
+          }, timeout)
       if (res and res.code == 200)
         print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
         @files_found << files
@@ -87,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'method'  => 'GET',
           'uri'     => '/',
-        }, 25)
+        }, timeout)
 
       if (res)
         extract_words(datastore['SENSITIVE_FILES']).each do |files|

