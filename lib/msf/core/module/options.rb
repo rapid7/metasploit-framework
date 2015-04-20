@@ -21,6 +21,10 @@ module Msf::Module::Options
     self.options.validate(self.datastore)
   end
 
+  def check_warnings
+    self.options.check_warnings(self.datastore)
+  end
+
   protected
 
   #

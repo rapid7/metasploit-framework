@@ -728,6 +728,18 @@ class OptionContainer < Hash
     return true
   end
 
+  def check_warnings(datastore)
+    warnings = []
+
+    # message about missing SSL
+    if datastore.include?('RPORT') && [443, 8443].include?(datastore['RPORT']) &&
+      datastore.include?('SSL') && datastore['SSL'] == false
+      warnings.push('If you are testing a SSL enabled port be sure to execute \'set SSL true\'')
+    end
+
+    return warnings
+  end
+
   #
   # Creates string of options that were used from the datastore in VAR=VAL
   # format separated by commas.
@@ -835,4 +847,3 @@ end
 end
 
 end
-

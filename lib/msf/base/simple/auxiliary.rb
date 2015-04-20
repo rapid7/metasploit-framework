@@ -61,6 +61,11 @@ module Auxiliary
     # Verify the options
     mod.options.validate(mod.datastore)
 
+    warnings = mod.options.check_warnings(mod.datastore)
+    warnings.each do |w|
+      mod.print_warning(w)
+    end
+
     # Initialize user interaction
     if ! opts['Quiet']
       mod.init_ui(opts['LocalInput'] || mod.user_input, opts['LocalOutput'] || mod.user_output)
@@ -112,6 +117,11 @@ module Auxiliary
     # Validate the option container state so that options will
     # be normalized
     mod.validate
+
+    warnings = mod.options.check_warnings(mod.datastore)
+    warnings.each do |w|
+      mod.print_warning(w)
+    end
 
     mod.setup
 
@@ -182,4 +192,3 @@ end
 
 end
 end
-
