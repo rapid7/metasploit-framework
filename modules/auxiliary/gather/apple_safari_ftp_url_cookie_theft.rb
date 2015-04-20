@@ -154,9 +154,6 @@ class Metasploit3 < Msf::Auxiliary
   def cleanup
     super
 
-    # Kill FTP
-    stop_service
-
     # clear my resource, deregister ref, stop/close the HTTP socket
     begin
       @http_service.remove_resource(datastore['URIPATH'])
