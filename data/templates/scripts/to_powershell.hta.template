@@ -1,0 +1,4 @@
+<script language="VBScript">
+  Set %{var_shell} = CreateObject("Wscript.Shell")
+  %{var_shell}.Run "%{powershell}"
+</script>
