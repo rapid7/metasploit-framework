@@ -725,6 +725,12 @@ class OptionContainer < Hash
         "One or more options failed to validate", caller
     end
 
+    # message about missing SSL
+    if datastore.include?('RPORT') && [443, 8443].include?(datastore['RPORT']) &&
+      datastore.include?('SSL') && datastore['SSL'] == false
+      puts('If you are testing a SSL enabled port be sure to execute \'set SSL true\'')
+    end
+
     return true
   end
 
@@ -835,4 +841,3 @@ end
 end
 
 end
-
