@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     start_service
     print_status("Local FTP: #{lookup_lhost}:#{datastore['SRVPORT']}")
     start_http
+    @http_service.wait
   end
 
 
@@ -114,11 +115,6 @@ class Metasploit3 < Msf::Auxiliary
     # Add path to resource
     @service_path = uopts['Path']
     @http_service.add_resource(uopts['Path'], uopts)
-
-    # As long as we have the http_service object, we will keep the ftp server alive
-    while @http_service
-      select(nil, nil, nil, 1)
-    end
   end
 
   #
