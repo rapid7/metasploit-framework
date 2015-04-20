@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]), self.class ])
+    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]), ])
   end
 
   def timeout

@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443)
       ], self.class)
 
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]), self.class ])
+    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]), ])
   end
 
   def timeout
