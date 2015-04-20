@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status("Connection for file transfer accepted")
+    print_status('Connection for file transfer accepted')
     c.put("150 Connection accepted\r\n")
 
     # Send out payload
