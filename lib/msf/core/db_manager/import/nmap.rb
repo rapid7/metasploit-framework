@@ -164,7 +164,7 @@ module Msf::DBManager::Import::Nmap
         data[:host]  = hobj || addr
         data[:info]  = extra if not extra.empty?
         data[:task]  = args[:task]
-        if p["name"] != "unknown"
+        if p["name"]
           data[:name] = p["name"]
         end
         if p['tunnel']
