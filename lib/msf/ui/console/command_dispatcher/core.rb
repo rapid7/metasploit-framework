@@ -2074,7 +2074,7 @@ class Core
       fname = $1
 
       begin
-        fd = ::File.new(fname)
+        fd = ::File.new(fname, 'rb')
       rescue ::Errno::ENOENT
         print_error('The file name specified does not exist')
         value = datastore[name]
