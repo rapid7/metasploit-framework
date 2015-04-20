@@ -13,44 +13,56 @@ class ReadableText < Rex::Ui::Text::Output::Stdio
   DefaultIndent     = 2
 
   def self.format_text(txt, fmt)
-    return "#{fmt}#{txt}%clr"
+    styles = {
+        :bold => '%bld',
+        :cyan =>'%cya',
+        :red => '%red',
+        :green => '%grn',
+        :blue => '%blu',
+        :yellow => '%yel',
+        :white => '%whi',
+        :magenta => '%mag',
+        :black => '%blk',
+        :dark_red => '%dred',
+        :dark_green => '%dgrn',
+        :dark_blue => '%dblu',
+        :dark_yellow => '%dyel',
+        :dark_cyan => '%dcya',
+        :dark_white => '%dwhi',
+        :dark_magenta => '%dmag',
+        :underline => '%und',
+        :plain => '%clr'
+    }
+
+    return "#{styles[fmt]}#{txt}%clr"
   end
 
   def self.md_parse(text)
+
     lines = text.split("\n")
     lines.map! do |line|
       if /^\s*#+\s*(.*)$/.match(line) # THIS REGEX LOOKS FOR '#' CHARACTER AND CAPTURES REST OF LINE
-        line = format_text(/^\s*#+\s*(.*)$/.match(line)[1], STYLES[:bold])
+        line = format_text(/^\s*#+\s*(.*)$/.match(line)[1], :bold)
       elsif /^\s*$/.match(line) # THIS REGEX HELPS US IGNORE A LINE THAT IS COMPLETELY WHITESPACE
         line = ""
+      elsif /\*+(.[^\*+]+[^\*+])\*+/.match(line) # THIS REGEX HELPS US TO DETECT WORDS THAT ARE SURROUNDED BY ASTERISKS
+        parts = /\*+(.[^\*+]+[^\*+])\*+/.match(line)
+        line.gsub!(parts[0], format_text(parts[1], :bold))
       else
-        line = line = format_text(line, STYLES[:plain])
+        line = line = format_text(line, :plain)
       end
     end
+
+
     lines.join("\n")
   end
-STYLES = {
-  :bold => '%bld',
-  :cyan =>'%cya',
-  :red => '%red',
-  :green => '%grn',
-  :blue => '%blu',
-  :yellow => '%yel',
-  :white => '%whi',
-  :magenta => '%mag',
-  :black => '%blk',
-  :dark_red => '%dred',
-  :dark_green => '%dgrn',
-  :dark_blue => '%dblu',
-  :dark_yellow => '%dyel',
-  :dark_cyan => '%dcya',
-  :dark_white => '%dwhi',
-  :dark_magenta => '%dmag',
-  :underline => '%und',
-  :plain => '%clr'
-}
+
+ TextStyle = Struct.new(:format, :str)
+
+
+
   def self.format_title(txt)
-    return format_text(txt, STYLES[:underline])
+    return format_text(txt, :underline)
   end
 
   # Returns a formatted string that contains information about
@@ -206,7 +218,7 @@ STYLES = {
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
-    output << " Privileged: " + (mod.privileged? ? format_text("yes", STYLES[:green]): format_text("no", STYLES[:red])) + "\n"
+    output << " Privileged: " + (mod.privileged? ? format_text("yes", :green): format_text("no", :red)) + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
@@ -357,7 +369,7 @@ STYLES = {
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
     output << "       Arch: #{mod.arch_to_s}\n"
-    output << "Needs Admin: " + (mod.privileged? ? format_text("yes", STYLES[:green]) : format_text("no", STYLES[:red])) + "\n"
+    output << "Needs Admin: " + (mod.privileged? ? format_text("yes", :green) : format_text("no", :red)) + "\n"
     output << " Total size: #{mod.size}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "\n"
@@ -449,7 +461,7 @@ STYLES = {
       next if (opt.evasion?)
       next if (missing && opt.valid?(val))
 
-      tbl << [ name, opt.display_value(val), opt.required? ? format_text("yes", STYLES[:green]) : format_text("no", STYLES[:red]), opt.desc ]
+      tbl << [ name, opt.display_value(val), opt.required? ? format_text("yes", :green) : format_text("no", :red), opt.desc ]
     }
 
     return tbl.to_s
