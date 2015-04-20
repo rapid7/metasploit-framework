@@ -167,6 +167,9 @@ module Msf::DBManager::Import::Nmap
         if p["name"] != "unknown"
           data[:name] = p["name"]
         end
+        if p['tunnel']
+          data[:name] = "#{p['tunnel']}/#{data['name'] || 'unknown'}"
+        end
         report_service(data)
       }
       #Parse the scripts output
