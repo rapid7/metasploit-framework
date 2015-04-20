@@ -40,12 +40,12 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('DEPTH', [ true, 'The max traversal depth', 9 ]),
         OptString.new('USERNAME', [ true, 'The username to use for the HTTP server', 'xbmc' ]),
         OptString.new('PASSWORD', [ false, 'The password to use for the HTTP server', 'xbmc' ]),
-        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 25 ])
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
   end
 
   def timeout
-    datastore['TIMEOUT']
+    datastore['TIMEOUT'] || 25
   end
 
   def run

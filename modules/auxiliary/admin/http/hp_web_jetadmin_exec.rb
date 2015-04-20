@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           Opt::RPORT(8000),
           OptString.new('CMD', [ false, "The command to execute.", "net user metasploit password /add" ]),
-          OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 3])
+          OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 3 ])
         ], self.class)
   end
 

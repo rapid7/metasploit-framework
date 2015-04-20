@@ -35,12 +35,12 @@ class Metasploit3 < Msf::Auxiliary
       register_options(
         [
           OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin' ]),
-          OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the device to respond", 25 ])
+          OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the device to respond", 25 ])
         ], self.class)
   end
 
   def timeout
-    datastore['TIMEOUT']
+    datastore['TIMEOUT'] || 25
   end
 
   def run

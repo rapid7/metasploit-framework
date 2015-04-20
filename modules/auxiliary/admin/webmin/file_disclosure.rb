@@ -45,12 +45,12 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(10000),
         OptString.new('RPATH', [ true, "The file to download", "/etc/passwd" ]),
         OptString.new('DIR', [ true, "Webmin directory path", "/unauthenticated" ]),
-        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 10 ])
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
   end
 
   def timeout
-    datastore['TIMEOUT']
+    datastore['TIMEOUT'] || 10
   end
 
   def run

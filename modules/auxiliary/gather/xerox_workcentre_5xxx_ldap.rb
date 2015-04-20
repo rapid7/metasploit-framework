@@ -27,17 +27,17 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', false]),
-        OptString.new('PASSWORD', [true, 'Password to access administrative interface. Defaults to 1111', '1111']),
-        OptPort.new('RPORT', [true, 'The target port on the remote printer. Defaults to 80', 80]),
-        OptInt.new('TIMEOUT', [true, 'Timeout for printer connection probe.', 20]),
-        OptInt.new('TCPDELAY', [true, 'Number of seconds the tcp server will wait before termination.', 20]),
-        OptString.new('NewLDAPServer', [true, 'The IP address of the LDAP server you want the printer to connect back to.'])
+        OptBool.new('SSL', [ true, 'Negotiate SSL for outgoing connections', false ]),
+        OptString.new('PASSWORD', [ true, 'Password to access administrative interface. Defaults to 1111', '1111' ]),
+        OptPort.new('RPORT', [ true, 'The target port on the remote printer. Defaults to 80', 80 ]),
+        OptInt.new('TIMEOUT', [ false, 'Timeout for printer connection probe.', 20 ]),
+        OptInt.new('TCPDELAY', [ true, 'Number of seconds the tcp server will wait before termination.', 20 ]),
+        OptString.new('NewLDAPServer', [ true, 'The IP address of the LDAP server you want the printer to connect back to.' ])
       ], self.class)
   end
 
   def timeout
-    datastore['TIMEOUT']
+    datastore['TIMEOUT'] || 20
   end
 
   def run
