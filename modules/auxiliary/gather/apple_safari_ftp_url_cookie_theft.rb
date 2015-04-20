@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # clear my resource, deregister ref, stop/close the HTTP socket
     begin
-      @http_service.remove_resource(datastore['URIPATH'])
+      @http_service.remove_resource(@uri_path)
       @http_service.deref
       @http_service.stop
       @http_service.close
@@ -182,10 +182,11 @@ class Metasploit3 < Msf::Auxiliary
   # Returns the configured (or random, if not configured) URI path
   #
   def resource_uri
-    path = datastore['URIPATH'] || Rex::Text.rand_text_alphanumeric(8+rand(8))
-    path = '/' + path if path !~ /^\//
-    datastore['URIPATH'] = path
-    path
+    return @uri_path if @uri_path
+
+    @uri_path = datastore['URIPATH'] || Rex::Text.rand_text_alphanumeric(8+rand(8))
+    @uri_path = '/' + @uri_path if @uri_path !~ /^\//
+    @uri_path
   end
 
 
