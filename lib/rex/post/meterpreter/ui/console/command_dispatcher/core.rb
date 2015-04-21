@@ -74,12 +74,13 @@ class Console::CommandDispatcher::Core
       if client.passive_service && client.sock.type? == 'tcp-ssl'
         c["ssl_verify"] = "Modify the SSL certificate verification setting"
       end
-
-      c["transport"] = "Change the current transport mechanism"
     end
 
     if client.platform =~ /win/ || client.platform =~ /linux/
       c["migrate"] = "Migrate the server to another process"
+      # Yet to implement transport hopping for other meterpreters.
+      # Works for posix and native windows though.
+      c["transport"] = "Change the current transport mechanism"
     end
 
     if (msf_loaded?)
