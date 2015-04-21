@@ -337,9 +337,17 @@ class Console::CommandDispatcher::Core
     '-w' => [ true,  'Retry wait time (seconds)' ],
     '-h' => [ false, 'Help menu' ])
 
+  def cmd_set_timeouts_help
+    print_line('Usage: set_timeouts [options]')
+    print_line
+    print_line('Set the current timeout options.')
+    print_line('Any or all of these can be set at once.')
+    print_line(@@set_timeouts_opts.usage)
+  end
+
   def cmd_set_timeouts(*args)
     if ( args.length == 0 or args.include?("-h") )
-      cmd_transport_help
+      cmd_set_timeouts_help
       return
     end
 
