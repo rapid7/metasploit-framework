@@ -10,7 +10,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-credential.git
-  revision: 3876c990909844d08d02adaac6e94556c116e86a
+  revision: 495f2e5b1914e366769abcc2ead9f721166cedff
   branch: staging/rails-4.0
   specs:
     metasploit-credential (1.14.5.pre.rails.pre.4.0)
@@ -18,14 +18,13 @@ GIT
       metasploit-model
       metasploit_data_models
       pg
-      protected_attributes
       railties
       rubyntlm
       rubyzip (~> 1.1)
 
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: 4bb2a7aed0575c892294df8d0470eb4a9fe4ca68
+  revision: a7001eb4d6a835ff76018e9d5d0d15dd2763bc37
   branch: staging/rails-4.0
   specs:
     metasploit-model (1.29.2.pre.rails.pre.4.0)
@@ -34,7 +33,7 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: 89f39043cd6b15bbb5a6d3460cf4ea1bcf696cc0
+  revision: 28d2b7f40d9154f8a6a2005b33b9c54a74b59a08
   branch: staging/rails-4.0
   specs:
     metasploit_data_models (0.24.0.pre.rails.pre.4.0)
@@ -45,7 +44,6 @@ GIT
       metasploit-model
       pg
       postgres_ext
-      protected_attributes (~> 1.0.9)
       railties (>= 4.0.9, < 4.1.0)
       recog (~> 1.0)
 
@@ -173,8 +171,6 @@ GEM
       activerecord (>= 4.0.0)
       arel (>= 4.0.1)
       pg_array_parser (~> 0.0.9)
-    protected_attributes (1.0.9)
-      activemodel (>= 4.0.1, < 5.0)
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -197,7 +193,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (10.4.2)
     rb-readline-r7 (0.5.2.0)
-    recog (1.0.25)
+    recog (1.0.27)
       nokogiri
     redcarpet (3.2.2)
     rkelly-remix (0.0.6)
