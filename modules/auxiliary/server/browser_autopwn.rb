@@ -836,7 +836,7 @@ class Metasploit3 < Msf::Auxiliary
     #
 
     #js = ::Rex::Exploitation::JSObfu.new(js)
-    #js.obfuscate unless datastore["DEBUG"]
+    #js.obfuscate unless datastore["DEBUG_AUTOPWN"]
 
     response.body = "#{js}"
     print_status("Responding with #{sploit_cnt} exploits")
