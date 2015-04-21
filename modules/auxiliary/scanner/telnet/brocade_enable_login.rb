@@ -18,7 +18,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Brocde Enable Login Check Scanner',
+      'Name'        => 'Brocade Enable Login Check Scanner',
       'Description' => %q{
         This module will test a Brocade network device for a privilged
         (Enable) login on a range of machines and report successful
