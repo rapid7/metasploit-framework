@@ -601,6 +601,15 @@ class Msftidy
     end
   end
 
+  # Check for (v)print_debug usage, since it doesn't exist anymore
+  #
+  # @see https://github.com/rapid7/metasploit-framework/issues/3816
+  def check_print_debug
+    if @source =~ /print_debug/
+      error('Please don\'t use (v)print_debug, use vprint_(status|good|error|warning) instead')
+    end
+  end
+
   private
 
   def load_file(file)
@@ -650,6 +659,7 @@ def run_checks(full_filepath)
   tidy.check_sock_get
   tidy.check_udp_sock_get
   tidy.check_invalid_url_scheme
+  tidy.check_print_debug
   return tidy
 end
 
