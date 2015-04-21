@@ -579,6 +579,7 @@ class Client
 
       rv = nil
       while (
+               not conn.closed? and
                rv != Packet::ParseCode::Completed and
                rv != Packet::ParseCode::Error
               )
@@ -586,8 +587,6 @@ class Client
         begin
 
           buff = conn.get_once(-1, 1)
-          return resp if buff.to_s.length == 0
-
           rv   = resp.parse( buff || '' )
 
         # Handle unexpected disconnects
