@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if (datastore['DEBUG'])
-      print_debug("NOTE: Debug Mode; javascript will not be obfuscated")
+      print_status("NOTE: Debug Mode; javascript will not be obfuscated")
     else
       pre = Time.now
 

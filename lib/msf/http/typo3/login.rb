@@ -32,10 +32,10 @@ module Msf::HTTP::Typo3::Login
     end
     n = n_match[1]
 
-    vprint_debug("e: #{e}")
-    vprint_debug("n: #{n}")
+    vprint_status("e: #{e}")
+    vprint_status("n: #{n}")
     rsa_enc = typo3_helper_login_rsa(e, n, pass)
-    vprint_debug("RSA Hash: #{rsa_enc}")
+    vprint_status("RSA Hash: #{rsa_enc}")
     # make login request
     vars_post = {
       'n' => '',
@@ -58,10 +58,10 @@ module Msf::HTTP::Typo3::Login
     })
     if res_login
       if res_login.body =~ /<!-- ###LOGIN_ERROR### begin -->(.*)<!-- ###LOGIN_ERROR### end -->/im
-        vprint_debug(strip_tags($1))
+        vprint_status(strip_tags($1))
         return nil
       elsif res_login.body =~ /<p class="t3-error-text">(.*?)<\/p>/im
-        vprint_debug(strip_tags($1))
+        vprint_status(strip_tags($1))
         return nil
       else
         cookies = res_login.get_cookies
