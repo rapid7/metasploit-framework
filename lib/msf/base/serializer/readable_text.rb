@@ -5,7 +5,7 @@ module Serializer
 # This class formats information in a plain-text format that
 # is meant to be displayed on a console or some other non-GUI
 # medium.
-class ReadableText < Rex::Ui::Text::Output::Stdio
+class ReadableText
 
   #Default number of characters to wrap at.
   DefaultColumnWrap = 70
@@ -46,8 +46,8 @@ class ReadableText < Rex::Ui::Text::Output::Stdio
         line = format_text(/^\s*#+\s*(.*)$/.match(line)[1], :bold)
       when /^\s*$/ # this regex helps us ignore a line that is completely whitespace
         line = ""
-      when /\*+(.[^\*+]+[^\*+])\*+/ # this regex helps us to detect words that are surrounded by asterisks
-        line.gsub(/\*+(.[^\*+]+[^\*+])\*+/) { |match| "%bld" + match.gsub('*', '') + "%clr" }
+      when /\*+([^\*]+)\*+/ # this regex helps us to detect words that are surrounded by asterisks
+        line.gsub(/\*+([^\*]+)\*+/, "%bld\\1%clr");
       end
     end
 
