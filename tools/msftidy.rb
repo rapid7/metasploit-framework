@@ -614,7 +614,7 @@ class Msftidy
   #
   # @see https://github.com/rapid7/metasploit-framework/issues/3816
   def check_datastore_debug
-    if @source =~ /Opt.*\.new\('(?i)DEBUG(?-i)'/
+    if @source =~ /Opt.*\.new\(["'](?i)DEBUG(?-i)["']/
       error('Please don\'t register a DEBUG datastore option, it has an special meaning and is used for development')
     end
   end

@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptBool.new('DEBUG', [ false, 'Enable requests debugging output', false ]),
         OptBool.new('MULTIPORTS', [ false, 'Multiple ports will be used : 80, 1080, 3128, 8080, 8123', false ]),
         OptBool.new('RANDOMIZE_PORTS', [ false, 'Randomize the order the ports are probed', false ]),
         OptBool.new('VERIFY_CONNECT', [ false, 'Enable test for CONNECT method', false ]),
@@ -193,10 +192,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check_host(target_host,target_port,site,user_agent)
-
-    if datastore['DEBUG']
-      print_status("Checking #{target_host}:#{target_port} [#{site}]")
-    end
+    vprint_status("Checking #{target_host}:#{target_port} [#{site}]")
 
     is_valid,retcode,retvia,retsrv = send_request(site,user_agent)
 

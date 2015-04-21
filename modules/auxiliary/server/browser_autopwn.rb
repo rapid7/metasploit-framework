@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       OptRegexp.new('EXCLUDE', [false,
         'Only attempt to use exploits whose name DOES NOT match this regex'
       ]),
-      OptBool.new('DEBUG', [false,
+      OptBool.new('DEBUG_AUTOPWN', [false,
         'Do not obfuscate the javascript and print various bits of useful info to the browser',
         false
       ]),
@@ -232,7 +232,7 @@ class Metasploit3 < Msf::Auxiliary
     ENDJS
     )
 
-    if (datastore['DEBUG'])
+    if (datastore['DEBUG_AUTOPWN'])
       print_status("NOTE: Debug Mode; javascript will not be obfuscated")
     else
       pre = Time.now
@@ -349,7 +349,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # For testing, set the exploit uri to the name of the exploit so it's
     # easy to tell what is happening from the browser.
-    if (datastore['DEBUG'])
+    if (datastore['DEBUG_AUTOPWN'])
       @exploits[name].datastore['URIPATH'] = name
     else
       # randomize it manually since if a saved value exists in the user's
@@ -1056,7 +1056,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def js_debug(msg)
-    if datastore['DEBUG']
+    if datastore['DEBUG_AUTOPWN']
       return "document.body.innerHTML += #{msg};"
     end
     return ""
