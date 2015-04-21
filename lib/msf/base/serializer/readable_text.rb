@@ -39,26 +39,21 @@ class ReadableText < Rex::Ui::Text::Output::Stdio
 
   def self.md_parse(text)
 
-    lines = text.split("\n")
+    lines = text.lines()
     lines.map! do |line|
-      if /^\s*#+\s*(.*)$/.match(line) # THIS REGEX LOOKS FOR '#' CHARACTER AND CAPTURES REST OF LINE
+      case line
+      when /^\s*#+\s*(.*)$/ # this regex looks for '#' character and captures rest of line
         line = format_text(/^\s*#+\s*(.*)$/.match(line)[1], :bold)
-      elsif /^\s*$/.match(line) # THIS REGEX HELPS US IGNORE A LINE THAT IS COMPLETELY WHITESPACE
+      when /^\s*$/ # this regex helps us ignore a line that is completely whitespace
         line = ""
-      elsif /\*+(.[^\*+]+[^\*+])\*+/.match(line) # THIS REGEX HELPS US TO DETECT WORDS THAT ARE SURROUNDED BY ASTERISKS
+      when /\*+(.[^\*+]+[^\*+])\*+/ # this regex helps us to detect words that are surrounded by asterisks
         line.gsub(/\*+(.[^\*+]+[^\*+])\*+/) { |match| "%bld" + match.gsub('*', '') + "%clr" }
-      else
-        line = line = format_text(line, :plain)
       end
     end
 
 
     lines.join("\n")
   end
-
- TextStyle = Struct.new(:format, :str)
-
-
 
   def self.format_title(txt)
     return format_text(txt, :underline)

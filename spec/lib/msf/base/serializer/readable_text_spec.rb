@@ -1,7 +1,5 @@
 require 'spec_helper'
 require 'msf/base/serializer/readable_text'
-# require 'rex/post/meterpreter/extensions/stdapi/net/interface'
-# require 'rex/post/meterpreter/extensions/stdapi/net/route'
 
 describe Msf::Serializer::ReadableText do
 
