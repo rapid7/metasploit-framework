@@ -18,16 +18,16 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "api_keys", force: true do |t|
     t.text     "token"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "automatic_exploitation_match_results", force: true do |t|
     t.integer  "match_id"
     t.integer  "run_id"
     t.string   "state",      null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "automatic_exploitation_match_results", ["match_id"], name: "index_automatic_exploitation_match_results_on_match_id", using: :btree
@@ -36,8 +36,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   create_table "automatic_exploitation_match_sets", force: true do |t|
     t.integer  "workspace_id"
     t.integer  "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   add_index "automatic_exploitation_match_sets", ["user_id"], name: "index_automatic_exploitation_match_sets_on_user_id", using: :btree
@@ -47,8 +47,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.integer  "module_detail_id"
     t.string   "state"
     t.integer  "nexpose_data_vulnerability_definition_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
     t.integer  "match_set_id"
     t.string   "matchable_type"
     t.integer  "matchable_id"
@@ -62,8 +62,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.integer  "workspace_id"
     t.integer  "user_id"
     t.integer  "match_set_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   add_index "automatic_exploitation_runs", ["match_set_id"], name: "index_automatic_exploitation_runs_on_match_set_id", using: :btree
@@ -91,8 +91,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "creds", force: true do |t|
     t.integer  "service_id",                              null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
     t.string   "user",        limit: 2048
     t.string   "pass",        limit: 4096
     t.boolean  "active",                   default: true
@@ -136,8 +136,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.string   "session_uuid", limit: 8
     t.string   "name",         limit: 2048
     t.string   "payload",      limit: 2048
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
   end
 
   create_table "host_details", force: true do |t|
@@ -192,8 +192,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   end
 
   create_table "listeners", force: true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
     t.integer  "workspace_id", default: 1,    null: false
     t.integer  "task_id"
     t.boolean  "enabled",      default: true
@@ -212,8 +212,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.string   "ltype",         limit: 512
     t.string   "path",          limit: 1024
     t.text     "data"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
     t.string   "content_type"
     t.text     "name"
     t.text     "info"
@@ -223,8 +223,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   add_index "loots", ["module_run_id"], name: "index_loots_on_module_run_id", using: :btree
 
   create_table "macros", force: true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.text     "owner"
     t.text     "name"
     t.text     "description"
@@ -239,8 +239,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.integer  "public_id"
     t.integer  "realm_id"
     t.integer  "workspace_id",             null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.integer  "logins_count", default: 0
   end
 
@@ -262,8 +262,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.string   "access_level"
     t.string   "status",            null: false
     t.datetime "last_attempted_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
   end
 
   add_index "metasploit_credential_logins", ["core_id", "service_id"], name: "index_metasploit_credential_logins_on_core_id_and_service_id", unique: true, using: :btree
@@ -271,8 +271,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "metasploit_credential_origin_cracked_passwords", force: true do |t|
     t.integer  "metasploit_credential_core_id", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
   end
 
   add_index "metasploit_credential_origin_cracked_passwords", ["metasploit_credential_core_id"], name: "originating_credential_cores", using: :btree
@@ -280,16 +280,16 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   create_table "metasploit_credential_origin_imports", force: true do |t|
     t.text     "filename",   null: false
     t.integer  "task_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "metasploit_credential_origin_imports", ["task_id"], name: "index_metasploit_credential_origin_imports_on_task_id", using: :btree
 
   create_table "metasploit_credential_origin_manuals", force: true do |t|
     t.integer  "user_id",    null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "metasploit_credential_origin_manuals", ["user_id"], name: "index_metasploit_credential_origin_manuals_on_user_id", using: :btree
@@ -297,8 +297,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   create_table "metasploit_credential_origin_services", force: true do |t|
     t.integer  "service_id",       null: false
     t.text     "module_full_name", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
   end
 
   add_index "metasploit_credential_origin_services", ["service_id", "module_full_name"], name: "unique_metasploit_credential_origin_services", unique: true, using: :btree
@@ -306,8 +306,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   create_table "metasploit_credential_origin_sessions", force: true do |t|
     t.text     "post_reference_name", null: false
     t.integer  "session_id",          null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
   end
 
   add_index "metasploit_credential_origin_sessions", ["session_id", "post_reference_name"], name: "unique_metasploit_credential_origin_sessions", unique: true, using: :btree
@@ -315,8 +315,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   create_table "metasploit_credential_privates", force: true do |t|
     t.string   "type",       null: false
     t.text     "data",       null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string   "jtr_format"
   end
 
@@ -324,8 +324,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "metasploit_credential_publics", force: true do |t|
     t.string   "username",   null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string   "type",       null: false
   end
 
@@ -334,8 +334,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   create_table "metasploit_credential_realms", force: true do |t|
     t.string   "key",        null: false
     t.string   "value",      null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "metasploit_credential_realms", ["key", "value"], name: "index_metasploit_credential_realms_on_key_and_value", unique: true, using: :btree
@@ -426,8 +426,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.string   "trackable_type"
     t.integer  "user_id"
     t.string   "username"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
   add_index "module_runs", ["session_id"], name: "index_module_runs_on_session_id", using: :btree
@@ -442,8 +442,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   add_index "module_targets", ["detail_id"], name: "index_module_targets_on_detail_id", using: :btree
 
   create_table "nexpose_consoles", force: true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
     t.boolean  "enabled",      default: true
     t.text     "owner"
     t.text     "address"
@@ -474,8 +474,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
   add_index "notes", ["vuln_id"], name: "index_notes_on_vuln_id", using: :btree
 
   create_table "profiles", force: true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.boolean  "active",     default: true
     t.text     "name"
     t.text     "owner"
@@ -496,8 +496,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.string   "created_by"
     t.string   "path",         limit: 1024
     t.text     "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
   end
 
   create_table "reports", force: true do |t|
@@ -506,8 +506,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.string   "rtype"
     t.string   "path",          limit: 1024
     t.text     "options"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
     t.datetime "downloaded_at"
     t.integer  "task_id"
     t.string   "name",          limit: 63
@@ -572,36 +572,36 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.boolean  "report_summary",              default: false, null: false
     t.boolean  "report_detail",               default: false, null: false
     t.boolean  "critical",                    default: false, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
   end
 
   create_table "task_creds", force: true do |t|
     t.integer  "task_id",    null: false
     t.integer  "cred_id",    null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "task_hosts", force: true do |t|
     t.integer  "task_id",    null: false
     t.integer  "host_id",    null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "task_services", force: true do |t|
     t.integer  "task_id",    null: false
     t.integer  "service_id", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "task_sessions", force: true do |t|
     t.integer  "task_id",    null: false
     t.integer  "session_id", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "tasks", force: true do |t|
@@ -615,8 +615,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.integer  "progress"
     t.text     "options"
     t.text     "error"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
     t.text     "result"
     t.string   "module_uuid",  limit: 8
     t.binary   "settings"
@@ -627,8 +627,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
     t.string   "crypted_password"
     t.string   "password_salt"
     t.string   "persistence_token"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
     t.string   "fullname"
     t.string   "email"
     t.string   "phone"
@@ -695,8 +695,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "web_forms", force: true do |t|
     t.integer  "web_site_id",              null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.text     "path"
     t.string   "method",      limit: 1024
     t.text     "params"
@@ -707,8 +707,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "web_pages", force: true do |t|
     t.integer  "web_site_id", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.text     "path"
     t.text     "query"
     t.integer  "code",        null: false
@@ -727,8 +727,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "web_sites", force: true do |t|
     t.integer  "service_id",              null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
     t.string   "vhost",      limit: 2048
     t.text     "comments"
     t.text     "options"
@@ -740,8 +740,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "web_vulns", force: true do |t|
     t.integer  "web_site_id",              null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.text     "path",                     null: false
     t.string   "method",      limit: 1024, null: false
     t.text     "params",                   null: false
@@ -797,8 +797,8 @@ ActiveRecord::Schema.define(version: 20150326183742) do
 
   create_table "workspaces", force: true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.string   "boundary",         limit: 4096
     t.string   "description",      limit: 4096
     t.integer  "owner_id"
