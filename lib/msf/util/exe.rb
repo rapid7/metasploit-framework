@@ -1121,6 +1121,10 @@ require 'msf/core/exe/segment_appender'
     to_exe_vbs(to_win32pe(framework, code, opts), opts)
   end
 
+  def self.to_win64pe_vbs(framework, code, opts = {})
+    to_exe_vbs(to_win64pe(framework, code, opts), opts)
+  end
+
   # Creates a jar file that drops the provided +exe+ into a random file name
   # in the system's temp dir and executes it.
   #

