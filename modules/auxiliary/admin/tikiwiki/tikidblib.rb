@@ -38,8 +38,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, "TikiWiki directory path", "/tikiwiki"]),
+        OptString.new('URI', [ true, "TikiWiki directory path", "/tikiwiki" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run
@@ -56,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
         'User-Agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
         'Connection' => 'Close',
       }
-    }, 25)
+    }, timeout)
 
     if (res and res.message == "OK")
       print_status("Get informations about database...")

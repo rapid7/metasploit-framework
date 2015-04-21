@@ -30,10 +30,15 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
-        OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
+        OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
+    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]), ])
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -54,7 +59,8 @@ class Metasploit3 < Msf::Auxiliary
       'method'  => 'GET',
       'cookie'  => @vim_cookie,
       'headers' => { 'Authorization' => "Basic #{@user_pass}"}
-    }, 25)
+    }, timeout)
+
     if res
       @vim_cookie = res.get_cookies
       if res.code== 200
@@ -86,7 +92,8 @@ class Metasploit3 < Msf::Auxiliary
       'method'  => 'GET',
       'cookie'  => @vim_cookie,
       'headers' => { 'Authorization' => "Basic #{@user_pass}"}
-    }, 25)
+    }, timeout)
+
     if res
       @vim_cookie = res.get_cookies
       if res.code == 200

@@ -24,22 +24,25 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true, "Original test path", '/']),
-        OptPath.new('VULNCSV',[ true, "Path of vulnerabilities csv file to use" ])
+        OptString.new('PATH', [ true, "Original test path", '/' ]),
+        OptPath.new('VULNCSV',[ true, "Path of vulnerabilities csv file to use" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
     register_advanced_options(
       [
-        OptInt.new('ErrorCode', [ true,  "The expected http code for non existant files", 404]),
+        OptInt.new('ErrorCode', [ true,  "The expected http code for non existant files", 404 ]),
         OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
-          ]
-        ),
+            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt") ]),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
         OptBool.new('ForceCode', [ false, "Force detection using HTTP code", false ]),
-        OptInt.new('TestThreads', [ true, "Number of test threads", 25])
+        OptInt.new('TestThreads', [ true, "Number of test threads", 25 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT']
   end
 
   # Modify to true if you have sqlmap installed.
@@ -78,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'  		=>  tpath+randfile,
         'method'   	=> 'GET',
         'ctype'		=> 'text/html'
-      }, 20)
+      }, timeout)
 
       return if not res
 
@@ -129,10 +132,10 @@ class Metasploit3 < Msf::Auxiliary
           testnote = testarr[2].to_s
 
           res = send_request_cgi({
-            'uri'  		=>  tpath+testfvuln,
+            'uri'       =>  tpath+testfvuln,
             'method'   	=> 'GET',
-            'ctype'		=> 'text/plain'
-          }, 20)
+            'ctype'     => 'text/plain'
+          }, timeout)
 
           if res.nil?
             print_error("Connection timed out")

@@ -27,13 +27,18 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(3790),
-        OptString.new('URILOGIN', [true, "URI for Metasploit Web login. Default is /login", "/login"]),
-        OptString.new('URIGUESS', [true, "URI for Metasploit Web login. Default is /user_sessions", "/user_sessions"]),
-        OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
+        OptString.new('URILOGIN', [ true, "URI for Metasploit Web login. Default is /login", "/login" ]),
+        OptString.new('URIGUESS', [ true, "URI for Metasploit Web login. Default is /user_sessions", "/user_sessions" ]),
+        OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", false ]),
+        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     register_autofilter_ports([55553])
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -41,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'     => datastore['URILOGIN'],
         'method'  => 'GET'
-        }, 25)
+        }, timeout)
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URILOGIN']} - #{e}")
@@ -72,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'     => datastore['URILOGIN'],
         'method'  => 'GET'
-        }, 25)
+        }, timeout)
 
       token = ''
       uisession = ''
@@ -112,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
             'user_session[username]' => user,
             'user_session[password]' => pass
           }
-      }, 25)
+      }, timeout)
 
       if not res or res.code != 302
         vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")

@@ -29,18 +29,23 @@ require 'cgi'
         hosted by the target web server.
 
           },
-        'Author' 		=> [ 'et [at] cyberspace.org' ],
-        'License'		=> BSD_LICENSE))
+        'Author'        => [ 'et [at] cyberspace.org' ],
+        'License'       => BSD_LICENSE))
 
       register_options(
       [
-        OptString.new('PATH', [ true,  "The PATH to use while testing", '/']),
-        OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
-        OptString.new('DOMAIN', [ true,  "Domain name", '']),
-        OptString.new('HEADERS', [ false,  "HTTP Headers", '']),
-        OptPath.new('SUBDOM_LIST', [false, "Path to text file with subdomains"]),
+        OptString.new('PATH', [ true,  "The PATH to use while testing", '/' ]),
+        OptString.new('QUERY', [ false,  "HTTP URI Query", '' ]),
+        OptString.new('DOMAIN', [ true,  "Domain name", '' ]),
+        OptString.new('HEADERS', [ false,  "HTTP Headers", '' ]),
+        OptPath.new('SUBDOM_LIST', [false, "Path to text file with subdomains" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
+    end
+
+    def timeout
+      datastore['TIMEOUT'] || 20
     end
 
     def run_host(ip)
@@ -84,7 +89,7 @@ require 'cgi'
             'vhost'		=>  randhost,
             'method'   	=> 'GET',
             'ctype'		=> 'text/plain'
-          }, 20)
+          }, timeout)
 
           print_status("[#{ip}] Sending request with random domain #{randhost} ")
 
@@ -111,10 +116,10 @@ require 'cgi'
             'uri'  		=>  normalize_uri(datastore['PATH']),
             'vars_get' 	=>  tquery,
             'headers' 	=>  thead,
-            'vhost'		=>  thost,
+            'vhost'	=>  thost,
             'method'   	=> 'GET',
-            'ctype'		=> 'text/plain'
-          }, 20)
+            'ctype'	=> 'text/plain'
+          }, timeout)
 
 
           if res and noexistsres

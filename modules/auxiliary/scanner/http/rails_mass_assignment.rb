@@ -35,12 +35,17 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST'] ]),
-        OptString.new('PATH', [ true, "The path to test mass assignment", '/users/1']),
-        OptString.new('QUERY', [ false, "HTTP URI Query", nil]),
-        OptString.new('DATA', [ false, "HTTP Body Data", '']),
-        OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
+        OptEnum.new('METHOD', [ true, 'HTTP Method', 'POST', ['GET', 'POST'] ]),
+        OptString.new('PATH', [ true, "The path to test mass assignment", '/users/1' ]),
+        OptString.new('QUERY', [ false, "HTTP URI Query", nil ]),
+        OptString.new('DATA', [ false, "HTTP Body Data", '' ]),
+        OptString.new('COOKIE',[ false, "HTTP Cookies", '' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -83,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
         'ctype'     => 'application/x-www-form-urlencoded',
         'cookie'    => datastore['COOKIE'],
         'data'      => datastore['METHOD'] == 'POST' ? query.to_query : datastore['DATA']
-      }, 20)
+      }, timeout)
 
       if resp and resp.code == 500
         print_good("#{ip} - Possible attributes mass assignment in attribute #{param}[...] at #{datastore['PATH']}")

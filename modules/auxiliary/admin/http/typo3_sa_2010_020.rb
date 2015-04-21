@@ -34,11 +34,16 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, "TYPO3 Path", "/"]),
-        OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
-        OptInt.new('MAX_TRIES', [true, "Maximum tries", 10000]),
+        OptString.new('URI', [ true, "TYPO3 Path", "/" ]),
+        OptString.new('RFILE', [ true, "The remote file to download", 'typo3conf/localconf.php' ]),
+        OptInt.new('MAX_TRIES', [ true, "Maximum tries", 10000 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run
@@ -94,7 +99,7 @@ class Metasploit4 < Msf::Auxiliary
           {
             'Connection' => 'Close',
           }
-        },25)
+        }, timeout)
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       return

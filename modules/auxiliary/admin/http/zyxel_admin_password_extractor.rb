@@ -29,8 +29,17 @@ class Metasploit3 < Msf::Auxiliary
         'Daniel Manser', # @antsygeek
         'Sven Vetsch' # @disenchant_ch
       ],
-      'License'     => MSF_LICENSE
-    )
+      'License'     => MSF_LICENSE,
+      )
+
+      register_options(
+        [
+          OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the device to respond", 10 ])
+        ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT']
   end
 
   def run
@@ -44,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
         'password' => "#{Rex::Text.rand_text_alphanumeric(rand(4)+4)}",
         'action' => "cgi_login"
       }
-    }, 10)
+    }, timeout)
 
     if (res && res.code == 200)
       print_status("Got response from router.")

@@ -34,21 +34,19 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('ESCAPE_SEQUENCE',
-          [true, 'Character(s) that terminate the rewrite rule', '@']),
-
-        OptString.new('INJECTED_URI',
-          [true, 'String injected after escape sequence', '...']),
-
-        OptInt.new('EXPECTED_RESPONSE',
-          [true, 'Status code that indicates vulnerability', 502]),
-
-        OptString.new('BASELINE_URI',
-          [true, 'Requested to establish that EXPECTED_RESPONSE is not the usual response', '/']),
+        OptString.new('ESCAPE_SEQUENCE', [ true, 'Character(s) that terminate the rewrite rule', '@' ]),
+        OptString.new('INJECTED_URI', [ true, 'String injected after escape sequence', '...' ]),
+        OptInt.new('EXPECTED_RESPONSE', [ true, 'Status code that indicates vulnerability', 502 ]),
+        OptString.new('BASELINE_URI', [ true, 'Requested to establish that EXPECTED_RESPONSE is not the usual response', '/' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
   end
 
-  def make_request(host, uri, timeout=20)
+  def timeout
+    datastore['TIMEOUT'] || 20
+  end
+
+  def make_request(host, uri)
     begin
       requested_at = Time.now.utc
       response     = send_request_raw({'uri' => uri}, timeout)

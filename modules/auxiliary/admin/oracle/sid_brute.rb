@@ -28,10 +28,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1521),
-        OptString.new('SLEEP', [ false,   'Sleep() amount between each request.', '1']),
-        OptString.new('SIDFILE', [ false, 'The file that contains a list of sids.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
+        OptString.new('SLEEP', [ false,   'Sleep() amount between each request.', '1' ]),
+        OptString.new('SIDFILE', [ false, 'The file that contains a list of sids.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt') ])
       ], self.class)
-
   end
 
   def run

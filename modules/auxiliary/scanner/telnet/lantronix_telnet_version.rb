@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(9999),
-      OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
+      OptInt.new('TIMEOUT', [ false, 'Timeout for the Telnet probe', 30 ])
     ], self.class)
 
     deregister_options('USERNAME','PASSWORD')

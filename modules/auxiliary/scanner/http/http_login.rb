@@ -45,9 +45,14 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
-        OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ])
+        OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def to_uri(uri)
@@ -92,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => datastore['REQUESTTYPE'],
         'username' => '',
         'password' => ''
-      }, 10)
+      }, timeout)
 
       next unless res
       if res.redirect? && res.headers['Location'] && res.headers['Location'] !~ /^http/
@@ -103,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
           'method'  => datastore['REQUESTTYPE'],
           'username' => '',
           'password' => ''
-        }, 10)
+        }, timeout)
         next if not res
       end
       next unless res.code == 401

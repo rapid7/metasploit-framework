@@ -29,11 +29,15 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The directory path  to identify files", '/']),
-        OptString.new('EXT', [ true, "File extension to use", '.aspx']),
-
+        OptString.new('PATH', [ true,  "The directory path  to identify files", '/' ]),
+        OptString.new('EXT', [ true, "File extension to use", '.aspx' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -86,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
           'uri'  		=>  tpath+testfext,
           'method'   	=> 'GET',
           'ctype'		=> 'text/plain'
-        }, 20)
+        }, timeout)
 
         if (res and res.code >= 200 and res.code < 300)
           print_status("Found #{wmap_base_url}#{tpath}#{testfext}")

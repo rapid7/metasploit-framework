@@ -31,9 +31,15 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'DisclosureDate' => 'Mar 30 2015'))
 
-    register_options([
-      OptString.new('TARGETURI', [true, 'Target URI of the Joomla! instance', '/'])
-    ], self.class)
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, 'Target URI of the Joomla! instance', '/' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
+      ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -82,7 +88,7 @@ class Metasploit4 < Msf::Auxiliary
         'ajax_task' => 'save_hit_count',
         'task' => 'gallerybox.ajax_search'
       }
-    })
+    }, timeout)
 
     unless res && res.body
       vprint_error("#{peer} - Server did not respond in an expected way")

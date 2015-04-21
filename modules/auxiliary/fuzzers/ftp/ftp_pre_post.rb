@@ -23,16 +23,16 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(21),
-        OptInt.new('STARTATSTAGE', [ false, "Start at this test stage",1]),
-        OptInt.new('STEPSIZE', [ false, "Increase string size each iteration with this number of chars",10]),
-        OptInt.new('DELAY', [ false, "Delay between connections in seconds",1]),
-        OptInt.new('STARTSIZE', [ false, "Fuzzing string startsize",10]),
-        OptInt.new('ENDSIZE', [ false, "Fuzzing string endsize",20000]),
-        OptInt.new('STOPAFTER', [ false, "Stop after x number of consecutive errors",2]),
-        OptString.new('USER', [ false, "Username",'anonymous']),
-        OptString.new('PASS', [ false, "Password",'mozilla@example.com']),
-        OptBool.new('FASTFUZZ', [ false, "Only fuzz with cyclic pattern",true]),
-        OptBool.new('CONNRESET', [ false, "Break on CONNRESET error",true]),
+        OptInt.new('STARTATSTAGE', [ false, "Start at this test stage", 1 ]),
+        OptInt.new('STEPSIZE', [ false, "Increase string size each iteration with this number of chars", 10 ]),
+        OptInt.new('DELAY', [ false, "Delay between connections in seconds", 1 ]),
+        OptInt.new('STARTSIZE', [ false, "Fuzzing string startsize", 10 ]),
+        OptInt.new('ENDSIZE', [ false, "Fuzzing string endsize", 20000 ]),
+        OptInt.new('STOPAFTER', [ false, "Stop after x number of consecutive errors", 2 ]),
+        OptString.new('USER', [ false, "Username", 'anonymous' ]),
+        OptString.new('PASS', [ false, "Password", 'mozilla@example.com' ]),
+        OptBool.new('FASTFUZZ', [ false, "Only fuzz with cyclic pattern", true ]),
+        OptBool.new('CONNRESET', [ false, "Break on CONNRESET error", true ]),
       ], self.class)
     deregister_options('RHOST')
 

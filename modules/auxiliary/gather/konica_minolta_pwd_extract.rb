@@ -30,11 +30,15 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT('50001'),
-        OptString.new('USER', [false, 'The default Admin user', 'Admin']),
-        OptString.new('PASSWD', [true, 'The default Admin password', '12345678']),
-        OptInt.new('TIMEOUT', [true, 'Timeout for printer probe', 20])
+        OptString.new('USER', [ false, 'The default Admin user', 'Admin' ]),
+        OptString.new('PASSWD', [ true, 'The default Admin password', '12345678' ]),
+        OptInt.new('TIMEOUT', [ false, 'Timeout for printer probe', 20 ])
 
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   # Creates the XML data to be sent that will extract AuthKey
@@ -129,7 +133,8 @@ class Metasploit3 < Msf::Auxiliary
       'uri'    => '/',
       'method' => 'POST',
       'data'   => '<SOAP-ENV:Envelope></SOAP-ENV:Envelope>'
-    }, datastore['TIMEOUT'].to_i)
+    }, timeout)
+
     if response.nil?
       print_error("#{peer} - No reponse from device")
       return
@@ -156,7 +161,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'    => '/',
         'method' => 'POST',
         'data'   => authreq_xml.to_xml
-      }, datastore['TIMEOUT'].to_i)
+      }, timeout)
       if response.nil?
         print_error("#{peer} - No reponse from device")
         return
@@ -183,7 +188,7 @@ class Metasploit3 < Msf::Auxiliary
           'uri'    => '/',
           'method' => 'POST',
           'data'   => smbreq_xml.to_xml
-        }, datastore['TIMEOUT'].to_i)
+        }, timeout)
         if response.nil?
           print_error("#{peer} - No reponse from device")
           return

@@ -26,17 +26,22 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [true, 'The path to test', '/']),
-        OptString.new('XMLNAMESPACE', [true, 'XML Web Service Namespace', 'http://tempuri.org/']),
-        OptString.new('XMLINSTANCE', [true, 'XML Schema Instance', 'http://www.w3.org/2001/XMLSchema-instance']),
-        OptString.new('XMLSCHEMA', [true, 'XML Schema', 'http://www.w3.org/2001/XMLSchema']),
-        OptString.new('XMLSOAP', [true, 'XML SOAP', 'http://schemas.xmlsoap.org/soap/envelope/']),
-        OptString.new('CONTENTTYPE', [true, 'The HTTP Content-Type Header', 'application/x-www-form-urlencoded']),
-        OptInt.new('SLEEP', [true, 'Sleep this many milliseconds between requests', 0]),
-        OptBool.new('DISPLAYHTML', [true, 'Display HTML response', false]),
-        OptBool.new('SSL', [true, 'Use SSL', false]),
-        OptBool.new('VERB_DELETE', [false, 'Enable DELETE verb', false])
+        OptString.new('PATH', [ true, 'The path to test', '/' ]),
+        OptString.new('XMLNAMESPACE', [ true, 'XML Web Service Namespace', 'http://tempuri.org/' ]),
+        OptString.new('XMLINSTANCE', [ true, 'XML Schema Instance', 'http://www.w3.org/2001/XMLSchema-instance' ]),
+        OptString.new('XMLSCHEMA', [ true, 'XML Schema', 'http://www.w3.org/2001/XMLSchema' ]),
+        OptString.new('XMLSOAP', [ true, 'XML SOAP', 'http://schemas.xmlsoap.org/soap/envelope/' ]),
+        OptString.new('CONTENTTYPE', [ true, 'The HTTP Content-Type Header', 'application/x-www-form-urlencoded' ]),
+        OptInt.new('SLEEP', [ true, 'Sleep this many milliseconds between requests', 0 ]),
+        OptBool.new('DISPLAYHTML', [ true, 'Display HTML response', false ]),
+        OptBool.new('SSL', [ true, 'Use SSL', false ]),
+        OptBool.new('VERB_DELETE', [ false, 'Enable DELETE verb', false ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 15 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 15
   end
 
   # Fingerprint a single host
@@ -160,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
                   'Expect'	 => '100-continue',
                   'Content-Type'	 => datastore['CONTENTTYPE']
                 }
-            }, 15)
+            }, timeout)
 
           if res && !(res.body.empty?)
             if reject_regexen.any? { |r| res.body =~ r }

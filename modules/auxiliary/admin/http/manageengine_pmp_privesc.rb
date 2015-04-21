@@ -42,13 +42,12 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(7272),
-        OptBool.new('SSL', [true, 'Use SSL', true]),
-        OptString.new('USERNAME', [true, 'The username to login as', 'guest']),
-        OptString.new('PASSWORD', [true, 'Password for the specified username', 'guest']),
-        OptString.new('TARGETURI', [ true,  "Password Manager Pro application URI", '/'])
+        OptBool.new('SSL', [ true, 'Use SSL', true ]),
+        OptString.new('USERNAME', [ true, 'The username to login as', 'guest' ]),
+        OptString.new('PASSWORD', [ true, 'Password for the specified username', 'guest' ]),
+        OptString.new('TARGETURI', [ true,  "Password Manager Pro application URI", '/' ])
       ], self.class)
   end
-
 
   def login(username, password)
     # 1st step: we obtain a JSESSIONID cookie...

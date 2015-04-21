@@ -26,8 +26,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [true, "Path to use", '/']),
+        OptString.new('PATH', [ true, "Path to use", '/' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(target_host)
@@ -36,12 +41,11 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'          => normalize_uri(datastore['PATH']),
         'method'       => 'PROPFIND',
-        'data'	=>	'',
-        'ctype'   => 'text/xml',
-        'version' => '1.0',
-        'vhost' => '',
-      }, 10)
-
+        'data'	       => '',
+        'ctype'        => 'text/xml',
+        'version'      => '1.0',
+        'vhost'        => '',
+      }, timeout)
 
       if res and res.body
         # short url regex

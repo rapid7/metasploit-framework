@@ -24,22 +24,24 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The test path to .svn directory", '/']),
+        OptString.new('PATH', [ true,  "The test path to .svn directory", '/' ]),
         OptBool.new('GET_SOURCE', [ false, "Attempt to obtain file source code", true ]),
-        OptBool.new('SHOW_SOURCE', [ false, "Show source code", true ])
+        OptBool.new('SHOW_SOURCE', [ false, "Show source code", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
 
       ], self.class)
 
     register_advanced_options(
       [
-        OptInt.new('ErrorCode', [ true, "Error code for non existent directory", 404]),
+        OptInt.new('ErrorCode', [ true, "Error code for non existent directory", 404 ]),
         OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
-          ]
-        ),
+            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt") ]),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(target_host)
@@ -64,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'  		=>  tpath+randdir,
         'method'   	=> 'GET',
         'ctype'		=> 'text/html'
-      }, 20)
+      }, timeout)
 
       return if not res
 
@@ -108,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'          => turl,
         'method'       => 'GET',
         'version' => '1.0',
-      }, 10)
+      }, timeout)
 
       if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
         if dm == false
@@ -210,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
                     'uri'          => turl,
                     'method'       => 'GET',
                     'version' => '1.0',
-                  }, 10)
+                  }, timeout)
 
                   if srcres and srcres.body.length > 0
                     if datastore['SHOW_SOURCE']

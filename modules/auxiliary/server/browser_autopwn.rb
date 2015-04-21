@@ -61,63 +61,63 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultAction'  => 'WebServer'))
 
     register_options([
-      OptAddress.new('LHOST', [true,
+      OptAddress.new('LHOST', [ true,
         'The IP address to use for reverse-connect payloads'
       ])
     ], self.class)
 
     register_advanced_options([
-      OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
-      OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
-      OptRegexp.new('MATCH', [false,
+      OptString.new('AutoRunScript', [ false, "A script to automatically on session creation.", '' ]),
+      OptBool.new('AutoSystemInfo', [ true, "Automatically capture system information on initialization.", true ]),
+      OptRegexp.new('MATCH', [ false,
         'Only attempt to use exploits whose name matches this regex'
       ]),
-      OptRegexp.new('EXCLUDE', [false,
+      OptRegexp.new('EXCLUDE', [ false,
         'Only attempt to use exploits whose name DOES NOT match this regex'
       ]),
-      OptBool.new('DEBUG', [false,
+      OptBool.new('DEBUG', [ false,
         'Do not obfuscate the javascript and print various bits of useful info to the browser',
         false
       ]),
-      OptPort.new('LPORT_WIN32', [false,
+      OptPort.new('LPORT_WIN32', [ false,
         'The port to use for Windows reverse-connect payloads', 3333
       ]),
-      OptString.new('PAYLOAD_WIN32', [false,
+      OptString.new('PAYLOAD_WIN32', [ false,
         'The payload to use for Windows reverse-connect payloads',
         'windows/meterpreter/reverse_tcp'
       ]),
-      OptPort.new('LPORT_LINUX', [false,
+      OptPort.new('LPORT_LINUX', [ false,
         'The port to use for Linux reverse-connect payloads', 4444
       ]),
-      OptString.new('PAYLOAD_LINUX', [false,
+      OptString.new('PAYLOAD_LINUX', [ false,
         'The payload to use for Linux reverse-connect payloads',
         'linux/meterpreter/reverse_tcp'
       ]),
-      OptPort.new('LPORT_MACOS', [false,
+      OptPort.new('LPORT_MACOS', [ false,
         'The port to use for Mac reverse-connect payloads', 5555
       ]),
-      OptString.new('PAYLOAD_MACOS', [false,
+      OptString.new('PAYLOAD_MACOS', [ false,
         'The payload to use for Mac reverse-connect payloads',
         'osx/meterpreter/reverse_tcp'
       ]),
-      OptPort.new('LPORT_GENERIC', [false,
+      OptPort.new('LPORT_GENERIC', [ false,
         'The port to use for generic reverse-connect payloads', 6666
       ]),
-      OptString.new('PAYLOAD_GENERIC', [false,
+      OptString.new('PAYLOAD_GENERIC', [ false,
         'The payload to use for generic reverse-connect payloads',
         'generic/shell_reverse_tcp'
       ]),
-      OptPort.new('LPORT_JAVA', [false,
+      OptPort.new('LPORT_JAVA', [ false,
         'The port to use for Java reverse-connect payloads', 7777
       ]),
-      OptString.new('PAYLOAD_JAVA', [false,
+      OptString.new('PAYLOAD_JAVA', [ false,
         'The payload to use for Java reverse-connect payloads',
         'java/meterpreter/reverse_tcp'
       ]),
-      OptPort.new('LPORT_ANDROID', [false,
+      OptPort.new('LPORT_ANDROID', [ false,
         'The port to use for Java reverse-connect payloads', 8888
       ]),
-      OptString.new('PAYLOAD_ANDROID', [false,
+      OptString.new('PAYLOAD_ANDROID', [ false,
         'The payload to use for Android reverse-connect payloads',
         'android/meterpreter/reverse_tcp'
       ])

@@ -22,9 +22,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
-        OptString.new('FILENAME',[true, "Filename to use as a test",'index'])
+        OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/' ]),
+        OptString.new('FILENAME',[ true, "Filename to use as a test",'index' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -51,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'   	=> 'GET',
         'ctype'     => 'text/html',
         'headers'	=> {'Accept' => 'a/b'}
-      }, 20)
+      }, timeout)
 
       return if not res
 

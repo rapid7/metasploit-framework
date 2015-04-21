@@ -26,8 +26,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [true, "Path to use", '/']),
+        OptString.new('PATH', [ true, "Path to use", '/' ]),
+        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(target_host)
@@ -36,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({
         'uri'          => normalize_uri(datastore['PATH']),
         'method'       => 'OPTIONS'
-      }, 10)
+      }, timeout)
 
       if res and res.code == 200
         http_fingerprint({ :response => res })

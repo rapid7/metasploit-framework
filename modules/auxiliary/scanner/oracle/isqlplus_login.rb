@@ -36,12 +36,12 @@ class Metasploit3 < Msf::Auxiliary
 
       register_options([
         Opt::RPORT(5560),
-        OptString.new('URI', [ true, 'Oracle iSQLPlus path.', '/isqlplus/']),
+        OptString.new('URI', [ true, 'Oracle iSQLPlus path.', '/isqlplus/' ]),
         OptString.new('SID', [ false, 'Oracle SID' ]),
-        OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 60]),
+        OptInt.new('TIMEOUT', [ false, 'Time to wait for HTTP responses', 60 ]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
-        OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
+        OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false ]),
       ], self.class)
 
   end

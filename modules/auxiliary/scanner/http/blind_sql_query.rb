@@ -29,13 +29,18 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET', 'POST'] ]),
-        OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/index.asp']),
-        OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
-        OptString.new('DATA', [ false, "HTTP Body Data", '']),
-        OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
+        OptEnum.new('METHOD', [ true, 'HTTP Method', 'GET', ['GET', 'POST'] ]),
+        OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/index.asp' ]),
+        OptString.new('QUERY', [ false,  "HTTP URI Query", '' ]),
+        OptString.new('DATA', [ false, "HTTP Body Data", '' ]),
+        OptString.new('COOKIE',[ false, "HTTP Cookies", '' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -140,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
           'ctype'		=> 'application/x-www-form-urlencoded',
           'cookie'    => datastore['COOKIE'],
           'data'      => datastore['DATA']
-        }, 20)
+        }, timeout)
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       rescue ::Timeout::Error, ::Errno::EPIPE
       end
@@ -188,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
               'ctype'		=> 'application/x-www-form-urlencoded',
               'cookie'    => datastore['COOKIE'],
               'data'      => datastore['DATA']
-            }, 20)
+            }, timeout)
           rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
           rescue ::Timeout::Error, ::Errno::EPIPE
           end
@@ -205,7 +210,7 @@ class Metasploit3 < Msf::Auxiliary
               'ctype'		=> 'application/x-www-form-urlencoded',
               'cookie'    => datastore['COOKIE'],
               'data'      => datastore['DATA']
-            }, 20)
+            }, timeout)
           rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
           rescue ::Timeout::Error, ::Errno::EPIPE
           end
@@ -271,7 +276,7 @@ class Metasploit3 < Msf::Auxiliary
               'ctype'		=> 'application/x-www-form-urlencoded',
               'cookie'    => datastore['COOKIE'],
               'data'      => pvarstr
-            }, 20)
+            }, timeout)
           rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
           rescue ::Timeout::Error, ::Errno::EPIPE
           end
@@ -296,7 +301,7 @@ class Metasploit3 < Msf::Auxiliary
               'ctype'		=> 'application/x-www-form-urlencoded',
               'cookie'    => datastore['COOKIE'],
               'data'      => pvarstr
-            }, 20)
+            }, timeout)
           rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
           rescue ::Timeout::Error, ::Errno::EPIPE
           end

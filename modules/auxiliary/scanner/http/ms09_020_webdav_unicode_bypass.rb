@@ -37,9 +37,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to protected folder", '/'])
+        OptString.new('PATH', [ true,  "The path to protected folder", '/' ]),
+        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -64,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
           {
           },
         'data'		=> webdav_req + "\r\n\r\n",
-      }, 20)
+      }, timeout)
 
       if(not res)
         print_error("NO Response.")
@@ -89,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
               #'Translate'	 => 'f', # Not required in PROPFIND, only GET - patrickw 20091518
             },
           'data'		=> webdav_req + "\r\n\r\n",
-        }, 20)
+        }, timeout)
 
         if (res.code.to_i == 207)
           print_status("#{rhost}:#{rport} \tFound vulnerable WebDAV Unicode bypass.  #{wmap_base_url}#{tpath}#{bogus}/ #{res.code} (#{wmap_target_host})")

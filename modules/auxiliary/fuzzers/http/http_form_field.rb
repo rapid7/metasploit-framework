@@ -37,22 +37,22 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URL', [ false, "The URL that contains the form", "/"]),
-        OptString.new('FORM', [ false, "The name of the form to use. Leave empty to fuzz all forms","" ] ),
-        OptString.new('FIELDS', [ false, "Name of the fields to fuzz. Leave empty to fuzz all fields","" ] ),
-        OptString.new('ACTION', [ false, "Form action full URI. Leave empty to autodetect","" ] ),
-        OptInt.new('STARTSIZE', [ true, "Fuzzing string startsize.",1000]),
-        OptInt.new('ENDSIZE', [ true, "Max Fuzzing string size.",40000]),
-        OptInt.new('STEPSIZE', [ true, "Increment fuzzing string each attempt.",1000]),
-        OptInt.new('TIMEOUT', [ true, "Number of seconds to wait for response on GET or POST",15]),
-        OptInt.new('DELAY', [ true, "Number of seconds to wait between 2 actions",0]),
-        OptInt.new('STOPAFTER', [ false, "Stop after x number of consecutive errors",2]),
-        OptBool.new('CYCLIC', [ true, "Use Cyclic pattern instead of A's (fuzzing payload).",true]),
-        OptBool.new('FUZZHEADERS', [ true, "Fuzz headers",true]),
-        OptString.new('HEADERFIELDS', [ false, "Name of the headerfields to fuzz. Leave empty to fuzz all fields","" ] ),
-        OptString.new('TYPES', [ true, "Field types to fuzz","text,password,inputtextbox"]),
-        OptString.new('CODE', [ true, "Response code(s) indicating OK", "200,301,302,303" ] ),
-        OptBool.new('HANDLECOOKIES', [ true, "Appends cookies with every request.",false])
+        OptString.new('URL', [ false, "The URL that contains the form", "/" ]),
+        OptString.new('FORM', [ false, "The name of the form to use. Leave empty to fuzz all forms", "" ]),
+        OptString.new('FIELDS', [ false, "Name of the fields to fuzz. Leave empty to fuzz all fields", "" ]),
+        OptString.new('ACTION', [ false, "Form action full URI. Leave empty to autodetect", "" ]),
+        OptInt.new('STARTSIZE', [ true, "Fuzzing string startsize.", 1000 ]),
+        OptInt.new('ENDSIZE', [ true, "Max Fuzzing string size.", 40000 ]),
+        OptInt.new('STEPSIZE', [ true, "Increment fuzzing string each attempt.", 1000 ]),
+        OptInt.new('TIMEOUT', [ true, "Number of seconds to wait for response on GET or POST", 15 ]),
+        OptInt.new('DELAY', [ true, "Number of seconds to wait between 2 actions", 0 ]),
+        OptInt.new('STOPAFTER', [ false, "Stop after x number of consecutive errors", 2 ]),
+        OptBool.new('CYCLIC', [ true, "Use Cyclic pattern instead of A's (fuzzing payload).", true ]),
+        OptBool.new('FUZZHEADERS', [ true, "Fuzz headers", true ]),
+        OptString.new('HEADERFIELDS', [ false, "Name of the headerfields to fuzz. Leave empty to fuzz all fields", "" ]),
+        OptString.new('TYPES', [ true, "Field types to fuzz", "text,password,inputtextbox" ]),
+        OptString.new('CODE', [ true, "Response code(s) indicating OK", "200,301,302,303" ]),
+        OptBool.new('HANDLECOOKIES', [ true, "Appends cookies with every request.", false ])
       ], self.class )
   end
 
@@ -63,19 +63,19 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     @send_data = {
-        :uri => '',
-        :version => '1.1',
-        :method => 'POST',
-        :headers => {
-          'Content-Length' => 100,
-          'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        :uri       => '',
+        :version   => '1.1',
+        :method    => 'POST',
+        :headers   => {
+          'Content-Length'  => 100,
+          'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language' => 'en-us,en;q=0.5',
           'Accept-Encoding' => 'gzip,deflate',
-          'Accept-Charset' => 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-          'Keep-Alive' => '300',
-          'Connection' => 'keep-alive',
-          'Referer' => proto + datastore['RHOST'] + ":" + datastore['RPORT'].to_s,
-          'Content-Type' => 'application/x-www-form-urlencoded'
+          'Accept-Charset'  => 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+          'Keep-Alive'      => '300',
+          'Connection'      => 'keep-alive',
+          'Referer'         => proto + datastore['RHOST'] + ":" + datastore['RPORT'].to_s,
+          'Content-Type'    => 'application/x-www-form-urlencoded'
         }
       }
     @get_data_headers = {
@@ -101,6 +101,10 @@ class Metasploit3 < Msf::Auxiliary
     else
       @fuzzdata = "A" * @fuzzsize
     end
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def is_error_code(code)
@@ -286,15 +290,16 @@ class Metasploit3 < Msf::Auxiliary
     return true
   end
 
-  def send_fuzz(postdata,data)
+  def send_fuzz(postdata, data)
     header = postdata[:headers]
     response = send_request_raw({
-        'uri' => postdata[:uri],
-        'version' => postdata[:version],
-        'method' => postdata[:method],
-        'headers' => header,
-        'data' => data
-        }, datastore['TIMEOUT'])
+      'uri'     => postdata[:uri],
+      'version' => postdata[:version],
+      'method'  => postdata[:method],
+      'headers' => header,
+      'data'    => data
+      }, timeout)
+
     return response
   end
 
@@ -426,7 +431,7 @@ class Metasploit3 < Msf::Auxiliary
                 if fieldid == "" and fieldname != ""
                   fieldid = fieldname
                 end
-                print_status("      Field : #{fieldname}, type #{fieldtype}")
+                print_status("Field : #{fieldname}, type #{fieldtype}")
                 if fieldid != ""
                   formfields << {
                     :id => fieldid,
@@ -443,7 +448,7 @@ class Metasploit3 < Msf::Auxiliary
           end
         end
       end
-      print_status("      Nr of fields in form '#{formname}' : #{formfields.size}")
+      print_status("Number of fields in form '#{formname}' : #{formfields.size}")
       # store in multidimensional array
       forms << {
         :name => formname,
@@ -484,7 +489,7 @@ class Metasploit3 < Msf::Auxiliary
       'method' => 'GET',
       'headers' => @get_data_headers
 
-    }, datastore['TIMEOUT'])
+    }, timeout)
     if response == nil
       print_error("No response")
       return
@@ -502,7 +507,7 @@ class Metasploit3 < Msf::Auxiliary
         'version' => '1.1',
         'method' => 'GET',
         'headers' => @get_data_headers
-      }, datastore['TIMEOUT'])
+      }, timeout)
     end
     if response == nil
       print_error("No response")

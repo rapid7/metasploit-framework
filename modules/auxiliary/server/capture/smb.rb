@@ -40,9 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
-        OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in John format", nil ]),
-        OptString.new('CHALLENGE',   [ true, "The 8 byte server challenge", "1122334455667788" ])
+        OptString.new('CAINPWFILE', [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
+        OptString.new('JOHNPWFILE', [ false, "The prefix to the local filename to store the hashes in John format", nil ]),
+        OptString.new('CHALLENGE',  [ true, "The 8 byte server challenge", "1122334455667788" ])
       ], self.class )
 
     register_advanced_options(

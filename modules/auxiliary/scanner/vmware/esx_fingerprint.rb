@@ -25,13 +25,19 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-    register_options([Opt::RPORT(443),
-      OptString.new('URI', [false, 'The uri path to test against' , '/sdk'])
-    ], self.class)
+    register_options(
+      [
+        Opt::RPORT(443),
+        OptString.new('URI', [false, 'The uri path to test against' , '/sdk' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
+      ], self.class)
 
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
+    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]), ])
   end
 
+  def timeout
+    datastore['TIMEOUT'] || 25
+  end
 
   def run_host(ip)
       soap_data =
@@ -49,7 +55,8 @@ class Metasploit3 < Msf::Auxiliary
         'agent'   => 'VMware VI Client',
         'data' =>  soap_data,
         'headers' => { 'SOAPAction' => @soap_action}
-      }, 25)
+      }, timeout)
+
     rescue ::Rex::ConnectionError => e
       vprint_error("http://#{ip}:#{rport}#{datastore['URI']} - #{e}")
       return false

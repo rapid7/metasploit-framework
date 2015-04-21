@@ -24,18 +24,23 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('METHOD', [ true, "HTTP Method",'GET']),
-        OptString.new('PATH', [ true,  "The URI Path", '/vulnerable.asp']),
-        OptString.new('PRE_QUERY', [ true,  "Pre-injection HTTP URI Query", 'p1=v1&p2=v2&p3=v3']),
-        OptString.new('POST_QUERY', [ false,  "Post-injection HTTP URI Query", ' ']),
-        OptString.new('ERROR_MSG', [ true, "False error message", 'Server Error']),
+        OptString.new('METHOD', [ true, "HTTP Method",'GET' ]),
+        OptString.new('PATH', [ true,  "The URI Path", '/vulnerable.asp' ]),
+        OptString.new('PRE_QUERY', [ true,  "Pre-injection HTTP URI Query", 'p1=v1&p2=v2&p3=v3' ]),
+        OptString.new('POST_QUERY', [ false,  "Post-injection HTTP URI Query", ' ' ]),
+        OptString.new('ERROR_MSG', [ true, "False error message", 'Server Error' ]),
         OptString.new('XCOMMAND', [ false, "XPath command to execute (Default for all XML doc)", '//*']),
-        OptInt.new('MAX_LEN', [ true, "Maximum string length", 20000]),
+        OptInt.new('MAX_LEN', [ true, "Maximum string length", 20000 ]),
         OptBool.new('MAX_OVER', [ true, "Dont detect result size. Use MAX_LEN instead", true ]),
         OptBool.new('CHKINJ', [ false, "Check XPath injection with error message", false ]),
-        OptBool.new('DEBUG_INJ', [ false, "Debug XPath injection", true ])
+        OptBool.new('DEBUG_INJ', [ false, "Debug XPath injection", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def wmap_enabled
@@ -76,10 +81,10 @@ class Metasploit3 < Msf::Auxiliary
 
       begin
         res = send_request_cgi({
-          'uri'  		=>  tpath,
+          'uri'       =>  tpath,
           'query'     =>  "#{prequery}#{falsecond}#{postquery}",
-          'method'   	=>	hmeth
-        }, 20)
+          'method'    =>  hmeth
+        }, timeout)
 
         return if not res
 
@@ -100,10 +105,10 @@ class Metasploit3 < Msf::Auxiliary
 
       begin
         res = send_request_cgi({
-          'uri'  		=>  tpath,
+          'uri'       =>  tpath,
           'query'     =>  "#{prequery}#{truecond}#{postquery}",
-          'method'   	=>	hmeth
-        }, 20)
+          'method'    =>  hmeth
+        }, timeout)
 
         return if not res
 
@@ -145,10 +150,10 @@ class Metasploit3 < Msf::Auxiliary
 
         begin
           res = send_request_cgi({
-            'uri'  		=>  tpath,
+            'uri'       =>  tpath,
             'query'     =>  "#{prequery}#{injlen}#{postquery}",
-            'method'   	=>	hmeth
-          }, 20)
+            'method'   	=>  hmeth
+          }, timeout)
 
           return if not res
 
@@ -169,10 +174,10 @@ class Metasploit3 < Msf::Auxiliary
 
           begin
             res = send_request_cgi({
-              'uri'  		=>  tpath,
+              'uri'       =>  tpath,
               'query'     =>  "#{prequery}#{injlen}#{postquery}",
-              'method'   	=>	hmeth
-            }, 20)
+              'method'    =>  hmeth
+            }, timeout)
 
             return if not res
 
@@ -215,10 +220,10 @@ class Metasploit3 < Msf::Auxiliary
 
         begin
           res = send_request_cgi({
-            'uri'  		=>  tpath,
+            'uri'       =>  tpath,
             'query'     =>  "#{prequery}#{injlen}#{postquery}",
-            'method'   	=>	hmeth
-          }, 20)
+            'method'   	=>  hmeth
+          }, timeout)
 
           return if not res
 

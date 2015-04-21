@@ -27,11 +27,16 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     register_options(
-        [
-          Opt::RPORT(8080),
-          OptString.new('DBUSER', [ false, 'The db user to authenticate with.',  'scott']),
-          OptString.new('DBPASS', [ false, 'The db pass to authenticate with.',  'tiger']),
+      [
+        Opt::RPORT(8080),
+        OptString.new('DBUSER', [ false, 'The db user to authenticate with.',  'scott' ]),
+        OptString.new('DBPASS', [ false, 'The db pass to authenticate with.',  'tiger' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5 ])
         ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def run_host(ip)
@@ -47,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'Authorization' => "Basic #{Rex::Text.encode_base64(user_pass)}"
         }
-      }, 5)
+      }, timeout)
 
         if( not res )
           vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")

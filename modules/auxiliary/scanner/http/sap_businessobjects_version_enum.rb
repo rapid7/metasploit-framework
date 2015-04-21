@@ -29,17 +29,22 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
+        OptString.new('URI', [ false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
     register_autofilter_ports([ 8080 ])
     deregister_options('RHOST')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
     res = send_request_cgi({
       'uri'    => normalize_uri(datastore['URI'], "/services/listServices"),
       'method' => 'GET'
-    }, 25)
+    }, timeout)
     return if not res or res.code != 200
 
     enum_version(ip)
@@ -71,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
             'SOAPAction'	=> '"' + 'http://session.dsws.businessobjects.com/2007/06/01/getVersion' + '"',
             'Content-Type'  => 'text/xml; charset=UTF-8',
           }
-      }, 15)
+      }, timeout)
 
       if res and res.code == 200
         case res.body

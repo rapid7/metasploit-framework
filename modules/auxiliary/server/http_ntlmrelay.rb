@@ -57,25 +57,27 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultAction'  => 'WebServer'))
 
     register_options([
-      OptBool.new('RSSL', [true, "SSL on the remote connection ", false]),
-      OptEnum.new('RTYPE', [true, "Type of action to perform on remote target", "HTTP_GET",
-        [   "HTTP_GET", "HTTP_POST", "SMB_GET", "SMB_PUT", "SMB_RM", "SMB_ENUM",
-          "SMB_LS", "SMB_PWN" ]]),
-      OptString.new('RURIPATH', [true, "The path to relay credentials ", "/"]),
-      OptString.new('PUTDATA', [false, "This is the HTTP_POST or SMB_PUT data" ]),
-      OptPath.new('FILEPUTDATA', [false, "PUTDATA, but specified by a local file" ]),
-      OptPath.new('SYNCFILE', [false, "Local Ruby file to eval dynamically" ]),
-      OptString.new('SYNCID', [false, "ID to identify a request saved to db" ]),
+      OptBool.new('RSSL', [ true, "SSL on the remote connection ", false ]),
+      OptEnum.new('RTYPE', [ true, "Type of action to perform on remote target", "HTTP_GET",
+        [  "HTTP_GET", "HTTP_POST", "SMB_GET", "SMB_PUT", "SMB_RM", "SMB_ENUM",
+           "SMB_LS", "SMB_PWN"
+        ]
+      ]),
+      OptString.new('RURIPATH', [ true, "The path to relay credentials ", "/" ]),
+      OptString.new('PUTDATA', [ false, "This is the HTTP_POST or SMB_PUT data" ]),
+      OptPath.new('FILEPUTDATA', [ false, "PUTDATA, but specified by a local file" ]),
+      OptPath.new('SYNCFILE', [ false, "Local Ruby file to eval dynamically" ]),
+      OptString.new('SYNCID', [ false, "ID to identify a request saved to db" ]),
 
     ], self.class)
 
     register_advanced_options([
-      OptPath.new('RESPPAGE', [false,
-        'The file used for the server response. (Image extensions matter)', nil]),
-      OptPath.new('HTTP_HEADERFILE', [false,
-        'File specifying extra HTTP_* headers (cookies, multipart, etc.)', nil]),
-      OptString.new('SMB_SHARES', [false, 'The shares to check with SMB_ENUM',
-              'IPC$,ADMIN$,C$,D$,CCMLOGS$,ccmsetup$,share,netlogon,sysvol'])
+      OptPath.new('RESPPAGE', [ false,
+        'The file used for the server response. (Image extensions matter)', nil ]),
+      OptPath.new('HTTP_HEADERFILE', [ false,
+        'File specifying extra HTTP_* headers (cookies, multipart, etc.)', nil ]),
+      OptString.new('SMB_SHARES', [ false, 'The shares to check with SMB_ENUM',
+              'IPC$,ADMIN$,C$,D$,CCMLOGS$,ccmsetup$,share,netlogon,sysvol' ])
     ], self.class)
 
     deregister_options('DOMAIN', 'NTLM::SendLM', 'NTLM::SendSPN', 'NTLM::SendNTLM', 'NTLM::UseLMKey',

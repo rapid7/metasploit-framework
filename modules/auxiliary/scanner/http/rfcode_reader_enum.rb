@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", true])
+        OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", true ])
       ], self.class)
 
   end

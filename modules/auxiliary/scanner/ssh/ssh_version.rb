@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(22),
-      OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30])
+      OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30 ])
     ], self.class)
   end
 

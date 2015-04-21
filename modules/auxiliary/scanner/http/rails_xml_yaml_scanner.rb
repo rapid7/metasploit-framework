@@ -30,9 +30,14 @@ class Metasploit3 < Msf::Auxiliary
     ))
 
     register_options([
-      OptString.new('URIPATH', [true, "The URI to test", "/"]),
-      OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT'] ]),
+      OptString.new('URIPATH', [ true, "The URI to test", "/" ]),
+      OptEnum.new('HTTP_METHOD', [ true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT'] ]),
+      OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
     ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def send_probe(ptype, pdata)
@@ -42,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
       'method' => datastore['HTTP_METHOD'],
       'ctype'  => 'application/xml',
       'data'   => odata
-    }, 25)
+    }, timeout)
   end
 
   def run_host(ip)

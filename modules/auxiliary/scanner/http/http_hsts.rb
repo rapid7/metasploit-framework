@@ -21,9 +21,14 @@ class Metasploit3 < Msf::Auxiliary
     ))
 
     register_options([
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
+        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ]),
         Opt::RPORT(443)
       ])
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -31,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'    => '/',
         'method' => 'GET',
-        }, 25)
+        }, timeout)
 
       if res
         hsts = res.headers['Strict-Transport-Security']

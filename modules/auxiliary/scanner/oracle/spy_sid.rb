@@ -28,8 +28,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(1158)
+        Opt::RPORT(1158),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 5 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 5
   end
 
   def run_host(ip)
@@ -38,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => '/servlet/Spy?format=raw&loginfo=true',
         'method'  => 'GET',
         'version' => '1.1',
-      }, 5)
+      }, timeout)
 
       if res and res.body =~ /SERVICE_NAME=/
         select(nil,nil,nil,2)

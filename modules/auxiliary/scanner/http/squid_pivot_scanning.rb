@@ -41,12 +41,17 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('RANGE', [true, "IPs to scan through Squid proxy", '']),
-        OptString.new('PORTS', [true, "Ports to scan; must be TCP", "21,80,139,443,445,1433,1521,1723,3389,8080,9100"]),
-        OptBool.new('MANUAL_CHECK',[true,"Stop the scan if server seems to answer positively to every request",true]),
-        OptString.new('CANARY_IP',[true,"The IP to check if the proxy always answers positively; the IP should not respond.","1.2.3.4"])
+        OptString.new('RANGE', [ true, "IPs to scan through Squid proxy", '' ]),
+        OptString.new('PORTS', [ true, "Ports to scan; must be TCP", "21,80,139,443,445,1433,1521,1723,3389,8080,9100" ]),
+        OptBool.new('MANUAL_CHECK',[ true,"Stop the scan if server seems to answer positively to every request",true ]),
+        OptString.new('CANARY_IP',[ true,"The IP to check if the proxy always answers positively; the IP should not respond.","1.2.3.4" ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
 
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(target_host)
@@ -70,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
           'data'  =>      '',
           'version' => '1.0',
           'vhost' => ''
-        }, 10)
+        }, timeout)
 
         if res_test and res_test.body and (res_test.code == 200)
           print_error("#{rhost} likely answers positively to every request, check it manually.")
@@ -93,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
                 'data'  =>      '',
                 'version' => '1.0',
                 'vhost' => ''
-                }, 10)
+                }, timeout)
             else
               res = send_request_cgi({
                 'uri'          => "http://#{target}:#{port}",
@@ -101,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
                 'data'  =>      '',
                 'version' => '1.0',
                 'vhost' => ''
-              }, 10)
+              }, timeout)
             end
 
             if res and res.body

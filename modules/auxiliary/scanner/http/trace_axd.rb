@@ -18,20 +18,25 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'HTTP trace.axd Content Scanner',
       'Description' => 'Detect trace.axd files and analize its content',
-      'Author'       => ['c4an'],
+      'Author'      => ['c4an'],
       'License'     => MSF_LICENSE
     )
 
     register_options(
       [
-        OptString.new('PATH',  [ true,  "The test path to find trace.axd file", '/']),
-        OptBool.new('TRACE_DETAILS', [ true,  "Display trace.axd details", true ])
+        OptString.new('PATH',  [ true,  "The test path to find trace.axd file", '/' ]),
+        OptBool.new('TRACE_DETAILS', [ true,  "Display trace.axd details", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 10 ])
       ], self.class)
 
     register_advanced_options(
       [
-        OptString.new('StoreFile', [ false,  "Store all information into a file", './trace_axd.log'])
+        OptString.new('StoreFile', [ false,  "Store all information into a file", './trace_axd.log' ]),
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 10
   end
 
   def run_host(target_host)
@@ -47,8 +52,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'          => turl,
         'method'       => 'GET',
         'version' => '1.0',
-      }, 10)
-
+      }, timeout)
 
       if res and res.body.include?("<td><h1>Application Trace</h1></td>")
         print_status("[#{target_host}] #{tpath}trace.axd FOUND.")

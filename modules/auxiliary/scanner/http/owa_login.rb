@@ -78,9 +78,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('RPORT', [ true, "The target port", 443]),
-        OptAddress.new('RHOST', [ true, "The target address", true]),
-        OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
+        OptInt.new('RPORT', [ true, "The target port", 443 ]),
+        OptAddress.new('RHOST', [ true, "The target address", true ]),
+        OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
 
@@ -90,6 +91,10 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
 
     deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def setup
@@ -169,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'   => 'POST',
         'headers'  => headers,
         'data'     => data
-      })
+      }, timeout)
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")
@@ -236,7 +241,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'       => inbox_path,
         'method'    => 'GET',
         'headers'   => headers
-      }, 20)
+      }, timeout)
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")
       return :abort
@@ -291,7 +296,7 @@ class Metasploit3 < Msf::Auxiliary
           'uri'      => "/#{url}",
           'method'   => 'GET',
           'headers'  =>  {"Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
-        })
+        }, timeout)
       rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
         vprint_error("#{msg} HTTP Connection Failed")
         next

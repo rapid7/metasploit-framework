@@ -32,10 +32,10 @@ class Metasploit3 < Msf::Auxiliary
 
       register_options([
         Opt::RPORT(5560),
-        OptString.new('URI', [ true, 'Oracle iSQLPlus path', '/isqlplus/']),
-        OptString.new('SID', [ false, 'A single SID to test']),
-        OptPath.new('SIDFILE', [ false, 'A file containing a list of SIDs', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
-        OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 30])
+        OptString.new('URI', [ true, 'Oracle iSQLPlus path', '/isqlplus/' ]),
+        OptString.new('SID', [ false, 'A single SID to test' ]),
+        OptPath.new('SIDFILE', [ false, 'A file containing a list of SIDs', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt') ]),
+        OptInt.new('TIMEOUT', [ false, 'Time to wait for HTTP responses', 30 ])
       ], self.class)
 
       deregister_options(

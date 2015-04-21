@@ -20,6 +20,15 @@ class Metasploit3 < Msf::Auxiliary
       'Author'       => ['CG'],
       'License'     => MSF_LICENSE
     )
+
+    register_options(
+      [
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
+      ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run_host(target_host)
@@ -33,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
         {
           'Cookie' => "did you echo me back?",
         },
-      }, 10)
+      }, timeout)
 
       if res.nil?
         print_error("no repsonse for #{target_host}")

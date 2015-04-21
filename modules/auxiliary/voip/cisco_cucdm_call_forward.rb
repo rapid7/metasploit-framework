@@ -36,10 +36,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [ true, 'Target URI for XML services', '/bvsmweb']),
-        OptString.new('MAC', [ true, 'MAC Address of target phone', '000000000000']),
-        OptString.new('FORWARDTO', [ true, 'Number to forward all calls', '007']),
-        OptString.new('FINTNUMBER', [ false, 'FINTNUMBER of IP Phones, required for multiple lines'])
+        OptString.new('TARGETURI', [ true, 'Target URI for XML services', '/bvsmweb' ]),
+        OptString.new('MAC', [ true, 'MAC Address of target phone', '000000000000' ]),
+        OptString.new('FORWARDTO', [ true, 'Number to forward all calls', '007' ]),
+        OptString.new('FINTNUMBER', [ false, 'FINTNUMBER of IP Phones, required for multiple lines' ])
       ], self.class)
   end
 
