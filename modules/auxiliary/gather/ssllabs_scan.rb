@@ -429,6 +429,22 @@ class Metasploit3 < Msf::Auxiliary
       ], self.class)
   end
 
+  def report_good(line)
+    print_good line
+  end
+
+  def report_warning(line)
+    print_warning line
+  end
+
+  def report_bad(line)
+    print_warning line
+  end
+
+  def report_status(line)
+    print_status line
+  end
+
   def output_endpoint_data(r)
     ssl_protocols = [
       { id: 771, name: "TLS", version: "1.2", secure: true, active: false },
@@ -438,21 +454,21 @@ class Metasploit3 < Msf::Auxiliary
       { id: 2, name: "SSL", version: "2.0", secure: false, active: false }
     ]
 
-    print_status "-----------------------------------------------------------------"
-    print_status "Report for #{r.server_name} (#{r.ip_address})"
-    print_status "-----------------------------------------------------------------"
+    report_status "-----------------------------------------------------------------"
+    report_status "Report for #{r.server_name} (#{r.ip_address})"
+    report_status "-----------------------------------------------------------------"
 
     case r.grade.to_s
     when "A+", "A", "A-"
-      print_good "Overal rating: #{r.grade}"
+      report_good "Overall rating: #{r.grade}"
     when "B"
-      print_warning "Overal rating: #{r.grade}"
+      report_warning "Overall rating: #{r.grade}"
     when "C", "D", "E", "F"
-      print_error "Overal rating: #{r.grade}"
+      report_bad "Overall rating: #{r.grade}"
     when "M"
-      print_error "Overal rating: #{r.grade} - Certificate name mismatch"
+      report_bad "Overall rating: #{r.grade} - Certificate name mismatch"
     when "T"
-      print_error "Overal rating: #{r.grade} - Server's certificate is not trusted"
+      report_bad "Overall rating: #{r.grade} - Server's certificate is not trusted"
     end
 
     # Supported protocols
@@ -464,34 +480,34 @@ class Metasploit3 < Msf::Auxiliary
     ssl_protocols.each do |proto|
       if proto[:active]
         if proto[:secure]
-          print_good "#{proto[:name]} #{proto[:version]} - Yes"
+          report_good "#{proto[:name]} #{proto[:version]} - Yes"
         else
-          print_error "#{proto[:name]} #{proto[:version]} - Yes"
+          report_bad "#{proto[:name]} #{proto[:version]} - Yes"
         end
       else
-        print_status "#{proto[:name]} #{proto[:version]} - No"
+        report_good "#{proto[:name]} #{proto[:version]} - No"
       end
     end
 
     # Renegotioation
     case
     when r.details.reneg_support == 0
-      print_warning "Secure renegotiation is not supported"
+      report_warning "Secure renegotiation is not supported"
     when r.details.reneg_support[0] == 1
-      print_error "Insecure client-initiated renegotiation is supported"
+      report_bad "Insecure client-initiated renegotiation is supported"
     when r.details.reneg_support[1] == 1
-      print_good "Secure renegotiation is supported"
+      report_good "Secure renegotiation is supported"
     when r.details.reneg_support[2] == 1
-      print_warning "Secure client-initiated renegotiation is supported"
+      report_warning "Secure client-initiated renegotiation is supported"
     when r.details.reneg_support[3] == 1
-      print_warning "Server requires secure renegotiation support"
+      report_warning "Server requires secure renegotiation support"
     end
 
     # BEAST
     if r.details.vuln_beast?
-      print_error "BEAST attack - Yes"
+      report_bad "BEAST attack - Yes"
     else
-      print_good "BEAST attack - No"
+      report_good "BEAST attack - No"
     end
 
     # puts "POODLE (SSLv3)- ?"
@@ -499,70 +515,70 @@ class Metasploit3 < Msf::Auxiliary
     # POODLE TLS
     case r.details.poodle_tls
     when -1
-      print_warning "POODLE TLS - Test failed"
+      report_warning "POODLE TLS - Test failed"
     when 0
-      print_warning "POODLE TLS - Unknown"
+      report_warning "POODLE TLS - Unknown"
     when 1
-      print_good "POODLE TLS - No"
+      report_good "POODLE TLS - No"
     when 2
-      print_error "POODLE TLS - Yes"
+      report_bad "POODLE TLS - Yes"
     end
 
     # Downgrade attack prevention
     if r.details.fallback_scsv?
-      print_good "Downgrade attack prevention - Yes"
+      report_good "Downgrade attack prevention - Yes"
     else
-      print_error "Downgrade attack prevention - No"
+      report_bad "Downgrade attack prevention - No"
     end
 
     # RC4
     if r.details.supports_rc4?
-      print_warning "RC4 - Server supports at least one RC4 suite"
+      report_warning "RC4 - Server supports at least one RC4 suite"
     else
-      print_good "RC4 - No"
+      report_good "RC4 - No"
     end
 
     # RC4 with modern browsers
-    print_warning "RC4 is used with modern clients" if r.details.rc4_with_modern?
+    report_warning "RC4 is used with modern clients" if r.details.rc4_with_modern?
 
     # Heartbeat
     if r.details.heartbeat?
-      print_status "Heartbeat (extension) - Yes"
+      report_status "Heartbeat (extension) - Yes"
     else
-      print_status "Heartbeat (extension) - No"
+      report_status "Heartbeat (extension) - No"
     end
 
     # Heartbleed
     if r.details.heartbleed?
-      print_error "Heartbleed (vulnerability) - Yes"
+      report_bad "Heartbleed (vulnerability) - Yes"
     else
-      print_good "Heartbeat (vulnerability) - No"
+      report_good "Heartbeat (vulnerability) - No"
     end
 
     # OpenSSL CCS
     case r.details.open_ssl_ccs
     when -1
-      print_warning "OpenSSL CCS vulnerability (CVE-2014-0224) - Test failed"
+      report_warning "OpenSSL CCS vulnerability (CVE-2014-0224) - Test failed"
     when 0
-      print_warning "OpenSSL CCS vulnerability (CVE-2014-0224) - Unknown"
+      report_warning "OpenSSL CCS vulnerability (CVE-2014-0224) - Unknown"
     when 1
-      print_good "OpenSSL CCS vulnerability (CVE-2014-0224) - No"
+      report_good "OpenSSL CCS vulnerability (CVE-2014-0224) - No"
     when 2
-      print_error "OpenSSL CCS vulnerability (CVE-2014-0224) - Possibly vulnerable, but not exploitable"
+      report_bad "OpenSSL CCS vulnerability (CVE-2014-0224) - Possibly vulnerable, but not exploitable"
     when 3
-      print_error "OpenSSL CCS vulnerability (CVE-2014-0224) - Vulnerable and exploitable"
+      report_bad "OpenSSL CCS vulnerability (CVE-2014-0224) - Vulnerable and exploitable"
     end
 
     # Forward Secrecy
     case
     when r.details.forward_secrecy == 0
-      print_error "Forward Secrecy - No"
+      report_bad "Forward Secrecy - No"
     when r.details.forward_secrecy[0] == 1
-      print_error "Forward Secrecy - With some browsers"
+      report_bad "Forward Secrecy - With some browsers"
     when r.details.forward_secrecy[1] == 1
-      print_good "Forward Secrecy - With modern browsers"
+      report_good "Forward Secrecy - With modern browsers"
     when r.details.forward_secrecy[2] == 1
-      print_good "Forward Secrecy - Yes (with most browsers)"
+      report_good "Forward Secrecy - Yes (with most browsers)"
     end
 
     # HSTS
@@ -572,23 +588,23 @@ class Metasploit3 < Msf::Auxiliary
         str += ":max-age=#{r.details.sts_max_age}"
       end
       str += ":includeSubdomains" if r.details.sts_subdomains?
-      print_good str
+      report_good str
     else
-      print_error "Strict Transport Security (HSTS) - No"
+      report_bad "Strict Transport Security (HSTS) - No"
     end
 
     # HPKP
     if r.details.pkp_response_header
-      print_good "Public Key Pinning (HPKP) - Yes"
+      report_good "Public Key Pinning (HPKP) - Yes"
     else
-      print_warning "Public Key Pinning (HPKP) - No"
+      report_warning "Public Key Pinning (HPKP) - No"
     end
 
     # Compression
     if r.details.compression_methods == 0
-      print_good "Compression - No"
+      report_good "Compression - No"
     elsif (r.details.session_tickets & 1) != 0
-      print_warning "Compression - Yes (Deflate)"
+      report_warning "Compression - Yes (Deflate)"
     end
 
     # Session Resumption
@@ -596,7 +612,7 @@ class Metasploit3 < Msf::Auxiliary
     when 0
       print_status "Session resumption - No"
     when 1
-      print_warning "Session resumption - No (IDs assigned but not accepted)"
+      report_warning "Session resumption - No (IDs assigned but not accepted)"
     when 2
       print_status "Session resumption - Yes"
     end
@@ -608,9 +624,9 @@ class Metasploit3 < Msf::Auxiliary
     when r.details.session_tickets[0] == 1
       print_status "Session tickets - Yes"
     when r.details.session_tickets[1] == 1
-      print_good "Session tickets - Implementation is faulty"
+      report_good "Session tickets - Implementation is faulty"
     when r.details.session_tickets[2] == 1
-      print_warning "Session tickets - Server is intolerant to the extension"
+      report_warning "Session tickets - Server is intolerant to the extension"
     end
 
     # OCSP stapling
