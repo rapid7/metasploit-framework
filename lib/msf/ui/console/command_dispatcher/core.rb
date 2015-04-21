@@ -3190,7 +3190,7 @@ class Core
       if is_metasploit_service_running
         launch_metasploit_browser
       else
-        print_error "Metasploit services aren't running. Type 'service metasploit start' and try again."
+        print_error "Metasploit services aren't running yet. Type 'service metasploit restart,' or try again in a moment."
       end
     end
     return true
