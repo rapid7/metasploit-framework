@@ -220,6 +220,11 @@ class Db
   end
 
   def change_host_info(rws, data)
+    if rws == [nil]
+      print_error("In order to change the host info, you must provide a range of hosts")
+      return
+    end
+
     rws.each do |rw|
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
@@ -230,6 +235,11 @@ class Db
   end
 
   def change_host_name(rws, data)
+    if rws == [nil]
+      print_error("In order to change the host name, you must provide a range of hosts")
+      return
+    end
+
     rws.each do |rw|
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
@@ -240,6 +250,11 @@ class Db
   end
 
   def change_host_comment(rws, data)
+    if rws == [nil]
+      print_error("In order to change the comment, you must provide a range of hosts")
+      return
+    end
+
     rws.each do |rw|
       rw.each do |ip|
         id = framework.db.get_host(:address => ip).id
@@ -249,12 +264,59 @@ class Db
     end
   end
 
+  def add_host_tag(rws, tag_name)
+    if rws == [nil]
+      print_error("In order to add a tag, you must provide a range of hosts")
+      return
+    end
+
+    rws.each do |rw|
+      rw.each do |ip|
+        wspace = framework.db.workspace
+        host = framework.db.get_host(:workspace => wspace, :address => ip)
+        if host
+          possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+          tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
+          tag.name = tag_name
+          tag.hosts = [host]
+          tag.save! if tag.changed?
+        end
+      end
+    end
+  end
+
+  def delete_host_tag(rws, tag_name)
+    wspace = framework.db.workspace
+    tag_ids = []
+    if rws == [nil]
+      found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name)
+      found_tags.each do |t|
+        tag_ids << t.id
+      end
+    else
+      rws.each do |rw|
+        rw.each do |ip|
+          found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name)
+            found_tags.each do |t|
+            tag_ids << t.id
+          end
+        end
+      end
+    end
+
+    tag_ids.each do |id|
+      tag = Mdm::Tag.find_by_id(id)
+      tag.hosts.delete
+      tag.destroy
+    end
+  end
+
   def cmd_hosts(*args)
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
     onlyup = false
     set_rhosts = false
-    mode = :search
+    mode = []
     delete_count = 0
 
     rhosts = []
@@ -263,7 +325,8 @@ class Db
 
     output = nil
     default_columns = ::Mdm::Host.column_names.sort
-    virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
+    default_columns << 'tags' # Special case
+    virtual_columns = [ 'svcs', 'vulns', 'workspace', 'tags' ]
 
     col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
 
@@ -271,9 +334,9 @@ class Db
     while (arg = args.shift)
       case arg
       when '-a','--add'
-        mode = :add
+        mode << :add
       when '-d','--delete'
-        mode = :delete
+        mode << :delete
       when '-c'
         list = args.shift
         if(!list)
@@ -292,19 +355,22 @@ class Db
         onlyup = true
       when '-o'
         output = args.shift
-      when '-R','--rhosts'
+      when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
       when '-i', '--info'
-        mode = :new_info
+        mode << :new_info
         info_data = args.shift
       when '-n', '--name'
-        mode = :new_name
+        mode << :new_name
         name_data = args.shift
       when '-m', '--comment'
-        mode = :new_comment
+        mode << :new_comment
         comment_data = args.shift
+      when '-t', '--tag'
+        mode << :tag
+        tag_name = args.shift
       when '-h','--help'
         print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
         print_line
@@ -320,6 +386,7 @@ class Db
         print_line "  -i,--info         Change the info of a host"
         print_line "  -n,--name         Change the name of a host"
         print_line "  -m,--comment      Change the comment of a host"
+        print_line "  -t,--tag          Add or specify a tag to a range of hosts"
         print_line
         print_line "Available columns: #{default_columns.join(", ")}"
         print_line
@@ -338,7 +405,9 @@ class Db
       col_names = default_columns + virtual_columns
     end
 
-    if mode == :add
+    mode << :search if mode.empty?
+
+    if mode == [:add]
       host_ranges.each do |range|
         range.each do |address|
           host = framework.db.find_or_create_host(:host => address)
@@ -358,23 +427,41 @@ class Db
     # Sentinal value meaning all
     host_ranges.push(nil) if host_ranges.empty?
 
-    case mode
-    when :new_info
+    case
+    when mode == [:new_info]
       change_host_info(host_ranges, info_data)
       return
-    when :new_name
+    when mode == [:new_name]
       change_host_name(host_ranges, name_data)
       return
-    when :new_comment
+    when mode == [:new_comment]
       change_host_comment(host_ranges, comment_data)
+      return
+    when mode == [:tag]
+      begin
+        add_host_tag(host_ranges, tag_name)
+      rescue ::Exception => e
+        if e.message.include?('Validation failed')
+          print_error(e.message)
+        else
+          raise e
+        end
+      end
+      return
+    when mode.include?(:tag) && mode.include?(:delete)
+      delete_host_tag(host_ranges, tag_name)
       return
     end
 
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
         if search_term
-          next unless host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) }
+          next unless (
+            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } ||
+            !Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).order("tags.id DESC").empty?
+          )
         end
+
         columns = col_names.map do |n|
           # Deal with the special cases
           if virtual_columns.include?(n)
@@ -382,6 +469,11 @@ class Db
             when "svcs";      host.services.length
             when "vulns";     host.vulns.length
             when "workspace"; host.workspace.name
+            when "tags"
+              found_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
+              tag_names = []
+              found_tags.each { |t| tag_names << t.name }
+              found_tags * ", "
             end
           # Otherwise, it's just an attribute
           else
@@ -391,10 +483,10 @@ class Db
 
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
-        if mode == :delete
+        if mode == [:delete]
           host.destroy
           delete_count += 1
         end
@@ -431,7 +523,7 @@ class Db
     mode = :search
     onlyup = false
     output_file = nil
-    set_rhosts = nil
+    set_rhosts = false
     col_search = ['port', 'proto', 'name', 'state', 'info']
     default_columns = ::Mdm::Service.column_names.sort
     default_columns.delete_if {|v| (v[-2,2] == "id")}
@@ -489,7 +581,7 @@ class Db
           return
         end
         output_file = ::File.expand_path(output_file)
-      when '-R','--rhosts'
+      when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
@@ -576,7 +668,7 @@ class Db
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
 
@@ -613,6 +705,7 @@ class Db
     print_line "  -h,--help             Show this help information"
     print_line "  -p,--port <portspec>  List vulns matching this port spec"
     print_line "  -s <svc names>        List vulns matching these service names"
+    print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -S,--search           Search string to filter by"
     print_line "  -i,--info             Display Vuln Info"
     print_line
@@ -629,8 +722,11 @@ class Db
     host_ranges = []
     port_ranges = []
     svcs        = []
+    rhosts    	= []
+
     search_term = nil
     show_info   = false
+    set_rhosts  = false
 
     # Short-circuit help
     if args.delete "-h"
@@ -658,6 +754,8 @@ class Db
           return
         end
         svcs = service.split(/[\s]*,[\s]*/)
+      when '-R', '--rhosts'
+        set_rhosts = true
       when '-S', '--search'
         search_term = /#{args.shift}/nmi
       when '-i', '--info'
@@ -692,15 +790,22 @@ class Db
             # Same for service names
             next unless svcs.empty? or svcs.include?(vuln.service.name)
             print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
-
           else
             # This vuln has no service, so it can't match
             next unless ports.empty? and svcs.empty?
             print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
           end
+          if set_rhosts
+            addr = (host.scope ? host.address + '%' + host.scope : host.address)
+            rhosts << addr
+          end
         end
       end
     end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
   }
   end
 
@@ -1007,6 +1112,8 @@ class Db
         print_status("Wrote creds to #{output_file}")
       end
 
+      # Finally, handle the case where the user wants the resulting list
+      # of hosts to go into RHOSTS.
       set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
       print_status("Deleted #{delete_count} creds") if delete_count > 0
     }
@@ -1211,7 +1318,7 @@ class Db
         host = note.host
         msg << " host=#{note.host.address}"
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
       end
@@ -1648,7 +1755,7 @@ class Db
       return
     end
     save = false
-    arguments = ''
+    arguments = []
     while (arg = args.shift)
       case arg
       when 'save'
@@ -1657,7 +1764,7 @@ class Db
         cmd_db_nmap_help
         return
       else
-        arguments << arg + ' '
+        arguments << arg
       end
     end
 
@@ -1681,15 +1788,15 @@ class Db
       # Custom function needed because cygpath breaks on 8.3 dirs
       tout = Rex::Compat.cygwin_to_win32(fd.path)
       fout = Rex::Compat.cygwin_to_win32(fo.path)
-      args.push('-oX', tout)
-      args.push('-oN', fout)
+      arguments.push('-oX', tout)
+      arguments.push('-oN', fout)
     else
-      args.push('-oX', fd.path)
-      args.push('-oN', fo.path)
+      arguments.push('-oX', fd.path)
+      arguments.push('-oN', fo.path)
     end
 
     begin
-      nmap_pipe = ::Open3::popen3([nmap, 'nmap'], arguments)
+      nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
       temp_nmap_threads = []
       temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
         np_1.each_line do |nmap_out|

@@ -63,13 +63,13 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if !res or !res.body
-      fail_with("Server did not respond in an expected way")
+      fail_with(Failure::UnexpectedReply, "Server did not respond in an expected way")
     end
 
     file = /For input string: "(.*)"/m.match(res.body)
 
     if !file or file.length < 2
-      fail_with("File was unretrievable. Was it a binary file?")
+      fail_with(Failure::UnexpectedReply, "File was unretrievable. Was it a binary file?")
     end
 
     file = file[1]
@@ -79,4 +79,3 @@ class Metasploit3 < Msf::Auxiliary
     print_good("File saved to: " + path)
   end
 end
-

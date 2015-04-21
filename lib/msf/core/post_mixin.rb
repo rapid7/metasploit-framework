@@ -128,7 +128,7 @@ module Msf::PostMixin
   # Checks the session's type against this module's
   # <tt>module_info["SessionTypes"]</tt> as well as examining platform
   # compatibility.  +sess_or_sid+ can be a Session object, Fixnum, or
-  # String.  In the latter cases it sould be a key in
+  # String.  In the latter cases it should be a key in
   # +framework.sessions+.
   #
   # @note Because it errs on the side of compatibility, a true return

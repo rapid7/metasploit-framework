@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Post
       print_status "Ruby process executing with pid #{rpid.to_i}"
       rpid.to_i
     else
-      fail_with(Exploit::Failure::Unknown, "Ruby keylogger command failed with error #{rpid}")
+      fail_with(Failure::Unknown, "Ruby keylogger command failed with error #{rpid}")
     end
   end
 

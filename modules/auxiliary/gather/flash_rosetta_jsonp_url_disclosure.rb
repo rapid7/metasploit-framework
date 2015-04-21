@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         => [
         'Michele Spagnuolo', # discovery, wrote rosetta encoder, disclosure
-        'joev' # msf module
+        'joev' # metasploit module
       ],
       'References'     =>
         [

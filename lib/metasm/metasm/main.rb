@@ -306,8 +306,8 @@ class ExeFormat
   # creates a new label, that is guaranteed to never be returned again as long as this object (ExeFormat) exists
   def new_label(base = '')
     base = base.dup.tr('^a-zA-Z0-9_', '_')
-    # use %x instead of to_s(16) for negative values
-    base = (base << '_uuid' << ('%08x' % base.object_id)).freeze if base.empty? or @unique_labels_cache[base]
+    # use %x with absolute value to avoid negative number formatting
+    base = (base << '_uuid' << ('%08x' % base.object_id.abs)).freeze if base.empty? or @unique_labels_cache[base]
     @unique_labels_cache[base] = true
     base
   end

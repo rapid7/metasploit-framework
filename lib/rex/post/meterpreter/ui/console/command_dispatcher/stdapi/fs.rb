@@ -324,16 +324,8 @@ class Console::CommandDispatcher::Stdapi::Fs
     meterp_temp.binmode
     temp_path = meterp_temp.path
 
-    begin
-      # Download the remote file to the temporary file
-      client.fs.file.download_file(temp_path, args[0])
-    rescue RequestError => re
-      # If the file doesn't exist, then it's okay.  Otherwise, throw the
-      # error.
-      if re.result != 2
-        raise $!
-      end
-    end
+    # Try to download the file, but don't worry if it doesn't exist
+    client.fs.file.download_file(temp_path, args[0]) rescue nil
 
     # Spawn the editor (default to vi)
     editor = Rex::Compat.getenv('EDITOR') || 'vi'

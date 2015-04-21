@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          '==[ Alligator Security Team ]==',
           'Leandro Oliveira <leandrofernando[at]gmail.com>'
         ],
       'References'     =>

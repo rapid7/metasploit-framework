@@ -277,6 +277,8 @@ module Rex
           port_hash[:state] = determine_port_state(v)
         when "name"
           port_hash[:name] = v
+        when "tunnel"
+          port_hash[:name] = "#{v}/#{port_hash[:name] || 'unknown'}"
         when "reason"
           port_hash[:reason] = v
         when "product"

@@ -629,6 +629,8 @@ class Core
       n2c.kill
     end
 
+    c2n.join
+    n2c.join
 
     sock.close rescue nil
     infile.close if infile
@@ -2996,11 +2998,18 @@ class Core
           res << addr
         end
       when 'LHOST'
-        rh = self.active_module.datastore["RHOST"]
+        rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
         else
-          res << Rex::Socket.source_address()
+          res << Rex::Socket.source_address
+          # getifaddrs was introduced in 2.1.2
+          if Socket.respond_to?(:getifaddrs)
+            ifaddrs = Socket.getifaddrs.find_all { |ifaddr|
+              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) && ifaddr.addr.ip?
+            }
+            res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+          end
         end
       else
       end

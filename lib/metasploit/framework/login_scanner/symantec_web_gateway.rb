@@ -27,44 +27,9 @@ module Metasploit
         end
 
 
-        # Sends a HTTP request with Rex
-        #
-        # @param (see Rex::Proto::Http::Request#request_raw)
-        # @raise [Rex::ConnectionError] Something has gone wrong while sending the HTTP request
-        # @return [Rex::Proto::Http::Response] The HTTP response
-        def send_request(opts)
-          res = nil
-          cli = Rex::Proto::Http::Client.new(host, port,
-            {
-              'Msf' => framework,
-              'MsfExploit' => framework_module
-            },
-            ssl,
-            ssl_version,
-            proxies
-          )
-          configure_http_client(cli)
-          begin
-            cli.connect
-            req = cli.request_cgi(opts)
-            res = cli.send_recv(req)
-          rescue ::Errno::EPIPE, ::Timeout::Error => e
-            # We are trying to mimic the same type of exception rescuing in
-            # Msf::Exploit::Remote::HttpClient. But instead of returning nil, we'll consistently
-            # raise Rex::ConnectionError so the #attempt_login can return the error message back
-            # to the login module.
-            raise Rex::ConnectionError, e.message
-          ensure
-            cli.close
-          end
-
-          res
-        end
-
-
         # Returns the latest sid from Symantec Web Gateway.
         #
-        # @returns [String] The PHP Session ID for Symantec Web Gateway login
+        # @return [String] The PHP Session ID for Symantec Web Gateway login
         def get_last_sid
           @last_sid ||= lambda {
             # We don't have a session ID. Well, let's grab one right quick from the login page.
@@ -130,7 +95,14 @@ module Metasploit
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
-          result_opts = { credential: credential }
+          result_opts = {
+            credential: credential,
+            status: Metasploit::Model::Login::Status::INCORRECT,
+            proof: nil,
+            host: host,
+            port: port,
+            protocol: 'tcp'
+          }
 
           begin
             result_opts.merge!(get_login_state(credential.public, credential.private))

@@ -123,6 +123,7 @@ class Metasploit4 < Msf::Auxiliary
       'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
       'ctype' => 'text/xml; charset=UTF-8',
       'authorization' => basic_auth(username, password),
+      'encode_params' => false,
       'headers' =>
         {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',

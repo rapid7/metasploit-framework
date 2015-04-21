@@ -37,8 +37,8 @@ class Metasploit3 < Msf::Post
   def run
     winver = sysinfo["OS"]
 
-    fail_with(Exploit::Failure::NoTarget, 'Module not valid for Windows 2000') if winver =~ /2000/
-    fail_with(Exploit::Failure::NoAccess, 'You don\'t have administrative privileges') unless is_admin?
+    fail_with(Failure::NoTarget, 'Module not valid for Windows 2000') if winver =~ /2000/
+    fail_with(Failure::NoAccess, 'You don\'t have administrative privileges') unless is_admin?
 
     file_path = datastore['FILE_PATH']
 
@@ -49,15 +49,9 @@ class Metasploit3 < Msf::Post
       # Continue, we can bypass these errors as we are performing a raw
       # file read.
     when ERROR::FILE_NOT_FOUND, ERROR::PATH_NOT_FOUND
-      fail_with(
-        Exploit::Failure::BadConfig,
-        "The file, #{file_path}, does not exist, use file format C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts"
-      )
+      fail_with(Failure::BadConfig, "The file, #{file_path}, does not exist, use file format C:\\\\Windows\\\\System32\\\\drivers\\\\etc\\\\hosts")
     else
-      fail_with(
-        Exploit::Failure::Unknown,
-        "Unknown error locating #{file_path}. Windows Error Code: #{r['GetLastError']} - #{r['ErrorMessage']}"
-      )
+      fail_with(Failure::Unknown, "Unknown error locating #{file_path}. Windows Error Code: #{r['GetLastError']} - #{r['ErrorMessage']}")
     end
 
     drive = file_path[0, 2]
@@ -71,9 +65,7 @@ class Metasploit3 < Msf::Post
                                             0)
 
     if r['GetLastError'] != ERROR::SUCCESS
-      fail_with(
-        Exploit::Failure::Unknown,
-        "Error opening #{drive}. Windows Error Code: #{r['GetLastError']} - #{r['ErrorMessage']}")
+      fail_with(Failure::Unknown, "Error opening #{drive}. Windows Error Code: #{r['GetLastError']} - #{r['ErrorMessage']}")
     end
 
     @handle = r['return']
