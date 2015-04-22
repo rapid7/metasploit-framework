@@ -7,7 +7,7 @@ class RPC_Module < RPC_Base
   # Returns a list of exploit names.
   #
   # @return [Hash] A list of exploit names.
-  #  * 'modules' [Array] Exploit names, for example: ['windows/wins/ms04_045_wins']
+  #  * 'modules' [Array<string>] Exploit names, for example: ['windows/wins/ms04_045_wins']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.exploits')
   def rpc_exploits
@@ -18,7 +18,7 @@ class RPC_Module < RPC_Base
   # Returns a list of auxiliary module names.
   #
   # @return [Hash] A list of auxiliary module names.
-  #  * 'modules' [Array] Auxiliary module names, for example: ['vsploit/pii/web_pii']
+  #  * 'modules' [Array<string>] Auxiliary module names, for example: ['vsploit/pii/web_pii']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.auxiliary')
   def rpc_auxiliary
@@ -29,7 +29,7 @@ class RPC_Module < RPC_Base
   # Returns a list of payload module names.
   #
   # @return [Hash] A list of payload module names.
-  #  * 'modules' [Array] Payload module names, for example: ['windows/x64/shell_reverse_tcp']
+  #  * 'modules' [Array<string>] Payload module names, for example: ['windows/x64/shell_reverse_tcp']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.payloads')
   def rpc_payloads
@@ -40,7 +40,7 @@ class RPC_Module < RPC_Base
   # Returns a list of encoder module names.
   #
   # @return [Hash] A list of encoder module names.
-  #  * 'modules' [Array] Encoder module names, for example: ['x86/unicode_upper']
+  #  * 'modules' [Array<string>] Encoder module names, for example: ['x86/unicode_upper']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.encoders')
   def rpc_encoders
@@ -51,7 +51,7 @@ class RPC_Module < RPC_Base
   # Returns a list of NOP module names.
   #
   # @return [Hash] A list of NOP module names.
-  #  * 'modules' [Array] NOP module names, for example: ['x86/single_byte']
+  #  * 'modules' [Array<string>] NOP module names, for example: ['x86/single_byte']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.nops')
   def rpc_nops
@@ -62,7 +62,7 @@ class RPC_Module < RPC_Base
   # Returns a list of post module names.
   #
   # @return [Hash] A list of post module names.
-  #  * 'modules' [Array] Post module names, for example: ['windows/wlan/wlan_profile']
+  #  * 'modules' [Array<string>] Post module names, for example: ['windows/wlan/wlan_profile']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.post')
   def rpc_post
@@ -280,17 +280,18 @@ class RPC_Module < RPC_Base
   # @param [String] data Data to encode.
   # @param [encoder] encoder Encoder module name. For example: 'x86/single_byte'.
   # @param [Hash] options Encoding options, such as:
-  #  * 'format' [String] Encoding format.
-  #  * 'badchars' [String] Bad characters.
-  #  * 'platform' [String] Platform.
-  #  * 'arch' [String] Architecture.
-  #  * 'ecount' [Fixnum] Number of times to encode.
-  #  * 'inject' [TrueClass] To enable injection.
-  #  * 'template' [String] The template file (an executable).
-  #  * 'template_path' [String] Template path.
-  #  * 'addshellcode' [String] Custom shellcode.
-  # @raise [Msf::RPC::Exception] Invalid format (Error 500).
-  # @raise [Msf::RPC::Exception] Failure to encode (Error 500).
+  # @option options [String] 'format' Encoding format.
+  # @option options [String] 'badchars' Bad characters.
+  # @option options [String] 'platform' Platform.
+  # @option options [String] 'arch' Architecture.
+  # @option options [Fixnum] 'ecount' Number of times to encode.
+  # @option options [TrueClass] 'inject' To enable injection.
+  # @option options [String] 'template' The template file (an executable).
+  # @option options [String] 'template_path' Template path.
+  # @option options [String] 'addshellcode' Custom shellcode.
+  # @raise [Msf::RPC::Exception] Error could be one of these:
+  #                              * 500 Invalid format
+  #                              * 500 Failure to encode
   # @return The encoded data
   #  * 'encoded' [String] The encoded data in the format you specify.
   # @example Here's how you would use this from the client:

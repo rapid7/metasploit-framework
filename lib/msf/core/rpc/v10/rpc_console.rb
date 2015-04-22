@@ -17,7 +17,7 @@ class RPC_Console < RPC_Base
 
   # Creates a new framework console.
   #
-  # @param [Hash] opts (Optional) See Msf::Ui::Web::Driver#create_console
+  # @param [Hash] opts See Msf::Ui::Web::Driver#create_console
   # @return [Hash] Information about the new console, such as:
   #  * 'id' [Fixnum] The console's ID.
   #  * 'prompt' [String] The framework prompt (example: 'msf > ')
@@ -38,7 +38,7 @@ class RPC_Console < RPC_Base
   # Returns a list of framework consoles.
   #
   # @return [Hash] Console information.
-  #  * 'consoles' [Array] consoles, each element is another hash that includes:
+  #  * 'consoles' [Array<Hash>] consoles, each element is another hash that includes:
   #    * 'id' [Fixnum] The console's ID
   #    * 'prompt' [String] The framework prompt (example: 'msf > ')
   #    * 'busy' [TrueClass] The console's busy state, or
@@ -151,6 +151,8 @@ class RPC_Console < RPC_Base
   #  * 'result' [String] A value that says 'failure'.
   #  If the console ID is valid, you will get the following that indicates the action was successful.
   #  * 'result' [String] A value that says 'success'.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('console.session_kill', 4)
   def rpc_session_kill(cid)
     cid = cid.to_s
     return { 'result' => 'failure' } if not @console_driver.consoles[cid]
@@ -164,10 +166,12 @@ class RPC_Console < RPC_Base
   # @param [Fixnum] cid Framework console ID.
   # @return [Hash] There are two different hashes you might get:
   #
-  # If the console ID is invalid, you will get a hash like the following:
-  # * 'result' [String] A value that says 'failure'.
-  # If the console ID is valid, you will get the following that indicates the action was successful.
-  # * 'result' [String] A value that says 'success'.
+  #  If the console ID is invalid, you will get a hash like the following:
+  #  * 'result' [String] A value that says 'failure'.
+  #  If the console ID is valid, you will get the following that indicates the action was successful.
+  #  * 'result' [String] A value that says 'success'.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('console.session_detach', 4)
   def rpc_session_detach(cid)
     cid = cid.to_s
     return { 'result' => 'failure' } if not @console_driver.consoles[cid]
