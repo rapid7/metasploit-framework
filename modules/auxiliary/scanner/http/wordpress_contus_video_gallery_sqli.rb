@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'uri'
 require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
