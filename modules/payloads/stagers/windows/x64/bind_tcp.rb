@@ -10,7 +10,7 @@ require 'msf/core/payload/windows/x64/bind_tcp'
 
 module Metasploit4
 
-  CachedSize = 467
+  CachedSize = :dynamic
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::BindTcp_x64
