@@ -61,27 +61,27 @@ class Metasploit3 < Msf::Auxiliary
         print_status("[#{target_host}] #{tpath} [#{u}]")
 
         report_note(
-          :host    => target_host,
-          :port    => rport,
-          :proto   => 'tcp',
-          :type    => "http.scraper.#{rport}",
-          :data    => u
+          host: target_host,
+          port: rport,
+          proto: 'tcp',
+          type: "http.scraper.#{rport}",
+          data: u
         )
 
         report_web_vuln(
-          :host	=> target_host,
-          :port	=> rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
-          :path	=> tpath,
-          :method => 'GET',
-          :pname  => "",
-          :proof  => u,
-          :risk   => 0,
-          :confidence   => 100,
-          :category     => 'scraper',
-          :description  => 'Scraper',
-          :name   => 'scraper'
+          host: target_host,
+          port: rport,
+          vhost: vhost,
+          ssl: ssl,
+          path: tpath,
+          method: 'GET',
+          pname: "",
+          proof: u,
+          risk: 0,
+          confidence: 100,
+          category: 'scraper',
+          description: 'Scraper',
+          name: 'scraper'
         )
 
       end

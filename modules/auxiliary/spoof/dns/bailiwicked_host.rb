@@ -229,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Error checking the DNS name: #{e.class} #{e} #{e.backtrace}")
     end
 
-    res0 = Net::DNS::Resolver.new(:nameservers => [recons], :dns_search => false, :recursive => true) # reconnaissance resolver
+    res0 = Net::DNS::Resolver.new(nameservers: [recons], dns_search: false, recursive: true) # reconnaissance resolver
 
     print_status "Targeting nameserver #{target} for injection of #{hostname} as #{address}"
 
@@ -247,11 +247,11 @@ class Metasploit3 < Msf::Auxiliary
         #print_status " Got answer with #{answer1.header.anCount} answers, #{answer1.header.nsCount} authorities"
         answer1.answer.each do |rr1|
           print_status "   Got an #{rr1.type} record: #{rr1.inspect}"
-          res2 = Net::DNS::Resolver.new(:nameservers => rr1.address, :dns_search => false, :recursive => false, :retry => 1)
+          res2 = Net::DNS::Resolver.new(nameservers: rr1.address, dns_search: false, recursive: false, retry: 1)
           print_status "    Checking Authoritativeness: Querying #{rr1.address} for #{domain}..."
           answer2 = res2.send(domain, Net::DNS::SOA)
           if answer2 and answer2.header.auth? and answer2.header.anCount >= 1
-            nsrec = {:name => rr0.nsdname, :addr => rr1.address}
+            nsrec = {name: rr0.nsdname, addr: rr1.address}
             barbs << nsrec
             print_status "    #{rr0.nsdname} is authoritative for #{domain}, adding to list of nameservers to spoof as"
           end

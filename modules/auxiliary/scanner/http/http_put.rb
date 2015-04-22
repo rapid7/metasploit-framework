@@ -143,13 +143,13 @@ class Metasploit4 < Msf::Auxiliary
         turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
         print_good("File uploaded: #{turl}")
         report_vuln(
-          :host         => ip,
-          :port         => rport,
-          :proto        => 'tcp',
-          :name         => self.name,
-          :info         => "Module #{self.fullname} confirmed write access to #{turl} via PUT",
-          :refs         => self.references,
-          :exploited_at => Time.now.utc
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          name: self.name,
+          info: "Module #{self.fullname} confirmed write access to #{turl} via PUT",
+          refs: self.references,
+          exploited_at: Time.now.utc
         )
       else
         print_error("File doesn't seem to exist. The upload probably failed.")
@@ -176,14 +176,14 @@ class Metasploit4 < Msf::Auxiliary
         turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
         print_good("File deleted: #{turl}")
         report_vuln(
-          :host         => ip,
-          :port         => rport,
-          :proto        => 'tcp',
-          :sname => (ssl ? 'https' : 'http'),
-          :name         => self.name,
-          :info         => "Module #{self.fullname} confirmed write access to #{turl} via DELETE",
-          :refs         => self.references,
-          :exploited_at => Time.now.utc
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          name: self.name,
+          info: "Module #{self.fullname} confirmed write access to #{turl} via DELETE",
+          refs: self.references,
+          exploited_at: Time.now.utc
         )
       end
     end

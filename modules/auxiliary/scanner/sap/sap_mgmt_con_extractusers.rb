@@ -114,12 +114,12 @@ class Metasploit4 < Msf::Auxiliary
     if success
       print_good("#{rhost}:#{rport} [SAP] Users Extracted: #{users.length} entries extracted from #{rhost}:#{rport}")
       report_note(
-        :host => rhost,
-        :proto => 'tcp',
-        :port => rport,
-        :type => 'sap.users',
-        :data => {:proto => "soap", :users => users},
-        :update => :unique_data
+        host: rhost,
+        proto: 'tcp',
+        port: rport,
+        type: 'sap.users',
+        data: {proto: "soap", users: users},
+        update: :unique_data
       )
 
       users.each do |output|

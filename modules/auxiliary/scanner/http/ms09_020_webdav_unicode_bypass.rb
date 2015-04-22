@@ -97,14 +97,14 @@ class Metasploit3 < Msf::Auxiliary
 
           report_vuln(
             {
-              :host	=> ip,
-              :port	=> rport,
-              :proto	=> 'tcp',
-              :sname  => ssl ? 'https' : 'http',
-              :name	=> self.name,
-              :info	=> "Module #{self.fullname} bypassed authentication with #{tpath}#{bogus} (response code #{res.code})",
-              :refs   => self.references,
-              :exploited_at => Time.now.utc
+              host: ip,
+              port: rport,
+              proto: 'tcp',
+              sname: ssl ? 'https' : 'http',
+              name: self.name,
+              info: "Module #{self.fullname} bypassed authentication with #{tpath}#{bogus} (response code #{res.code})",
+              refs: self.references,
+              exploited_at: Time.now.utc
             }
           )
 

@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if ( data and data =~ /robotd~robotd~CLIENT/ )
         print_status("Host #{ip} is running the EMC AlphaStor Library Manager.")
-        report_service(:host => rhost, :port => rport, :name => "emc-library", :info => data)
+        report_service(host: rhost, port: rport, name: "emc-library", info: data)
     else
         print_error("Host #{ip} is not running the service...")
     end

@@ -69,13 +69,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def check_vulnerable(ip)
     options = {
-      :port => rport,
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :disable_agent => true,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+      port: rport,
+      auth_methods: ['password', 'keyboard-interactive'],
+      msframework: framework,
+      msfmodule: self,
+      disable_agent: true,
+      config: false,
+      proxies: datastore['Proxies']
     }
 
     begin
@@ -89,11 +89,11 @@ class Metasploit3 < Msf::Auxiliary
     auth_method = auth.allowed_auth_methods.join('|')
     print_status "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
     report_service(
-      :host => ip,
-      :port => rport,
-      :name => "ssh",
-      :proto => "tcp",
-      :info => auth.transport.server_version.version
+      host: ip,
+      port: rport,
+      name: "ssh",
+      proto: "tcp",
+      info: auth.transport.server_version.version
     )
 
     if auth_method.empty?
@@ -107,16 +107,16 @@ class Metasploit3 < Msf::Auxiliary
     pass = Rex::Text.rand_text_alphanumeric(8)
 
     opt_hash = {
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :port          => port,
-      :disable_agent => true,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+      auth_methods: ['password', 'keyboard-interactive'],
+      msframework: framework,
+      msfmodule: self,
+      port: port,
+      disable_agent: true,
+      config: false,
+      proxies: datastore['Proxies']
     }
 
-    opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+    opt_hash.merge!(verbose: :debug) if datastore['SSH_DEBUG']
     transport = Net::SSH::Transport::Session.new(ip, opt_hash)
     auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
 
@@ -141,11 +141,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_report(ip, user, port)
     report_auth_info(
-      :host   => ip,
-      :port   => rport,
-      :sname  => 'ssh',
-      :user   => user,
-      :active => true
+      host: ip,
+      port: rport,
+      sname: 'ssh',
+      user: user,
+      active: true
     )
   end
 

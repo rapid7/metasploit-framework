@@ -104,47 +104,47 @@ class Metasploit4 < Msf::Auxiliary
         print(saptbl.to_s)
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'os.kernel.version',
-          :data => "OS Kernel version: #{kern_comp_on}"
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'os.kernel.version',
+          data: "OS Kernel version: #{kern_comp_on}"
         )
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'sap.time.compile',
-          :data => "SAP compile time: #{kern_comp_time}"
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'sap.time.compile',
+          data: "SAP compile time: #{kern_comp_time}"
         )
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'sap.db.version',
-          :data => "DB version: #{kern_dblib}"
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'sap.db.version',
+          data: "DB version: #{kern_dblib}"
         )
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'sap.version.patch_level',
-          :data => "SAP patch level: #{kern_patchlevel}"
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'sap.version.patch_level',
+          data: "SAP patch level: #{kern_patchlevel}"
         )
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :type => 'sap.version',
-          :data => "SAP Version: #{kern_rel}"
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          type: 'sap.version',
+          data: "SAP Version: #{kern_rel}"
         )
 
       elsif res and res.code == 500

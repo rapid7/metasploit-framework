@@ -41,10 +41,10 @@ class Metasploit3 < Msf::Post
         print_good("Domain Controller: #{dc[:name]}")
 
         report_note(
-          :host   => session,
-          :type   => 'domain.hostnames',
-          :data   => dc[:name],
-          :update => :unique_data
+          host: session,
+          type: 'domain.hostnames',
+          data: dc[:name],
+          update: :unique_data
         )
       end
     end

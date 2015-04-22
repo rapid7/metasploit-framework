@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 
     info = "#{@realport_name} ( ports: #{@realport_port_count} )"
     vprint_status("#{target_host}:#{rport} is running #{info}")
-    report_service(:host => rhost, :port => rport, :name => "realport", :info => info)
+    report_service(host: rhost, port: rport, name: "realport", info: info)
 
     1.upto(@realport_port_count) do |pnum|
       unless test_ports.include?('ALL') or test_ports.include?(pnum.to_s)
@@ -68,12 +68,12 @@ class Metasploit3 < Msf::Auxiliary
         if res and res.length > 0
           print_status("#{target_host}:#{rport} [port #{pnum} @ #{baud}bps] #{res.inspect}")
           report_note(
-            :host   => target_host,
-            :proto  => 'tcp',
-            :port   => rport,
-            :type   => "realport.port#{pnum}.banner",
-            :data   => {:baud => baud, :banner => res},
-            :update => :unique_data
+            host: target_host,
+            proto: 'tcp',
+            port: rport,
+            type: "realport.port#{pnum}.banner",
+            data: {baud: baud, banner: res},
+            update: :unique_data
           )
 
         end

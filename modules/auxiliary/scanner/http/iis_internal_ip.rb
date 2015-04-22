@@ -42,12 +42,12 @@ class Metasploit3 < Msf::Auxiliary
         end
 
         report_note({
-          :host   => target_host,
-          :port   => rport,
-          :proto => 'tcp',
-          :sname  => (ssl ? 'https' : 'http'),
-          :type   => 'iis.ip',
-          :data   => result.first
+          host: target_host,
+          port: rport,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          type: 'iis.ip',
+          data: result.first
         })
       end
 

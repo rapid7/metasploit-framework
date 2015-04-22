@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Post
 
     netview.each do |x|
       results << [x[:type], x[:ip], x[:cname], "#{x[:major_ver]}.#{x[:minor_ver]}", x[:comment]]
-      report_host(:host => x[:ip]) if datastore['SAVEHOSTS'] and !(x[:ip].empty?)
+      report_host(host: x[:ip]) if datastore['SAVEHOSTS'] and !(x[:ip].empty?)
     end
     print_status(results.to_s)
     store_loot("discovered.hosts", "text/plain", session, results.to_s, "discovered_hosts.txt", "Computer Browser Discovered Hosts")

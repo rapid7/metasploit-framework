@@ -54,19 +54,19 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   class Dns_header < BitStruct
-    unsigned :txid, 16, { :default => rand(0xffff) }
-    unsigned :qr, 1, { :default => 0 }
-    unsigned :opcode, 4, { :default => 0 }
-    unsigned :aa, 1, { :default => 0 }
-    unsigned :tc, 1, { :default => 0 }
-    unsigned :rd, 1, { :default => 0 }
-    unsigned :ra, 1, { :default => 0 }
-    unsigned :z, 3, { :default => 0 }
-    unsigned :rcode, 4, { :default => 0 }
-    unsigned :questions, 16, { :default => 1 }
-    unsigned :answerRR, 16, { :default => 0 }
-    unsigned :authorityRR, 16, { :default => 0 }
-    unsigned :additionalRR, 16, { :default => 0 }
+    unsigned :txid, 16, { default: rand(0xffff) }
+    unsigned :qr, 1, { default: 0 }
+    unsigned :opcode, 4, { default: 0 }
+    unsigned :aa, 1, { default: 0 }
+    unsigned :tc, 1, { default: 0 }
+    unsigned :rd, 1, { default: 0 }
+    unsigned :ra, 1, { default: 0 }
+    unsigned :z, 3, { default: 0 }
+    unsigned :rcode, 4, { default: 0 }
+    unsigned :questions, 16, { default: 1 }
+    unsigned :answerRR, 16, { default: 0 }
+    unsigned :authorityRR, 16, { default: 0 }
+    unsigned :additionalRR, 16, { default: 0 }
     rest :payload
 
     def initialize(*args)
@@ -77,14 +77,14 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   class Dns_add_rr < BitStruct
-    unsigned :name, 8, { :default => 0 }
-    unsigned :type, 16, { :default => 0x0029 }
-    unsigned :payloadsize, 16, { :default => 0x1000 }
-    unsigned :highercode, 8, { :default => 0 }
-    unsigned :ednsversion, 8, { :default => 0 }
-    unsigned :zlow, 8, { :default => 0 }
-    unsigned :zhigh,8, { :default => 0x80 }
-    unsigned :datalength, 16, { :default => 0 }
+    unsigned :name, 8, { default: 0 }
+    unsigned :type, 16, { default: 0x0029 }
+    unsigned :payloadsize, 16, { default: 0x1000 }
+    unsigned :highercode, 8, { default: 0 }
+    unsigned :ednsversion, 8, { default: 0 }
+    unsigned :zlow, 8, { default: 0 }
+    unsigned :zhigh,8, { default: 0x80 }
+    unsigned :datalength, 16, { default: 0 }
 
     def initialize(*args)
       @options = []

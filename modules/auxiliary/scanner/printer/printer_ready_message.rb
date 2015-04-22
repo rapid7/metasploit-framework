@@ -64,11 +64,11 @@ class Metasploit4 < Msf::Auxiliary
     if rdymsg
       print_good("#{ip}:#{rport} - #{rdymsg}")
       report_note(
-        :host => ip,
-        :port => rport,
-        :proto => "tcp",
-        :type => "printer.rdymsg",
-        :data => rdymsg
+        host: ip,
+        port: rport,
+        proto: "tcp",
+        type: "printer.rdymsg",
+        data: rdymsg
       )
     end
   end

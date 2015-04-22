@@ -50,9 +50,9 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       @rpc = Msf::RPC::Client.new(
-        :host => datastore['RHOST'],
-        :port => datastore['RPORT'],
-        :ssl  => datastore['SSL']
+        host: datastore['RHOST'],
+        port: datastore['RPORT'],
+        ssl: datastore['SSL']
       )
     rescue ::Interrupt
       raise $!
@@ -74,13 +74,13 @@ class Metasploit3 < Msf::Auxiliary
         print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
         report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'msf-rpc',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
+          host: datastore['RHOST'],
+          port: datastore['RPORT'],
+          sname: 'msf-rpc',
+          user: user,
+          pass: pass,
+          active: true,
+          type: 'password'}
 
         report_auth_info(report_hash)
         @rpc.close

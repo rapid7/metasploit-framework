@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       begin
-        r = do_http_get(uri,:timeout => 0.50)
+        r = do_http_get(uri,timeout: 0.50)
       rescue ::Interrupt
         print_status("Exiting on interrupt: iteration #{cnt} using #{@last_fuzzer_input}")
         raise $!

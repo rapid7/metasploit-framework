@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res
 
-      info = http_fingerprint({ :response => res })
+      info = http_fingerprint({ response: res })
       print_status(info)
 
       if(res.body and />(JBoss[^<]+)/.match(res.body) )

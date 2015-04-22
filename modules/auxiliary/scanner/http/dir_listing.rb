@@ -50,19 +50,19 @@ class Metasploit3 < Msf::Auxiliary
           print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 
           report_web_vuln(
-            :host	=> ip,
-            :port	=> rport,
-            :vhost  => vhost,
-            :ssl    => ssl,
-            :path	=> "#{tpath}",
-            :method => 'GET',
-            :pname  => "",
-            :proof  => "Res code: #{res.code.to_s}",
-            :risk   => 0,
-            :confidence   => 100,
-            :category     => 'directory',
-            :description  => 'Directoy found allowing liting of its contents.',
-            :name   => 'directory listing'
+            host: ip,
+            port: rport,
+            vhost: vhost,
+            ssl: ssl,
+            path: "#{tpath}",
+            method: 'GET',
+            pname: "",
+            proof: "Res code: #{res.code.to_s}",
+            risk: 0,
+            confidence: 100,
+            category: 'directory',
+            description: 'Directoy found allowing liting of its contents.',
+            name: 'directory listing'
           )
 
         end
@@ -71,19 +71,19 @@ class Metasploit3 < Msf::Auxiliary
           print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 
           report_web_vuln(
-            :host	=> ip,
-            :port	=> rport,
-            :vhost  => vhost,
-            :ssl    => ssl,
-            :path	=> "#{tpath}",
-            :method => 'GET',
-            :pname  => "",
-            :proof  => "Res code: #{res.code.to_s}",
-            :risk   => 0,
-            :confidence   => 100,
-            :category     => 'directory',
-            :description  => 'Directory found allowing listing of its contents.',
-            :name   => 'directory listing'
+            host: ip,
+            port: rport,
+            vhost: vhost,
+            ssl: ssl,
+            path: "#{tpath}",
+            method: 'GET',
+            pname: "",
+            proof: "Res code: #{res.code.to_s}",
+            risk: 0,
+            confidence: 100,
+            category: 'directory',
+            description: 'Directory found allowing listing of its contents.',
+            name: 'directory listing'
           )
 
         end

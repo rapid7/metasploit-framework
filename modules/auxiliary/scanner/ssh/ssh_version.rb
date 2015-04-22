@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
             end
           end
           print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
-          report_service(:host => rhost, :port => rport, :name => "ssh", :proto => "tcp", :info => ver)
+          report_service(host: rhost, port: rport, name: "ssh", proto: "tcp", info: ver)
         else
           print_error("#{target_host}:#{rport}, SSH server version detection failed!")
         end

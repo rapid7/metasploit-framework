@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
 
     resp = mssql_send_recv(pkt,opts[:timeout])
 
-    info = {:errors => []}
+    info = {errors: []}
     info = mssql_parse_reply(resp,info)
     info
   end
@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       begin
-        do_login(str,:timeout => 0.50)
+        do_login(str,timeout: 0.50)
       rescue ::Interrupt
         print_status("Exiting on interrupt: iteration #{cnt} using #{@last_fuzzer_input}")
         raise $!

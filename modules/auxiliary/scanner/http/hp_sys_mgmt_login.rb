@@ -124,12 +124,12 @@ class Metasploit3 < Msf::Auxiliary
     @scanner.scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
         do_report(ip, rport, result)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+          print_brute level: :verror, ip: ip, msg: "Could not connect"
         end
         invalidate_login(
             address: ip,
@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
         end
         invalidate_login(
             address: ip,
@@ -183,9 +183,9 @@ class Metasploit3 < Msf::Auxiliary
     unless sys_name.blank?
       print_status("#{peer} - System name detected: #{sys_name}")
       report_note(
-        :host => ip,
-        :type => "system.name",
-        :data => sys_name
+        host: ip,
+        type: "system.name",
+        data: sys_name
       )
     end
 

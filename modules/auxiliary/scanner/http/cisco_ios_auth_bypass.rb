@@ -54,14 +54,14 @@ class Metasploit3 < Msf::Auxiliary
 
         report_vuln(
           {
-            :host	=> rhost,
-            :port	=> rport,
-            :proto  => 'tcp',
-            :name	=> self.name,
-            :sname  => ssl ? "https" : "http",
-            :info	=> "Module #{self.fullname} successfully accessed http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
-            :refs   => self.references,
-            :exploited_at => Time.now.utc
+            host: rhost,
+            port: rport,
+            proto: 'tcp',
+            name: self.name,
+            sname: ssl ? "https" : "http",
+            info: "Module #{self.fullname} successfully accessed http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
+            refs: self.references,
+            exploited_at: Time.now.utc
           }
         )
 
@@ -76,11 +76,11 @@ class Metasploit3 < Msf::Auxiliary
           cisco_ios_config_eater(rhost, rport, config)
           report_exploit(
             {
-              :host		=> rhost,
-              :port		=> rport,
-              :name		=> self.name,
-              :sname      => ssl ? "https" : "http",
-              :info       => "Module #{self.fullname} successfully captured the configuration file:\n#{config}"
+              host: rhost,
+              port: rport,
+              name: self.name,
+              sname: ssl ? "https" : "http",
+              info: "Module #{self.fullname} successfully captured the configuration file:\n#{config}"
             }
           )
         else

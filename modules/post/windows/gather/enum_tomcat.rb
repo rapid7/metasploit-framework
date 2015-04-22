@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Post
         ])
 
     results.each { |r|
-      report_service(:host => session.sock.peerhost, :port => r[2], :name => "http", :info => "#{r[0]} Tomcat #{r[1]}, Application:#{r[3]}")
+      report_service(host: session.sock.peerhost, port: r[2], name: "http", info: "#{r[0]} Tomcat #{r[1]}, Application:#{r[3]}")
       tbl_services << r
     }
 

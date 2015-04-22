@@ -83,12 +83,12 @@ class Metasploit3 < Msf::Auxiliary
       # If first and second requests are the same, and the third is different but not a 200, we're vulnerable.
       print_good("#{rhost}:#{rport} is likely vulnerable due to a #{res3.code} reply for invalid YAML")
       report_vuln({
-        :host	=> rhost,
-        :port	=> rport,
-        :proto  => 'tcp',
-        :name	=> self.name,
-        :info	=> "Module triggered a #{res3.code} reply",
-        :refs   => self.references
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: self.name,
+        info: "Module triggered a #{res3.code} reply",
+        refs: self.references
       })
     else
       # Otherwise we're not likely vulnerable.

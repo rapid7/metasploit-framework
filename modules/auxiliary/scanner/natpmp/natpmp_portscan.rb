@@ -85,10 +85,10 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with unmatched ports")
         if inside_workspace_boundary?(external_addr)
           report_service(
-            :host   => external_addr,
-            :port   => int,
-            :proto  => protocol,
-            :state => state
+            host: external_addr,
+            port: int,
+            proto: protocol,
+            state: state
           )
         end
       else
@@ -101,11 +101,11 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_service(
-      :host 	=> host,
-      :port 	=> pkt[2],
-      :name 	=> 'natpmp',
-      :proto 	=> 'udp',
-      :state	=> Msf::ServiceState::Open
+      host: host,
+      port: pkt[2],
+      name: 'natpmp',
+      proto: 'udp',
+      state: Msf::ServiceState::Open
     )
     true
   end

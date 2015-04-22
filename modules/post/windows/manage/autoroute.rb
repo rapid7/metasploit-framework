@@ -56,12 +56,12 @@ class Metasploit3 < Msf::Post
     when :add
       if validate_cmd(datastore['SUBNET'],netmask)
         print_status("Adding a route to %s/%s..." % [datastore['SUBNET'],netmask])
-        add_route(:subnet => datastore['SUBNET'], :netmask => netmask)
+        add_route(subnet: datastore['SUBNET'], netmask: netmask)
       end
     when :delete
       if datastore['SUBNET']
         print_status("Deleting route to %s/%s..." % [datastore['SUBNET'],netmask])
-        delete_route(:subnet => datastore['SUBNET'], :netmask => netmask)
+        delete_route(subnet: datastore['SUBNET'], netmask: netmask)
       else
         delete_all_routes()
       end
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
     if Rex::Socket::SwitchBoard.routes.size > 0
       routes = []
       Rex::Socket::SwitchBoard.each do |route|
-        routes << {:subnet => route.subnet, :netmask => route.netmask}
+        routes << {subnet: route.subnet, netmask: route.netmask}
       end
       routes.each {|route_opts| delete_route(route_opts)}
 

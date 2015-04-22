@@ -80,23 +80,23 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_note(
-      :host	=> ip,
-      :port	=> rport,
-      :proto  => 'tcp',
-      :type	=> 'http.vhost',
-      :data	=> {:name => vhostn}
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      type: 'http.vhost',
+      data: {name: vhostn}
     ) if vhostn
 
     # Store the SSL certificate itself
     report_note(
-      :host	=> ip,
-      :proto  => 'tcp',
-      :port	=> rport,
-      :type	=> 'ssl.certificate',
-      :data	=> {
-        :cn        => vhostn,
-        :subject   => cert.subject.to_a,
-        :algorithm => cert.signature_algorithm
+      host: ip,
+      proto: 'tcp',
+      port: rport,
+      type: 'ssl.certificate',
+      data: {
+        cn: vhostn,
+        subject: cert.subject.to_a,
+        algorithm: cert.signature_algorithm
 
       }
     ) if vhostn
@@ -104,8 +104,8 @@ class Metasploit3 < Msf::Auxiliary
     # Update the server hostname if necessary
     if vhostn !~ /localhost|snakeoil/i
       report_host(
-        :host => ip,
-        :name => vhostn
+        host: ip,
+        name: vhostn
       )
     end
 

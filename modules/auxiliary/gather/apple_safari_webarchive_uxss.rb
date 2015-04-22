@@ -787,7 +787,7 @@ class Metasploit3 < Msf::Auxiliary
               (cache_control.length > 0) or   # if asset is cacheable
               (not last_modified.nil? and last_modified.to_s.length > 0)
             print_status("Found cacheable #{url}")
-            io.meta.merge(:body => io.read, :url => url)
+            io.meta.merge(body: io.read, url: url)
           else
             nil
           end

@@ -54,13 +54,13 @@ class Metasploit3 < Msf::Auxiliary
     begin
       socket = connect(false)
       x = ::RbMysql.connect({
-        :host           => rhost,
-        :port           => rport,
-        :user           => username,
-        :password       => password,
-        :read_timeout   => 300,
-        :write_timeout  => 300,
-        :socket         => socket
+        host: rhost,
+        port: rport,
+        user: username,
+        password: password,
+        read_timeout: 300,
+        write_timeout: 300,
+        socket: socket
         })
       x.connect
       results << x
@@ -115,14 +115,14 @@ class Metasploit3 < Msf::Auxiliary
             # Create our socket and make the connection
             s = connect(false)
             x = ::RbMysql.connect({
-              :host           => rhost,
-              :port           => rport,
-              :user           => username,
-              :password       => password,
-              :read_timeout   => 300,
-              :write_timeout  => 300,
-              :socket         => s,
-              :db             => nil
+              host: rhost,
+              port: rport,
+              user: username,
+              password: password,
+              read_timeout: 300,
+              write_timeout: 300,
+              socket: s,
+              db: nil
               })
             print_status "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << x
@@ -194,10 +194,10 @@ class Metasploit3 < Msf::Auxiliary
     this_service = nil
     if framework.db and framework.db.active
       this_service = report_service(
-        :host  => rhost,
-        :port => rport,
-        :name => 'mysql',
-        :proto => 'tcp'
+        host: rhost,
+        port: rport,
+        name: 'mysql',
+        proto: 'tcp'
       )
     end
 

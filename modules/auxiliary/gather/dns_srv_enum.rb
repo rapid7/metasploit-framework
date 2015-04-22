@@ -65,15 +65,15 @@ class Metasploit3 < Msf::Auxiliary
     records.each do |r|
       print_good("Host: #{r[:host]} IP: #{r[:address].to_s} Service: #{r[:service]} Protocol: #{r[:proto]} Port: #{r[:port]}")
       report_host(
-        :host => r[:address].to_s,
-        :name => r[:host]
+        host: r[:address].to_s,
+        name: r[:host]
       )
       report_service(
-        :host=> r[:address].to_s,
-        :port => r[:port].to_i,
-        :proto => r[:proto],
-        :name => r[:service],
-        :host_name => r[:host]
+        host: r[:address].to_s,
+        port: r[:port].to_i,
+        proto: r[:proto],
+        name: r[:service],
+        host_name: r[:host]
       )
     end
 

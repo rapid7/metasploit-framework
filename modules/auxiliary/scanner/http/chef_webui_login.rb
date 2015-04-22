@@ -45,11 +45,11 @@ class Metasploit3 < Msf::Auxiliary
     init_loginscanner(ip)
     msg = @scanner.check_setup
     if msg
-      print_brute :level => :error, :ip => rhost, :msg => msg
+      print_brute level: :error, ip: rhost, msg: msg
       return
     end
 
-    print_brute :level=>:status, :ip=>rhost, :msg=>("Found Chef Web UI application at #{datastore['TARGETURI']}")
+    print_brute level::status, ip:rhost, msg:("Found Chef Web UI application at #{datastore['TARGETURI']}")
     bruteforce(ip)
   end
 
@@ -57,16 +57,16 @@ class Metasploit3 < Msf::Auxiliary
     @scanner.scan! do |result|
       case result.status
         when Metasploit::Model::Login::Status::SUCCESSFUL
-          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+          print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
           do_report(ip, rport, result)
           :next_user
         when Metasploit::Model::Login::Status::DENIED_ACCESS
-          print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
+          print_brute level: :status, ip: ip, msg: "Correct credentials, but unable to login: '#{result.credential}'"
           do_report(ip, rport, result)
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+            print_brute level: :verror, ip: ip, msg: "Could not connect"
           end
           invalidate_login(
             address: ip,
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
           :abort
         when Metasploit::Model::Login::Status::INCORRECT
           if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+            print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
           end
           invalidate_login(
             address: ip,

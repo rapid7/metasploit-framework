@@ -184,12 +184,12 @@ class Metasploit3 < Msf::Auxiliary
       json_info["result"]["resultSet"].each { |result|
         print_good("#{rhost}:#{rport} - Found cred: #{result["username"]}:#{result["password"]}")
         report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => "Apache Rave",
-          :user => result["username"],
-          :pass => result["password"],
-          :active => result["enabled"]
+          host: rhost,
+          port: rport,
+          sname: "Apache Rave",
+          user: result["username"],
+          pass: result["password"],
+          active: result["enabled"]
         )
       }
 

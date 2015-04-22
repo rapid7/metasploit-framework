@@ -81,17 +81,17 @@ class Metasploit3 < Msf::Auxiliary
     pass = Rex::Text.rand_text_alphanumeric(64_000)
 
     opt_hash = {
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :port          => port,
-      :disable_agent => true,
-      :password      => pass,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+      auth_methods: ['password', 'keyboard-interactive'],
+      msframework: framework,
+      msfmodule: self,
+      port: port,
+      disable_agent: true,
+      password: pass,
+      config: false,
+      proxies: datastore['Proxies']
     }
 
-    opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+    opt_hash.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
     start_time = Time.new
 
@@ -119,11 +119,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_report(ip, user, port)
     report_auth_info(
-      :host   => ip,
-      :port   => rport,
-      :sname  => 'ssh',
-      :user   => user,
-      :active => true
+      host: ip,
+      port: rport,
+      sname: 'ssh',
+      user: user,
+      active: true
     )
   end
 

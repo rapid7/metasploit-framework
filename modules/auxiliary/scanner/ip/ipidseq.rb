@@ -86,10 +86,10 @@ class Metasploit3 < Msf::Auxiliary
 
     #Add Report
     report_note(
-      :host	=> ip,
-      :proto	=> 'ip',
-      :type	=> 'IPID sequence',
-      :data	=> "IPID sequence class: #{analyze(ipids)}"
+      host: ip,
+      proto: 'ip',
+      type: 'IPID sequence',
+      data: "IPID sequence class: #{analyze(ipids)}"
     )
   end
 

@@ -66,13 +66,13 @@ class Metasploit3 < Msf::Auxiliary
     if info.error_code == 0
       print_good("#{shost}:#{sport} - IPMI - VULNERABLE: Accepted a session open request for cipher zero")
       report_vuln(
-        :host  => shost,
-        :port  => datastore['RPORT'].to_i,
-        :proto => 'udp',
-        :sname => 'ipmi',
-        :name  => 'IPMI 2.0 RAKP Cipher Zero Authentication Bypass',
-        :info  => "Accepted a session open request for cipher zero",
-        :refs  => self.references
+        host: shost,
+        port: datastore['RPORT'].to_i,
+        proto: 'udp',
+        sname: 'ipmi',
+        name: 'IPMI 2.0 RAKP Cipher Zero Authentication Bypass',
+        info: "Accepted a session open request for cipher zero",
+        refs: self.references
       )
     else
       vprint_status("#{shost}:#{sport} - IPMI - NOT VULNERABLE: Rejected cipher zero with error code #{info.error_code}")

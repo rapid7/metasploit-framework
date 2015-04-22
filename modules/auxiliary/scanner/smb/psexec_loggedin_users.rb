@@ -110,13 +110,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def report_user(username)
     report_note(
-      :host => rhost,
-      :proto => 'tcp',
-      :sname => 'smb',
-      :port => rport,
-      :type => 'smb.domain.loggedusers',
-      :data => "#{username} is logged in",
-      :update => :unique_data
+      host: rhost,
+      proto: 'tcp',
+      sname: 'smb',
+      port: rport,
+      type: 'smb.domain.loggedusers',
+      data: "#{username} is logged in",
+      update: :unique_data
     )
   end
 

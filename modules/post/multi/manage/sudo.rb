@@ -75,9 +75,9 @@ class Metasploit3 < Msf::Post
     else
       print_good "SUDO: Root shell secured."
       report_note(
-        :host => session,
-        :type => "host.escalation",
-        :data => "User `#{session.exploit_datastore['USERNAME']}' sudo'ed to a root shell"
+        host: session,
+        type: "host.escalation",
+        data: "User `#{session.exploit_datastore['USERNAME']}' sudo'ed to a root shell"
       )
     end
   end

@@ -70,13 +70,13 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status("[#{target_host}] #{tpath}robots.txt - #{result.join(', ')}")
       result.each do |u|
         report_note(
-          :host	=> target_host,
-          :port	=> rport,
-          :proto => 'tcp',
-          :sname	=> (ssl ? 'https' : 'http'),
-          :type	=> 'ROBOTS_TXT',
-          :data	=> u,
-          :update => :unique_data
+          host: target_host,
+          port: rport,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          type: 'ROBOTS_TXT',
+          data: u,
+          update: :unique_data
         )
       end
 

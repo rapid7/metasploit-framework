@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
                                .hiddenDOMWindow;
 
         hiddenWindow.location = 'about:blank';
-        var src = (#{JSON.unparse({ :src => js })}).src;
+        var src = (#{JSON.unparse({ src: js })}).src;
         var key = "#{Rex::Text.rand_text_alphanumeric(8+rand(12))}";
 
         hiddenWindow[key] = true;

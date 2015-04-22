@@ -604,7 +604,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def build_noscript_html(cli, request)
-    client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
+    client_info = get_client(host: cli.peerhost, ua_string: request['User-Agent'])
     body = ""
 
     sploit_cnt = 0
@@ -651,7 +651,7 @@ class Metasploit3 < Msf::Auxiliary
     # Host info no longer comes from the database! This is strictly a value
     # that came back from javascript OS detection because NAT basically
     # makes it impossible to keep host/client mappings straight.
-    client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
+    client_info = get_client(host: cli.peerhost, ua_string: request['User-Agent'])
     host_info   = client_info[:host]
     #print_status("Client info: #{client_info.inspect}")
 
@@ -849,7 +849,7 @@ class Metasploit3 < Msf::Auxiliary
 
   #
   # Determines whether a browser string matches an exploit module specification
-  # Example: :os_name => ( 'Windows' | /Windows/ | ['Windows', 'Mac OS X'] )
+  # Example: os_name: ( 'Windows' | /Windows/ | ['Windows', 'Mac OS X'] )
   #
   def client_matches_module_spec?(client_str, module_spec)
 
@@ -971,16 +971,16 @@ class Metasploit3 < Msf::Auxiliary
             # Previously we reported a javascript_fingerprint type but this
             # was never used.
             report_note({
-              :host   => cli.peerhost,
-              :ntype  => 'fingerprint.match',
-              :data   => note_data,
-              :update => :unique_data,
+              host: cli.peerhost,
+              ntype: 'fingerprint.match',
+              data: note_data,
+              update: :unique_data,
             })
             client_info = {
-              :host      => cli.peerhost,
-              :ua_string => request['User-Agent'],
-              :ua_name   => ua_name,
-              :ua_ver    => ua_ver
+              host: cli.peerhost,
+              ua_string: request['User-Agent'],
+              ua_name: ua_name,
+              ua_ver: ua_ver
             }
             report_client(client_info)
           rescue ::Interrupt

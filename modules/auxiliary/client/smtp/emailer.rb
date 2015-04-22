@@ -144,9 +144,9 @@ class Metasploit3 < Msf::Auxiliary
           'Options' => { "LHOST"=>msf_ip, "LPORT"=>msf_port }
         )
       exe = generate_payload_exe({
-          :code => buf,
-          :arch => mod.arch,
-          :platform => mod.platform
+          code: buf,
+          arch: mod.arch,
+          platform: mod.platform
         })
 
       print_status("Writing payload to #{attachment_file}")

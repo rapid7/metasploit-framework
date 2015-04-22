@@ -217,14 +217,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def report_creds(domain, user, pass)
     report_auth_info(
-      :host  => rhost,
-      :port => 445,
-      :sname => 'smb',
-      :proto => 'tcp',
-      :source_id => nil,
-      :source_type => "aux",
-      :user => "#{domain}\\#{user}",
-      :pass => pass
+      host: rhost,
+      port: 445,
+      sname: 'smb',
+      proto: 'tcp',
+      source_id: nil,
+      source_type: "aux",
+      user: "#{domain}\\#{user}",
+      pass: pass
     )
   end
 

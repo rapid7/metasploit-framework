@@ -90,13 +90,13 @@ class Metasploit3 < Msf::Auxiliary
       end
       print_good("#{ip}:#{datastore['RPORT']} - Admin Credentials: '#{info[:username]}:#{info[:password]}'")
       report_auth_info(
-        :host       => ip,
-        :port       => datastore['RPORT'],
-        :user       => info[:username],
-        :pass       => info[:password],
-        :ptype      => "password",
-        :proto      => "http",
-        :sname      => "Titan FTP Admin Console"
+        host: ip,
+        port: datastore['RPORT'],
+        user: info[:username],
+        pass: info[:password],
+        ptype: "password",
+        proto: "http",
+        sname: "Titan FTP Admin Console"
       )
     end
   end

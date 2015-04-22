@@ -58,13 +58,13 @@ class Metasploit4 < Msf::Auxiliary
     begin
       nsc.login
       report_auth_info(
-        :host   => rhost,
-        :port   => rport,
-        :sname  => prot,
-        :user   => user,
-        :pass   => pass,
-        :proof  => '',
-        :active => true
+        host: rhost,
+        port: rport,
+        sname: prot,
+        user: user,
+        pass: pass,
+        proof: '',
+        active: true
       )
 
     rescue

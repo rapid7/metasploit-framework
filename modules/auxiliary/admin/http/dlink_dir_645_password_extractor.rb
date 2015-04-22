@@ -73,12 +73,12 @@ class Metasploit3 < Msf::Auxiliary
             vprint_good("pass: #{pass}")
 
           report_auth_info(
-            :host => rhost,
-            :port => rport,
-            :sname => 'http',
-            :user => @user,
-            :pass => pass,
-            :active => true
+            host: rhost,
+            port: rport,
+            sname: 'http',
+            user: @user,
+            pass: pass,
+            active: true
           )
           end
         end

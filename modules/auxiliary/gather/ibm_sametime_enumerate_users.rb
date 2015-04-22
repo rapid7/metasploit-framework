@@ -270,13 +270,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def report_user(username)
     report_note(
-      :host   => rhost,
-      :port   => rport,
-      :proto  => 'tcp',
-      :sname  => 'sametime',
-      :type   => 'ibm_lotus_sametime_user',
-      :data   => "#{username}",
-      :update => :unique_data
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: 'sametime',
+      type: 'ibm_lotus_sametime_user',
+      data: "#{username}",
+      update: :unique_data
     )
   end
 

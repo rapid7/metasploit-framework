@@ -67,19 +67,19 @@ class Metasploit3 < Msf::Auxiliary
       info['IsClustered']
     ]
     report_service(
-      :host => ip,
-      :port => 1434,
-      :name => "mssql-m",
-      :proto => "udp",
-      :info => "TCP: #{info['tcp']}, Servername: #{info['ServerName']}"
+      host: ip,
+      port: 1434,
+      name: "mssql-m",
+      proto: "udp",
+      info: "TCP: #{info['tcp']}, Servername: #{info['ServerName']}"
     )
     mssql_tcp_state = (test_connection(ip,info['tcp']) == :up ? "open" : "closed")
     report_service(
-      :host => ip,
-      :port => info['tcp'],
-      :name => "mssql",
-      :info => mssql_info,
-      :state => mssql_tcp_state
+      host: ip,
+      port: info['tcp'],
+      name: "mssql",
+      info: mssql_info,
+      state: mssql_tcp_state
     )
 
   end

@@ -56,9 +56,9 @@ class Metasploit3 < Msf::Auxiliary
       password = pass || postgres_password
       vprint_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'")
       result = postgres_fingerprint(
-        :db => database,
-        :username => user,
-        :password => password
+        db: database,
+        username: user,
+        password: password
       )
       if result[:auth]
         vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'"
@@ -72,31 +72,31 @@ class Metasploit3 < Msf::Auxiliary
 
       # Reporting
       report_service(
-        :host => rhost,
-        :port => rport,
-        :name => "postgres",
-        :info => result.values.first
+        host: rhost,
+        port: rport,
+        name: "postgres",
+        info: result.values.first
       )
 
       if self.postgres_conn
         report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => "postgres",
-          :user => user,
-          :pass => password,
-          :active => true
+          host: rhost,
+          port: rport,
+          sname: "postgres",
+          user: user,
+          pass: password,
+          active: true
         )
       end
 
       if result[:unknown]
         report_note(
-          :host => rhost,
-          :proto => 'tcp',
-          :sname => 'postgres',
-          :port => rport,
-          :ntype => 'postgresql.fingerprint',
-          :data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
+          host: rhost,
+          proto: 'tcp',
+          sname: 'postgres',
+          port: rport,
+          ntype: 'postgresql.fingerprint',
+          data: "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
         )
       end
 

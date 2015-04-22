@@ -89,21 +89,21 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Found user: #{testn} [Auth]")
       # Add Report
       report_note(
-        :host	=> rhost,
-        :proto	=> 'sip',
-        :port	=> rport,
-        :type	=> "Found user: #{testn} [Auth]",
-        :data	=> "Found user: #{testn} [Auth]"
+        host: rhost,
+        proto: 'sip',
+        port: rport,
+        type: "Found user: #{testn} [Auth]",
+        data: "Found user: #{testn} [Auth]"
       )
     when /^200/
       print_status("Found user: #{testn} [Open]")
       # Add Report
       report_note(
-        :host	=> rhost,
-        :proto	=> 'sip',
-        :port	=> rport,
-        :type	=> "Found user: #{testn} [Open]",
-        :data	=> "Found user: #{testn} [Open]"
+        host: rhost,
+        proto: 'sip',
+        port: rport,
+        type: "Found user: #{testn} [Open]",
+        data: "Found user: #{testn} [Open]"
       )
     else
       #print_error("Undefined error code: #{resp.to_i}"

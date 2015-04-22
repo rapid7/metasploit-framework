@@ -82,10 +82,10 @@ class Metasploit3 < Msf::Auxiliary
         print_status("Found Byte-Range Header DOS at #{path}")
 
         report_note(
-          :host   => rhost,
-          :port   => rport,
-          :type   => 'apache.killer',
-          :data   => "Apache Byte-Range DOS at #{path}"
+          host: rhost,
+          port: rport,
+          type: 'apache.killer',
+          data: "Apache Byte-Range DOS at #{path}"
         )
 
       else

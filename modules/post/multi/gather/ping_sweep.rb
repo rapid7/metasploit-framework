@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
     end
 
     ip_found.each do |ip|
-      report_host(:host => ip)
+      report_host(host: ip)
     end
   end
 end

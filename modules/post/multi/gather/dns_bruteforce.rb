@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Post
       returned_data.gsub(/\r\n\t |\r\n|Aliases:|Addresses:/," ").split(" ").each do |e|
         if Rex::Socket.dotted_ip?(e)
           print_good("#{ns_opt} #{e}")
-          report_host(:host=>e, :name=>ns_opt.strip)
+          report_host(host:e, name:ns_opt.strip)
         end
       end
     end
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Post
       if not data.empty?
         data.each do |e|
           print_good("#{ns_opt} #{e[1]}")
-          report_host(:host=>e[1], :name=>ns_opt.strip)
+          report_host(host:e[1], name:ns_opt.strip)
         end
       end
     end

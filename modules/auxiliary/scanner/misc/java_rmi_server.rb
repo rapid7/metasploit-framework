@@ -82,23 +82,23 @@ class Metasploit3 < Msf::Auxiliary
 
     if return_value.nil?
       print_error("#{peer} - Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
-      report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
+      report_service(host: rhost, port: rport, name: "java-rmi", info: "")
       return
     end
 
     if return_value.is_exception? && loader_enabled?(return_value.value)
       print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
-      svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
+      svc = report_service(host: rhost, port: rport, name: "java-rmi", info: "Class Loader: Enabled")
       report_vuln(
-        :host         => rhost,
-        :service      => svc,
-        :name         => self.name,
-        :info         => "Module #{self.fullname} confirmed remote code execution via this RMI service",
-        :refs         => self.references
+        host: rhost,
+        service: svc,
+        name: self.name,
+        info: "Module #{self.fullname} confirmed remote code execution via this RMI service",
+        refs: self.references
       )
     else
       print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
-      report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
+      report_service(host: rhost, port: rport, name: "java-rmi", info: "Class Loader: Disabled")
     end
   end
 

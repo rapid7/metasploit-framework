@@ -142,11 +142,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def report
     report_vuln({
-      :host => rhost,
-      :port => rport,
-      :name => self.name,
-      :refs => self.references,
-      :info => "Module #{self.fullname} successfully detected CCS injection"
+      host: rhost,
+      port: rport,
+      name: self.name,
+      refs: self.references,
+      info: "Module #{self.fullname} successfully detected CCS injection"
     })
   end
 

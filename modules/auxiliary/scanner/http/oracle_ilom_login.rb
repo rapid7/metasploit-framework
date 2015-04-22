@@ -97,13 +97,13 @@ class Metasploit3 < Msf::Auxiliary
     if (res and res.code == 200 and res.body.include?("/iPages/suntab.asp") and res.body.include?("SetWebSessionString"))
       print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
       report_hash = {
-        :host   => rhost,
-        :port   => rport,
-        :sname  => 'Oracle Integrated Lights Out Manager Portal',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'
+        host: rhost,
+        port: rport,
+        sname: 'Oracle Integrated Lights Out Manager Portal',
+        user: user,
+        pass: pass,
+        active: true,
+        type: 'password'
       }
       report_auth_info(report_hash)
       return :next_user

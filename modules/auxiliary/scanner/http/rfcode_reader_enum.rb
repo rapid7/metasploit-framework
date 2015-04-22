@@ -129,13 +129,13 @@ class Metasploit3 < Msf::Auxiliary
         collect_info(user, pass)
 
         report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'RFCode Reader',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
+          host: rhost,
+          port: rport,
+          sname: 'RFCode Reader',
+          user: user,
+          pass: pass,
+          active: true,
+          type: 'password'}
 
         report_auth_info(report_hash)
         return :next_user
@@ -173,12 +173,12 @@ class Metasploit3 < Msf::Auxiliary
         vprint_good("#{rhost}:#{rport} - Release version: '#{release_ver}', Product Name: '#{product_name}'")
 
         report_note(
-          :host   => rhost,
-          :proto  => 'tcp',
-          :port   => rport,
-          :sname  => "RFCode Reader",
-          :data   => "Release Version: #{release_ver}, Product: #{product_name}",
-          :type	=> 'Info'
+          host: rhost,
+          proto: 'tcp',
+          port: rport,
+          sname: "RFCode Reader",
+          data: "Release Version: #{release_ver}, Product: #{product_name}",
+          type: 'Info'
         )
       end
 
@@ -199,12 +199,12 @@ class Metasploit3 < Msf::Auxiliary
         vprint_good("#{rhost}:#{rport} - User list & role: #{userlist}")
 
         report_note(
-          :host   => rhost,
-          :proto  => 'tcp',
-          :port   => rport,
-          :sname	=> "RFCode Reader",
-          :data   => "User List & Roles: #{userlist}",
-          :type	=> 'Info'
+          host: rhost,
+          proto: 'tcp',
+          port: rport,
+          sname: "RFCode Reader",
+          data: "User List & Roles: #{userlist}",
+          type: 'Info'
         )
       end
 
@@ -225,12 +225,12 @@ class Metasploit3 < Msf::Auxiliary
         vprint_good("#{rhost}:#{rport} - Interface eth0 info: #{eth0_info}")
 
         report_note(
-          :host	=> rhost,
-          :proto	=> 'tcp',
-          :port	=> rport,
-          :sname	=> "RFCode Reader",
-          :data	=> "Interface eth0: #{eth0_info}",
-          :type	=> 'Info'
+          host: rhost,
+          proto: 'tcp',
+          port: rport,
+          sname: "RFCode Reader",
+          data: "Interface eth0: #{eth0_info}",
+          type: 'Info'
         )
       end
 

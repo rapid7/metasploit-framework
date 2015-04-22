@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # detect JBoss application server
     if res and res.code == 200 and res.body.match(/<title>Tomcat Status<\/title>/)
-      http_fingerprint({:response => res})
+      http_fingerprint({response: res})
 
       html_rows = res.body.split(/<strong>/)
       html_rows.each do |row|
@@ -97,12 +97,12 @@ class Metasploit3 < Msf::Auxiliary
     @requests.each do |r|
       req_table << r
       report_note({
-        :host  => target_host,
-        :proto => 'tcp',
-        :sname => (ssl ? 'https' : 'http'),
-        :port  => rport,
-        :type  => 'JBoss application server info',
-        :data  => "#{rhost}:#{rport} #{r[2]}"
+        host: target_host,
+        proto: 'tcp',
+        sname: (ssl ? 'https' : 'http'),
+        port: rport,
+        type: 'JBoss application server info',
+        data: "#{rhost}:#{rport} #{r[2]}"
       })
     end
 

@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
             credential_data[:core] = credential_core
             create_credential_login(credential_data)
 
-            print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+            print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
           else
             invalidate_login(credential_data)
             vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
     return if proto == 255
     offset += 1
     version = data[offset..-1].unpack('Z*')[0]
-    report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
+    report_service(host: rhost, port: rport, name: "mysql", info: version)
     short_version = version.split('-')[0]
     vprint_status "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
     int_version(short_version) >= int_version(target)

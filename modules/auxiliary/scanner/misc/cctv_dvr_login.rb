@@ -112,10 +112,10 @@ class Metasploit3 < Msf::Auxiliary
         print_status("Confirmed IE ActiveX HTTP interface (#{v}): #{uri}")
 
         report_service(
-          :host => rhost,
-          :port => datastore['HTTP_PORT'],
-          :name => "http",
-          :info => "IE ActiveX CCTV DVR Control (#{v})"
+          host: rhost,
+          port: datastore['HTTP_PORT'],
+          name: "http",
+          info: "IE ActiveX CCTV DVR Control (#{v})"
         )
       else
         # An HTTP server is listening on HTTP_PORT, however, does not appear to be
@@ -180,14 +180,14 @@ class Metasploit3 < Msf::Auxiliary
       # Report valid credentials under the CCTV DVR admin port (5920/TCP).
       # This is a proprietary protocol.
       report_auth_info(
-        :host         => rhost,
-        :port         => rport,
-        :sname        => 'cctv_dvr',
-        :user         => user,
-        :pass         => pass,
-        :source_type  => "user_supplied",
-        :duplicate_ok => false,
-        :active       => true
+        host: rhost,
+        port: rport,
+        sname: 'cctv_dvr',
+        user: user,
+        pass: pass,
+        source_type: "user_supplied",
+        duplicate_ok: false,
+        active: true
       )
 
       @valid_hosts << rhost

@@ -107,11 +107,11 @@ class Metasploit3 < Msf::Auxiliary
 
             ## Add Report
             report_note(
-              :host   => ip,
-              :proto  => 'tcp',
-              :port   => datastore['RPORT'],
-              :type   => "DCERPC HIDDEN: UUID #{id[0]} v#{id[1]}",
-              :data   => status
+              host: ip,
+              proto: 'tcp',
+              port: datastore['RPORT'],
+              type: "DCERPC HIDDEN: UUID #{id[0]} v#{id[1]}",
+              data: status
             )
 
           end

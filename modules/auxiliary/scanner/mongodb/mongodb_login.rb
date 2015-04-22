@@ -47,12 +47,12 @@ class Metasploit3 < Msf::Auxiliary
         }
       else
         report_vuln(
-          :host         => rhost,
-          :port         => rport,
-          :name         => "MongoDB No Authentication",
-          :refs         => self.references,
-          :exploited_at => Time.now.utc,
-          :info         => "Mongo server has no authentication."
+          host: rhost,
+          port: rport,
+          name: "MongoDB No Authentication",
+          refs: self.references,
+          exploited_at: Time.now.utc,
+          info: "Mongo server has no authentication."
         )
         print_good("Mongo server #{ip.to_s} dosn't use authentication")
       end
@@ -121,13 +121,13 @@ class Metasploit3 < Msf::Auxiliary
     unless have_auth_error?(response)
       print_good("#{rhost} - SUCCESSFUL LOGIN '#{user}' : '#{password}'")
       report_auth_info({
-        :host        => rhost,
-        :port        => rport,
-        :sname       => 'mongodb',
-        :user        => user,
-        :pass        => password,
-        :source_type => 'user_supplied',
-        :active      => true
+        host: rhost,
+        port: rport,
+        sname: 'mongodb',
+        user: user,
+        pass: password,
+        source_type: 'user_supplied',
+        active: true
       })
       return :next_user
     end

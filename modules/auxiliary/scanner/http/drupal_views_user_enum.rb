@@ -104,10 +104,10 @@ class Metasploit3 < Msf::Auxiliary
       print_good("Found User: #{user}")
 
       report_auth_info(
-        :host => Rex::Socket.getaddress(datastore['RHOST']),
-        :port => datastore['RPORT'],
-        :user => user,
-        :type => "drupal_user"
+        host: Rex::Socket.getaddress(datastore['RHOST']),
+        port: datastore['RPORT'],
+        user: user,
+        type: "drupal_user"
       )
     end
 

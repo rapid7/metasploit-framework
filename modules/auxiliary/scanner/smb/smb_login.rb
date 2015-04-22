@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_brute(:level => :vstatus, :ip => ip, :msg => "Starting SMB login bruteforce")
+    print_brute(level: :vstatus, ip: ip, msg: "Starting SMB login bruteforce")
 
     domain = datastore['SMBDomain'] || ""
 
@@ -110,16 +110,16 @@ class Metasploit3 < Msf::Auxiliary
     @scanner.scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::DENIED_ACCESS
-        print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}', #{result.proof}"
+        print_brute level: :status, ip: ip, msg: "Correct credentials, but unable to login: '#{result.credential}', #{result.proof}"
         report_creds(ip, rport, result)
         :next_user
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' #{result.access_level}"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' #{result.access_level}"
         report_creds(ip, rport, result)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+          print_brute level: :verror, ip: ip, msg: "Could not connect"
         end
         invalidate_login(
             address: ip,
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', #{result.proof}"
+          print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}', #{result.proof}"
         end
         invalidate_login(
           address: ip,
@@ -193,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if domain.present?
       if accepts_bogus_domains?(result.credential.public, result.credential.private)
-        print_brute(:level => :vstatus, :ip => ip, :msg => "Domain is ignored for user #{result.credential.public}")
+        print_brute(level: :vstatus, ip: ip, msg: "Domain is ignored for user #{result.credential.public}")
       else
         credential_data.merge!(
           realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,

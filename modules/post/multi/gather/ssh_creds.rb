@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Post
         print_good("Downloaded #{path}#{sep}#{file}")
 
         begin
-          key = SSHKey.new(data, :passphrase => "")
+          key = SSHKey.new(data, passphrase: "")
 
           credential_data = {
             origin_type: :session,

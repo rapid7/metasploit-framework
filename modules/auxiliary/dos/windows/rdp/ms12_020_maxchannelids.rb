@@ -157,11 +157,11 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_good("#{rhost}:#{rport} seems down")
       report_vuln({
-        :host => rhost,
-        :port => rport,
-        :name => self.name,
-        :refs => self.references,
-        :info => "Module #{self.fullname} successfully crashed the target system via RDP"
+        host: rhost,
+        port: rport,
+        name: self.name,
+        refs: self.references,
+        info: "Module #{self.fullname} successfully crashed the target system via RDP"
       })
     end
 

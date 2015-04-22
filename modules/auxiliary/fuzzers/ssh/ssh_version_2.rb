@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       begin
-        r = do_ssh_version(str,:banner_timeout => 5)
+        r = do_ssh_version(str,banner_timeout: 5)
       rescue ::Interrupt
         print_status("Exiting on interrupt: iteration #{cnt} using #{@last_fuzzer_input}")
         raise $!

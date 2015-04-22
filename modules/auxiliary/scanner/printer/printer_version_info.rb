@@ -50,11 +50,11 @@ class Metasploit4 < Msf::Auxiliary
     if id
       print_good("#{ip}:#{rport} - #{id}")
       report_service(
-        :host => ip,
-        :port => rport,
-        :proto => "tcp",
-        :name => "jetdirect",
-        :info => id
+        host: ip,
+        port: rport,
+        proto: "tcp",
+        name: "jetdirect",
+        info: id
       )
     end
   end

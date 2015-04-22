@@ -117,16 +117,16 @@ class Metasploit3 < Msf::Auxiliary
     if result == :success
       print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
       report_auth_info(
-        :host         => rhost,
-        :port         => rport,
-        :sname        => (ssl ? 'https' : 'http'),
-        :user         => user,
-        :pass         => pass,
-        :proof        => target_url,
-        :type         => 'passsword',
-        :source_type  => 'cred',
-        :duplicate_ok => true,
-        :active       => true
+        host: rhost,
+        port: rport,
+        sname: (ssl ? 'https' : 'http'),
+        user: user,
+        pass: pass,
+        proof: target_url,
+        type: 'passsword',
+        source_type: 'cred',
+        duplicate_ok: true,
+        active: true
       )
       return :abort if datastore['STOP_ON_SUCCESS']
       return :next_user

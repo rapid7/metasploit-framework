@@ -62,11 +62,11 @@ class Metasploit3 < Msf::Auxiliary
 
       if res and res.to_s !~ /ERROR_STACK/
         report_note(
-          :host => rhost,
-          :port => rport,
-          :type => 'oracle_sid',
-          :data => "PORT=#{rport}, SID=#{sid.strip}",
-          :update => :unique_data
+          host: rhost,
+          port: rport,
+          type: 'oracle_sid',
+          data: "PORT=#{rport}, SID=#{sid.strip}",
+          update: :unique_data
         )
         print_good("#{rhost}:#{rport} Found SID '#{sid.strip}'")
       end

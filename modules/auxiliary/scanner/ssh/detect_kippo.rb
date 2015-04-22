@@ -36,10 +36,10 @@ class Metasploit4 < Msf::Auxiliary
     if response =~ /(?:^Protocol mismatch\.\n$|bad packet length)/
       print_good("#{ip}:#{rport} - Kippo detected!")
       report_service(
-        :host => ip,
-        :port => rport,
-        :name => 'ssh',
-        :info => 'Kippo SSH honeypot'
+        host: ip,
+        port: rport,
+        name: 'ssh',
+        info: 'Kippo SSH honeypot'
       )
     else
       vprint_status("#{ip}:#{rport} - #{banner.strip} detected")

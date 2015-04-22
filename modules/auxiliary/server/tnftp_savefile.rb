@@ -64,10 +64,10 @@ class Metasploit4 < Msf::Auxiliary
       send_response(cli, '')
       print_good("Executing `#{datastore['CMD']}'!")
       report_vuln(
-        :host => cli.peerhost,
-        :name => self.name,
-        :refs => self.references,
-        :info => request['User-Agent']
+        host: cli.peerhost,
+        name: self.name,
+        refs: self.references,
+        info: request['User-Agent']
       )
     else
       print_status("#{request['User-Agent']} connected")

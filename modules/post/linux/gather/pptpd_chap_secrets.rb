@@ -78,13 +78,13 @@ class Metasploit3 < Msf::Post
       ip     = (found[3,found.length] * ", " || '').strip
 
       report_auth_info({
-        :host   => session.session_host,
-        :port   => 1723, #PPTP port
-        :sname  => 'pptp',
-        :user   => client,
-        :pass   => secret,
-        :type   => 'password',
-        :active => true
+        host: session.session_host,
+        port: 1723, #PPTP port
+        sname: 'pptp',
+        user: client,
+        pass: secret,
+        type: 'password',
+        active: true
       })
 
       tbl << [client, server, secret, ip]

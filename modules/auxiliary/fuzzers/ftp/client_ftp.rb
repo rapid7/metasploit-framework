@@ -61,11 +61,11 @@ class Metasploit3 < Msf::Auxiliary
   # Handler for new FTP client connections
   def on_client_connect(c)
     @state[c] = {
-      :name => "#{c.peerhost}:#{c.peerport}",
-      :ip   => c.peerhost,
-      :port => c.peerport,
-      :user => nil,
-      :pass => nil
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
+      user: nil,
+      pass: nil
     }
     # set up an active data port on port 20
     print_status("Client connected : " + c.peerhost)

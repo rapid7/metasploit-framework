@@ -812,12 +812,12 @@ class Metasploit3 < Msf::Auxiliary
           }
 
           report_note(
-            :host  => ip,
-            :proto => 'udp',
-            :sname => 'snmp',
-            :port  => datastore['RPORT'].to_i,
-            :type  => "snmp.#{k}",
-            :data  => content
+            host: ip,
+            proto: 'udp',
+            sname: 'snmp',
+            port: datastore['RPORT'].to_i,
+            type: "snmp.#{k}",
+            data: content
           )
 
           line << "\n[*] #{k}:\n\n#{content}"
@@ -830,12 +830,12 @@ class Metasploit3 < Msf::Auxiliary
           }
 
           report_note(
-            :host  => ip,
-            :proto => 'udp',
-            :sname => 'snmp',
-            :port  => datastore['RPORT'].to_i,
-            :type  => "snmp.#{k}",
-            :data  => content
+            host: ip,
+            proto: 'udp',
+            sname: 'snmp',
+            port: datastore['RPORT'].to_i,
+            type: "snmp.#{k}",
+            data: content
           )
 
           line << "\n[*] #{k}:\n\n#{content}"
@@ -846,12 +846,12 @@ class Metasploit3 < Msf::Auxiliary
           end
 
           report_note(
-            :host  => ip,
-            :proto => 'udp',
-            :sname => 'snmp',
-            :port  => datastore['RPORT'].to_i,
-            :type  => "snmp.#{k}",
-            :data  => v
+            host: ip,
+            proto: 'udp',
+            sname: 'snmp',
+            port: datastore['RPORT'].to_i,
+            type: "snmp.#{k}",
+            data: v
           )
 
           k = truncate_to_twidth(k,twidth)

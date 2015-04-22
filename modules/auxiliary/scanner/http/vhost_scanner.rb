@@ -123,13 +123,13 @@ require 'cgi'
               print_status("[#{ip}] Vhost found  #{thost} ")
 
               report_note(
-                :host	=> ip,
-                :proto => 'tcp',
-                :sname => (ssl ? 'https' : 'http'),
-                :port	=> rport,
-                :type	=> 'VHOST',
-                :data	=> thost,
-                :update => :unique_data
+                host: ip,
+                proto: 'tcp',
+                sname: (ssl ? 'https' : 'http'),
+                port: rport,
+                type: 'VHOST',
+                data: thost,
+                update: :unique_data
               )
 
             else

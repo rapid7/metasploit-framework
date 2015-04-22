@@ -45,13 +45,13 @@ class Metasploit3 < Msf::Auxiliary
       when :success
         print_good "#{ip}:#{rport} Login Successful #{user}:#{pass}"
         report_auth_info(
-          :host        => rhost,
-          :port        => datastore['RPORT'],
-          :sname       => 'pcanywhere_data',
-          :user        => user,
-          :pass        => pass,
-          :source_type => "user_supplied",
-          :active      => true
+          host: rhost,
+          port: datastore['RPORT'],
+          sname: 'pcanywhere_data',
+          user: user,
+          pass: pass,
+          source_type: "user_supplied",
+          active: true
         )
         return if datastore['STOP_ON_SUCCESS']
         print_status "Waiting to Re-Negotiate Connection (this may take a minute)..."

@@ -95,13 +95,13 @@ class Metasploit3 < Msf::Auxiliary
     if connect_login()
       print_status("#{ip}:#{rport} - FTP - Login succeeded")
       report_auth_info(
-        :host => ip,
-        :port => rport,
-        :proto => 'tcp',
-        :user => user,
-        :pass => pass,
-        :ptype => 'password_ro',
-        :active => true
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        user: user,
+        pass: pass,
+        ptype: 'password_ro',
+        active: true
       )
       return true
     else
@@ -157,22 +157,22 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{rhost}:#{rport} - FTP - Storing HTTP credentials")
     logins << ["http", httpuser, httppass]
     report_auth_info(
-      :host	=> ip,
-      :port	=> 80,
-      :sname	=> "http",
-      :user	=> httpuser,
-      :pass	=> httppass,
-      :active	=> true
+      host: ip,
+      port: 80,
+      sname: "http",
+      user: httpuser,
+      pass: httppass,
+      active: true
     )
     logins << ["scada-write", "", writecreds[1]]
     if writecreds # This is like an enable password, used after HTTP authentication.
       report_note(
-        :host => ip,
-        :port => 80,
-        :proto => 'tcp',
-        :sname => 'http',
-        :ntype => 'scada.modicon.write-password',
-        :data => writecreds[1]
+        host: ip,
+        port: 80,
+        proto: 'tcp',
+        sname: 'http',
+        ntype: 'scada.modicon.write-password',
+        data: writecreds[1]
       )
     end
 
@@ -196,25 +196,25 @@ class Metasploit3 < Msf::Auxiliary
     # auth credential in the Cred sense. TheLightCosine should fix some day.
     # Can be used for telnet as well if telnet is enabled.
       report_note(
-        :host => ip,
-        :port => rport,
-        :proto => 'tcp',
-        :sname => 'ftp',
-        :ntype => 'scada.modicon.ftp-password',
-        :data => "User:#{modicon_ftpuser} VXWorks_Password:#{modicon_ftppass}"
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        sname: 'ftp',
+        ntype: 'scada.modicon.ftp-password',
+        data: "User:#{modicon_ftpuser} VXWorks_Password:#{modicon_ftppass}"
       )
       logins << ["VxWorks", modicon_ftpuser, modicon_ftppass]
 
     # Not this:
     # report_auth_info(
-    #	:host	=> ip,
-    #	:port	=> rport,
-    #	:proto => 'tcp',
-    #	:sname => 'ftp',
-    #	:user	=> modicon_ftpuser,
-    #	:pass	=> modicon_ftppass,
-    #	:type => 'password_vx', # It's a hash, not directly usable, but crackable
-    #	:active	=> true
+    #	host: ip,
+    #	port: rport,
+    #	proto: 'tcp',
+    #	sname: 'ftp',
+    #	user: modicon_ftpuser,
+    #	pass: modicon_ftppass,
+    #	type: 'password_vx', # It's a hash, not directly usable, but crackable
+    #	active: true
     # )
     print_line logins.to_s
   end

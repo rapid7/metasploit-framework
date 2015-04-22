@@ -163,11 +163,11 @@ class Metasploit3 < Msf::Auxiliary
     os      = smb_fingerprint
     os_info = "#{os['os']} #{os['sp']} (#{os['lang']})" if os['os'] != "Unknown"
     report_service(
-      :host  => ip,
-      :port  => rport,
-      :proto => 'tcp',
-      :name  => 'smb',
-      :info  => os_info
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      name: 'smb',
+      info: os_info
     ) if os_info
 
     os_info
@@ -463,12 +463,12 @@ class Metasploit3 < Msf::Auxiliary
             print_good share
           }
           report_note(
-            :host   => ip,
-            :proto  => 'tcp',
-            :port   => rport,
-            :type   => 'smb.shares',
-            :data   => { :shares => shares },
-            :update => :unique_data
+            host: ip,
+            proto: 'tcp',
+            port: rport,
+            type: 'smb.shares',
+            data: { shares: shares },
+            update: :unique_data
           )
 
           if datastore['SpiderShares']

@@ -58,7 +58,7 @@ module Metasploit3
       jar.add_file(path.join("/"), data)
       fd.close
     end
-    jar.build_manifest(:main_class => "metasploit.Payload")
+    jar.build_manifest(main_class: "metasploit.Payload")
     jar.add_file("metasploit.dat", config)
 
     jar

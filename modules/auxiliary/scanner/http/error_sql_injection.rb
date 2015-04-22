@@ -145,19 +145,19 @@ class Metasploit3 < Msf::Auxiliary
         print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
 
         report_web_vuln(
-          :host	=> ip,
-          :port	=> rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
-          :path	=> datastore['PATH'],
-          :method => datastore['METHOD'],
-          :pname  => "",
-          :proof  => "Error: #{inje}",
-          :risk   => 2,
-          :confidence   => 50,
-          :category     => 'Database error',
-          :description  => "Error string appears in the normal response #{inje} #{dbt}",
-          :name   => 'Database error'
+          host: ip,
+          port: rport,
+          vhost: vhost,
+          ssl: ssl,
+          path: datastore['PATH'],
+          method: datastore['METHOD'],
+          pname: "",
+          proof: "Error: #{inje}",
+          risk: 2,
+          confidence: 50,
+          category: 'Database error',
+          description: "Error string appears in the normal response #{inje} #{dbt}",
+          name: 'Database error'
         )
 
         return
@@ -240,19 +240,19 @@ class Metasploit3 < Msf::Auxiliary
               print_good("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 
               report_web_vuln(
-                :host	=> ip,
-                :port	=> rport,
-                :vhost  => vhost,
-                :ssl    => ssl,
-                :path	=> datastore['PATH'],
-                :method => datastore['METHOD'],
-                :pname  => key,
-                :proof  => istr,
-                :risk   => 2,
-                :confidence   => 50,
-                :category     => 'SQL injection',
-                :description  => "Error string appears in the normal response #{inje} #{dbt}",
-                :name   => 'SQL injection'
+                host: ip,
+                port: rport,
+                vhost: vhost,
+                ssl: ssl,
+                path: datastore['PATH'],
+                method: datastore['METHOD'],
+                pname: key,
+                proof: istr,
+                risk: 2,
+                confidence: 50,
+                category: 'SQL injection',
+                description: "Error string appears in the normal response #{inje} #{dbt}",
+                name: 'SQL injection'
               )
 
               return

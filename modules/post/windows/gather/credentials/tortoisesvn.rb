@@ -90,13 +90,13 @@ class Metasploit3 < Msf::Post
       source_id = nil
     end
     report_auth_info(
-    :host  => Rex::Socket.resolv(http_proxy_host), # TODO: Fix up report_host?
-    :port => http_proxy_port,
-    :sname => "http",
-    :source_id => source_id,
-    :source_type => "exploit",
-    :user => http_proxy_username,
-    :pass => http_proxy_password)
+    host: Rex::Socket.resolv(http_proxy_host), # TODO: Fix up report_host?
+    port: http_proxy_port,
+    sname: "http",
+    source_id: source_id,
+    source_type: "exploit",
+    user: http_proxy_username,
+    pass: http_proxy_password)
   end
 
   def get_config_files
@@ -178,13 +178,13 @@ class Metasploit3 < Msf::Post
       source_id = nil
     end
     report_auth_info(
-    :host  => ::Rex::Socket.resolv_to_dotted(host), # XXX: Workaround for unresolved hostnames
-    :port => portnum,
-    :sname => sname,
-    :source_id => source_id,
-    :source_type => "exploit",
-    :user => user_name,
-    :pass => password)
+    host: ::Rex::Socket.resolv_to_dotted(host), # XXX: Workaround for unresolved hostnames
+    port: portnum,
+    sname: sname,
+    source_id: source_id,
+    source_type: "exploit",
+    user: user_name,
+    pass: password)
     print_debug "Should have reported..."
 
     # Set savedpwds to 1 on return

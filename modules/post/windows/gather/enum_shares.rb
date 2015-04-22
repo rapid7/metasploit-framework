@@ -120,10 +120,10 @@ class Metasploit3 < Msf::Post
         print_status()
       end
       report_note(
-        :host => session,
-        :type => 'smb.shares',
-        :data => { :shares => shares },
-        :update => :unique_data
+        host: session,
+        type: 'smb.shares',
+        data: { shares: shares },
+        update: :unique_data
       )
     else
       print_status("No shares were found")

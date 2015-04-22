@@ -108,11 +108,11 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{peer} - Joomla Version:#{out} from: #{file} ")
         print_good("#{peer} - OS: #{os}")
         report_note(
-          :host  => ip,
-          :port  => datastore['RPORT'],
-          :proto => 'http',
-          :ntype => 'joomla_version',
-          :data  => out
+          host: ip,
+          port: datastore['RPORT'],
+          proto: 'http',
+          ntype: 'joomla_version',
+          data: out
         )
         return true
       end

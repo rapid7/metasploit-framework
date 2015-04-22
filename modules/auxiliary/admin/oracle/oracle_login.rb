@@ -57,12 +57,12 @@ class Metasploit3 < Msf::Auxiliary
         end
       else
         report_auth_info(
-            :host  => "#{datastore['RHOST']}",
-            :port  => "#{datastore['RPORT']}",
-            :sname => 'oracle',
-            :user  => "#{datastore['SID']}/#{datastore['DBUSER']}",
-            :pass  => "#{datastore['DBPASS']}",
-            :active => true
+            host: "#{datastore['RHOST']}",
+            port: "#{datastore['RPORT']}",
+            sname: 'oracle',
+            user: "#{datastore['SID']}/#{datastore['DBUSER']}",
+            pass: "#{datastore['DBPASS']}",
+            active: true
         )
         print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
       end

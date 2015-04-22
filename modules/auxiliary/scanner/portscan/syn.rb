@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
           if (reply.is_tcp? and reply.tcp_flags.syn == 1 and reply.tcp_flags.ack == 1)
             print_status(" TCP OPEN #{dhost}:#{dport}")
-            report_service(:host => dhost, :port => dport)
+            report_service(host: dhost, port: dport)
           end
         rescue ::Exception
           print_error("Error: #{$!.class} #{$!}")

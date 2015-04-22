@@ -72,12 +72,12 @@ class Metasploit3 < Msf::Auxiliary
     if res.nil? || res.code == 500
       print_good("#{peer} - vulnerable to GHOST")
       report_vuln(
-      :host   => ip,
-      :proto  => 'tcp',
-      :port   => datastore['RPORT'],
-      :name   => self.name,
-      :info   => "Module #{self.fullname} found GHOST vulnerability",
-      :sname  => datastore['SSL'] ? "https" : "http"
+      host: ip,
+      proto: 'tcp',
+      port: datastore['RPORT'],
+      name: self.name,
+      info: "Module #{self.fullname} found GHOST vulnerability",
+      sname: datastore['SSL'] ? "https" : "http"
       )
     else
       print_status("#{peer} - target not vulnerable to GHOST")

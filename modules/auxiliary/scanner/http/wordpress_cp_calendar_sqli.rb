@@ -64,11 +64,11 @@ class Metasploit4 < Msf::Auxiliary
     if result
       print_good("#{peer} - Vulnerable to unauthenticated SQL injection within CP Multi-View Calendar 1.1.4 for Wordpress")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
-        :proto => 'tcp',
-        :name  => "Unauthenticated UNION-based SQL injection in CP Multi-View Calendar 1.1.4 for Wordpress",
-        :refs  => self.references.select { |ref| ref.ctx_val == "36243" }
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: "Unauthenticated UNION-based SQL injection in CP Multi-View Calendar 1.1.4 for Wordpress",
+        refs: self.references.select { |ref| ref.ctx_val == "36243" }
       })
     end
   end

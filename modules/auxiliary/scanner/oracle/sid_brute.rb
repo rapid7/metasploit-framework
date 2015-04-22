@@ -72,13 +72,13 @@ class Metasploit3 < Msf::Auxiliary
       elsif response_code != 4
         print_good "#{hostport} Oracle - '#{sid}' is valid"
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'oracle',
-          :type => "oracle.sid",
-          :data => sid,
-          :update => :unique_data
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'oracle',
+          type: "oracle.sid",
+          data: sid,
+          update: :unique_data
         )
         return :success
       else

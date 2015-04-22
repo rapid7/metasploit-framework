@@ -40,10 +40,10 @@ class Metasploit3 < Msf::Post
     print_status("Gathering user profiles")
 
     files_to_gather = [
-      { :path => 'LocalAppData', :name => "Chrome History", :dir => "Google", :fname => "History." },
-      { :path => 'LocalAppData', :name => "Chrome Archived History", :dir => "Google", :fname => "Archived History." },
-      { :path => 'AppData', :name => 'Skype', :dir => 'Skype', :fname => "main.db" },
-      { :path => 'AppData', :name => "Firefox", :dir => "Mozilla", :fname => "places.sqlite" }
+      { path: 'LocalAppData', name: "Chrome History", dir: "Google", fname: "History." },
+      { path: 'LocalAppData', name: "Chrome Archived History", dir: "Google", fname: "Archived History." },
+      { path: 'AppData', name: 'Skype', dir: 'Skype', fname: "main.db" },
+      { path: 'AppData', name: "Firefox", dir: "Mozilla", fname: "places.sqlite" }
     ]
 
     grab_user_profiles.each do |userprofile|

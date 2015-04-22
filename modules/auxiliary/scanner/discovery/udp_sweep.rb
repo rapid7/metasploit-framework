@@ -76,11 +76,11 @@ class Metasploit3 < Msf::Auxiliary
       data = @results[k]
 
       conf = {
-        :host  => data[:host],
-        :port  => data[:port],
-        :proto => 'udp',
-        :name  => data[:app],
-        :info  => data[:info]
+        host: data[:host],
+        port: data[:port],
+        proto: 'udp',
+        name: data[:app],
+        info: data[:info]
       }
 
       if data[:hname]
@@ -238,12 +238,12 @@ class Metasploit3 < Msf::Auxiliary
           rec = buf.slice!(0,20).unpack("N5")
           svc << "#{rec[1]} v#{rec[2]} #{rec[3] == 0x06 ? "TCP" : "UDP"}(#{rec[4]})"
           report_service(
-            :host => shost,
-            :port => rec[4],
-            :proto => (rec[3] == 0x06 ? "tcp" : "udp"),
-            :name => "sunrpc",
-            :info => "#{rec[1]} v#{rec[2]}",
-            :state => "open"
+            host: shost,
+            port: rec[4],
+            proto: (rec[3] == 0x06 ? "tcp" : "udp"),
+            name: "sunrpc",
+            info: "#{rec[1]} v#{rec[2]}",
+            state: "open"
           )
         end
         inf = svc.join(", ")
@@ -306,14 +306,14 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_service(
-      :host  => shost,
-      :mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
-      :host_name => (hname) ? hname.downcase : nil,
-      :port  => sport,
-      :proto => 'udp',
-      :name  => app,
-      :info  => inf,
-      :state => "open"
+      host: shost,
+      mac: (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
+      host_name: (hname) ? hname.downcase : nil,
+      port: sport,
+      proto: 'udp',
+      name: app,
+      info: inf,
+      state: "open"
     )
 
     print_status("Discovered #{app} on #{shost}:#{sport} (#{inf})")

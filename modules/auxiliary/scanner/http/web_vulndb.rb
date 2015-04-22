@@ -151,12 +151,12 @@ class Metasploit3 < Msf::Auxiliary
                 print_status("FOUND #{wmap_base_url}#{tpath}#{testfvuln} [#{res.code.to_i}] #{testnote}")
 
                 report_note(
-                  :host	=> ip,
-                  :proto => 'tcp',
-                  :sname => (ssl ? 'https' : 'http'),
-                  :port	=> rport,
-                  :type	=> 'FILE',
-                  :data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
+                  host: ip,
+                  proto: 'tcp',
+                  sname: (ssl ? 'https' : 'http'),
+                  port: rport,
+                  type: 'FILE',
+                  data: "#{tpath}#{testfvuln} Code: #{res.code}"
                 )
               end
             end
@@ -165,12 +165,12 @@ class Metasploit3 < Msf::Auxiliary
               print_status("FOUND #{wmap_base_url}#{tpath}#{testfvuln} [#{res.code.to_i}] #{testnote}")
 
               report_note(
-                  :host	=> ip,
-                  :proto => 'tcp',
-                  :sname => (ssl ? 'https' : 'http'),
-                  :port	=> rport,
-                  :type	=> 'FILE',
-                  :data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
+                  host: ip,
+                  proto: 'tcp',
+                  sname: (ssl ? 'https' : 'http'),
+                  port: rport,
+                  type: 'FILE',
+                  data: "#{tpath}#{testfvuln} Code: #{res.code}"
               )
             else
               if dm == false

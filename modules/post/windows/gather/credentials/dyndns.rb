@@ -91,9 +91,9 @@ class Metasploit3 < Msf::Post
     # Store data in a hash, save it to the array
     # Might contain nil if nothing was regexed
     config_data = {
-      :user  => user,
-      :pass  => pass,
-      :hosts => host
+      user: user,
+      pass: pass,
+      hosts: host
     }
 
     return config_data

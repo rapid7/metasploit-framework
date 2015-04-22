@@ -130,10 +130,10 @@ class Metasploit4 < Msf::Auxiliary
         end
         print(saptbl.to_s)
         this_service = report_service(
-          :host  => ip,
-          :port => rport,
-          :name => 'sap',
-          :proto => 'tcp'
+          host: ip,
+          port: rport,
+          name: 'sap',
+          proto: 'tcp'
         )
         loot_path = store_loot("sap.tables.data", "text/plain", ip, saptbl.to_s, "#{ip}_sap_#{datastore['TABLE'].downcase}.txt", "SAP Data", this_service)
         print_good("[SAP] #{ip}:#{rport} - Data stored in #{loot_path}")

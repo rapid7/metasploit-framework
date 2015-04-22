@@ -120,12 +120,12 @@ class Metasploit3 < Msf::Auxiliary
     xml << '</methodCall>'
 
     empty_xml = xml % {
-      :doctype => '',
-      :entity => '',
-      :entity_value => '',
-      :payload => '',
-      :param_value_1 => '',
-      :param_value_2 => ''
+      doctype: '',
+      entity: '',
+      entity_value: '',
+      payload: '',
+      param_value_1: '',
+      param_value_2: ''
     }
 
     space_to_fill = size_bytes - empty_xml.size
@@ -135,12 +135,12 @@ class Metasploit3 < Msf::Auxiliary
     entity_value_length = space_to_fill - payload.length
 
     payload_xml = xml % {
-      :doctype => doctype,
-      :entity => entity,
-      :entity_value => Rex::Text.rand_text_alpha(entity_value_length),
-      :payload => payload,
-      :param_value_1 => param_value_1,
-      :param_value_2 => param_value_2
+      doctype: doctype,
+      entity: entity,
+      entity_value: Rex::Text.rand_text_alpha(entity_value_length),
+      payload: payload,
+      param_value_1: param_value_1,
+      param_value_2: param_value_2
     }
 
     payload_xml

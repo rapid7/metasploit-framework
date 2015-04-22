@@ -45,13 +45,13 @@ class Metasploit3 < Msf::Auxiliary
     if cookie
       print_good("#{peer} - Successful login '#{user}' password: '#{pass}'")
       report_auth_info({
-        :host   => rhost,
-        :proto => 'http',
-        :sname  => 'typo3',
-        :user   => user,
-        :pass   => pass,
-        :target_host => rhost,
-        :target_port => rport
+        host: rhost,
+        proto: 'http',
+        sname: 'typo3',
+        user: user,
+        pass: pass,
+        target_host: rhost,
+        target_port: rport
       })
       return :next_user
     else

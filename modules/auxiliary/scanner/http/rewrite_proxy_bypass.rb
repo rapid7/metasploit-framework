@@ -70,9 +70,9 @@ class Metasploit4 < Msf::Auxiliary
     vprint_status "#{rhost}:#{rport} Server responded with status code #{status_code} to URI #{uri}"
 
     return {
-      :requested_at => requested_at,
-      :responded_at => responded_at,
-      :status_code  => status_code
+      requested_at: requested_at,
+      responded_at: responded_at,
+      status_code: status_code
     }
   end
 
@@ -96,14 +96,14 @@ class Metasploit4 < Msf::Auxiliary
     if status_code == test_status_code
       print_good "#{rhost}:#{rport} Server appears to be vulnerable!"
       report_vuln(
-        :host   => host,
-        :port   => rport,
-        :proto  => 'tcp',
-        :sname  => ssl ? 'https' : 'http',
-        :name   => self.name,
-        :info   => "Module #{self.fullname} obtained #{status_code} when requesting #{uri}",
-        :refs   => self.references,
-        :exploited_at => injection_info[:requested_at]
+        host: host,
+        port: rport,
+        proto: 'tcp',
+        sname: ssl ? 'https' : 'http',
+        name: self.name,
+        info: "Module #{self.fullname} obtained #{status_code} when requesting #{uri}",
+        refs: self.references,
+        exploited_at: injection_info[:requested_at]
       )
     end
   end

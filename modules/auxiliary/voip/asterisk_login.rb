@@ -92,13 +92,13 @@ class Metasploit3 < Msf::Auxiliary
         if /Response: Success/.match(@result)
           print_good("User: \"#{user}\" using pass: \"#{pass}\" - can login on #{rhost}:#{rport}!")
           report_auth_info(
-            :host   => rhost,
-            :port   => rport,
-            :sname  => 'asterisk_manager',
-            :user   => user,
-            :pass   => pass,
-            :active => true,
-            :update => :unique_data
+            host: rhost,
+            port: rport,
+            sname: 'asterisk_manager',
+            user: user,
+            pass: pass,
+            active: true,
+            update: :unique_data
           )
           disconnect
           return :next_user

@@ -87,13 +87,13 @@ class Metasploit3 < Msf::Auxiliary
       res.each do |row|
         print_status("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
         report_auth_info({
-          :host  => rhost,
-          :port  => rport,
-          :user  => row[0],
-          :pass  => row[2],
-          :type  => "mysql_hash",
-          :sname => "mysql",
-          :active => true
+          host: rhost,
+          port: rport,
+          user: row[0],
+          pass: row[2],
+          type: "mysql_hash",
+          sname: "mysql",
+          active: true
         })
       end
     end

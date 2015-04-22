@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       begin
-        r = do_http_get(uri,:timeout => 0.25)
+        r = do_http_get(uri,timeout: 0.25)
       rescue ::Interrupt
         print_status("Exiting on interrupt: iteration #{cnt} using string length #{len}")
         raise $!

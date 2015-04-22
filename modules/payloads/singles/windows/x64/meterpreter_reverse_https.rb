@@ -38,8 +38,8 @@ module Metasploit4
     # generate a stageless payload using the x64 version of
     # the stageless generator
     opts = {
-      :ssl       => true,
-      :generator => method(:generate_stageless_x64)
+      ssl: true,
+      generator: method(:generate_stageless_x64)
     }
     generate_stageless(opts)
   end

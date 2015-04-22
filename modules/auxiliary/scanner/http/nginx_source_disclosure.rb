@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
         return
       else
         version = res.headers['Server']
-        http_fingerprint({ :response => res })
+        http_fingerprint({ response: res })
       end
 
       if vuln_versions.include?(version)

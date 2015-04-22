@@ -69,13 +69,13 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_good("#{target_url} - Users found: #{@users_found.keys.sort.join(", ")}")
       report_note(
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :sname => (ssl ? 'https' : 'http'),
-      :type => 'users',
-      :vhost => vhost,
-      :data => {:users =>  @users_found.keys.join(", ")}
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: (ssl ? 'https' : 'http'),
+      type: 'users',
+      vhost: vhost,
+      data: {users:  @users_found.keys.join(", ")}
     )
     end
   end
@@ -122,11 +122,11 @@ class Metasploit3 < Msf::Auxiliary
         end
 
         report_auth_info(
-        :host => rhost,
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :port => rport,
-        :proof => "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}")
+        host: rhost,
+        sname: (ssl ? 'https' : 'http'),
+        user: user,
+        port: rport,
+        proof: "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}")
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE

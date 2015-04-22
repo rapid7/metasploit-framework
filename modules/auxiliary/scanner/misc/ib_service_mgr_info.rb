@@ -214,22 +214,22 @@ class Metasploit3 < Msf::Auxiliary
 
       # Add Report
       report_note(
-        :host	=> ip,
-        :sname	=> 'ib',
-        :proto	=> 'tcp',
-        :port	=> rport,
-        :type	=> 'Version of the InterBase server',
-        :data	=> "Version of the InterBase server: #{info_svc_server_version}"
+        host: ip,
+        sname: 'ib',
+        proto: 'tcp',
+        port: rport,
+        type: 'Version of the InterBase server',
+        data: "Version of the InterBase server: #{info_svc_server_version}"
       )
 
       # Add Report
       report_note(
-        :host	=> ip,
-        :sname	=> 'ib',
-        :proto	=> 'tcp',
-        :port	=> rport,
-        :type	=> 'Implementation of the InterBase server',
-        :data	=> "Implementation of the InterBase server: #{info_svc_implementation}"
+        host: ip,
+        sname: 'ib',
+        proto: 'tcp',
+        port: rport,
+        type: 'Implementation of the InterBase server',
+        data: "Implementation of the InterBase server: #{info_svc_implementation}"
       )
 
     rescue ::Rex::ConnectionError

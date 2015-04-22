@@ -68,10 +68,10 @@ class Metasploit3 < Msf::Auxiliary
 
       # TODO: check to see if any of the responses are actually NTP before reporting
       report_service(
-        :host  => k,
-        :proto => 'udp',
-        :port  => rport,
-        :name  => 'ntp'
+        host: k,
+        proto: 'udp',
+        port: rport,
+        name: 'ntp'
       )
 
       peers = @results[k][:peers].flatten(1)
@@ -79,11 +79,11 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{peer} NTP monlist request permitted (#{peers.length} entries)")
         # store the peers found from the monlist
         report_note(
-          :host  => k,
-          :proto => 'udp',
-          :port  => rport,
-          :type  => 'ntp.monlist',
-          :data  => {:monlist => peers}
+          host: k,
+          proto: 'udp',
+          port: rport,
+          type: 'ntp.monlist',
+          data: {monlist: peers}
         )
         # print out peers if desired
         if datastore['SHOW_LIST']
@@ -93,11 +93,11 @@ class Metasploit3 < Msf::Auxiliary
         end
         # store any aliases for our target
         report_note(
-          :host  => k,
-          :proto => 'udp',
-          :port  => rport,
-          :type  => 'ntp.addresses',
-          :data  => {:addresses => peers.map { |p| p.last }.sort.uniq }
+          host: k,
+          proto: 'udp',
+          port: rport,
+          type: 'ntp.addresses',
+          data: {addresses: peers.map { |p| p.last }.sort.uniq }
         )
 
         if (datastore['StoreNTPClients'])
@@ -106,12 +106,12 @@ class Metasploit3 < Msf::Auxiliary
             maddr,mport,mserv = r
             next if maddr == '127.0.0.1' # some NTP servers peer with themselves..., but we can't store loopback
             report_note(
-              :host => maddr,
-              :type => 'ntp.client.history',
-              :data => {
-                :address => maddr,
-                :port    => mport,
-                :server  => mserv
+              host: maddr,
+              type: 'ntp.client.history',
+              data: {
+                address: maddr,
+                port: mport,
+                server: mserv
               }
             )
           end
@@ -123,11 +123,11 @@ class Metasploit3 < Msf::Auxiliary
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
         report_vuln({
-          :host  => k,
-          :port  => rport,
-          :proto => 'udp',
-          :name  => what,
-          :refs  => self.references
+          host: k,
+          port: rport,
+          proto: 'udp',
+          name: what,
+          refs: self.references
         })
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")

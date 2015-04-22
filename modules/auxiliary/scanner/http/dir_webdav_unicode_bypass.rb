@@ -169,13 +169,13 @@ class Metasploit3 < Msf::Auxiliary
             # list in db.rb
 
             report_note(
-              :host	=> ip,
-              :proto => 'tcp',
-              :sname => (ssl ? 'https' : 'http'),
-              :port	=> rport,
-              :type	=> 'UNICODE_WEBDAV_BYPASS',
-              :data	=> "#{tpath}%c0%af#{testfdir} Code: #{res.code}",
-              :update => :unique_data
+              host: ip,
+              proto: 'tcp',
+              sname: (ssl ? 'https' : 'http'),
+              port: rport,
+              type: 'UNICODE_WEBDAV_BYPASS',
+              data: "#{tpath}%c0%af#{testfdir} Code: #{res.code}",
+              update: :unique_data
             )
 
           end

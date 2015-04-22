@@ -142,15 +142,15 @@ class Metasploit3 < Msf::Auxiliary
       if (res and res.code == 200 and res.body.to_s.match(/LoginSuceededPanel/i) != nil)
         print_good("#{target_url} [Ektron CMS400.NET] Successful login: '#{user}' : '#{pass}'")
         report_auth_info(
-          :host         => rhost,
-          :port         => rport,
-          :sname => (ssl ? 'https' : 'http'),
-          :user         => user,
-          :pass         => pass,
-          :proof        => "WEBAPP=\"Ektron CMS400.NET\", VHOST=#{vhost}",
-          :source_type  => "user_supplied",
-          :duplicate_ok => true,
-          :active       => true
+          host: rhost,
+          port: rport,
+          sname: (ssl ? 'https' : 'http'),
+          user: user,
+          pass: pass,
+          proof: "WEBAPP=\"Ektron CMS400.NET\", VHOST=#{vhost}",
+          source_type: "user_supplied",
+          duplicate_ok: true,
+          active: true
         )
 
       elsif(res and res.code == 200)

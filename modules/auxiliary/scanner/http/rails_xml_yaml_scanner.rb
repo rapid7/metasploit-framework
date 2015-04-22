@@ -79,12 +79,12 @@ class Metasploit3 < Msf::Auxiliary
     if (res2.code == res1.code) and (res3.code != res2.code) and (res3.code != 200)
       print_good("#{rhost}:#{rport} is likely vulnerable due to a #{res3.code} reply for invalid YAML")
       report_vuln({
-        :host	=> rhost,
-        :port	=> rport,
-        :proto  => 'tcp',
-        :name	=> self.name,
-        :info	=> "Module triggered a #{res3.code} reply",
-        :refs   => self.references
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: self.name,
+        info: "Module triggered a #{res3.code} reply",
+        refs: self.references
       })
     else
       vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or URIPATH & HTTP_METHOD must be set")

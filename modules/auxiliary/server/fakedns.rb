@@ -255,9 +255,9 @@ class Metasploit3 < Msf::Auxiliary
 
       if(@log_database)
         report_note(
-          :host => addr[3],
-          :type => "dns_lookup",
-          :data => "#{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})"
+          host: addr[3],
+          type: "dns_lookup",
+          data: "#{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})"
         ) if lst.length > 0
       end
 

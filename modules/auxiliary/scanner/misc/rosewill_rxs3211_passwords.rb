@@ -81,11 +81,11 @@ class Metasploit3 < Msf::Auxiliary
     if password
       print_status("Password retrieved: #{password.to_s}")
       report_auth_info({
-        :host         => rhost,
-        :port         => rport,
-        :sname        => 'ipcam',
-        :duplicate_ok => false,
-        :pass         => password,
+        host: rhost,
+        port: rport,
+        sname: 'ipcam',
+        duplicate_ok: false,
+        pass: password,
       })
     end
   end

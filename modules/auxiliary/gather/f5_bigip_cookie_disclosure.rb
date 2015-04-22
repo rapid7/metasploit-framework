@@ -144,9 +144,9 @@ class Metasploit3 < Msf::Auxiliary
     # Reporting found backends in database
     unless back_ends.empty?
       report_note(
-       :host => rhost,
-       :type => "f5_load_balancer_backends",
-       :data => back_ends
+       host: rhost,
+       type: "f5_load_balancer_backends",
+       data: back_ends
       )
     end
 

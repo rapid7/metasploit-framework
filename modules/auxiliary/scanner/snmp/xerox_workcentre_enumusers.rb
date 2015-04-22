@@ -41,13 +41,13 @@ class Metasploit3 < Msf::Auxiliary
 
         @users.each do |user|
           report_note(
-          :host => rhost,
-          :port => datastore['RPORT'],
-          :proto => 'udp',
-          :sname => 'snmp',
-          :update => :unique_data,
-          :type => 'xerox.workcenter.user',
-          :data => user)
+          host: rhost,
+          port: datastore['RPORT'],
+          proto: 'udp',
+          sname: 'snmp',
+          update: :unique_data,
+          type: 'xerox.workcenter.user',
+          data: user)
         end
       end
 

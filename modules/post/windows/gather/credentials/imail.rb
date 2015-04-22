@@ -91,11 +91,11 @@ class Metasploit3 < Msf::Post
 
       current_user =
       {
-        :domain   => domain,
-        :fullname => full_name,
-        :username => username,
-        :email    => mail_addr,
-        :password => password,
+        domain: domain,
+        fullname: full_name,
+        username: username,
+        email: mail_addr,
+        password: password,
       }
 
       users << current_user

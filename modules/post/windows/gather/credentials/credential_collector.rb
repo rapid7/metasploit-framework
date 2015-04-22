@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
 
     # Target infos for the db record
     addr = session.session_host
-    # client.framework.db.report_host(:host => addr, :state => Msf::HostState::Alive)
+    # client.framework.db.report_host(host: addr, state: Msf::HostState::Alive)
 
     # Record hashes to the running db instance
     print_good "Collecting hashes..."

@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
         if banner.start_with? "MAC address"
           print_status("#{ip}:#{rport} TELNET: #{banner}")
           version = banner.match(/Software version [\w\.]+ \(\d+\) \w*$/)[0]
-          report_service(:host => rhost, :port => rport, :name => "telnet", :info => "Lantronix Version: #{version}" )
+          report_service(host: rhost, port: rport, name: "telnet", info: "Lantronix Version: #{version}" )
         end
       end
     rescue ::Rex::ConnectionError

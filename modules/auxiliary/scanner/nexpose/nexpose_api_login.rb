@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => datastore['URI'],
         'method'  => 'GET'
         }, 25)
-      http_fingerprint({ :response => res })
+      http_fingerprint({ response: res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URI']} - #{e.to_s}")
       return
@@ -101,13 +101,13 @@ class Metasploit3 < Msf::Auxiliary
         print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
         report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'nexpose',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
+          host: datastore['RHOST'],
+          port: datastore['RPORT'],
+          sname: 'nexpose',
+          user: user,
+          pass: pass,
+          active: true,
+          type: 'password'}
 
         report_auth_info(report_hash)
         return :next_user

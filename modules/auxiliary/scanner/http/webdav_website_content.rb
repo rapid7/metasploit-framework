@@ -55,12 +55,12 @@ class Metasploit3 < Msf::Auxiliary
           print_status("Found file or directory in WebDAV response (#{target_host}) #{u}")
 
           report_note(
-            :host	=> target_host,
-            :proto => 'tcp',
-            :sname => (ssl ? 'https' : 'http'),
-            :port	=> rport,
-            :type	=> 'WEBDAV_FILE_DIRECTORY',
-            :data	=> u
+            host: target_host,
+            proto: 'tcp',
+            sname: (ssl ? 'https' : 'http'),
+            port: rport,
+            type: 'WEBDAV_FILE_DIRECTORY',
+            data: u
           )
 
         end

@@ -94,11 +94,11 @@ class Metasploit4 < Msf::Auxiliary
     if result
       print_good("#{peer} - Vulnerable to unauthenticated SQL injection within Gallery WD for Joomla!")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
-        :proto => 'tcp',
-        :name  => "Unauthenticated error-based SQL injection in Gallery WD for Joomla!",
-        :refs  => self.references.select { |ref| ref.ctx_val == "36563" }
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: "Unauthenticated error-based SQL injection in Gallery WD for Joomla!",
+        refs: self.references.select { |ref| ref.ctx_val == "36563" }
       })
     end
 

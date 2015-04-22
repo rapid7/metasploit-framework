@@ -441,10 +441,10 @@ class Metasploit3 < Msf::Auxiliary
     this_service = nil
     if framework.db and framework.db.active
       this_service = report_service(
-        :host  => rhost,
-        :port => rport,
-        :name => 'mssql',
-        :proto => 'tcp'
+        host: rhost,
+        port: rport,
+        name: 'mssql',
+        proto: 'tcp'
       )
     end
 

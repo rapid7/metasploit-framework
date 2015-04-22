@@ -42,10 +42,10 @@ class Metasploit3 < Msf::Auxiliary
         report_info = "Platform: #{plat}, Version: #{ver}, Instance: #{inst}, Plain-Authentication: #{pta ? "OK" : "NO"}"
         print_status("#{ip}:#{rport} DB2 - #{report_info}")
         report_service(
-          :host => rhost,
-          :port => rport,
-          :name => "db2",
-          :info => report_info
+          host: rhost,
+          port: rport,
+          name: "db2",
+          info: report_info
         )
       end
       disconnect

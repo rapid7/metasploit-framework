@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
           if not found[reply.arp_saddr_ip]
             print_status(sprintf("  %16s ALIVE",reply.arp_saddr_ip))
             addrs << [reply.arp_saddr_ip, reply.arp_saddr_mac]
-            report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+            report_host(host: reply.arp_saddr_ip, mac:reply.arp_saddr_mac)
             found[reply.arp_saddr_ip] = true
           end
         end
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
           if not found[reply.arp_saddr_ip]
             print_status(sprintf("  %16s ALIVE",reply.arp_saddr_ip))
             addrs << [reply.arp_saddr_ip, reply.arp_saddr_mac]
-            report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+            report_host(host: reply.arp_saddr_ip, mac:reply.arp_saddr_mac)
             found[reply.arp_saddr_ip] = true
           end
         end
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
       ipv4_addr, mac_addr = node
       next unless adv.eth_saddr == mac_addr
       ipv6_addr = adv.ipv6_saddr
-      return {:eth => mac_addr, :ipv4 => ipv4_addr, :ipv6 => ipv6_addr}
+      return {eth: mac_addr, ipv4: ipv4_addr, ipv6: ipv6_addr}
     end
     nil
   end
@@ -137,9 +137,9 @@ class Metasploit3 < Msf::Auxiliary
 
           print_status(sprintf("  %16s maps to %s",addr[:ipv4], addr[:ipv6]))
           report_note(
-            :host   => addr[:ipv4],
-            :type   => 'host.ipv4.ipv6.mapping',
-            :data   => "system with IPv4 address #{addr[:ipv4]} matches to IPv6 address #{addr[:ipv6]}"
+            host: addr[:ipv4],
+            type: 'host.ipv4.ipv6.mapping',
+            data: "system with IPv4 address #{addr[:ipv4]} matches to IPv6 address #{addr[:ipv6]}"
           )	# with this we have the results in our database
 
         end

@@ -100,11 +100,11 @@ class Metasploit3 < Msf::Auxiliary
       else
         print_good("#{ip}: " << out)
         report_note(
-          :host  => ip,
-          :port  => datastore['RPORT'],
-          :proto => 'tcp',
-          :ntype => 'cfversion',
-          :data  => out
+          host: ip,
+          port: datastore['RPORT'],
+          proto: 'tcp',
+          ntype: 'cfversion',
+          data: out
         )
       end
     elsif(res.code.to_i == 403 and datastore['VERBOSE'])

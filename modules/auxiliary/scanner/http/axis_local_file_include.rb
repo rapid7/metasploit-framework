@@ -97,13 +97,13 @@ class Metasploit3 < Msf::Auxiliary
           print_good("#{target_url} - Apache Axis - Credentials Found Username: '#{username}' - Password: '#{password}'")
 
           report_auth_info(
-            :host => rhost,
-            :port => rport,
-            :sname => (ssl ? 'https' : 'http'),
-            :user => username,
-            :pass => password,
-            :proof => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
-            :active => true
+            host: rhost,
+            port: rport,
+            sname: (ssl ? 'https' : 'http'),
+            user: username,
+            pass: password,
+            proof: "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
+            active: true
           )
 
         else

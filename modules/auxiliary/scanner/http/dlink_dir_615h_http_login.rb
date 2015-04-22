@@ -102,13 +102,13 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
 
       report_auth_info(
-        :host   => rhost,
-        :port   => rport,
-        :sname => (ssl ? 'https' : 'http'),
-        :user   => user,
-        :pass   => pass,
-        :proof  => "WEBAPP=\"D-Link Management Interface\", PROOF=#{response.to_s}",
-        :active => true
+        host: rhost,
+        port: rport,
+        sname: (ssl ? 'https' : 'http'),
+        user: user,
+        pass: pass,
+        proof: "WEBAPP=\"D-Link Management Interface\", PROOF=#{response.to_s}",
+        active: true
       )
 
       return :next_user

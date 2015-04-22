@@ -184,9 +184,9 @@ class Metasploit3 < Msf::Post
       #At the end of the loop, store and print results for this da_user
       if not tbl_pids.rows.empty? and session.framework.db.active
         report_note(
-          :host => session.session_host,
-          :type => "pid",
-          :data => tbl_pids.to_csv
+          host: session.session_host,
+          type: "pid",
+          data: tbl_pids.to_csv
         )
       end
     end

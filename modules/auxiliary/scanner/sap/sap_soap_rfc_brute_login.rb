@@ -133,14 +133,14 @@ class Metasploit4 < Msf::Auxiliary
     if res && res.code == 200 && res.body.include?('RFC_PING')
       print_good("#{peer} [SAP] Client #{client}, valid credentials #{username}:#{password}")
       report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => "sap",
-        :proto => "tcp",
-        :user => username,
-        :pass => password,
-        :proof => "SAP Client: #{client}",
-        :active => true
+        host: rhost,
+        port: rport,
+        sname: "sap",
+        proto: "tcp",
+        user: username,
+        pass: password,
+        proof: "SAP Client: #{client}",
+        active: true
       )
       return true
     end

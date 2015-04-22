@@ -114,13 +114,13 @@ class Metasploit3 < Msf::Post
       password = parse_object
 
       @entries << {
-        :site_name => site_name,
-        :site_address => site_address,
-        :login => login,
-        :remote_dir => remote_dir,
-        :local_dir => local_dir,
-        :port => port,
-        :password => password
+        site_name: site_name,
+        site_address: site_address,
+        login: login,
+        remote_dir: remote_dir,
+        local_dir: local_dir,
+        port: port,
+        password: password
       }
     end
 

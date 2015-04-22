@@ -42,7 +42,7 @@ module Metasploit3
   def generate
     buf = "#{php_preamble}"
     buf += "$c = base64_decode('#{Rex::Text.encode_base64(command_string)}');"
-    buf += "#{php_system_block({:cmd_varname=>"$c"})}"
+    buf += "#{php_system_block({cmd_varname:"$c"})}"
     return super + buf
 
   end

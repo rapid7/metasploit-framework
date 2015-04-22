@@ -141,12 +141,12 @@ class Metasploit3 < Msf::Auxiliary
   # Save data to vuln table
   def store_vuln(ip, blog)
     report_vuln(
-      :host		=> ip,
-      :proto		=> 'tcp',
-      :port		=> datastore['RPORT'],
-      :name		=> self.name,
-      :info		=> "Module #{self.fullname} found pingback at #{blog}",
-      :sname		=> datastore['SSL'] ? "https" : "http"
+      host: ip,
+      proto: 'tcp',
+      port: datastore['RPORT'],
+      name: self.name,
+      info: "Module #{self.fullname} found pingback at #{blog}",
+      sname: datastore['SSL'] ? "https" : "http"
     )
   end
 

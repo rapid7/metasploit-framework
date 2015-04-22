@@ -47,11 +47,11 @@ class Metasploit3 < Msf::Auxiliary
       ver = "#{vnc.majver}.#{vnc.minver}"
       print_status("#{target_host}:#{rport}, VNC server protocol version : #{ver}")
       svc = report_service(
-        :host => rhost,
-        :port => rport,
-        :proto => 'tcp',
-        :name => 'vnc',
-        :info => "VNC protocol version #{ver}"
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: 'vnc',
+        info: "VNC protocol version #{ver}"
       )
 
       type = vnc.negotiate_authentication
@@ -70,12 +70,12 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{target_host}:#{rport}, VNC server security types includes None, free access!")
         report_vuln(
           {
-            :host         => rhost,
-            :service      => svc,
-            :name         => self.name,
-            :info         => "Module #{self.fullname} identified the VNC 'none' security type: #{sec_type.join(", ")}",
-            :refs         => self.references,
-            :exploited_at => Time.now.utc
+            host: rhost,
+            service: svc,
+            name: self.name,
+            info: "Module #{self.fullname} identified the VNC 'none' security type: #{sec_type.join(", ")}",
+            refs: self.references,
+            exploited_at: Time.now.utc
           })
       end
 

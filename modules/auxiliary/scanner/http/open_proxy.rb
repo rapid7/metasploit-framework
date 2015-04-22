@@ -205,13 +205,13 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{target_host}:#{target_port} is a potentially OPEN proxy [#{retcode}] (#{retvia})")
 
       report_note(
-        :host   => target_host,
-        :port   => target_port,
-        :method => 'GET',
-        :proto => 'tcp',
-        :sname => (ssl ? 'https' : 'http'),
-        :type  	=> 'OPEN PROXY',
-        :data   => 'Open proxy'
+        host: target_host,
+        port: target_port,
+        method: 'GET',
+        proto: 'tcp',
+        sname: (ssl ? 'https' : 'http'),
+        type: 'OPEN PROXY',
+        data: 'Open proxy'
       )
 
       if (datastore['VERIFY_CONNECT'])
@@ -222,9 +222,9 @@ class Metasploit3 < Msf::Auxiliary
           print_status("#{target_host}:#{target_port} CONNECT method successfully tested")
 
           report_note(
-            :host   => target_host,
-            :port   => target_port,
-            :method => 'CONNECT'
+            host: target_host,
+            port: target_port,
+            method: 'CONNECT'
           )
         end
       end
@@ -237,9 +237,9 @@ class Metasploit3 < Msf::Auxiliary
           print_status("#{target_host}:#{target_port} HEAD method successfully tested")
 
           report_note(
-            :host   => target_host,
-            :port   => target_port,
-            :method => 'HEAD'
+            host: target_host,
+            port: target_port,
+            method: 'HEAD'
           )
         end
       end

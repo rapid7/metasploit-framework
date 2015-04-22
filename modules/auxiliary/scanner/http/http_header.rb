@@ -77,10 +77,10 @@ class Metasploit3 < Msf::Auxiliary
       print_status "#{peer}: #{header_string}"
 
       report_note(
-        :type => "http.header.#{rport}.#{counter}",
-        :data => header_string,
-        :host => ip,
-        :port => rport
+        type: "http.header.#{rport}.#{counter}",
+        data: header_string,
+        host: ip,
+        port: rport
       )
       counter = counter + 1
     end

@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       r.each do |res|
-        report_service(:host => res[0], :port => res[1], :state => res[2])
+        report_service(host: res[0], port: res[1], state: res[2])
       end
     end
   end

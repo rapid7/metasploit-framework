@@ -65,19 +65,19 @@ class Metasploit3 < Msf::Auxiliary
     message << "(server_fqdn:#{result[:dns_server]})"
     print_good(message)
     report_note(
-      :host  => rhost,
-      :port  => rport,
-      :proto => 'tcp',
-      :sname => (ssl ? 'https' : 'http'),
-      :ntype => 'ntlm.enumeration.info',
-      :data  => {
-        :uri        => path,
-        :SMBName    => result[:nb_name],
-        :SMBDomain  => result[:nb_domain],
-        :FQDNDomain => result[:dns_domain],
-        :FQDNName   => result[:dns_server]
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: (ssl ? 'https' : 'http'),
+      ntype: 'ntlm.enumeration.info',
+      data: {
+        uri: path,
+        SMBName: result[:nb_name],
+        SMBDomain: result[:nb_domain],
+        FQDNDomain: result[:dns_domain],
+        FQDNName: result[:dns_server]
       },
-      :update => :unique_data
+      update: :unique_data
     )
   end
 
@@ -119,10 +119,10 @@ class Metasploit3 < Msf::Auxiliary
       dns_server = parse_ntlm_info(target, "\x03\x00", dns_domain[:new_offset])
 
       return {
-        :nb_name    => nb_name[:message],
-        :nb_domain  => nb_domain[:message],
-        :dns_domain => dns_domain[:message],
-        :dns_server => dns_server[:message]
+        nb_name: nb_name[:message],
+        nb_domain: nb_domain[:message],
+        dns_domain: dns_domain[:message],
+        dns_server: dns_server[:message]
       }
     end
   end
@@ -132,8 +132,8 @@ class Metasploit3 < Msf::Auxiliary
     offset = name_index.to_i
     size = message[offset+2].unpack('C').first
     return {
-      :message=>message[offset+3,size].gsub(/\0/,''),
-      :new_offset => offset + size
+      message:message[offset+3,size].gsub(/\0/,''),
+      new_offset: offset + size
     }
   end
 

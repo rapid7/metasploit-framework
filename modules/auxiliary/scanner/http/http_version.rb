@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect
       res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
-      fp = http_fingerprint(:response => res)
+      fp = http_fingerprint(response: res)
       print_status("#{ip}:#{rport} #{fp}") if fp
     rescue ::Timeout::Error, ::Errno::EPIPE
     ensure

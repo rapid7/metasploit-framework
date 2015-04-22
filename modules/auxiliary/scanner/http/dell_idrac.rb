@@ -70,15 +70,15 @@ class Metasploit3 < Msf::Auxiliary
     if(auth and auth.body.to_s.match(/<authResult>[0|5]<\/authResult>/) != nil )
       print_good("#{target_url} - SUCCESSFUL login for user '#{user}' with password '#{pass}'")
       report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :proto => 'tcp',
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :pass => pass,
-        :active => true,
-        :source_type => "user_supplied",
-        :duplicate_ok => true
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: (ssl ? 'https' : 'http'),
+        user: user,
+        pass: pass,
+        active: true,
+        source_type: "user_supplied",
+        duplicate_ok: true
       )
     else
       print_error("#{target_url} - Dell iDRAC - Failed to login as '#{user}' with password '#{pass}'")

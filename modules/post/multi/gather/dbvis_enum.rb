@@ -197,7 +197,7 @@ class Metasploit3 < Msf::Post
     dbs.each do |db|
       if ::Rex::Socket.is_ipv4?(db[:Server].to_s)
         print_good("Reporting #{db[:Server]} ")
-        report_host(:host =>  db[:Server]);
+        report_host(host:  db[:Server]);
       end
 
       db_table << [ db[:Alias] , db[:Type] , db[:Server], db[:Port], db[:Database], db[:Namespace], db[:Userid]]
@@ -269,7 +269,7 @@ class Metasploit3 < Msf::Post
       if (db[:Url] =~ /[\S+\s+]+[\/]+([\S+\s+]+):[\S+]+/i)
         if ::Rex::Socket.is_ipv4?($1.to_s)
           print_good("Reporting #{$1}")
-          report_host(:host => $1.to_s)
+          report_host(host: $1.to_s)
         end
       end
       db_table << [ db[:Alias] , db[:Type] , db[:Url], db[:Userid] ]

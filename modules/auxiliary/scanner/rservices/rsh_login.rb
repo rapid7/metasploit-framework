@@ -153,10 +153,10 @@ class Metasploit3 < Msf::Auxiliary
     # NOTE: We report this here, since we are awfully convinced now that this is really
     # an rsh service.
     report_service(
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :name => 'shell'
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: 'shell'
     )
 
     # Read the expected nul byte response.
@@ -223,14 +223,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def start_rsh_session(host, port, user, luser, proof, stderr_sock)
     report_auth_info(
-      :host	=> host,
-      :port	=> port,
-      :sname => 'shell',
-      :user	=> user,
-      :luser => luser,
-      :proof  => proof,
-      :source_type => "user_supplied",
-      :active => true
+      host: host,
+      port: port,
+      sname: 'shell',
+      user: user,
+      luser: luser,
+      proof: proof,
+      source_type: "user_supplied",
+      active: true
     )
 
     merge_me = {
@@ -239,7 +239,7 @@ class Metasploit3 < Msf::Auxiliary
       'USERNAME'      => user,
       'FROMUSER'      => user,
       # Save a reference to the socket so we don't GC prematurely
-      :stderr_sock    => stderr_sock
+      stderr_sock: stderr_sock
     }
 
     # Don't tie the life of this socket to the exploit

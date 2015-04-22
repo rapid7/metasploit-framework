@@ -78,10 +78,10 @@ class Metasploit3 < Msf::Auxiliary
       logon_server,idx	= parse_value(resp, idx)
 
       accounts << {
-        :account_name => account_name,
-        :logon_domain => logon_domain,
-        :other_domains => other_domains,
-        :logon_server => logon_server
+        account_name: account_name,
+        logon_domain: logon_domain,
+        other_domains: other_domains,
+        logon_server: logon_server
       }
     end
 

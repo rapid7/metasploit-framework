@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
       # XXX: currently, you can only report_auth_info on an IP or a valid Host.  in our case,
       # host[:host] is *not* a Host.  Fix this some day.
       if (Rex::Socket.dotted_ip?(cred[:host]))
-        report_auth_info({ :port => 445, :sname => 'smb', :type => 'password', :active => true }.merge(cred))
+        report_auth_info({ port: 445, sname: 'smb', type: 'password', active: true }.merge(cred))
       end
       cred_table << [ cred[:user], cred[:pass], cred[:host], cred[:file] ]
     end

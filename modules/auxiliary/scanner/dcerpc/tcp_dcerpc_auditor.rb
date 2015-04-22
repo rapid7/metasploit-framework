@@ -284,11 +284,11 @@ class Metasploit3 < Msf::Auxiliary
 
           ## Add Report
           report_note(
-            :host   => ip,
-            :proto  => 'tcp',
-            :port   => datastore['RPORT'],
-            :type   => "DCERPC Service: UUID #{uuid[0]} #{uuid[1]}",
-            :data   => data_report
+            host: ip,
+            proto: 'tcp',
+            port: datastore['RPORT'],
+            type: "DCERPC Service: UUID #{uuid[0]} #{uuid[1]}",
+            data: data_report
           )
 
         rescue ::Interrupt

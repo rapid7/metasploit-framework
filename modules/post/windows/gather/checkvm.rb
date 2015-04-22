@@ -68,10 +68,10 @@ class Metasploit3 < Msf::Post
     end
     if vm
       report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "MS Hyper-V" },
-        :update => :unique_data
+        host: session,
+        type: 'host.hypervisor',
+        data: { hypervisor: "MS Hyper-V" },
+        update: :unique_data
         )
       print_status("This is a Hyper-V Virtual Machine")
       return "MS Hyper-V"
@@ -118,10 +118,10 @@ class Metasploit3 < Msf::Post
 
     if vm
       report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "VMware" },
-        :update => :unique_data
+        host: session,
+        type: 'host.hypervisor',
+        data: { hypervisor: "VMware" },
+        update: :unique_data
         )
       print_status("This is a VMware Virtual Machine")
       return "VMWare"
@@ -154,10 +154,10 @@ class Metasploit3 < Msf::Post
     end
     if vm
       report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "VirtualPC" },
-        :update => :unique_data
+        host: session,
+        type: 'host.hypervisor',
+        data: { hypervisor: "VirtualPC" },
+        update: :unique_data
         )
       print_status("This is a VirtualPC Virtual Machine")
       return "VirtualPC"
@@ -221,10 +221,10 @@ class Metasploit3 < Msf::Post
     end
     if vm
       report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "VirtualBox" },
-        :update => :unique_data
+        host: session,
+        type: 'host.hypervisor',
+        data: { hypervisor: "VirtualBox" },
+        update: :unique_data
         )
       print_status("This is a Sun VirtualBox Virtual Machine")
       return "VirtualBox"
@@ -278,10 +278,10 @@ class Metasploit3 < Msf::Post
     end
     if vm
       report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "Xen" },
-        :update => :unique_data
+        host: session,
+        type: 'host.hypervisor',
+        data: { hypervisor: "Xen" },
+        update: :unique_data
         )
       print_status("This is a Xen Virtual Machine")
       return "Xen"
@@ -307,10 +307,10 @@ class Metasploit3 < Msf::Post
 
     if vm
       report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "Qemu/KVM" },
-        :update => :unique_data
+        host: session,
+        type: 'host.hypervisor',
+        data: { hypervisor: "Qemu/KVM" },
+        update: :unique_data
         )
       return "Qemu/KVM"
     end

@@ -142,11 +142,11 @@ class Metasploit3 < Msf::Auxiliary
   #
   def backupexec_regwrite(hive, subkey, subval, type, data)
     stub = backupexec_regrpc_write(
-      :hive => registry_hive_lookup(hive),
-      :subkey => subkey,
-      :subval => subval,
-      :type => type,
-      :data => data
+      hive: registry_hive_lookup(hive),
+      subkey: subkey,
+      subval: subval,
+      type: type,
+      data: data
     )
     resp = backupexec_regrpc_call(5, stub)
     return false if resp.length == 0
@@ -158,10 +158,10 @@ class Metasploit3 < Msf::Auxiliary
   #
   def backupexec_regread(hive, subkey, subval, type = REG_SZ)
     stub = backupexec_regrpc_read(
-      :hive => registry_hive_lookup(hive),
-      :subkey => subkey,
-      :subval => subval,
-      :type => type
+      hive: registry_hive_lookup(hive),
+      subkey: subkey,
+      subval: subval,
+      type: type
     )
     resp = backupexec_regrpc_call(4, stub)
 
@@ -177,8 +177,8 @@ class Metasploit3 < Msf::Auxiliary
   #
   def backupexec_regenum(hive, subkey)
     stub = backupexec_regrpc_enum(
-      :hive => registry_hive_lookup(hive),
-      :subkey => subkey
+      hive: registry_hive_lookup(hive),
+      subkey: subkey
     )
     resp = backupexec_regrpc_call(7, stub)
     p resp

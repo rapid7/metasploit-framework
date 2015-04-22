@@ -51,11 +51,11 @@ class Metasploit4 < Msf::Auxiliary
     if name && ssid
       print_good(%Q{#{peer} - Chromecast "#{name}" is connected to #{ssid}})
       report_service(
-        :host => ip,
-        :port => rport,
-        :proto => 'tcp',
-        :name => 'http',
-        :info => %Q{Chromecast "#{name}" connected to #{ssid}}
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        name: 'http',
+        info: %Q{Chromecast "#{name}" connected to #{ssid}}
       )
     end
   end

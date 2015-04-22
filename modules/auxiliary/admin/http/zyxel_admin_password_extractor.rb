@@ -63,12 +63,12 @@ class Metasploit3 < Msf::Auxiliary
       admin_password = admin_password_matches[1];
       print_good("Password for user 'admin' is: #{admin_password}")
       report_auth_info(
-          :host   => rhost,
-          :port   => rport,
-          :sname  => "ZyXEL GS1510-16",
-          :user   => 'admin',
-          :pass   => admin_password,
-          :active => true
+          host: rhost,
+          port: rport,
+          sname: "ZyXEL GS1510-16",
+          user: 'admin',
+          pass: admin_password,
+          active: true
       )
     end
   rescue ::Rex::ConnectionError

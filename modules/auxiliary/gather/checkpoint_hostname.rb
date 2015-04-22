@@ -78,18 +78,18 @@ class Metasploit3 < Msf::Auxiliary
   def report_info(fw_hostname,sc_hostname)
     return unless fw_hostname
     host_info = {
-      :host => datastore['RHOST'],
-      :os_name => "Checkpoint Firewall-1",
-      :purpose => "firewall"
+      host: datastore['RHOST'],
+      os_name: "Checkpoint Firewall-1",
+      purpose: "firewall"
     }
     host_info[:name] = fw_hostname
     host_info[:info] = "SmartCenter Host: #{sc_hostname}" if sc_hostname
     report_host(host_info)
     svc_info = {
-      :host => datastore['RHOST'],
-      :port => datastore['RPORT'],
-      :proto => "tcp",
-      :name => "securemote"
+      host: datastore['RHOST'],
+      port: datastore['RPORT'],
+      proto: "tcp",
+      name: "securemote"
     }
     report_service(svc_info)
   end

@@ -82,13 +82,13 @@ class Metasploit3 < Msf::Auxiliary
       if @result =~ /SERVER <|>.*<|> SERVER/is
         print_good("#{msg} SUCCESSFUL login for '#{user}' : '#{pass}'")
         report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => 'openvas-otp',
-          :user => user,
-          :pass => pass,
-          :source_type => "user_supplied",
-          :active => true
+          host: rhost,
+          port: rport,
+          sname: 'openvas-otp',
+          user: user,
+          pass: pass,
+          source_type: "user_supplied",
+          active: true
         )
         disconnect
         @connected = false

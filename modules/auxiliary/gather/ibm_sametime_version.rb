@@ -252,11 +252,11 @@ class Metasploit3 < Msf::Auxiliary
 
     # report_note
     report_note(
-      :host  => rhost,
-      :port  => rport,
-      :proto => 'http',
-      :ntype => 'ibm_lotus_sametime_version',
-      :data  => @version_info['version']['sametimeVersion']
+      host: rhost,
+      port: rport,
+      proto: 'http',
+      ntype: 'ibm_lotus_sametime_version',
+      data: @version_info['version']['sametimeVersion']
     ) if @version_info['version']['sametimeVersion']
   end
 

@@ -62,12 +62,12 @@ class Metasploit4 < Msf::Auxiliary
   def report_note_sap(type, data, value)
     # create note
     report_note(
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :sname => 'sap',
-      :type => type,
-      :data => data + value
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: 'sap',
+      type: type,
+      data: data + value
     ) if data
     # update saptbl for output
     @saptbl << [ data, value ]

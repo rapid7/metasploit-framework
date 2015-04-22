@@ -211,19 +211,19 @@ class Metasploit3 < Msf::Auxiliary
 
     if nt_len == 24
       arg = {
-        :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
-        :lm_hash => pkt['Payload'].v['Payload'][0, lm_len].unpack("H*")[0],
-        :nt_hash => pkt['Payload'].v['Payload'][lm_len, nt_len].unpack("H*")[0]
+        ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE,
+        lm_hash: pkt['Payload'].v['Payload'][0, lm_len].unpack("H*")[0],
+        nt_hash: pkt['Payload'].v['Payload'][lm_len, nt_len].unpack("H*")[0]
       }
       # if the length of the ntlm response is not 24 then it will be bigger
       # and represent an NTLMv2 response
     elsif nt_len > 24
       arg = {
-        :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
-        :lm_hash => pkt['Payload'].v['Payload'][0, 16].unpack("H*")[0],
-        :lm_cli_challenge => pkt['Payload'].v['Payload'][16, 8].unpack("H*")[0],
-        :nt_hash => pkt['Payload'].v['Payload'][lm_len, 16].unpack("H*")[0],
-        :nt_cli_challenge => pkt['Payload'].v['Payload'][lm_len + 16, nt_len - 16].unpack("H*")[0]
+        ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE,
+        lm_hash: pkt['Payload'].v['Payload'][0, 16].unpack("H*")[0],
+        lm_cli_challenge: pkt['Payload'].v['Payload'][16, 8].unpack("H*")[0],
+        nt_hash: pkt['Payload'].v['Payload'][lm_len, 16].unpack("H*")[0],
+        nt_cli_challenge: pkt['Payload'].v['Payload'][lm_len + 16, nt_len - 16].unpack("H*")[0]
       }
     elsif nt_len == 0
       print_status("SMB Capture - Empty hash captured from #{smb[:name]} - #{smb[:ip]} captured, ignoring ... ")
@@ -349,9 +349,9 @@ class Metasploit3 < Msf::Auxiliary
 
       if nt_len == 24 # lmv1/ntlmv1 or ntlm2_session
         arg = {
-          :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
-          :lm_hash => ntlm_message.lm_response.unpack('H*')[0],
-          :nt_hash => ntlm_message.ntlm_response.unpack('H*')[0]
+          ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE,
+          lm_hash: ntlm_message.lm_response.unpack('H*')[0],
+          nt_hash: ntlm_message.ntlm_response.unpack('H*')[0]
         }
 
         if @s_ntlm_esn && arg[:lm_hash][16,32] == '0' * 32
@@ -361,11 +361,11 @@ class Metasploit3 < Msf::Auxiliary
         # bigger and represent an NTLMv2 response
       elsif nt_len > 24 # lmv2/ntlmv2
         arg = {
-          :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
-          :lm_hash => ntlm_message.lm_response[0, 16].unpack('H*')[0],
-          :lm_cli_challenge => ntlm_message.lm_response[16, 8].unpack('H*')[0],
-          :nt_hash => ntlm_message.ntlm_response[0, 16].unpack('H*')[0],
-          :nt_cli_challenge => ntlm_message.ntlm_response[16, nt_len - 16].unpack('H*')[0]
+          ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE,
+          lm_hash: ntlm_message.lm_response[0, 16].unpack('H*')[0],
+          lm_cli_challenge: ntlm_message.lm_response[16, 8].unpack('H*')[0],
+          nt_hash: ntlm_message.ntlm_response[0, 16].unpack('H*')[0],
+          nt_cli_challenge: ntlm_message.ntlm_response[16, nt_len - 16].unpack('H*')[0]
         }
       elsif nt_len == 0
         print_status("SMB Capture - Empty hash from #{smb[:name]} - #{smb[:ip]} captured, ignoring ... ")
@@ -425,10 +425,10 @@ class Metasploit3 < Msf::Auxiliary
     when NTLM_CONST::NTLM_V1_RESPONSE
       if NTLM_CRYPT::is_hash_from_empty_pwd?(
         {
-          :hash => [nt_hash].pack("H*"),
-          :srv_challenge => @challenge,
-          :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
-          :type => 'ntlm'
+          hash: [nt_hash].pack("H*"),
+          srv_challenge: @challenge,
+          ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE,
+          type: 'ntlm'
         }
       )
         print_status("SMB Capture - NLMv1 Hash correspond to an empty password, ignoring ... #{smb[:ip]}")
@@ -438,10 +438,10 @@ class Metasploit3 < Msf::Auxiliary
         lm_hash_message = "Disabled"
       elsif NTLM_CRYPT::is_hash_from_empty_pwd?(
         {
-          :hash => [lm_hash].pack("H*"),
-          :srv_challenge => @challenge,
-          :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
-          :type => 'lm'
+          hash: [lm_hash].pack("H*"),
+          srv_challenge: @challenge,
+          ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE,
+          type: 'lm'
         }
       )
         lm_hash_message = "Disabled (from empty password)"
@@ -452,13 +452,13 @@ class Metasploit3 < Msf::Auxiliary
     when NTLM_CONST::NTLM_V2_RESPONSE
       if NTLM_CRYPT::is_hash_from_empty_pwd?(
         {
-          :hash => [nt_hash].pack("H*"),
-          :srv_challenge => @challenge,
-          :cli_challenge => [nt_cli_challenge].pack("H*"),
-          :user => Rex::Text::to_ascii(smb[:username]),
-          :domain => Rex::Text::to_ascii(smb[:domain]),
-          :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
-          :type => 'ntlm'
+          hash: [nt_hash].pack("H*"),
+          srv_challenge: @challenge,
+          cli_challenge: [nt_cli_challenge].pack("H*"),
+          user: Rex::Text::to_ascii(smb[:username]),
+          domain: Rex::Text::to_ascii(smb[:domain]),
+          ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE,
+          type: 'ntlm'
         }
       )
         print_status("SMB Capture - NTLMv2 Hash correspond to an empty password, ignoring ... #{smb[:ip]}")
@@ -470,13 +470,13 @@ class Metasploit3 < Msf::Auxiliary
         lm_chall_message = 'Disabled'
       elsif NTLM_CRYPT::is_hash_from_empty_pwd?(
         {
-          :hash => [lm_hash].pack("H*"),
-          :srv_challenge => @challenge,
-          :cli_challenge => [lm_cli_challenge].pack("H*"),
-          :user => Rex::Text::to_ascii(smb[:username]),
-          :domain => Rex::Text::to_ascii(smb[:domain]),
-          :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
-          :type => 'lm'
+          hash: [lm_hash].pack("H*"),
+          srv_challenge: @challenge,
+          cli_challenge: [lm_cli_challenge].pack("H*"),
+          user: Rex::Text::to_ascii(smb[:username]),
+          domain: Rex::Text::to_ascii(smb[:domain]),
+          ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE,
+          type: 'lm'
         }
       )
         lm_hash_message = "Disabled (from empty password)"
@@ -489,11 +489,11 @@ class Metasploit3 < Msf::Auxiliary
     when NTLM_CONST::NTLM_2_SESSION_RESPONSE
       if NTLM_CRYPT::is_hash_from_empty_pwd?(
         {
-          :hash => [nt_hash].pack("H*"),
-          :srv_challenge => @challenge,
-          :cli_challenge => [lm_hash].pack("H*")[0,8],
-          :ntlm_ver => NTLM_CONST::NTLM_2_SESSION_RESPONSE,
-          :type => 'ntlm'
+          hash: [nt_hash].pack("H*"),
+          srv_challenge: @challenge,
+          cli_challenge: [lm_hash].pack("H*")[0,8],
+          ntlm_ver: NTLM_CONST::NTLM_2_SESSION_RESPONSE,
+          type: 'ntlm'
         }
       )
         print_status("SMB Capture - NTLM2_session Hash correspond to an empty password, ignoring ... #{smb[:ip]}")
@@ -547,21 +547,21 @@ class Metasploit3 < Msf::Auxiliary
     print_status(capturelogmessage)
 
     report_note(
-      :host  => smb[:ip],
-      :type  => "smb_peer_os",
-      :data  => smb[:peer_os]
+      host: smb[:ip],
+      type: "smb_peer_os",
+      data: smb[:peer_os]
     ) if (smb[:peer_os] and smb[:peer_os].strip.length > 0)
 
     report_note(
-      :host  => smb[:ip],
-      :type  => "smb_peer_lm",
-      :data  => smb[:peer_lm]
+      host: smb[:ip],
+      type: "smb_peer_lm",
+      data: smb[:peer_lm]
     ) if (smb[:peer_lm] and smb[:peer_lm].strip.length > 0)
 
     report_note(
-      :host  => smb[:ip],
-      :type  => "smb_domain",
-      :data  => smb[:domain]
+      host: smb[:ip],
+      type: "smb_domain",
+      data: smb[:domain]
     ) if (smb[:domain] and smb[:domain].strip.length > 0)
 
     return unless smb[:username]

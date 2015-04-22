@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_client_connect(c)
-    @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
+    @state[c] = {name: "#{c.peerhost}:#{c.peerport}", ip: c.peerhost, port: c.peerport, user: nil, pass: nil}
     c.put "+OK\r\n"
   end
 
@@ -72,13 +72,13 @@ class Metasploit3 < Msf::Auxiliary
       @state[c][:pass] = arg
 
       report_auth_info(
-        :host      => @state[c][:ip],
-        :port      => @myport,
-        :sname     => 'pop3',
-        :user      => @state[c][:user],
-        :pass      => @state[c][:pass],
-        :source_type => "captured",
-        :active    => true
+        host: @state[c][:ip],
+        port: @myport,
+        sname: 'pop3',
+        user: @state[c][:user],
+        pass: @state[c][:pass],
+        source_type: "captured",
+        active: true
       )
       print_status("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
       @state[c][:pass] = data.strip

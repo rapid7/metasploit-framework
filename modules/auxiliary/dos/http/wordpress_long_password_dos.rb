@@ -73,11 +73,11 @@ class Metasploit3 < Msf::Auxiliary
     if exists
       print_good("#{peer} - Username \"#{username}\" is valid")
       report_auth_info(
-        :host => rhost,
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :port => rport,
-        :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
+        host: rhost,
+        sname: (ssl ? 'https' : 'http'),
+        user: user,
+        port: rport,
+        proof: "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
       )
 
       return true

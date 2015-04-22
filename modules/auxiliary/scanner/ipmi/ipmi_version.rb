@@ -65,11 +65,11 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{shost}:#{rport} - IPMI - #{banner}")
 
     report_service(
-      :host  => shost,
-      :port  => rport,
-      :proto => 'udp',
-      :name  => 'ipmi',
-      :info  => banner
+      host: shost,
+      port: rport,
+      proto: 'udp',
+      name: 'ipmi',
+      info: banner
     )
 
     # Potential improvements:

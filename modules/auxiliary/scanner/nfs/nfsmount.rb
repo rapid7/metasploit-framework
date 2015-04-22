@@ -48,11 +48,11 @@ class Metasploit3 < Msf::Auxiliary
       # Technically we are talking to mountd not nfsd
 
       report_service(
-        :host  => ip,
-        :proto => datastore['PROTOCOL'],
-        :port  => 2049,
-        :name  => 'nfsd',
-        :info  => "NFS Daemon #{program} v#{progver}"
+        host: ip,
+        proto: datastore['PROTOCOL'],
+        port: 2049,
+        name: 'nfsd',
+        info: "NFS Daemon #{program} v#{progver}"
       )
 
       exports = resp[3,1].unpack('C')[0]
@@ -68,12 +68,12 @@ class Metasploit3 < Msf::Auxiliary
           shares << [dir, grp]
         end
         report_note(
-          :host => ip,
-          :proto => datastore['PROTOCOL'],
-          :port => 2049,
-          :type => 'nfs.exports',
-          :data => { :exports => shares },
-          :update => :unique_data
+          host: ip,
+          proto: datastore['PROTOCOL'],
+          port: 2049,
+          type: 'nfs.exports',
+          data: { exports: shares },
+          update: :unique_data
         )
       elsif(exports == 0x00)
         vprint_status("#{ip} - No exported directories")

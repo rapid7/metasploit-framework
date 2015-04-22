@@ -107,11 +107,11 @@ class Metasploit4 < Msf::Auxiliary
 
       # store username to loot
       report_note({
-        :host => rhost,
-        :port => rport,
-        :proto => 'tcp',
-        :type => "concrete5 CMS members",
-        :data => {:proto => "http", :users => users.join(",")}
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        type: "concrete5 CMS members",
+        data: {proto: "http", users: users.join(",")}
       })
 
     else

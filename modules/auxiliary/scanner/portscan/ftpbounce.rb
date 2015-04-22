@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 
         if resp =~ /^[12]/
           print_status(" TCP OPEN #{ip}:#{port}")
-          report_service(:host => ip, :port => port)
+          report_service(host: ip, port: port)
         end
       rescue ::Exception
         print_error("Unknown error: #{$!}")

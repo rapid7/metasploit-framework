@@ -82,10 +82,10 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("#{peer} - Name #{name} (#{remote_reference[:object]}) found on #{remote_reference[:address]}:#{remote_reference[:port]}")
       report_service(
-        :host => remote_reference[:address],
-        :port => remote_reference[:port],
-        :name => 'java-rmi',
-        :info => "Name: #{name}, Stub: #{remote_reference[:object]}"
+        host: remote_reference[:address],
+        port: remote_reference[:port],
+        name: 'java-rmi',
+        info: "Name: #{name}, Stub: #{remote_reference[:object]}"
       )
     end
   end

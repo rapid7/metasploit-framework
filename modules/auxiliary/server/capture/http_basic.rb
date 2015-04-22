@@ -64,13 +64,13 @@ class Metasploit3 < Msf::Auxiliary
       user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
 
       report_auth_info(
-        :host        => cli.peerhost,
-        :port        => datastore['SRVPORT'],
-        :sname       => 'HTTP',
-        :user        => user,
-        :pass        => pass,
-        :source_type => "captured",
-        :active      => true
+        host: cli.peerhost,
+        port: datastore['SRVPORT'],
+        sname: 'HTTP',
+        user: user,
+        pass: pass,
+        source_type: "captured",
+        active: true
       )
 
       print_good("#{cli.peerhost} - Credential collected: \"#{user}:#{pass}\" => #{req.resource}")
