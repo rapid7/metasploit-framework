@@ -7,7 +7,7 @@ module Msf
   class Plugin::Nessus < Msf::Plugin
 
     def name
-      'Nessus'
+      "Nessus"
     end
 
     def desc
