@@ -64,7 +64,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       end
 
       # Only report loot if we actually have it.
-      # TODO: Copypasta. Seperate this out.
+      # TODO: Copypasta. Separate this out.
       if ::File.exists? loot_info[:orig_path]
         loot_dir = ::File.join(basedir,"loot")
         loot_file = ::File.split(loot_info[:orig_path]).last
@@ -114,7 +114,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       task_info[:orig_path].gsub!(/^\./,tmp) if task_info[:orig_path]
 
       # Only report a task if we actually have it.
-      # TODO: Copypasta. Seperate this out.
+      # TODO: Copypasta. Separate this out.
       if ::File.exists? task_info[:orig_path]
         tasks_dir = ::File.join(basedir,"tasks")
         task_file = ::File.split(task_info[:orig_path]).last
@@ -168,7 +168,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     # Grab the list of unique basedirs over all entries.
     @import_filedata[:zip_tmp_subdirs] = @import_filedata[:zip_entry_names].map {|x| ::File.split(x)}.map {|x| x[0]}.uniq.reject {|x| x == "."}
 
-    # mkdir all of the base directores we just pulled out, if they don't
+    # mkdir all of the base directories we just pulled out, if they don't
     # already exist
     @import_filedata[:zip_tmp_subdirs].each {|sub|
       tmp_subdirs = ::File.join(@import_filedata[:zip_tmp],sub)

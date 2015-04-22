@@ -9,7 +9,7 @@ require 'msf/core/payload/windows/stageless_meterpreter'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
 
-module Metasploit3
+module Metasploit4
 
   CachedSize = :dynamic
 
@@ -37,7 +37,7 @@ module Metasploit3
   def generate
     # blank LHOST indicates bind payload
     url = "tcp://:#{datastore['LPORT']}"
-    generate_stageless_meterpreter(url)
+    generate_stageless_x86(url)
   end
 
 end

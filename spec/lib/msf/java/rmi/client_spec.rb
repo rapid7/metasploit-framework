@@ -5,17 +5,6 @@ require 'rex/java/serialization'
 require 'rex/proto/rmi'
 require 'msf/java/rmi/client'
 
-class RmiStringIO < StringIO
-
-  def put(data)
-    write(data)
-  end
-
-  def get_once(length = -1, timeout = 10)
-    read
-  end
-end
-
 describe Msf::Java::Rmi::Client do
   subject(:mod) do
     mod = ::Msf::Exploit.new
@@ -24,11 +13,11 @@ describe Msf::Java::Rmi::Client do
     mod
   end
 
-  let(:io) { RmiStringIO.new('', 'w+b') }
+  let(:io) { StringIO.new('', 'w+b') }
   let(:protocol_not_supported) { "\x4f" }
-  let(:protocol_not_supported_io) { RmiStringIO.new(protocol_not_supported) }
+  let(:protocol_not_supported_io) { StringIO.new(protocol_not_supported) }
   let(:protocol_ack) { "\x4e\x00\x0e\x31\x37\x32\x2e\x31\x36\x2e\x31\x35\x38\x2e\x31\x33\x32\x00\x00\x06\xea" }
-  let(:protocol_ack_io) { RmiStringIO.new(protocol_ack) }
+  let(:protocol_ack_io) { StringIO.new(protocol_ack) }
   let(:return_data) do
     "\x51\xac\xed\x00\x05\x77\x0f\x01\xd2\x4f\xdf\x47\x00\x00\x01\x49" +
     "\xb5\xe4\x92\x78\x80\x15\x73\x72\x00\x12\x6a\x61\x76\x61\x2e\x72" +
@@ -49,7 +38,17 @@ describe Msf::Java::Rmi::Client do
     "\x04\x74\x69\x6d\x65\x49\x00\x06\x75\x6e\x69\x71\x75\x65\x70\x78" +
     "\x70\x80\x01\x00\x00\x01\x49\xb5\xf8\x00\xea\xe9\x62\xc1\xc0"
   end
-  let(:return_io) { RmiStringIO.new(return_data) }
+  let(:return_io) { StringIO.new(return_data) }
+
+  before(:each) do
+    allow_any_instance_of(::StringIO).to receive(:put) do |io, data|
+      io.write(data)
+    end
+
+    allow_any_instance_of(::StringIO).to receive(:get_once) do |io, length, timeout|
+      io.read
+    end
+  end
 
   describe "#send_header" do
     it "returns the number of bytes sent" do
@@ -59,7 +58,7 @@ describe Msf::Java::Rmi::Client do
 
   describe "#send_call" do
     it "returns the number of bytes sent" do
-      expect(mod.send_call(sock: io)).to eq(5)
+      expect(mod.send_call(sock: io)).to eq(41)
     end
   end
 
@@ -86,7 +85,7 @@ describe Msf::Java::Rmi::Client do
   describe "#recv_return" do
     context "when end point returns a value to the call" do
       it "returns a Rex::Java::Serialization::Model::Stream" do
-        expect(mod.recv_return(sock: return_io)).to be_a(Rex::Java::Serialization::Model::Stream)
+        expect(mod.recv_return(sock: return_io)).to be_a(Rex::Proto::Rmi::Model::ReturnValue)
       end
     end
 

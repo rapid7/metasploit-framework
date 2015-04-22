@@ -106,7 +106,7 @@ module Metasploit3
       uri_req_len = 5
     end
 
-    generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITP, uri_req_len)
+    generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP, uri_req_len)
   end
 
 end

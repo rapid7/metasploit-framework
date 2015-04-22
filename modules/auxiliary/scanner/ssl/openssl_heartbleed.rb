@@ -119,13 +119,13 @@ class Metasploit3 < Msf::Auxiliary
         'Jared Stafford <jspenguin[at]jspenguin.org>', # Original Proof of Concept. This module is based on it.
         'FiloSottile', # PoC site and tool
         'Christian Mehlmauer', # Msf module
-        'wvu', # Msf module
-        'juan vazquez', # Msf module
+        'wvu', # Metasploit module
+        'juan vazquez', # Metasploit module
         'Sebastiano Di Paola', # Msf module
-        'Tom Sellers', # Msf module
-        'jjarmoc', #Msf module; keydump, refactoring..
-        'Ben Buchanan', #Msf module
-        'herself' #Msf module
+        'Tom Sellers', # Metasploit module
+        'jjarmoc', # Metasploit module; keydump, refactoring..
+        'Ben Buchanan', #Metasploit module
+        'herself' #Metasploit module
       ],
       'References'     =>
         [
@@ -216,7 +216,7 @@ class Metasploit3 < Msf::Auxiliary
       when 'KEYS'
         getkeys
       else
-        #Shouldn't get here, since Action is Enum
+        # Shouldn't get here, since Action is Enum
         print_error("Unknown Action: #{action.name}")
     end
 

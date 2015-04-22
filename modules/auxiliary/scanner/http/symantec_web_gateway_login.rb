@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Symantec Web Gateway Login Utility',
       'Description' => %q{
-        This module will attempt to authenticate to a Symantec Web Gateway
+        This module will attempt to authenticate to a Symantec Web Gateway.
       },
       'Author'      => [ 'sinn3r' ],
       'License'     => MSF_LICENSE,

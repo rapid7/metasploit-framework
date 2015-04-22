@@ -56,7 +56,7 @@ module Msf::Payload::Dalvik
     #
     # If you plan to publish your application(s) on Google Play, note
     # that a validity period ending after 22 October 2033 is a
-    # requirement. You can not upload an application if it is signed
+    # requirement. You cannot upload an application if it is signed
     # with a key whose validity expires before that date.
     # """
     cert.not_after = cert.not_before + 3600*24*365*20 # 20 years

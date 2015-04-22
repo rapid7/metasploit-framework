@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
     case action.name
     when 'Deploy'
       unless datastore['WARFILE'] && File.exist?(datastore['WARFILE'])
-        fail_with("Unable to open WARFILE")
+        fail_with(Failure::BadConfig, "Unable to open WARFILE")
       end
       war_data = File.read(datastore['WARFILE'])
       deploy_action(app_base, war_data)

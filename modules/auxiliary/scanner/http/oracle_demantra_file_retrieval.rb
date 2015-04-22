@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res.nil? or res.body.empty?
-      fail_with("No content retrieved from: #{ip}")
+      fail_with(Failure::UnexpectedReply, "No content retrieved from: #{ip}")
     end
 
     if res.code == 404

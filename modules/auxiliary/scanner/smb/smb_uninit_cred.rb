@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Samba _netr_ServerPasswordSet Uninitialized Credential State',
       'Description'    => %q{
-        This module checks if your Samba target is vulnerable to an uninitialized variable creds.
+        This module checks if a Samba target is vulnerable to an uninitialized variable creds vulnerability.
       },
       'Author'         =>
         [

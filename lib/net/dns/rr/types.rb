@@ -1,14 +1,14 @@
 # -*- coding: binary -*-
 module Net # :nodoc:
   module DNS
-    
+
     class RR
-      
+
       #
-      # This is an auxiliary class to hadle RR type field in a DNS packet. 
+      # This is an auxiliary class to hadle RR type field in a DNS packet.
       #
       class Types
-        
+
         # :nodoc:
         Types = { # :nodoc:
           'SIGZERO'   => 0,       # RFC2931 consider this a pseudo type
@@ -85,7 +85,7 @@ module Net # :nodoc:
           end
         end
 
-        # Checks whether +type+ is a valid RR type.  
+        # Checks whether +type+ is a valid RR type.
         def self.valid?(type)
           case type
           when String
@@ -96,7 +96,7 @@ module Net # :nodoc:
             raise TypeArgumentError, "Wrong type class: #{type.class}"
           end
         end
-        
+
         # Returns the type in string format, as "A" or "NS",
         # given the numeric value
         def self.to_str(type)
@@ -125,20 +125,20 @@ module Net # :nodoc:
           case type
           when String
             # type in the form "A" or "NS"
-            new_from_string(type.upcase) 
+            new_from_string(type.upcase)
           when Fixnum
             # type in numeric form
-            new_from_num(type) 
+            new_from_num(type)
           when nil
             # default type, control with Types.default=
-            @str = Types.invert[@@default] 
+            @str = Types.invert[@@default]
             @num = @@default
           else
             raise TypeArgumentError, "Wrong type class: #{type.class}"
           end
         end
-        
-        # Returns the type in number format 
+
+        # Returns the type in number format
         # (default for normal use)
         def inspect
           @num
@@ -155,21 +155,21 @@ module Net # :nodoc:
         def to_i
           @num.to_i
         end
-        
+
         # Should be used only for testing purpouses
         def to_str
           @num.to_s
         end
 
         private
-        
+
         # Constructor for string data type,
         # *PRIVATE* method
         def new_from_string(type)
           case type
           when /^TYPE\\d+/
             # TODO!!!
-          else 
+          else
             # String with name of type
             if Types.has_key? type
               @str = type
@@ -187,12 +187,12 @@ module Net # :nodoc:
             @num = type
             @str = Types.invert[type]
           else
-            raise TypeArgumentError, "Unkown type number #{type}"
+            raise TypeArgumentError, "Unknown type number #{type}"
           end
         end
-        
+
       end # class Types
-    
+
     end # class RR
   end # module DNS
 end # module Net

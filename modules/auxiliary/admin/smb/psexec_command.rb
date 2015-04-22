@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
-  #check if our process is done using these files
+  # check if our process is done using these files
   def exclusive_access(*files)
       simple.connect("\\\\#{@ip}\\#{@smbshare}")
       files.each do |file|

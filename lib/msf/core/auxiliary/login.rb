@@ -16,7 +16,7 @@ module Auxiliary::Login
   EOL  = CR + LF
 
   #
-  # Creates an instance of a login negoation module.
+  # Creates an instance of a login negotiation module.
   #
   def initialize(info = {})
     super

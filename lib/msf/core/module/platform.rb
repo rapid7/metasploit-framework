@@ -10,7 +10,7 @@ require 'abbrev'
 class Msf::Module::Platform
 
   Rank  = 0
-  # actually, having a argument of '' is what to do for wanting 'all'
+  # actually, having an argument of '' is what to do for wanting 'all'
   Short = "all"
 
   class << self
@@ -18,7 +18,7 @@ class Msf::Module::Platform
   end
 
   #
-  # Returns the "real" name of the module instance, accouting for potentially
+  # Returns the "real" name of the module instance, accounting for potentially
   # aliased class names.
   #
   def self.realname

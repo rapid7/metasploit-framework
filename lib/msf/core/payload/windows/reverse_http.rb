@@ -3,6 +3,7 @@
 require 'msf/core'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
+require 'msf/core/payload/uuid_options'
 
 module Msf
 
@@ -19,6 +20,7 @@ module Payload::Windows::ReverseHttp
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
+  include Msf::Payload::UUIDOptions
 
   #
   # Register reverse_http specific options
@@ -99,14 +101,14 @@ module Payload::Windows::ReverseHttp
       raise ArgumentError, "Minimum StagerURILength is 5"
     end
 
-    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW, uri_req_len)
+    generate_uri_uuid_mode(:init_native, uri_req_len)
   end
 
   #
   # Generate the URI for the initial stager
   #
   def generate_small_uri
-    "/" + generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITW)
+    generate_uri_uuid_mode(:init_native, 5)
   end
 
   #

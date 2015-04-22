@@ -113,13 +113,11 @@ module Auxiliary::Report
 
   #
   # Report a client connection
-  #
-  # opts must contain
-  #	:host      the address of the client connecting
-  #	:ua_string a string that uniquely identifies this client
-  # opts can contain
-  #	:ua_name a brief identifier for the client, e.g. "Firefox"
-  #	:ua_ver  the version number of the client, e.g. "3.0.11"
+  # @param opts [Hash] report client information based on user-agent
+  # @option opts [String] :host the address of the client connecting
+  # @option opts [String] :ua_string a string that uniquely identifies this client
+  # @option opts [String] :ua_name a brief identifier for the client, e.g. "Firefox"
+  # @option opts [String] :ua_ver  the version number of the client, e.g. "3.0.11"
   #
   def report_client(opts={})
     return if not db
@@ -161,7 +159,7 @@ module Auxiliary::Report
   # by a module. This method is deprecated and the new Metasploit::Credential methods
   # should be used directly instead.
   #
-  # @param :opts [Hash] the option hash
+  # @param opts [Hash] the option hash
   # @option opts [String] :host the address of the host (also takes a {Mdm::Host})
   # @option opts [Fixnum] :port the port of the connected service
   # @option opts [Mdm::Service] :service an optional Service object to build the cred for
@@ -427,7 +425,7 @@ module Auxiliary::Report
       fname = ctype || "local_#{Time.now.utc.to_i}"
     end
 
-    # Split by path seperator
+    # Split by path separator
     fname = ::File.split(fname).last
 
     case ctype # Probably could use more cases

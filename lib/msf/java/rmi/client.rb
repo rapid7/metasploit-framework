@@ -8,9 +8,15 @@ module Msf
     module Rmi
       module Client
 
-        require 'msf/java/rmi/client/streams'
+        require 'msf/java/rmi/util'
+        require 'msf/java/rmi/builder'
+        require 'msf/java/rmi/client/registry'
+        require 'msf/java/rmi/client/jmx'
 
-        include Msf::Java::Rmi::Client::Streams
+        include Msf::Java::Rmi::Util
+        include Msf::Java::Rmi::Builder
+        include Msf::Java::Rmi::Client::Registry
+        include Msf::Java::Rmi::Client::Jmx
         include Exploit::Remote::Tcp
 
         # Returns the target host
@@ -50,12 +56,13 @@ module Msf
         #
         # @param opts [Hash]
         # @option opts [Rex::Socket::Tcp] :sock
+        # @option opts [Rex::Proto::Rmi::Model::Call] :call
         # @return [Fixnum] the number of bytes sent
         # @see Msf::Rmi::Client::Streams#build_call
         def send_call(opts = {})
           nsock = opts[:sock] || sock
-          stream = build_call(opts)
-          nsock.put(stream.encode)
+          call = opts[:call] || build_call(opts)
+          nsock.put(call.encode)
         end
 
         # Sends a RMI DGCACK stream
@@ -74,14 +81,15 @@ module Msf
         #
         # @param opts [Hash]
         # @option opts [Rex::Socket::Tcp] :sock
-        # @return [Rex::Proto::Rmi::Model::ProtocolAck]
+        # @return [Rex::Proto::Rmi::Model::ProtocolAck] if success
+        # @return [NilClass] otherwise
         # @see Rex::Proto::Rmi::Model::ProtocolAck.decode
         def recv_protocol_ack(opts = {})
           nsock = opts[:sock] || sock
           data = safe_get_once(nsock)
           begin
             ack = Rex::Proto::Rmi::Model::ProtocolAck.decode(StringIO.new(data))
-          rescue ::RuntimeError
+          rescue Rex::Proto::Rmi::DecodeError
             return nil
           end
 
@@ -93,14 +101,16 @@ module Msf
         #
         # @param opts [Hash]
         # @option opts [Rex::Socket::Tcp] :sock
-        # @return [Rex::Java::Serialization::Stream]
+        # @return [Rex::Proto::Rmi::Model::ReturnValue] if success
+        # @return [NilClass] otherwise
         # @see Rex::Proto::Rmi::Model::ReturnData.decode
         def recv_return(opts = {})
           nsock = opts[:sock] || sock
           data = safe_get_once(nsock)
+
           begin
             return_data = Rex::Proto::Rmi::Model::ReturnData.decode(StringIO.new(data))
-          rescue ::RuntimeError
+          rescue Rex::Proto::Rmi::DecodeError
             return nil
           end
 
@@ -109,8 +119,7 @@ module Msf
 
         # Helper method to read fragmented data from a ```Rex::Socket::Tcp```
         #
-        # @param opts [Hash]
-        # @option opts [Rex::Socket::Tcp] :sock
+        # @param nsock [Rex::Socket::Tcp]
         # @return [String]
         def safe_get_once(nsock = sock)
           data = ''

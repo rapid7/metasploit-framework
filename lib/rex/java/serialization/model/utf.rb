@@ -26,11 +26,11 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode(io)
             raw_length = io.read(2)
             if raw_length.nil? || raw_length.length != 2
-              raise ::RuntimeError, 'Failed to unserialize Utf'
+              raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize Utf'
             end
             self.length = raw_length.unpack('n')[0]
 
@@ -39,7 +39,7 @@ module Rex
             else
               self.contents = io.read(length)
               if contents.nil? || contents.length != length
-                raise ::RuntimeError, 'Failed to unserialize Utf'
+                raise Rex::Java::Serialization::DecodeError, 'Failed to unserialize Utf'
               end
             end
 

