@@ -18,7 +18,7 @@ class RPC_Job < RPC_Base
     res
   end
 
-  # Returns a job.
+  # Stops a job.
   #
   # @param [Fixnum] jid Job ID.
   # @raise [Msf::RPC::Exception] A 500 response indicating an invalid job ID was given.

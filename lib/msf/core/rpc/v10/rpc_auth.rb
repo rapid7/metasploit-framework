@@ -82,7 +82,7 @@ end
   # Returns a list of authentication tokens.
   #
   # @return [Hash] A hash that contains a list of authentication tokens.
-  #  * 'tokens' [Array] An array of tokens.
+  #  * 'tokens' [Array<string>] An array of tokens.
   # @example Here's how you would use this from the client:
   #  # This returns something like:
   #  # {"tokens"=>["TEMPf5I4Ec8cBEKVD8D7xtIbTXWoKapP", "TEMPtcVmMld8w74zo0CYeosM3iXW0nJz"]}

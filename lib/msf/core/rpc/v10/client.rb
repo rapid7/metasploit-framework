@@ -57,7 +57,7 @@ class Client
   # Calls an API.
   #
   # @param [String] meth The RPC API to call.
-  # @param [Array] args The arguments to pass.
+  # @param [Array<string>] args The arguments to pass.
   # @raise [RuntimeError] Something is wrong while calling the remote API, including:
   #                       * A missing token (your client needs to authenticate).
   #                       * A unexpected response from the server, such as a timeout or unexpected HTTP code.
