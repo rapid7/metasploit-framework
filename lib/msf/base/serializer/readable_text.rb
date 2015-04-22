@@ -12,6 +12,53 @@ class ReadableText
   #Default number of characters to indent.
   DefaultIndent     = 2
 
+  def self.format_text(txt, fmt)
+    styles = {
+        :bold => '%bld',
+        :cyan =>'%cya',
+        :red => '%red',
+        :green => '%grn',
+        :blue => '%blu',
+        :yellow => '%yel',
+        :white => '%whi',
+        :magenta => '%mag',
+        :black => '%blk',
+        :dark_red => '%dred',
+        :dark_green => '%dgrn',
+        :dark_blue => '%dblu',
+        :dark_yellow => '%dyel',
+        :dark_cyan => '%dcya',
+        :dark_white => '%dwhi',
+        :dark_magenta => '%dmag',
+        :underline => '%und',
+        :plain => '%clr'
+    }
+
+    return "#{styles[fmt]}#{txt}%clr"
+  end
+
+  def self.md_parse(text)
+
+    lines = text.lines()
+    lines.map! do |line|
+      case line
+      when /^\s*#+\s*(.*)$/ # this regex looks for '#' character and captures rest of line
+        line = format_text(/^\s*#+\s*(.*)$/.match(line)[1], :bold)
+      when /^\s*$/ # this regex helps us ignore a line that is completely whitespace
+        line = ""
+      when /\*+([^\*]+)\*+/ # this regex helps us to detect words that are surrounded by asterisks
+        line.gsub(/\*+([^\*]+)\*+/, "%bld\\1%clr");
+      end
+    end
+
+
+    lines.join("\n")
+  end
+
+  def self.format_title(txt)
+    return format_text(txt, :underline)
+  end
+
   # Returns a formatted string that contains information about
   # the supplied module instance.
   #
@@ -165,33 +212,33 @@ class ReadableText
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
-    output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << " Privileged: " + (mod.privileged? ? format_text("yes", :green): format_text("no", :red)) + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
     output << "\n"
 
     # Targets
-    output << "Available targets:\n"
+    output << format_title("Available targets:\n")
     output << dump_exploit_targets(mod, indent)
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Payload information
     if (mod.payload_info.length)
-      output << "Payload information:\n"
+      output << format_title("Payload information:\n")
       if (mod.payload_space)
         output << indent + "Space: " + mod.payload_space.to_s + "\n"
       end
@@ -202,8 +249,8 @@ class ReadableText
     end
 
     # Description
-    output << "Description:\n"
-    output << word_wrap(Rex::Text.compress(mod.description))
+    output << format_title("Description:\n")
+    output << word_wrap(Rex::Text.compress(md_parse(mod.description)))
     output << "\n"
 
     # References
@@ -228,7 +275,7 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -236,19 +283,19 @@ class ReadableText
 
     # Actions
     if mod.action
-      output << "Available actions:\n"
+      output << format_title("Available actions:\n")
       output << dump_module_actions(mod, indent)
     end
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -274,7 +321,7 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -282,19 +329,19 @@ class ReadableText
 
     # Actions
     if mod.action
-      output << "Available actions:\n"
+      output << format_title("Available actions:\n")
       output << dump_module_actions(mod, indent)
     end
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -316,13 +363,13 @@ class ReadableText
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
     output << "       Arch: #{mod.arch_to_s}\n"
-    output << "Needs Admin: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << "Needs Admin: " + (mod.privileged? ? format_text("yes", :green) : format_text("no", :red)) + "\n"
     output << " Total size: #{mod.size}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
@@ -330,13 +377,13 @@ class ReadableText
 
     # Options
     if (mod.options.has_options?)
-      output << "Basic options:\n"
+      output << format_title("Basic options:\n")
       output << dump_options(mod)
       output << "\n"
     end
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n\n"
 
@@ -359,14 +406,14 @@ class ReadableText
     output << "\n"
 
     # Authors
-    output << "Provided by:\n"
+    output << format_title("Provided by:\n")
     mod.each_author { |author|
       output << indent + author.to_s + "\n"
     }
     output << "\n"
 
     # Description
-    output << "Description:\n"
+    output << format_title("Description:\n")
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
@@ -408,7 +455,7 @@ class ReadableText
       next if (opt.evasion?)
       next if (missing && opt.valid?(val))
 
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+      tbl << [ name, opt.display_value(val), opt.required? ? format_text("yes", :green) : format_text("no", :red), opt.desc ]
     }
 
     return tbl.to_s
@@ -476,7 +523,7 @@ class ReadableText
     output = ''
 
     if (mod.respond_to? :references and mod.references and mod.references.length > 0)
-      output << "References:\n"
+      output << format_title("References:\n")
       mod.references.each { |ref|
         output << indent + ref.to_s + "\n"
       }
