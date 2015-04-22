@@ -225,19 +225,19 @@ class Metasploit3 < Msf::Auxiliary
             print_good("[#{t}]")
 
             report_web_vuln(
-              :host	=> ip,
-              :port	=> rport,
-              :vhost  => vhost,
-              :ssl    => ssl,
-              :path	=> normalize_uri(datastore['PATH']),
-              :method => http_method,
-              :pname  => key,
-              :proof  => "blind sql inj.",
-              :risk   => 2,
-              :confidence   => 50,
-              :category     => 'SQL injection',
-              :description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
-              :name   => 'Blind SQL injection'
+              host: ip,
+              port: rport,
+              vhost: vhost,
+              ssl: ssl,
+              path: normalize_uri(datastore['PATH']),
+              method: http_method,
+              pname: key,
+              proof: "blind sql inj.",
+              risk: 2,
+              confidence: 50,
+              category: 'SQL injection',
+              description: "Blind sql injection of type #{tarr[0]} in param #{key}",
+              name: 'Blind SQL injection'
             )
           else
             vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
@@ -316,19 +316,19 @@ class Metasploit3 < Msf::Auxiliary
             print_good("[#{t}]")
 
             report_web_vuln(
-              :host	=> ip,
-              :port	=> rport,
-              :vhost  => vhost,
-              :ssl    => ssl,
-              :path	=> datastore['PATH'],
-              :method => http_method,
-              :pname  => key,
-              :proof  => "blind sql inj.",
-              :risk   => 2,
-              :confidence   => 50,
-              :category     => 'SQL injection',
-              :description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
-              :name   => 'Blind SQL injection'
+              host: ip,
+              port: rport,
+              vhost: vhost,
+              ssl: ssl,
+              path: datastore['PATH'],
+              method: http_method,
+              pname: key,
+              proof: "blind sql inj.",
+              risk: 2,
+              confidence: 50,
+              category: 'SQL injection',
+              description: "Blind sql injection of type #{tarr[0]} in param #{key}",
+              name: 'Blind SQL injection'
             )
           else
             vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")

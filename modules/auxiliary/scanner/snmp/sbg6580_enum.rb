@@ -192,12 +192,12 @@ class Metasploit3 < Msf::Auxiliary
           end
 
           report_note(
-            :host  => ip,
-            :proto => 'udp',
-            :sname => 'snmp',
-            :port  => datastore['RPORT'].to_i,
-            :type  => "snmp.#{k}",
-            :data  => v
+            host: ip,
+            proto: 'udp',
+            sname: 'snmp',
+            port: datastore['RPORT'].to_i,
+            type: "snmp.#{k}",
+            data: v
           )
 
           line << sprintf("%s%s: %s\n", k, " "*([0,width-k.length].max), v)

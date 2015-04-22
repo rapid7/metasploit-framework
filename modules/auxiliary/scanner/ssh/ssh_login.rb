@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     @ip = ip
-    print_brute :ip => ip, :msg => "Starting bruteforce"
+    print_brute ip: ip, msg: "Starting bruteforce"
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
@@ -137,14 +137,14 @@ class Metasploit3 < Msf::Auxiliary
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+          print_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
         end
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         invalidate_login(credential_data)
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
         end
         invalidate_login(credential_data)
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?

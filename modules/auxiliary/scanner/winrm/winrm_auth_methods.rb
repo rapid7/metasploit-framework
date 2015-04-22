@@ -39,11 +39,11 @@ class Metasploit3 < Msf::Auxiliary
       methods = parse_auth_methods(resp)
       desc = resp.headers['Server'] + " Authentication Methods: " + methods.to_s
       report_service(
-        :host  => ip,
-        :port  => rport,
-        :proto => 'tcp',
-        :name  => 'winrm',
-        :info  => desc
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        name: 'winrm',
+        info: desc
       )
       print_good "#{ip}:#{rport}: Negotiate protocol supported" if methods.include? "Negotiate"
       print_good "#{ip}:#{rport}: Kerberos protocol supported" if methods.include? "Kerberos"

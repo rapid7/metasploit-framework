@@ -193,10 +193,10 @@ class Metasploit3 < Msf::Post
           sid = session.sid
           peer = session.session_host
           report_note(
-            :host   => session,
-            :type   => 'domain.token.pid',
-            :data   => { :pid=>target_pid, :sid=>sid, :peer=>peer, :user=>da_user },
-            :update => :unique_data
+            host: session,
+            type: 'domain.token.pid',
+            data: { pid:target_pid, sid:sid, peer:peer, user:da_user },
+            update: :unique_data
           )
           print_good("Found Domain Admin Token: #{sid} - #{peer} - #{da_user} (PID: #{target_pid})")
           return true ,da_user, false

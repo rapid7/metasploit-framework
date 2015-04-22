@@ -62,23 +62,23 @@ class Metasploit3 < Msf::Auxiliary
           print_status("#{ip} supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours")
           # Add Report
           report_note(
-            :host	=> ip,
-            :proto => 'tcp',
-            :sname	=> 'smb2',
-            :port	=> rport,
-            :type	=> "supports SMB 2 [dialect #{vers}]",
-            :data	=> "supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours"
+            host: ip,
+            proto: 'tcp',
+            sname: 'smb2',
+            port: rport,
+            type: "supports SMB 2 [dialect #{vers}]",
+            data: "supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours"
           )
         else
           print_status("#{ip} supports SMB 2.0")
           # Add Report
           report_note(
-            :host	=> ip,
-            :proto => 'tcp',
-            :sname	=> 'smb2',
-            :port	=> rport,
-            :type	=> "supports SMB 2.0",
-            :data	=> "supports SMB 2.0"
+            host: ip,
+            proto: 'tcp',
+            sname: 'smb2',
+            port: rport,
+            type: "supports SMB 2.0",
+            data: "supports SMB 2.0"
           )
         end
       end

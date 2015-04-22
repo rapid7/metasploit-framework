@@ -195,17 +195,17 @@ class Metasploit3 < Msf::Post
       note_string ="Remote file #{datastore['FILE']} contains UNC path to #{datastore['SMBHOST']}. "
       note_string += " Local backup of file at #{@org_file}."
       report_note(
-        :host => session.session_host,
-        :type => "host.word_unc_injector.changedfiles",
-        :data => {
-          :session_num => session.sid,
-          :stype => session.type,
-          :desc => session.info,
-          :platform => session.platform,
-          :via_payload => session.via_payload,
-          :via_exploit => session.via_exploit,
-          :created_at => Time.now.utc,
-          :files_changed => note_string
+        host: session.session_host,
+        type: "host.word_unc_injector.changedfiles",
+        data: {
+          session_num: session.sid,
+          stype: session.type,
+          desc: session.info,
+          platform: session.platform,
+          via_payload: session.via_payload,
+          via_exploit: session.via_exploit,
+          created_at: Time.now.utc,
+          files_changed: note_string
         }
       )
     else

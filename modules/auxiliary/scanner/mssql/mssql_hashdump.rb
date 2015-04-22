@@ -104,10 +104,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
-          :name => 'mssql',
-          :proto => 'tcp'
+          host: datastore['RHOST'],
+          port: datastore['RPORT'],
+          name: 'mssql',
+          proto: 'tcp'
           )
 
     tbl = Rex::Ui::Text::Table.new(

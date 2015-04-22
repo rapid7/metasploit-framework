@@ -224,10 +224,10 @@ class Metasploit3 < Msf::Auxiliary
     # NOTE: We report this here, since we are awfully convinced now that this is really
     # an rlogin service.
     report_service(
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :name => 'login'
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: 'login'
     )
 
     # Receive the initial response
@@ -301,13 +301,13 @@ class Metasploit3 < Msf::Auxiliary
   def start_rlogin_session(host, port, user, luser, pass, proof)
 
     auth_info = {
-      :host	=> host,
-      :port	=> port,
-      :sname => 'login',
-      :user	=> user,
-      :proof  => proof,
-      :source_type => "user_supplied",
-      :active => true
+      host: host,
+      port: port,
+      sname: 'login',
+      user: user,
+      proof: proof,
+      source_type: "user_supplied",
+      active: true
     }
 
     merge_me = {
@@ -319,11 +319,11 @@ class Metasploit3 < Msf::Auxiliary
     }
 
     if pass
-      auth_info.merge!(:pass => pass)
+      auth_info.merge!(pass: pass)
       merge_me.merge!('PASSWORD' => pass)
       info = "RLOGIN #{user}:#{pass} (#{host}:#{port})"
     else
-      auth_info.merge!(:luser => luser)
+      auth_info.merge!(luser: luser)
       merge_me.merge!('FROMUSER'=> luser)
       info = "RLOGIN #{user} from #{luser} (#{host}:#{port})"
     end

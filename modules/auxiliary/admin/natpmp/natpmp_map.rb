@@ -103,11 +103,11 @@ class Metasploit3 < Msf::Auxiliary
         end
 
         report_service(
-          :host   => host,
-          :port   => datastore['RPORT'],
-          :proto  => 'udp',
-          :name  => 'natpmp',
-          :state => Msf::ServiceState::Open
+          host: host,
+          port: datastore['RPORT'],
+          proto: 'udp',
+          name: 'natpmp',
+          state: Msf::ServiceState::Open
         )
       end
     rescue ::Interrupt

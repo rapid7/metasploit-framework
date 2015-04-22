@@ -51,20 +51,20 @@ class Metasploit3 < Msf::Auxiliary
     return nil if mssql_schema.nil? or mssql_schema.empty?
     mssql_schema.each do |db|
       report_note(
-        :host  => rhost,
-        :type  => "mssql.db.schema",
-        :data  => db,
-        :port  => rport,
-        :proto => 'tcp',
-        :update => :unique_data
+        host: rhost,
+        type: "mssql.db.schema",
+        data: db,
+        port: rport,
+        proto: 'tcp',
+        update: :unique_data
       )
     end
     output << YAML.dump(mssql_schema)
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
-          :name => 'mssql',
-          :proto => 'tcp'
+          host: datastore['RHOST'],
+          port: datastore['RPORT'],
+          name: 'mssql',
+          proto: 'tcp'
           )
     store_loot('mssql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mssql_schema.txt", "MS SQL Schema", this_service)
     print_good output if datastore['DISPLAY_RESULTS']

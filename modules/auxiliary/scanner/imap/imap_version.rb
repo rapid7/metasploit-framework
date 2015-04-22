@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
       res = connect
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
       print_status("#{ip}:#{rport} IMAP #{banner_sanitized}")
-      report_service(:host => rhost, :port => rport, :name => "imap", :info => banner)
+      report_service(host: rhost, port: rport, name: "imap", info: banner)
     rescue ::Rex::ConnectionError
     rescue ::Exception => e
       print_error("#{rhost}:#{rport} #{e} #{e.backtrace}")

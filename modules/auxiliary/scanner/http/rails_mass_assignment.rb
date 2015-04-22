@@ -88,19 +88,19 @@ class Metasploit3 < Msf::Auxiliary
       if resp and resp.code == 500
         print_good("#{ip} - Possible attributes mass assignment in attribute #{param}[...] at #{datastore['PATH']}")
         report_web_vuln(
-          :host   => rhost,
-          :port   => rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
-          :path   => "#{datastore['PATH']}",
-          :method => datastore['METHOD'],
-          :pname  => param,
-          :proof  => "rails mass assignment",
-          :risk   => 2,
-          :confidence   => 80,
-          :category     => 'Rails',
-          :description  => "Possible attributes mass assignment in attribute #{param}[...]",
-          :name   => 'Ruby On Rails Attributes Mass Assignment'
+          host: rhost,
+          port: rport,
+          vhost: vhost,
+          ssl: ssl,
+          path: "#{datastore['PATH']}",
+          method: datastore['METHOD'],
+          pname: param,
+          proof: "rails mass assignment",
+          risk: 2,
+          confidence: 80,
+          category: 'Rails',
+          description: "Possible attributes mass assignment in attribute #{param}[...]",
+          name: 'Ruby On Rails Attributes Mass Assignment'
         )
       end
     end

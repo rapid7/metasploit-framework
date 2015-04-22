@@ -56,12 +56,12 @@ class Metasploit3 < Msf::Auxiliary
           print_status("Found internal IP in WebDAV response (#{target_host}) #{addr}")
 
           report_note(
-            :host	=> target_host,
-            :proto => 'tcp',
-            :sname => (ssl ? 'https' : 'http'),
-            :port	=> rport,
-            :type	=> 'INTERNAL_IP',
-            :data	=> addr
+            host: target_host,
+            proto: 'tcp',
+            sname: (ssl ? 'https' : 'http'),
+            port: rport,
+            type: 'INTERNAL_IP',
+            data: addr
           )
         end
       end

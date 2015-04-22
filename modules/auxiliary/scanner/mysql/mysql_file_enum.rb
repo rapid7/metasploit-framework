@@ -90,22 +90,22 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::RbMysql::TextfileNotReadable
       print_good("#{peer} - #{dir} is a directory and exists")
       report_note(
-        :host  => rhost,
-        :type  => "filesystem.dir",
-        :data  => "#{dir} is a directory and exists",
-        :port  => rport,
-        :proto => 'tcp',
-        :update => :unique_data
+        host: rhost,
+        type: "filesystem.dir",
+        data: "#{dir} is a directory and exists",
+        port: rport,
+        proto: 'tcp',
+        update: :unique_data
       )
     rescue ::RbMysql::DataTooLong, ::RbMysql::TruncatedWrongValueForField
       print_good("#{peer} - #{dir} is a file and exists")
       report_note(
-        :host  => rhost,
-        :type  => "filesystem.file",
-        :data  => "#{dir} is a file and exists",
-        :port  => rport,
-        :proto => 'tcp',
-        :update => :unique_data
+        host: rhost,
+        type: "filesystem.file",
+        data: "#{dir} is a file and exists",
+        port: rport,
+        proto: 'tcp',
+        update: :unique_data
       )
     rescue ::RbMysql::ServerError
       vprint_warning("#{peer} - #{dir} does not exist")
@@ -118,12 +118,12 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_good("#{peer} - #{dir} is a file and exists")
       report_note(
-        :host  => rhost,
-        :type  => "filesystem.file",
-        :data  => "#{dir} is a file and exists",
-        :port  => rport,
-        :proto => 'tcp',
-        :update => :unique_data
+        host: rhost,
+        type: "filesystem.file",
+        data: "#{dir} is a file and exists",
+        port: rport,
+        proto: 'tcp',
+        update: :unique_data
       )
     end
 

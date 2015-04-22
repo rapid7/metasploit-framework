@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # dns request with recursive disabled
     use_tcp = datastore['TCP_DNS']
-    res = Net::DNS::Resolver.new(:nameservers => "#{datastore['NS']}", :recursive => false, :use_tcp => use_tcp)
+    res = Net::DNS::Resolver.new(nameservers: "#{datastore['NS']}", recursive: false, use_tcp: use_tcp)
     use_tcp ? res.tcp_timeout = datastore['DNS_TIMEOUT'] : res.udp_timeout = datastore['DNS_TIMEOUT']
 
     # query dns
@@ -85,13 +85,13 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_note(
-      :host => datastore['NS'],
-      :name => "dns",
-      :port => 53,
-      :proto => proto,
-      :type => "dns.cache.scrape",
-      :data => "#{domain} cached",
-      :update => :unique_data
+      host: datastore['NS'],
+      name: "dns",
+      port: 53,
+      proto: proto,
+      type: "dns.cache.scrape",
+      data: "#{domain} cached",
+      update: :unique_data
     )
   end
 
@@ -108,8 +108,8 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_vuln(
-      :host => datastore['NS'],
-      :name => "DNS Cache Snooping",
+      host: datastore['NS'],
+      name: "DNS Cache Snooping",
     ) if @is_vulnerable
   end
 end

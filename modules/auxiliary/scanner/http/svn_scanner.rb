@@ -118,19 +118,19 @@ class Metasploit3 < Msf::Auxiliary
         print_good("[#{target_host}:#{rport}] SVN Entries file found.")
 
         report_web_vuln(
-          :host	=> target_host,
-          :port	=> rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
-          :path	=> turl,
-          :method => 'GET',
-          :pname  => "",
-          :proof  => "Res code: #{res.code.to_s}",
-          :risk   => 0,
-          :confidence   => 100,
-          :category     => 'file',
-          :description  => 'SVN Entry found.',
-          :name   => 'file'
+          host: target_host,
+          port: rport,
+          vhost: vhost,
+          ssl: ssl,
+          path: turl,
+          method: 'GET',
+          pname: "",
+          proof: "Res code: #{res.code.to_s}",
+          risk: 0,
+          confidence: 100,
+          category: 'file',
+          description: 'SVN Entry found.',
+          name: 'file'
         )
 
         vers = res.body[0..1].chomp.to_i
@@ -164,13 +164,13 @@ class Metasploit3 < Msf::Auxiliary
 
           if slastauthor and slastauthor.length > 0
             report_note(
-              :host	=> target_host,
-              :proto => 'tcp',
-              :sname => (ssl ? 'https' : 'http'),
-              :port	=> rport,
-              :type	=> 'USERNAME',
-              :data	=> slastauthor,
-              :update => :unique_data
+              host: target_host,
+              proto: 'tcp',
+              sname: (ssl ? 'https' : 'http'),
+              port: rport,
+              type: 'USERNAME',
+              data: slastauthor,
+              update: :unique_data
             )
 
           end
@@ -178,25 +178,25 @@ class Metasploit3 < Msf::Auxiliary
           if skind
             if skind == 'dir'
               report_note(
-                :host	=> target_host,
-                :proto => 'tcp',
-                :sname => (ssl ? 'https' : 'http'),
-                :port	=> rport,
-                :type	=> 'DIRECTORY',
-                :data	=> sname,
-                :update => :unique_data
+                host: target_host,
+                proto: 'tcp',
+                sname: (ssl ? 'https' : 'http'),
+                port: rport,
+                type: 'DIRECTORY',
+                data: sname,
+                update: :unique_data
               )
             end
 
             if skind == 'file'
               report_note(
-                :host	=> target_host,
-                :proto => 'tcp',
-                :sname => (ssl ? 'https' : 'http'),
-                :port	=> rport,
-                :type	=> 'FILE',
-                :data	=> sname,
-                :update => :unique_data
+                host: target_host,
+                proto: 'tcp',
+                sname: (ssl ? 'https' : 'http'),
+                port: rport,
+                type: 'FILE',
+                data: sname,
+                update: :unique_data
               )
 
               if datastore['GET_SOURCE']
@@ -218,13 +218,13 @@ class Metasploit3 < Msf::Auxiliary
                     end
 
                     report_note(
-                      :host	=> target_host,
-                      :proto => 'tcp',
-                      :sname => (ssl ? 'https' : 'http'),
-                      :port	=> rport,
-                      :type	=> 'SOURCE_CODE',
-                      :data	=> "#{sname} Code: #{srcres.body}",
-                      :update => :unique_data
+                      host: target_host,
+                      proto: 'tcp',
+                      sname: (ssl ? 'https' : 'http'),
+                      port: rport,
+                      type: 'SOURCE_CODE',
+                      data: "#{sname} Code: #{srcres.body}",
+                      update: :unique_data
                     )
                   end
                 rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

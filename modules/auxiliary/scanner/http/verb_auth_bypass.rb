@@ -60,13 +60,13 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{ip} requires authentication: #{res.headers['WWW-Authenticate']} [#{auth_code}]")
 
     report_note(
-      :host   => ip,
-      :proto  => 'tcp',
-      :sname  => (ssl ? 'https' : 'http'),
-      :port   => rport,
-      :type   => 'WWW_AUTHENTICATE',
-      :data   => "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}",
-      :update => :unique_data
+      host: ip,
+      proto: 'tcp',
+      sname: (ssl ? 'https' : 'http'),
+      port: rport,
+      type: 'WWW_AUTHENTICATE',
+      data: "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}",
+      update: :unique_data
     )
 
     verbs.each do |tv|
@@ -85,13 +85,13 @@ class Metasploit3 < Msf::Auxiliary
         # Unable to use report_web_vuln as method is not in list of allowed methods.
 
         report_note(
-          :host   => ip,
-          :proto  => 'tcp',
-          :sname  => (ssl ? 'https' : 'http'),
-          :port   => rport,
-          :type   => 'AUTH_BYPASS_VERB',
-          :data   => "#{datastore['PATH']} Verb: #{tv}",
-          :update => :unique_data
+          host: ip,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          port: rport,
+          type: 'AUTH_BYPASS_VERB',
+          data: "#{datastore['PATH']} Verb: #{tv}",
+          update: :unique_data
         )
       end
     end

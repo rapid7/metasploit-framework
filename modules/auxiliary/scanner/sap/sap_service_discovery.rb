@@ -228,11 +228,11 @@ class Metasploit4 < Msf::Auxiliary
             print_good("#{ip}:#{port}\t - #{service} OPEN")
 
             report_note(
-              :host => "#{ip}",
-              :port => "#{port}",
-              :type => 'SAP',
-              :data => "#{service}",
-              :update => :unique_data
+              host: "#{ip}",
+              port: "#{port}",
+              type: 'SAP',
+              data: "#{service}",
+              update: :unique_data
             )
             r << [ip,port,"open", service]
             rescue ::Rex::ConnectionRefused
@@ -256,7 +256,7 @@ class Metasploit4 < Msf::Auxiliary
       end
 
       r.each do |res|
-        report_service(:host => res[0], :port => res[1], :state => res[2], :name => res[3])
+        report_service(host: res[0], port: res[1], state: res[2], name: res[3])
       end
     end
   end

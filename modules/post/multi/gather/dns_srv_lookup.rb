@@ -133,16 +133,16 @@ class Metasploit3 < Msf::Post
         if not Rex::Socket.dotted_ip?(rcrd[:target])
           w_get_ip(rcrd[:target]).each do |i|
             rcrd[:ip] = i
-            report_host(:host => rcrd[:ip].strip, :name => rcrd[:target])
+            report_host(host: rcrd[:ip].strip, name: rcrd[:target])
 
             # Report on the service found
             srv_info = rcrd[:srv].scan(/^_(\S*)\._(\w*)\./)[0]
 
-            report_service(:host=> rcrd[:ip].strip,
-              :port => rcrd[:port].to_i,
-              :proto => srv_info[1],
-              :name => srv_info[0],
-              :host_name => rcrd[:target]
+            report_service(host: rcrd[:ip].strip,
+              port: rcrd[:port].to_i,
+              proto: srv_info[1],
+              name: srv_info[0],
+              host_name: rcrd[:target]
             )
             srv_records << rcrd
           end
@@ -150,16 +150,16 @@ class Metasploit3 < Msf::Post
 
           rcrd[:ip] = ip_map[rcrd[:target]]
           # Report hosts found
-          report_host(:host => rcrd[:ip].strip, :name => rcrd[:target])
+          report_host(host: rcrd[:ip].strip, name: rcrd[:target])
 
           # Report on the service found
           srv_info = rcrd[:srv].scan(/^_(\S*)\._(\w*)\./)[0]
 
-          report_service(:host=> "1.2.3.4",
-            :port => rcrd[:port].to_i,
-            :proto => srv_info[1],
-            :name => srv_info[0],
-            :host_name => rcrd[:target]
+          report_service(host: "1.2.3.4",
+            port: rcrd[:port].to_i,
+            proto: srv_info[1],
+            name: srv_info[0],
+            host_name: rcrd[:target]
           )
           srv_records << rcrd
         end
@@ -211,15 +211,15 @@ class Metasploit3 < Msf::Post
           srv_records << rcrd
 
           # Report hosts found
-          report_host(:host => rcrd[:ip], :name => rcrd[:target])
+          report_host(host: rcrd[:ip], name: rcrd[:target])
 
           # Report on the service found
           srv_info = rcrd[:srv].scan(/^_(\S*)\._(\w*)\./)[0]
-          report_service(:host=> rcrd[:ip],
-              :port => rcrd[:port],
-              :proto => srv_info[1],
-              :name => srv_info[0],
-              :host_name => rcrd[:target]
+          report_service(host: rcrd[:ip],
+              port: rcrd[:port],
+              proto: srv_info[1],
+              name: srv_info[0],
+              host_name: rcrd[:target]
             )
         else
           get_ip(target).each do |i|
@@ -231,15 +231,15 @@ class Metasploit3 < Msf::Post
             srv_records << rcrd
 
             # Report hosts found
-            report_host(:host => rcrd[:ip], :name => rcrd[:target])
+            report_host(host: rcrd[:ip], name: rcrd[:target])
 
             # Report on the service found
             srv_info = rcrd[:srv].scan(/^_(\S*)\._(\w*)\./)[0]
-            report_service(:host=> rcrd[:ip],
-                :port => rcrd[:port].to_i,
-                :proto => srv_info[1],
-                :name => srv_info[0],
-                :host_name => rcrd[:target]
+            report_service(host: rcrd[:ip],
+                port: rcrd[:port].to_i,
+                proto: srv_info[1],
+                name: srv_info[0],
+                host_name: rcrd[:target]
               )
           end
         end

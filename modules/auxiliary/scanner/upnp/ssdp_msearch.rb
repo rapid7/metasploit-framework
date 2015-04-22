@@ -69,24 +69,24 @@ class Metasploit3 < Msf::Auxiliary
 
       if res[:info][:server].to_s =~ /MiniUPnPd\/1\.0([\.\,\-\~\s]|$)/mi
         res[:vulns] << {
-          :name => "MiniUPnPd ProcessSSDPRequest() Out of Bounds Memory Access Denial of Service",
-          :refs => [ 'CVE-2013-0229' ]
+          name: "MiniUPnPd ProcessSSDPRequest() Out of Bounds Memory Access Denial of Service",
+          refs: [ 'CVE-2013-0229' ]
         }
       end
 
       if res[:info][:server].to_s =~ /MiniUPnPd\/1\.[0-3]([\.\,\-\~\s]|$)/mi
         res[:vulns] << {
-          :name  => "MiniUPnPd ExecuteSoapAction memcpy() Remote Code Execution",
-          :refs  => [ 'CVE-2013-0230' ],
-          :port  => res[:info][:ssdp_port] || 80,
-          :proto => 'tcp'
+          name: "MiniUPnPd ExecuteSoapAction memcpy() Remote Code Execution",
+          refs: [ 'CVE-2013-0230' ],
+          port: res[:info][:ssdp_port] || 80,
+          proto: 'tcp'
         }
       end
 
       if res[:info][:server].to_s =~ /Intel SDK for UPnP devices.*|Portable SDK for UPnP devices(\/?\s*$|\/1\.([0-5]\..*|8\.0.*|(6\.[0-9]|6\.1[0-7])([\.\,\-\~\s]|$)))/mi
         res[:vulns] << {
-          :name => "Portable SDK for UPnP Devices unique_service_name() Remote Code Execution",
-          :refs => [ 'CVE-2012-5958', 'CVE-2012-5959' ]
+          name: "Portable SDK for UPnP Devices unique_service_name() Remote Code Execution",
+          refs: [ 'CVE-2012-5958', 'CVE-2012-5959' ]
         }
       end
 
@@ -107,22 +107,22 @@ class Metasploit3 < Msf::Auxiliary
 
       res[:vulns].each do |v|
         report_vuln(
-          :host  => sinfo[:host],
-          :port  => v[:port]  || sinfo[:port],
-          :proto => v[:proto] || 'udp',
-          :name  => v[:name],
-          :info  => res[:info][:server],
-          :refs  => v[:refs]
+          host: sinfo[:host],
+          port: v[:port]  || sinfo[:port],
+          proto: v[:proto] || 'udp',
+          name: v[:name],
+          info: res[:info][:server],
+          refs: v[:refs]
         )
       end
 
       if res[:info][:ssdp_host]
         report_service(
-          :host  => res[:info][:ssdp_host],
-          :port  => res[:info][:ssdp_port],
-          :proto => 'tcp',
-          :name  => 'upnp',
-          :info  => res[:info][:location].to_s
+          host: res[:info][:ssdp_host],
+          port: res[:info][:ssdp_port],
+          proto: 'tcp',
+          name: 'upnp',
+          info: res[:info][:location].to_s
         ) if datastore['REPORT_LOCATION']
       end
     end
@@ -133,12 +133,12 @@ class Metasploit3 < Msf::Auxiliary
     skey = "#{shost}:#{datastore['RPORT']}"
 
     @results[skey] ||= {
-      :info    => { },
-      :service => {
-        :host  => shost,
-        :port  => datastore['RPORT'],
-        :proto => 'udp',
-        :name  => 'ssdp'
+      info: { },
+      service: {
+        host: shost,
+        port: datastore['RPORT'],
+        proto: 'udp',
+        name: 'ssdp'
       }
     }
 

@@ -179,22 +179,22 @@ class Metasploit3 < Msf::Auxiliary
   def report_isqlplus_service(ip,res)
     sname = datastore['SSL'] ? 'https' : 'http'
     report_service(
-      :host => ip,
-      :proto => 'tcp',
-      :port => rport,
-      :name => sname,
-      :info => res.headers["Server"].to_s.strip
+      host: ip,
+      proto: 'tcp',
+      port: rport,
+      name: sname,
+      info: res.headers["Server"].to_s.strip
     )
   end
 
   def report_oracle_sid(ip,sid)
     report_note(
-      :host => ip,
-      :proto => 'tcp',
-      :port => rport,
-      :type => "oracle.sid",
-      :data => ((sid.nil? || sid.empty?) ? "*BLANK*" : sid),
-      :update => :unique_data
+      host: ip,
+      proto: 'tcp',
+      port: rport,
+      type: "oracle.sid",
+      data: ((sid.nil? || sid.empty?) ? "*BLANK*" : sid),
+      update: :unique_data
     )
   end
 

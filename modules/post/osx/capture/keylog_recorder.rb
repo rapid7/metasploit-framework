@@ -59,8 +59,8 @@ class Metasploit3 < Msf::Post
   def run_ruby_code
     # to pass args to ruby -e we use ARGF (stdin) and yaml
     opts = {
-      :duration => datastore['DURATION'].to_i,
-      :port => self.port
+      duration: datastore['DURATION'].to_i,
+      port: self.port
     }
     cmd = ['ruby', '-e', ruby_code(opts)]
 
@@ -149,8 +149,8 @@ child_pid = fork do
 
 
   options = {
-    :duration => #{opts[:duration]},
-    :port => #{opts[:port]}
+    duration: #{opts[:duration]},
+    port: #{opts[:port]}
   }
 
 

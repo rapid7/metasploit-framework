@@ -69,16 +69,16 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("#{rhost}:#{rport} - Request may have succeeded on file #{file}")
       report_web_vuln({
-        :host     => rhost,
-        :port     => rport,
-        :vhost    => datastore['VHOST'],
-        :path     => "/",
-        :pname    => normalize_uri(traversal, file),
-        :risk     => 3,
-        :proof    => normalize_uri(traversal, file),
-        :name     => self.fullname,
-        :category => "web",
-        :method   => "GET"
+        host: rhost,
+        port: rport,
+        vhost: datastore['VHOST'],
+        path: "/",
+        pname: normalize_uri(traversal, file),
+        risk: 3,
+        proof: normalize_uri(traversal, file),
+        name: self.fullname,
+        category: "web",
+        method: "GET"
         })
 
       loot = store_loot("tplink.traversal.data","text/plain",rhost, res.body,file)

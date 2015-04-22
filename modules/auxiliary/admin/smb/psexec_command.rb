@@ -124,11 +124,11 @@ class Metasploit3 < Msf::Auxiliary
     vprint_line("#{output}")
 
     report_note(
-      :rhost => datastore['RHOSTS'],
-      :rport => datastore['RPORT'],
-      :type => "psexec_command",
-      :name => datastore['COMMAND'],
-      :data => output
+      rhost: datastore['RHOSTS'],
+      rport: datastore['RPORT'],
+      type: "psexec_command",
+      name: datastore['COMMAND'],
+      data: output
     )
 
   end

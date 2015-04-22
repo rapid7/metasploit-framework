@@ -180,21 +180,21 @@ class Metasploit3 < Msf::Auxiliary
 
         if pass_hash != 'NULL'
           domino_svc = report_service(
-            :host => rhost,
-            :port => rport,
-            :name => "http"
+            host: rhost,
+            port: rport,
+            name: "http"
           )
           report_auth_info(
-            :host        => rhost,
-            :port        => rport,
-            :sname       => (ssl ? "https" : "http"),
-            :user        => short_name,
-            :pass        => pass_hash,
-            :ptype       => "domino_hash",
-            :source_id => domino_svc.id,
-            :source_type => "service",
-            :proof       => "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
-            :active      => true
+            host: rhost,
+            port: rport,
+            sname: (ssl ? "https" : "http"),
+            user: short_name,
+            pass: pass_hash,
+            ptype: "domino_hash",
+            source_id: domino_svc.id,
+            source_type: "service",
+            proof: "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
+            active: true
           )
         end
       end

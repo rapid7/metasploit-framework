@@ -135,14 +135,14 @@ class Metasploit4 < Msf::Auxiliary
 
     if res and res.code == 302
       report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => "sap_webgui",
-        :proto => "tcp",
-        :user => "#{user}",
-        :pass => "#{pass}",
-        :proof => "SAP Client: #{cli}",
-        :active => true
+        host: rhost,
+        port: rport,
+        sname: "sap_webgui",
+        proto: "tcp",
+        user: "#{user}",
+        pass: "#{pass}",
+        proof: "SAP Client: #{cli}",
+        active: true
       )
       return true
     elsif res and res.code == 200
@@ -150,14 +150,14 @@ class Metasploit4 < Msf::Auxiliary
         return false
       elsif res.body =~ /<title>Change Password - SAP Web Application Server<\/title>/
         report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => "sap_webgui",
-          :proto => "tcp",
-          :user => "#{user}",
-          :pass => "#{pass}",
-          :proof => "SAP Client: #{cli}",
-          :active => true
+          host: rhost,
+          port: rport,
+          sname: "sap_webgui",
+          proto: "tcp",
+          user: "#{user}",
+          pass: "#{pass}",
+          proof: "SAP Client: #{cli}",
+          active: true
         )
         return true
       elsif res.body =~ /Password logon no longer possible - too many failed attempts/

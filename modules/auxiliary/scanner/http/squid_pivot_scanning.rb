@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 
               if res.code == 200 or res.body =~ /Zero/ or res.code == 404 or res.code == 401
                 print_good("[#{rhost}] #{target}:#{port} seems OPEN")
-                report_service(:host => target, :port => port, :name => "unknown", :info => res.body )
+                report_service(host: target, port: port, name: "unknown", info: res.body )
               end
               if res.body =~ /No route to host/
                 dead = true
@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
               print_status("[#{rhost}] #{target}:#{port} blocked by ACL") if res.body =~ /Access control/
 
               if res.body =~ /Connection refused/ or res.body =~ /service not listening/
-                report_host(:host => target)
+                report_host(host: target)
                 print_good("[#{rhost}] #{target} is alive but #{port} is CLOSED")
               end
             end

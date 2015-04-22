@@ -35,13 +35,13 @@ class Metasploit3 < Msf::Auxiliary
     return if version.blank?
 
     print_good("#{ip}:#{rport} - rsync #{version.strip} found")
-    report_service(:host => ip, :port => rport, :proto => 'tcp', :name => 'rsync')
+    report_service(host: ip, port: rport, proto: 'tcp', name: 'rsync')
     report_note(
-        :host => ip,
-        :proto => 'tcp',
-        :port => rport,
-        :type => 'rsync_version',
-        :data => version.strip
+        host: ip,
+        proto: 'tcp',
+        port: rport,
+        type: 'rsync_version',
+        data: version.strip
     )
 
     # making sure we match the version of the server
@@ -59,11 +59,11 @@ class Metasploit3 < Msf::Auxiliary
 
     vprint_status("#{ip}:#{rport} - #{version.rstrip} #{listing_sanitized}")
     report_note(
-        :host => ip,
-        :proto => 'tcp',
-        :port => rport,
-        :type => 'rsync_listing',
-        :data => listing_sanitized
+        host: ip,
+        proto: 'tcp',
+        port: rport,
+        type: 'rsync_listing',
+        data: listing_sanitized
     )
   end
 end

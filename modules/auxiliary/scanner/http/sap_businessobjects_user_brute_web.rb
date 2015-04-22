@@ -80,13 +80,13 @@ class Metasploit3 < Msf::Auxiliary
     if success
       print_good("[SAP BusinessObjects] Successful login '#{user}' password: '#{pass}'")
       report_auth_info(
-        :host   => rhost,
-        :proto => 'tcp',
-        :sname  => 'sap-businessobjects',
-        :user   => user,
-        :pass   => pass,
-        :target_host => rhost,
-        :target_port => rport
+        host: rhost,
+        proto: 'tcp',
+        sname: 'sap-businessobjects',
+        user: user,
+        pass: pass,
+        target_host: rhost,
+        target_port: rport
       )
       return :next_user
     else

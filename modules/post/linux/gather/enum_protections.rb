@@ -82,10 +82,10 @@ class Metasploit3 < Msf::Post
         print_good("#{a} found: #{output}")
 
         report_note(
-          :host_name => get_host,
-          :type      => "linux.protection",
-          :data      => output,
-          :update    => :unique_data
+          host_name: get_host,
+          type: "linux.protection",
+          data: output,
+          update: :unique_data
         )
       end
     end

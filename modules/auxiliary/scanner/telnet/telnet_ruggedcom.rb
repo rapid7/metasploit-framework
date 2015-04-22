@@ -71,14 +71,14 @@ class Metasploit3 < Msf::Auxiliary
           password = mac_to_password(mac)
           info = get_info(banner_santized)
           report_auth_info(
-            :host  => rhost,
-            :port => rport,
-            :sname => 'telnet',
-            :user => 'factory',
-            :pass => password,
-            :source_type => "user_supplied",
-            :proof => info,
-            :active => true
+            host: rhost,
+            port: rport,
+            sname: 'telnet',
+            user: 'factory',
+            pass: password,
+            source_type: "user_supplied",
+            proof: info,
+            active: true
           )
           break
         else

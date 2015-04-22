@@ -142,19 +142,19 @@ class Metasploit3 < Msf::Auxiliary
           else
 
             report_web_vuln(
-              :host	=> ip,
-              :port	=> rport,
-              :vhost  => vhost,
-              :ssl    => ssl,
-              :path	=> "#{tpath}#{testfdir}",
-              :method => 'GET',
-              :pname  => "",
-              :proof  => "Res code: #{res.code.to_s}",
-              :risk   => 0,
-              :confidence   => 100,
-              :category     => 'directory',
-              :description  => 'Directoy found.',
-              :name   => 'directory'
+              host: ip,
+              port: rport,
+              vhost: vhost,
+              ssl: ssl,
+              path: "#{tpath}#{testfdir}",
+              method: 'GET',
+              pname: "",
+              proof: "Res code: #{res.code.to_s}",
+              risk: 0,
+              confidence: 100,
+              category: 'directory',
+              description: 'Directoy found.',
+              name: 'directory'
             )
 
             print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
@@ -163,13 +163,13 @@ class Metasploit3 < Msf::Auxiliary
               print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")
 
               report_note(
-                :host	=> ip,
-                :port	=> rport,
-                :proto => 'tcp',
-                :sname	=> (ssl ? 'https' : 'http'),
-                :type	=> 'WWW_AUTHENTICATE',
-                :data	=> "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}",
-                :update => :unique_data
+                host: ip,
+                port: rport,
+                proto: 'tcp',
+                sname: (ssl ? 'https' : 'http'),
+                type: 'WWW_AUTHENTICATE',
+                data: "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}",
+                update: :unique_data
               )
 
             end

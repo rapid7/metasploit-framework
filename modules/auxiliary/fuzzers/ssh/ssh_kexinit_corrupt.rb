@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       begin
-        r = do_ssh_kexinit(str,:banner_timeout => 5, :kex_timeout => 0.5)
+        r = do_ssh_kexinit(str,banner_timeout: 5, kex_timeout: 0.5)
       rescue ::Interrupt
         print_status("Exiting on interrupt: iteration #{cnt} using #{@last_fuzzer_input}")
         raise $!

@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
         next if fname !~ datastore['PATTERN']
         print_status("#{@peer} - Downloading #{t}")
         content = exec("cat \"#{t}\"")
-        chats << {:log_name => fname, :content => content}
+        chats << {log_name: fname, content: content}
       end
     end
 

@@ -214,12 +214,12 @@ class Metasploit3 < Msf::Auxiliary
       end
       logins <<  [accounttype,  accountname,  accountpass]
       report_auth_info(
-        :host => datastore['RHOST'],
-        :port => 23,
-        :sname => "telnet",
-        :user => accountname,
-        :pass => accountpass,
-        :active => true
+        host: datastore['RHOST'],
+        port: 23,
+        sname: "telnet",
+        user: accountname,
+        pass: accountpass,
+        active: true
       )
     end
     if not logins.rows.empty?

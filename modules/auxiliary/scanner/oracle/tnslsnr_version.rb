@@ -44,10 +44,10 @@ class Metasploit3 < Msf::Auxiliary
         if ( data && data =~ /\\*.TNSLSNR for (.*)/ )
           ora_version = data.match(/\\*.TNSLSNR for (.*)/)[1]
           report_service(
-            :host => ip,
-            :port => datastore['RPORT'],
-            :name => "oracle",
-            :info => ora_version
+            host: ip,
+            port: datastore['RPORT'],
+            name: "oracle",
+            info: ora_version
           )
           print_good("#{ip}:#{datastore['RPORT']} Oracle - Version: " + ora_version)
         elsif ( data && data =~ /\(ERR=(\d+)\)/ )

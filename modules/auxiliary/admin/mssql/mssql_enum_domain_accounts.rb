@@ -110,10 +110,10 @@ class Metasploit3 < Msf::Auxiliary
 
     # Create output file
     this_service = report_service(
-      :host  => rhost,
-      :port => rport,
-      :name => 'mssql',
-      :proto => 'tcp'
+      host: rhost,
+      port: rport,
+      name: 'mssql',
+      proto: 'tcp'
     )
     file_name = "#{datastore['RHOST']}-#{datastore['RPORT']}_windows_domain_accounts.csv"
     path = store_loot(

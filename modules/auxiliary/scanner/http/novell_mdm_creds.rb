@@ -98,12 +98,12 @@ class Metasploit3 < Msf::Auxiliary
         print_good("Access the admin interface here: #{ip}:#{rport}#{target_uri.path}dashboard/")
 
         report_auth_info(
-          :host => ip,
-          :port => rport,
-          :sname => "novellmdm",
-          :user => user,
-          :pass => pass,
-          :active => true
+          host: ip,
+          port: rport,
+          sname: "novellmdm",
+          user: user,
+          pass: pass,
+          active: true
         )
       else
         print_error("Zenworks MDM does not appear to be running at #{ip}")

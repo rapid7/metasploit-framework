@@ -40,8 +40,8 @@ class Metasploit3 < Msf::Auxiliary
       # report its external address as alive
       if inside_workspace_boundary?(external_address)
         report_host(
-          :host   => external_address,
-          :state => Msf::HostState::Alive
+          host: external_address,
+          state: Msf::HostState::Alive
         )
       end
     else
@@ -50,17 +50,17 @@ class Metasploit3 < Msf::Auxiliary
 
     # report the host we scanned as alive
     report_host(
-      :host   => shost,
-      :state => Msf::HostState::Alive
+      host: shost,
+      state: Msf::HostState::Alive
     )
 
     # report NAT-PMP as being open
     report_service(
-      :host   => shost,
-      :port   => sport,
-      :proto  => 'udp',
-      :name   => 'natpmp',
-      :state  => Msf::ServiceState::Open
+      host: shost,
+      port: sport,
+      proto: 'udp',
+      name: 'natpmp',
+      state: Msf::ServiceState::Open
     )
   end
 end

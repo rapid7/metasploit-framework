@@ -52,11 +52,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def sip_parse_request(data)
     response = {
-      :headers_raw => [],
-      :headers => {},
-      :uri => nil,
-      :method => nil,
-      :protocol => nil
+      headers_raw: [],
+      headers: {},
+      uri: nil,
+      method: nil,
+      protocol: nil
     }
     status = data.slice!(0, data.index(/\r?\n/)+1).split(/\s/)
     response[:method] = status[0]
@@ -117,8 +117,8 @@ class Metasploit3 < Msf::Auxiliary
       while @run
         res = @sock.recvfrom()
         @requestor = {
-          :ip => res[1],
-          :port => res[2]
+          ip: res[1],
+          port: res[2]
         }
         client_ip = sip_sanitize_address(res[1])
         next if not res[0] or res[0].empty?
@@ -142,15 +142,15 @@ class Metasploit3 < Msf::Auxiliary
             print_status("SIP LOGIN: #{proof}")
 
             report_auth_info(
-              :host  => @requestor[:ip],
-              :port => @requestor[:port],
-              :sname => 'sip_client',
-              :user => username,
-              :pass => response + ":" + auth_tokens['nonce'] + ":" + algorithm,
-              :type => "sip_hash",
-              :proof => proof,
-              :source_type => "captured",
-              :active => true
+              host: @requestor[:ip],
+              port: @requestor[:port],
+              sname: 'sip_client',
+              user: username,
+              pass: response + ":" + auth_tokens['nonce'] + ":" + algorithm,
+              type: "sip_hash",
+              proof: proof,
+              source_type: "captured",
+              active: true
             )
 
             if datastore['JOHNPWFILE']

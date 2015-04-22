@@ -94,13 +94,13 @@ class Metasploit3 < Msf::Auxiliary
       when /\<a href="process\.php\?logout=1"\>/
         print_good("#{peer} - Successful login: \"#{user}:#{pass}\"")
         report_auth_info({
-          :host        => rhost,
-          :port        => rport,
-          :sname       => (ssl ? 'https' : 'http'),
-          :user        => user,
-          :pass        => pass,
-          :proof       => "logout=1",
-          :source_type => 'user_supplied'
+          host: rhost,
+          port: rport,
+          sname: (ssl ? 'https' : 'http'),
+          user: user,
+          pass: pass,
+          proof: "logout=1",
+          source_type: 'user_supplied'
         })
         return :next_user
       end

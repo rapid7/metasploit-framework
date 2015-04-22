@@ -43,12 +43,12 @@ class Metasploit3 < Msf::Auxiliary
       virtual_machines.each do |vm|
         print_good YAML.dump(vm)
         report_note(
-          :host  => rhost,
-          :type  => "vmware.esx.vm",
-          :data  => vm,
-          :port  => rport,
-          :proto => 'tcp',
-          :update => :unique_data
+          host: rhost,
+          type: "vmware.esx.vm",
+          data: vm,
+          port: rport,
+          proto: 'tcp',
+          update: :unique_data
         )
         next unless datastore['SCREENSHOT'] and vm['runtime']['powerState'] == 'poweredOn'
         print_status "Attempting to take screenshot of #{vm['name']}...."

@@ -172,13 +172,13 @@ class Metasploit3 < Msf::Auxiliary
       user = get_user_data(node_id, i)
       unless user.join.empty?
         report_auth_info({
-         :host => rhost,
-         :port => rport,
-         :user => user[0],
-         :pass => user[1],
-         :type => "hash",
-         :sname => (ssl ? "https" : "http"),
-         :proof => "salt: #{user[2]}" # Using proof to store the hash salt
+         host: rhost,
+         port: rport,
+         user: user[0],
+         pass: user[1],
+         type: "hash",
+         sname: (ssl ? "https" : "http"),
+         proof: "salt: #{user[2]}" # Using proof to store the hash salt
         })
         users_table << user
       end

@@ -56,10 +56,10 @@ class Metasploit3 < Msf::Auxiliary
         else
           print_good("Redis server is using the default password of foobared")
           report_note(
-            :host => rhost,
-            :port => rport,
-            :type => 'password',
-            :data => 'foobared'
+            host: rhost,
+            port: rport,
+            type: 'password',
+            data: 'foobared'
           )
         end
       else
@@ -67,10 +67,10 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       report_service(
-        :host => rhost,
-        :port => rport,
-        :name => "redis server",
-        :info => data_sanitized
+        host: rhost,
+        port: rport,
+        name: "redis server",
+        info: data_sanitized
       )
 
       disconnect

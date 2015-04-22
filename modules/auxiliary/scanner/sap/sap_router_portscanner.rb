@@ -389,7 +389,7 @@ class Metasploit3 < Msf::Auxiliary
       # we can't report if resolution is remote, since host is unknown locally
       if datastore['RESOLVE'] == 'local'
         begin
-          report_service(:host => res[0], :port => res[1], :state => res[2])
+          report_service(host: res[0], port: res[1], state: res[2])
         rescue ActiveRecord::RecordInvalid
           # Probably raised because the Address is reserved, for example
           # when trying to report a service on 127.0.0.1

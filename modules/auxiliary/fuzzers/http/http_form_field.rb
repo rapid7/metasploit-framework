@@ -63,10 +63,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     @send_data = {
-        :uri => '',
-        :version => '1.1',
-        :method => 'POST',
-        :headers => {
+        uri: '',
+        version: '1.1',
+        method: 'POST',
+        headers: {
           'Content-Length' => 100,
           'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language' => 'en-us,en;q=0.5',
@@ -429,10 +429,10 @@ class Metasploit3 < Msf::Auxiliary
                 print_status("      Field : #{fieldname}, type #{fieldtype}")
                 if fieldid != ""
                   formfields << {
-                    :id => fieldid,
-                    :name => fieldname,
-                    :type => fieldtype,
-                    :value => fieldvalue
+                    id: fieldid,
+                    name: fieldname,
+                    type: fieldtype,
+                    value: fieldvalue
                   }
                   formfieldcnt += 1
                 end
@@ -446,11 +446,11 @@ class Metasploit3 < Msf::Auxiliary
       print_status("      Nr of fields in form '#{formname}' : #{formfields.size}")
       # store in multidimensional array
       forms << {
-        :name => formname,
-        :id => formid,
-        :action => actionname,
-        :method => formmethod,
-        :fields => formfields
+        name: formname,
+        id: formid,
+        action: actionname,
+        method: formmethod,
+        fields: formfields
       }
       formidx = formidx + 1
       formcnt += 1

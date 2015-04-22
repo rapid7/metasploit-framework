@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
         # Without this check any arp request would be added to the cache
         if @dhosts.include? reply.arp_saddr_ip
           print_status("#{reply.arp_saddr_ip} appears to be up.")
-          report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+          report_host(host: reply.arp_saddr_ip, mac:reply.arp_saddr_mac)
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
       end
@@ -196,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
         next if not reply.is_arp?
         if @dhosts.include? reply.arp_saddr_ip
           print_status("#{reply.arp_saddr_ip} appears to be up.")
-          report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+          report_host(host: reply.arp_saddr_ip, mac:reply.arp_saddr_mac)
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
       end
@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Auxiliary
           next if not reply.is_arp?
           if @shosts.include? reply.arp_saddr_ip
             print_status("#{reply.arp_saddr_ip} appears to be up.")
-            report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+            report_host(host: reply.arp_saddr_ip, mac:reply.arp_saddr_mac)
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end
         end
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
           next if not reply.is_arp?
           if @shosts.include? reply.arp_saddr_ip
             print_status("#{reply.arp_saddr_ip} appears to be up.")
-            report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+            report_host(host: reply.arp_saddr_ip, mac:reply.arp_saddr_mac)
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end
         end
@@ -351,9 +351,9 @@ class Metasploit3 < Msf::Auxiliary
   def start_listener(dsthosts_cache, srchosts_cache)
 
     if datastore['BIDIRECTIONAL']
-      args = {:BIDIRECTIONAL => true,  :dhosts => dsthosts_cache.dup, :shosts => srchosts_cache.dup}
+      args = {BIDIRECTIONAL: true,  dhosts: dsthosts_cache.dup, shosts: srchosts_cache.dup}
     else
-      args = {:BIDIRECTIONAL => false, :dhosts => dsthosts_cache.dup, :shosts => @shosts.dup}
+      args = {BIDIRECTIONAL: false, dhosts: dsthosts_cache.dup, shosts: @shosts.dup}
     end
     # To avoid any race condition in case of , even if actually those are never updated after the thread is launched
     args[:AUTO_ADD] = datastore['AUTO_ADD']

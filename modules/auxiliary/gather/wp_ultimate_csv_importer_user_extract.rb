@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       CSV::Converters[:blank_to_nil] = lambda do |field|
         field && field.empty? ? nil : field
       end
-      csv = CSV.new(body, :col_sep => delimiter, :headers => true, :header_converters => :symbol, :converters => [:all, :blank_to_nil])
+      csv = CSV.new(body, col_sep: delimiter, headers: true, header_converters: :symbol, converters: [:all, :blank_to_nil])
       csv.to_a.map { |row| process_row(row) }
       return true
     rescue

@@ -103,10 +103,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     cap = PacketFu::Capture.new(
-            :iface   => @interface,
-            :start   => true,
-            :filter  => datastore['BPF_FILTER'],
-            :promisc => datastore['PROMISC']
+            iface: @interface,
+            start: true,
+            filter: datastore['BPF_FILTER'],
+            promisc: datastore['PROMISC']
             )
     loop {
       cap.stream.each do | pkt |
@@ -219,7 +219,7 @@ class Metasploit3 < Msf::Auxiliary
     # create payload with matching id/seq
     resp_payload = icmp_id + icmp_seq + contents
 
-    icmp_pkt = PacketFu::ICMPPacket.new(:flavor => datastore['CLOAK'].downcase)
+    icmp_pkt = PacketFu::ICMPPacket.new(flavor: datastore['CLOAK'].downcase)
     icmp_pkt.eth_saddr = src_mac
     icmp_pkt.eth_daddr = dst_mac
     icmp_pkt.icmp_type = 0

@@ -171,13 +171,13 @@ class BaseProtocolParser
       # Create a new session entry along with the host/port from the id
       if (sessionid =~ /^([^:]+):([^-]+)-([^:]+):(\d+)$/s)
         sessions[sessionid] = {
-          :client_host => $1,
-          :client_port => $2,
-          :host => $3,
-          :port => $4,
-          :session   => sessionid,
-          :ctime     => Time.now,
-          :mtime     => Time.now
+          client_host: $1,
+          client_port: $2,
+          host: $3,
+          port: $4,
+          session: sessionid,
+          ctime: Time.now,
+          mtime: Time.now
         }
       end
     end

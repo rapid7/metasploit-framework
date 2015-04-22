@@ -141,15 +141,15 @@ class Metasploit4 < Msf::Auxiliary
       end
 
       report_auth_info(
-        :host => rhost,
-        :sname => 'sap-managementconsole',
-        :proto => 'tcp',
-        :port => rport,
-        :user => user,
-        :pass => pass,
-        :source_type => "user_supplied",
-        :target_host => rhost,
-        :target_port => rport
+        host: rhost,
+        sname: 'sap-managementconsole',
+        proto: 'tcp',
+        port: rport,
+        user: user,
+        pass: pass,
+        source_type: "user_supplied",
+        target_host: rhost,
+        target_port: rport
       )
     else
       vprint_error("#{peer} [SAP] failed to login as '#{user}':'#{pass}'")

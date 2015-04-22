@@ -120,19 +120,19 @@ class Metasploit3 < Msf::Auxiliary
         receivelength = 42 + data.length
         amp = receivelength / sendlength.to_f
         print_good("#{shost}:#{datastore['RPORT']} - Response is #{receivelength} bytes [#{amp.round(2)}x Amplification]")
-        report_service(:host => shost, :port => datastore['RPORT'], :proto => 'udp', :name => "dns")
+        report_service(host: shost, port: datastore['RPORT'], proto: 'udp', name: "dns")
         report_vuln(
-          :host => shost,
-          :port => datastore['RPORT'],
-          :proto => 'udp', :name => "DNS",
-          :info => "DNS amplification -  #{data.length} bytes [#{amp.round(2)}x Amplification]",
-          :refs => [ "CVE-2006-0987", "CVE-2006-0988" ])
+          host: shost,
+          port: datastore['RPORT'],
+          proto: 'udp', name: "DNS",
+          info: "DNS amplification -  #{data.length} bytes [#{amp.round(2)}x Amplification]",
+          refs: [ "CVE-2006-0987", "CVE-2006-0988" ])
       end
 
       # If these flags are set, we get a valid response but recursion is not available
       if qr == "1" and ra == "0" and rcode == "0101"
         print_status("#{shost}:#{datastore['RPORT']} - Recursion not allowed")
-        report_service(:host => shost, :port => datastore['RPORT'], :proto => 'udp', :name => "dns")
+        report_service(host: shost, port: datastore['RPORT'], proto: 'udp', name: "dns")
       end
     end
   end

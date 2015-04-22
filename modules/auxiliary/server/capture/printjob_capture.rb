@@ -91,17 +91,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_client_connect(c)
     @state[c] = {
-      :name => "#{c.peerhost}:#{c.peerport}",
-      :ip => c.peerhost,
-      :port => c.peerport,
-      :user => nil,
-      :pass => nil,
-      :data => '',
-      :raw_data => '',
-      :prn_title => '',
-      :prn_type => '',
-      :prn_metadata => {},
-      :meta_output => []
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
+      user: nil,
+      pass: nil,
+      data: '',
+      raw_data: '',
+      prn_title: '',
+      prn_type: '',
+      prn_metadata: {},
+      meta_output: []
     }
 
     print_status("#{name}: Client connection from #{c.peerhost}:#{c.peerport}")

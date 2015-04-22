@@ -92,12 +92,12 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{ip} - Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
       # Add Report
       report_note(
-        :host	=> ip,
-        :proto => 'tcp',
-        :sname	=> 'smb',
-        :port	=> rport,
-        :type	=> 'Pipes Founded',
-        :data	=> "Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}"
+        host: ip,
+        proto: 'tcp',
+        sname: 'smb',
+        port: rport,
+        type: 'Pipes Founded',
+        data: "Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}"
       )
     end
   end

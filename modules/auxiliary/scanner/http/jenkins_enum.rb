@@ -55,17 +55,17 @@ class Metasploit3 < Msf::Auxiliary
     version = res.headers['X-Jenkins']
     print_status("#{peer} - Jenkins Version - #{version}")
     report_service(
-      :host  => rhost,
-      :port  => rport,
-      :name  => (ssl ? 'https' : 'http'),
-      :proto => 'tcp'
+      host: rhost,
+      port: rport,
+      name: (ssl ? 'https' : 'http'),
+      proto: 'tcp'
     )
 
     report_web_site(
-      :host  => rhost,
-      :port  => rport,
-      :ssl   => ssl,
-      :info  => "Jenkins Version - #{version}"
+      host: rhost,
+      port: rport,
+      ssl: ssl,
+      info: "Jenkins Version - #{version}"
     )
 
     # script - exploit module for this
@@ -99,24 +99,24 @@ class Metasploit3 < Msf::Auxiliary
     when 200
       print_good("#{peer} - #{uri_path} does not require authentication (200)")
       report_note({
-        :type  => "jenkins_path",
-        :host  => rhost,
-        :port  => rport,
-        :proto => 'tcp',
-        :data  => "#{uri_path} does not require authentication (200)",
-        :update => :unique_data
+        type: "jenkins_path",
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        data: "#{uri_path} does not require authentication (200)",
+        update: :unique_data
       })
       case app
       when "systemInfo"
         parse_system_info(res.body)
       when "script"
         report_vuln(
-          :host        => rhost,
-          :port        => rport,
-          :proto       => 'tcp',
-          :sname       => (ssl ? 'https' : 'http'),
-          :name        => "Jenkins Script-Console Java Execution",
-          :info        => "Module #{self.fullname} confirmed access to the Jenkins Script Console with no authentication"
+          host: rhost,
+          port: rport,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          name: "Jenkins Script-Console Java Execution",
+          info: "Module #{self.fullname} confirmed access to the Jenkins Script Console with no authentication"
         )
       end
     when 403
@@ -216,10 +216,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Report a fingerprint.match for OS fingerprinting support, tied to this service
-    report_note(:host => rhost, :port => rport, :proto => 'tcp', :ntype => 'fingerprint.match', :data => fprint)
+    report_note(host: rhost, port: rport, proto: 'tcp', ntype: 'fingerprint.match', data: fprint)
 
     # Report a jenkins information note for future analysis, tied to this service
-    report_note(:host => rhost, :port => rport, :proto => 'tcp', :ntype => 'jenkins.info', :data => jinfo)
+    report_note(host: rhost, port: rport, proto: 'tcp', ntype: 'jenkins.info', data: jinfo)
 
     vprint_line('')
   end

@@ -74,9 +74,9 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       if (host[:mac] != "00:00:00:00:00:00")
-        report_host(:host => ip, :mac => host[:mac])
+        report_host(host: ip, mac: host[:mac])
       else
-        report_host(:host => ip)
+        report_host(host: ip)
       end
 
       extra = ""
@@ -104,9 +104,9 @@ class Metasploit3 < Msf::Auxiliary
       if (virtual)
         extra = "Virtual Machine:#{virtual}"
         report_note(
-          :host  => ip,
-          :type  => 'host.virtual_machine',
-          :data  => {:vendor => virtual, :method => 'netbios'}
+          host: ip,
+          type: 'host.virtual_machine',
+          data: {vendor: virtual, method: 'netbios'}
         )
       end
 
@@ -119,11 +119,11 @@ class Metasploit3 < Msf::Auxiliary
 
         if not aliases.empty?
           report_note(
-            :host  => ip,
-            :proto => 'udp',
-            :port  => 137,
-            :type  => 'netbios.addresses',
-            :data  => {:addresses => aliases}
+            host: ip,
+            proto: 'udp',
+            port: 137,
+            type: 'netbios.addresses',
+            data: {addresses: aliases}
           )
         end
       end
@@ -189,13 +189,13 @@ class Metasploit3 < Msf::Auxiliary
       inf << maddr
 
       report_service(
-        :host  => shost,
-        :mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
-        :host_name => (hname) ? hname.downcase : nil,
-        :port  => datastore['RPORT'],
-        :proto => 'udp',
-        :name  => 'netbios',
-        :info  => inf
+        host: shost,
+        mac: (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
+        host_name: (hname) ? hname.downcase : nil,
+        port: datastore['RPORT'],
+        proto: 'udp',
+        name: 'netbios',
+        info: inf
       )
 
     when 0x20

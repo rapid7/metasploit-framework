@@ -139,12 +139,12 @@ class Metasploit3 < Msf::Auxiliary
       boot,left = buff.split("\x00", 2)
       print_status("#{pkt[1]}: BOOT> #{boot}")
       report_note(
-        :host   => pkt[1],
-        :port   => datastore['RPORT'],
-        :proto  => 'udp',
-        :type   => 'vxworks.bootline',
-        :data   => {:bootline => boot },
-        :update => :unique_data
+        host: pkt[1],
+        port: datastore['RPORT'],
+        proto: 'udp',
+        type: 'vxworks.bootline',
+        data: {bootline: boot },
+        update: :unique_data
       )
       return
     end
@@ -155,12 +155,12 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
 
       report_note(
-        :host   => pkt[1],
-        :port   => datastore['RPORT'],
-        :proto  => 'udp',
-        :type   => 'vxworks.target_info',
-        :data   => res,
-        :update => :unique
+        host: pkt[1],
+        port: datastore['RPORT'],
+        proto: 'udp',
+        type: 'vxworks.target_info',
+        data: res,
+        update: :unique
       )
 
       # Send the memory dump request for the bootline. Theoretically we can infer the correct

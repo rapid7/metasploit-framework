@@ -114,13 +114,13 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'Cisco ASA ASDM',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'
+          host: rhost,
+          port: rport,
+          sname: 'Cisco ASA ASDM',
+          user: user,
+          pass: pass,
+          active: true,
+          type: 'password'
         }
 
         report_auth_info(report_hash)

@@ -38,21 +38,21 @@ class Metasploit3 < Msf::Auxiliary
     mysql_schema = get_schema
     mysql_schema.each do |db|
       report_note(
-        :host  => rhost,
-        :type  => "mysql.db.schema",
-        :data  => db,
-        :port  => rport,
-        :proto => 'tcp',
-        :update => :unique_data
+        host: rhost,
+        type: "mysql.db.schema",
+        data: db,
+        port: rport,
+        proto: 'tcp',
+        update: :unique_data
       )
     end
     output = "MySQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n ====================\n\n"
     output << YAML.dump(mysql_schema)
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
-          :name => 'mysql',
-          :proto => 'tcp'
+          host: datastore['RHOST'],
+          port: datastore['RPORT'],
+          name: 'mysql',
+          proto: 'tcp'
           )
     p = store_loot('mysql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mysql_schema.txt", "MySQL Schema", this_service)
     print_status("Schema stored in: #{p}")

@@ -107,12 +107,12 @@ class Metasploit3 < Msf::Post
 
       # Reort auth info while dumping data
       report_auth_info(
-        :host  => host,
-        :port  => port,
-        :sname => database,
-        :user  => user,
-        :pass  => pass,
-        :type  => 'password'
+        host: host,
+        port: port,
+        sname: database,
+        user: user,
+        pass: pass,
+        type: 'password'
       )
     end
 

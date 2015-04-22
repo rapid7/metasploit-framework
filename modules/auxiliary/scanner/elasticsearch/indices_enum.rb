@@ -60,10 +60,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_service(
-      :host  => rhost,
-      :port  => rport,
-      :proto => 'tcp',
-      :name  => 'elasticsearch'
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: 'elasticsearch'
     )
 
     indices = []
@@ -71,12 +71,12 @@ class Metasploit3 < Msf::Auxiliary
     json_body.each do |index|
       indices.push(index[0])
       report_note(
-        :host  => rhost,
-        :port  => rport,
-        :proto => 'tcp',
-        :type  => "elasticsearch.index",
-        :data  => index[0],
-        :update => :unique_data
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        type: "elasticsearch.index",
+        data: index[0],
+        update: :unique_data
       )
     end
 

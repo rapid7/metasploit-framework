@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       }, 10)
 
       if res and res.code == 200
-        http_fingerprint({ :response => res })
+        http_fingerprint({ response: res })
 
         tserver = res.headers['Server']
         tdav = res.headers['DAV'].to_s
@@ -54,12 +54,12 @@ class Metasploit3 < Msf::Auxiliary
 
           report_note(
             {
-              :host   => target_host,
-              :proto  => 'tcp',
-              :sname => (ssl ? 'https' : 'http'),
-              :port   => rport,
-              :type   => wdtype,
-              :data   => datastore['PATH']
+              host: target_host,
+              proto: 'tcp',
+              sname: (ssl ? 'https' : 'http'),
+              port: rport,
+              type: wdtype,
+              data: datastore['PATH']
             })
 
         else

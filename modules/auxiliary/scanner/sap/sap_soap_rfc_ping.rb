@@ -87,12 +87,12 @@ class Metasploit4 < Msf::Auxiliary
       elsif res and res.body =~ /Response/
         print_good("[SAP] #{ip}:#{rport} - RFC service is alive")
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'sap.services.available',
-          :data => "The Remote Function Call (RFC) Service is available through the SOAP service."
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'sap.services.available',
+          data: "The Remote Function Call (RFC) Service is available through the SOAP service."
         )
         return
       else

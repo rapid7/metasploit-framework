@@ -54,13 +54,13 @@ class Metasploit3 < Msf::Auxiliary
         print_status("[#{target_host}] #{tpath}trace.axd FOUND.")
 
         report_note(
-            :host	=> target_host,
-            :proto => 'tcp',
-            :sname => (ssl ? 'https' : 'http'),
-            :port	=> rport,
-            :type	=> 'TRACE_AXD',
-            :data	=> "#{tpath}trace.axd",
-            :update => :unique_data
+            host: target_host,
+            proto: 'tcp',
+            sname: (ssl ? 'https' : 'http'),
+            port: rport,
+            type: 'TRACE_AXD',
+            data: "#{tpath}trace.axd",
+            update: :unique_data
           )
 
         if datastore['TRACE_DETAILS']

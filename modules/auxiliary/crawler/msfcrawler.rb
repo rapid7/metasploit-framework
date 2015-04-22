@@ -181,13 +181,13 @@ class Metasploit3 < Msf::Auxiliary
   def storedb(hashreq,response,dbpath)
 
     info = {
-      :web_site => @current_site,
-      :path     => hashreq['uri'],
-      :query    => hashreq['query'],
-      :data	=> hashreq['data'],
-      :code     => response['code'],
-      :body     => response['body'],
-      :headers  => response['headers']
+      web_site: @current_site,
+      path: hashreq['uri'],
+      query: hashreq['query'],
+      data: hashreq['data'],
+      code: response['code'],
+      body: response['body'],
+      headers: response['headers']
     }
 
     #if response['content-type']

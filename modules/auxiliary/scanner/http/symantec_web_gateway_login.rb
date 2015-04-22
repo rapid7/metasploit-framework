@@ -91,10 +91,10 @@ class Metasploit3 < Msf::Auxiliary
     @scanner.scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
         do_report(ip, rport, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute :level => :verror, :ip => ip, :msg => result.proof
+        vprint_brute level: :verror, ip: ip, msg: result.proof
         invalidate_login(
             address: ip,
             port: rport,
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
             proof: result.proof
         )
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        vprint_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
         invalidate_login(
             address: ip,
             port: rport,
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     init(ip)
     unless @scanner.check_setup
-      print_brute :level => :error, :ip => ip, :msg => 'Target is not Symantec Web Gateway'
+      print_brute level: :error, ip: ip, msg: 'Target is not Symantec Web Gateway'
       return
     end
 

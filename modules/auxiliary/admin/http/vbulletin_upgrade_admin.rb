@@ -85,13 +85,13 @@ class Metasploit3 < Msf::Auxiliary
     if res and res.code == 200 and res.body =~ /Administrator account created/
       print_good("#{peer} - Admin account with credentials #{user}:#{pass} successfully created")
       report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => 'http',
-        :user => user,
-        :pass => pass,
-        :active => true,
-        :proof  => res.body
+        host: rhost,
+        port: rport,
+        sname: 'http',
+        user: user,
+        pass: pass,
+        active: true,
+        proof: res.body
       )
     else
       print_error("#{peer} - Admin account creation failed")

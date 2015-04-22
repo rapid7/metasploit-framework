@@ -177,7 +177,7 @@ class Metasploit3 < Msf::Auxiliary
       # return nil
     end
 
-    return { :length => length, :data => data }
+    return { length: length, data: data }
   end
 
   def parse_configuration(data)
@@ -201,13 +201,13 @@ class Metasploit3 < Msf::Auxiliary
       next unless v[:user] and v[:password]
       print_status("#{peer} - #{k}: User: #{v[:user]} Pass: #{v[:password]}")
       auth = {
-          :host => rhost,
-          :port => rport,
-          :user => v[:user],
-          :pass => v[:password],
-          :type => 'password',
-          :source_type => "exploit",
-          :active => true
+          host: rhost,
+          port: rport,
+          user: v[:user],
+          pass: v[:password],
+          type: 'password',
+          source_type: "exploit",
+          active: true
       }
       report_auth_info(auth)
     end

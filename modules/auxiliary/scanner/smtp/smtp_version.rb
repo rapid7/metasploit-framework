@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
     res = connect
     banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
     print_status("#{ip}:#{rport} SMTP #{banner_sanitized}")
-    report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
+    report_service(host: rhost, port: rport, name: "smtp", info: banner)
   end
 
 end

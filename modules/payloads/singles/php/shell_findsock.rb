@@ -56,7 +56,7 @@ flush();
 
 function mysystem(#{var_cmd}){
   #{php_preamble()}
-  #{php_system_block({:cmd_varname=>var_cmd, :output_varname => var_out})}
+  #{php_system_block({cmd_varname:var_cmd, output_varname: var_out})}
   return #{var_out};
 }
 

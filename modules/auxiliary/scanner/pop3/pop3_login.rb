@@ -85,18 +85,18 @@ class Metasploit3 < Msf::Auxiliary
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         next
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+          print_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
         end
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}', '#{result.proof.to_s.chomp}'"
+          print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}', '#{result.proof.to_s.chomp}'"
         end
       end
 

@@ -64,19 +64,19 @@ class Metasploit3 < Msf::Post
       dom_info =  domain.split('.')
       dom_info[0].sub!(/\\\\/,'')
       report_note(
-        :host   => session,
-        :type   => 'windows.domain',
-        :data   => { :domain => dom_info[1] },
-        :update => :unique_data
+        host: session,
+        type: 'windows.domain',
+        data: { domain: dom_info[1] },
+        update: :unique_data
       )
       print_good("FOUND Domain: #{dom_info[1]}")
       dc_ip = gethost(dom_info[0])
       if not dc_ip.nil?
         print_good("FOUND Domain Controller: #{dom_info[0]} (IP: #{dc_ip})")
         report_host({
-            :host => dc_ip,
-            :name => dom_info[0],
-            :info => "Domain controller for #{dom_info[1]}"
+            host: dc_ip,
+            name: dom_info[0],
+            info: "Domain controller for #{dom_info[1]}"
           })
       else
         print_good("FOUND Domain Controller: #{dom_info[0]}")

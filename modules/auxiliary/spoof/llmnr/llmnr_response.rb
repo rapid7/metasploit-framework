@@ -88,19 +88,19 @@ attr_accessor :sock, :thread
       case question.qType.to_i
       when ::Net::DNS::A
         dns_pkt.answer << ::Net::DNS::RR::A.new(
-          :name => name,
-          :ttl => 30,
-          :cls => ::Net::DNS::IN,
-          :type => ::Net::DNS::A,
-          :address => spoof.to_s
+          name: name,
+          ttl: 30,
+          cls: ::Net::DNS::IN,
+          type: ::Net::DNS::A,
+          address: spoof.to_s
         )
       when ::Net::DNS::AAAA
         dns_pkt.answer << ::Net::DNS::RR::AAAA.new(
-          :name => name,
-          :ttl => 30,
-          :cls => ::Net::DNS::IN,
-          :type => ::Net::DNS::AAAA,
-          :address => (spoof.ipv6? ? spoof : spoof.ipv4_mapped).to_s
+          name: name,
+          ttl: 30,
+          cls: ::Net::DNS::IN,
+          type: ::Net::DNS::AAAA,
+          address: (spoof.ipv6? ? spoof : spoof.ipv4_mapped).to_s
         )
       else
         print_warning("#{rhost.to_s.ljust 16} llmnr - Unknown RR type, this shouldn't happen. Skipping")
@@ -113,24 +113,24 @@ attr_accessor :sock, :thread
     return if dns_pkt.answer.empty?
 
     udp = ::PacketFu::UDPHeader.new(
-      :udp_src => 5355,
-      :udp_dst => src_port,
-      :body => dns_pkt.data
+      udp_src: 5355,
+      udp_dst: src_port,
+      body: dns_pkt.data
     )
     udp.udp_recalc
     if rhost.ipv4?
       ip_pkt = ::PacketFu::IPPacket.new(
-        :ip_src => spoof.hton,
-        :ip_dst => rhost.hton,
-        :ip_proto => 0x11, # UDP
-        :body => udp
+        ip_src: spoof.hton,
+        ip_dst: rhost.hton,
+        ip_proto: 0x11, # UDP
+        body: udp
       )
     elsif rhost.ipv6?
       ip_pkt = ::PacketFu::IPv6Packet.new(
-        :ipv6_src => spoof.hton,
-        :ipv6_dst => rhost.hton,
-        :ip_proto => 0x11, # UDP
-        :body => udp
+        ipv6_src: spoof.hton,
+        ipv6_dst: rhost.hton,
+        ip_proto: 0x11, # UDP
+        body: udp
       )
     else
       # Should never get here

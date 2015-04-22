@@ -58,13 +58,13 @@ class Metasploit3 < Msf::Auxiliary
 
       print_status("HashList: #{hashlist.path}")
       print_status("Trying Wordlist: #{@wordlist.path}")
-      john_crack(hashlist.path, :wordlist => @wordlist.path, :rules => 'single', :format => format)
+      john_crack(hashlist.path, wordlist: @wordlist.path, rules: 'single', format: format)
 
       print_status("Trying Rule: All4...")
-      john_crack(hashlist.path, :incremental => "All4", :format => format)
+      john_crack(hashlist.path, incremental: "All4", format: format)
 
       print_status("Trying Rule: Digits5...")
-      john_crack(hashlist.path, :incremental => "Digits5", :format => format)
+      john_crack(hashlist.path, incremental: "Digits5", format: format)
 
       cracked = john_show_passwords(hashlist.path, format)
 
@@ -72,11 +72,11 @@ class Metasploit3 < Msf::Auxiliary
       cracked[:users].each_pair do |k,v|
         print_good("Host: #{v[1]} Port: #{v[2]} User: #{k} Pass: #{v[0]}")
         report_auth_info(
-          :host  => v[1],
-          :port => v[2],
-          :sname => 'oracle',
-          :user => k,
-          :pass => v[0]
+          host: v[1],
+          port: v[2],
+          sname: 'oracle',
+          user: k,
+          pass: v[0]
         )
       end
     end

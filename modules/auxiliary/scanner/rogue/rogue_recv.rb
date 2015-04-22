@@ -64,13 +64,13 @@ class Metasploit3 < Msf::Auxiliary
     if p.is_icmp?
       return if(p.payload[0,2] != [datastore['ECHOID']].pack("n"))
       return unless p.payload.size >= 8
-      reply = {:raw => p}
+      reply = {raw: p}
       reply[:type] = :icmp
       reply[:internal] = Rex::Socket.addr_nota(p.payload[4,4])
       reply[:external] = p.ip_saddr
     elsif p.is_tcp?
       return if p.tcp_ack.zero?
-      reply = {:packet => p}
+      reply = {packet: p}
       reply[:type] = :tcp
       reply[:internal] = Rex::Socket.addr_itoa(p.tcp_ack - 1)
       reply[:external] = p.ip_saddr

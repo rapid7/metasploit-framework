@@ -80,11 +80,11 @@ class Metasploit3 < Msf::Auxiliary
   # Initialize a new state for every client
   def on_client_connect(c)
     @state[c] = {
-      :name          => "#{c.peerhost}:#{c.peerport}",
-      :ip            => c.peerhost,
-      :port          => c.peerport,
-      :heartbeats    => "",
-      :server_random => [Time.now.to_i].pack("N") + Rex::Text.rand_text(28)
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
+      heartbeats: "",
+      server_random: [Time.now.to_i].pack("N") + Rex::Text.rand_text(28)
     }
     print_status("#{@state[c][:name]} Connected")
   end
@@ -275,11 +275,11 @@ class Metasploit3 < Msf::Auxiliary
 
       # Report the memory disclosure as a vulnerability on the host
       report_vuln({
-        :host => @state[c][:ip],
-        :name => self.name,
-        :info => "Module #{self.fullname} successfully dumped client memory contents",
-        :refs => self.references,
-        :exploited_at => Time.now.utc
+        host: @state[c][:ip],
+        name: self.name,
+        info: "Module #{self.fullname} successfully dumped client memory contents",
+        refs: self.references,
+        exploited_at: Time.now.utc
       }) rescue nil # Squash errors related to ip => 127.0.0.1 and the like
     end
 
@@ -437,12 +437,12 @@ class Metasploit3 < Msf::Auxiliary
 
     # Extract the MAC, encryption, and IV from the keyblock
     @state[c].update({
-      :client_write_mac_key => key_block.slice!(0, 20),
-      :server_write_mac_key => key_block.slice!(0, 20),
-      :client_write_key     => key_block.slice!(0, 16),
-      :server_write_key     => key_block.slice!(0, 16),
-      :client_iv            => key_block.slice!(0, 16),
-      :server_iv            => key_block.slice!(0, 16),
+      client_write_mac_key: key_block.slice!(0, 20),
+      server_write_mac_key: key_block.slice!(0, 20),
+      client_write_key: key_block.slice!(0, 16),
+      server_write_key: key_block.slice!(0, 16),
+      client_iv: key_block.slice!(0, 16),
+      server_iv: key_block.slice!(0, 16),
     })
 
     client_cipher = OpenSSL::Cipher.new('aes-128-cbc')
@@ -458,10 +458,10 @@ class Metasploit3 < Msf::Auxiliary
     server_mac = OpenSSL::HMAC.new(@state[c][:server_write_mac_key], OpenSSL::Digest.new('sha1'))
 
     @state[c].update({
-      :client_enc => client_cipher,
-      :client_mac => client_mac,
-      :server_enc => server_cipher,
-      :server_mac => server_mac
+      client_enc: client_cipher,
+      client_mac: client_mac,
+      server_enc: server_cipher,
+      server_mac: server_mac
     })
 
     true

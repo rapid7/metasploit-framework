@@ -92,8 +92,8 @@ class Metasploit3 < Msf::Auxiliary
                 end
               end
               report_host(
-                :host => tip.to_s,
-                :name => addresstp
+                host: tip.to_s,
+                name: addresstp
               )
               if !hosts[tip]
                 hosts[tip] = Array.new
@@ -102,9 +102,9 @@ class Metasploit3 < Msf::Auxiliary
             end
             unless hosts[tip].nil? or hosts[tip].empty?
               report_note(
-               :host => tip.to_s,
-               :type => "RDNS_Record",
-               :data => hosts[tip]
+               host: tip.to_s,
+               type: "RDNS_Record",
+               data: hosts[tip]
               )
             end
           rescue ::Interrupt

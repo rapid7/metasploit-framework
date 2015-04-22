@@ -100,13 +100,13 @@ class Metasploit3 < Msf::Auxiliary
     if res and res.headers and (location = res.headers['Location']) and location =~ /admin\//
       print_good("#{peer} - Successful login: \"#{user}:#{pass}\"")
       report_auth_info({
-        :host        => rhost,
-        :port        => rport,
-        :sname       => (ssl ? 'https' : 'http'),
-        :user        => user,
-        :pass        => pass,
-        :proof       => location,
-        :source_type => 'user_supplied'
+        host: rhost,
+        port: rport,
+        sname: (ssl ? 'https' : 'http'),
+        user: user,
+        pass: pass,
+        proof: location,
+        source_type: 'user_supplied'
       })
       return :next_user
     else

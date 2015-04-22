@@ -217,9 +217,9 @@ class Metasploit3 < Msf::Post
 
       spath = path.split('\\')
       retobj = {
-        :dc     => spath[2],
-        :path   => path,
-        :xml    => data
+        dc: spath[2],
+        path: path,
+        xml: data
       }
       if spath[4] == "sysvol"
         retobj[:domain] = spath[5]

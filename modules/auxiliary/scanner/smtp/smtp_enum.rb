@@ -143,10 +143,10 @@ class Metasploit3 < Msf::Auxiliary
     if users_found and not users_found.empty?
       print_good("#{rhost}:#{rport} Users found: #{users_found.sort.join(", ")}")
       report_note(
-        :host => rhost,
-        :port => rport,
-        :type => 'smtp.users',
-        :data => {:users =>  users_found.join(", ")}
+        host: rhost,
+        port: rport,
+        type: 'smtp.users',
+        data: {users:  users_found.join(", ")}
       )
     end
   end

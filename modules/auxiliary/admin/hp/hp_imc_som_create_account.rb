@@ -233,13 +233,13 @@ class Metasploit3 < Msf::Auxiliary
       login_url << "#{rhost}:#{rport}/servicedesk/ServiceDesk.jsp"
 
       report_auth_info({
-        :host => rhost,
-        :port => rport,
-        :user => datastore["USERNAME"],
-        :pass => datastore["PASSWORD"],
-        :type => "password",
-        :sname => (ssl ? "https" : "http"),
-        :proof => "#{login_url}\n#{res.body}"
+        host: rhost,
+        port: rport,
+        user: datastore["USERNAME"],
+        pass: datastore["PASSWORD"],
+        type: "password",
+        sname: (ssl ? "https" : "http"),
+        proof: "#{login_url}\n#{res.body}"
       })
       print_good("#{peer} - Account #{datastore["USERNAME"]}/#{datastore["PASSWORD"]} created successfully.")
       print_status("#{peer} - Use it to log into #{login_url}")

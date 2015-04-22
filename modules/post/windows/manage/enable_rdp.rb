@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Post
       print_status "Setting Terminal Services service startup mode"
       if srv_info[:starttype] != START_TYPE_AUTO
         print_status "\tThe Terminal Services service is not set to auto, changing it to auto ..."
-        unless (service_change_config(service_name, {:starttype => "START_TYPE_AUTO"}) == Windows::Error::SUCCESS)
+        unless (service_change_config(service_name, {starttype: "START_TYPE_AUTO"}) == Windows::Error::SUCCESS)
           print_error("\tUnable to change start type to Auto")
         end
         file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c sc config termservice start= disabled\"")

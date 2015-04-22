@@ -607,10 +607,10 @@ class Metasploit3 < Msf::Auxiliary
     data[:Response] = resp
 
     report_note(
-      :host => data[:ip],
-      :type => 'ntlm_relay',
-      :update => 'unique_data',
-      :data => data
+      host: data[:ip],
+      type: 'ntlm_relay',
+      update: 'unique_data',
+      data: data
     )
   end
 
@@ -621,9 +621,9 @@ class Metasploit3 < Msf::Auxiliary
     nt_len = ntlm_hash.length
 
     if nt_len == 48 #lmv1/ntlmv1 or ntlm2_session
-      arg = { :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
-        :lm_hash => lm_hash,
-        :nt_hash => ntlm_hash
+      arg = { ntlm_ver: NTLM_CONST::NTLM_V1_RESPONSE,
+        lm_hash: lm_hash,
+        nt_hash: ntlm_hash
       }
 
       if arg[:lm_hash][16,32] == '0' * 32
@@ -632,11 +632,11 @@ class Metasploit3 < Msf::Auxiliary
     # if the length of the ntlm response is not 24 then it will be bigger and represent
     # a ntlmv2 response
     elsif nt_len > 48 #lmv2/ntlmv2
-      arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
-        :lm_hash          => lm_hash[0, 32],
-        :lm_cli_challenge => lm_hash[32, 16],
-        :nt_hash          => ntlm_hash[0, 32],
-        :nt_cli_challenge => ntlm_hash[32, nt_len  - 32]
+      arg = { ntlm_ver: NTLM_CONST::NTLM_V2_RESPONSE,
+        lm_hash: lm_hash[0, 32],
+        lm_cli_challenge: lm_hash[32, 16],
+        nt_hash: ntlm_hash[0, 32],
+        nt_cli_challenge: ntlm_hash[32, nt_len  - 32]
       }
     elsif nt_len == 0
       print_status("Empty hash from #{host} captured, ignoring ... ")

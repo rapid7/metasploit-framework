@@ -54,44 +54,44 @@ class Metasploit3 < Msf::Auxiliary
 
     get_ip(datastore['DOMAIN']).each do |r|
       print_good("#{r[:host]} - Address #{r[:address]} found. Record type: #{r[:type]}")
-      report_host(:host => r[:address])
+      report_host(host: r[:address])
     end
 
     get_ns(datastore['DOMAIN']).each do |r|
       print_good("#{datastore['DOMAIN']} - Name server #{r[:host]} (#{r[:address]}) found. Record type: #{r[:type]}")
-      report_host(:host => r[:address], :name => r[:host])
+      report_host(host: r[:address], name: r[:host])
       report_service(
-        :host => r[:address],
-        :name => "dns",
-        :port => 53,
-        :proto => "udp"
+        host: r[:address],
+        name: "dns",
+        port: 53,
+        proto: "udp"
       )
     end
 
     get_soa(datastore['DOMAIN']).each do |r|
       print_good("#{datastore['DOMAIN']} - #{r[:host]} (#{r[:address]}) found. Record type: #{r[:type]}")
-      report_host(:host => r[:address], :name => r[:host])
+      report_host(host: r[:address], name: r[:host])
     end
 
     get_mx(datastore['DOMAIN']).each do |r|
       print_good("#{datastore['DOMAIN']} - Mail server #{r[:host]} (#{r[:address]}) found. Record type: #{r[:type]}")
-      report_host(:host => r[:address], :name => r[:host])
+      report_host(host: r[:address], name: r[:host])
       report_service(
-        :host => r[:address],
-        :name => "smtp",
-        :port => 25,
-        :proto => "tcp"
+        host: r[:address],
+        name: "smtp",
+        port: 25,
+        proto: "tcp"
       )
     end
 
     get_txt(datastore['DOMAIN']).each do |r|
       print_good("#{datastore['DOMAIN']} - Text info found: #{r[:text]}. Record type: #{r[:type]}")
       report_note(
-        :host => datastore['DOMAIN'],
-        :proto => 'udp',
-        :port => 53,
-        :type => 'dns.info',
-        :data => {:text => r[:text]}
+        host: datastore['DOMAIN'],
+        proto: 'udp',
+        port: 53,
+        type: 'dns.info',
+        data: {text: r[:text]}
       )
     end
   end
@@ -104,11 +104,11 @@ class Metasploit3 < Msf::Auxiliary
       query.answer.each do |rr|
         print_status("Wild-card IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
         report_note(
-          :host => datastore['DOMAIN'],
-          :proto => 'UDP',
-          :port => 53,
-          :type => 'dns.wildcard',
-          :data => "Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}"
+          host: datastore['DOMAIN'],
+          proto: 'UDP',
+          port: 53,
+          type: 'dns.wildcard',
+          data: "Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}"
         )
       end
       return true

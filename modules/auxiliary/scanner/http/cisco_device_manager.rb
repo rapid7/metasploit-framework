@@ -63,13 +63,13 @@ class Metasploit3 < Msf::Auxiliary
 
         report_vuln(
           {
-            :host	=> rhost,
-            :port	=> rport,
-            :proto  => 'tcp',
-            :name	=> self.name,
-            :info	=> "Module #{self.fullname} successfully accessed http://#{rhost}:#{rport}/exec/show/version/CR",
-            :refs   => self.references,
-            :exploited_at => Time.now.utc
+            host: rhost,
+            port: rport,
+            proto: 'tcp',
+            name: self.name,
+            info: "Module #{self.fullname} successfully accessed http://#{rhost}:#{rport}/exec/show/version/CR",
+            refs: self.references,
+            exploited_at: Time.now.utc
           }
         )
 

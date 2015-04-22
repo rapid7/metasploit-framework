@@ -60,8 +60,8 @@ class Metasploit3 < Msf::Auxiliary
   def generate_probe(ip)
     ftypes = %w{windows, linux, freebsd}
     @flavor = ftypes[rand(ftypes.length)]
-    config = PacketFu::Utils.whoami?(:iface => datastore['INTERFACE'])
-    p = PacketFu::TCPPacket.new(:config => config)
+    config = PacketFu::Utils.whoami?(iface: datastore['INTERFACE'])
+    p = PacketFu::TCPPacket.new(config: config)
     p.ip_daddr = ip
     p.tcp_flags.syn = 1
     return p

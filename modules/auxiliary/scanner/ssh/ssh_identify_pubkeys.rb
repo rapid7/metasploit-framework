@@ -192,20 +192,20 @@ class Metasploit3 < Msf::Auxiliary
 
       accepted = []
       opt_hash = {
-        :auth_methods => ['publickey'],
-        :msframework  => framework,
-        :msfmodule    => self,
-        :port         => port,
-        :key_data     => key_data,
-        :disable_agent     => true,
-        :record_auth_info  => true,
-        :skip_private_keys => true,
-        :config =>false,
-        :accepted_key_callback => Proc.new {|key| accepted << key },
-        :proxies	  => datastore['Proxies']
+        auth_methods: ['publickey'],
+        msframework: framework,
+        msfmodule: self,
+        port: port,
+        key_data: key_data,
+        disable_agent: true,
+        record_auth_info: true,
+        skip_private_keys: true,
+        config:false,
+        accepted_key_callback: Proc.new {|key| accepted << key },
+        proxies: datastore['Proxies']
       }
 
-      opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+      opt_hash.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
       begin
         ssh_socket = nil
@@ -221,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
           rescue ::Exception
           end
 
-          print_brute(:level => :good, :msg => "User #{user} successfully bypassed authentication: #{data.inspect} ") if data
+          print_brute(level: :good, msg: "User #{user} successfully bypassed authentication: #{data.inspect} ") if data
         end
 
         ::Timeout.timeout(1) { ssh_socket.close if ssh_socket } rescue nil
@@ -237,14 +237,14 @@ class Metasploit3 < Msf::Auxiliary
 
       if accepted.length == 0
         if @key_files
-          print_brute :level => :verror, :msg =>  "User #{user} does not accept key #{@key_files[key_idx+1]} #{key_info}"
+          print_brute level: :verror, msg:  "User #{user} does not accept key #{@key_files[key_idx+1]} #{key_info}"
         else
-          print_brute :level => :verror, :msg => "User #{user} does not accept key #{key_idx+1} #{key_info}"
+          print_brute level: :verror, msg: "User #{user} does not accept key #{key_idx+1} #{key_info}"
         end
       end
 
       accepted.each do |key|
-        print_brute :level => :good, :msg => "Accepted: '#{user}' with key '#{key[:fingerprint]}' #{key_info}"
+        print_brute level: :good, msg: "Accepted: '#{user}' with key '#{key[:fingerprint]}' #{key_info}"
         do_report(ip, rport, user, key, key_data)
       end
     end
@@ -254,16 +254,16 @@ class Metasploit3 < Msf::Auxiliary
     return unless framework.db.active
     keyfile_path = store_keyfile(ip,user,key[:fingerprint],key_data)
     cred_hash = {
-      :host => ip,
-      :port => rport,
-      :sname => 'ssh',
-      :user => user,
-      :pass => keyfile_path,
-      :source_type => "user_supplied",
-      :type => 'ssh_pubkey',
-      :proof => "KEY=#{key[:fingerprint]}",
-      :duplicate_ok => true,
-      :active => true
+      host: ip,
+      port: rport,
+      sname: 'ssh',
+      user: user,
+      pass: keyfile_path,
+      source_type: "user_supplied",
+      type: 'ssh_pubkey',
+      proof: "KEY=#{key[:fingerprint]}",
+      duplicate_ok: true,
+      active: true
     }
     this_cred = report_auth_info(cred_hash)
   end

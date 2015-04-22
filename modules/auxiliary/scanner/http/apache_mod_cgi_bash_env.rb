@@ -60,10 +60,10 @@ class Metasploit4 < Msf::Auxiliary
 
     if res && res.body.include?(marker * 3)
       report_vuln(
-        :host => ip,
-        :port => rport,
-        :name => self.name,
-        :refs => self.references
+        host: ip,
+        port: rport,
+        name: self.name,
+        refs: self.references
       )
       return Exploit::CheckCode::Vulnerable
     elsif res && res.code == 500
@@ -94,10 +94,10 @@ class Metasploit4 < Msf::Auxiliary
     if res && res.body =~ /#{marker}(.+)#{marker}/m
       print_good("#{peer} - #{$1}")
       report_vuln(
-        :host => ip,
-        :port => rport,
-        :name => self.name,
-        :refs => self.references
+        host: ip,
+        port: rport,
+        name: self.name,
+        refs: self.references
       )
     end
   end

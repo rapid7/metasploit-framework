@@ -48,12 +48,12 @@ class Metasploit3 < Msf::Auxiliary
         version = "#{value[0]}.#{value[1]}.#{value[2]}.#{value[3]}"
 
         report_note(
-            :host   => ip,
-            :proto => 'udp',
-            :sname  => 'snmp',
-            :port   => datastore['RPORT'],
-            :type   => 'AIX',
-            :data   => version
+            host: ip,
+            proto: 'udp',
+            sname: 'snmp',
+            port: datastore['RPORT'],
+            type: 'AIX',
+            data: version
         )
 
         status = "#{ip} (#{description}) is running: "

@@ -71,16 +71,16 @@ class Metasploit3 < Msf::Auxiliary
     if (res and res.code == 200 and res.body.length > 0)
       print_good("#{rhost}:#{rport} - Request may have succeeded on file #{file}")
       report_web_vuln({
-          :host => rhost,
-          :port => rport,
-          :vhost => datastore['VHOST'],
-          :path => uri,
-          :pname => data_trav,
-          :risk => 3,
-          :proof => data_trav,
-          :name => self.fullname,
-          :category => "web",
-          :method => "POST"
+          host: rhost,
+          port: rport,
+          vhost: datastore['VHOST'],
+          path: uri,
+          pname: data_trav,
+          risk: 3,
+          proof: data_trav,
+          name: self.fullname,
+          category: "web",
+          method: "POST"
       })
 
       loot = store_loot("linksys.traversal.data","text/plain", rhost, res.body, file)

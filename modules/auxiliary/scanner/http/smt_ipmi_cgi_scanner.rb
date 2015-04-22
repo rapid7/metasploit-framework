@@ -132,11 +132,11 @@ class Metasploit3 < Msf::Auxiliary
     if result
       print_good("#{peer} - Vulnerable to CVE-2013-3621 (login.cgi Buffer Overflow)")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
-        :proto => 'tcp',
-        :name  => "Supermicro Onboard IPMI login.cgi Buffer Overflow",
-        :refs  => self.references.select do |ref| ref.ctx_val == "2013-3621" end
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: "Supermicro Onboard IPMI login.cgi Buffer Overflow",
+        refs: self.references.select do |ref| ref.ctx_val == "2013-3621" end
       })
     end
 
@@ -145,11 +145,11 @@ class Metasploit3 < Msf::Auxiliary
     if result
       print_good("#{peer} - Vulnerable to CVE-2013-3623 (close_window.cgi Buffer Overflow)")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
-        :proto => 'tcp',
-        :name  => "Supermicro Onboard IPMI close_window.cgi Buffer Overflow",
-        :refs  => self.references.select { |ref| ref.ctx_val == "2013-3623" }
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        name: "Supermicro Onboard IPMI close_window.cgi Buffer Overflow",
+        refs: self.references.select { |ref| ref.ctx_val == "2013-3623" }
       })
     end
 

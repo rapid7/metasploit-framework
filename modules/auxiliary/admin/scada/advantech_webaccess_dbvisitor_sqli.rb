@@ -176,13 +176,13 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       report_auth_info({
-       :host => rhost,
-       :port => rport,
-       :user => @users[i][0],
-       :pass => @plain_passwords[i],
-       :type => "password",
-       :sname => (ssl ? "https" : "http"),
-       :proof => "Leaked encrypted password from #{@users[i][3]}: #{@users[i][1]}:#{@users[i][2]}"
+       host: rhost,
+       port: rport,
+       user: @users[i][0],
+       pass: @plain_passwords[i],
+       type: "password",
+       sname: (ssl ? "https" : "http"),
+       proof: "Leaked encrypted password from #{@users[i][3]}: #{@users[i][1]}:#{@users[i][2]}"
       })
 
       users_table << [@users[i][0], @users[i][1], @users[i][2], @plain_passwords[i], user_type(@users[i][3])]

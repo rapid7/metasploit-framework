@@ -215,17 +215,17 @@ class Metasploit3 < Msf::Auxiliary
       print_good("Directory traversal found: #{trigger}")
 
       report_web_vuln({
-        :host     => rhost,
-        :port     => rport,
-        :vhost    => datastore['VHOST'],
-        :path     => uri,
-        :params   => normalize_uri(datastore['PATH']),
-        :pname    => trigger,
-        :risk     => 3,
-        :proof    => trigger,
-        :name     => self.fullname,
-        :category => "web",
-        :method   => method
+        host: rhost,
+        port: rport,
+        vhost: datastore['VHOST'],
+        path: uri,
+        params: normalize_uri(datastore['PATH']),
+        pname: trigger,
+        risk: 3,
+        proof: trigger,
+        name: self.fullname,
+        category: "web",
+        method: method
       })
 
     else

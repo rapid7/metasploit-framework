@@ -59,12 +59,12 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{ip} Open X Server (#{vendor})")
         # Add Report
         report_note(
-          :host	=> ip,
-          :proto => 'tcp',
-          :sname	=> 'x11',
-          :port	=> rport,
-          :type	=> 'Open X Server',
-          :data	=> "Open X Server (#{vendor})"
+          host: ip,
+          proto: 'tcp',
+          sname: 'x11',
+          port: rport,
+          type: 'Open X Server',
+          data: "Open X Server (#{vendor})"
       )
       elsif (success == 0)
         print_status("#{ip} Access Denied")

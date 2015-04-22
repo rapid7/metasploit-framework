@@ -35,19 +35,19 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_brute :ip => ip, :msg => 'Starting bruteforce'
+    print_brute ip: ip, msg: 'Starting bruteforce'
 
     # Peform a sanity check to ensure that our target is vmauthd before
     # attempting to brute force it.
     begin
       connect rescue nil
       if !self.sock
-        print_brute :level => :verror, :ip => ip, :msg => 'Could not connect'
+        print_brute level: :verror, ip: ip, msg: 'Could not connect'
         return
       end
       banner = sock.get_once(-1, 10)
       if !banner || !banner =~ /^220 VMware Authentication Daemon Version.*/
-        print_brute :level => :verror, :ip => ip, :msg => 'Target does not appear to be a vmauthd service'
+        print_brute level: :verror, ip: ip, msg: 'Target does not appear to be a vmauthd service'
         return
       end
 
@@ -88,20 +88,20 @@ class Metasploit3 < Msf::Auxiliary
       )
       case result.status
         when Metasploit::Model::Login::Status::SUCCESSFUL
-          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+          print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
           credential_core = create_credential(credential_data)
           credential_data[:core] = credential_core
           create_credential_login(credential_data)
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => 'Could not connect'
+            print_brute level: :verror, ip: ip, msg: 'Could not connect'
           end
           invalidate_login(credential_data)
           :abort
         when Metasploit::Model::Login::Status::INCORRECT
           if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}' #{result.proof}"
+            print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}' #{result.proof}"
           end
           invalidate_login(credential_data)
       end

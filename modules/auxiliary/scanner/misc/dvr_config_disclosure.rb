@@ -62,11 +62,11 @@ class Metasploit3 < Msf::Auxiliary
     info = "PPPOE credentials for #{rhost}, user: #{user}, password: #{password}"
 
     report_note({
-      :host   => rhost,
-      :data   => info,
-      :type   => "dvr.pppoe.conf",
-      :sname  => 'pppoe',
-      :update => :unique_data
+      host: rhost,
+      data: info,
+      type: "dvr.pppoe.conf",
+      sname: 'pppoe',
+      update: :unique_data
     })
 
   end
@@ -103,11 +103,11 @@ class Metasploit3 < Msf::Auxiliary
     info = "DDNS credentials for #{hostname}, user: #{user}, password: #{password}"
 
     report_note({
-      :host   => rhost,
-      :data   => info,
-      :type   => "dvr.ddns.conf",
-      :sname  => 'ddns',
-      :update => :unique_data
+      host: rhost,
+      data: info,
+      type: "dvr.ddns.conf",
+      sname: 'ddns',
+      update: :unique_data
     })
 
   end
@@ -139,12 +139,12 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_auth_info({
-      :host         => server,
-      :port         => port,
-      :sname        => 'ftp',
-      :duplicate_ok => false,
-      :user         => user,
-      :pass         => password
+      host: server,
+      port: port,
+      sname: 'ftp',
+      duplicate_ok: false,
+      user: user,
+      pass: password
     })
   end
 
@@ -175,13 +175,13 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       report_auth_info({
-        :host         => rhost,
-        :port         => rport,
-        :sname        => 'dvr',
-        :duplicate_ok => false,
-        :user         => user,
-        :pass         => password,
-        :active       => user_active
+        host: rhost,
+        port: rport,
+        sname: 'dvr',
+        duplicate_ok: false,
+        user: user,
+        pass: password,
+        active: user_active
       })
     }
   end
@@ -213,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
       dvr_name = $1
     end
 
-    report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => "DVR NAME: #{dvr_name}")
+    report_service(host: rhost, port: rport, sname: 'dvr', info: "DVR NAME: #{dvr_name}")
     print_good("#{rhost}:#{rport} DVR #{dvr_name} found")
   end
 

@@ -88,13 +88,13 @@ class Metasploit3 < Msf::Auxiliary
     if res && res.code == 200 && res.body.include?("Home Page") && res.headers['Server'] && res.headers['Server'].include?("EtherPAD")
       print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
       report_hash = {
-        :host   => rhost,
-        :port   => rport,
-        :sname  => 'EtherPAD Duo Portal',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'
+        host: rhost,
+        port: rport,
+        sname: 'EtherPAD Duo Portal',
+        user: user,
+        pass: pass,
+        active: true,
+        type: 'password'
       }
       report_auth_info(report_hash)
       return :next_user

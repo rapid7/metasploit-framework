@@ -66,11 +66,11 @@ class Metasploit3 < Msf::Auxiliary
     print_status "#{rhost}:#{rport} Banner: #{banner}"
 
     report_service(
-      :host  => rhost,
-      :port  => rport,
-      :sname => 'vmauthd',
-      :info  => banner,
-      :proto => 'tcp'
+      host: rhost,
+      port: rport,
+      sname: 'vmauthd',
+      info: banner,
+      proto: 'tcp'
     )
 
 

@@ -84,9 +84,9 @@ class Metasploit3 < Msf::Post
         end
 
         targets << {
-          :account   => account,
-          :contact   => contact,
-          :log_paths => filtered_logs
+          account: account,
+          contact: contact,
+          log_paths: filtered_logs
         }
       end
     end
@@ -108,9 +108,9 @@ class Metasploit3 < Msf::Post
         log = "\"#{log}\""
         data = exec("cat #{log}")
         logs << {
-          :account => account,
-          :contact => contact,
-          :data    => data
+          account: account,
+          contact: contact,
+          data: data
         }
         #break
       end
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Post
 
   #
   # Get AccountPrefs.plist, Accounts.plist, AccountPrefs.plist.
-  # Return: [ {:filename=> String, :data => String} ]
+  # Return: [ {filename: String, data: String} ]
   #
   def get_account_info(base)
     files = [ "Account\\ Status.plist", "Accounts.plist", "AccountPrefs.plist" ]
@@ -152,7 +152,7 @@ class Metasploit3 < Msf::Post
       if xml.empty?
         print_error("#{@peer} - Unalbe to parse: #{file}")
       else
-        loot << {:filename => file, :data => xml}
+        loot << {filename: file, data: xml}
         exec("rm #{rand_name}")
       end
     end

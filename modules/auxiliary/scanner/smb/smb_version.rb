@@ -61,8 +61,8 @@ class Metasploit3 < Msf::Auxiliary
       # Create the note hash for smb.fingerprint
       #
       conf = {
-         :native_os => res['native_os'],
-         :native_lm => res['native_lm']
+         native_os: res['native_os'],
+         native_lm: res['native_lm']
       }
 
       if res['os'] and res['os'] != 'Unknown'
@@ -117,35 +117,35 @@ class Metasploit3 < Msf::Auxiliary
 
         # Report the service with a friendly banner
         report_service(
-          :host  => ip,
-          :port  => rport,
-          :proto => 'tcp',
-          :name  => 'smb',
-          :info  => desc
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          name: 'smb',
+          info: desc
         )
 
         # Report a fingerprint.match hash for name, domain, and language
         # Ignore OS fields, as those are handled via smb.fingerprint
         report_note(
-          :host  => ip,
-          :port  => rport,
-          :proto => 'tcp',
-          :ntype => 'fingerprint.match',
-          :data  => match_conf
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          ntype: 'fingerprint.match',
+          data: match_conf
         )
       else
         desc = "#{res['native_os']} (#{res['native_lm']})"
-        report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
+        report_service(host: ip, port: rport, name: 'smb', info: desc)
         print_status("#{rhost}:#{rport} could not be identified: #{desc}")
       end
 
       # Report a smb.fingerprint hash of attributes for OS fingerprinting
       report_note(
-        :host  => ip,
-        :port  => rport,
-        :proto => 'tcp',
-        :ntype => 'smb.fingerprint',
-        :data  => conf
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        ntype: 'smb.fingerprint',
+        data: conf
       )
 
       disconnect

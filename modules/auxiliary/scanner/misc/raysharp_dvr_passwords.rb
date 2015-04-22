@@ -77,12 +77,12 @@ class Metasploit3 < Msf::Auxiliary
       creds.keys.sort.each do |user|
         pass = creds[user]
         report_auth_info({
-          :host         => rhost,
-          :port         => rport,
-          :sname        => 'dvr',
-          :duplicate_ok => false,
-          :user         => user,
-          :pass         => pass
+          host: rhost,
+          port: rport,
+          sname: 'dvr',
+          duplicate_ok: false,
+          user: user,
+          pass: pass
         })
         info << "(user='#{user}' pass='#{pass}') "
       end
@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 
     return unless (creds.keys.length > 0 or mac or ver)
 
-    report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => info)
+    report_service(host: rhost, port: rport, sname: 'dvr', info: info)
     print_good("#{rhost}:#{rport} #{info}")
   end
 

@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
   # defined by Msf::Auxiliary::HttpCrawler
   #
   # Data we will report:
-  # - The path of any URL found by the crawler (web.uri, :path => page.path)
+  # - The path of any URL found by the crawler (web.uri, path: page.path)
   # - The occurence of any form (web.form :path, :type (get|post|path_info), :params)
   #
   def crawler_process_page(t, page, cnt)
@@ -92,12 +92,12 @@ class Metasploit3 < Msf::Auxiliary
     #
 
     info = {
-      :web_site => t[:site],
-      :path     => page.url.path,
-      :query    => page.url.query,
-      :code     => page.code,
-      :body     => page.body,
-      :headers  => page.headers
+      web_site: t[:site],
+      path: page.url.path,
+      query: page.url.query,
+      code: page.code,
+      body: page.body,
+      headers: page.headers
     }
 
     if page.headers['content-type']
@@ -134,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
     return if page.url.query =~ /^C=[A-Z];O=/ # Apache
 
     forms = []
-    form_template = { :web_site => t[:site] }
+    form_template = { web_site: t[:site] }
 
     if form = form_from_url( t[:site], page.url )
       forms << form
@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
           form[:path]   = target.path
           form[:params] = []
           f.css('input', 'textarea').each do |inp|
-            form[:params] << [inp['name'].to_s, inp['value'] || inp.content || '', { :type => inp['type'].to_s }]
+            form[:params] << [inp['name'].to_s, inp['value'] || inp.content || '', { type: inp['type'].to_s }]
           end
 
           f.css( 'select' ).each do |s|
@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
             # set the first one as the default value if we don't already have one
             value ||= s.children.first['value'] || s.children.first.content rescue ''
 
-            form[:params] << [ s['name'].to_s, value.to_s, [ :type => 'select'] ]
+            form[:params] << [ s['name'].to_s, value.to_s, [ type: 'select'] ]
           end
 
           forms << form
@@ -230,7 +230,7 @@ class Metasploit3 < Msf::Auxiliary
     # Continue processing forms
     #
     forms = []
-    form_template = { :web_site => website }
+    form_template = { web_site: website }
     form  = {}.merge(form_template)
 
     # This page has a query parameter we can test with GET parameters

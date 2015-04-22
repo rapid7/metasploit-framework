@@ -136,10 +136,10 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_note({
-      :data => good_string,
-      :type => 'canon.wireless',
-      :host => ip,
-      :port => rport
+      data: good_string,
+      type: 'canon.wireless',
+      host: ip,
+      port: rport
     })
 
     print_good good_string

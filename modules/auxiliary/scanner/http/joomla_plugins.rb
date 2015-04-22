@@ -62,64 +62,64 @@ class Metasploit3 < Msf::Auxiliary
     if (res.code == 200 and res.body !~/#404 Component not found/ and res.body !~/<h1>Joomla! Administration Login<\/h1>/ and osize != nsize)
       print_good("#{peer} - Plugin: #{tpath}#{papp} ")
       report_note(
-        :host  => ip,
-        :port  => rport,
-        :proto => 'http',
-        :ntype => 'joomla_plugin',
-        :data  => "#{tpath}#{papp}",
-        :update => :unique_data
+        host: ip,
+        port: rport,
+        proto: 'http',
+        ntype: 'joomla_plugin',
+        data: "#{tpath}#{papp}",
+        update: :unique_data
       )
 
       if (papp =~/passwd/ and res.body =~/root/)
         print_good("#{peer} - Vulnerability: Potential LFI")
         report_web_vuln(
-          :host	=> ip,
-          :port	=> rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
-          :path	=> tpath,
-          :method => "GET",
-          :pname  => "",
-          :proof  => "Response with code #{res.code} contains the 'root' signature",
-          :risk   => 1,
-          :confidence   => 10,
-          :category     => 'Local File Inclusion',
-          :description  => "Joomla: Potential LFI at #{tpath}#{papp}",
-          :name   => 'Local File Inclusion'
+          host: ip,
+          port: rport,
+          vhost: vhost,
+          ssl: ssl,
+          path: tpath,
+          method: "GET",
+          pname: "",
+          proof: "Response with code #{res.code} contains the 'root' signature",
+          risk: 1,
+          confidence: 10,
+          category: 'Local File Inclusion',
+          description: "Joomla: Potential LFI at #{tpath}#{papp}",
+          name: 'Local File Inclusion'
         )
       elsif (res.body =~/SQL syntax/)
         print_good("#{peer} - Vulnerability: Potential SQL Injection")
         report_web_vuln(
-          :host	=> ip,
-          :port	=> rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
-          :path	=> tpath,
-          :method => "GET",
-          :pname  => "",
-          :proof  => "Response with code #{res.code} contains the 'SQL syntax' signature",
-          :risk   => 1,
-          :confidence   => 10,
-          :category     => 'SQL Injection',
-          :description  => "Joomla: Potential SQLI at #{tpath}#{papp}",
-          :name   => 'SQL Injection'
+          host: ip,
+          port: rport,
+          vhost: vhost,
+          ssl: ssl,
+          path: tpath,
+          method: "GET",
+          pname: "",
+          proof: "Response with code #{res.code} contains the 'SQL syntax' signature",
+          risk: 1,
+          confidence: 10,
+          category: 'SQL Injection',
+          description: "Joomla: Potential SQLI at #{tpath}#{papp}",
+          name: 'SQL Injection'
         )
       elsif (papp =~/>alert/ and res.body =~/>alert/)
         print_good("#{peer} - Vulnerability: Potential XSS")
         report_web_vuln(
-          :host	=> ip,
-          :port	=> rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
-          :path	=> tpath,
-          :method => "GET",
-          :pname  => "",
-          :proof  => "Response with code #{res.code} contains the '>alert' signature",
-          :risk   => 1,
-          :confidence   => 10,
-          :category     => 'Cross Site Scripting',
-          :description  => "Joomla: Potential XSS at #{tpath}#{papp}",
-          :name   => 'Cross Site Scripting'
+          host: ip,
+          port: rport,
+          vhost: vhost,
+          ssl: ssl,
+          path: tpath,
+          method: "GET",
+          pname: "",
+          proof: "Response with code #{res.code} contains the '>alert' signature",
+          risk: 1,
+          confidence: 10,
+          category: 'Cross Site Scripting',
+          description: "Joomla: Potential XSS at #{tpath}#{papp}",
+          name: 'Cross Site Scripting'
         )
       elsif (papp =~/com_/)
         vars = papp.split('_')
@@ -131,12 +131,12 @@ class Metasploit3 < Msf::Auxiliary
         if (res1.code == 200)
           print_good("#{peer} - Page: #{tpath}index.php?option=com_#{pages}")
           report_note(
-            :host  => ip,
-            :port  => datastore['RPORT'],
-            :proto => 'http',
-            :ntype => 'joomla_page',
-            :data  => "Page: #{tpath}index.php?option=com_#{pages}",
-            :update => :unique_data
+            host: ip,
+            port: datastore['RPORT'],
+            proto: 'http',
+            ntype: 'joomla_page',
+            data: "Page: #{tpath}index.php?option=com_#{pages}",
+            update: :unique_data
           )
         else
           vprint_error("#{peer} - Page: #{tpath}index.php?option=com_#{pages} gave a #{res1.code} response")

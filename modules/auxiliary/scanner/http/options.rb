@@ -45,25 +45,25 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{target_host} allows #{res.headers['Allow']} methods")
 
         report_note(
-          :host	=> target_host,
-          :proto => 'tcp',
-          :sname => (ssl ? 'https' : 'http'),
-          :port	=> rport,
-          :type	=> 'HTTP_OPTIONS',
-          :data	=> res.headers['Allow']
+          host: target_host,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          port: rport,
+          type: 'HTTP_OPTIONS',
+          data: res.headers['Allow']
         )
 
         if(res.headers['Allow'].index('TRACE'))
           print_status "#{target_host}:#{rport} - TRACE method allowed."
           report_vuln(
-            :host	=> target_host,
-            :port	=> rport,
-            :proto => 'tcp',
-            :sname => (ssl ? 'https' : 'http'),
-            :name	=> "HTTP Trace Method Allowed",
-            :info	=> "Module #{self.fullname} detected TRACE access through the Allow header: #{res.headers['Allow']}",
-            :refs   => self.references,
-            :exploited_at => Time.now.utc
+            host: target_host,
+            port: rport,
+            proto: 'tcp',
+            sname: (ssl ? 'https' : 'http'),
+            name: "HTTP Trace Method Allowed",
+            info: "Module #{self.fullname} detected TRACE access through the Allow header: #{res.headers['Allow']}",
+            refs: self.references,
+            exploited_at: Time.now.utc
           )
         end
       end

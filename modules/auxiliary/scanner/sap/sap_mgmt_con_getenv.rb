@@ -113,12 +113,12 @@ class Metasploit4 < Msf::Auxiliary
     if success
       print_good("#{rhost}:#{rport} [SAP] Environment Extracted: #{env.length} entries extracted")
       report_note(
-        :host => rhost,
-        :proto => 'tcp',
-        :port => rport,
-        :type => 'sap.env',
-        :data => {:proto => "soap", :env => env},
-        :update => :unique_data
+        host: rhost,
+        proto: 'tcp',
+        port: rport,
+        type: 'sap.env',
+        data: {proto: "soap", env: env},
+        update: :unique_data
       )
 
       env.each do |output|

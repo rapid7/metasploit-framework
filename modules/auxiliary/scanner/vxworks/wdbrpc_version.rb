@@ -135,12 +135,12 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
 
     report_note(
-      :host   => pkt[1],
-      :port   => datastore['RPORT'],
-      :proto  => 'udp',
-      :type   => 'vxworks.target_info',
-      :data   => res,
-      :update => :unique
+      host: pkt[1],
+      port: datastore['RPORT'],
+      proto: 'udp',
+      type: 'vxworks.target_info',
+      data: res,
+      update: :unique
     )
   end
 

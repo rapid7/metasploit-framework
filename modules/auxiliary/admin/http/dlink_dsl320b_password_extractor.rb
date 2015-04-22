@@ -70,12 +70,12 @@ class Metasploit3 < Msf::Auxiliary
             pass = Rex::Text.decode_base64(pass)
             print_good("#{rhost}:#{rport} - Credentials found: #{user} / #{pass}")
             report_auth_info(
-              :host => rhost,
-              :port => rport,
-              :sname => 'http',
-              :user => user,
-              :pass => pass,
-              :active => true
+              host: rhost,
+              port: rport,
+              sname: 'http',
+              user: user,
+              pass: pass,
+              active: true
             )
           end
         end

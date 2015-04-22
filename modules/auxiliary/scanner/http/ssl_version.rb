@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       connect
       res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
-      fp = http_fingerprint(:response => res)
+      fp = http_fingerprint(response: res)
       if fp
         vprint_status("#{peer} connected and fingerprinted: #{fp}")
         # TODO: Interrogate the connection itself to see what version
@@ -75,13 +75,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def report_poodle_vuln(ip)
     report_vuln(
-      :host         => ip,
-      :port         => rport,
-      :proto        => 'tcp',
-      :name         => self.name,
-      :info         => "Module #{self.fullname} confirmed SSLv3 is available",
-      :refs         => self.references,
-      :exploited_at => Time.now.utc
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      name: self.name,
+      info: "Module #{self.fullname} confirmed SSLv3 is available",
+      refs: self.references,
+      exploited_at: Time.now.utc
     )
   end
 

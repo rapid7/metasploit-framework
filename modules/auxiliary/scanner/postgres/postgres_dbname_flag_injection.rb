@@ -57,13 +57,13 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("#{rhost}:#{rport} is vulnerable to CVE-2013-1899: #{proof}")
       report_vuln({
-        :host	=> rhost,
-        :port	=> rport,
-        :proto  => 'tcp',
-        :sname  => 'postgres',
-        :name	=> self.name,
-        :info	=> "Vulnerable: " + proof,
-        :refs   => self.references
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: 'postgres',
+        name: self.name,
+        info: "Vulnerable: " + proof,
+        refs: self.references
       })
     elsif resp.to_s =~ /pg_hba\.conf/
       print_error("#{rhost}:#{rport} does not allow connections from us")

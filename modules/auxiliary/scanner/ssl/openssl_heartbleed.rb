@@ -508,11 +508,11 @@ class Metasploit3 < Msf::Auxiliary
 
     print_good("#{peer} - Heartbeat response with leak")
     report_vuln({
-      :host => rhost,
-      :port => rport,
-      :name => self.name,
-      :refs => self.references,
-      :info => "Module #{self.fullname} successfully leaked info"
+      host: rhost,
+      port: rport,
+      name: self.name,
+      refs: self.references,
+      info: "Module #{self.fullname} successfully leaked info"
     })
 
     if action.name == 'DUMP' # Check mode, dump if requested.
@@ -703,10 +703,10 @@ class Metasploit3 < Msf::Auxiliary
         ssl_data = remaining_data[5, ssl_len]
         handshakes = parse_handshakes(ssl_data)
         ssl_records << {
-            :type => ssl_type,
-            :version => ssl_version,
-            :length => ssl_len,
-            :data => handshakes
+            type: ssl_type,
+            version: ssl_version,
+            length: ssl_len,
+            data: handshakes
         }
       end
       remaining_data = remaining_data[(ssl_len + 5)..-1]
@@ -750,9 +750,9 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       handshakes << {
-          :type     => hs_type,
-          :len      => hs_len,
-          :data     => handshake_parsed
+          type: hs_type,
+          len: hs_len,
+          data: handshake_parsed
       }
       remaining_data = remaining_data[(hs_len + 4)..-1]
     end

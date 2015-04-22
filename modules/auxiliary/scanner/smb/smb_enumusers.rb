@@ -210,8 +210,8 @@ class Metasploit3 < Msf::Auxiliary
         txt_sid = raw_sid.unpack("NVVVV").join("-")
 
         domains[domain] = {
-          :sid_raw => raw_sid,
-          :sid_txt => txt_sid
+          sid_raw: raw_sid,
+          sid_txt: txt_sid
         }
       end
 
@@ -297,11 +297,11 @@ class Metasploit3 < Msf::Auxiliary
 
         # Store the domain information
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :type => 'smb.domain.enumusers',
-          :data => domains[domain]
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          type: 'smb.domain.enumusers',
+          data: domains[domain]
         )
 
         users = domains[domain][:users] || {}

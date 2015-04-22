@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
           'uri'     => '/',
         }, 25)
 
-      http_fingerprint({ :response => res })
+      http_fingerprint({ response: res })
 
       if (res and res.code == 200)
 

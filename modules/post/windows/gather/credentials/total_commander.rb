@@ -143,13 +143,13 @@ class Metasploit3 < Msf::Post
         source_id = nil
       end
       report_auth_info(
-        :host  => host,
-        :port => port,
-        :sname => 'ftp',
-        :source_id => source_id,
-        :source_type => "exploit",
-        :user => username,
-        :pass => passwd
+        host: host,
+        port: port,
+        sname: 'ftp',
+        source_id: source_id,
+        source_type: "exploit",
+        user: username,
+        pass: passwd
       )
     end
   end

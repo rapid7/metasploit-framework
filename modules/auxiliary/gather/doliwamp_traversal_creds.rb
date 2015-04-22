@@ -175,12 +175,12 @@ class Metasploit3 < Msf::Auxiliary
     )
     credentials.each do |record|
       report_auth_info({
-        :host  => rhost,
-        :port  => rport,
-        :sname => (ssl ? 'https' : 'http'),
-        :user  => record[0],
-        :pass  => record[1],
-        :source_type => 'vuln'
+        host: rhost,
+        port: rport,
+        sname: (ssl ? 'https' : 'http'),
+        user: record[0],
+        pass: record[1],
+        source_type: 'vuln'
       })
       cred_table << [record[0], record[1], record[2], record[3]]
     end

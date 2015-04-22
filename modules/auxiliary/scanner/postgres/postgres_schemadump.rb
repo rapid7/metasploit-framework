@@ -35,21 +35,21 @@ class Metasploit3 < Msf::Auxiliary
     pg_schema = get_schema
     pg_schema.each do |db|
       report_note(
-        :host  => datastore['RHOST'],
-        :type  => "postgres.db.schema",
-        :data  => db,
-        :port  => datastore['RPORT'],
-        :proto => 'tcp',
-        :update => :unique_data
+        host: datastore['RHOST'],
+        type: "postgres.db.schema",
+        data: db,
+        port: datastore['RPORT'],
+        proto: 'tcp',
+        update: :unique_data
       )
     end
     output = "Postgres SQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n ====================\n\n"
     output << YAML.dump(pg_schema)
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
-          :name => 'postgres',
-          :proto => 'tcp'
+          host: datastore['RHOST'],
+          port: datastore['RPORT'],
+          name: 'postgres',
+          proto: 'tcp'
           )
     store_loot('postgres_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_postgres_schema.txt", "Postgres SQL Schema", this_service)
     print_good output if datastore['DISPLAY_RESULTS']
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
         tmp_db = {}
         tmp_db['DBName'] = row[0]
         tmp_db['Tables'] = []
-        postgres_login({:database => row[0]})
+        postgres_login({database: row[0]})
         tmp_tblnames = smart_query("SELECT c.relname, n.nspname FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname NOT IN ('pg_catalog','pg_toast') AND pg_catalog.pg_table_is_visible(c.oid);")
         if tmp_tblnames and not tmp_tblnames.empty?
           tmp_tblnames.each do |tbl_row|

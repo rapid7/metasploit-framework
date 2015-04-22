@@ -75,11 +75,11 @@ class Metasploit3 < Msf::Auxiliary
 
           # Add Report
           report_note(
-            :host	=> dhost,
-            :proto	=> 'tcp',
-            :port	=> dport,
-            :type	=> "TCP OPEN|FILTERED #{dhost}:#{dport}",
-            :data	=> "TCP OPEN|FILTERED #{dhost}:#{dport}"
+            host: dhost,
+            proto: 'tcp',
+            port: dport,
+            type: "TCP OPEN|FILTERED #{dhost}:#{dport}",
+            data: "TCP OPEN|FILTERED #{dhost}:#{dport}"
           )
 
         rescue ::Exception

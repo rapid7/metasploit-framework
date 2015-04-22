@@ -167,13 +167,13 @@ class Metasploit3 < Msf::Auxiliary
       print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
       report_hash = {
-        :host   => datastore['RHOST'],
-        :port   => datastore['RPORT'],
-        :sname  => 'splunk-web',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'}
+        host: datastore['RHOST'],
+        port: datastore['RPORT'],
+        sname: 'splunk-web',
+        user: user,
+        pass: pass,
+        active: true,
+        type: 'password'}
 
       report_auth_info(report_hash)
       return :next_user

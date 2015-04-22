@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    http_fingerprint({ :response => res })
+    http_fingerprint({ response: res })
 
     if (res.code >= 200)
       if (res.body =~ /for 16-bit app support/)

@@ -62,14 +62,14 @@ class Metasploit3 < Msf::Post
   def store_creds(user, pass)
     if db
       report_auth_info(
-        :host   => client.sock.peerhost,
-        :port   => 5222,
-        :ptype  => 'password',
-        :sname  => 'spark',
-        :user   => user,
-        :pass   => pass,
-        :duplicate_ok => true,
-        :active => true
+        host: client.sock.peerhost,
+        port: 5222,
+        ptype: 'password',
+        sname: 'spark',
+        user: user,
+        pass: pass,
+        duplicate_ok: true,
+        active: true
       )
       print_status("Loot stored in the db")
     end

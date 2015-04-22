@@ -158,15 +158,15 @@ class Metasploit4 < Msf::Auxiliary
         hostname = host['hostnames'][0]
         data = host['data']
 
-        report_host(:host     => ip,
-                    :name     => hostname,
-                    :comments => 'Added from Shodan',
-                    :info     => host['info']
+        report_host(host: ip,
+                    name: hostname,
+                    comments: 'Added from Shodan',
+                    info: host['info']
                     ) if datastore['DATABASE']
 
-        report_service(:host => ip,
-                       :port => port,
-                       :info => 'Added from Shodan'
+        report_service(host: ip,
+                       port: port,
+                       info: 'Added from Shodan'
                        ) if datastore['DATABASE']
 
         if ip =~ regex ||

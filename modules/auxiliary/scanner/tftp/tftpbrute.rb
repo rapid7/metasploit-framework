@@ -55,12 +55,12 @@ class Metasploit3 < Msf::Auxiliary
           print_status("Found #{filename} on #{ip}")
           #Add Report
           report_note(
-            :host	=> ip,
-            :proto => 'udp',
-            :sname	=> 'tftp',
-            :port	=> datastore['RPORT'],
-            :type	=> "Found #{filename}",
-            :data	=> "Found #{filename}"
+            host: ip,
+            proto: 'udp',
+            sname: 'tftp',
+            port: datastore['RPORT'],
+            type: "Found #{filename}",
+            data: "Found #{filename}"
           )
         end
       end

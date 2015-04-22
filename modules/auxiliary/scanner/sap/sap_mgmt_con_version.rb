@@ -115,19 +115,19 @@ class Metasploit4 < Msf::Auxiliary
       print_good("[SAP] SID: #{sapsid.upcase}")
 
       report_note(
-        :host => rhost,
-        :proto => 'SOAP',
-        :port => rport,
-        :type => 'SAP Version',
-        :data => "SAP Version: #{version}"
+        host: rhost,
+        proto: 'SOAP',
+        port: rport,
+        type: 'SAP Version',
+        data: "SAP Version: #{version}"
       )
 
       report_note(
-        :host => rhost,
-        :proto => 'SOAP',
-        :port => rport,
-        :type => 'SAP SID',
-        :data => "SAP SID: #{sapsid.upcase}"
+        host: rhost,
+        proto: 'SOAP',
+        port: rport,
+        type: 'SAP SID',
+        data: "SAP SID: #{sapsid.upcase}"
       )
 
       return

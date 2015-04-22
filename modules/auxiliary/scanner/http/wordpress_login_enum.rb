@@ -107,11 +107,11 @@ class Metasploit3 < Msf::Auxiliary
     if exists
       print_good("#{target_uri} - WordPress User-Validation - Username: '#{user}' - is VALID")
       report_auth_info(
-          :host => rhost,
-          :sname => (ssl ? 'https' : 'http'),
-          :user => user,
-          :port => rport,
-          :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
+          host: rhost,
+          sname: (ssl ? 'https' : 'http'),
+          user: user,
+          port: rport,
+          proof: "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
       )
 
       @users_found[user] = :reported
@@ -131,13 +131,13 @@ class Metasploit3 < Msf::Auxiliary
     if cookie
       print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
       report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => (ssl ? 'https' : 'http'),
-          :user => user,
-          :pass => pass,
-          :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}, COOKIE=#{cookie}",
-          :active => true
+          host: rhost,
+          port: rport,
+          sname: (ssl ? 'https' : 'http'),
+          user: user,
+          pass: pass,
+          proof: "WEBAPP=\"Wordpress\", VHOST=#{vhost}, COOKIE=#{cookie}",
+          active: true
       )
       return :next_user
     else

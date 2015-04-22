@@ -68,12 +68,12 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_good("#{target_url} - Users found: #{@users_found.keys.sort.join(", ")}")
       report_note(
-        :host => rhost,
-        :port => rport,
-        :proto => 'tcp',
-        :sname => (ssl ? 'https' : 'http'),
-        :type => 'users',
-        :data => {:users =>  @users_found.keys.join(", ")}
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: (ssl ? 'https' : 'http'),
+        type: 'users',
+        data: {users:  @users_found.keys.join(", ")}
       )
     end
   end

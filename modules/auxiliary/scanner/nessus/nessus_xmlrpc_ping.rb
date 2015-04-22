@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'     => datastore['URI'],
         'method'  => 'GET'
         }, 25)
-      http_fingerprint({ :response => res })
+      http_fingerprint({ response: res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{datastore['URI']} - #{e.to_s}")
       return
@@ -62,11 +62,11 @@ class Metasploit3 < Msf::Auxiliary
     if res.headers['Server'] =~ /NessusWWW/
       print_good("SUCCESS. '#{ip}' : '#{datastore['RPORT']}'")
       report_service(
-        :host => ip,
-        :port => datastore['RPORT'],
-        :name => "nessus-xmlrpc",
-        :info => 'Nessus XMLRPC',
-        :state => 'open'
+        host: ip,
+        port: datastore['RPORT'],
+        name: "nessus-xmlrpc",
+        info: 'Nessus XMLRPC',
+        state: 'open'
       )
     else
       vprint_error("Wrong HTTP Server header: #{res.headers['Server'] || ''}")

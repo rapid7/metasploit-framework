@@ -66,8 +66,8 @@ class Metasploit3 < Msf::Auxiliary
           next unless reply.is_arp?
           company = OUI_LIST::lookup_oui_company_name(reply.arp_saddr_mac)
           print_status("#{reply.arp_saddr_ip} appears to be up (#{company}).")
-          report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
-          report_note(:host  => reply.arp_saddr_ip, :type  => "mac_oui", :data  => company)
+          report_host(host: reply.arp_saddr_ip, mac:reply.arp_saddr_mac)
+          report_note(host: reply.arp_saddr_ip, type: "mac_oui", data: company)
         end
 
       end
@@ -79,8 +79,8 @@ class Metasploit3 < Msf::Auxiliary
         next unless reply.is_arp?
         company = OUI_LIST::lookup_oui_company_name(reply.arp_saddr_mac)
         print_status("#{reply.arp_saddr_ip} appears to be up (#{company}).")
-        report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
-        report_note(:host  => reply.arp_saddr_ip, :type  => "mac_oui", :data  => company)
+        report_host(host: reply.arp_saddr_ip, mac:reply.arp_saddr_mac)
+        report_note(host: reply.arp_saddr_ip, type: "mac_oui", data: company)
       end
       Kernel.select(nil, nil, nil, 0.50)
     end

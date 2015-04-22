@@ -128,9 +128,9 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_note(
-      :host => rhost,
-      :type => 'wifi_keys',
-      :data => log
+      host: rhost,
+      type: 'wifi_keys',
+      data: log
     )
   end
 

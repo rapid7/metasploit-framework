@@ -241,12 +241,12 @@ class Metasploit3 < Msf::Auxiliary
   # Reports to the database about a possible vulnerable host
   def flag_vuln_host(ip, samba_version)
     report_vuln(
-      :host  => ip,
-      :port  => rport,
-      :proto => 'tcp',
-      :name  => self.name,
-      :info  => samba_version,
-      :refs  => self.references
+      host: ip,
+      port: rport,
+      proto: 'tcp',
+      name: self.name,
+      info: samba_version,
+      refs: self.references
     )
   end
 

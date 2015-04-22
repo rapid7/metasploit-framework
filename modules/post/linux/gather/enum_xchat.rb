@@ -106,8 +106,8 @@ class Metasploit3 < Msf::Post
       vprint_status("#{@peer} - Downloading: #{l}")
       data = read_file(l)
       logs << {
-        :filename => l,
-        :data     => data
+        filename: l,
+        data: data
       }
     end
 
@@ -122,8 +122,8 @@ class Metasploit3 < Msf::Post
       buf = read_file(base + f)
       next if buf.blank?
       config << {
-        :filename => f,
-        :data     => buf
+        filename: f,
+        data: buf
       }
     end
 

@@ -42,11 +42,11 @@ class Metasploit3 < Msf::Auxiliary
 
         if ( res =~ /\x00\x25\xD0\xB9/ )
           report_note(
-            :host	=> ip,
-            :proto	=> 'udp',
-            :port	=> datastore['RPORT'],
-            :type	=> 'SERVICE',
-            :data	=> 'Motorola Timbuktu Service Detection'
+            host: ip,
+            proto: 'udp',
+            port: datastore['RPORT'],
+            type: 'SERVICE',
+            data: 'Motorola Timbuktu Service Detection'
           )
           print_status("Motorola Timbuktu Detected on host #{ip}.")
         else

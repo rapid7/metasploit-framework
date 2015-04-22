@@ -149,30 +149,30 @@ class Metasploit3 < Msf::Auxiliary
       output.each_line do |oline|
         if oline =~ /Login correct/
           if not @oracle_reported
-            report_service(:host => addr, :port => port, :proto => "tcp", :name => "oracle")
-            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => sid, :update => :unique_data)
+            report_service(host: addr, port: port, proto: "tcp", name: "oracle")
+            report_note(host: addr, port: port, proto: "tcp", type: "oracle.sid", data: sid, update: :unique_data)
             @oracle_reported = true
           end
           user,pass = extract_creds(oline)
           pass = "" if pass == "<empty>"
           print_good "#{msg} Success: #{user}:#{pass} (SID: #{sid})"
           report_auth_info(
-            :host => addr, :port => port, :proto => "tcp",
-            :user => "#{sid}/#{user}", :pass => pass,
-            :source_type => "user_supplied", :active => true
+            host: addr, port: port, proto: "tcp",
+            user: "#{sid}/#{user}", pass: pass,
+            source_type: "user_supplied", active: true
           )
         elsif oline =~ /Account locked/
           if not @oracle_reported
-            report_service(:host => addr, :port => port, :proto => "tcp", :name => "oracle")
-            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => sid, :update => :unique_data)
+            report_service(host: addr, port: port, proto: "tcp", name: "oracle")
+            report_note(host: addr, port: port, proto: "tcp", type: "oracle.sid", data: sid, update: :unique_data)
             @oracle_reported = true
           end
           user = extract_creds(oline)[0]
           print_status "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
           report_auth_info(
-            :host => addr, :port => port, :proto => "tcp",
-            :user => "#{sid}/#{user}",
-            :source_type => "user_supplied", :active => false
+            host: addr, port: port, proto: "tcp",
+            user: "#{sid}/#{user}",
+            source_type: "user_supplied", active: false
           )
         elsif oline =~ /^\s+ERROR: (.*)/
           print_error "#{msg} NSE script error: #{$1}"

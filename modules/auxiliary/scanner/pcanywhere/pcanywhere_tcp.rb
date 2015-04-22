@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status(Rex::Text.to_hex_dump(res))
 =end
 
-      report_service(:host => rhost, :port => rport, :name => "pcanywhere_data", :info => "")
+      report_service(host: rhost, port: rport, name: "pcanywhere_data", info: "")
       print_status("#{rhost}:#{rport} pcAnywhere data service")
 
     rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET

@@ -59,11 +59,11 @@ class Metasploit4 < Msf::Auxiliary
     print_line(waps.to_s)
 
     report_note(
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :type => 'chromecast.wifi',
-      :data => waps.to_csv
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      type: 'chromecast.wifi',
+      data: waps.to_csv
     )
   end
 

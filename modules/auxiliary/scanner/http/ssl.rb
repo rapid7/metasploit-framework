@@ -91,26 +91,26 @@ class Metasploit4 < Msf::Auxiliary
 
           # Store the virtual hostname for HTTP
           report_note(
-            :host	=> ip,
-            :port	=> rport,
-            :proto  => 'tcp',
-            :type	=> 'http.vhost',
-            :data	=> {:name => vhostn}
+            host: ip,
+            port: rport,
+            proto: 'tcp',
+            type: 'http.vhost',
+            data: {name: vhostn}
           )
 
           # Store the SSL certificate itself
           report_note(
-            :host	=> ip,
-            :proto  => 'tcp',
-            :port	=> rport,
-            :type	=> 'ssl.certificate',
-            :data	=> {
-              :cn        => vhostn,
-              :subject   => cert.subject.to_a,
-              :algorithm => alg,
-              :valid_from => cert.not_before,
-              :valid_after => cert.not_after,
-              :key_size => public_key_size
+            host: ip,
+            proto: 'tcp',
+            port: rport,
+            type: 'ssl.certificate',
+            data: {
+              cn: vhostn,
+              subject: cert.subject.to_a,
+              algorithm: alg,
+              valid_from: cert.not_before,
+              valid_after: cert.not_after,
+              key_size: public_key_size
 
             }
           )
@@ -118,8 +118,8 @@ class Metasploit4 < Msf::Auxiliary
           # Update the server hostname if necessary
           if vhostn !~ /localhost|snakeoil/i
             report_host(
-              :host => ip,
-              :name => vhostn
+              host: ip,
+              name: vhostn
             )
           end
 

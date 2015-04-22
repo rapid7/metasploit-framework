@@ -115,12 +115,12 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good "#{rhost}:#{rport} - KOYO - Found passcode: #{passcode}"
       report_auth_info(
-        :host   => rhost,
-        :port   => rport.to_i,
-        :proto  => 'udp',
-        :user   => '',
-        :pass   => passcode, # NOTE: Human readable
-        :active => true
+        host: rhost,
+        port: rport.to_i,
+        proto: 'udp',
+        user: '',
+        pass: passcode, # NOTE: Human readable
+        active: true
       )
       break
     end

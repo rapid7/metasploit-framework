@@ -69,11 +69,11 @@ class Metasploit3 < Msf::Auxiliary
           print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
           # Add Report
           opts = {
-            :host  => target_host,
-            :proto => 'tcp',
-            :sname => (ssl ? 'https' : 'http'),
-            :type  => 'FrontPage Author',
-            :data  => "#{info}#{fpauthor}"
+            host: target_host,
+            proto: 'tcp',
+            sname: (ssl ? 'https' : 'http'),
+            type: 'FrontPage Author',
+            data: "#{info}#{fpauthor}"
           }
           opts[:port] = datastore['RPORT'] if not port.empty?
           report_note(opts)
@@ -124,13 +124,13 @@ class Metasploit3 < Msf::Auxiliary
           # Not really this one, but close
           report_vuln(
             {
-              :host   => target_host,
-              :port	=> rport,
-              :proto	=> 'tcp',
-              :name	=> self.name,
-              :info   => "Module #{self.fullname} confirmed access to #{info} [#{retcode}]",
-              :refs   => self.references,
-              :exploited_at => Time.now.utc
+              host: target_host,
+              port: rport,
+              proto: 'tcp',
+              name: self.name,
+              info: "Module #{self.fullname} confirmed access to #{info} [#{retcode}]",
+              refs: self.references,
+              exploited_at: Time.now.utc
             }
           )
         when /^401/

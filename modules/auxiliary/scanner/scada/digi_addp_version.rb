@@ -51,12 +51,12 @@ class Metasploit3 < Msf::Auxiliary
     unless @results[shost]
       print_status("#{shost}:#{datastore['RPORT']} ADDP #{res[:banner]}")
       report_service(
-        :host  => shost,
-        :mac   => res[:mac],
-        :port  => datastore['RPORT'],
-        :proto => 'udp',
-        :name  => 'addp',
-        :info  => res[:banner]
+        host: shost,
+        mac: res[:mac],
+        port: datastore['RPORT'],
+        proto: 'udp',
+        name: 'addp',
+        info: res[:banner]
       )
     end
 

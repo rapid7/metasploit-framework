@@ -66,19 +66,19 @@ class Metasploit3 < Msf::Auxiliary
         print_status("Found #{wmap_base_url}#{file}")
 
         report_web_vuln(
-          :host	=> ip,
-          :port	=> rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
-          :path	=> file,
-          :method => 'GET',
-          :pname  => "",
-          :proof  => "Res code: #{res.code.to_s}",
-          :risk   => 0,
-          :confidence   => 100,
-          :category     => 'file',
-          :description  => 'Backup file found.',
-          :name   => 'backup file'
+          host: ip,
+          port: rport,
+          vhost: vhost,
+          ssl: ssl,
+          path: file,
+          method: 'GET',
+          pname: "",
+          proof: "Res code: #{res.code.to_s}",
+          risk: 0,
+          confidence: 100,
+          category: 'file',
+          description: 'Backup file found.',
+          name: 'backup file'
         )
 
       else

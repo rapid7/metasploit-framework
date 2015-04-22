@@ -52,15 +52,15 @@ class Metasploit3 < Msf::Auxiliary
     call_guid   = Rex::Text.rand_text(16)
 
     pkt_setup = h323_setup_call({
-      :caller_name => caller_name,
-      :h323_id => h323_id,
-      :vendor_id => vendor_id,
-      :callee_host => callee_host,
-      :callee_port => callee_port,
-      :caller_host => caller_host,
-      :caller_port => caller_port,
-      :conf_guid => conf_guid,
-      :call_guid => call_guid
+      caller_name: caller_name,
+      h323_id: h323_id,
+      vendor_id: vendor_id,
+      callee_host: callee_host,
+      callee_port: callee_port,
+      caller_host: caller_host,
+      caller_port: caller_port,
+      conf_guid: conf_guid,
+      call_guid: call_guid
     })
 
     res = sock.put(pkt_setup) rescue nil
@@ -99,8 +99,8 @@ class Metasploit3 < Msf::Auxiliary
 
     # Make sure the call was shut down cleanly
     pkt_release = h323_release_call({
-      :caller_name => caller_name,
-      :call_guid => call_guid
+      caller_name: caller_name,
+      call_guid: call_guid
     })
     sock.put(pkt_release) rescue nil
 
@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       print_status("#{rhost}:#{rport} #{banner}")
-      report_service(:host => rhost, :port => rport, :name => "h323", :info => banner)
+      report_service(host: rhost, port: rport, name: "h323", info: banner)
     end
 
   end
@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Auxiliary
         cref_val = bin[2, cref_len]
         f_type = bin[2 + cref_len, 1].unpack("C")[0]
 
-        return { :type => f_type, :call_ref => cref_val }.merge( read_ies(f_type, bin[ 2 + cref_len + 1, bin.length] ) )
+        return { type: f_type, call_ref: cref_val }.merge( read_ies(f_type, bin[ 2 + cref_len + 1, bin.length] ) )
       end
     rescue ::Timeout::Error
     end
@@ -592,14 +592,14 @@ class Metasploit3 < Msf::Auxiliary
         create_ie_display(caller_name) +
         create_ie_user_user(
           create_user_info({
-            :h323_id => h323_id,
-            :vendor_id => vendor_id,
-            :callee_host => callee_host,
-            :callee_port => callee_port,
-            :caller_host => caller_host,
-            :caller_port => caller_port,
-            :conf_guid => conf_guid,
-            :call_guid => call_guid
+            h323_id: h323_id,
+            vendor_id: vendor_id,
+            callee_host: callee_host,
+            callee_port: callee_port,
+            caller_host: caller_host,
+            caller_port: caller_port,
+            conf_guid: conf_guid,
+            call_guid: call_guid
           })
         )
       )

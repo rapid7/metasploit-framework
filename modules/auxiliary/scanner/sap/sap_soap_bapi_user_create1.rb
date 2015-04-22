@@ -99,12 +99,12 @@ class Metasploit4 < Msf::Auxiliary
         else
           print_good("[SAP] #{ip}:#{rport} - User '#{datastore['BAPI_USER']}' with password '#{datastore['BAPI_PASSWORD']}' created")
           report_auth_info(
-            :host => ip,
-            :port => rport,
-            :sname => "sap",
-            :user => "#{datastore['BAPI_USER']}",
-            :pass => "#{datastore['BAPI_PASSWORD']}",
-            :active => true
+            host: ip,
+            port: rport,
+            sname: "sap",
+            user: "#{datastore['BAPI_USER']}",
+            pass: "#{datastore['BAPI_PASSWORD']}",
+            active: true
           )
           return
         end

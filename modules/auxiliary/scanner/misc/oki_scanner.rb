@@ -81,11 +81,11 @@ class Metasploit3 < Msf::Auxiliary
         when "200"
           print_good("#{rhost}:#{datastore['HTTPPORT']} logged in as: admin/#{last_six}")
           report_auth_info(
-            :host  => rhost,
-            :port  => datastore['HTTPPORT'],
-            :proto => "tcp",
-            :user  => 'admin',
-            :pass  => last_six
+            host: rhost,
+            port: datastore['HTTPPORT'],
+            proto: "tcp",
+            user: 'admin',
+            pass: last_six
           )
         when "401"
           print_error("Default credentials failed")

@@ -40,12 +40,12 @@ class Metasploit3 < Msf::Auxiliary
         if (res.code == 200)
         sid = res.body.scan(/Login to Database:(\w+)/)
           report_note(
-              :host	=> ip,
-              :port	=> datastore['RPORT'],
-              :proto	=> 'tcp',
-              :type	=> 'oracle_sid',
-              :data	=> sid,
-              :update => :unique_data
+              host: ip,
+              port: datastore['RPORT'],
+              proto: 'tcp',
+              type: 'oracle_sid',
+              data: sid,
+              update: :unique_data
           )
           print_status("Discovered SID: '#{sid}' for host #{ip}")
         else

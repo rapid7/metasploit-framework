@@ -38,11 +38,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def do_report(ip, endianess)
     report_vuln({
-      :host => ip,
-      :port => rport,
-      :name => "SerComm Network Device Backdoor",
-      :refs => self.references,
-      :info => "SerComm Network Device Backdoor found on a #{endianess} device"
+      host: ip,
+      port: rport,
+      name: "SerComm Network Device Backdoor",
+      refs: self.references,
+      info: "SerComm Network Device Backdoor found on a #{endianess} device"
     })
   end
 

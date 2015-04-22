@@ -37,19 +37,19 @@ class Metasploit3 < Msf::Auxiliary
     target  = nil
     targets = {
       "Apple Base Station V5.0.4" => {
-        :version  => 0x0024ee3c,
-        :password => 0x00380000,
-        :password_search => 32768,
+        version: 0x0024ee3c,
+        password: 0x00380000,
+        password_search: 32768,
       },
       "Apple Base Station V5.0.3" => {
-        :version  => 0x0024e24c,
-        :password => 0x00380000,
-        :password_search => 32768,
+        version: 0x0024e24c,
+        password: 0x00380000,
+        password_search: 32768,
       },
       "Apple Base Station V5.0.1" => {
-        :version  => 0x0024b45c,
-        :password => 0x00fa7500,
-        :password_search => 16384
+        version: 0x0024b45c,
+        password: 0x00fa7500,
+        password_search: 16384
       }
     }
 

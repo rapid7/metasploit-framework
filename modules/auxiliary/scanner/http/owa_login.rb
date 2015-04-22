@@ -200,13 +200,13 @@ class Metasploit3 < Msf::Auxiliary
       if res.headers['location'] =~ /expiredpassword/
         print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}': NOTE password change required")
         report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'owa',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
+          host: datastore['RHOST'],
+          port: datastore['RPORT'],
+          sname: 'owa',
+          user: user,
+          pass: pass,
+          active: true,
+          type: 'password'}
 
         report_auth_info(report_hash)
         return :next_user
@@ -265,13 +265,13 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}'")
 
       report_hash = {
-        :host   => datastore['RHOST'],
-        :port   => datastore['RPORT'],
-        :sname  => 'owa',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'}
+        host: datastore['RHOST'],
+        port: datastore['RPORT'],
+        sname: 'owa',
+        user: user,
+        pass: pass,
+        active: true,
+        type: 'password'}
 
       report_auth_info(report_hash)
       return :next_user

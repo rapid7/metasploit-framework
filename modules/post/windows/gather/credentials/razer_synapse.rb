@@ -61,14 +61,14 @@ class Metasploit3 < Msf::Post
   def store_creds(user, pass)
     if db
       report_auth_info(
-        :host   => Rex::Socket.resolv_to_dotted("www.razerzone.com"),
-        :port   => 443,
-        :ptype  => 'password',
-        :sname  => 'razer_synapse',
-        :user   => user,
-        :pass   => pass,
-        :duplicate_ok => true,
-        :active => true
+        host: Rex::Socket.resolv_to_dotted("www.razerzone.com"),
+        port: 443,
+        ptype: 'password',
+        sname: 'razer_synapse',
+        user: user,
+        pass: pass,
+        duplicate_ok: true,
+        active: true
       )
       vprint_status("Loot stored in the db")
     end

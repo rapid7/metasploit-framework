@@ -43,6 +43,6 @@ module Metasploit3
   # Returns the JS string to use for execution
   #
   def command_string
-    nodejs_reverse_tcp(:use_ssl => true)
+    nodejs_reverse_tcp(use_ssl: true)
   end
 end

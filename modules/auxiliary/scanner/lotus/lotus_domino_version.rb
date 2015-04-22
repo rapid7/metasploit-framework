@@ -62,12 +62,12 @@ class Metasploit3 < Msf::Auxiliary
           if match = res.body.match(/\<!-- Domino Release(.*) --\>/);
             server1 = $1
             report_note(
-              :host	=> ip,
-              :proto => 'tcp',
-              :sname => (ssl ? "https" : "http"),
-              :port	=> rport,
-              :type => 'lotusdomino.version.current',
-              :data => server1.strip
+              host: ip,
+              proto: 'tcp',
+              sname: (ssl ? "https" : "http"),
+              port: rport,
+              type: 'lotusdomino.version.current',
+              data: server1.strip
                 )
             if currentversion.empty? then
               currentversion << server1.strip
@@ -111,12 +111,12 @@ class Metasploit3 < Msf::Auxiliary
             server2 = $2
             print_status("#{ip}:#{rport} Lotus Domino Release Notes Version: " + $2)
             report_note(
-              :host	=> ip,
-              :proto => 'tcp',
-              :sname => (ssl ? "https" : "http"),
-              :port	=> rport,
-              :type => 'lotusdomino.version.releasenotes',
-              :data => server2.strip
+              host: ip,
+              proto: 'tcp',
+              sname: (ssl ? "https" : "http"),
+              port: rport,
+              type: 'lotusdomino.version.releasenotes',
+              data: server2.strip
                 )
           else
             ''
@@ -146,12 +146,12 @@ class Metasploit3 < Msf::Auxiliary
           if match = res.body.match(/Version=(.*)/);
             server3 = $1
             report_note(
-              :host	=> ip,
-              :proto => 'tcp',
-              :sname => (ssl ? "https" : "http"),
-              :port	=> rport,
-              :type => 'lotusdomino.version.base',
-              :data => server3.strip
+              host: ip,
+              proto: 'tcp',
+              sname: (ssl ? "https" : "http"),
+              port: rport,
+              type: 'lotusdomino.version.base',
+              data: server3.strip
                 )
             if baseversion.empty? then
               baseversion << server3.strip

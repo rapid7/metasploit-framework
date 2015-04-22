@@ -62,13 +62,13 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
         report_vuln(
           {
-            :host   => target_host,
-            :port	=> rport,
-            :proto  => 'tcp',
-            :name	=> self.name,
-            :info   => "Module #{self.fullname} reports directory traversal of #{target_host}:#{rport} with response code #{res.code}",
-            :refs   => self.references,
-            :exploited_at => Time.now.utc
+            host: target_host,
+            port: rport,
+            proto: 'tcp',
+            name: self.name,
+            info: "Module #{self.fullname} reports directory traversal of #{target_host}:#{rport} with response code #{res.code}",
+            refs: self.references,
+            exploited_at: Time.now.utc
           }
         )
       else

@@ -46,14 +46,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_client_connect(c)
     @state[c] = {
-      :name    => "#{c.peerhost}:#{c.peerport}",
-      :ip      => c.peerhost,
-      :port    => c.peerport,
-      :user    => nil,
-      :pass    => nil,
-      :gotuser => false,
-      :gotpass => false,
-      :started => false
+      name: "#{c.peerhost}:#{c.peerport}",
+      ip: c.peerhost,
+      port: c.peerport,
+      user: nil,
+      pass: nil,
+      gotuser: false,
+      gotpass: false,
+      started: false
     }
   end
 
@@ -122,13 +122,13 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     report_auth_info(
-      :host      => @state[c][:ip],
-      :port      => datastore['SRVPORT'],
-      :sname     => 'telnet',
-      :user      => @state[c][:user],
-      :pass      => @state[c][:pass],
-      :source_type => "captured",
-      :active    => true
+      host: @state[c][:ip],
+      port: datastore['SRVPORT'],
+      sname: 'telnet',
+      user: @state[c][:user],
+      pass: @state[c][:pass],
+      source_type: "captured",
+      active: true
     )
 
     print_status("TELNET LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")

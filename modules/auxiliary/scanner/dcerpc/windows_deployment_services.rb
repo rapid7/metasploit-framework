@@ -84,11 +84,11 @@ class Metasploit3 < Msf::Auxiliary
     vprint_good("Bound to #{handle}")
 
     report_service(
-      :host => rhost,
-      :port => datastore['RPORT'],
-      :proto => 'tcp',
-      :name => "dcerpc",
-      :info => "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
+      host: rhost,
+      port: datastore['RPORT'],
+      proto: 'tcp',
+      name: "dcerpc",
+      info: "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
     )
 
     table = Rex::Ui::Text::Table.new({
@@ -218,13 +218,13 @@ class Metasploit3 < Msf::Auxiliary
 
   def report_creds(domain, user, pass)
     report_auth_info(
-      :host  => rhost,
-      :port => 4050,
-      :sname => 'dcerpc',
-      :proto => 'tcp',
-      :source_id => nil,
-      :source_type => "aux",
-      :user => "#{domain}\\#{user}",
-      :pass => pass)
+      host: rhost,
+      port: 4050,
+      sname: 'dcerpc',
+      proto: 'tcp',
+      source_id: nil,
+      source_type: "aux",
+      user: "#{domain}\\#{user}",
+      pass: pass)
   end
 end

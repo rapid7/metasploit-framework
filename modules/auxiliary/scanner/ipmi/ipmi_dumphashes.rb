@@ -181,27 +181,27 @@ class Metasploit3 < Msf::Auxiliary
 
       # Write the rakp hash to the database
       report_auth_info(
-        :host	=> rhost,
-        :port   => rport,
-        :proto  => 'udp',
-        :sname	=> 'ipmi',
-        :user 	=> username,
-        :pass   => "#{sha1_salt}:#{sha1_hash}",
-        :source_type => "captured",
-        :active => true,
-        :type   => 'rakp_hmac_sha1_hash'
+        host: rhost,
+        port: rport,
+        proto: 'udp',
+        sname: 'ipmi',
+        user: username,
+        pass: "#{sha1_salt}:#{sha1_hash}",
+        source_type: "captured",
+        active: true,
+        type: 'rakp_hmac_sha1_hash'
       )
 
       # Write the vulnerability to the database
       unless reported_vuln
         report_vuln(
-          :host  => rhost,
-          :port  => rport,
-          :proto => 'udp',
-          :sname => 'ipmi',
-          :name  => 'IPMI 2.0 RMCP+ Authentication Password Hash Exposure',
-          :info  => "Obtained password hash for user #{username}: #{sha1_salt}:#{sha1_hash}",
-          :refs  => self.references
+          host: rhost,
+          port: rport,
+          proto: 'udp',
+          sname: 'ipmi',
+          name: 'IPMI 2.0 RMCP+ Authentication Password Hash Exposure',
+          info: "Obtained password hash for user #{username}: #{sha1_salt}:#{sha1_hash}",
+          refs: self.references
         )
         reported_vuln = true
       end
@@ -217,15 +217,15 @@ class Metasploit3 < Msf::Auxiliary
 
         # Report the clear-text credential to the database
         report_auth_info(
-          :host	=> rhost,
-          :port   => rport,
-          :proto  => 'udp',
-          :sname	=> 'ipmi',
-          :user 	=> username,
-          :pass   => pass,
-          :source_type => "cracked",
-          :active => true,
-          :type   => 'password'
+          host: rhost,
+          port: rport,
+          proto: 'udp',
+          sname: 'ipmi',
+          user: username,
+          pass: pass,
+          source_type: "cracked",
+          active: true,
+          type: 'password'
         )
         break
       end

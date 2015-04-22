@@ -75,12 +75,12 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     report_auth_info(
-      :host => rhost,
-      :port => rport,
-      :user => datastore['USERNAME'],
-      :pass => datastore['PASSWORD'],
-      :ptype => "password",
-      :active => true
+      host: rhost,
+      port: rport,
+      user: datastore['USERNAME'],
+      pass: datastore['PASSWORD'],
+      ptype: "password",
+      active: true
     )
   end
 

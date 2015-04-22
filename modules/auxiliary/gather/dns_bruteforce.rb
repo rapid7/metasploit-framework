@@ -115,8 +115,8 @@ class Metasploit3 < Msf::Auxiliary
           get_ip("#{testf}.#{domain}").each do |i|
             print_good("Host #{i[:host]} with address #{i[:address]} found")
             report_host(
-              :host => i[:address].to_s,
-              :name => i[:host].gsub(/\.$/,'')
+              host: i[:address].to_s,
+              name: i[:host].gsub(/\.$/,'')
             )
           end
         end

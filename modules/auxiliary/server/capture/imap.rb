@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_client_connect(c)
-    @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
+    @state[c] = {name: "#{c.peerhost}:#{c.peerport}", ip: c.peerhost, port: c.peerport, user: nil, pass: nil}
     c.put "* OK IMAP4\r\n"
   end
 

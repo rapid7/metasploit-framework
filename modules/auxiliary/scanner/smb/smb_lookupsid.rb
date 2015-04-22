@@ -214,10 +214,10 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{ip} PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
 
       domain = {
-        :name    => host_name,
-        :txt_sid => host_sid,
-        :users   => {},
-        :groups  => {}
+        name: host_name,
+        txt_sid: host_sid,
+        users: {},
+        groups: {}
       }
 
       target_sid = case action.name.upcase
@@ -277,11 +277,11 @@ class Metasploit3 < Msf::Auxiliary
 
       # Store the domain information
       report_note(
-        :host => ip,
-        :proto => 'tcp',
-        :port => rport,
-        :type => 'smb.domain.lookupsid',
-        :data => domain
+        host: ip,
+        proto: 'tcp',
+        port: rport,
+        type: 'smb.domain.lookupsid',
+        data: domain
       )
 
       print_status("#{ip} #{domain[:name].upcase} [#{domain[:users].keys.map{|k| domain[:users][k]}.join(", ")} ]")

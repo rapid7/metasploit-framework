@@ -245,10 +245,10 @@ class Metasploit3 < Msf::Post
   # Write to notes database
   def db_note(host, data, type)
     report_note(
-      :type  => type,
-      :data  => data,
-      :host  => host,
-      :update => :unique_data
+      type: type,
+      data: data,
+      host: host,
+      update: :unique_data
     )
   end
 

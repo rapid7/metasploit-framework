@@ -67,18 +67,18 @@ class Metasploit3 < Msf::Auxiliary
       print_status(line)
     end
 
-    report_note(:host => datastore['RHOST'],
-      :proto => 'tcp',
-      :port => datastore['RPORT'],
-      :type => 'afp_server_info',
-      :data => response)
+    report_note(host: datastore['RHOST'],
+      proto: 'tcp',
+      port: datastore['RPORT'],
+      type: 'afp_server_info',
+      data: response)
 
       report_service(
-        :host => datastore['RHOST'],
-        :port => datastore['RPORT'],
-        :proto => 'tcp',
-        :name => "afp",
-        :info => "AFP name: #{response[:utf8_server_name]}, Versions: #{response[:versions].join(', ')}"
+        host: datastore['RHOST'],
+        port: datastore['RPORT'],
+        proto: 'tcp',
+        name: "afp",
+        info: "AFP name: #{response[:utf8_server_name]}, Versions: #{response[:versions].join(', ')}"
       )
 
   end

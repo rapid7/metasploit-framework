@@ -56,12 +56,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def report_goods
     report_vuln(
-      :host         => rhost,
-      :port         => rport,
-      :proto        => 'tcp',
-      :name         => self.name,
-      :info         => 'Response indicates a missing patch',
-      :refs         => self.references
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: self.name,
+      info: 'Response indicates a missing patch',
+      refs: self.references
     )
   end
 

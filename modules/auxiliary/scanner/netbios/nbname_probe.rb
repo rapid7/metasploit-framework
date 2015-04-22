@@ -126,9 +126,9 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       if(host[:mac] != "00:00:00:00:00:00")
-        report_host(:host => ip, :mac => host[:mac])
+        report_host(host: ip, mac: host[:mac])
       else
-        report_host(:host => ip)
+        report_host(host: ip)
       end
 
       extra = ""
@@ -156,9 +156,9 @@ class Metasploit3 < Msf::Auxiliary
       if(virtual)
         extra = "Virtual Machine:#{virtual}"
         report_note(
-          :host  => ip,
-          :type  => 'host.virtual_machine',
-          :data  => {:vendor => virtual, :method => 'netbios'}
+          host: ip,
+          type: 'host.virtual_machine',
+          data: {vendor: virtual, method: 'netbios'}
         )
       end
 
@@ -171,11 +171,11 @@ class Metasploit3 < Msf::Auxiliary
 
         if not aliases.empty?
           report_note(
-            :host  => ip,
-            :proto => 'udp',
-            :port  => 137,
-            :type  => 'netbios.addresses',
-            :data  => {:addresses => aliases}
+            host: ip,
+            proto: 'udp',
+            port: 137,
+            type: 'netbios.addresses',
+            data: {addresses: aliases}
           )
         end
       end
@@ -226,8 +226,8 @@ class Metasploit3 < Msf::Auxiliary
       maddr = buff.slice!(0,6).unpack("C*").map{|c| "%.2x" % c }.join(":")
 
       @results[addr] = {
-        :names => names,
-        :mac   => maddr
+        names: names,
+        mac: maddr
       }
 
       if (!hname and @results[addr][:names].length > 0)
@@ -251,13 +251,13 @@ class Metasploit3 < Msf::Auxiliary
 
       if inside_workspace_boundary?(addr)
         report_service(
-          :host  => addr,
-          :mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
-          :host_name => (hname) ? hname.downcase : nil,
-          :port  => pkt[2],
-          :proto => 'udp',
-          :name  => 'netbios',
-          :info  => inf
+          host: addr,
+          mac: (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
+          host_name: (hname) ? hname.downcase : nil,
+          port: pkt[2],
+          proto: 'udp',
+          name: 'netbios',
+          info: inf
         )
       end
     when 0x20

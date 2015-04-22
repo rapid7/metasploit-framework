@@ -68,12 +68,12 @@ class Metasploit3 < Msf::Auxiliary
       print_good("#{peer} - #{note}: #{tpath}#{page}")
 
       report_note(
-        :host  => ip,
-        :port  => datastore['RPORT'],
-        :proto => 'http',
-        :ntype => 'joomla_page',
-        :data  => "#{note}: #{tpath}#{page}",
-        :update => :unique_data
+        host: ip,
+        port: datastore['RPORT'],
+        proto: 'http',
+        ntype: 'joomla_page',
+        data: "#{note}: #{tpath}#{page}",
+        update: :unique_data
       )
     elsif (res.code == 403)
       if (res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)

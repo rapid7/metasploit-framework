@@ -54,13 +54,13 @@ class Metasploit3 < Msf::Auxiliary
     ver.each do |v|
       print_status("\t#{v.chomp}")
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "Component Version: #{v.chomp}",
-        :update => :unique_data
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "Component Version: #{v.chomp}",
+        update: :unique_data
       )
     end
 
@@ -74,48 +74,48 @@ class Metasploit3 < Msf::Auxiliary
       if vparm["audit_trail"] == "NONE"
         print_status("\tDatabase Auditing is not enabled!")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Audit Trail: Disabled",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Audit Trail: Disabled",
+          update: :unique_data
         )
       else
         print_status("\tDatabase Auditing is enabled!")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Audit Trail: Enabled",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Audit Trail: Enabled",
+          update: :unique_data
         )
       end
 
       if vparm["audit_sys_operations"] == "FALSE"
         print_status("\tAuditing of SYS Operations is not enabled!")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Audit SYS Ops: Disabled",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Audit SYS Ops: Disabled",
+          update: :unique_data
         )
       else
         print_status("\tAuditing of SYS Operations is enabled!")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Audit SYS Ops: Enabled",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Audit SYS Ops: Enabled",
+          update: :unique_data
         )
       end
 
@@ -129,24 +129,24 @@ class Metasploit3 < Msf::Auxiliary
       if vparm["sql92_security"] == "FALSE"
         print_status("\tSQL92 Security restriction on SELECT is not Enabled")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "SQL92: Disabled",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "SQL92: Disabled",
+          update: :unique_data
         )
       else
         print_status("\tSQL92 Security restriction on SELECT is Enabled")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "SQL92: Enabled",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "SQL92: Enabled",
+          update: :unique_data
         )
       end
 
@@ -156,46 +156,46 @@ class Metasploit3 < Msf::Auxiliary
         if vparm["dblink_encrypt_login"] == "FALSE"
           print_status("\tLink Encryption for Logins is not Enabled")
           report_note(
-            :host => datastore['RHOST'],
-            :proto => 'tcp',
-            :sname => 'oracle',
-            :port => datastore['RPORT'],
-            :type => 'ORA_ENUM',
-            :data => "Link Encryption: Disabled",
-            :update => :unique_data
+            host: datastore['RHOST'],
+            proto: 'tcp',
+            sname: 'oracle',
+            port: datastore['RPORT'],
+            type: 'ORA_ENUM',
+            data: "Link Encryption: Disabled",
+            update: :unique_data
           )
         else
           print_status("\tLink Encryption for Logins is Enabled")
           report_note(
-            :host => datastore['RHOST'],
-            :proto => 'tcp',
-            :sname => 'oracle',
-            :port => datastore['RPORT'],
-            :type => 'ORA_ENUM',
-            :data => "Link Encryption: Enabled",
-            :update => :unique_data
+            host: datastore['RHOST'],
+            proto: 'tcp',
+            sname: 'oracle',
+            port: datastore['RPORT'],
+            type: 'ORA_ENUM',
+            data: "Link Encryption: Enabled",
+            update: :unique_data
           )
         end
       end
 
       print_status("\tUTL Directory Access is set to #{vparm["utl_file_dir"]}") if vparm["utl_file_dir"] != " "
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "UTL_DIR: #{ vparm["utl_file_dir"]}"
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "UTL_DIR: #{ vparm["utl_file_dir"]}"
       ) if not vparm["utl_file_dir"]#.empty?
 
       print_status("\tAudit log is saved at #{vparm["audit_file_dest"]}")
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "Audit Log Location: #{ vparm["audit_file_dest"]}"
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "Audit Log Location: #{ vparm["audit_file_dest"]}"
       ) if not vparm["audit_file_dest"]#.empty?
 
     end
@@ -213,13 +213,13 @@ class Metasploit3 < Msf::Auxiliary
       lockout = prepare_exec(query)
       print_status("\tCurrent Account Lockout Time is set to #{lockout[0].chomp}")
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "Account Lockout Time: #{lockout[0].chomp}",
-        :update => :unique_data
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "Account Lockout Time: #{lockout[0].chomp}",
+        update: :unique_data
       )
 
     rescue => e
@@ -240,13 +240,13 @@ class Metasploit3 < Msf::Auxiliary
       failed_logins = prepare_exec(query)
       print_status("\tThe Number of Failed Logins before an account is locked is set to #{failed_logins[0].chomp}")
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "Account Fail Logins Permitted: #{failed_logins[0].chomp}",
-        :update => :unique_data
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "Account Fail Logins Permitted: #{failed_logins[0].chomp}",
+        update: :unique_data
       )
 
     rescue => e
@@ -267,13 +267,13 @@ class Metasploit3 < Msf::Auxiliary
       grace_time = prepare_exec(query)
       print_status("\tThe Password Grace Time is set to #{grace_time[0].chomp}")
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "Account Password Grace Time: #{grace_time[0].chomp}",
-        :update => :unique_data
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "Account Password Grace Time: #{grace_time[0].chomp}",
+        update: :unique_data
       )
 
     rescue => e
@@ -294,13 +294,13 @@ class Metasploit3 < Msf::Auxiliary
       passlife_time = prepare_exec(query)
       print_status("\tThe Lifetime of Passwords is set to #{passlife_time[0].chomp}")
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "Password Life Time: #{passlife_time[0].chomp}",
-        :update => :unique_data
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "Password Life Time: #{passlife_time[0].chomp}",
+        update: :unique_data
       )
 
     rescue => e
@@ -321,13 +321,13 @@ class Metasploit3 < Msf::Auxiliary
       passreuse = prepare_exec(query)
       print_status("\tThe Number of Times a Password can be reused is set to #{passreuse[0].chomp}")
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "Password Reuse Time: #{passreuse[0].chomp}",
-        :update => :unique_data
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "Password Reuse Time: #{passreuse[0].chomp}",
+        update: :unique_data
       )
 
     rescue => e
@@ -348,13 +348,13 @@ class Metasploit3 < Msf::Auxiliary
       passreusemax = prepare_exec(query)
       print_status("\tThe Maximum Number of Times a Password needs to be changed before it can be reused is set to #{passreusemax[0].chomp}")
       report_note(
-        :host => datastore['RHOST'],
-        :proto => 'tcp',
-        :sname => 'oracle',
-        :port => datastore['RPORT'],
-        :type => 'ORA_ENUM',
-        :data => "Password Maximun Reuse Time: #{passreusemax[0].chomp}",
-        :update => :unique_data
+        host: datastore['RHOST'],
+        proto: 'tcp',
+        sname: 'oracle',
+        port: datastore['RPORT'],
+        type: 'ORA_ENUM',
+        data: "Password Maximun Reuse Time: #{passreusemax[0].chomp}",
+        update: :unique_data
       )
       print_status("\tThe Number of Times a Password can be reused is set to #{passreuse[0].chomp}")
 
@@ -377,24 +377,24 @@ class Metasploit3 < Msf::Auxiliary
       if passrand[0] =~ /NULL/
         print_status("\tPassword Complexity is not checked")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Password Complexity is not being checked for new passwords",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Password Complexity is not being checked for new passwords",
+          update: :unique_data
         )
       else
         print_status("\tPassword Complexity is being checked")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Password Complexity is being checked for new passwords",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Password Complexity is being checked for new passwords",
+          update: :unique_data
         )
       end
 
@@ -422,13 +422,13 @@ class Metasploit3 < Msf::Auxiliary
         activeacc.each do |aa|
           print_status("\t#{aa.chomp}")
           report_note(
-            :host => datastore['RHOST'],
-            :proto => 'tcp',
-            :sname => 'oracle',
-            :port => datastore['RPORT'],
-            :type => 'ORA_ENUM',
-            :data => "Active Account #{aa.chomp}",
-            :update => :unique_data
+            host: datastore['RHOST'],
+            proto: 'tcp',
+            sname: 'oracle',
+            port: datastore['RPORT'],
+            type: 'ORA_ENUM',
+            data: "Active Account #{aa.chomp}",
+            update: :unique_data
           )
         end
       else
@@ -442,13 +442,13 @@ class Metasploit3 < Msf::Auxiliary
         activeacc.each do |aa|
           print_status("\t#{aa.chomp}")
           report_note(
-            :host => datastore['RHOST'],
-            :proto => 'tcp',
-            :sname => 'oracle',
-            :port => datastore['RPORT'],
-            :type => 'ORA_ENUM',
-            :data => "Active Account #{aa.chomp}",
-            :update => :unique_data
+            host: datastore['RHOST'],
+            proto: 'tcp',
+            sname: 'oracle',
+            port: datastore['RPORT'],
+            type: 'ORA_ENUM',
+            data: "Active Account #{aa.chomp}",
+            update: :unique_data
           )
         end
       end
@@ -473,13 +473,13 @@ class Metasploit3 < Msf::Auxiliary
         disabledacc.each do |da|
           print_status("\t#{da.chomp}")
           report_note(
-            :host => datastore['RHOST'],
-            :proto => 'tcp',
-            :sname => 'oracle',
-            :port => datastore['RPORT'],
-            :type => 'ORA_ENUM',
-            :data => "Disabled Account #{da.chomp}",
-            :update => :unique_data
+            host: datastore['RHOST'],
+            proto: 'tcp',
+            sname: 'oracle',
+            port: datastore['RPORT'],
+            type: 'ORA_ENUM',
+            data: "Disabled Account #{da.chomp}",
+            update: :unique_data
           )
         end
       else
@@ -493,13 +493,13 @@ class Metasploit3 < Msf::Auxiliary
         disabledacc.each do |da|
           print_status("\t#{da.chomp}")
           report_note(
-            :host => datastore['RHOST'],
-            :proto => 'tcp',
-            :sname => 'oracle',
-            :port => datastore['RPORT'],
-            :type => 'ORA_ENUM',
-            :data => "Disabled Account #{da.chomp}",
-            :update => :unique_data
+            host: datastore['RHOST'],
+            proto: 'tcp',
+            sname: 'oracle',
+            port: datastore['RPORT'],
+            type: 'ORA_ENUM',
+            data: "Disabled Account #{da.chomp}",
+            update: :unique_data
           )
         end
       end
@@ -523,13 +523,13 @@ class Metasploit3 < Msf::Auxiliary
       dbaacc.each do |dba|
         print_status("\t#{dba.chomp}")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Account with DBA Priv  #{dba.chomp}",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Account with DBA Priv  #{dba.chomp}",
+          update: :unique_data
         )
       end
 
@@ -552,13 +552,13 @@ class Metasploit3 < Msf::Auxiliary
       altersys.each do |as|
         print_status("\t#{as.chomp}")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Account with ALTER SYSTEM Priv  #{as.chomp}",
-          :update => :unique_data)
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Account with ALTER SYSTEM Priv  #{as.chomp}",
+          update: :unique_data)
       end
 
     rescue => e
@@ -580,13 +580,13 @@ class Metasploit3 < Msf::Auxiliary
       javaacc.each do |j|
         print_status("\t#{j.chomp}")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Account with JAVA ADMIN Priv  #{j.chomp}",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Account with JAVA ADMIN Priv  #{j.chomp}",
+          update: :unique_data
         )
       end
 
@@ -610,13 +610,13 @@ class Metasploit3 < Msf::Auxiliary
       libpriv.each do |lp|
         print_status("\t#{lp.chomp}")
         report_note(
-          :host => datastore['RHOST'],
-          :proto => 'tcp',
-          :sname => 'oracle',
-          :port => datastore['RPORT'],
-          :type => 'ORA_ENUM',
-          :data => "Account with CREATE LIBRARY Priv  #{lp.chomp}",
-          :update => :unique_data
+          host: datastore['RHOST'],
+          proto: 'tcp',
+          sname: 'oracle',
+          port: datastore['RPORT'],
+          type: 'ORA_ENUM',
+          data: "Account with CREATE LIBRARY Priv  #{lp.chomp}",
+          update: :unique_data
         )
       end
 
@@ -639,13 +639,13 @@ class Metasploit3 < Msf::Auxiliary
         defpwd.each do |dp|
           print_status("\tThe account #{dp.chomp} has a default password.")
           report_note(
-            :host => datastore['RHOST'],
-            :proto => 'tcp',
-            :sname => 'oracle',
-            :port => datastore['RPORT'],
-            :type => 'ORA_ENUM',
-            :data => "Account with Default Password #{dp.chomp}",
-            :update => :unique_data
+            host: datastore['RHOST'],
+            proto: 'tcp',
+            sname: 'oracle',
+            port: datastore['RPORT'],
+            type: 'ORA_ENUM',
+            data: "Account with Default Password #{dp.chomp}",
+            update: :unique_data
           )
         end
 
@@ -667,13 +667,13 @@ class Metasploit3 < Msf::Auxiliary
           if accts.has_key?(accrcrd[2])
             print_status("\tDefault pass for account #{accrcrd[0]} is #{accrcrd[1]} ")
             report_note(
-              :host => datastore['RHOST'],
-              :proto => 'tcp',
-              :sname => 'oracle',
-              :port => datastore['RPORT'],
-              :type => 'ORA_ENUM',
-              :data => "Account with Default Password #{accrcrd[0]} is #{accrcrd[1]}",
-              :update => :unique_data
+              host: datastore['RHOST'],
+              proto: 'tcp',
+              sname: 'oracle',
+              port: datastore['RPORT'],
+              type: 'ORA_ENUM',
+              data: "Account with Default Password #{accrcrd[0]} is #{accrcrd[1]}",
+              update: :unique_data
             )
           end
         end

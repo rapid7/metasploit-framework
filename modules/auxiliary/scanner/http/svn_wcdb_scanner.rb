@@ -69,12 +69,12 @@ class Metasploit3 < Msf::Auxiliary
         print_good("SVN wc.db database stored in #{file}")
 
         report_note(
-          :host => rhost,
-          :port => rport,
-          :proto => 'tcp',
-          :sname => (ssl ? 'https' : 'http'),
-          :type => 'svn_wc_database',
-          :data => "SVN wc.db database is stored in #{file}"
+          host: rhost,
+          port: rport,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          type: 'svn_wc_database',
+          data: "SVN wc.db database is stored in #{file}"
         )
       else
         vprint_error("SVN wc.db database not found on #{vhost}:#{rport}")

@@ -135,11 +135,11 @@ class Metasploit3 < Msf::Post
     pass = result['password']
     print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
     report_auth_info(
-      :host  => r_host,
-      :sname => 'http',
-      :user  => user,
-      :pass  => pass,
-      :source_id   => session.db_record ? session.db_record.id : nil,
-      :source_type => 'vuln')
+      host: r_host,
+      sname: 'http',
+      user: user,
+      pass: pass,
+      source_id: session.db_record ? session.db_record.id : nil,
+      source_type: 'vuln')
   end
 end

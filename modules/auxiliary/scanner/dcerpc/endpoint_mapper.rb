@@ -57,21 +57,21 @@ class Metasploit3 < Msf::Auxiliary
         end
         if id[:prot].downcase == "tcp" or id[:prot].downcase == "udp"
           report_service(
-            :host => ip,
-            :port => id[:port],
-            :proto => id[:prot].downcase,
-            :name => "dcerpc",
-            :info => "#{id[:uuid]} v#{id[:vers]} #{id[:note]}"
+            host: ip,
+            port: id[:port],
+            proto: id[:prot].downcase,
+            name: "dcerpc",
+            info: "#{id[:uuid]} v#{id[:vers]} #{id[:note]}"
           )
         end
       end
-      report_host(:host => ip, :name => name) if name
+      report_host(host: ip, name: name) if name
       report_service(
-        :host => ip,
-        :port => rport,
-        :proto => 'tcp',
-        :name => "dcerpc",
-        :info => "Endpoint Mapper (#{ids.length} services)"
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        name: "dcerpc",
+        info: "Endpoint Mapper (#{ids.length} services)"
       )
 
     rescue ::Interrupt

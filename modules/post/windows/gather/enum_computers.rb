@@ -94,9 +94,9 @@ class Metasploit3 < Msf::Post
     print_line("\n" + results + "\n")
 
     report_note(
-      :host => session,
-      :type => 'domain.hosts',
-      :data => tbl.to_csv
+      host: session,
+      type: 'domain.hosts',
+      data: tbl.to_csv
     )
   end
 end

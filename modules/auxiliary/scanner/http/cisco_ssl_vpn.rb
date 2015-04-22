@@ -198,14 +198,14 @@ class Metasploit3 < Msf::Auxiliary
         do_logout(resp.get_cookies)
 
         report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'Cisco SSL VPN',
-          :user   => user,
-          :pass   => pass,
-          :group => group,
-          :active => true,
-          :type => 'password'
+          host: rhost,
+          port: rport,
+          sname: 'Cisco SSL VPN',
+          user: user,
+          pass: pass,
+          group: group,
+          active: true,
+          type: 'password'
         }
 
         report_auth_info(report_hash)

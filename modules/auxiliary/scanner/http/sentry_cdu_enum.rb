@@ -86,13 +86,13 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'ServerTech Sentry Switched CDU',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'
+          host: rhost,
+          port: rport,
+          sname: 'ServerTech Sentry Switched CDU',
+          user: user,
+          pass: pass,
+          active: true,
+          type: 'password'
         }
 
         report_auth_info(report_hash)

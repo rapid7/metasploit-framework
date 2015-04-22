@@ -100,17 +100,17 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{ip}:#{rport} FOUND: #{files.inspect}")
     # Add Vulnerability and Report
     report_vuln({
-      :host  => ip,
-      :name  => "Energizer DUO USB Battery Charger Software Arucer.dll Trojaned Distribution",
-      :refs  => self.references
+      host: ip,
+      name: "Energizer DUO USB Battery Charger Software Arucer.dll Trojaned Distribution",
+      refs: self.references
     })
     report_note(
-      :host   => ip,
-      :proto  => 'tcp',
-      :port   => datastore['RPORT'],
-      :sname  => "energizer_duo",
-      :type   => 'Energizer DUO Trojan',
-      :data   => files.inspect
+      host: ip,
+      proto: 'tcp',
+      port: datastore['RPORT'],
+      sname: "energizer_duo",
+      type: 'Energizer DUO Trojan',
+      data: files.inspect
     )
     disconnect
 
