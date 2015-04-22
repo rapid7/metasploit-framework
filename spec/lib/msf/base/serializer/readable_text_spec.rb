@@ -7,8 +7,7 @@ describe Msf::Serializer::ReadableText do
 
 
   context '.format_text' do
-
-
+    
 
     it "should format text bold" do
        res = serializer.format_text("test", :bold)
