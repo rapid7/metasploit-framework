@@ -106,11 +106,64 @@ private
 
 public
 
+
+  # Creates a credential.
+  #
+  # @note Despite the fact the method name for this is called "rpc_create_cracked_credential", it
+  #       does not actually call the create_cracked_credential API in metasploit-credential. Instead,
+  #       it calls create_credential.
+  # @todo This method needs to call create_cracked_credential, not create_credential.
+  # @param [Hash] xopts Credential options. (See #create_credential Documentation)
+  # @return [Metasploit::Credential::Core]
+  # @see https://github.com/rapid7/metasploit-credential/blob/master/lib/metasploit/credential/creation.rb#L107 #create_credential Documentation.
+  # @see #rpc_create_credential
+  # @example Here's how you would use this from the client:
+  #  opts = {
+  #   origin_type: :service,
+  #   address: '192.168.1.100',
+  #   port: 445,
+  #   service_name: 'smb',
+  #   protocol: 'tcp',
+  #   module_fullname: 'auxiliary/scanner/smb/smb_login',
+  #   workspace_id: myworkspace_id,
+  #   private_data: 'password1',
+  #   private_type: :password,
+  #   username: 'Administrator'
+  #  }
+  #  rpc.call('db.create_cracked_credential', opts)
   def rpc_create_cracked_credential(xopts)
     opts = fix_cred_options(xopts)
     create_credential(opts)
   end
 
+
+  # Creates a credential.
+  #
+  # @param [Hash] xopts Credential options. (See #create_credential Documentation)
+  # @return [Hash] Credential data.
+  #  * :username [String] Username saved.
+  #  * :private [String] Password saved.
+  #  * :private_type [String] Password type.
+  #  * :realm_value [String] Realm.
+  #  * :realm_key [String] Realm key.
+  #  * :host [String] Host (Only avilable if there's a :last_attempted_at and :status)
+  #  * :sname [String] Service name (only available if there's a :last_attempted_at and :status)
+  #  * :status [Status] Login status (only available if there's a :last_attempted_at and :status)
+  # @see https://github.com/rapid7/metasploit-credential/blob/master/lib/metasploit/credential/creation.rb#L107 #create_credential Documentation.
+  # @example Here's how you would use this from the client:
+  #  opts = {
+  #   origin_type: :service,
+  #   address: '192.168.1.100',
+  #   port: 445,
+  #   service_name: 'smb',
+  #   protocol: 'tcp',
+  #   module_fullname: 'auxiliary/scanner/smb/smb_login',
+  #   workspace_id: myworkspace_id,
+  #   private_data: 'password1',
+  #   private_type: :password,
+  #   username: 'Administrator'
+  #  }
+  #  rpc.call('db.create_cracked_credential', opts)
   def rpc_create_credential(xopts)
     opts = fix_cred_options(xopts)
     core = create_credential(opts)
@@ -135,6 +188,24 @@ public
     ret
   end
 
+
+  # Sets the status of a login credential to a failure.
+  #
+  # @param [Hash] xopts Credential data (See #invalidate_login Documentation)
+  # @raise [Msf::RPC::Exception] If there's an option missing.
+  # @return [void]
+  # @see https://github.com/rapid7/metasploit-credential/blob/master/lib/metasploit/credential/creation.rb#L492 #invalidate_login Documentation
+  # @see https://github.com/rapid7/metasploit-model/blob/master/lib/metasploit/model/login/status.rb Status symbols.
+  # @example Here's how you would use this from the client:
+  #  opts = {
+  #    address: '192.168.1.100',
+  #    port: 445,
+  #    protocol: 'tcp',
+  #    public: 'admin',
+  #    private: 'password1',
+  #    status: 'Incorrect'
+  #  }
+  #  rpc.call('db.invalidate_login', opts)
   def rpc_invalidate_login(xopts)
     opts = fix_cred_options(xopts)
     invalidate_login(opts)

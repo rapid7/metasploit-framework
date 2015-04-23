@@ -3,7 +3,7 @@ module Msf
 module RPC
 class RPC_Core < RPC_Base
 
-  # Returns the RPC versions.
+  # Returns the RPC service versions.
   #
   # @return [Hash] A hash that includes the version information:
   #  * 'version' [String] Framework version

@@ -12,10 +12,12 @@ module RPC
 
 class Client
 
-  # @return [String] A login token.
+  # @!attribute token
+  #   @return [String] A login token.
   attr_accessor :token
 
-  # @return [Hash] Login information.
+  # @!attribute info
+  #   @return [Hash] Login information.
   attr_accessor :info
 
 
