@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/find_shell'
+require 'msf/base/sessions/powershell'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -24,7 +25,7 @@ module Metasploit3
       'Platform'      => 'windows',
       'Arch'          => ARCH_CMD,
       'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShell,
+      'Session'       => Msf::Sessions::PowerShell,
       'PayloadType'   => 'cmd_interact',
       'RequiredCmd'   => 'generic',
       'Payload'       =>
