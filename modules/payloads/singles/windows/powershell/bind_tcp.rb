@@ -5,7 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/exec'
-
+require 'msf/base/sessions/powershell'
 ###
 #
 # Extends the Exec payload to add a new user.
