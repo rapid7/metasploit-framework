@@ -754,6 +754,30 @@ public
   }
   end
 
+
+  # Returns a note.
+  #
+  # @param [Hash] xopts Options.
+  # @option xopts [String] :proto Protocol.
+  # @option xopts [Fixnum] :port Port.
+  # @option xopts [String] :ntype Note type.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash that contains the following:
+  #  * 'note' [Array<Hash>] Each hash in the array contains the following:
+  #   * 'host' [String] Host.
+  #   * 'port' [Fixnum] Port.
+  #   * 'proto' [String] Protocol.
+  #   * 'created_at' [Fixnum] Last created at.
+  #   * 'updated_at' [Fixnum] Last updated at.
+  #   * 'ntype' [String] Note type.
+  #   * 'data' [String] Note data.
+  #   * 'critical' [String] A boolean indicating criticality.
+  #   * 'seen' [String] A boolean indicating whether the note has been seen before.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.get_note', {:proto => 'tcp', :port => 80})
   def rpc_get_note(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -806,6 +830,27 @@ public
   }
   end
 
+
+  # Returns information about a client connection.
+  #
+  # @param [Hash] xopts Options:
+  # @option xopts [String] :workspace Workspace name.
+  # @option xopts [String] :ua_string User agent string.
+  # @option xopts [String] :host Host IP.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash that contains the client connection:
+  #  * 'client' [Array<Hash>] Each hash of the array contains the following:
+  #   * 'host' [String] Host IP.
+  #   * 'created_at' [Fixnum] Created date.
+  #   * 'updated_at' [Fixnum] Last updated at.
+  #   * 'ua_string' [String] User-Agent string.
+  #   * 'ua_name' [String] User-Agent name.
+  #   * 'ua_ver' [String] User-Agent version.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.get_client', {:workspace=>'default', :ua_string=>user_agent, :host=>ip})
   def rpc_get_client(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -827,6 +872,24 @@ public
   }
   end
 
+
+  # Reports a client connection.
+  #
+  # @param [Hash] xopts Information about the client.
+  # @option xopts [String] :ua_string Required. User-Agent string.
+  # @option xopts [String] :host Required. Host IP.
+  # @option xopts [String] :ua_name One of the Msf::HttpClients constants. (See Msf::HttpClient Documentation.)
+  # @option xopts [String] :ua_ver Detected version of the given client.
+  # @option xopts [String] An id or Campaign object.
+  # @see https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/constants.rb#L52 Msf::HttpClient Documentation.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash indicating whether the action was successful or not. It contains:
+  #  * 'result' [String] A message that says either 'success' or 'failed'.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.report_client', {:workspace=>'default', :ua_string=>user_agent, :host=>ip})
   def rpc_report_client(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -836,7 +899,29 @@ public
   }
   end
 
-  #DOC NOTE: :data and :ntype are REQUIRED
+
+  # Reports a note.
+  #
+  # @param [Hash] xopts Information about the note.
+  # @option xopts [String] :type Required. The type of note, e.g. smb_peer_os.
+  # @option xopts [String] :workspace The workspace to associate with this note.
+  # @option xopts [String] :host An IP address or a Host object to associate with this note.
+  # @option xopts [String] :service A Service object to associate with this note.
+  # @option xopts [String] :data Whatever it is you're making a note of.
+  # @option xopts [Fixnum] :port Along with +:host+ and +:proto+, a service to associate with this note.
+  # @option xopts [String] :proto Along with +:host+ and +:port+, a service to associate with this note.
+  # @option xopts [Hash] A hash that contains the following information.
+  #  * :unique [Boolean] Allow only a single Note per +:host+/+:type+ pair.
+  #  * :unique_data [Boolean] Like +:uniqe+, but also compare +:data+.
+  #  * :insert [Boolean] Always insert a new Note even if one with identical values exists.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash indicating whether the action was successful or not. It contains:
+  #  * 'result' [String] A message that says either 'success' or 'failed'.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.report_note', {:type=>'http_data', :host=>'192.168.1.123', :data=>'data'})
   def rpc_report_note(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
