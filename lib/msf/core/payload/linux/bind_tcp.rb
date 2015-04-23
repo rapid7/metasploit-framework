@@ -79,7 +79,6 @@ module Payload::Linux::BindTcp
     #reliable     = opts[:reliable]
     close_socket = opts[:close_socket]
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
-    STDERR.puts("#{opts.inspect}\n")
 
     asm = %Q^
       bind_tcp:
