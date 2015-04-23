@@ -1261,7 +1261,7 @@ module Msf
         case args.length
         when 2
           scan_id = args[0]
-          format = args[1].downcase
+          format = args[1]
         else
           print_status("Usage: ")
           print_status("nessus_scan_export <scan ID> <export format>")
@@ -1269,7 +1269,7 @@ module Msf
           print_status("Use nessus_scan_list to list all available scans with their corresponding scan IDs")
           return
         end
-        if format.in?(['nessus','html','pdf','csv','db'])
+        if format.downcase.in?(['nessus','html','pdf','csv','db'])
           export = @n.scan_export(scan_id, format)
           if export["file"]
             file_id = export["file"]
