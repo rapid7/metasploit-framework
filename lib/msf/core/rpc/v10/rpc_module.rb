@@ -6,7 +6,7 @@ class RPC_Module < RPC_Base
 
   # Returns a list of exploit names.
   #
-  # @return [Hash] A list of exploit names.
+  # @return [Hash] A list of exploit names. It contains the following key:
   #  * 'modules' [Array<string>] Exploit names, for example: ['windows/wins/ms04_045_wins']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.exploits')
@@ -17,7 +17,7 @@ class RPC_Module < RPC_Base
 
   # Returns a list of auxiliary module names.
   #
-  # @return [Hash] A list of auxiliary module names.
+  # @return [Hash] A list of auxiliary module names. It contains the following key:
   #  * 'modules' [Array<string>] Auxiliary module names, for example: ['vsploit/pii/web_pii']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.auxiliary')
@@ -28,7 +28,7 @@ class RPC_Module < RPC_Base
 
   # Returns a list of payload module names.
   #
-  # @return [Hash] A list of payload module names.
+  # @return [Hash] A list of payload module names. It contains the following key:
   #  * 'modules' [Array<string>] Payload module names, for example: ['windows/x64/shell_reverse_tcp']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.payloads')
@@ -39,7 +39,7 @@ class RPC_Module < RPC_Base
 
   # Returns a list of encoder module names.
   #
-  # @return [Hash] A list of encoder module names.
+  # @return [Hash] A list of encoder module names. It contains the following key:
   #  * 'modules' [Array<string>] Encoder module names, for example: ['x86/unicode_upper']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.encoders')
@@ -50,7 +50,7 @@ class RPC_Module < RPC_Base
 
   # Returns a list of NOP module names.
   #
-  # @return [Hash] A list of NOP module names.
+  # @return [Hash] A list of NOP module names. It contains the following key:
   #  * 'modules' [Array<string>] NOP module names, for example: ['x86/single_byte']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.nops')
@@ -61,7 +61,7 @@ class RPC_Module < RPC_Base
 
   # Returns a list of post module names.
   #
-  # @return [Hash] A list of post module names.
+  # @return [Hash] A list of post module names. It contains the following key:
   #  * 'modules' [Array<string>] Post module names, for example: ['windows/wlan/wlan_profile']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.post')
@@ -80,7 +80,7 @@ class RPC_Module < RPC_Base
   #                       * payload
   # @param [String] mname Module name. For example: 'windows/wlan/wlan_profile'.
   # @raise [Msf::RPC::Exception] Module not found (either the wrong type or name).
-  # @return [Hash] The module's metadata.
+  # @return [Hash] The module's metadata. The exact keys you will get depends on the module.
   # @example Here's how you would use this from the client:
   #  # This gives us the metadata of ms08_067_netapi
   #  rpc.call('module.info', 'exploit', 'windows/smb/ms08_067_netapi')
@@ -134,7 +134,7 @@ class RPC_Module < RPC_Base
   #
   # @param [String] mname Exploit module name. For example: 'windows/smb/ms08_067_netapi'.
   # @raise [Msf::RPC::Exception] Module not found (wrong name).
-  # @return [Hash] The exploit's compatible payloads.
+  # @return [Hash] The exploit's compatible payloads. It contains the following key:
   #  * 'payloads' [Array<string>] A list of payloads. For example: ['generic/custom']
   # @example Here's how you would use this from the client:
   #  rpc.call('module.compatible_payloads', 'windows/smb/ms08_067_netapi')
@@ -154,7 +154,7 @@ class RPC_Module < RPC_Base
   #
   # @param [String] mname Post module name. For example: 'windows/wlan/wlan_profile'.
   # @raise [Msf::RPC::Exception] Module not found (wrong name).
-  # @return [Hash] The post module's compatible sessions.
+  # @return [Hash] The post module's compatible sessions. It contains the following key:
   #  * 'sessions' [Array<Fixnum>] A list of session IDs.
   # @example Here's how you would use this from the client:
   #  rpc.call('module.compatible_sessions', 'windows/wlan/wlan_profile')
@@ -172,7 +172,7 @@ class RPC_Module < RPC_Base
   # @param [String] mname Exploit module name. For example: 'windows/smb/ms08_067_netapi'
   # @param [Fixnum] target A specific target the exploit module provides.
   # @raise [Msf::RPC::Exception] Module not found (wrong name).
-  # @return [Hash] The exploit's target-specific payloads.
+  # @return [Hash] The exploit's target-specific payloads. It contains the following key:
   #  * 'payloads' [Array<string>] A list of payloads.
   # @example Here's how you would use this from the client:
   #  # Find all the compatible payloads for target 1 (Windows 2000 Universal)
@@ -241,7 +241,7 @@ class RPC_Module < RPC_Base
   # @param [String] mname Module name. For example: 'windows/smb/ms08_067_netapi'.
   # @param [Hash] opts Options for the module (such as datastore options).
   # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
-  # @return [Hash]
+  # @return [Hash] It contains the following keys:
   #  * 'job_id' [Fixnum] Job ID.
   #  * 'uuid' [String] UUID.
   # @example Here's how you would use this from the client:
@@ -292,7 +292,7 @@ class RPC_Module < RPC_Base
   # @raise [Msf::RPC::Exception] Error could be one of these:
   #                              * 500 Invalid format
   #                              * 500 Failure to encode
-  # @return The encoded data
+  # @return The encoded data. It contains the following key:
   #  * 'encoded' [String] The encoded data in the format you specify.
   # @example Here's how you would use this from the client:
   #  # This will encode 'AAAA' with shikata_ga_nai, and prints the following:

@@ -46,7 +46,7 @@ class RPC_Core < RPC_Base
   #
   # @param [String] var The hash key of the global datastore option.
   # @param [String] val The value of the global datastore option.
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] The successful message: 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('core.setg', 'MyGlobal', 'foobar')
@@ -59,7 +59,7 @@ class RPC_Core < RPC_Base
   # Unsets a global datastore option.
   #
   # @param [String] var The global datastore option.
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] The successful message: 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('core.unsetg', 'MyGlobal')
@@ -71,7 +71,7 @@ class RPC_Core < RPC_Base
 
   # Saves current framework settings.
   #
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] The successful message: 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('core.save')
@@ -83,7 +83,7 @@ class RPC_Core < RPC_Base
 
   # Reloads framework modules. This will take some time to complete.
   #
-  # @return [Hash] Module stats:
+  # @return [Hash] Module stats that contain the following keys:
   #  * 'exploits' [Fixnum] The number of exploits reloaded.
   #  * 'auxiliary' [Fixnum] The number of auxiliary modules reloaded.
   #  * 'post' [Fixnum] The number of post modules reloaded.
@@ -101,7 +101,7 @@ class RPC_Core < RPC_Base
   # Adds a new module path.
   #
   # @param [String] path The new path to load.
-  # @return [Hash] Module stats:
+  # @return [Hash] Module stats that contain the following keys:
   #  * 'exploits' [Fixnum] The number of exploits loaded.
   #  * 'auxiliary' [Fixnum] The number of auxiliary modules loaded.
   #  * 'post' [Fixnum] The number of post modules loaded.
@@ -118,7 +118,7 @@ class RPC_Core < RPC_Base
 
   # Returns the module stats.
   #
-  # @return [Hash] Module stats:
+  # @return [Hash] Module stats that contain the following keys:
   #  * 'exploits' [Fixnum] The number of exploits.
   #  * 'auxiliary' [Fixnum] The number of auxiliary modules.
   #  * 'post' [Fixnum] The number of post modules.
@@ -140,7 +140,12 @@ class RPC_Core < RPC_Base
 
   # Returns a list of framework threads.
   #
-  # @return [Hash] A collection of threads such as: 'status', 'critical', 'name', 'started'
+  # @return [Hash] A collection of threads. Each key is the thread ID, and the value is another hash
+  #                that contains the following:
+  #                * 'status' [String] Thread status.
+  #                * 'critical' [Boolean] Thread is critical.
+  #                * 'name' [String] Thread name.
+  #                * 'started' [String] Timestamp of when the thread started.
   # @example Here's how you would use this from the cient:
   #  # You will get something like this:
   #  # {0=>{"status"=>"sleep", "critical"=>false, "name"=>"StreamServerListener", "started"=>"2015-04-21 15:25:49 -0500"}}
@@ -163,7 +168,7 @@ class RPC_Core < RPC_Base
   # Kills a framework thread.
   #
   # @param [Fixnum] tid The thread ID to kill.
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] A successful message: 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('core.thread_kill', 10)

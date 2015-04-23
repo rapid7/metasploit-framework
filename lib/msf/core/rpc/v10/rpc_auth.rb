@@ -17,7 +17,7 @@ end
   # @param [String] pass The password.
   # @raise [Msf::RPC::Exception] Something is wrong while authenticating, you can possibly get:
   #                              * 401 Failed authentication.
-  # @return [Hash] A hash indicating a successful login.
+  # @return [Hash] A hash indicating a successful login, it contains the following keys:
   #  * 'result' [String] A successful message: 'success'.
   #  * 'token' [String] A token for the authentication.
   # @example Here's how you would use this from the client:
@@ -61,7 +61,7 @@ end
   # @raise [Msf::RPC::Exception] An error indicating a failed deauthentication, including:
   #                              * 500 Invalid authentication token.
   #                              * 500 Permanent authentication token.
-  # @return [Hash] A hash indiciating the action was successful.
+  # @return [Hash] A hash indiciating the action was successful. It contains the following key:
   #  * 'result' [String] The successful message: 'success'
   # @example Here's how you would use this from the client:
   #  # This returns something like:
@@ -81,7 +81,7 @@ end
 
   # Returns a list of authentication tokens.
   #
-  # @return [Hash] A hash that contains a list of authentication tokens.
+  # @return [Hash] A hash that contains a list of authentication tokens. It contains the following key:
   #  * 'tokens' [Array<string>] An array of tokens.
   # @example Here's how you would use this from the client:
   #  # This returns something like:
@@ -104,7 +104,7 @@ end
   # Adds a new token to the database.
   #
   # @param [String] token A unique token.
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] The successful message: 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('auth.token_add', 'UNIQUE_TOKEN')
@@ -131,6 +131,7 @@ end
   # Generates a unique token, and automatically saved to the database.
   #
   # @return [Hash] A hash indicating the action was successful, also the new token.
+  #                It contains the following keys:
   #  * 'result' [String] The successful message: 'success'
   #  * 'token' [String] A new token.
   # @example Here's how you would use this from the client:
@@ -160,7 +161,7 @@ end
   # Removes a token from the database.
   #
   # @param [String] token The token to delete.
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] The successful message: 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('auth.token_remove', 'TEMPtcVmMld8w74zo0CYeosM3iXW0nJz')

@@ -140,7 +140,7 @@ public
   # Creates a credential.
   #
   # @param [Hash] xopts Credential options. (See #create_credential Documentation)
-  # @return [Hash] Credential data.
+  # @return [Hash] Credential data. It contains the following keys:
   #  * :username [String] Username saved.
   #  * :private [String] Password saved.
   #  * :private_type [String] Password type.
@@ -211,6 +211,23 @@ public
     invalidate_login(opts)
   end
 
+
+  # Returns login credentials from a specific workspace.
+  #
+  # @param [Hash] xopts Options.
+  # @option xopts [String] :workspace Name of the workspace.
+  # @return [Hash] Credentials with the following hash key:
+  #  * 'creds' [Array<Hash>] An array of credentials. Each hash in the array will have the following:
+  #                          * 'user' [String] Username.
+  #                          * 'pass' [String] Password.
+  #                          * 'updated_at' [Fixnum] Last updated at.
+  #                          * 'type' [String] Password type.
+  #                          * 'host' [String] Host.
+  #                          * 'port' [Fixnum] Port.
+  #                          * 'proto' [String] Protocol.
+  #                          * 'sname' [String] Service name.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.creds', {})
   def rpc_creds(xopts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       ret = {}
@@ -247,6 +264,27 @@ public
     }
   end
 
+
+  # Returns information about hosts.
+  #
+  # @param [Hash] xopts Options.
+  # @option xopts [String] :workspace Name of the workspace.
+  # @return [Hash] Host information that starts with the following hash key:
+  #  * 'hosts' [Array<Hash>] An array of hosts. Each hash in the array will have the following:
+  #                          * 'created_at' [Fixnum] Creation date.
+  #                          * 'address' [String] IP address.
+  #                          * 'mac' [String] MAC address.
+  #                          * 'name' [String] Computer name.
+  #                          * 'state' [String] Host's state.
+  #                          * 'os_name' [String] Name of the operating system.
+  #                          * 'os_flavor' [String] OS flavor.
+  #                          * 'os_sp' [String] Service pack.
+  #                          * 'os_lang' [String] OS language.
+  #                          * 'updated_at' [Fixnum] Last updated at.
+  #                          * 'purpose' [String] Host purpose (example: server)
+  #                          * 'info' [String] Additional information about the host.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.hosts', {})
   def rpc_hosts(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)

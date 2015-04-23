@@ -11,7 +11,8 @@ class RPC_Plugin < RPC_Base
   #                 * ~/.msf4/plugins/
   # @param [Hash] xopts Options to pass to the plugin.
   # @return [Hash] A hash indicating whether the action was successful or not.
-  #  * 'result' [String] A value that either says 'success' or 'failure'.
+  #                It contains the following key:
+  #                * 'result' [String] A value that either says 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  # Load the nexpose plugin
   #  rpc.call('plugin.load', 'nexpose')
@@ -51,7 +52,8 @@ class RPC_Plugin < RPC_Base
   #
   # @param [String] name The plugin filename (without the extension). For example: 'nexpose'.
   # @return [Hash] A hash indicating whether the action was successful or not.
-  #  * 'result' [String] A value that either says 'success' or 'failure'.
+  #                It contains the following key:
+  #                * 'result' [String] A value that either says 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('plugin.unload', 'nexpose')
   def rpc_unload(name)
@@ -69,8 +71,8 @@ class RPC_Plugin < RPC_Base
 
   # Returns a list of plugins loaded by framework.
   #
-  # @return [Hash] All the plugins loaded.
-  #  * 'plugins' [Array<string>] A list of plugin names.
+  # @return [Hash] All the plugins loaded. It contains the following key:
+  #                * 'plugins' [Array<string>] A list of plugin names.
   # @example Here's how you would use this from the client:
   #  rpc.call('plugin.loaded')
   def rpc_loaded

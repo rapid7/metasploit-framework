@@ -64,7 +64,10 @@ class Client
   #                       * A missing token (your client needs to authenticate).
   #                       * A unexpected response from the server, such as a timeout or unexpected HTTP code.
   # @raise [Msf::RPC::ServerException] The RPC service returns an error.
-  # @return [Hash] The API response.
+  # @return [Hash] The API response. It contains the following keys:
+  #  * 'version' [String] Framework version.
+  #  * 'ruby' [String] Ruby version.
+  #  * 'api' [String] API version.
   # @example
   #  # This will return something like this:
   #  # {"version"=>"4.11.0-dev", "ruby"=>"2.1.5 x86_64-darwin14.0 2014-11-13", "api"=>"1.0"}

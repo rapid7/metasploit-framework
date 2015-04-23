@@ -18,7 +18,7 @@ class RPC_Console < RPC_Base
   # Creates a new framework console.
   #
   # @param [Hash] opts See Msf::Ui::Web::Driver#create_console
-  # @return [Hash] Information about the new console, such as:
+  # @return [Hash] Information about the new console. It contains the following keys:
   #  * 'id' [Fixnum] The console's ID.
   #  * 'prompt' [String] The framework prompt (example: 'msf > ')
   #  * 'busy' [TrueClass] The console's busy state, or
@@ -38,7 +38,7 @@ class RPC_Console < RPC_Base
   # Returns a list of framework consoles.
   #
   # @return [Hash] Console information.
-  #  * 'consoles' [Array<Hash>] consoles, each element is another hash that includes:
+  #  * 'consoles' [Array<Hash>] consoles, each element is a hash that includes:
   #    * 'id' [Fixnum] The console's ID
   #    * 'prompt' [String] The framework prompt (example: 'msf > ')
   #    * 'busy' [TrueClass] The console's busy state, or
@@ -62,7 +62,8 @@ class RPC_Console < RPC_Base
   #
   # @param [Fixnum] cid Framework console ID.
   # @return [Hash] A result indicating whether the action was successful or not.
-  #  * 'result' [String] Either 'success' or 'failure'.
+  #                It contains the following key:
+  #                * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('console.destroy', 1)
   def rpc_destroy(cid)

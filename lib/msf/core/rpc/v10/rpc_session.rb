@@ -9,7 +9,7 @@ class RPC_Session < RPC_Base
   # Returns a list of sessions.
   #
   # @return [Hash] Information about sessions. Each key is the session ID, and each value is a hash
-  #                that contains the following
+  #                that contains the following:
   #                * 'type' [String] Payload type. Example: meterpreter.
   #                * 'tunnel_local' [String] Tunnel (where the malicious traffic comes from).
   #                * 'tunnel_peer' [String] Tunnel (local).
@@ -60,7 +60,7 @@ class RPC_Session < RPC_Base
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] Unknown session ID.
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] A message that says 'success'.
   def rpc_stop( sid)
 
@@ -87,7 +87,7 @@ class RPC_Session < RPC_Base
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   #                              * 500 Session is disconnected.
-  # @return [Hash]
+  # @return [Hash] It contains the following keys:
   #  * 'seq' [String] Sequence.
   #  * 'data' [String] Read data.
   # @example Here's how you would use this from the client:
@@ -134,7 +134,8 @@ class RPC_Session < RPC_Base
   # @param [Fixnum] sid Session ID.
   # @param [String] lhost Local host.
   # @param [Fixnum] lport Local port.
-  # @return [Hash] A hash indicating the actioin was successful.
+  # @return [Hash] A hash indicating the actioin was successful. It contains the following key:
+  #  'result' [String] A message that says 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('session.shell_upgrade', 2, payload_lhost, payload_lport)
   def rpc_shell_upgrade( sid, lhost, lport)
@@ -152,7 +153,7 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash]
+  # @return [Hash] It contains the following key: 
   #  * 'data' [String] Data read.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_read', 2)
@@ -176,7 +177,7 @@ class RPC_Session < RPC_Base
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   #                              * 500 Session is disconnected.
-  # @return [Hash]
+  # @return [Hash] It contains the following key:
   #  * 'seq' [String] Sequence.
   #  * 'data' [String] Read data.
   # @example Here's how you would use this from the client:
@@ -200,7 +201,7 @@ class RPC_Session < RPC_Base
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   #                              * 500 Session is disconnected.
-  # @return [Hash]
+  # @return [Hash] It contains the following key:
   #  * 'write_count' [String] Number of bytes written.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_put', 2, "DATA")
@@ -220,7 +221,7 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash]
+  # @return [Hash] It contains the following key:
   #  * 'seq' [String] Sequence.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_last', 2)
@@ -237,6 +238,7 @@ class RPC_Session < RPC_Base
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   # @return [Hash] A hash indicating whether the action was successful or not.
+  #                It contains the following key:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_clear', 2)
@@ -259,7 +261,7 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash] A hash indicating the action was successful or not.
+  # @return [Hash] A hash indicating the action was successful or not. It contains the following key:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @see #rpc_meterpreter_run_single
   # @example Here's how you would use this from the client:
@@ -291,6 +293,7 @@ class RPC_Session < RPC_Base
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   # @return [Hash] A hash indicating the action was successful or not.
+  #                It contains the following key:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_session_detach', 3)
@@ -313,6 +316,7 @@ class RPC_Session < RPC_Base
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   # @return [Hash] A hash indicating the action was successful or not.
+  #                It contains the following key:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_session_kill', 3)
@@ -335,7 +339,7 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash] The tab-completed result.
+  # @return [Hash] The tab-completed result. It contains the following key:
   #  * 'tabs' [String] The tab-completed version of your input.
   # @example Here's how you would use this from the client:
   #  # This returns:
@@ -355,7 +359,7 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] 'success' 
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_run_single', 3, 'getpid')
@@ -378,7 +382,7 @@ class RPC_Session < RPC_Base
   # @see Msf::RPC::RPC_Module#rpc_execute You should use Msf::RPC::RPC_Module#rpc_execute instead.
   # @param [Fixnum] sid Session ID.
   # @param [String] data Meterpreter script name.
-  # @return [Hash] A hash indicating the action was successful.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] 'success' 
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_script', 3, 'checkvm')
@@ -393,7 +397,7 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash] A hash that contains the separator.
+  # @return [Hash] A hash that contains the separator. It contains the following key:
   #  * 'separator' [String] The separator used by the meterpreter.
   # @example Here's how you would use this from the client:
   #  # This returns:
@@ -409,7 +413,7 @@ class RPC_Session < RPC_Base
   # Returns all the compatible post modules for this session.
   #
   # @param [Fixnum] sid Session ID.
-  # @return [Hash] Post modules.
+  # @return [Hash] Post modules. It contains the following key:
   #  * 'modules' [Array<string>] An array of post module names. Example: ['post/windows/wlan/wlan_profile']
   # @example Here's how you would use this from the client:
   #  rpc.call('session.compatible_modules', 3)
