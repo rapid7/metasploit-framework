@@ -23,7 +23,7 @@ module Metasploit3
       'License'       => MSF_LICENSE,
       'Platform'      => 'windows',
       'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::FindShell,
+      'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd_interact',
       'RequiredCmd'   => 'generic',
