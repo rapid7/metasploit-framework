@@ -35,7 +35,7 @@ module Metasploit3
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::CommandShell,
+      'Session'       => Msf::Sessions::PowerShell,
       ))
 
     # Register command execution options
