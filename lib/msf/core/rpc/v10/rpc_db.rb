@@ -141,14 +141,14 @@ public
   #
   # @param [Hash] xopts Credential options. (See #create_credential Documentation)
   # @return [Hash] Credential data. It contains the following keys:
-  #  * :username [String] Username saved.
-  #  * :private [String] Password saved.
-  #  * :private_type [String] Password type.
-  #  * :realm_value [String] Realm.
-  #  * :realm_key [String] Realm key.
-  #  * :host [String] Host (Only avilable if there's a :last_attempted_at and :status)
-  #  * :sname [String] Service name (only available if there's a :last_attempted_at and :status)
-  #  * :status [Status] Login status (only available if there's a :last_attempted_at and :status)
+  #  * 'username' [String] Username saved.
+  #  * 'private' [String] Password saved.
+  #  * 'private_type' [String] Password type.
+  #  * 'realm_value' [String] Realm.
+  #  * 'realm_key' [String] Realm key.
+  #  * 'host' [String] Host (Only avilable if there's a :last_attempted_at and :status)
+  #  * 'sname' [String] Service name (only available if there's a :last_attempted_at and :status)
+  #  * 'status' [Status] Login status (only available if there's a :last_attempted_at and :status)
   # @see https://github.com/rapid7/metasploit-credential/blob/master/lib/metasploit/credential/creation.rb#L107 #create_credential Documentation.
   # @example Here's how you would use this from the client:
   #  opts = {
@@ -216,16 +216,20 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of the workspace.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
   # @return [Hash] Credentials with the following hash key:
   #  * 'creds' [Array<Hash>] An array of credentials. Each hash in the array will have the following:
-  #                          * 'user' [String] Username.
-  #                          * 'pass' [String] Password.
-  #                          * 'updated_at' [Fixnum] Last updated at.
-  #                          * 'type' [String] Password type.
-  #                          * 'host' [String] Host.
-  #                          * 'port' [Fixnum] Port.
-  #                          * 'proto' [String] Protocol.
-  #                          * 'sname' [String] Service name.
+  #   * 'user' [String] Username.
+  #   * 'pass' [String] Password.
+  #   * 'updated_at' [Fixnum] Last updated at.
+  #   * 'type' [String] Password type.
+  #   * 'host' [String] Host.
+  #   * 'port' [Fixnum] Port.
+  #   * 'proto' [String] Protocol.
+  #   * 'sname' [String] Service name.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.creds', {})
   def rpc_creds(xopts)
@@ -269,6 +273,11 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of the workspace.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  #  You probably want to run: rpc.call('console.create').
   # @return [Hash] Host information that starts with the following hash key:
   #  * 'hosts' [Array<Hash>] An array of hosts. Each hash in the array will have the following:
   #    * 'created_at' [Fixnum] Creation date.
@@ -329,8 +338,12 @@ public
   # @option xopts [String] :address Address.
   # @option xopts [String] :ports Port range.
   # @option xopts [String] :names Names (Use ',' as the separator).
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
   # @return [Hash] A hash with the following keys:
-  #  * :services [Array<Hash>] In each hash of the array, you will get these keys:
+  #  * 'services' [Array<Hash>] In each hash of the array, you will get these keys:
   #    * 'host' [String] Host.
   #    * 'created_at' [Fixnum] Last created at.
   #    * 'updated_at' [Fixnum] Last updated at.
@@ -340,7 +353,7 @@ public
   #    * 'name' [String] Service name.
   #    * 'info' [String] Additional information about the service.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.services')
+  #  rpc.call('db.services', {})
   def rpc_services( xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -384,6 +397,10 @@ public
   # @option xopts [String] :proto Protocol.
   # @option xopts [String] :address Address.
   # @option xopts [String] :ports Port range.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
   # @return [Hash] A hash with the following key:
   #  * 'vulns' [Array<Hash>] In each hash of the array, you will get these keys:
   #    * 'port' [Fixnum] Port.
@@ -459,7 +476,7 @@ public
 
   # Returns the current workspace.
   #
-  # @raise [Msf::RPC::Exception] Database not loaded.
+  # @raise [Msf::RPC::Exception] Database not loaded. Try: rpc.call('console.create')
   # @return [Hash] A hash with the following keys:
   #  * 'workspace' [String] Workspace name.
   #  * 'workspace_id' [Fixnum] Workspace ID.
@@ -505,8 +522,7 @@ public
   # Sets a workspace.
   #
   # @param [String] wspace Workspace name.
-  # @raise [Msf::RPC::Exception] You might get one of the following errors:
-  #  * 500 Database not loaded.
+  # @raise [Msf::RPC::Exception] 500 Database not loaded.
   # @return [Hash] A hash indicating whether the action was successful or not. You will get:
   #  * 'result' [String] A message that says either 'success' or 'failed'
   # @example Here's how you would use this from the client:
@@ -524,6 +540,18 @@ public
   }
   end
 
+
+  # Deletes a workspace.
+  #
+  # @param [String] wspace Workspace name.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 404 Workspace not found.
+  # @return [Hash] A hash indicating the action was successful. It contains the following:
+  #  * 'result' [String] A message that says 'success'.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.wspace', 'temp_workspace')
   def rpc_del_workspace(wspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
@@ -544,6 +572,18 @@ public
   }
   end
 
+
+  # Adds a new workspace.
+  #
+  # @param [String] wspace Workspace name.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash indicating whether the action was successful or not. You get:
+  #  * 'result' [String] A message that says either 'success' or 'failed'.
+  # @example Here's how you would use this from the client:
+  #  * rpc.call('db.add_workspace', 'my_new_workspace')
   def rpc_add_workspace(wspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
@@ -553,6 +593,33 @@ public
   }
   end
 
+
+  # Returns information about a host.
+  #
+  # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :addr Host address.
+  # @option xopts [String] :address Same as :addr.
+  # @option xopts [String] :host Same as :address.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash that contains the following:
+  #  * 'host' [Array<Hash>] Each hash in the array contains the following:
+  #   * 'created_at' [Fixnum] Last created at.
+  #   * 'address' [String] Address.
+  #   * 'mac' [String] Mac address.
+  #   * 'name' [String] Host name.
+  #   * 'state' [String] Host state.
+  #   * 'os_name' [String] OS name.
+  #   * 'os_flavor' [String] OS flavor.
+  #   * 'os_sp' [String] OS service pack.
+  #   * 'os_lang' [String] OS language.
+  #   * 'updated_at' [Fixnum] Last updated at.
+  #   * 'purpose' [String] Purpose. Example: 'server'.
+  #   * 'info' [String] Additional information.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.get_host', {:host => ip})
   def rpc_get_host(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -581,6 +648,30 @@ public
   }
   end
 
+
+  # Reports a new host to the database.
+  #
+  # @param [Hash] xopts Information about the host.
+  # @option xopts [String] :host IP address. You msut supply this.
+  # @option xopts [String] :state One of the Msf::HostState constants. (See Most::HostState Documentation)
+  # @option xopts [String] :os_name Something like "Windows", "Linux", or "Mac OS X".
+  # @option xopts [String] :os_flavor Something like "Enterprise", "Pro", or "Home".
+  # @option xopts [String] :os_sp Something like "SP2".
+  # @option xopts [String] :os_lang Something like "English", "French", or "en-US".
+  # @option xopts [String] :arch one of the ARCH_* constants. (see ARCH Documentation)
+  # @option xopts [String] :mac Mac address.
+  # @option xopts [String] :scope Interface identifier for link-local IPv6.
+  # @option xopts [String] :virtual_host The name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
+  # @see https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/host_state.rb Most::HostState Documentation.
+  # @see https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/constants.rb#L66 ARCH Documentation.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash indicating whether the action was successful or not. It contains the following:
+  #  * 'result' [String] A message that says either 'success' or 'failed'.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.report_host', {:host => ip})
   def rpc_report_host(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -591,6 +682,23 @@ public
   }
   end
 
+
+  # Reports a service to the database.
+  #
+  # @param [Hash] xopts Information about the service.
+  # @option xopts [String] :host Required. The host where this service is running.
+  # @option xopts [String] :port Required. The port where this service listens.
+  # @option xopts [String] :proto Required. The transport layer protocol (e.g. tcp, udp).
+  # @option xopts [String] :name The application layer protocol (e.g. ssh, mssql, smb).
+  # @option xopts [String] :sname An alias for the above
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash indicating whether the action was successful or not. It contains:
+  #  * 'result' [String] A message that says either 'success' or 'failed'.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.report_service', {:host=>ip, :port=>8181, :proto=>'tcp', :name=>'http'})
   def rpc_report_service(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -1262,6 +1370,17 @@ public
 
   end
 
+
+  # Returns the database status.
+  #
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  # @return [Hash] A hash that contains the following keys:
+  #  * 'driver' [String] Name of the database driver.
+  #  * 'db' [String] Name of the database.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.status')
   def rpc_status
     if (not self.framework.db.driver)
       return {:driver => 'None' }
@@ -1283,6 +1402,11 @@ public
     {:driver => 'None' }
   end
 
+
+  # Disconnects the database.
+  #
+  # @return [Hash] A hash that indicates whether the action was successful or not. It contains:
+  #  'result' [String] A message that says either 'success' or 'failed'.
   def rpc_disconnect
     if (self.framework.db)
       self.framework.db.disconnect()
