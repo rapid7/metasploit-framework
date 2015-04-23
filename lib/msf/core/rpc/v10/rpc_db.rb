@@ -214,7 +214,7 @@ public
 
   # Returns login credentials from a specific workspace.
   #
-  # @param [Hash] xopts Options.
+  # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of the workspace.
   # @return [Hash] Credentials with the following hash key:
   #  * 'creds' [Array<Hash>] An array of credentials. Each hash in the array will have the following:
@@ -267,22 +267,22 @@ public
 
   # Returns information about hosts.
   #
-  # @param [Hash] xopts Options.
+  # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of the workspace.
   # @return [Hash] Host information that starts with the following hash key:
   #  * 'hosts' [Array<Hash>] An array of hosts. Each hash in the array will have the following:
-  #                          * 'created_at' [Fixnum] Creation date.
-  #                          * 'address' [String] IP address.
-  #                          * 'mac' [String] MAC address.
-  #                          * 'name' [String] Computer name.
-  #                          * 'state' [String] Host's state.
-  #                          * 'os_name' [String] Name of the operating system.
-  #                          * 'os_flavor' [String] OS flavor.
-  #                          * 'os_sp' [String] Service pack.
-  #                          * 'os_lang' [String] OS language.
-  #                          * 'updated_at' [Fixnum] Last updated at.
-  #                          * 'purpose' [String] Host purpose (example: server)
-  #                          * 'info' [String] Additional information about the host.
+  #    * 'created_at' [Fixnum] Creation date.
+  #    * 'address' [String] IP address.
+  #    * 'mac' [String] MAC address.
+  #    * 'name' [String] Computer name.
+  #    * 'state' [String] Host's state.
+  #    * 'os_name' [String] Name of the operating system.
+  #    * 'os_flavor' [String] OS flavor.
+  #    * 'os_sp' [String] Service pack.
+  #    * 'os_lang' [String] OS language.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'purpose' [String] Host purpose (example: server)
+  #    * 'info' [String] Additional information about the host.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.hosts', {})
   def rpc_hosts(xopts)
@@ -318,6 +318,29 @@ public
   }
   end
 
+
+  # Returns information about services.
+  #
+  # @param [Hash] xopts Options:
+  # @option xopts [String] :workspace Name of workspace.
+  # @option xopts [Fixnum] :limit Limit.
+  # @option xopts [Fixnum] :offset Offset.
+  # @option xopts [String] :proto Protocol.
+  # @option xopts [String] :address Address.
+  # @option xopts [String] :ports Port range.
+  # @option xopts [String] :names Names (Use ',' as the separator).
+  # @return [Hash] A hash with the following keys:
+  #  * :services [Array<Hash>] In each hash of the array, you will get these keys:
+  #    * 'host' [String] Host.
+  #    * 'created_at' [Fixnum] Last created at.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'state' [String] Service state.
+  #    * 'name' [String] Service name.
+  #    * 'info' [String] Additional information about the service.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.services')
   def rpc_services( xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -351,6 +374,26 @@ public
   }
   end
 
+
+  # Returns information about reported vulnerabilities.
+  #
+  # @param [Hash] xopts Options:
+  # @option xopts [String] :workspace Name of workspace.
+  # @option xopts [Fixnum] :limit Limit.
+  # @option xopts [Fixnum] :offset Offset.
+  # @option xopts [String] :proto Protocol.
+  # @option xopts [String] :address Address.
+  # @option xopts [String] :ports Port range.
+  # @return [Hash] A hash with the following key:
+  #  * 'vulns' [Array<Hash>] In each hash of the array, you will get these keys:
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'time' [Fixnum] Time reported.
+  #    * 'host' [String] Vulnerable host.
+  #    * 'name' [String] Exploit that was used.
+  #    * 'refs' [String] Vulnerability references.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.vulns', {})
   def rpc_vulns(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -385,6 +428,18 @@ public
   }
   end
 
+
+  # Returns information about workspaces.
+  #
+  # @raise [Msf::RPC::Exception] Database not loaded.
+  # @return [Hash] A hash with the following key:
+  #  * 'workspaces' [Array<Hash>] In each hash of the array, you will get these keys:
+  #   * 'id' [Fixnum] Workspace ID.
+  #   * 'name' [String] Workspace name.
+  #   * 'created_at' [Fixnum] Last created at.
+  #   * 'updated_at' [Fixnum] Last updated at.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.workspaces')
   def rpc_workspaces
     db_check
 
@@ -401,11 +456,35 @@ public
     res
   end
 
+
+  # Returns the current workspace.
+  #
+  # @raise [Msf::RPC::Exception] Database not loaded.
+  # @return [Hash] A hash with the following keys:
+  #  * 'workspace' [String] Workspace name.
+  #  * 'workspace_id' [Fixnum] Workspace ID.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.current_workspace')
   def rpc_current_workspace
     db_check
     { "workspace" => self.framework.db.workspace.name, "workspace_id" => self.framework.db.workspace.id }
   end
 
+
+  # Returns the current workspace.
+  #
+  # @param [String] wspace workspace name.
+  # @raise [Msf::RPC::Exception] You might get one of the following errors:
+  #  * 500 Database not loaded.
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash with the following key:
+  #  * 'workspace' [Array<Hash>] In each hash of the array, you will get these keys:
+  #   * 'name' [String] Workspace name.
+  #   * 'id' [Fixnum] Workspace ID.
+  #   * 'created_at' [Fixnum] Last created at.
+  #   * 'updated_at' [Fixnum] Last updated at.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.get_workspace')
   def rpc_get_workspace(wspace)
     db_check
     wspace = find_workspace(wspace)
@@ -422,6 +501,17 @@ public
     ret
   end
 
+
+  # Sets a workspace.
+  #
+  # @param [String] wspace Workspace name.
+  # @raise [Msf::RPC::Exception] You might get one of the following errors:
+  #  * 500 Database not loaded.
+  # @return [Hash] A hash indicating whether the action was successful or not. You will get:
+  #  * 'result' [String] A message that says either 'success' or 'failed'
+  # @example Here's how you would use this from the client:
+  #  # This will set the current workspace to 'default'
+  #  rpc.call('db.set_workspace', 'default')
   def rpc_set_workspace(wspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
