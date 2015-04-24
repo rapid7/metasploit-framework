@@ -1,6 +1,6 @@
 module Sqlmap
   class Session
-    def initialize(host, port = 8775)
+    def initialize(host, port)
       @host = host
       @port = port
     end
