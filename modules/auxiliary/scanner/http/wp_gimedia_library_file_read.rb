@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("#{peer} - File saved in: #{path}")
     else
-      vprint_error("#{peer} - Nothing was downloaded. Check the correct path wordpress files.")
+      vprint_error("#{peer} - Nothing was downloaded. Check the path and the traversal parameters.")
     end
   end
 end
