@@ -11,7 +11,7 @@ module Msf
     end
 
     def desc
-        "Nessus Bridge for Metasploit"
+      "Nessus Bridge for Metasploit"
     end
 
     class ConsoleCommandDispatcher
