@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('FILEPATH', [true, 'The file to read', 'wp-config.php']),
+        OptString.new('FILEPATH', [true, 'The wordpress file to read', 'wp-config.php']),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the wordpress root folder)', 3 ])
       ], self.class)
   end
