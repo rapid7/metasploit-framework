@@ -281,11 +281,11 @@ module Msf
     end
 
     def name
-      "Sqlmap"
+      'Sqlmap'
     end
 
     def desc
-      "sqlmap plugin for Metasploit"
+      'Use Sqlmap, yo!'
     end
   end
 end
