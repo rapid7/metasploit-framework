@@ -6,7 +6,7 @@ module Msf
 module RPC
 class RPC_Session < RPC_Base
 
-  # Returns a list of sessions.
+  # Returns a list of sessions that belong to the framework instance used by the RPC service.
   #
   # @return [Hash] Information about sessions. Each key is the session ID, and each value is a hash
   #                that contains the following:

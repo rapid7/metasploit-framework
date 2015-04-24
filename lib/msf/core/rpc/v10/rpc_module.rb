@@ -241,6 +241,10 @@ class RPC_Module < RPC_Base
   # @param [String] mname Module name. For example: 'windows/smb/ms08_067_netapi'.
   # @param [Hash] opts Options for the module (such as datastore options).
   # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
+  # @note If you get exploit sessions via the RPC service, know that only the RPC clients
+  #       have access to those sessions. Framework msfconsole will not be able to use or
+  #       even see these sessions, because it belongs to a different framework instance.
+  #       However, this restriction does not apply to the database.
   # @return [Hash] It contains the following keys:
   #  * 'job_id' [Fixnum] Job ID.
   #  * 'uuid' [String] UUID.
