@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'WordPress GI-Media Library Plugin File Read Vulnerability',
+      'Name'           => 'WordPress GI-Media Library Plugin Directory Traversal Vulnerability',
       'Description'    => %q{
         This module exploits a directory traversal vulnerability in WordPress Plugin
         GI-Media Library version 2.2.2, allowing to read arbitrary files from the
