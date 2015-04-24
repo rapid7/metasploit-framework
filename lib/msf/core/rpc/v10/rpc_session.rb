@@ -73,7 +73,7 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Reads a shell session (such as a command output).
+  # Reads the output of a shell session (such as a command output).
   #
   # @note Shell read is now a positon-aware reader of the shell's associated
   #       ring buffer. For more direct control of the pointer into a ring
@@ -107,7 +107,8 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Writes to a shell session (such as a command).
+  # Writes to a shell session (such as a command). Note that you will to manually add a newline at the
+  # enf of your input so the system will process it.
   # You may want to use #rpc_shell_read to retrieve the output.
   #
   # @note shell_write is a wrapper of #rpc_ring_put.
@@ -135,7 +136,7 @@ class RPC_Session < RPC_Base
   # @param [String] lhost Local host.
   # @param [Fixnum] lport Local port.
   # @return [Hash] A hash indicating the actioin was successful. It contains the following key:
-  #  'result' [String] A message that says 'success'
+  #  * 'result' [String] A message that says 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('session.shell_upgrade', 2, payload_lhost, payload_lport)
   def rpc_shell_upgrade( sid, lhost, lport)
@@ -149,6 +150,9 @@ class RPC_Session < RPC_Base
 
   # Reads the output from a meterpreter session (such as a command output).
   #
+  # @note Multiple concurrent callers writing and reading the same Meterperter session can lead to
+  #  a conflict, where one caller gets the others output and vice versa. Concurrent access to a
+  #  Meterpreter session is best handled by post modules.
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
@@ -215,7 +219,7 @@ class RPC_Session < RPC_Base
     end
   end
 
-  # Returns the last sequence.
+  # Returns the last sequence (last issued ReadPointer) for a shell session.
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
@@ -231,14 +235,13 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Clears the session.
+  # Clears a shell session. This may be useful to reclaim memory for idle background sessions.
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash] A hash indicating whether the action was successful or not.
-  #                It contains the following key:
+  # @return [Hash] A hash indicating whether the action was successful or not. It contains:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_clear', 2)
@@ -256,6 +259,9 @@ class RPC_Session < RPC_Base
   # Sends an input to a meterpreter prompt.
   # You may want to use #rpc_meterpreter_read to retrieve the output.
   #
+  # @note Multiple concurrent callers writing and reading the same Meterperter session can lead to
+  #  a conflict, where one caller gets the others output and vice versa. Concurrent access to a
+  #  Meterpreter session is best handled by post modules.
   # @param [Fixnum] sid Session ID.
   # @param [String] data Input to the meterpreter prompt.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
@@ -286,14 +292,13 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Detaches from a meterpreter session.
+  # Detaches from a meterpreter session. Serves the same purpose as [CTRL]+[Z].
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash] A hash indicating the action was successful or not.
-  #                It contains the following key:
+  # @return [Hash] A hash indicating the action was successful or not. It contains:
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_session_detach', 3)
@@ -309,7 +314,7 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Kills a meterpreter session.
+  # Kills a meterpreter session. Serves the same purpose as [CTRL]+[C]
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:

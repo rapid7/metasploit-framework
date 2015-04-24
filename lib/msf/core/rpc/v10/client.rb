@@ -40,7 +40,8 @@ class Client
   end
 
 
-  # Logs in by calling the 'auth.login' API.
+  # Logs in by calling the 'auth.login' API. The authentication token will expire 5 minutes
+  # after the last request was made.
   #
   # @param [String] user Username.
   # @param [String] pass Password.

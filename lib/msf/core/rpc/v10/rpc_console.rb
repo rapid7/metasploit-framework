@@ -15,7 +15,7 @@ class RPC_Console < RPC_Base
     @console_driver = Msf::Ui::Web::Driver.new(:framework => framework)
   end
 
-  # Creates a new framework console.
+  # Creates a new framework console instance.
   #
   # @param [Hash] opts See Msf::Ui::Web::Driver#create_console
   # @return [Hash] Information about the new console. It contains the following keys:
@@ -58,7 +58,7 @@ class RPC_Console < RPC_Base
   end
 
 
-  # Deletes a framework console.
+  # Deletes a framework console instance.
   #
   # @param [Fixnum] cid Framework console ID.
   # @return [Hash] A result indicating whether the action was successful or not.
@@ -74,7 +74,7 @@ class RPC_Console < RPC_Base
   end
 
 
-  # Returns the framework console output.
+  # Returns the framework console output in raw form.
   #
   # @param [Fixnum] cid Framework console ID.
   # @return [Hash] There are two different hashes you might get:
@@ -143,15 +143,12 @@ class RPC_Console < RPC_Base
   end
 
 
-  # Kills a framework session.
+  # Kills a framework session that serves the same purpose as [CTRL]+[C] to abort an interactive session.
+  # You might also want to considering using the session API calls instead of this.
   #
   # @param [Fixnum] cid Framework console ID.
-  # @return [Hash] There are two different hashes you might get:
-  #
-  #  If the console ID is invalid, you will get a hash like the following:
-  #  * 'result' [String] A value that says 'failure'.
-  #  If the console ID is valid, you will get the following that indicates the action was successful.
-  #  * 'result' [String] A value that says 'success'.
+  # @return [Hash] A hash indicating whether the action was successful or not. It contains:
+  #  * 'result' [String] A message that says 'success' if the console ID is valid (and successfully killed, otherwise 'failed')
   # @example Here's how you would use this from the client:
   #  rpc.call('console.session_kill', 4)
   def rpc_session_kill(cid)
@@ -162,15 +159,11 @@ class RPC_Console < RPC_Base
   end
 
 
-  # Detaches a framework session.
+  # Detaches a framework session that serves the same purpos as [CTRL]+[Z] to background an interactive session.
   #
   # @param [Fixnum] cid Framework console ID.
-  # @return [Hash] There are two different hashes you might get:
-  #
-  #  If the console ID is invalid, you will get a hash like the following:
-  #  * 'result' [String] A value that says 'failure'.
-  #  If the console ID is valid, you will get the following that indicates the action was successful.
-  #  * 'result' [String] A value that says 'success'.
+  # @return [Hash] A hash indicating whether the action was successful or not. It contains:
+  #  * 'result' [String] A message that says 'success' if the console ID is valid (and successfully detached, otherwise 'failed')
   # @example Here's how you would use this from the client:
   #  rpc.call('console.session_detach', 4)
   def rpc_session_detach(cid)

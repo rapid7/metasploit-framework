@@ -98,7 +98,10 @@ class RPC_Core < RPC_Base
   end
 
 
-  # Adds a new module path.
+  # Adds a new local file system path (local to the server) as a module path. The module must be
+  # accessible to the user running the Metasploit service, and contain a top-level directory for
+  # each module type such as: exploits, nop, encoder, payloads, auxiliary, post. Also note that
+  # this will not unload modules that were deleted from the file system that were previously loaded.
   #
   # @param [String] path The new path to load.
   # @return [Hash] Module stats that contain the following keys:

@@ -11,7 +11,8 @@ begin
 rescue ::LoadError
 end
 
-  # Handles client authentication.
+  # Handles client authentication. The authentication token will expire 5 minutes after the
+  # last request was made.
   #
   # @param [String] user The username.
   # @param [String] pass The password.
@@ -79,7 +80,8 @@ end
   end
 
 
-  # Returns a list of authentication tokens.
+  # Returns a list of authentication tokens including the temporary ones, permanent, or the ones
+  # stored in the backend.
   #
   # @return [Hash] A hash that contains a list of authentication tokens. It contains the following key:
   #  * 'tokens' [Array<string>] An array of tokens.
@@ -128,10 +130,10 @@ end
   end
 
 
-  # Generates a unique token, and automatically saved to the database.
+  # Generates a random 32-byte authentication token, and automatically saved to the database.
   #
   # @return [Hash] A hash indicating the action was successful, also the new token.
-  #                It contains the following keys:
+  #  It contains the following keys:
   #  * 'result' [String] The successful message: 'success'
   #  * 'token' [String] A new token.
   # @example Here's how you would use this from the client:
@@ -158,8 +160,10 @@ end
   end
 
 
-  # Removes a token from the database.
+  # Removes a token from the database. Similar to what #rpc_logout does internally, except this
+  # can remove tokens stored in the database backend (Mdm).
   #
+  # @see #rpc_logout
   # @param [String] token The token to delete.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] The successful message: 'success'

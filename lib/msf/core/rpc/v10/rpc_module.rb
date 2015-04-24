@@ -4,7 +4,7 @@ module Msf
 module RPC
 class RPC_Module < RPC_Base
 
-  # Returns a list of exploit names.
+  # Returns a list of exploit names. The 'exploit/' prefix will not be included.
   #
   # @return [Hash] A list of exploit names. It contains the following key:
   #  * 'modules' [Array<string>] Exploit names, for example: ['windows/wins/ms04_045_wins']
@@ -15,7 +15,7 @@ class RPC_Module < RPC_Base
   end
 
 
-  # Returns a list of auxiliary module names.
+  # Returns a list of auxiliary module names. The 'auxiliary/' prefix will not be included.
   #
   # @return [Hash] A list of auxiliary module names. It contains the following key:
   #  * 'modules' [Array<string>] Auxiliary module names, for example: ['vsploit/pii/web_pii']
@@ -26,7 +26,7 @@ class RPC_Module < RPC_Base
   end
 
 
-  # Returns a list of payload module names.
+  # Returns a list of payload module names. The 'payload/' prefix will not be included.
   #
   # @return [Hash] A list of payload module names. It contains the following key:
   #  * 'modules' [Array<string>] Payload module names, for example: ['windows/x64/shell_reverse_tcp']
@@ -37,7 +37,7 @@ class RPC_Module < RPC_Base
   end
 
 
-  # Returns a list of encoder module names.
+  # Returns a list of encoder module names. The 'encoder/' prefix will not be included.
   #
   # @return [Hash] A list of encoder module names. It contains the following key:
   #  * 'modules' [Array<string>] Encoder module names, for example: ['x86/unicode_upper']
@@ -48,7 +48,7 @@ class RPC_Module < RPC_Base
   end
 
 
-  # Returns a list of NOP module names.
+  # Returns a list of NOP module names. The 'nop/' prefix will not be included.
   #
   # @return [Hash] A list of NOP module names. It contains the following key:
   #  * 'modules' [Array<string>] NOP module names, for example: ['x86/single_byte']
@@ -59,7 +59,7 @@ class RPC_Module < RPC_Base
   end
 
 
-  # Returns a list of post module names.
+  # Returns a list of post module names. The 'post/' prefix will not be included.
   #
   # @return [Hash] A list of post module names. It contains the following key:
   #  * 'modules' [Array<string>] Post module names, for example: ['windows/wlan/wlan_profile']
@@ -270,7 +270,7 @@ class RPC_Module < RPC_Base
 
   # Returns a list of encoding formats.
   #
-  # @return [Array] Encoding foramts.
+  # @return [Array<String>] Encoding foramts.
   # @example Here's how you would use this from the client:
   #  rpc.call('module.encode_formats')
   def rpc_encode_formats

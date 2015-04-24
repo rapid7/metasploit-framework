@@ -222,14 +222,14 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] Credentials with the following hash key:
   #  * 'creds' [Array<Hash>] An array of credentials. Each hash in the array will have the following:
-  #   * 'user' [String] Username.
-  #   * 'pass' [String] Password.
-  #   * 'updated_at' [Fixnum] Last updated at.
-  #   * 'type' [String] Password type.
-  #   * 'host' [String] Host.
-  #   * 'port' [Fixnum] Port.
-  #   * 'proto' [String] Protocol.
-  #   * 'sname' [String] Service name.
+  #    * 'user' [String] Username.
+  #    * 'pass' [String] Password.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'type' [String] Password type.
+  #    * 'host' [String] Host.
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'sname' [String] Service name.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.creds', {})
   def rpc_creds(xopts)
@@ -277,7 +277,6 @@ public
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
   #  * 500 Database not loaded. Try: rpc.call('console.create')
   #  * 500 Invalid workspace.
-  #  You probably want to run: rpc.call('console.create').
   # @return [Hash] Host information that starts with the following hash key:
   #  * 'hosts' [Array<Hash>] An array of hosts. Each hash in the array will have the following:
   #    * 'created_at' [Fixnum] Creation date.
@@ -451,10 +450,10 @@ public
   # @raise [Msf::RPC::Exception] Database not loaded.
   # @return [Hash] A hash with the following key:
   #  * 'workspaces' [Array<Hash>] In each hash of the array, you will get these keys:
-  #   * 'id' [Fixnum] Workspace ID.
-  #   * 'name' [String] Workspace name.
-  #   * 'created_at' [Fixnum] Last created at.
-  #   * 'updated_at' [Fixnum] Last updated at.
+  #    * 'id' [Fixnum] Workspace ID.
+  #    * 'name' [String] Workspace name.
+  #    * 'created_at' [Fixnum] Last created at.
+  #    * 'updated_at' [Fixnum] Last updated at.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.workspaces')
   def rpc_workspaces
@@ -496,10 +495,10 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash with the following key:
   #  * 'workspace' [Array<Hash>] In each hash of the array, you will get these keys:
-  #   * 'name' [String] Workspace name.
-  #   * 'id' [Fixnum] Workspace ID.
-  #   * 'created_at' [Fixnum] Last created at.
-  #   * 'updated_at' [Fixnum] Last updated at.
+  #    * 'name' [String] Workspace name.
+  #    * 'id' [Fixnum] Workspace ID.
+  #    * 'created_at' [Fixnum] Last created at.
+  #    * 'updated_at' [Fixnum] Last updated at.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_workspace')
   def rpc_get_workspace(wspace)
@@ -606,18 +605,18 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
   #  * 'host' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'created_at' [Fixnum] Last created at.
-  #   * 'address' [String] Address.
-  #   * 'mac' [String] Mac address.
-  #   * 'name' [String] Host name.
-  #   * 'state' [String] Host state.
-  #   * 'os_name' [String] OS name.
-  #   * 'os_flavor' [String] OS flavor.
-  #   * 'os_sp' [String] OS service pack.
-  #   * 'os_lang' [String] OS language.
-  #   * 'updated_at' [Fixnum] Last updated at.
-  #   * 'purpose' [String] Purpose. Example: 'server'.
-  #   * 'info' [String] Additional information.
+  #    * 'created_at' [Fixnum] Last created at.
+  #    * 'address' [String] Address.
+  #    * 'mac' [String] Mac address.
+  #    * 'name' [String] Host name.
+  #    * 'state' [String] Host state.
+  #    * 'os_name' [String] OS name.
+  #    * 'os_flavor' [String] OS flavor.
+  #    * 'os_sp' [String] OS service pack.
+  #    * 'os_lang' [String] OS language.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'purpose' [String] Purpose. Example: 'server'.
+  #    * 'info' [String] Additional information.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_host', {:host => ip})
   def rpc_get_host(xopts)
@@ -722,13 +721,13 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following key:
   #  * 'service' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'host' [String] Host address.
-  #   * 'created_at' [Fixnum] Creation date.
-  #   * 'port' [Fixnum] Port.
-  #   * 'proto' [String] Protocol.
-  #   * 'state' [String] Service state.
-  #   * 'name' [String] Service name.
-  #   * 'info' [String] Additional information.
+  #    * 'host' [String] Host address.
+  #    * 'created_at' [Fixnum] Creation date.
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'state' [String] Service state.
+  #    * 'name' [String] Service name.
+  #    * 'info' [String] Additional information.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_service', {:workspace=>'default', :proto=>'tcp', :port=>443})
   def rpc_get_service(xopts)
@@ -790,15 +789,15 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
   #  * 'note' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'host' [String] Host.
-  #   * 'port' [Fixnum] Port.
-  #   * 'proto' [String] Protocol.
-  #   * 'created_at' [Fixnum] Last created at.
-  #   * 'updated_at' [Fixnum] Last updated at.
-  #   * 'ntype' [String] Note type.
-  #   * 'data' [String] Note data.
-  #   * 'critical' [String] A boolean indicating criticality.
-  #   * 'seen' [String] A boolean indicating whether the note has been seen before.
+  #    * 'host' [String] Host.
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'created_at' [Fixnum] Last created at.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'ntype' [String] Note type.
+  #    * 'data' [String] Note data.
+  #    * 'critical' [String] A boolean indicating criticality.
+  #    * 'seen' [String] A boolean indicating whether the note has been seen before.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_note', {:proto => 'tcp', :port => 80})
   def rpc_get_note(xopts)
@@ -866,12 +865,12 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the client connection:
   #  * 'client' [Array<Hash>] Each hash of the array contains the following:
-  #   * 'host' [String] Host IP.
-  #   * 'created_at' [Fixnum] Created date.
-  #   * 'updated_at' [Fixnum] Last updated at.
-  #   * 'ua_string' [String] User-Agent string.
-  #   * 'ua_name' [String] User-Agent name.
-  #   * 'ua_ver' [String] User-Agent version.
+  #    * 'host' [String] Host IP.
+  #    * 'created_at' [Fixnum] Created date.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'ua_string' [String] User-Agent string.
+  #    * 'ua_name' [String] User-Agent name.
+  #    * 'ua_ver' [String] User-Agent version.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_client', {:workspace=>'default', :ua_string=>user_agent, :host=>ip})
   def rpc_get_client(xopts)
@@ -977,11 +976,11 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
   #  * 'notes' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'time' [Fixnum] Creation date.
-  #   * 'host' [String] Host address.
-  #   * 'service' [String] Service name or port.
-  #   * 'type' [String] Host type.
-  #   * 'data' [String] Host data.
+  #    * 'time' [Fixnum] Creation date.
+  #    * 'host' [String] Host address.
+  #    * 'service' [String] Service name or port.
+  #    * 'type' [String] Host type.
+  #    * 'data' [String] Host data.
   # @example Here's how you would use this from the client:
   #  # This gives you all the notes.
   #  rpc.call('db.notes', {})
@@ -1051,10 +1050,10 @@ public
   # @return [Hash] A hash that contains the following:
   #  * 'result' [String] A message that says 'success'.
   #  * 'deleted' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'address' [String] Host address.
-  #   * 'port' [Fixnum] Port.
-  #   * 'proto' [String] Protocol.
-  #   * 'name' [String] Vulnerability name.
+  #    * 'address' [String] Host address.
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'name' [String] Vulnerability name.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.del_vuln', {:host=>ip, :port=>445, :proto=>'tcp'})
   def rpc_del_vuln(xopts)
@@ -1144,10 +1143,10 @@ public
   # @return [Hash] A hash that contains the following:
   #  * 'result' [String] A message that says 'success'.
   #  * 'deleted' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'address' [String] Host address.
-  #   * 'port' [Fixnum] Port.
-  #   * 'proto'[String] Protocol.
-  #   * 'ntype' [String] Note type.
+  #    * 'address' [String] Host address.
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'ntype' [String] Note type.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.del_note', {:workspace=>'default', :host=>ip, :port=>443, :proto=>'tcp'})
   def rpc_del_note(xopts)
@@ -1235,10 +1234,10 @@ public
   # @return [Hash] A hash that contains the following:
   #  * 'result' [String] A message that says 'success' or 'failed'.
   #  * 'deleted' [Array<Hash>] If result says success, then you will get this key.
-  #                            Each hash in the array contains the following:
-  #   * 'address' [String] Host address.
-  #   * 'port' [Fixnum] Port.
-  #   * 'proto' [String] Protocol.
+  #    Each hash in the array contains:
+  #    * 'address' [String] Host address.
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.del_service', {:host=>ip})
   def rpc_del_service(xopts)
@@ -1310,8 +1309,8 @@ public
   #  * 500 Database not loaded. Try: rpc.call('console.create')
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
-  #  'result' [String] A message that says 'success'.
-  #  'deleted' [Array] All the deleted hosts.
+  #  * 'result' [String] A message that says 'success'.
+  #  * 'deleted' [Array<String>] All the deleted hosts.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.del_host', {:host=>ip})
   def rpc_del_host(xopts)
@@ -1358,7 +1357,7 @@ public
   #  * 500 Database not loaded. Try: rpc.call('console.create')
   #  * 500 Invalid workspace.
   # @return [Hash] A hash indicating whether the action was successful or not. It contains:
-  #  'result' [String] A message that says either 'success' or 'failed'.
+  #  * 'result' [String] A message that says either 'success' or 'failed'.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.report_vuln', {:host=>ip, :name=>'file upload'})
   def rpc_report_vuln(xopts)
@@ -1385,13 +1384,13 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
   #  * 'events' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'host' [String] Host address.
-  #   * 'created_at' [Fixnum] Creation date.
-  #   * 'updated_at' [Fixnum] Last updated at.
-  #   * 'name' [String] Event name.
-  #   * 'critical' [Boolean] Criticality.
-  #   * 'username' [String] Username.
-  #   * 'info' [String] Additional information.
+  #    * 'host' [String] Host address.
+  #    * 'created_at' [Fixnum] Creation date.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'name' [String] Event name.
+  #    * 'critical' [Boolean] Criticality.
+  #    * 'username' [String] Username.
+  #    * 'info' [String] Additional information.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.events', {})
   def rpc_events(xopts)
@@ -1489,15 +1488,15 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
   #  * 'loots' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'host' [String] Host address.
-  #   * 'service' [String] Service name or port.
-  #   * 'ltype' [String] Loot type.
-  #   * 'ctype' [String] Content type.
-  #   * 'data' [String] Looted data.
-  #   * 'created_at' [Fixnum] Creation date.
-  #   * 'updated_at' [Fixnum] Last updated at.
-  #   * 'name' [String] Name.
-  #   * 'info' [String] Additional information.
+  #    * 'host' [String] Host address.
+  #    * 'service' [String] Service name or port.
+  #    * 'ltype' [String] Loot type.
+  #    * 'ctype' [String] Content type.
+  #    * 'data' [String] Looted data.
+  #    * 'created_at' [Fixnum] Creation date.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'name' [String] Name.
+  #    * 'info' [String] Additional information.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.loots', {})
   def rpc_loots(xopts)
@@ -1593,14 +1592,14 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
   #  * 'vuln' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'host' [String] Host address.
-  #   * 'port' [Fixnum] Port.
-  #   * 'proto' [String] Protocol.
-  #   * 'created_at' [Fixnum] Creation date.
-  #   * 'updated_at' [Fixnum] Last updated at.
-  #   * 'name' [String] Vulnerability name.
-  #   * 'info' [String] Additional information.
-  #   * 'refs' [Array<String>] Reference names.
+  #    * 'host' [String] Host address.
+  #    * 'port' [Fixnum] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'created_at' [Fixnum] Creation date.
+  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'name' [String] Vulnerability name.
+  #    * 'info' [String] Additional information.
+  #    * 'refs' [Array<String>] Reference names.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_vuln', {:proto=>'tcp'})
   def rpc_get_vuln(xopts)
@@ -1719,8 +1718,8 @@ public
   # @return [Hash] A hash that contains the following:
   #  * 'result' [String] A message that says 'success'.
   #  * 'deleted' [Array<Hash>] Each hash in the array contains the following:
-  #   * 'address' [String] Host address.
-  #   * 'ua_string' [String] User-Agent string.
+  #    * 'address' [String] Host address.
+  #    * 'ua_string' [String] User-Agent string.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.del_client', {})
   def rpc_del_client(xopts)
@@ -1871,7 +1870,9 @@ public
   # Disconnects the database.
   #
   # @return [Hash] A hash that indicates whether the action was successful or not. It contains:
-  #  'result' [String] A message that says either 'success' or 'failed'.
+  #  * 'result' [String] A message that says either 'success' or 'failed'.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.disconnect')
   def rpc_disconnect
     if (self.framework.db)
       self.framework.db.disconnect()
