@@ -32,13 +32,13 @@ module Payload::Windows::BindTcp
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
       return generate_bind_tcp(
-        port:         datastore['LPORT'],
+        port:         datastore['LPORT'].to_i,
         close_socket: close_listen_socket
       )
     end
 
     conf = {
-      port:         datastore['LPORT'],
+      port:         datastore['LPORT'].to_i,
       exitfunk:     datastore['EXITFUNC'],
       close_socket: close_listen_socket,
       reliable:     true
@@ -67,7 +67,8 @@ module Payload::Windows::BindTcp
   #
   def required_space
     # Start with our cached default generated size
-    space = cached_size
+    # TODO: need help with this from the likes of HD.
+    space = 277
 
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
