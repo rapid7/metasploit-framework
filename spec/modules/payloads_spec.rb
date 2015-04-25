@@ -3027,26 +3027,6 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/patchupmeterpreter/reverse_tcp_rc4_dns'
   end
 
-  context 'windows/powershell/bind_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/windows/powershell/bind_tcp'
-                          ],
-                          dynamic_size: true,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/powershell/bind_tcp'
-  end
-
-  context 'windows/powershell/reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/windows/powershell/reverse_tcp'
-                          ],
-                          dynamic_size: true,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/powershell/reverse_tcp'
-  end
-
   context 'windows/shell/bind_ipv6_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
