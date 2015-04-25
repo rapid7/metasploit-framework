@@ -47,6 +47,16 @@ module Payload::Windows::BindTcp
     generate_bind_tcp(conf)
   end
 
+  def generate_transport_config
+    {
+      :scheme       => 'tcp',
+      :lport        => datastore['LPORT'].to_i,
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i
+    }
+  end
+
   #
   # Generate and compile the stager
   #

