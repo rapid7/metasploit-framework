@@ -35,23 +35,29 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    res = send_request_cgi(
-      'uri'           => normalize_uri(target_uri.path),
-      'method'        => 'GET'
-    )
+    begin
+      res = send_request_cgi(
+        'uri'           => normalize_uri(target_uri.path),
+        'method'        => 'GET'
+      )
+    rescue ::Errno::EPIPE, ::Timeout::Error, ::EOFError, ::IOError => e
+      print_error("#{peer} - The following Error was encountered: #{e.class}")
+      return
+    end
 
     if res && res.code == 401
       print_error("#{peer} - Failed to authenticate. Invalid username/password.")
       return
     end
 
-    if res.code == 200 && res.headers['X-Influxdb-Version'].include?('InfluxDB') && res.body.length > 0
+    if res && res.code == 200 && res.headers['X-Influxdb-Version'].include?('InfluxDB') && res.body.length > 0
       print_status('Enumerating...')
       begin
         temp = JSON.parse(res.body)
         results = JSON.pretty_generate(temp)
       rescue JSON::ParserError
         print_error('Unable to parse JSON data for the response.')
+        return
       end
 
       print_good("Found:\n\n#{results}\n")
@@ -68,7 +74,5 @@ class Metasploit3 < Msf::Auxiliary
     else
       print_error("#{peer} - Unable to enum, received \"#{res.code}\".")
     end
-  rescue => e
-    print_error("#{peer} - The following Error was encountered: #{e.class}")
   end
 end
