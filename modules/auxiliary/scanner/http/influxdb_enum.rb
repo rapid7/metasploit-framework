@@ -35,13 +35,9 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    username = datastore['USERNAME']
-    password = datastore['PASSWORD']
-
     res = send_request_cgi(
       'uri'           => normalize_uri(target_uri.path),
-      'method'        => 'GET',
-      'authorization' => basic_auth(username, password)
+      'method'        => 'GET'
     )
 
     if res && res.code == 401
