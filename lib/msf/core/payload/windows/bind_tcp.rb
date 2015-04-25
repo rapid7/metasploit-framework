@@ -37,6 +37,7 @@ module Payload::Windows::BindTcp
       )
     end
 
+    return ""
     conf = {
       port:         datastore['LPORT'].to_i,
       exitfunk:     datastore['EXITFUNC'],
