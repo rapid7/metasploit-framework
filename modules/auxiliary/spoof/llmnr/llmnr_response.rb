@@ -47,10 +47,6 @@ attr_accessor :sock, :thread
       OptInt.new('TTL', [ false, "Time To Live for the spoofed response", 300]),
     ])
 
-    register_advanced_options([
-      OptBool.new('Debug', [ false, "Determines whether incoming packet parsing is displayed", false])
-    ])
-
     deregister_options('RHOST', 'PCAPFILE', 'SNAPLEN', 'FILTER')
     self.thread = nil
     self.sock = nil
