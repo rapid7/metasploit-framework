@@ -45,23 +45,24 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    if res && res.code == 401
-      print_error("#{peer} - Failed to authenticate. Invalid username/password.")
+    unless res
+      print_error("#{peer} - Server did not respond in an expected way.")
       return
     end
 
-    if res && res.code == 200 && res.headers['X-Influxdb-Version'].include?('InfluxDB') && res.body.length > 0
+    if res.code == 401 && res.body =~ /Invalid username\/password/
+      print_error("#{peer} - Failed to authenticate. Invalid username/password.")
+      return
+    elsif res.code == 200 && res.headers.include?('X-Influxdb-Version') && res.body.length > 0
       print_status('Enumerating...')
       begin
         temp = JSON.parse(res.body)
         results = JSON.pretty_generate(temp)
       rescue JSON::ParserError
-        print_error('Unable to parse JSON data for the response.')
+        print_error('Unable to parse JSON data.')
         return
       end
-
       print_good("Found:\n\n#{results}\n")
-
       path = store_loot(
         'influxdb.enum',
         'text/plain',
@@ -69,10 +70,9 @@ class Metasploit3 < Msf::Auxiliary
         results,
         'InfluxDB Enum'
       )
-
       print_good("#{peer} - File saved in: #{path}")
     else
-      print_error("#{peer} - Unable to enum, received \"#{res.code}\".")
+      print_error("#{peer} - Unable to enum, received \"#{res.code}\"")
     end
   end
 end
