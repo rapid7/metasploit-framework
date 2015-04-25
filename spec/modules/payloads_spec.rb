@@ -3032,7 +3032,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/powershell/bind_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell/bind_tcp'
   end
@@ -3042,7 +3042,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/powershell/reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell/reverse_tcp'
   end
