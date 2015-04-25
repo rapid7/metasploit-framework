@@ -18,8 +18,8 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Command, Interact with Established Connection',
-      'Description'   => 'Interacts with a shell on an established socket connection',
+      'Name'          => 'Windows Bind Powershell, Interact with Established Connection',
+      'Description'   => 'Interacts with a powershell session on an established socket connection',
       'Author'        => 'hdm',
       'License'       => MSF_LICENSE,
       'Platform'      => 'windows',
