@@ -3030,7 +3030,7 @@ describe 'modules/payloads', :content do
   context 'windows/powershell/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                              'stagers/windows/powershell/bind_tcp'
+                              'singles/windows/powershell/bind_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
