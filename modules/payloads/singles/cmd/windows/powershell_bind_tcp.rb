@@ -31,7 +31,6 @@ module Metasploit3
       'Arch'          => ARCH_CMD,
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::PowerShell,
-      'PayloadType'   => 'cmd_interact',
       'RequiredCmd'   => 'generic',
       'Payload'       =>
         {

@@ -8,12 +8,12 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   def process_autoruns(datastore)
     # Read the initial output (PS banner) and toss it)
     initial_output = shell_read(-1, 0.01)
-    # TODO: send command for getting the username
-    # TODO: parse out the username and set it to a variable
-    # TODO: send command for getting the hostname
-    # TODO: parse out the hostname and set it to a variable
+    if initial_output =~ /running as user ([^\s]+) on ([^\s]+)/
+      username = $1
+      hostname = $2
+    end
     # Set the session info
-    self.info = initial_output
+    self.info = "#{username} @ #{hostname}"
     # Call our parent class's autoruns processing method
     super
   end
