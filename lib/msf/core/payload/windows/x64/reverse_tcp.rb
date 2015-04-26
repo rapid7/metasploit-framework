@@ -66,6 +66,17 @@ module Payload::Windows::ReverseTcp_x64
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
   end
 
+  def generate_transport_config(opts={})
+    {
+      :scheme       => 'tcp',
+      :lhost        => datastore['LHOST'],
+      :lport        => datastore['LPORT'].to_i,
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i
+    }
+  end
+
   #
   # Determine the maximum amount of space required for the features requested
   #

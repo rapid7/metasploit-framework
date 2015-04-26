@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/core/payload/uuid'
+require 'msf/core/payload/windows'
 require 'msf/core/reflective_dll_loader'
 require 'rex/parser/x509_certificate'
 
@@ -35,18 +36,20 @@ private
 
   def session_block(opts)
     uuid = to_wchar_t(opts[:uuid], UUID_SIZE)
+    exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
 
     session_data = [
       0,                  # comms socket, patched in by the stager
       0,                  # listen socket, patched in by the stager
+      exit_func,          # exit function identifer
       opts[:expiration],  # Session expiry
       uuid,               # the URL to use
     ]
 
     if is_x86?
-      session_data.pack("VVVA*")
+      session_data.pack("VVVVA*")
     else
-      session_data.pack("QQVA*")
+      session_data.pack("QQVVA*")
     end
   end
 
@@ -102,6 +105,7 @@ private
   end
 
   def config_block
+
     # start with the session information
     config = session_block(@opts)
 

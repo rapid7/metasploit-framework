@@ -76,7 +76,6 @@ module Payload::Windows::ReflectiveDllInject
 
     asm_opts = {
       :rdi_offset => offset,
-      :length     => dll.length,
       :exitfunk   => 'thread'     # default to 'thread' for migration
     }
 

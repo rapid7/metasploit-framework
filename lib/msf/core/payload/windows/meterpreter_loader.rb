@@ -8,7 +8,7 @@ module Msf
 
 ###
 #
-# Common module stub for ARCH_X86 payloads that make use of Reflective DLL Injection.
+# Common module stub for ARCH_X86 payloads that make use of Meterpreter.
 #
 ###
 
@@ -22,7 +22,7 @@ module Payload::Windows::MeterpreterLoader
     super(update_info(info,
       'Name'          => 'Meterpreter & Configuration RDI',
       'Description'   => 'Inject Meterpreter & the configuration stub via RDI',
-      'Author'        => [ 'sf' ],
+      'Author'        => [ 'sf', 'OJ Reeves' ],
       'References'    => [
         [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ], # original
         [ 'URL', 'https://github.com/rapid7/ReflectiveDLLInjection' ] # customisations

@@ -32,8 +32,8 @@ module Metasploit4
       'Session'       => Msf::Sessions::Meterpreter_x86_Win))
   end
 
-  def stage_payload(uuid=nil)
-    stage_meterpreter + generate_config(uuid)
+  def stage_payload(opts={})
+    stage_meterpreter + generate_config(opts)
   end
 
   def generate_config(opts={})
@@ -46,11 +46,12 @@ module Metasploit4
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
-      :arch           => opts[:uuid].arch,
-      :expiration     => datastore['SessionExpirationTimeout'].to_i,
-      :uuid           => opts[:uuid],
-      :transports     => [ generate_transport_config(opts) ],
-      :extensions     => []
+      :arch       => opts[:uuid].arch,
+      :exitfunk   => datastore['EXITFUNC'],
+      :expiration => datastore['SessionExpirationTimeout'].to_i,
+      :uuid       => opts[:uuid],
+      :transports => [ generate_transport_config(opts) ],
+      :extensions => []
     }
 
     # create the configuration instance based off the parameters
