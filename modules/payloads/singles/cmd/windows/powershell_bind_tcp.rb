@@ -8,14 +8,14 @@ require 'msf/base/sessions/powershell'
 
 module Metasploit3
 
-  CachedSize = 0
+  CachedSize = 1294
 
   include Msf::Payload::Single
   include Rex::Powershell::Command
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Interactive Powershell Session, Bins TCP',
+      'Name'          => 'Windows Interactive Powershell Session, Bind TCP',
       'Description'   => 'Interacts with a powershell session on an established socket connection',
       'Author'        =>
         [
