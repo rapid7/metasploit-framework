@@ -1775,9 +1775,6 @@ class Core
             elsif session.type == 'shell'
               output = session.shell_command(cmd)
               print_line(output) if output
-            elsif session.type == 'powershell'
-              output = session.shell_command(cmd)
-              print_line(output) if output
             end
           ensure
             # Restore timeout for each session
