@@ -8,7 +8,7 @@ require 'msf/base/sessions/powershell'
 
 module Metasploit3
 
-  CachedSize = 1294
+  CachedSize = 1342
 
   include Msf::Payload::Single
   include Rex::Powershell::Command
