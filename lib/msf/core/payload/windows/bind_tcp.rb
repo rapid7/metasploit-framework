@@ -47,7 +47,7 @@ module Payload::Windows::BindTcp
     generate_bind_tcp(conf)
   end
 
-  def generate_transport_config
+  def generate_transport_config(opts={})
     {
       :scheme       => 'tcp',
       :lport        => datastore['LPORT'].to_i,

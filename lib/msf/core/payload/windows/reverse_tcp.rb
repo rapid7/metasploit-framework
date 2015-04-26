@@ -49,7 +49,7 @@ module Payload::Windows::ReverseTcp
     generate_reverse_tcp(conf)
   end
 
-  def generate_transport_config
+  def generate_transport_config(opts={})
     {
       :scheme       => 'tcp',
       :lhost        => datastore['LHOST'],
