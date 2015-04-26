@@ -15,7 +15,7 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Interactive Powershell Session, Bind TCP',
+      'Name'          => 'Windows Interactive Powershell Session, Reverse TCP',
       'Description'   => 'Interacts with a powershell session on an established socket connection',
       'Author'        =>
         [
@@ -63,7 +63,7 @@ module Metasploit3
     if datastore['LOAD_MODULES']
       mods_array = datastore['LOAD_MODULES'].to_s.split(',')
       mods_array.collect(&:strip)
-      print_status("Loading #{mods_array.count} modules into the interactive PowerShell session")
+      vprint_status("Loading #{mods_array.count} modules into the interactive PowerShell session")
       mods_array.each {|m| vprint_good " #{m}"}
       mods = "\"#{mods_array.join("\",\n\"")}\""
       script_in << " -Download true\n"

