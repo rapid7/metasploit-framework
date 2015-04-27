@@ -56,7 +56,12 @@ private
   def transport_block(opts)
     # Build the URL from the given parameters, and pad it out to the
     # correct size
-    url = "#{opts[:scheme]}://#{opts[:lhost]}:#{opts[:lport]}"
+    lhost = opts[:lhost]
+    if lhost && Rex::Socket.is_ipv6?(lhost)
+      lhost = "[#{lhost}]"
+    end
+
+    url = "#{opts[:scheme]}://#{lhost}:#{opts[:lport]}"
     url << "#{opts[:uri]}/" if opts[:uri]
     url = to_wchar_t(url, URL_SIZE)
 
