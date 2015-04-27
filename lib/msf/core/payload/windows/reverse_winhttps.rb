@@ -84,24 +84,13 @@ module Payload::Windows::ReverseWinHttps
   end
 
   def generate_transport_config(opts={})
-    # most cases we'll haev a URI already, but in case we don't
-    # we should ask for a connect to happen given that this is
-    # going up as part of the stage.
-    uri = opts[:uri]
-    unless uri
-      sum = uri_checksum_lookup(:connect)
-      uri = generate_uri_uuid(sum, opts[:uuid])
-    end
+    config = super
 
-    {
-      :scheme       => 'https',
-      :lhost        => datastore['LHOST'],
-      :lport        => datastore['LPORT'].to_i,
-      :uri          => uri,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+    config[:scheme] = 'https'
+    config[:ssl_cert_hash] = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                               datastore['HandlerSSLCert'])
+
+    config
   end
 
   #

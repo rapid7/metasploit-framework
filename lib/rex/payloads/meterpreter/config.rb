@@ -63,16 +63,15 @@ private
 
     url = "#{opts[:scheme]}://#{lhost}:#{opts[:lport]}"
     url << "#{opts[:uri]}/" if opts[:uri]
-    url = to_wchar_t(url, URL_SIZE)
 
     # if the transport URI is for a HTTP payload we need to add a stack
     # of other stuff
     pack = 'VVVA*'
     transport_data = [
-      opts[:comm_timeout],  # communications timeout
-      opts[:retry_total],   # retry total time
-      opts[:retry_wait],    # retry wait time
-      url                   # transport URL
+      opts[:comm_timeout],       # communications timeout
+      opts[:retry_total],        # retry total time
+      opts[:retry_wait],         # retry wait time
+      to_wchar_t(url, URL_SIZE)  # transport URL
     ]
 
     if url.start_with?('http')
@@ -82,9 +81,7 @@ private
       ua = to_wchar_t(opts[:ua] || '', UA_SIZE)
 
       cert_hash = "\x00" * CERT_HASH_SIZE
-      if opts[:cert_file]
-        cert_hash = Rex::Parser::X509Certificate.get_cert_file_hash(opts[:cert_file])
-      end
+      cert_hash = opts[:ssl_cert_hash] if opts[:ssl_cert_hash]
 
       # add the HTTP specific stuff
       transport_data << proxy_host  # Proxy host name
@@ -124,9 +121,7 @@ private
 
     # configure the extensions
     file_extension = 'x86.dll'
-    unless is_x86?
-      file_extension = 'x64.dll'
-    end
+    file_extension = 'x64.dll' unless is_x86?
 
     (@opts[:extensions] || []).each do |e|
       config << extension_block(e, file_extension)
