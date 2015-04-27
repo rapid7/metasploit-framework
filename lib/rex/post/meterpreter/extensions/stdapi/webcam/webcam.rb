@@ -103,7 +103,9 @@ class Webcam
     case client.platform
     when /win/
       paths = [
+        "Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
         "Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "Program Files (x86)\\Mozilla Firefox\\firefox.exe",
         "Program Files\\Mozilla Firefox\\firefox.exe"
       ]
 
