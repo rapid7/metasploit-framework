@@ -22,6 +22,7 @@ class Client
 
 
   # Initializes the RPC client to connect to: https://127.0.0.1:3790 (TLS1)
+  # The connection information is overridden through the optional info hash.
   #
   # @param [Hash] info Information needed for the initialization.
   # @option info [String] :token A token used by the client.

@@ -143,7 +143,7 @@ class RPC_Console < RPC_Base
   end
 
 
-  # Kills a framework session that serves the same purpose as [CTRL]+[C] to abort an interactive session.
+  # Kills a framework session. This serves the same purpose as [CTRL]+[C] to abort an interactive session.
   # You might also want to considering using the session API calls instead of this.
   #
   # @param [Fixnum] cid Framework console ID.
@@ -159,7 +159,8 @@ class RPC_Console < RPC_Base
   end
 
 
-  # Detaches a framework session that serves the same purpos as [CTRL]+[Z] to background an interactive session.
+  # Detaches a framework session. This serves the same purpose as [CTRL]+[Z] to
+  # background an interactive session.
   #
   # @param [Fixnum] cid Framework console ID.
   # @return [Hash] A hash indicating whether the action was successful or not. It contains:

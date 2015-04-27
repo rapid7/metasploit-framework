@@ -70,7 +70,7 @@ class RPC_Module < RPC_Base
   end
 
 
-  # Returns the metadata of the module.
+  # Returns the metadata for a module.
   #
   # @param [String] mtype Module type. Supported types include (case-sensitive):
   #                       * exploit
@@ -279,7 +279,7 @@ class RPC_Module < RPC_Base
   end
 
 
-  # Encoders data with an encoder.
+  # Encodes data with an encoder.
   #
   # @param [String] data Data to encode.
   # @param [encoder] encoder Encoder module name. For example: 'x86/single_byte'.

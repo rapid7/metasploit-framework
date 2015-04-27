@@ -1476,7 +1476,7 @@ public
   end
 
 
-  # Returns all the looted data.
+  # Returns all the looted items.
   #
   # @param [Hash] xopts Filters that narrow down the search:
   # @option xopts [Hash] :workspace Workspace name.
@@ -1765,7 +1765,7 @@ public
   end
 
 
-  # Sets the driver for the database, or returns the current one.
+  # Sets the driver for the database or returns the current one.
   #
   # @param [Hash] xopts Options:
   # @option [String] :workspace Workspace name.

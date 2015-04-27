@@ -3,7 +3,7 @@ module Msf
 module RPC
 class RPC_Plugin < RPC_Base
 
-  # Loads a framework plugin.
+  # Loads a plugin.
   #
   # @param [String] path The plugin filename (without the extension). It will try to find your plugin
   #                 in either one of these directories:
@@ -48,7 +48,7 @@ class RPC_Plugin < RPC_Base
   end
 
 
-  # Unloads a framework plugin.
+  # Unloads a plugin.
   #
   # @param [String] name The plugin filename (without the extension). For example: 'nexpose'.
   # @return [Hash] A hash indicating whether the action was successful or not.
@@ -69,7 +69,7 @@ class RPC_Plugin < RPC_Base
   end
 
 
-  # Returns a list of plugins loaded by framework.
+  # Returns a list of loaded plugins.
   #
   # @return [Hash] All the plugins loaded. It contains the following key:
   #                * 'plugins' [Array<string>] A list of plugin names.

@@ -80,8 +80,8 @@ end
   end
 
 
-  # Returns a list of authentication tokens including the temporary ones, permanent, or the ones
-  # stored in the backend.
+  # Returns a list of authentication tokens, including the ones that are
+  # temporary, permanent, or stored in the backend.
   #
   # @return [Hash] A hash that contains a list of authentication tokens. It contains the following key:
   #  * 'tokens' [Array<string>] An array of tokens.
@@ -130,7 +130,8 @@ end
   end
 
 
-  # Generates a random 32-byte authentication token, and automatically saved to the database.
+  # Generates a random 32-byte authentication token. The token is added to the
+  # database as a side-effect.
   #
   # @return [Hash] A hash indicating the action was successful, also the new token.
   #  It contains the following keys:

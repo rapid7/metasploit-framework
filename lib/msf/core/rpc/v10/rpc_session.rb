@@ -157,7 +157,7 @@ class RPC_Session < RPC_Base
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
-  # @return [Hash] It contains the following key: 
+  # @return [Hash] It contains the following key:
   #  * 'data' [String] Data read.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_read', 2)
@@ -314,7 +314,7 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Kills a meterpreter session. Serves the same purpose as [CTRL]+[C]
+  # Kills a meterpreter session. Serves the same purpose as [CTRL]+[C].
   #
   # @param [Fixnum] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
@@ -365,7 +365,7 @@ class RPC_Session < RPC_Base
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
-  #  * 'result' [String] 'success' 
+  #  * 'result' [String] 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_run_single', 3, 'getpid')
   def rpc_meterpreter_run_single( sid, data)
@@ -388,7 +388,7 @@ class RPC_Session < RPC_Base
   # @param [Fixnum] sid Session ID.
   # @param [String] data Meterpreter script name.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
-  #  * 'result' [String] 'success' 
+  #  * 'result' [String] 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('session.meterpreter_script', 3, 'checkvm')
   def rpc_meterpreter_script( sid, data)
