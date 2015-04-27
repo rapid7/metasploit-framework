@@ -65,7 +65,7 @@ end
 def infos(serv,host)
 	print_line("")
 	print_line("====================================")
-	print_line("IP: #{host.address.to_s}")
+	print_line("IP: #{host.address}")
 	print_line("OS: #{host.os_name}")
 	print_line("Servicename: #{serv.name}")
 	print_line("Service Port: #{serv.port.to_i}")
@@ -124,7 +124,7 @@ framework.db.workspace.hosts.each do |host|
 					if(verbose == 1)
 						infos(serv,host)
 					end
-					run_single("set RHOSTS #{host.address.to_s}")
+					run_single("set RHOSTS #{host.address}")
 					if(verbose == 1)
 						run_single("set VERBOSE true")
 						run_single("run -j")
@@ -141,7 +141,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -156,7 +156,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -171,7 +171,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -186,7 +186,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -201,7 +201,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -216,7 +216,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -234,7 +234,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -250,7 +250,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -268,7 +268,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -284,7 +284,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -299,7 +299,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -314,7 +314,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -332,7 +332,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -351,7 +351,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -367,7 +367,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -385,7 +385,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -404,7 +404,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -424,7 +424,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if (serv.name =~ /https/ or serv.port == 443)
 					run_single("set SSL true")
 				else
@@ -445,7 +445,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if (serv.name =~ /https/)
 				run_single("set SSL true")
 			else
@@ -465,7 +465,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if (serv.name =~ /https/)
 				run_single("set SSL true")
 			else
@@ -485,7 +485,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if (serv.name =~ /https/)
 				run_single("set SSL true")
 			else
@@ -505,7 +505,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if (serv.name =~ /https/)
 				run_single("set SSL true")
 			else
@@ -525,7 +525,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if (serv.name =~ /https/)
 				run_single("set SSL true")
 			else
@@ -544,7 +544,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if (serv.name =~ /https/)
 				run_single("set SSL true")
 			else
@@ -564,7 +564,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if (serv.name =~ /https/)
 				run_single("set SSL true")
 			else
@@ -587,7 +587,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -603,7 +603,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -618,7 +618,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOST #{host.address.to_s}")
+			run_single("set RHOST #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -635,7 +635,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -653,7 +653,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -672,7 +672,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -690,7 +690,7 @@ framework.db.workspace.hosts.each do |host|
 					infos(serv,host)
 				end
 				run_single("set RPORT #{serv.port}")
-				run_single("set RHOSTS #{host.address.to_s}")
+				run_single("set RHOSTS #{host.address}")
 				if(verbose == 1)
 					run_single("set VERBOSE true")
 					run_single("run -j")
@@ -708,7 +708,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -725,7 +725,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")
@@ -741,7 +741,7 @@ framework.db.workspace.hosts.each do |host|
 				infos(serv,host)
 			end
 			run_single("set RPORT #{serv.port}")
-			run_single("set RHOSTS #{host.address.to_s}")
+			run_single("set RHOSTS #{host.address}")
 			if(verbose == 1)
 				run_single("set VERBOSE true")
 				run_single("run -j")

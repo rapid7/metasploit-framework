@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
           when Resolv::DNS::Resource::IN::MX
             data = data.exchange.to_s
           when Resolv::DNS::Resource::IN::A
-            data = data.address.to_s
+            data = data.address
           when Resolv::DNS::Resource::IN::TXT
             data = data.strings.join
           when Resolv::DNS::Resource::IN::CNAME

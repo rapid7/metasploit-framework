@@ -943,7 +943,7 @@ module Msf
         end
         targets = ""
         framework.db.hosts(framework.db.workspace).each do |host|
-          targets << host.address.to_s
+          targets << host.address
           targets << ","
         end
         targets.chop!

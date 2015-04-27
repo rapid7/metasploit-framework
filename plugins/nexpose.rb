@@ -419,7 +419,7 @@ class Plugin::Nexpose < Msf::Plugin
         print_status("Loading scan targets from the active database...") if opt_verbose
         framework.db.hosts.each do |host|
           next if host.state != ::Msf::HostState::Alive
-          opt_ranges << host.address.to_s
+          opt_ranges << host.address
         end
       end
 

@@ -228,12 +228,12 @@ class Plugin::Wiki < Msf::Plugin
       tbl.headeri = opts[:heading_size]
       framework.db.creds.each do |cred|
         unless opts[:hosts].nil? or opts[:hosts].empty?
-          next unless opts[:hosts].include? cred.service.host.address.to_s
+          next unless opts[:hosts].include? cred.service.host.address
         end
         unless opts[:ports].nil?
           next unless opts[:ports].any? {|p| cred.service.port.eql? p}
         end
-        address = cred.service.host.address.to_s
+        address = cred.service.host.address
         address = to_wikilink(address,opts[:namespace]) if opts[:links]
         row = [
           address,
@@ -268,12 +268,12 @@ class Plugin::Wiki < Msf::Plugin
       tbl.headeri = opts[:heading_size]
       framework.db.hosts.each do |host|
         unless opts[:hosts].nil? or opts[:hosts].empty?
-          next unless opts[:hosts].include? host.address.to_s
+          next unless opts[:hosts].include? host.address
         end
         unless opts[:ports].nil?
           next unless (host.services.map{|s| s[:port]}).any? {|p| opts[:ports].include? p}
         end
-        address = host.address.to_s
+        address = host.address
         address = to_wikilink(address,opts[:namespace]) if opts[:links]
         row = [
           address,
@@ -310,7 +310,7 @@ class Plugin::Wiki < Msf::Plugin
       tbl.headeri = opts[:heading_size]
       framework.db.loots.each do |loot|
         unless opts[:hosts].nil? or opts[:hosts].empty?
-          next unless opts[:hosts].include? loot.host.address.to_s
+          next unless opts[:hosts].include? loot.host.address
         end
         unless opts[:ports].nil? or opts[:ports].empty?
           next if loot.service.nil? or loot.service.port.nil? or not opts[:ports].include? loot.service.port
@@ -318,7 +318,7 @@ class Plugin::Wiki < Msf::Plugin
         if loot.service
           svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
         end
-        address = loot.host.address.to_s
+        address = loot.host.address
         address = to_wikilink(address,opts[:namespace]) if opts[:links]
         row = [
           address,
@@ -353,12 +353,12 @@ class Plugin::Wiki < Msf::Plugin
       tbl.headeri = opts[:heading_size]
       framework.db.services.each do |service|
         unless opts[:hosts].nil? or opts[:hosts].empty?
-          next unless opts[:hosts].include? service.host.address.to_s
+          next unless opts[:hosts].include? service.host.address
         end
         unless opts[:ports].nil? or opts[:ports].empty?
           next unless opts[:ports].any? {|p| service[:port].eql? p}
         end
-        address = service.host.address.to_s
+        address = service.host.address
         address = to_wikilink(address,opts[:namespace]) if opts[:links]
         row = [
           address,
@@ -392,12 +392,12 @@ class Plugin::Wiki < Msf::Plugin
       tbl.headeri = opts[:heading_size]
       framework.db.vulns.each do |vuln|
         unless opts[:hosts].nil? or opts[:hosts].empty?
-          next unless opts[:hosts].include? vuln.host.address.to_s
+          next unless opts[:hosts].include? vuln.host.address
         end
         unless opts[:ports].nil? or opts[:ports].empty?
           next unless opts[:ports].any? {|p| vuln.service.port.eql? p}
         end
-        address = vuln.host.address.to_s
+        address = vuln.host.address
         address = to_wikilink(address,opts[:namespace]) if opts[:links]
         row = [
           vuln.name,

@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
           record = {}
           record[:host] = host
           record[:type] = "AAAA"
-          record[:address] = rr.address.to_s
+          record[:address] = rr.address
           results << record
         end
       end
@@ -192,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
           record = {}
           record[:host] = host
           record[:type] = "AAAA"
-          record[:address] = rr.address.to_s
+          record[:address] = rr.address
           results << record
         end
       end

@@ -3117,7 +3117,7 @@ class Core
       hosts = {}
       framework.db.each_service(framework.db.workspace) do |service|
         if (service.port == mport)
-          hosts[ service.host.address.to_s ] = true
+          hosts[ service.host.address ] = true
         end
       end
 
@@ -3128,7 +3128,7 @@ class Core
     # List all hosts in the database
     else
       framework.db.each_host(framework.db.workspace) do |host|
-        res << host.address.to_s
+        res << host.address
       end
     end
 

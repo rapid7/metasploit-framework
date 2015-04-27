@@ -128,7 +128,7 @@ public
       opts[:last_attempted_at] = opts[:last_attempted_at].to_datetime
       login = create_credential_login(opts)
 
-      ret[:host]   = login.service.host.address.to_s,
+      ret[:host]   = login.service.host.address,
       ret[:sname]  = login.service.name
       ret[:status] = login.status
     end
@@ -157,7 +157,7 @@ public
         sname = ''
         unless cred.logins.empty?
           login = cred.logins.first
-          host = login.service.host.address.to_s
+          host = login.service.host.address
           sname = login.service.name.to_s if login.service.name.present?
           port = login.service.port.to_i
           proto = login.service.proto.to_s
@@ -192,7 +192,7 @@ public
     wspace.hosts.where(conditions).offset(offset).order(:address).limit(limit).each do |h|
       host = {}
       host[:created_at] = h.created_at.to_i
-      host[:address] = h.address.to_s
+      host[:address] = h.address
       host[:mac] = h.mac.to_s
       host[:name] = h.name.to_s
       host[:state] = h.state.to_s
@@ -228,7 +228,7 @@ public
     wspace.services.includes(:host).where(conditions).offset(offset).limit(limit).each do |s|
       service = {}
       host = s.host
-      service[:host] = host.address.to_s || "unknown"
+      service[:host] = host.address || "unknown"
       service[:created_at] = s[:created_at].to_i
       service[:updated_at] = s[:updated_at].to_i
       service[:port] = s[:port]
@@ -267,7 +267,7 @@ public
         vuln[:proto] = nil
       end
       vuln[:time] = v.created_at.to_i
-      vuln[:host] = v.host.address.to_s || nil
+      vuln[:host] = v.host.address || nil
       vuln[:name] = v.name
       vuln[:refs] = reflist.join(',')
       ret[:vulns] << vuln
@@ -365,7 +365,7 @@ public
     if(h)
       host = {}
       host[:created_at] = h.created_at.to_i
-      host[:address] = h.address.to_s
+      host[:address] = h.address
       host[:mac] = h.mac.to_s
       host[:name] = h.name.to_s
       host[:state] = h.state.to_s
@@ -433,7 +433,7 @@ public
     services.each do |s|
       service = {}
       host = s.host
-      service[:host] = host.address.to_s || "unknown"
+      service[:host] = host.address || "unknown"
       service[:created_at] = s[:created_at].to_i
       service[:updated_at] = s[:updated_at].to_i
       service[:port] = s[:port]
@@ -482,7 +482,7 @@ public
     notes.each do |n|
       note = {}
       host = n.host
-      note[:host] = host.address.to_s || "unknown"
+      note[:host] = host.address || "unknown"
       if n.service
         note[:port] = n.service.port
         note[:proto] = n.service.proto
@@ -508,7 +508,7 @@ public
     if(c)
       client = {}
       host = c.host
-      client[:host] = host.address.to_s
+      client[:host] = host.address
       client[:created_at] = c.created_at.to_i
       client[:updated_at] = c.updated_at.to_i
       client[:ua_string] = c.ua_string.to_s
@@ -567,7 +567,7 @@ public
       note[:time] = n.created_at.to_i
       note[:host] = ""
       note[:service] = ""
-      note[:host] = n.host.address.to_s if(n.host)
+      note[:host] = n.host.address if(n.host)
       note[:service] = n.service.name || n.service.port  if(n.service)
       note[:type ] = n.ntype.to_s
       note[:data] = n.data.inspect
@@ -641,7 +641,7 @@ public
     deleted = []
     vulns.each do |v|
       dent = {}
-      dent[:address] = v.host.address.to_s if v.host
+      dent[:address] = v.host.address if v.host
       dent[:port] = v.service.port if v.service
       dent[:proto] = v.service.proto if v.service
       dent[:name] = v.name
@@ -709,7 +709,7 @@ public
     deleted = []
     notes.each do |n|
       dent = {}
-      dent[:address] = n.host.address.to_s if n.host
+      dent[:address] = n.host.address if n.host
       dent[:port] = n.service.port if n.service
       dent[:proto] = n.service.proto if n.service
       dent[:ntype] = n.ntype
@@ -766,7 +766,7 @@ public
     deleted = []
     services.each do |s|
       dent = {}
-      dent[:address] = s.host.address.to_s
+      dent[:address] = s.host.address
       dent[:port] = s.port
       dent[:proto] = s.proto
       deleted << dent
@@ -798,7 +798,7 @@ public
     end
     deleted = []
     hosts.each do |h|
-      deleted << h.address.to_s
+      deleted << h.address
       h.destroy
     end
 
@@ -828,7 +828,7 @@ public
 
     wspace.events.offset(offset).limit(limit).each do |e|
       event = {}
-      event[:host] = e.host.address.to_s if(e.host)
+      event[:host] = e.host.address if(e.host)
       event[:created_at] = e.created_at.to_i
       event[:updated_at] = e.updated_at.to_i
       event[:name] = e.name
@@ -873,7 +873,7 @@ public
     ret[:loots] = []
     wspace.loots.offset(offset).limit(limit).each do |l|
       loot = {}
-      loot[:host] = l.host.address.to_s if(l.host)
+      loot[:host] = l.host.address if(l.host)
       loot[:service] = l.service.name || l.service.port  if(l.service)
       loot[:ltype] = l.ltype
       loot[:ctype] = l.content_type
@@ -928,7 +928,7 @@ public
     vulns.each do |v|
       vuln= {}
       host= v.host
-      vuln[:host] = host.address.to_s || "unknown"
+      vuln[:host] = host.address || "unknown"
       if v.service
         vuln[:port] = v.service.port
         vuln[:proto] = v.service.proto
@@ -963,7 +963,7 @@ public
 
     wspace.clients.includes(:host).where(conditions).offset(offset).limit(limit).each do |c|
       client = {}
-      client[:host] = c.host.address.to_s if c.host
+      client[:host] = c.host.address if c.host
       client[:ua_string] = c.ua_string
       client[:ua_name] = c.ua_name
       client[:ua_ver] = c.ua_ver
@@ -1007,7 +1007,7 @@ public
     deleted = []
     clients.each do |c|
       dent = {}
-      dent[:address] = c.host.address.to_s
+      dent[:address] = c.host.address
       dent[:ua_string] = c.ua_string
       deleted << dent
       c.destroy

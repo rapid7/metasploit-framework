@@ -65,13 +65,13 @@ module Msf::DBManager::Service
 
     if addr.kind_of? ::Mdm::Host
       host = addr
-      addr = host.address.to_s
+      addr = host.address
     else
       host = report_host(hopts)
     end
 
     if opts[:port].to_i.zero?
-      dlog("Skipping port zero for service '%s' on host '%s'" % [opts[:name],host.address.to_s])
+      dlog("Skipping port zero for service '%s' on host '%s'" % [opts[:name],host.address])
       return nil
     end
 

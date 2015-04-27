@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
     if query.answer.length != 0
       print_status("This domain has wildcards enabled!!")
       query.answer.each do |rr|
-        print_status("Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
+        print_status("Wildcard IP for #{rendsub}.#{target} is: #{rr.address}") if rr.class != Net::DNS::RR::CNAME
       end
       return true
     else
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
           :port => 53 ,
           :type => 'dns.enum',
           :update => :unique_data,
-          :data => "#{rr.address.to_s},#{target},A")
+          :data => "#{rr.address},#{target},A")
       end
     end
     query = @res.query(target, "SOA")
@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
               :port => 53 ,
               :type => 'dns.enum',
               :update => :unique_data,
-              :data => "#{ip.address.to_s},#{rr.mname},SOA")
+              :data => "#{ip.address},#{rr.mname},SOA")
           end
         end
       end
@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Auxiliary
               :port => 53 ,
               :type => 'dns.enum',
               :update => :unique_data,
-              :data => "#{ip.address.to_s},#{rr.nsdname},NS")
+              :data => "#{ip.address},#{rr.nsdname},NS")
           end
         end
       end
@@ -213,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
             :port => 53,
             :type => 'dns.enum',
             :update => :unique_data,
-            :data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
+            :data => "#{rr.address},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
         end
       end
     end
@@ -233,14 +233,14 @@ class Metasploit3 < Msf::Auxiliary
       if (query1)
         query1.answer.each do |rr|
           if rr.class == Net::DNS::RR::A
-            print_status("Hostname: #{line.chomp}.#{target} IP address: #{rr.address.to_s}")
+            print_status("Hostname: #{line.chomp}.#{target} IP address: #{rr.address}")
             report_note(:host => @nsinuse.to_s,
               :proto => 'udp',
               :sname => 'dns',
               :port => 53 ,
               :type => 'dns.enum',
               :update => :unique_data,
-              :data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
+              :data => "#{rr.address},#{line.chomp}.#{target},A")
             next unless rr.class == Net::DNS::RR::CNAME
           end
         end
@@ -262,14 +262,14 @@ class Metasploit3 < Msf::Auxiliary
       if (query1)
         query1.answer.each do |rr|
           if rr.class == Net::DNS::RR::AAAA
-            print_status("Hostname: #{line.chomp}.#{target} IPv6 Address: #{rr.address.to_s}")
+            print_status("Hostname: #{line.chomp}.#{target} IPv6 Address: #{rr.address}")
             report_note(:host => @nsinuse.to_s,
               :proto => 'udp',
               :sname => 'dns',
               :port => 53 ,
               :type => 'dns.enum',
               :update => :unique_data,
-              :data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
+              :data => "#{rr.address},#{line.chomp}.#{target},AAAA")
             next unless rr.class == Net::DNS::RR::CNAME
           end
         end
@@ -366,7 +366,7 @@ class Metasploit3 < Msf::Auxiliary
         if nssrvquery.answer.length == 0
           nssrvip = Rex::Socket.gethostbyname(nsrcd.nsdname)[3].bytes.reduce {|a,b| [a,b].join(".")}
         else
-          nssrvip = nssrvquery.answer[0].address.to_s
+          nssrvip = nssrvquery.answer[0].address
         end
         begin
           @res.nameserver=(nssrvip)
@@ -395,7 +395,7 @@ class Metasploit3 < Msf::Auxiliary
                     :port => 53 ,
                     :type => 'dns.enum',
                     :update => :unique_data,
-                    :data => "#{rr.address.to_s},#{rr.name},A")
+                    :data => "#{rr.address},#{rr.name},A")
                 when "SOA"
                   print_status("Name: #{rr.mname} Record: SOA")
                   report_note(:host => nssrvip,
@@ -440,7 +440,7 @@ class Metasploit3 < Msf::Auxiliary
                     :port => 53 ,
                     :type => 'dns.enum',
                     :update => :unique_data,
-                    :data => "#{rr.address.to_s}, AAAA")
+                    :data => "#{rr.address}, AAAA")
                 when "NS"
                   print_status("Name: #{rr.nsdname} Record: NS")
                   report_note(:host =>  nssrvip,

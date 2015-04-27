@@ -102,13 +102,13 @@ class Metasploit3 < Msf::Auxiliary
     if query.answer.length != 0
       print_status("This Domain has Wild-cards Enabled!!")
       query.answer.each do |rr|
-        print_status("Wild-card IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
+        print_status("Wild-card IP for #{rendsub}.#{target} is: #{rr.address}") if rr.class != Net::DNS::RR::CNAME
         report_note(
           :host => datastore['DOMAIN'],
           :proto => 'UDP',
           :port => 53,
           :type => 'dns.wildcard',
-          :data => "Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}"
+          :data => "Wildcard IP for #{rendsub}.#{target} is: #{rr.address}"
         )
       end
       return true
@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
         record = {}
         record[:host] = host
         record[:type] = "A"
-        record[:address] = rr.address.to_s
+        record[:address] = rr.address
         results << record
       end
     end
@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
         record = {}
         record[:host] = host
         record[:type] = "AAAA"
-        record[:address] = rr.address.to_s
+        record[:address] = rr.address
         results << record
       end
     end

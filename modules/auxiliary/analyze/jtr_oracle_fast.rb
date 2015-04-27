@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
           print_error("Unable to read #{myloot.path} \n #{e}")
         end
         oracle_array.each do |row|
-          hashlist.write("#{row[0]}:#{row[1]}:#{myloot.host.address.to_s}:#{myloot.service.port}\n")
+          hashlist.write("#{row[0]}:#{row[1]}:#{myloot.host.address}:#{myloot.service.port}\n")
         end
       end
       hashlist.close

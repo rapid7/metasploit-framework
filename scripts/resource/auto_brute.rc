@@ -60,7 +60,7 @@ end
 def infos(serv,host)
 	print_line("")
 	print_line("====================================")
-	print_line("IP: #{host.address.to_s}")
+	print_line("IP: #{host.address}")
 	print_line("OS: #{host.os_name}")
 	print_line("Servicename: #{serv.name}")
 	print_line("Service Port: #{serv.port.to_i}")
@@ -91,7 +91,7 @@ framework.db.hosts.each do |host|
 		xprot = serv.proto
 		xname = serv.name
 		oname = host.os_name
-		xhost = host.address.to_s
+		xhost = host.address
 
 		if(xname =~ /smb/ or xname =~ /microsoft-ds/ or xname =~ /netbios-ssn/)
 			if(verbose == 1)
