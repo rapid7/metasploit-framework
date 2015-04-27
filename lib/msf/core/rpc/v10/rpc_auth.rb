@@ -11,8 +11,21 @@ begin
 rescue ::LoadError
 end
 
+  # Handles client authentication. The authentication token will expire 5 minutes after the
+  # last request was made.
+  #
+  # @param [String] user The username.
+  # @param [String] pass The password.
+  # @raise [Msf::RPC::Exception] Something is wrong while authenticating, you can possibly get:
+  #                              * 401 Failed authentication.
+  # @return [Hash] A hash indicating a successful login, it contains the following keys:
+  #  * 'result' [String] A successful message: 'success'.
+  #  * 'token' [String] A token for the authentication.
+  # @example Here's how you would use this from the client:
+  #  # This returns something like the following:
+  #  # {"result"=>"success", "token"=>"TEMPyp1N40NK8GM0Tx7A87E6Neak2tVJ"}
+  #  rpc.call('auth.login_noauth', 'username', 'password')
   def rpc_login_noauth(user,pass)
-
     if not (user.kind_of?(::String) and pass.kind_of?(::String))
       error(401, "Login Failed")
     end
@@ -42,6 +55,19 @@ end
     { "result" => "success", "token" => token }
   end
 
+
+  # Handles client deauthentication.
+  #
+  # @param [String] token The user's token to log off.
+  # @raise [Msf::RPC::Exception] An error indicating a failed deauthentication, including:
+  #                              * 500 Invalid authentication token.
+  #                              * 500 Permanent authentication token.
+  # @return [Hash] A hash indiciating the action was successful. It contains the following key:
+  #  * 'result' [String] The successful message: 'success'
+  # @example Here's how you would use this from the client:
+  #  # This returns something like:
+  #  # {"result"=>"success"}
+  #  rpc.call('auth.logout', 'TEMPyp1N40NK8GM0Tx7A87E6Neak2tVJ')
   def rpc_logout(token)
     found = self.service.tokens[token]
     error("500", "Invalid Authentication Token") if not found
@@ -53,6 +79,16 @@ end
     { "result" => "success" }
   end
 
+
+  # Returns a list of authentication tokens, including the ones that are
+  # temporary, permanent, or stored in the backend.
+  #
+  # @return [Hash] A hash that contains a list of authentication tokens. It contains the following key:
+  #  * 'tokens' [Array<string>] An array of tokens.
+  # @example Here's how you would use this from the client:
+  #  # This returns something like:
+  #  # {"tokens"=>["TEMPf5I4Ec8cBEKVD8D7xtIbTXWoKapP", "TEMPtcVmMld8w74zo0CYeosM3iXW0nJz"]}
+  #  rpc.call('auth.token_list')
   def rpc_token_list
     res = self.service.tokens.keys
     begin
@@ -66,6 +102,14 @@ end
     { "tokens" => res }
   end
 
+
+  # Adds a new token to the database.
+  #
+  # @param [String] token A unique token.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
+  #  * 'result' [String] The successful message: 'success'
+  # @example Here's how you would use this from the client:
+  #  rpc.call('auth.token_add', 'UNIQUE_TOKEN')
   def rpc_token_add(token)
     db = false
     begin
@@ -85,6 +129,16 @@ end
     { "result" => "success" }
   end
 
+
+  # Generates a random 32-byte authentication token. The token is added to the
+  # database as a side-effect.
+  #
+  # @return [Hash] A hash indicating the action was successful, also the new token.
+  #  It contains the following keys:
+  #  * 'result' [String] The successful message: 'success'
+  #  * 'token' [String] A new token.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('auth.token_generate')
   def rpc_token_generate
     token = Rex::Text.rand_text_alphanumeric(32)
     db = false
@@ -106,6 +160,16 @@ end
     { "result" => "success", "token" => token }
   end
 
+
+  # Removes a token from the database. Similar to what #rpc_logout does internally, except this
+  # can remove tokens stored in the database backend (Mdm).
+  #
+  # @see #rpc_logout
+  # @param [String] token The token to delete.
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
+  #  * 'result' [String] The successful message: 'success'
+  # @example Here's how you would use this from the client:
+  #  rpc.call('auth.token_remove', 'TEMPtcVmMld8w74zo0CYeosM3iXW0nJz')
   def rpc_token_remove(token)
     db = false
     begin
