@@ -92,7 +92,7 @@ if client.platform =~ /win32|win64/
     to ||= from
     print_status(" >> Uploading #{from}...")
     fd = client.fs.file.new(tempdir + "\\" + to, "wb")
-    path = (from == 'metsrv.x86.dll') ? MeterpreterBinaries.path('metsrv','x86.dll') : File.join(based, from)
+    path = (from == 'metsrv.x86.dll') ? MetasploitPayloads.meterpreter_path('metsrv','x86.dll') : File.join(based, from)
     fd.write(::File.read(path, ::File.size(path)))
     fd.close
   end

@@ -100,12 +100,7 @@ module Metasploit3
   end
 
   def generate_stage
-    #file = File.join(Msf::Config.data_directory, "msflinker_linux_x86.elf")
-    file = File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
-
-    blob = File.open(file, "rb") {|f|
-      f.read(f.stat.size)
-    }
+    blob = MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
 
     Rex::Payloads::Meterpreter::Patch.patch_timeouts!(blob,
       :expiration    => datastore['SessionExpirationTimeout'].to_i,
@@ -113,6 +108,6 @@ module Metasploit3
       :retry_total   => datastore['SessionRetryTotal'].to_i,
       :retry_wait    => datastore['SessionRetryWait'].to_i)
 
-    return blob
+    blob
   end
 end

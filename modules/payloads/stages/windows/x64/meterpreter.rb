@@ -35,7 +35,7 @@ module Metasploit3
   end
 
   def library_path
-    MeterpreterBinaries.path('metsrv','x64.dll')
+    MetasploitPayloads.meterpreter_path('metsrv','x64.dll')
   end
 
 end
