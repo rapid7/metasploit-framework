@@ -24,16 +24,16 @@ GIT
 
 GIT
   remote: git://github.com/rapid7/metasploit-model.git
-  revision: a7001eb4d6a835ff76018e9d5d0d15dd2763bc37
+  revision: d975c8f219b1d3e6f522938c26576c57e6c536e9
   branch: staging/rails-4.0
   specs:
-    metasploit-model (1.29.2.pre.rails.pre.4.0)
+    metasploit-model (1.30.0.pre.rails.pre.4.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
 
 GIT
   remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: ceabcb4907e0b260126caadb42ef28c288dd09d3
+  revision: c67bda347d65a0fb7be8903d27b41f63e69c7c4f
   branch: staging/rails-4.0
   specs:
     metasploit_data_models (0.24.0.pre.rails.pre.4.0)
