@@ -2070,29 +2070,6 @@ class Core
       return true
     end
 
-    # If the value starts with file: exists, and size isn't too big load the file as the value
-    # Otherwise keep the old value
-    if value =~ /^file:(.*)/
-      fname = $1
-
-      begin
-        fd = ::File.new(fname, 'rb')
-      rescue ::Errno::ENOENT
-        print_error('The file name specified does not exist')
-        value = datastore[name]
-        fd = nil
-      end
-
-      if fd && fd.stat.size > (1024 * 1024)
-        print_error('The file name specified is too big (over 1Mb)')
-        value = datastore[name]
-        fd.close
-      elsif fd
-        value = fd.read(fd.stat.size)
-        fd.close
-      end
-    end
-
     if append
       datastore[name] = datastore[name] + value
     else
