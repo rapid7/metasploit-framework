@@ -35,14 +35,14 @@ private
   end
 
   def session_block(opts)
-    uuid = to_wchar_t(opts[:uuid], UUID_SIZE)
+    uuid = to_wchar_t(opts[:uuid].to_raw, UUID_SIZE)
     exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
 
     session_data = [
       0,                  # comms socket, patched in by the stager
       exit_func,          # exit function identifer
       opts[:expiration],  # Session expiry
-      uuid,               # the URL to use
+      uuid                # the UUID
     ]
 
     session_data.pack("VVVA*")

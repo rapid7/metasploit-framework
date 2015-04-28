@@ -280,7 +280,7 @@ class ClientCore < Extension
 
     id = response.get_tlv_value(TLV_TYPE_UUID)
 
-    return id
+    return Msf::Payload::UUID.new({:raw => id})
   end
 
   def machine_id
