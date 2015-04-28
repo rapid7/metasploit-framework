@@ -28,26 +28,6 @@ Gem::Specification.new do |spec|
     file =~ /^config/
   }
 
-=begin  
-  spec.bindir = '.'
-  spec.executables   = [
-      'msfbinscan',
-      'msfcli',
-      'msfconsole',
-      'msfd',
-      'msfelfscan',
-      'msfencode',
-      'msfmachscan',
-      'msfpayload',
-      'msfpescan',
-      'msfrop',
-      'msfrpc',
-      'msfrpcd',
-      'msfupdate',
-      'msfvenom'
-  ]
-=end
-
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
