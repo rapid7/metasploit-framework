@@ -1,7 +1,7 @@
 Feature: Help command
 
   Background:
-    Given I run `./msfconsole --defer-module-loads -x help -x exit`
+    Given I run `../../msfconsole --defer-module-loads -x help -x exit`
 
   Scenario: The 'help' command's output
     Then the output should contain:
