@@ -224,7 +224,7 @@ module Metasploit
           configure_http_client(cli)
 
           if realm
-            cli.set_config('domain' => credential.realm)
+            cli.set_config('domain' => realm)
           end
 
           begin

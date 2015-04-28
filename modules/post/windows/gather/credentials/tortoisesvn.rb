@@ -185,7 +185,7 @@ class Metasploit3 < Msf::Post
     :source_type => "exploit",
     :user => user_name,
     :pass => password)
-    print_debug "Should have reported..."
+    vprint_status("Should have reported...")
 
     # Set savedpwds to 1 on return
     return 1

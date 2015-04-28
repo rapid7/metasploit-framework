@@ -22,6 +22,7 @@ else:
 # this MUST be imported for urllib to work on OSX
 try:
 	import SystemConfiguration as osxsc
+	osxsc.SCNetworkInterfaceCopyAll()
 	has_osxsc = True
 except ImportError:
 	has_osxsc = False

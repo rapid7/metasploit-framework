@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
     while (attempt_num <= retry_num) && (ret.nil? || ret == :connection_error)
       if attempt_num > 0
         Rex.sleep(2 ** attempt_num)
-        print_debug "#{peer(ip)} Retrying '#{user}' due to connection error"
+        vprint_status("#{peer(ip)} Retrying '#{user}' due to connection error")
       end
 
       ret = check_user(ip, user, rport)

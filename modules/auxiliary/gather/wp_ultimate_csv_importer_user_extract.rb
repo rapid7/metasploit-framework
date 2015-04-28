@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer} - Parsing response...")
     unless parse_csv(res.body, ',')
       unless parse_csv(res.body, ';')
-        fail_with("#{peer} - Failed to parse response, the CSV was invalid")
+        fail_with(Failure::UnexpectedReply, "#{peer} - Failed to parse response, the CSV was invalid")
       end
     end
 

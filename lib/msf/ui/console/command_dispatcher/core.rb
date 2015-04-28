@@ -2323,7 +2323,7 @@ class Core
     # Walk the plugins array
     framework.plugins.each { |plugin|
       # Unload the plugin if it matches the name we're searching for
-      if (plugin.name == args[0])
+      if (plugin.name.downcase == args[0].downcase)
         print("Unloading plugin #{args[0]}...")
         framework.plugins.unload(plugin)
         print_line("unloaded.")

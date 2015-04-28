@@ -50,7 +50,7 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     if !res
-      fail_with("Server did not respond in an expected way.")
+      fail_with(Failure::UnexpectedReply, "Server did not respond in an expected way.")
     end
 
     pay = ""
@@ -81,7 +81,7 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     if pay == ''
-      fail_with("Couldn't detect a payload, maybe it isn't injectable.")
+      fail_with(Failure::Unknown, "Couldn't detect a payload, maybe it isn't injectable.")
     end
 
     length = 0
