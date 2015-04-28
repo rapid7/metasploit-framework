@@ -66,12 +66,12 @@ private
 
     # if the transport URI is for a HTTP payload we need to add a stack
     # of other stuff
-    pack = 'VVVA*'
+    pack = 'A*VVV'
     transport_data = [
+      to_wchar_t(url, URL_SIZE), # transport URL
       opts[:comm_timeout],       # communications timeout
       opts[:retry_total],        # retry total time
-      opts[:retry_wait],         # retry wait time
-      to_wchar_t(url, URL_SIZE)  # transport URL
+      opts[:retry_wait]          # retry wait time
     ]
 
     if url.start_with?('http')
@@ -116,10 +116,11 @@ private
       config << transport_block(t)
     end
 
-    # terminate the transports with a single NULL byte
-    config << "\x00"
+    # terminate the transports with NULL (wchar)
+    config << "\x00\x00"
 
-    # configure the extensions
+    # configure the extensions - this will have to change when posix comes
+    # into play.
     file_extension = 'x86.dll'
     file_extension = 'x64.dll' unless is_x86?
 
