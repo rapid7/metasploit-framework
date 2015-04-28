@@ -52,7 +52,6 @@ class Metasploit3 < Msf::Auxiliary
   # Fingerprint a single host
   def run_host(ip)
     begin
-      connect
       res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
       fp = http_fingerprint(:response => res)
       if fp
@@ -67,9 +66,6 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::OpenSSL::SSL::SSLError => e
       ssl_version = e.message.match(/ state=([^\s]+)/)[1]
       vprint_status("#{peer} does not accept #{ssl_version}")
-    rescue ::Timeout::Error, ::Errno::EPIPE
-    ensure
-      disconnect
     end
   end
 
