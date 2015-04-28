@@ -24,6 +24,8 @@ module Msf::Payload::Windows
   require 'msf/core/payload/windows/dllinject'
   require 'msf/core/payload/windows/exec'
   require 'msf/core/payload/windows/loadlibrary'
+  require 'msf/core/payload/windows/meterpreter_loader'
+  require 'msf/core/payload/windows/x64/meterpreter_loader'
   require 'msf/core/payload/windows/reflectivedllinject'
   require 'msf/core/payload/windows/x64/reflectivedllinject'
 

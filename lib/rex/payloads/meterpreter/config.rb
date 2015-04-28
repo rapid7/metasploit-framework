@@ -52,7 +52,7 @@ private
     # Build the URL from the given parameters, and pad it out to the
     # correct size
     lhost = opts[:lhost]
-    if lhost && Rex::Socket.is_ipv6?(lhost)
+    if lhost && opts[:scheme].start_with?('http') && Rex::Socket.is_ipv6?(lhost)
       lhost = "[#{lhost}]"
     end
 

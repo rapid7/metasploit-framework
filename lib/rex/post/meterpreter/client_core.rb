@@ -621,11 +621,9 @@ class ClientCore < Extension
 
     # Include the appropriate reflective dll injection module for the target process architecture...
     if process['arch'] == ARCH_X86
-      c.include( ::Msf::Payload::Windows::ReflectiveDllInject )
-      binary_suffix = "x86.dll"
+      c.include( ::Msf::Payload::Windows::MeterpreterLoader )
     elsif process['arch'] == ARCH_X86_64
-      c.include( ::Msf::Payload::Windows::ReflectiveDllInject_x64 )
-      binary_suffix = "x64.dll"
+      c.include( ::Msf::Payload::Windows::MeterpreterLoader_x64 )
     else
       raise RuntimeError, "Unsupported target architecture '#{process['arch']}' for process '#{process['name']}'.", caller
     end
@@ -633,38 +631,7 @@ class ClientCore < Extension
     # Create the migrate stager
     migrate_stager = c.new()
 
-    dll = MeterpreterBinaries.path('metsrv',binary_suffix)
-    if dll.nil?
-      raise RuntimeError, "metsrv.#{binary_suffix} not found", caller
-    end
-    migrate_stager.datastore['DLL'] = dll
-
-    blob = migrate_stager.stage_payload
-
-    if client.passive_service
-      # Patch options into metsrv for reverse HTTP payloads.
-      Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
-        :ssl          => client.ssl,
-        :url          => self.client.url,
-        :expiration   => self.client.expiration,
-        :comm_timeout => self.client.comm_timeout,
-        :retry_total  => self.client.retry_total,
-        :retry_wait   => self.client.retry_wait,
-        :ua           => client.exploit_datastore['MeterpreterUserAgent'],
-        :proxy_host   => client.exploit_datastore['PayloadProxyHost'],
-        :proxy_port   => client.exploit_datastore['PayloadProxyPort'],
-        :proxy_type   => client.exploit_datastore['PayloadProxyType'],
-        :proxy_user   => client.exploit_datastore['PayloadProxyUser'],
-        :proxy_pass   => client.exploit_datastore['PayloadProxyPass'])
-    # This should be done by the reflective loader payloads
-    #else
-    #  # Just patch the timeouts, which are consistent on each of the payloads.
-    #  Rex::Payloads::Meterpreter::Patch.patch_timeouts!(blob,
-    #    :expiration   => self.client.expiration,
-    #    :comm_timeout => self.client.comm_timeout,
-    #    :retry_total  => self.client.retry_total,
-    #    :retry_wait   => self.client.retry_wait)
-    end
+    blob = migrate_stager.stage_meterpreter
 
     blob
   end
@@ -674,12 +641,6 @@ class ClientCore < Extension
     blob = ::File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
-
-    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(blob,
-      :expiration   => self.client.expiration,
-      :comm_timeout => self.client.comm_timeout,
-      :retry_total  => self.client.retry_total,
-      :retry_wait   => self.client.retry_wait)
 
     blob
   end
