@@ -377,6 +377,10 @@ module Session
   #
   attr_accessor :info
   #
+  # The identifier for the machine of the current session
+  #
+  attr_accessor :machine_id
+  #
   # The unique identifier of this session
   #
   attr_accessor :uuid

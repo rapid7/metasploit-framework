@@ -273,6 +273,16 @@ class ClientCore < Extension
     return true
   end
 
+  def uuid
+    request = Packet.create_request('core_uuid')
+
+    response = client.send_request(request)
+
+    id = response.get_tlv_value(TLV_TYPE_UUID)
+
+    return id
+  end
+
   def machine_id
     request = Packet.create_request('core_machine_id')
 
@@ -283,83 +293,34 @@ class ClientCore < Extension
     return Rex::Text.md5(id)
   end
 
+  def transport_add(opts={})
+    request = transport_prepare_request('core_transport_add', opts)
+
+    return false unless request
+
+    client.send_request(request)
+
+    return true
+  end
+
   def transport_change(opts={})
+    request = transport_prepare_request('core_transport_change', opts)
 
-    unless valid_transport?(opts[:transport]) && opts[:lport]
-      return false
-    end
+    return false unless request
 
-    if opts[:transport].starts_with?('reverse')
-      return false unless opts[:lhost]
-    else
-      # Bind shouldn't have lhost set
-      opts[:lhost] = nil
-    end
+    client.send_request(request)
 
-    transport = VALID_TRANSPORTS[opts[:transport]]
+    return true
+  end
 
-    request = Packet.create_request('core_transport_change')
+  def transport_next
+    request = Packet.create_request('core_transport_next')
+    client.send_request(request)
+    return true
+  end
 
-    scheme = opts[:transport].split('_')[1]
-    url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
-
-    if opts[:comm_timeout]
-      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
-    end
-
-    if opts[:session_exp]
-      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
-    end
-
-    if opts[:retry_total]
-      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
-    end
-
-    if opts[:retry_wait]
-      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
-    end
-
-    # do more magic work for http(s) payloads
-    unless opts[:transport].ends_with?('tcp')
-      sum = uri_checksum_lookup(:connect)
-      uuid = client.payload_uuid
-      unless uuid
-        arch, plat = client.platform.split('/')
-        uuid = Msf::Payload::UUID.new({
-          arch:     arch,
-          platform: plat.starts_with?('win') ? 'windows' : plat
-        })
-      end
-      url << generate_uri_uuid(sum, uuid) + '/'
-
-      # TODO: randomise if not specified?
-      opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
-      request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
-
-      if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
-        hash = Rex::Parser::X509Certificate.get_cert_file_hash(opts[:cert])
-        request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
-      end
-
-      if opts[:proxy_host] && opts[:proxy_port]
-        prefix = 'http://'
-        prefix = 'socks=' if opts[:proxy_type] == 'socks'
-        proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
-        request.add_tlv(TLV_TYPE_TRANS_PROXY_INFO, proxy)
-
-        if opts[:proxy_user]
-          request.add_tlv(TLV_TYPE_TRANS_PROXY_USER, opts[:proxy_user])
-        end
-        if opts[:proxy_pass]
-          request.add_tlv(TLV_TYPE_TRANS_PROXY_PASS, opts[:proxy_pass])
-        end
-      end
-
-    end
-
-    request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
-    request.add_tlv(TLV_TYPE_TRANS_URL, url)
-
+  def transport_prev
+    request = Packet.create_request('core_transport_prev')
     client.send_request(request)
     return true
   end
@@ -601,6 +562,78 @@ class ClientCore < Extension
   end
 
   private
+
+  def transport_prepare_request(method, opts={})
+    unless valid_transport?(opts[:transport]) && opts[:lport]
+      return nil
+    end
+
+    if opts[:transport].starts_with?('reverse')
+      return false unless opts[:lhost]
+    else
+      # Bind shouldn't have lhost set
+      opts[:lhost] = nil
+    end
+
+    transport = VALID_TRANSPORTS[opts[:transport]]
+
+    request = Packet.create_request(method)
+
+    scheme = opts[:transport].split('_')[1]
+    url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
+
+    if opts[:comm_timeout]
+      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
+    end
+
+    if opts[:session_exp]
+      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+    end
+
+    if opts[:retry_total]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
+    end
+
+    if opts[:retry_wait]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
+    end
+
+    # do more magic work for http(s) payloads
+    unless opts[:transport].ends_with?('tcp')
+      sum = uri_checksum_lookup(:connect)
+      url << generate_uri_uuid(sum, uuid) + '/'
+
+      # TODO: randomise if not specified?
+      opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
+      request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
+
+      if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
+        hash = Rex::Parser::X509Certificate.get_cert_file_hash(opts[:cert])
+        request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
+      end
+
+      if opts[:proxy_host] && opts[:proxy_port]
+        prefix = 'http://'
+        prefix = 'socks=' if opts[:proxy_type] == 'socks'
+        proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+        request.add_tlv(TLV_TYPE_TRANS_PROXY_INFO, proxy)
+
+        if opts[:proxy_user]
+          request.add_tlv(TLV_TYPE_TRANS_PROXY_USER, opts[:proxy_user])
+        end
+        if opts[:proxy_pass]
+          request.add_tlv(TLV_TYPE_TRANS_PROXY_PASS, opts[:proxy_pass])
+        end
+      end
+
+    end
+
+    request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
+    request.add_tlv(TLV_TYPE_TRANS_URL, url)
+
+    return request
+  end
+
 
   def generate_payload_stub(process)
     case client.platform

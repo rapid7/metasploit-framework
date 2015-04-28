@@ -50,6 +50,7 @@ class Console::CommandDispatcher::Core
       "use"        => "Deprecated alias for 'load'",
       "load"       => "Load one or more meterpreter extensions",
       "machine_id" => "Get the MSF ID of the machine attached to the session",
+      "uuid"       => "Get the UUID for the current session",
       "quit"       => "Terminate the meterpreter session",
       "resource"   => "Run the commands stored in a file",
       "read"       => "Reads data from a channel",
@@ -392,7 +393,16 @@ class Console::CommandDispatcher::Core
   # Get the machine ID of the target
   #
   def cmd_machine_id(*args)
-    print_good("Machine ID: #{client.core.machine_id}")
+    client.machine_id = client.core.machine_id unless client.machine_id
+    print_good("Machine ID: #{client.machine_id}")
+  end
+
+  #
+  # Get the machine ID of the target
+  #
+  def cmd_uuid(*args)
+    client.payload_uuid = client.core.uuid unless client.payload_uuid
+    print_good("UUID: #{client.payload_uuid}")
   end
 
   #
@@ -497,20 +507,29 @@ class Console::CommandDispatcher::Core
     '-h'  => [ false, 'Help menu' ])
 
   #
-  # Display help for transport switching
+  # Display help for transport management.
   #
   def cmd_transport_help
-    print_line('Usage: transport [options]')
+    print_line('Usage: transport <change|add|next|prev> [options]')
     print_line
-    print_line('Change the current Meterpreter transport mechanism')
+    print_line('    add: add a new transport to the transport list.')
+    print_line(' change: same as add, but changes directly to the added entry.')
+    print_line('   next: jump to the next transport in the list (no options).')
+    print_line('   prev: jump to the previous transport in the list (no options).')
     print_line(@@transport_opts.usage)
   end
 
   #
-  # Change the current transport setings.
+  # Manage transports
   #
   def cmd_transport(*args)
     if ( args.length == 0 or args.include?("-h") )
+      cmd_transport_help
+      return
+    end
+
+    command = args.shift
+    unless ['add', 'change', 'prev', 'next'].include?(command)
       cmd_transport_help
       return
     end
@@ -569,12 +588,41 @@ class Console::CommandDispatcher::Core
       end
     end
 
-    print_status("Swapping transport ...")
-    if client.core.transport_change(opts)
-      client.shutdown_passive_dispatcher
-      shell.stop
-    else
-      print_error("Failed to switch transport, please check the parameters")
+    case command
+    when 'next'
+      print_status("Changing to next transport ...")
+      if client.core.transport_next
+        print_good("Successfully changed to the next transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'prev'
+      print_status("Changing to previous transport ...")
+      if client.core.transport_prev
+        print_good("Successfully changed to the previous transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'change'
+      print_status("Changing to new transport ...")
+      if client.core.transport_change(opts)
+        print_good("Successfully added #{opts[:transport]} transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'add'
+      print_status("Adding new transport ...")
+      if client.core.transport_add(opts)
+        print_good("Successfully added #{opts[:transport]} transport.")
+      else
+        print_error("Failed to add transport, please check the parameters")
+      end
     end
   end
 

@@ -47,18 +47,6 @@ module MeterpreterOptions
         session.load_session_info
       end
 
-=begin
-      admin = false
-      begin
-        ::Timeout.timeout(30) do
-          if session.railgun and session.railgun.shell32.IsUserAnAdmin()["return"] == true
-            admin = true
-            session.info += " (ADMIN)"
-          end
-        end
-      rescue ::Exception
-      end
-=end
       if session.platform =~ /win32|win64/i
         session.load_priv rescue nil
       end
