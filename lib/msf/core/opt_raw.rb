@@ -13,6 +13,14 @@ class OptRaw < OptBase
   end
 
   def normalize(value)
+    if (value =~ /^file:(.*)/)
+      path = $1
+      begin
+        value = File.read(path)
+      rescue ::Errno::ENOENT, ::Errno::EISDIR
+        value = nil
+      end
+    end
     value
   end
 

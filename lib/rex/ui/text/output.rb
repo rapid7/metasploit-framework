@@ -55,10 +55,6 @@ class Output < Rex::Ui::Output
     print_line("%bld%grn[+]%clr #{msg}")
   end
 
-  def print_debug(msg = '')
-    print_line("%bld%cya[!]%clr #{msg}")
-  end
-
   def print_status(msg = '')
     print_line("%bld%blu[*]%clr #{msg}")
   end

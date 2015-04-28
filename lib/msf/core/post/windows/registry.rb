@@ -331,7 +331,6 @@ protected
     begin
       client.sys.config.getprivs()
       root_key, base_key = session.sys.registry.splitkey(key)
-      #print_debug("Loading file #{file}")
       begin
         loadres = session.sys.registry.load_key(root_key, base_key, file)
       rescue Rex::Post::Meterpreter::RequestError => e
@@ -349,7 +348,6 @@ protected
           #print_error("An unknown error has occurred: #{loadres.to_s}")
           return false
         else
-          #print_debug("Registry Hive Loaded Successfully: #{key}")
           return true
         end
       end
@@ -377,7 +375,6 @@ protected
           #print_error("An unknown error has occurred: #{unloadres.to_s}")
           return false
         else
-          #print_debug("Registry Hive Unloaded Successfully: #{key}")
           return true
         end
       end
