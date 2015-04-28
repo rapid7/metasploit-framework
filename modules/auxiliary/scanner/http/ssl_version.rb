@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
         vprint_status("#{peer} connected and fingerprinted: #{fp}")
         # TODO: Interrogate the connection itself to see what version
         # was used. Where that actually lives is eluding me. :/
-        if datastore['SSLVersion'] == 'SSL3'
+        if datastore['SSL'] && datastore['SSLVersion'] == 'SSL3'
           print_good("#{peer} accepts SSLv3")
           report_poodle_vuln(ip)
         end
