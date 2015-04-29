@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'         => 'Windows Gather Active Directory BitLocker Recovery',
       'Description'  => %(
-          This module will enumerate BitLocker reocvery passwords in the default AD
+          This module will enumerate BitLocker recovery passwords in the default AD
           directory. Requires Domain Admin or other delegated privileges.
       ),
       'License'      => MSF_LICENSE,
