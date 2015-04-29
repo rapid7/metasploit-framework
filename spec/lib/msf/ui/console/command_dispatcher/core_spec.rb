@@ -161,69 +161,6 @@ describe Msf::Ui::Console::CommandDispatcher::Core do
           set_and_test_variable(name, 'FRAMEWORK', 'MODULE', /^#{name} => FRAMEWORK$/, /^#{name} => MODULE$/)
         end
 
-        context "when using file: prefix in the value" do
-          context "when the file exists" do
-
-            before(:each) do
-              allow(::File).to receive(:new) do |filename, mode|
-                fd = StringIO.new(file_contents, mode)
-                fd
-              end
-
-              allow_any_instance_of(::StringIO).to receive(:stat) do |io|
-                file_contents
-              end
-            end
-
-            context "when the size is 1MB" do
-              let(:file_name) do
-                ::Rex::Text.rand_text_alpha(10).upcase
-              end
-
-              let(:file_contents) do
-                ::Rex::Text.rand_text_alpha(1024 * 1024).upcase
-              end
-
-              it "should show the new value" do
-                set_and_test_variable(name, nil, "file:/#{file_name}", nil, /^#{name} => #{file_contents}$/)
-              end
-            end
-
-            context "when the size is greater than 1MB" do
-              let(:file_name) do
-                ::Rex::Text.rand_text_alpha(10).upcase
-              end
-
-              let(:file_contents) do
-                ::Rex::Text.rand_text_alpha(1024 * 1025).upcase
-              end
-
-              it "should show the old value" do
-                set_and_test_variable(name, nil, "file:/#{file_name}", nil, /^#{name} => $/)
-              end
-            end
-
-            context "when the size is less than 1MB" do
-              let(:file_name) do
-                ::Rex::Text.rand_text_alpha(10).upcase
-              end
-
-              let(:file_contents) do
-                ::Rex::Text.rand_text_alpha(10).upcase
-              end
-
-              it "should show the new value" do
-                set_and_test_variable(name, nil, "file:/#{file_name}", nil, /^#{name} => #{file_contents}$/)
-              end
-            end
-          end
-
-          context "when the file doesn't exist" do
-            it "should show the old value" do
-              set_and_test_variable(name, nil, "file:/#{::Rex::Text.rand_text_alpha(10).upcase}", nil, /^#{name} => $/)
-            end
-          end
-        end
       end
     end
   end
