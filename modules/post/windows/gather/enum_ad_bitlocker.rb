@@ -13,11 +13,11 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'Windows Gather Active Directory Bitlocker Recovery',
+      'Name'         => 'Windows Gather Active Directory BitLocker Recovery',
       'Description'  => %(
-          This module will enumerate bitlocker reocvery passwords in the default AD
+          This module will enumerate BitLocker reocvery passwords in the default AD
           directory. Requires Domain Admin or other delegated privileges.
-                              ),
+      ),
       'License'      => MSF_LICENSE,
       'Author'       => [ 'Ben Campbell <ben.campbell[at]mwrinfosecurity.com>' ],
       'Platform'     => [ 'win' ],
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
 
     # Results table holds raw string data
     results_table = Rex::Ui::Text::Table.new(
-      'Header'     => 'Bitlocker Recovery Passwords',
+      'Header'     => 'BitLocker Recovery Passwords',
       'Indent'     => 1,
       'SortIndex'  => -1,
       'Columns'    => fields
