@@ -74,7 +74,8 @@ module Metasploit
         #   @return [String] Byte String for the Account's SID
         attr_accessor :sid
 
-
+        # @param raw_data [String] the raw 3948 byte string from the wire
+        # @raise [ArgumentErrror] if a 3948 byte string is not supplied
         def initialize(raw_data)
           raise ArgumentError, "No Data Supplied" unless raw_data.present?
           raise ArgumentError, "Invalid Data" unless raw_data.length == 3948
