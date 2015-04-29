@@ -315,14 +315,7 @@ class Msf::ModuleSet < Hash
   # @return [Array<Array<String, Class>>] Array of arrays where the inner array is a pair of the module reference name
   #   and the module class.
   def rank_modules
-    self.mod_ranked = self.sort { |a_pair, b_pair|
-      a_rank = module_rank(*a_pair)
-      b_rank = module_rank(*b_pair)
-
-      # Compare their relevant rankings.  Since we want highest to lowest,
-      # we compare b_rank to a_rank in terms of higher/lower precedence
-      b_rank <=> a_rank
-    }
+    self.mod_ranked = self.sort_by { |pair| module_rank(*pair) }.reverse!
   end
 
   # Retrieves the rank from a loaded, not-yet-loaded, or unloadable Metasploit Module.
