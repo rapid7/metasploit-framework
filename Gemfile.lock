@@ -1,52 +1,3 @@
-GIT
-  remote: git://github.com/rapid7/metasploit-concern.git
-  revision: b4e7265963670a4e57e9550137216935cd3fea50
-  branch: staging/rails-4.0
-  specs:
-    metasploit-concern (1.0.0.pre.rails.pre.4.0)
-      activerecord (>= 4.0.9, < 4.1.0)
-      activesupport (>= 4.0.9, < 4.1.0)
-      railties (>= 4.0.9, < 4.1.0)
-
-GIT
-  remote: git://github.com/rapid7/metasploit-credential.git
-  revision: 3b37c5fee5a263d52b76d619c690cda70d37d2dc
-  branch: staging/rails-4.0
-  specs:
-    metasploit-credential (1.14.5.pre.rails.pre.4.0)
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models
-      pg
-      railties
-      rubyntlm
-      rubyzip (~> 1.1)
-
-GIT
-  remote: git://github.com/rapid7/metasploit-model.git
-  revision: d975c8f219b1d3e6f522938c26576c57e6c536e9
-  branch: staging/rails-4.0
-  specs:
-    metasploit-model (1.30.0.pre.rails.pre.4.0)
-      activesupport (>= 4.0.9, < 4.1.0)
-      railties (>= 4.0.9, < 4.1.0)
-
-GIT
-  remote: git://github.com/rapid7/metasploit_data_models.git
-  revision: c67bda347d65a0fb7be8903d27b41f63e69c7c4f
-  branch: staging/rails-4.0
-  specs:
-    metasploit_data_models (0.24.0.pre.rails.pre.4.0)
-      activerecord (>= 4.0.9, < 4.1.0)
-      activesupport (>= 4.0.9, < 4.1.0)
-      arel-helpers
-      metasploit-concern
-      metasploit-model
-      pg
-      postgres_ext
-      railties (>= 4.0.9, < 4.1.0)
-      recog (~> 1.0)
-
 PATH
   remote: .
   specs:
@@ -56,6 +7,8 @@ PATH
       bcrypt
       jsobfu (~> 0.2.0)
       json
+      metasploit-concern (= 1.0.0.pre.rails.pre.4.0)
+      metasploit-model (= 1.0.0.pre.rails.pre.4.0)
       meterpreter_bins (= 0.0.22)
       msgpack
       nokogiri
@@ -69,7 +22,9 @@ PATH
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 4.0.9, < 4.1.0)
+      metasploit-credential (= 1.0.0.pre.rails.pre.4.0)
       metasploit-framework (= 4.11.0.pre.dev)
+      metasploit_data_models (= 1.0.0.pre.rails.pre.4.0a)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
@@ -152,6 +107,31 @@ GEM
     json (1.8.2)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
+    metasploit-concern (1.0.0.pre.rails.pre.4.0)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      railties (>= 4.0.9, < 4.1.0)
+    metasploit-credential (1.0.0.pre.rails.pre.4.0)
+      metasploit-concern (= 1.0.0.pre.rails.pre.4.0)
+      metasploit-model (= 1.0.0.pre.rails.pre.4.0)
+      metasploit_data_models (= 1.0.0.pre.rails.pre.4.0a)
+      pg
+      railties
+      rubyntlm
+      rubyzip (~> 1.1)
+    metasploit-model (1.0.0.pre.rails.pre.4.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      railties (>= 4.0.9, < 4.1.0)
+    metasploit_data_models (1.0.0.pre.rails.pre.4.0a)
+      activerecord (>= 4.0.9, < 4.1.0)
+      activesupport (>= 4.0.9, < 4.1.0)
+      arel-helpers
+      metasploit-concern (= 1.0.0.pre.rails.pre.4.0)
+      metasploit-model (= 1.0.0.pre.rails.pre.4.0)
+      pg
+      postgres_ext
+      railties (>= 4.0.9, < 4.1.0)
+      recog (~> 1.0)
     meterpreter_bins (0.0.22)
     method_source (0.8.2)
     mime-types (2.4.3)
@@ -254,13 +234,9 @@ DEPENDENCIES
   cucumber-rails
   factory_girl_rails (~> 4.5.0)
   fivemat (= 1.2.1)
-  metasploit-concern!
-  metasploit-credential!
   metasploit-framework!
   metasploit-framework-db!
   metasploit-framework-pcap!
-  metasploit-model!
-  metasploit_data_models!
   pry
   rake (>= 10.0.0)
   redcarpet
