@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 
           print_status(" TCP OPEN|FILTERED #{dhost}:#{dport}")
 
-          #Add Report
+          # Add Report
           report_note(
             :host	=> dhost,
             :proto	=> 'tcp',

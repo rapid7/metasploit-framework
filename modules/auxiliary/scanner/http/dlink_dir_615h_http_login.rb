@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
         devices. It is possible that this module also works with other models.
       },
       'Author'         => [
-          'hdm',	#http_login module
-          'Michael Messner <devnull[at]s3cur1ty.de>'	#dlink login included
+          'hdm', #http_login module
+          'Michael Messner <devnull[at]s3cur1ty.de>' #dlink login included
         ],
       'References'     =>
         [
@@ -68,8 +68,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def is_dlink?
-    #the tested DIR-615 has no nice Server banner, gconfig.htm gives us interesting
-    #input to detect this device. Not sure if this works on other devices! Tested on v8.04.
+    # the tested DIR-615 has no nice Server banner, gconfig.htm gives us interesting
+    # input to detect this device. Not sure if this works on other devices! Tested on v8.04.
     begin
       response = send_request_cgi({
         'uri' => '/gconfig.htm',
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
       return false if response.nil?
       return false if (response.code == 404)
 
-      #fingerprinting tested on firmware version 8.04
+      # fingerprinting tested on firmware version 8.04
       if response.body !~ /var\ systemName\=\'DLINK\-DIR615/
         return false
       else
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  #default to user=admin without password (default on most dlink routers)
+  # default to user=admin without password (default on most dlink routers)
   def do_login(user='admin', pass='')
     vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 

@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'Alligator Security Team <dflah[at]alligatorteam.org>',
+          'dflah_ <dflah[at]alligatorteam.org>',
         ],
       'References'     =>
         [

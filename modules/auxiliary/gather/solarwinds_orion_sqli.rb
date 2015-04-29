@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//:metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Solarwinds Orion AccountManagement.asmx GetAccounts Admin Creation',
       'Description'    => %q{
-      This module exploits a stacked SQL injection in order to add an administrator user to the
-      SolarWinds Orion database.
+        This module exploits a stacked SQL injection in order to add an administrator user to the
+        SolarWinds Orion database.
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -64,11 +64,11 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res.nil?
-      fail_with("Server didn't respond in an expected way")
+      fail_with(Failure::UnexpectedReply, "Server didn't respond in an expected way")
     end
 
     if res.code == 200
-      fail_with("Authentication failed with username #{username}")
+      fail_with(Failure::NoAccess, "Authentication failed with username #{username}")
     end
 
     return cookie + ';' + res.get_cookies
@@ -97,4 +97,3 @@ class Metasploit3 < Msf::Auxiliary
     print_good("The injection worked, log in with #{username} and a blank password")
   end
 end
-

@@ -84,7 +84,7 @@ module Msf::Post::Common
     case session.type
     when /meterpreter/
       #
-      # The meterpreter API requires arguments to come seperately from the
+      # The meterpreter API requires arguments to come separately from the
       # executable path. This has no effect on Windows where the two are just
       # blithely concatenated and passed to CreateProcess or its brethren. On
       # POSIX, this allows the server to execve just the executable when a

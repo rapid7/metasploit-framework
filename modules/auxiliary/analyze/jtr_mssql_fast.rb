@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
     @formats = Set.new
     cracker = new_john_cracker
 
-    #generate our wordlist and close the file handle
+    # generate our wordlist and close the file handle
     wordlist = wordlist_file
     wordlist.close
     print_status "Wordlist file written out to #{wordlist.path}"

@@ -21,13 +21,13 @@ module Rex
           #
           # @param io [IO] the io to read from
           # @return [self] if deserialization succeeds
-          # @raise [RuntimeError] if deserialization doesn't succeed
+          # @raise [Rex::Java::Serialization::DecodeError] if deserialization doesn't succeed
           def decode(io)
             content = decode_content(io, stream)
-            allowed_contents = [NullReference, NewClassDesc, Reference]
+            allowed_contents = [NullReference, NewClassDesc, Reference, ProxyClassDesc]
 
             unless allowed_contents.include?(content.class)
-              raise ::RuntimeError, 'ClassDesc unserialize failed'
+              raise Rex::Java::Serialization::DecodeError, 'ClassDesc unserialize failed'
             end
 
             self.description = content
@@ -37,13 +37,13 @@ module Rex
           # Serializes the Rex::Java::Serialization::Model::ClassDesc
           #
           # @return [String] if serialization succeeds
-          # @raise [RuntimeError] if serialization doesn't succeed
+          # @raise [Rex::Java::Serialization::EncodeError] if serialization doesn't succeed
           def encode
             encoded = ''
-            allowed_contents = [NullReference, NewClassDesc, Reference]
+            allowed_contents = [NullReference, NewClassDesc, Reference, ProxyClassDesc]
 
             unless allowed_contents.include?(description.class)
-              raise ::RuntimeError, 'Failed to serialize ClassDesc'
+              raise Rex::Java::Serialization::EncodeError, 'Failed to serialize ClassDesc'
             end
 
             encoded << encode_content(description)

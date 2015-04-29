@@ -89,7 +89,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   def cmd_uictl(*args)
     if (args.length < 2)
       print_line(
-        "Usage: uictl [enable/disable] [keyboard/mouse]")
+        "Usage: uictl [enable/disable] [keyboard/mouse/all]")
       return true
     end
 
@@ -102,6 +102,10 @@ class Console::CommandDispatcher::Stdapi::Ui
           when 'mouse'
             print_line("Enabling mouse...")
             client.ui.enable_mouse
+          when 'all'
+            print_line("Enabling all...")
+            client.ui.enable_keyboard
+            client.ui.enable_mouse
           else
             print_error("Unsupported user interface device: #{args[1]}")
         end
@@ -112,6 +116,10 @@ class Console::CommandDispatcher::Stdapi::Ui
             client.ui.disable_keyboard
           when 'mouse'
             print_line("Disabling mouse...")
+            client.ui.disable_mouse
+          when 'all'
+            print_line("Disabling all...")
+            client.ui.disable_keyboard
             client.ui.disable_mouse
           else
             print_error("Unsupported user interface device: #{args[1]}")

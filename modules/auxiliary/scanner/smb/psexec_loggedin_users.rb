@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     text = "\\#{datastore['WINPATH']}\\Temp\\#{Rex::Text.rand_text_alpha(16)}.txt"
     smbshare = datastore['SMBSHARE']
 
-    #Try and authenticate with given credentials
+    # Try and authenticate with given credentials
     begin
       connect
       smb_login

@@ -1,15 +1,15 @@
 # -*- coding: binary -*-
 module Net # :nodoc:
-  module DNS 
-    
+  module DNS
+
     class RR
-      
+
       #
-      # This is an auxiliary class to hadle RR class field in a DNS packet. 
+      # This is an auxiliary class to hadle RR class field in a DNS packet.
       #
       class Classes
-        
-        # An hash with the values of each RR class stored with the 
+
+        # An hash with the values of each RR class stored with the
         # respective id number
         Classes = {
           'IN'        => 1,       # RFC 1035
@@ -18,7 +18,7 @@ module Net # :nodoc:
           'NONE'      => 254,     # RFC 2136
           'ANY'       => 255,     # RFC 1035
         }
-        
+
         # The default value when class is nil in Resource Records
         @@default = Classes["IN"]
 
@@ -32,7 +32,7 @@ module Net # :nodoc:
           end
         end
 
-        # Checks whether +cls+ is a valid RR class.  
+        # Checks whether +cls+ is a valid RR class.
         def self.valid?(cls)
           case cls
           when String
@@ -43,7 +43,7 @@ module Net # :nodoc:
             raise ClassArgumentError, "Wrong cls class: #{cls.class}"
           end
         end
-        
+
         # Returns the class in string format, as "IN" or "CH",
         # given the numeric value
         def self.to_str(cls)
@@ -72,13 +72,13 @@ module Net # :nodoc:
           case cls
           when String
             # type in the form "A" or "NS"
-            new_from_string(cls.upcase) 
+            new_from_string(cls.upcase)
           when Fixnum
             # type in numeric form
-            new_from_num(cls) 
+            new_from_num(cls)
           when nil
             # default type, control with Classes.default=
-            @str = Classes.invert[@@default] 
+            @str = Classes.invert[@@default]
             @num = @@default
           else
             raise ClassArgumentError, "Wrong cls class: #{cls.class}"
@@ -91,7 +91,7 @@ module Net # :nodoc:
           case cls
           when /^CLASS\\d+/
             # TODO!!!
-          else 
+          else
             # String with name of class
             if Classes.has_key? cls
               @str = cls
@@ -109,11 +109,11 @@ module Net # :nodoc:
             @num = cls
             @str = Classes.invert[cls]
           else
-            raise ClassesArgumentError, "Unkown cls number #{cls}"
+            raise ClassesArgumentError, "Unknown cls number #{cls}"
           end
         end
-        
-        # Returns the class in number format 
+
+        # Returns the class in number format
         # (default for normal use)
         def inspect
           @num
@@ -124,7 +124,7 @@ module Net # :nodoc:
         def to_s
           @str
         end
-        
+
         # Returns the class in numeric format,
         # usable by the pack methods for data transfers
         def to_i
@@ -140,7 +140,7 @@ module Net # :nodoc:
         private :new_from_num, :new_from_string
 
       end # class Classes
-    
+
     end # class RR
   end # module DNS
 end # module Net

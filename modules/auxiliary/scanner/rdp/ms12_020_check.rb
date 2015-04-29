@@ -160,8 +160,8 @@ class Metasploit3 < Msf::Auxiliary
       # send ChannelRequestTwo - prevent BSoD
       sock.put(channel_request << [user2, chan2].pack("nn"))
 
-      return Exploit::CheckCode::Vulnerable
       report_goods
+      return Exploit::CheckCode::Vulnerable
     else
       return Exploit::CheckCode::Safe
     end

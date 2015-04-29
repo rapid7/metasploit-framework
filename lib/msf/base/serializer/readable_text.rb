@@ -536,6 +536,7 @@ class ReadableText
       ]
 
     columns << 'Via' if verbose
+    columns << 'PayloadId' if verbose
 
     tbl = Rex::Ui::Text::Table.new(
       'Indent'  => indent,
@@ -555,7 +556,11 @@ class ReadableText
       if session.respond_to? :platform
         row[1] += " " + session.platform
       end
-      row << session.via_exploit if verbose and session.via_exploit
+
+      if verbose
+        row << session.via_exploit.to_s
+        row << session.payload_uuid.to_s
+      end
 
       tbl << row
     }
@@ -566,7 +571,7 @@ class ReadableText
   # Dumps the list of running jobs.
   #
   # @param framework [Msf::Framework] the framework.
-  # @param verbose [Boolean] if true, also prints the payload, LPORT, URIPATH 
+  # @param verbose [Boolean] if true, also prints the payload, LPORT, URIPATH
   #   and start time, if they exist, for each job.
   # @param indent [Integer] the indentation amount.
   # @param col [Integer] the column wrap width.
