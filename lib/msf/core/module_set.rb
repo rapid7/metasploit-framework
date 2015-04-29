@@ -114,9 +114,7 @@ class Msf::ModuleSet < Hash
   def each_module_ranked(opts = {}, &block)
     demand_load_modules
 
-    self.mod_ranked = rank_modules
-
-    each_module_list(mod_ranked, opts, &block)
+    each_module_list(rank_modules, opts, &block)
   end
 
   # Forces all modules in this set to be loaded.
@@ -140,7 +138,6 @@ class Msf::ModuleSet < Hash
     self.architectures_by_module     = {}
     self.platforms_by_module = {}
     self.mod_sorted        = nil
-    self.mod_ranked        = nil
     self.mod_extensions    = []
 
     #
@@ -294,11 +291,6 @@ class Msf::ModuleSet < Hash
   #
   #   @return [Hash{Class => Array<String>}] Maps module class to Array of platform Strings.
   attr_accessor :platforms_by_module
-  # @!attribute [rw] mod_ranked
-  #   Array of module names and module classes ordered by their Rank with the higher Ranks first.
-  #
-  #   @return (see #rank_modules)
-  attr_accessor :mod_ranked
   # @!attribute [rw] mod_sorted
   #   Array of module names and module classes ordered by their names.
   #
@@ -317,7 +309,7 @@ class Msf::ModuleSet < Hash
   # @return [Array<Array<String, Class>>] Array of arrays where the inner array is a pair of the module reference name
   #   and the module class.
   def rank_modules
-    self.mod_ranked = self.sort_by { |pair| module_rank(*pair) }.reverse!
+    self.sort_by { |pair| module_rank(*pair) }.reverse!
   end
 
   # Retrieves the rank from a loaded, not-yet-loaded, or unloadable Metasploit Module.
