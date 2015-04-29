@@ -99,7 +99,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   # Search for files.
   #
-  def cmd_search( *args )
+  def cmd_search(*args)
 
     root    = nil
     glob    = nil
@@ -115,37 +115,37 @@ class Console::CommandDispatcher::Stdapi::Fs
     opts.parse(args) { | opt, idx, val |
       case opt
         when "-h"
-          print_line( "Usage: search [-d dir] [-r recurse] -f pattern" )
-          print_line( "Search for files." )
-          print_line( opts.usage )
+          print_line "Usage: search [-d dir] [-r recurse] -f pattern"
+          print_line "Search for files."
+          print_line opts.usage
           return
         when "-d"
           root = val
         when "-f"
           glob = val
         when "-r"
-          recurse = false if( val =~ /^(f|n|0)/i )
+          recurse = false if val =~ /^(f|n|0)/i
       end
     }
 
-    if( not glob )
-      print_error( "You must specify a valid file glob to search for, e.g. >search -f *.doc" )
+    if not glob
+      print_error "You must specify a valid file glob to search for, e.g. >search -f *.doc"
       return
     end
 
-    files = client.fs.file.search( root, glob, recurse )
+    files = client.fs.file.search(root, glob, recurse)
 
-    if( not files.empty? )
-      print_line( "Found #{files.length} result#{ files.length > 1 ? 's' : '' }..." )
+    if not files.empty?
+      print_line "Found #{files.length} result#{ files.length > 1 ? 's' : '' }..."
       files.each do | file |
-        if( file['size'] > 0 )
-          print( "    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n" )
+        if file['size'] > 0
+          print "    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n"
         else
-          print( "    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n" )
+          print "    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n"
         end
       end
     else
-      print_line( "No files matching your search were found." )
+      print_line "No files matching your search were found."
     end
 
   end
@@ -343,7 +343,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       end
     }
 
-    return true
+    true
   end
 
   #
@@ -430,8 +430,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       end
     end
 
-    if (items > 0)
-      print("\n" + tbl.to_s + "\n")
+    if items > 0
+      print_line(tbl.to_s)
     else
       print_line("No entries exist in #{path}")
     end
@@ -463,13 +463,13 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     # Check for cries of help
     if args.length > 1 || args.any? { |a| a[0] == '-' }
-      print_line('Usage: ls [dir] [-x] [-S] [-t] [-r]')
-      print_line('   -x Show short file names')
-      print_line('   -S Sort by size')
-      print_line('   -t Sort by time modified')
-      print_line('   -r Reverse sort order')
-      print_line('   -l List in long format (default)')
-      print_line('   -R Recursively list subdirectories encountered.')
+      print_line 'Usage: ls [dir] [-x] [-S] [-t] [-r]'
+      print_line '   -x Show short file names'
+      print_line '   -S Sort by size'
+      print_line '   -t Sort by time modified'
+      print_line '   -r Reverse sort order'
+      print_line '   -l List in long format (default)'
+      print_line '   -R Recursively list subdirectories encountered.'
       return true
     end
 
@@ -479,14 +479,22 @@ class Console::CommandDispatcher::Stdapi::Fs
     columns.insert(4, 'Short Name') if short
 
     stat_path = path
-    if client.fs.file.is_glob?(path)
+
+    # Check session capabilities
+    is_glob = client.fs.file.is_glob?(path)
+    if is_glob
+      if !client.commands.include?('stdapi_fs_search')
+        print_line 'File globbing not supported with this session'
+        return
+      end
       stat_path = ::File.dirname(path)
     end
+
     stat = client.fs.file.stat(stat_path)
     if stat.directory?
       list_path(path, columns, sort, order, short, recursive)
     else
-      print_line("#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
+      print_line "#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}"
     end
 
     return true
