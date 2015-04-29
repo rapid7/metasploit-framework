@@ -57,6 +57,8 @@ class Msf::ModuleSet < Hash
     # Notify any general subscribers of the creation event
     if instance
       self.framework.events.on_module_created(instance)
+    else
+      self.delete(reference_name)
     end
 
     return instance
