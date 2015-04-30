@@ -107,12 +107,8 @@ private
 public
 
 
-  # Creates a credential.
+  # Creates a cracked credential.
   #
-  # @note Despite the fact the method name for this is called "rpc_create_cracked_credential", it
-  #       does not actually call the create_cracked_credential API in metasploit-credential. Instead,
-  #       it calls create_credential.
-  # @todo This method needs to call create_cracked_credential, not create_credential.
   # @param [Hash] xopts Credential options. (See #create_credential Documentation)
   # @return [Metasploit::Credential::Core]
   # @see https://github.com/rapid7/metasploit-credential/blob/master/lib/metasploit/credential/creation.rb#L107 #create_credential Documentation.
@@ -133,7 +129,7 @@ public
   #  rpc.call('db.create_cracked_credential', opts)
   def rpc_create_cracked_credential(xopts)
     opts = fix_cred_options(xopts)
-    create_credential(opts)
+    create_cracked_credential(opts)
   end
 
 
