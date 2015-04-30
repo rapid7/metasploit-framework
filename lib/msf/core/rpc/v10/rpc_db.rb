@@ -115,16 +115,9 @@ public
   # @see #rpc_create_credential
   # @example Here's how you would use this from the client:
   #  opts = {
-  #   origin_type: :service,
-  #   address: '192.168.1.100',
-  #   port: 445,
-  #   service_name: 'smb',
-  #   protocol: 'tcp',
-  #   module_fullname: 'auxiliary/scanner/smb/smb_login',
-  #   workspace_id: myworkspace_id,
-  #   private_data: 'password1',
-  #   private_type: :password,
-  #   username: 'Administrator'
+  #    username: username,
+  #    password: password,
+  #    core_id: core_id
   #  }
   #  rpc.call('db.create_cracked_credential', opts)
   def rpc_create_cracked_credential(xopts)
