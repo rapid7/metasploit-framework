@@ -1059,6 +1059,7 @@ public
   def rpc_del_vuln(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
+    opts[:workspace] = opts[:workspace].name
     hosts  = []
     services = []
     vulns = []
