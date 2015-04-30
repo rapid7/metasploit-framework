@@ -517,7 +517,11 @@ public
   # Sets a workspace.
   #
   # @param [String] wspace Workspace name.
-  # @raise [Msf::RPC::Exception] 500 Database not loaded.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace
+  #  * 404 Workspace not found.
   # @return [Hash] A hash indicating whether the action was successful or not. You will get:
   #  * 'result' [String] A message that says either 'success' or 'failed'
   # @example Here's how you would use this from the client:
@@ -526,7 +530,7 @@ public
   def rpc_set_workspace(wspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
-    workspace = self.framework.db.find_workspace(wspace)
+    workspace = find_workspace(wspace)
     if(workspace)
       self.framework.db.workspace = workspace
       return { 'result' => "success" }
@@ -551,7 +555,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
     # Delete workspace
-    workspace = self.framework.db.find_workspace(wspace)
+    workspace = find_workspace(wspace)
     if workspace.nil?
       error(404, "Workspace not found: #{wspace}")
     elsif workspace.default?
