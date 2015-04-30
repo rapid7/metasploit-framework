@@ -558,7 +558,11 @@ class ClientCore < Extension
   # Indicates if the given transport is a valid transport option.
   #
   def valid_transport?(transport)
-    VALID_TRANSPORTS.has_key?(transport.downcase)
+    if transport
+      VALID_TRANSPORTS.has_key?(transport.downcase)
+    else
+      false
+    end
   end
 
   private

@@ -79,7 +79,9 @@ module PacketDispatcher
 
   def shutdown_passive_dispatcher
     return if not self.passive_service
-    self.passive_service.remove_resource(self.conn_id  + "/")
+    resource = self.conn_id
+    resource += "/" unless resource.end_with?("/")
+    self.passive_service.remove_resource(resource)
 
     # If there are no more resources registered on the service, stop it entirely
     if self.passive_service.resources.empty?

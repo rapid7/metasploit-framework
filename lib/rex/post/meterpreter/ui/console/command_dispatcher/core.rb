@@ -281,10 +281,6 @@ class Console::CommandDispatcher::Core
   # Disconnects the session
   #
   def cmd_detach(*args)
-    if not client.passive_service
-      print_error("Detach is only possible for non-stream sessions (http/https)")
-      return
-    end
     client.shutdown_passive_dispatcher
     shell.stop
   end
