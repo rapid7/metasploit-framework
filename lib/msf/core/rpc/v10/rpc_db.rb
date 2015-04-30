@@ -751,7 +751,7 @@ public
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]
       sret = wspace.services.where(conditions).order("hosts.address, port")
-    else
+    elsif host
       sret = host.services
     end
     return ret if sret == nil
