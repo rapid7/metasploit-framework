@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
           :proto => 'UDP',
           :port => 53,
           :type => 'dns.wildcard',
-          :data => "Wildcard IP for #{rendsub}.#{target} is: #{rr.address}"
+          :data => "Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}"
         )
       end
       return true
