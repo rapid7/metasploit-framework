@@ -758,6 +758,26 @@ describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/generic'
   end
 
+  context 'cmd/windows/powershell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/windows/powershell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/windows/powershell_bind_tcp'
+  end
+
+  context 'cmd/windows/powershell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/windows/powershell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/windows/powershell_reverse_tcp'
+  end
+
   context 'cmd/windows/reverse_lua' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3792,6 +3812,26 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/powershell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/powershell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/powershell_bind_tcp'
+  end
+
+  context 'windows/powershell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/powershell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/powershell_reverse_tcp'
   end
 
   context 'windows/shell/bind_hidden_ipknock_tcp' do

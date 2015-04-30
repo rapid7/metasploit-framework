@@ -601,6 +601,33 @@ class Msftidy
     end
   end
 
+  # Check for (v)print_debug usage, since it doesn't exist anymore
+  #
+  # @see https://github.com/rapid7/metasploit-framework/issues/3816
+  def check_print_debug
+    if @source =~ /print_debug/
+      error('Please don\'t use (v)print_debug, use vprint_(status|good|error|warning) instead')
+    end
+  end
+
+  # Check for modules registering the DEBUG datastore option
+  #
+  # @see https://github.com/rapid7/metasploit-framework/issues/3816
+  def check_register_datastore_debug
+    if @source =~ /Opt.*\.new\(["'](?i)DEBUG(?-i)["']/
+      error('Please don\'t register a DEBUG datastore option, it has an special meaning and is used for development')
+    end
+  end
+
+  # Check for modules using the DEBUG datastore option
+  #
+  # @see https://github.com/rapid7/metasploit-framework/issues/3816
+  def check_use_datastore_debug
+    if @source =~ /datastore\[["'](?i)DEBUG(?-i)["']\]/
+      error('Please don\'t use the DEBUG datastore option in production, it has an special meaning and is used for development')
+    end
+  end
+
   private
 
   def load_file(file)
@@ -650,6 +677,9 @@ def run_checks(full_filepath)
   tidy.check_sock_get
   tidy.check_udp_sock_get
   tidy.check_invalid_url_scheme
+  tidy.check_print_debug
+  tidy.check_register_datastore_debug
+  tidy.check_use_datastore_debug
   return tidy
 end
 

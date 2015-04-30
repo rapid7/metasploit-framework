@@ -13,7 +13,11 @@ module Msf
     def desc
         "Nessus Bridge for Metasploit"
     end
-      
+
+    def desc
+      "Nessus Bridge for Metasploit"
+    end
+
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
       
