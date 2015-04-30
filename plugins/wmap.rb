@@ -1282,7 +1282,7 @@ class Plugin::Wmap < Msf::Plugin
             tbl << [ idx.to_s, bdhost.address, web.vhost, serv.port, serv.name, c.to_s, f.to_s ]
             idx += 1
 
-            turl = web.vhost + "," + serv.name + "://" +bdhost.address + ":" + serv.port.to_s + "/"
+            turl = web.vhost + "," + serv.name + "://" +bdhost.address.to_s + ":" + serv.port.to_s + "/"
             self.lastsites << turl
           end
         end

@@ -78,7 +78,7 @@ framework.db.hosts.each do |host|
 		end
 		run_single("wmap_targets -c")
 		print_line("")
-		print_line("finished analysing the webservern on IP #{host.address}, Port: #{serv.port.to_s}")
+		print_line("finished analysing the webservern on IP #{host.address.to_s}, Port: #{serv.port.to_s}")
 		print_line("")
 	end
 end
