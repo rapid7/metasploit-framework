@@ -1,11 +1,11 @@
 @boot
-Feature: `./msfconsole` `database.yml`
+Feature: `msfconsole` `database.yml`
 
-  In order to connect to the database in `./msfconsole`
-  As a user calling `./msfconsole` from a terminal
+  In order to connect to the database in `msfconsole`
+  As a user calling `msfconsole` from a terminal
   I want to be able to set the path of the `database.yml` in one of 4 locations (in order of precedence):
 
-  1. An explicit argument to the `-y` flag to `./msfconsole`
+  1. An explicit argument to the `-y` flag to `msfconsole`
   2. The MSF_DATABASE_CONFIG environment variable
   3. The user's `~/.msf4/database.yml`
   4. `config/database.yml` in the metasploit-framework checkout location.
@@ -48,7 +48,7 @@ Feature: `./msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `./msfconsole --defer-module-loads --environment test --execute-command exit --yaml command_line.yml`
+    When I run `../../msfconsole -q --defer-module-loads --environment test --execute-command exit --yaml command_line.yml`
     Then the output should contain "command_line_metasploit_framework_test"
 
   Scenario: Without --yaml, MSF_DATABASE_CONFIG wins
@@ -82,7 +82,7 @@ Feature: `./msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `./msfconsole --defer-module-loads --environment test --execute-command exit`
+    When I run `../../msfconsole -q --defer-module-loads --environment test --execute-command exit`
     Then the output should contain "environment_metasploit_framework_test"
 
   Scenario: Without --yaml or MSF_DATABASE_CONFIG, ~/.msf4/database.yml wins
@@ -109,7 +109,7 @@ Feature: `./msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `./msfconsole --defer-module-loads --environment test --execute-command exit`
+    When I run `../../msfconsole -q --defer-module-loads --environment test --execute-command exit`
     Then the output should contain "user_metasploit_framework_test"
 
   Scenario: Without --yaml, MSF_DATABASE_CONFIG or ~/.msf4/database.yml, project "database.yml" wins
@@ -127,7 +127,7 @@ Feature: `./msfconsole` `database.yml`
         database: project_metasploit_framework_test
         username: project_metasploit_framework_test
       """
-    When I run `./msfconsole --defer-module-loads --environment test --execute-command exit`
+    When I run `../msfconsole -q --defer-module-loads --environment test --execute-command exit`
     Then the output should contain "project_metasploit_framework_test"
 
 
@@ -140,14 +140,14 @@ Feature: `./msfconsole` `database.yml`
     And a mocked home directory
     And I cd to "../.."
     And the project "database.yml" does not exist
-    When I run `./msfconsole --defer-module-loads --environment test --execute-command db_status --execute-command exit`
+    When I run `../msfconsole -q --defer-module-loads --environment test --execute-command db_status --execute-command exit`
     Then the output should not contain "command_line_metasploit_framework_test"
     And the output should not contain "environment_metasploit_framework_test"
     And the output should not contain "user_metasploit_framework_test"
     And the output should not contain "project_metasploit_framework_test"
     And the output should contain "[*] postgresql selected, no connection"
 
-  Scenario: Starting `./msfconsole` with a valid database.yml
-    When I run `./msfconsole --defer-module-loads --execute-command db_status --execute-command exit`
+  Scenario: Starting `msfconsole` with a valid database.yml
+    When I run `../../msfconsole -q --defer-module-loads --execute-command db_status --execute-command exit`
     Then the output should contain "[*] postgresql connected to metasploit_framework_test"
 
