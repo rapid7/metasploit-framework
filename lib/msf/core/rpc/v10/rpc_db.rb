@@ -1146,13 +1146,12 @@ public
   def rpc_del_note(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
-    opts[:workspace] = opts[:workspace].name
     hosts  = []
     services = []
     notes = []
 
     if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(opts)
+      hosts = opts_to_hosts(xopts)
     end
 
     if opts[:port] or opts[:proto]
