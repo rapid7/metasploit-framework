@@ -994,7 +994,7 @@ public
     conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions[:ntype] = opts[:ntype] if opts[:ntype]
-    conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:port]
+    conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
     conditions["services.proto"] = opts[:proto] if opts[:proto]
 
     ret = {}
