@@ -107,14 +107,10 @@ private
   def get_notes(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
-
-    ret = {}
-    ret[:note] = []
+    notes = []
 
     host = self.framework.db.get_host(opts)
-
-    return ret if not host
-    notes = []
+    return notes if not host
 
     if opts[:proto] && opts[:port]
       services = []
@@ -833,6 +829,9 @@ public
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_note', {:proto => 'tcp', :port => 80})
   def rpc_get_note(xopts)
+    ret = {}
+    ret[:note] = []
+
     notes = get_notes(xopts)
 
     notes.each do |n|
