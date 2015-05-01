@@ -125,21 +125,30 @@ describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
     describe '#attempt_login' do
       context 'when the credential is valid' do
         let(:response) { successful_auth_response }
+        let(:cred_obj) { Metasploit::Framework::Credential.new(public: username, private: good_password) }
 
         it 'returns a Result object indicating a successful login' do
-          cred_obj = Metasploit::Framework::Credential.new(public: username, private: good_password)
           result = subject.attempt_login(cred_obj)
           expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
+        end
+
+        it 'returns successful login' do
+          result = subject.attempt_login(cred_obj)
           expect(result.status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
         end
       end
 
       context 'when the credential is invalid' do
         let(:response) { fail_auth_response }
-        it 'returns a Result object indicating an incorrect cred' do
-          cred_obj = Metasploit::Framework::Credential.new(public: username, private: bad_password)
+        let(:cred_obj) { Metasploit::Framework::Credential.new(public: username, private: bad_password) }
+        
+        it 'returns a Result object' do
           result = subject.attempt_login(cred_obj)
           expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
+        end
+
+        it 'returns incorrect credential status' do
+          result = subject.attempt_login(cred_obj)
           expect(result.status).to eq(Metasploit::Model::Login::Status::INCORRECT)
         end
       end
