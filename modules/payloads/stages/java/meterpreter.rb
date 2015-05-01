@@ -54,8 +54,7 @@ module Metasploit3
   # used as the final stage; calls super to get the intermediate stager.
   #
   def generate_stage
-    file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.jar")
-    met = File.open(file, "rb") {|f| f.read(f.stat.size) }
+    met = MetasploitPayloads.read('meterpreter', 'meterpreter.jar')
 
     # All of the dendencies to create a jar loader, followed by the length
     # of the jar and the jar itself.

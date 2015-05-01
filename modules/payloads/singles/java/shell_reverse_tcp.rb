@@ -53,10 +53,8 @@ module Metasploit3
           jar.add_file(full, '')
         end
       end
-      fd = File.open(File.join( Msf::Config.data_directory, "java", path ), "rb")
-      data = fd.read(fd.stat.size)
+      data = MetasploitPayloads.read('java', path)
       jar.add_file(path.join("/"), data)
-      fd.close
     end
     jar.build_manifest(:main_class => "metasploit.Payload")
     jar.add_file("metasploit.dat", config)
