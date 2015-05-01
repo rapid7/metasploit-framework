@@ -104,6 +104,42 @@ private
     return opts, opts[:workspace]
   end
 
+  def get_notes(xopts)
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    opts, wspace = init_db_opts_workspace(xopts)
+
+    ret = {}
+    ret[:note] = []
+
+    host = self.framework.db.get_host(opts)
+
+    return ret if not host
+    notes = []
+    if opts[:proto] && opts[:port]
+      services = []
+      nret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
+      return ret if nret == nil
+      services << nret if nret.class == ::Mdm::Service
+      services |= nret if nret.class == Array
+
+      services.each do |s|
+        nret = nil
+        if opts[:ntype]
+          nret = s.notes.find_by_ntype(opts[:ntype])
+        else
+          nret = s.notes
+        end
+        next if nret == nil
+        notes << nret if nret.class == ::Mdm::Note
+        notes |= nret if nret.class == Array
+      end
+    else
+      notes = host.notes
+    end
+    notes
+  }
+  end
+
 public
 
 
@@ -769,10 +805,12 @@ public
   }
   end
 
-
   # Returns a note.
   #
   # @param [Hash] xopts Options.
+  # @option xopts [String] :addr Host address.
+  # @option xopts [String] :address Same as :addr.
+  # @option xopts [String] :host Same as :address.
   # @option xopts [String] :proto Protocol.
   # @option xopts [Fixnum] :port Port.
   # @option xopts [String] :ntype Note type.
@@ -794,37 +832,8 @@ public
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_note', {:proto => 'tcp', :port => 80})
   def rpc_get_note(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
+    notes = get_notes(xopts)
 
-    ret = {}
-    ret[:note] = []
-
-    host = self.framework.db.get_host(opts)
-
-    return ret if( not host)
-    notes = []
-    if(opts[:proto] && opts[:port])
-      services = []
-      nret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
-      return ret if nret == nil
-      services << nret if nret.class == ::Mdm::Service
-      services |= nret if nret.class == Array
-
-      services.each do |s|
-        nret = nil
-        if opts[:ntype]
-          nret = s.notes.find_by_ntype(opts[:ntype])
-        else
-          nret = s.notes
-        end
-        next if nret == nil
-        notes << nret if nret.class == ::Mdm::Note
-        notes |= nret if nret.class == Array
-      end
-    else
-      notes = host.notes
-    end
     notes.each do |n|
       note = {}
       host = n.host
@@ -842,7 +851,6 @@ public
       ret[:note] << note
     end
     ret
-  }
   end
 
 
@@ -1144,58 +1152,8 @@ public
   # @example Here's how you would use this from the client:
   #  rpc.call('db.del_note', {:workspace=>'default', :host=>ip, :port=>443, :proto=>'tcp'})
   def rpc_del_note(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    hosts  = []
-    services = []
-    notes = []
+    notes = get_notes(xopts)
 
-    if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(xopts)
-    end
-
-    if opts[:port] or opts[:proto]
-      if opts[:host] or opts[:address] or opts[:addresses]
-        services = opts_to_services(hosts,opts)
-      else
-        services = opts_to_services([],opts)
-      end
-    end
-
-    if opts[:port] or opts[:proto]
-      services.each do |s|
-        nret = nil
-        if opts[:ntype]
-          nret = s.notes.find_by_ntype(opts[:ntype])
-        else
-          nret = s.notes
-        end
-        next if nret == nil
-        notes << nret if nret.class == ::Mdm::Note
-        notes |= nret if nret.class == Array
-      end
-    elsif opts[:address] or opts[:host] or opts[:addresses]
-      hosts.each do |h|
-        nret = nil
-        if opts[:ntype]
-          nret = h.notes.find_by_ntype(opts[:ntype])
-        else
-          nret = h.notes
-        end
-        next if nret == nil
-        notes << nret if nret.class == ::Mdm::Note
-        notes |= nret if nret.class == Array
-      end
-    else
-      nret = nil
-      if opts[:ntype]
-        nret = wspace.notes.find_by_ntype(opts[:ntype])
-      else
-        nret = wspace.notes
-      end
-      notes << nret if nret.class == ::Mdm::Note
-      notes |= nret if nret.class == Array
-    end
     deleted = []
     notes.each do |n|
       dent = {}
@@ -1208,7 +1166,6 @@ public
     end
 
     return { :result => 'success', :deleted => deleted }
-  }
   end
 
 
