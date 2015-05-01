@@ -47,14 +47,12 @@ describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
     end
 
     describe '#check_setup' do
-      let(:msp_html_response) do
-        res = Rex::Proto::Http::Response.new(200, 'OK')
-        res.body = 'ManageEngine Desktop Central'
-        res
-      end
-
       context 'when target is ManageEngine Desktop Central' do
-        let(:response) { msp_html_response }
+        let(:response) do
+          res = Rex::Proto::Http::Response.new(200, 'OK')
+          res.body = 'ManageEngine Desktop Central'
+          res
+        end
         it 'returns true' do
           expect(subject.check_setup).to be_truthy
         end
