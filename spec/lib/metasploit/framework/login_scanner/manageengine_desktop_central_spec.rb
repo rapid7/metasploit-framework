@@ -141,7 +141,7 @@ describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
       context 'when the credential is invalid' do
         let(:response) { fail_auth_response }
         let(:cred_obj) { Metasploit::Framework::Credential.new(public: username, private: bad_password) }
-        
+
         it 'returns a Result object' do
           result = subject.attempt_login(cred_obj)
           expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
