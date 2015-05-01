@@ -110,16 +110,14 @@ describe Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral do
       context 'when the credential is valid' do
         let(:response) { successful_auth_response }
         it 'returns a hash indicating a successful login' do
-          successful_status = Metasploit::Model::Login::Status::SUCCESSFUL
-          expect(subject.get_login_state(username, good_password)[:status]).to eq(successful_status)
+          expect(subject.get_login_state(username, good_password)[:status]).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
         end
       end
 
       context 'when the creential is invalid' do
         let(:response) { fail_auth_response }
         it 'returns a hash indicating an incorrect cred' do
-          incorrect_status = Metasploit::Model::Login::Status::INCORRECT
-          expect(subject.get_login_state(username, good_password)[:status]).to eq(incorrect_status)
+          expect(subject.get_login_state(username, good_password)[:status]).to eq(Metasploit::Model::Login::Status::INCORRECT)
         end
       end
     end
