@@ -115,6 +115,7 @@ private
 
     return ret if not host
     notes = []
+
     if opts[:proto] && opts[:port]
       services = []
       nret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
@@ -952,8 +953,12 @@ public
       addr = opts[:host] || opts[:address]
       wspace = opts[:workspace] || self.framework.db.workspace
       host = wspace.hosts.find_by_address(addr)
-      service = host.services.find_by_proto_and_port(opts[:proto],opts[:port]) if host.services.count > 0
-      opts[:service] = service if service
+      if host && host.services.count > 0
+        service = host.services.find_by_proto_and_port(opts[:proto],opts[:port])
+        if service
+          opts[:service] = service
+        end
+      end
     end
 
     res = self.framework.db.report_note(opts)
