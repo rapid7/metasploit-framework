@@ -91,8 +91,8 @@ module Metasploit
           @logon_count = get_int(data)
           @nt_history_count = get_int(data)
           @lm_history_count = get_int(data)
-          @expiry_data = get_string(data,30)
-          @logon_data =  get_string(data,30)
+          @expiry_date = get_string(data,30)
+          @logon_date =  get_string(data,30)
           @logon_time = get_string(data,30)
           @pass_date = get_string(data,30)
           @pass_time = get_string(data,30)
@@ -101,6 +101,35 @@ module Metasploit
           @lm_history = get_hash_history(data)
           @nt_history = get_hash_history(data)
           @sid = data
+        end
+
+        # @return [String] String representation of the account data
+        def to_s
+          <<EOS
+#{@name} (#{@description})
+#{ntlm_hash}
+Password Expires: #{@expiry_date}
+Last Password Change: #{@pass_time} #{@pass_date}
+Last Logon: #{@logon_time} #{@logon_date}
+Logon Count: #{@logon_count}
+#{uac_string}
+Hash History:
+#{hash_history}
+EOS
+        end
+
+        # @return [String] the NTLM hash string for the current password
+        def ntlm_hash
+          "#{@name}:#{@rid}:#{@lm_hash}:#{@nt_hash}"
+        end
+
+        # @return [String] Each historical NTLM Hash on a new line
+        def hash_history
+          history_string = ''
+          @lm_history.each_with_index do | lm_hash, index|
+            history_string << "#{@name}:#{@rid}:#{lm_hash}:#{@nt_history[index]}\n"
+          end
+          history_string
         end
 
         private
@@ -122,6 +151,26 @@ module Metasploit
 
         def get_string(data,length)
           data.slice!(0,length).gsub(/\x00/,'')
+        end
+
+        def uac_string
+          status_string = ''
+          if @disabled
+            status_string << " - Account Disabled\n"
+          end
+          if @expired
+            status_string << " - Password Expired\n"
+          end
+          if @locked
+            status_string << " - Account Locked Out\n"
+          end
+          if @no_expire
+            status_string << " - Password Never Expires\n"
+          end
+          if @no_pass
+            status_string << " - No Password Required\n"
+          end
+          status_string
         end
       end
     end
