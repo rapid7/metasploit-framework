@@ -12,7 +12,7 @@ private
   end
 
   def find_workspace(wspace = nil)
-    if(wspace and wspace != "")
+    if wspace and wspace != ""
       return self.framework.db.find_workspace(wspace) || error(500, "Invalid workspace")
     end
     self.framework.db.workspace
@@ -416,7 +416,7 @@ public
     wspace.vulns.includes(:service).where(conditions).offset(offset).limit(limit).each do |v|
       vuln = {}
       reflist = v.refs.map { |r| r.name }
-      if(v.service)
+      if v.service
         vuln[:port] = v.service.port
         vuln[:proto] = v.service.proto
       else
@@ -495,7 +495,7 @@ public
     wspace = find_workspace(wspace)
     ret = {}
     ret[:workspace] = []
-    if(wspace)
+    if wspace
       w = {}
       w[:name] = wspace.name
       w[:id] = wspace.id
@@ -524,7 +524,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
     workspace = find_workspace(wspace)
-    if(workspace)
+    if workspace
       self.framework.db.workspace = workspace
       return { 'result' => "success" }
     end
@@ -580,7 +580,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
     wspace = self.framework.db.add_workspace(wspace)
-    return { 'result' => 'success' } if(wspace)
+    return { 'result' => 'success' } if wspace
     { 'result' => 'failed' }
   }
   end
@@ -620,7 +620,7 @@ public
     ret[:host] = []
     opts = fix_options(xopts)
     h = self.framework.db.get_host(opts)
-    if(h)
+    if h
       host = {}
       host[:created_at] = h.created_at.to_i
       host[:address] = h.address.to_s
@@ -669,7 +669,7 @@ public
     opts, wspace = init_db_opts_workspace(xopts)
 
     res = self.framework.db.report_host(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -695,7 +695,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
     res = self.framework.db.report_service(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -735,9 +735,9 @@ public
     services = []
     sret = nil
 
-    if(host && opts[:proto] && opts[:port])
+    if host && opts[:proto] && opts[:port]
       sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
-    elsif(opts[:proto] && opts[:port])
+    elsif opts[:proto] && opts[:port]
       conditions = {}
       conditions[:state] = [Msf::ServiceState::Open] if opts[:up]
       conditions[:proto] = opts[:proto] if opts[:proto]
@@ -872,7 +872,7 @@ public
     ret = {}
     ret[:client] = []
     c = self.framework.db.get_client(opts)
-    if(c)
+    if c
       client = {}
       host = c.host
       client[:host] = host.address
@@ -909,7 +909,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
     res = self.framework.db.report_client(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -949,7 +949,7 @@ public
     end
 
     res = self.framework.db.report_note(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -997,8 +997,8 @@ public
       note[:time] = n.created_at.to_i
       note[:host] = ""
       note[:service] = ""
-      note[:host] = n.host.address if(n.host)
-      note[:service] = n.service.name || n.service.port  if(n.service)
+      note[:host] = n.host.address if n.host
+      note[:service] = n.service.name || n.service.port  if n.service
       note[:type ] = n.ntype.to_s
       note[:data] = n.data.inspect
       ret[:notes] << note
@@ -1360,7 +1360,7 @@ public
     opts = fix_options(xopts)
     opts[:workspace] = find_workspace(opts[:workspace]) if opts[:workspace]
     res = self.framework.db.report_vuln(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -1398,12 +1398,12 @@ public
 
     wspace.events.offset(offset).limit(limit).each do |e|
       event = {}
-      event[:host] = e.host.address if(e.host)
+      event[:host] = e.host.address if e.host
       event[:created_at] = e.created_at.to_i
       event[:updated_at] = e.updated_at.to_i
       event[:name] = e.name
-      event[:critical] = e.critical if(e.critical)
-      event[:username] = e.username if(e.username)
+      event[:critical] = e.critical if e.critical
+      event[:username] = e.username if e.username
       event[:info] = e.info
       ret[:events] << event
     end
@@ -1430,7 +1430,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
     res = self.framework.db.report_event(opts)
-    { :result => 'success' } if(res)
+    { :result => 'success' } if res
   }
   end
 
@@ -1465,7 +1465,7 @@ public
     end
 
     res = self.framework.db.report_loot(opts)
-    { :result => 'success' } if(res)
+    { :result => 'success' } if res
   }
   end
 
@@ -1503,8 +1503,8 @@ public
     ret[:loots] = []
     wspace.loots.offset(offset).limit(limit).each do |l|
       loot = {}
-      loot[:host] = l.host.address if(l.host)
-      loot[:service] = l.service.name || l.service.port  if(l.service)
+      loot[:host] = l.host.address if l.host
+      loot[:service] = l.service.name || l.service.port  if l.service
       loot[:ltype] = l.ltype
       loot[:ctype] = l.content_type
       loot[:data] = l.data
@@ -1605,10 +1605,10 @@ public
 
     host = self.framework.db.get_host(opts)
 
-    return ret if( not host)
+    return ret if not host
     vulns = []
 
-    if(opts[:proto] && opts[:port])
+    if opts[:proto] && opts[:port]
       services = []
       sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
       return ret if sret == nil
@@ -1800,7 +1800,7 @@ public
   #  rpc.call('db.connect', {:driver=>'postgresql'})
   def rpc_connect(xopts)
     opts = fix_options(xopts)
-    if(not self.framework.db.driver and not opts[:driver])
+    if not self.framework.db.driver and not opts[:driver]
       return { :result => 'failed' }
     end
 
