@@ -172,7 +172,7 @@ module Msf::HTTP::Wordpress::Version
       # Version older than fixed version
       if Gem::Version.new(version) < Gem::Version.new(fixed_version)
         if vuln_introduced_version.nil?
-          # All versions are vulnerable
+          # Older than fixed version, no vuln introduction date, flag as vuln
           return Msf::Exploit::CheckCode::Appears
         # vuln_introduced_version provided, check if version is newer
         elsif Gem::Version.new(version) >= Gem::Version.new(vuln_introduced_version)
