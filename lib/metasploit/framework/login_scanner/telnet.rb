@@ -30,6 +30,11 @@ module Metasploit
         #
         #   @return [Fixnum]
         attr_accessor :telnet_timeout
+        # @!attribute verbosity
+        #   Prepend code to call before checking for a user login
+        #
+        #   @return [Proc]
+        attr_accessor :pre_login
 
         validates :banner_timeout,
                   presence: true,
@@ -66,6 +71,10 @@ module Metasploit
             end
 
             unless result_options[:status]
+              if pre_login
+                pre_login.call(self)
+              end
+
               unless password_prompt?
                 send_user(credential.public)
               end
@@ -108,6 +117,7 @@ module Metasploit
           self.port               ||= DEFAULT_PORT
           self.banner_timeout     ||= 25
           self.telnet_timeout     ||= 10
+          self.pre_login          ||= nil
           self.connection_timeout ||= 30
           self.max_send_size      ||= 0
           self.send_delay         ||= 0
@@ -115,6 +125,10 @@ module Metasploit
           create_login_ivars
         end
 
+        def print_error( message )
+          return if !@parent
+          @parent.print_error message
+        end
       end
     end
   end

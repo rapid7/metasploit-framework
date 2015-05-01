@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'rex'
 require 'metasploit/framework/credential_collection'
-require 'metasploit/framework/login_scanner/brocade_telnet'
+require 'metasploit/framework/login_scanner/telnet'
 
 class Metasploit4 < Msf::Auxiliary
 
@@ -20,16 +20,14 @@ class Metasploit4 < Msf::Auxiliary
     super(
       'Name'        => 'Brocade Enable Login Check Scanner',
       'Description' => %q{
-        This module will test a Brocade network device for a privilged
-        (Enable) login on a range of machines and report successful
-        logins.  If you have loaded a database plugin and connected
-        to a database this module will record successful
-        logins and hosts so you can track your access.
-        This is not a login/telnet authentication.  Config should NOT
-        have 'enable telnet authentication' in it.  This will test the
-        config that contains 'aaa authentication enable default local'
-        Tested against:
-              ICX6450-24 SWver 07.4.00bT311
+        This module will test a range of Brocade network devices for a
+        privileged logins and report successes. The device authentication mode
+        must be set as 'aaa authentication enable default local'.
+        Telnet authentication, e.g. 'enable telnet authentication', should not
+        be enabled in the device configuration.
+
+        This module has been tested against the following devices:
+              ICX6450-24 SWver 07.4.00bT311,
               FastIron WS 624 SWver 07.2.02fT7e1
       },
       'Author'      => 'h00die <mike[at]shorebreaksecurity.com>',
@@ -48,25 +46,29 @@ class Metasploit4 < Msf::Auxiliary
   end
 
   def get_username_from_config(un_list,ip)
-    ["config","running-config"].each do |command|
+    ["config", "running-config"].each do |command|
       print_status(" Attempting username gathering from #{command} on #{ip}")
-      sock.puts("\r\n") #ensure the buffer is clear
+      sock.puts("\r\n") # ensure that the buffer is clear
       config = sock.recv(1024)
       sock.puts("show #{command}\r\n")
+
+      # pull the entire config
       while true do
-        sock.puts(" \r\n") #paging
+        sock.puts(" \r\n") # paging
         config << sock.recv(1024)
-        #there seems to be some buffering issues. so we want to match that we're back at a prompt, as well as received the 'end' of the config.
+        # Read until we are back at a prompt and have received the 'end' of
+        # the config.
         break if config.match(/>$/) and config.match(/end/)
-      end #pull the entire config
+      end
+
       config.each_line do |un|
         if un.match(/^username/)
           found_username = un.split(" ")[1].strip
           un_list.push(found_username)
           print_status("   Found: #{found_username}@#{ip}")
-        end #username match
-      end #each line in config
-    end #end config/running-config loop
+        end
+      end
+    end
   end
 
   attr_accessor :no_pass_prompt
@@ -99,7 +101,7 @@ class Metasploit4 < Msf::Auxiliary
 
       cred_collection = prepend_db_passwords(cred_collection)
 
-      scanner = Metasploit::Framework::LoginScanner::Brocade_Telnet.new(
+      scanner = Metasploit::Framework::LoginScanner::Telnet.new(
           host: ip,
           port: rport,
           proxies: datastore['PROXIES'],
@@ -111,6 +113,7 @@ class Metasploit4 < Msf::Auxiliary
           send_delay: datastore['TCP::send_delay'],
           banner_timeout: datastore['TelnetBannerTimeout'],
           telnet_timeout: datastore['TelnetTimeout'],
+          pre_login: lambda{ |s| raw_send("enable\r\n", nsock = s.sock) },
           framework: framework,
           framework_module: self,
       )
@@ -121,6 +124,7 @@ class Metasploit4 < Msf::Auxiliary
             module_fullname: self.fullname,
             workspace_id: myworkspace_id
         )
+
         if result.success?
           credential_core = create_credential(credential_data)
           credential_data[:core] = credential_core
@@ -132,7 +136,7 @@ class Metasploit4 < Msf::Auxiliary
           print_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
         end
       end
-    end #end un loop
+    end
   end
 
   def start_telnet_session(host, port, user, pass, scanner)
