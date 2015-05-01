@@ -1066,14 +1066,14 @@ public
     vulns = []
 
     if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(opts)
+      hosts = opts_to_hosts(xopts)
     end
 
     if opts[:port] or opts[:proto]
       if opts[:host] or opts[:address] or opts[:addresses]
-        services = opts_to_services(hosts,opts)
+        services = opts_to_services(hosts,xopts)
       else
-        services = opts_to_services([],opts)
+        services = opts_to_services([],xopts)
       end
     end
 
@@ -1682,7 +1682,7 @@ public
     clients = []
 
     if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(opts)
+      hosts = opts_to_hosts(xopts)
     else
       hosts = wspace.hosts
     end
