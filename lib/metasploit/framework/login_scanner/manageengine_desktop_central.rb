@@ -17,7 +17,7 @@ module Metasploit
         # @return [Boolean] TrueClass if target is MSP, otherwise FalseClass
         def check_setup
           login_uri = normalize_uri("#{uri}/configurations.do")
-          res = send_request({'uri'=> login_uri})
+          res = send_request({'uri' => login_uri})
 
           if res && res.body.include?('ManageEngine Desktop Central')
             return true
@@ -62,7 +62,7 @@ module Metasploit
           login_uri = normalize_uri("#{uri}/configurations.do")
           res = send_request({'uri' => login_uri})
           return items unless res
-          items.merge!({'sid'=>get_sid(res)})
+          items.merge!({'sid' => get_sid(res)})
           items.merge!(get_hidden_inputs(res))
           items
         end
@@ -111,7 +111,7 @@ module Metasploit
         def attempt_login(credential)
           result_opts = {
             credential: credential,
-            status: Metasploit::Model::Login::Status::INCORRECT,
+            status: LOGIN_STATUS::INCORRECT,
             proof: nil,
             host: host,
             port: port,
