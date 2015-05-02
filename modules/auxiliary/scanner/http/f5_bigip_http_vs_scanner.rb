@@ -75,6 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       next if port == 443
       if bigip_http?(ip, port, ssl = false, verbose)
         print_status("#{ip}:#{port} - BigIP HTTP virtual server found")
+        ports.delete(port)
       end
     end
 

@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       ::Timeout.timeout(to) do
         begin
-          res = send_request_raw('method' => 'GET', 'uri' => '/', 'rport' => rport)
+          res = send_request_raw('method' => 'GET', 'uri' => '/')
           return true if res
         rescue ::Rex::ConnectionRefused
           print_status("#{peer} - TCP port closed") if verbose
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
     verbose = datastore['VERBOSE']
     return unless port_open?(to, verbose)
 
-    res = send_request_raw('method' => 'GET', 'uri' => '/', 'rport' => rport)
+    res = send_request_raw('method' => 'GET', 'uri' => '/')
     if res && res.code == 200
 
       # Detect BigIP management interface

