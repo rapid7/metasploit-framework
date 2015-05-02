@@ -28,14 +28,14 @@ module Msf
 
       def cmd_sqlmap_connect(*args)
         if args.length == 0
-          print_error("Need a host, and optionally a port")
+          print_error('Need a host, and optionally a port')
           return
         end
 
         @host, @port = args
 
         if !@port
-          @port = "8775"
+          @port = '8775'
         end
 
         @manager = Sqlmap::Manager.new(Sqlmap::Session.new(@host, @port))
@@ -44,13 +44,13 @@ module Msf
 
       def cmd_sqlmap_set_option(*args)
         unless args.length == 3
-          print_error("Usage:")
-          print_error("\tsqlmap_set_option <taskid> <option_name> <option_value>")
+          print_error('Usage:')
+          print_error('\tsqlmap_set_option <taskid> <option_name> <option_value>')
           return
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
@@ -62,8 +62,8 @@ module Msf
 
       def cmd_sqlmap_start_task(*args)
         if args.length == 0
-          print_error("Usage:")
-          print_error("\tsqlmap_start_task <taskid> [<url>]")
+          print_error('Usage:')
+          print_error('\tsqlmap_start_task <taskid> [<url>]')
           return
         end
 
@@ -76,7 +76,7 @@ module Msf
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
@@ -86,13 +86,13 @@ module Msf
 
       def cmd_sqlmap_get_log(*args)
         unless args.length == 1
-          print_error("Usage:")
-          print_error("\tsqlmap_get_log <taskid>")
+          print_error('Usage:')
+          print_error('\tsqlmap_get_log <taskid>')
           return
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
@@ -105,13 +105,13 @@ module Msf
 
       def cmd_sqlmap_get_status(*args)
         unless args.length == 1
-          print_error("Usage:")
-          print_error("\tsqlmap_get_status <taskid>")
+          print_error('Usage:')
+          print_error('\tsqlmap_get_status <taskid>')
           return
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
@@ -122,8 +122,8 @@ module Msf
 
       def cmd_sqlmap_get_data(*args)
         unless args.length == 1
-          print_error("Usage:")
-          print_error("\tsqlmap_get_data <taskid>")
+          print_error('Usage:')
+          print_error('\tsqlmap_get_data <taskid>')
           return
         end
 
@@ -131,14 +131,14 @@ module Msf
         @tasks ||= {}
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
         @tasks[@hid_tasks[args[0]]] = @manager.get_options(@hid_tasks[args[0]])['options']
 
         print_line
-        print_status("URL: " + @tasks[@hid_tasks[args[0]]]['url'])
+        print_status('URL: ' + @tasks[@hid_tasks[args[0]]]['url'])
 
         res = @manager.get_task_data(@hid_tasks[args[0]])
 
@@ -162,13 +162,13 @@ module Msf
 
       def cmd_sqlmap_save_data(*args)
         unless args.length == 1
-          print_error("Usage:")
-          print_error("\tsqlmap_save_data <taskid>")
+          print_error('Usage:')
+          print_error('\tsqlmap_save_data <taskid>')
           return
         end
 
         unless framework.db && framework.db.usable
-          print_error("No database is connected or usable")
+          print_error('No database is connected or usable')
           return
         end
 
@@ -176,14 +176,14 @@ module Msf
         @tasks ||= {}
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
         @tasks[@hid_tasks[args[0]]] = @manager.get_options(@hid_tasks[args[0]])['options']
 
         print_line
-        print_status("URL: " + @tasks[@hid_tasks[args[0]]]['url'])
+        print_status('URL: ' + @tasks[@hid_tasks[args[0]]]['url'])
 
         res = @manager.get_task_data(@hid_tasks[args[0]])
         web_vuln_info = {}
@@ -214,7 +214,7 @@ module Msf
             end
           end
         end
-        print_good("Saved vulnerabilities to database.")
+        print_good('Saved vulnerabilities to database.')
       end
 
       def cmd_sqlmap_get_option(*args)
@@ -222,12 +222,12 @@ module Msf
         @tasks ||= {}
 
         unless args.length == 2
-          print_error("Usage:")
-          print_error("\tsqlmap_get_option <taskid> <option_name>")
+          print_error('Usage:')
+          print_error('\tsqlmap_get_option <taskid> <option_name>')
         end
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
 
@@ -247,7 +247,7 @@ module Msf
         @tasks ||= {}
 
         unless @manager
-          print_error("Please run sqlmap_connect <host> first.")
+          print_error('Please run sqlmap_connect <host> first.')
           return
         end
         task_id = @manager.new_task
@@ -276,7 +276,7 @@ module Msf
 
       add_console_dispatcher(SqlmapCommandDispatcher)
 
-      print_status("Sqlmap plugin loaded")
+      print_status('Sqlmap plugin loaded')
     end
 
     def cleanup
@@ -284,11 +284,11 @@ module Msf
     end
 
     def name
-      "Sqlmap"
+      'Sqlmap'
     end
 
     def desc
-      "sqlmap plugin for Metasploit"
+      'sqlmap plugin for Metasploit'
     end
   end
 end
