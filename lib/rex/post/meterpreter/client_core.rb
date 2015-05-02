@@ -639,6 +639,13 @@ class ClientCore < Extension
     end
     migrate_stager.datastore['DLL'] = dll
 
+    # Pass the timeout information to the RDI loader so that it correctly
+    # patches the timeouts into the binary.
+    migrate_stager.datastore['SessionExpirationTimeout']    = self.client.expiration
+    migrate_stager.datastore['SessionCommunicationTimeout'] = self.client.comm_timeout
+    migrate_stager.datastore['SessionRetryTotal']           = self.client.retry_total
+    migrate_stager.datastore['SessionRetryWait']            = self.client.retry_wait
+
     blob = migrate_stager.stage_payload
 
     if client.passive_service
@@ -656,14 +663,6 @@ class ClientCore < Extension
         :proxy_type   => client.exploit_datastore['PayloadProxyType'],
         :proxy_user   => client.exploit_datastore['PayloadProxyUser'],
         :proxy_pass   => client.exploit_datastore['PayloadProxyPass'])
-    # This should be done by the reflective loader payloads
-    #else
-    #  # Just patch the timeouts, which are consistent on each of the payloads.
-    #  Rex::Payloads::Meterpreter::Patch.patch_timeouts!(blob,
-    #    :expiration   => self.client.expiration,
-    #    :comm_timeout => self.client.comm_timeout,
-    #    :retry_total  => self.client.retry_total,
-    #    :retry_wait   => self.client.retry_wait)
     end
 
     blob
