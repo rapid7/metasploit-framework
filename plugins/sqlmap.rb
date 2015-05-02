@@ -250,11 +250,11 @@ module Msf
           print_error("Please run sqlmap_connect <host> first.")
           return
         end
-        taskid = @manager.new_task
-        if taskid && taskid['taskid']
-          taskid = taskid['taskid']
-          @hid_tasks[(@hid_tasks.length + 1).to_s] = taskid
-          task_options = @manager.get_options(taskid)
+        task_id = @manager.new_task
+        if task_id['taskid']
+          t_id = task_id['taskid'].to_s
+          @hid_tasks[(@hid_tasks.length + 1).to_s] = t_id
+          task_options = @manager.get_options(t_id)
           @tasks[@hid_tasks[@hid_tasks.length]] = task_options['options']
           print_good("Created task: #{@hid_tasks.length}")
         else

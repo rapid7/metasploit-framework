@@ -50,14 +50,15 @@ module Sqlmap
 
     private
     def parse_response(res)
+      json = {}
       if res && res.body
         begin
-          res = JSON.parse(res.body)
+          json = JSON.parse(res.body)
         rescue JSON::ParserError
         end
       end
 
-      res
+      json
     end
   end
 end
