@@ -82,6 +82,25 @@ module Msf::HTTP::Wordpress::Version
     check_version_from_readme(:theme, theme_name, fixed_version, vuln_introduced_version)
   end
 
+  # Checks a custom file for a vulnerable version
+  #
+  # @param [String] uripath The relative path of the file
+  # @param [String] fixed_version Optional, the version the vulnerability was fixed in
+  # @param [String] vuln_introduced_version Optional, the version the vulnerability was introduced
+  #
+  # @return [ Msf::Exploit::CheckCode ]
+  def check_version_from_custom_file(uripath, fixed_version = nil, vuln_introduced_version = nil)
+    res = send_request_cgi(
+      'uri'    => uripath,
+      'method' => 'GET'
+    )
+
+    # file not found
+    return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
+
+    return extract_and_check_version(res.body.to_s, :custom, 'custom file', fixed_version, vuln_introduced_version)
+  end
+
   private
 
   def wordpress_version_helper(url, regex)
@@ -148,6 +167,8 @@ module Msf::HTTP::Wordpress::Version
       # Try to extract version from style.css
       # Example line:
       # Version: 1.5.2
+      version = body[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
+    when :custom
       version = body[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
     else
       fail("Unknown file type #{type}")
