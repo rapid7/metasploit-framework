@@ -85,11 +85,12 @@ module Msf::HTTP::Wordpress::Version
   # Checks a custom file for a vulnerable version
   #
   # @param [String] uripath The relative path of the file
+  # @param [Regexp] regex The regular expression to extract the version. The first captured group must contain the version.
   # @param [String] fixed_version Optional, the version the vulnerability was fixed in
   # @param [String] vuln_introduced_version Optional, the version the vulnerability was introduced
   #
   # @return [ Msf::Exploit::CheckCode ]
-  def check_version_from_custom_file(uripath, fixed_version = nil, vuln_introduced_version = nil)
+  def check_version_from_custom_file(uripath, regex, fixed_version = nil, vuln_introduced_version = nil)
     res = send_request_cgi(
       'uri'    => uripath,
       'method' => 'GET'
@@ -98,7 +99,7 @@ module Msf::HTTP::Wordpress::Version
     # file not found
     return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
 
-    return extract_and_check_version(res.body.to_s, :custom, 'custom file', fixed_version, vuln_introduced_version)
+    return extract_and_check_version(res.body.to_s, :custom, 'custom file', fixed_version, vuln_introduced_version, regex)
   end
 
   private
@@ -156,7 +157,7 @@ module Msf::HTTP::Wordpress::Version
     end
   end
 
-  def extract_and_check_version(body, type, item_type, fixed_version = nil, vuln_introduced_version = nil)
+  def extract_and_check_version(body, type, item_type, fixed_version = nil, vuln_introduced_version = nil, regex = nil)
     case type
     when :readme
       # Try to extract version from readme
@@ -169,7 +170,7 @@ module Msf::HTTP::Wordpress::Version
       # Version: 1.5.2
       version = body[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
     when :custom
-      version = body[/(?:Version):\s*([0-9a-z.-]+)/i, 1]
+      version = body[regex, 1]
     else
       fail("Unknown file type #{type}")
     end
