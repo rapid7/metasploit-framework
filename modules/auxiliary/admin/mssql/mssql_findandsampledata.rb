@@ -53,12 +53,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def sql_statement()
 
-    #DEFINED HEADER TEXT
+    # DEFINED HEADER TEXT
     headings = [
       ["Server","Database", "Schema", "Table", "Column", "Data Type", "Sample Data","Row Count"]
     ]
 
-    #DEFINE SEARCH QUERY AS VARIABLE
+    # DEFINE SEARCH QUERY AS VARIABLE
     sql = "
     -- CHECK IF VERSION IS COMPATABLE = > than 2000
     IF (SELECT SUBSTRING(CAST(SERVERPROPERTY('ProductVersion') as VARCHAR), 1,
@@ -341,11 +341,11 @@ class Metasploit3 < Msf::Auxiliary
 
 
 
-    #STATUSING
+    # STATUSING
     print_line(" ")
     print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
 
-    #CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
+    # CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
     begin
       result = mssql_query(sql, false) if mssql_login_datastore
       column_data = result[:rows]
@@ -355,14 +355,14 @@ class Metasploit3 < Msf::Auxiliary
     return
     end
 
-    #CREATE TABLE TO STORE SQL SERVER DATA LOOT
+    # CREATE TABLE TO STORE SQL SERVER DATA LOOT
     sql_data_tbl = Rex::Ui::Text::Table.new(
       'Header'  => 'SQL Server Data',
       'Indent'   => 1,
       'Columns' => ['Server', 'Database', 'Schema', 'Table', 'Column', 'Data Type', 'Sample Data', 'Row Count']
     )
 
-    #STATUSING
+    # STATUSING
     print_status("Attempting to retrieve data ...")
 
     if (column_data.count < 7)
@@ -386,7 +386,7 @@ class Metasploit3 < Msf::Auxiliary
       print_line(" ")
     end
 
-    #SETUP ROW WIDTHS
+    # SETUP ROW WIDTHS
     widths = [0, 0, 0, 0, 0, 0, 0, 0]
     (column_data|headings).each { |row|
       0.upto(7) { |col|
@@ -394,7 +394,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     }
 
-    #PRINT HEADERS
+    # PRINT HEADERS
     buffer1 = ""
     buffer2 = ""
     headings.each { |row|
@@ -406,7 +406,7 @@ class Metasploit3 < Msf::Auxiliary
       buffer2 = buffer2.chomp(",")+ "\n"
     }
 
-    #PRINT DIVIDERS
+    # PRINT DIVIDERS
     buffer1 = ""
     buffer2 = ""
     headings.each { |row|
@@ -417,7 +417,7 @@ class Metasploit3 < Msf::Auxiliary
       print_line(buffer1)
     }
 
-    #PRINT DATA
+    # PRINT DATA
     buffer1 = ""
     buffer2 = ""
     print_line("")
@@ -429,7 +429,7 @@ class Metasploit3 < Msf::Auxiliary
       print_line(buffer1)
       buffer2 = buffer2.chomp(",")+ "\n"
 
-      #WRITE QUERY OUTPUT TO TEMP REPORT TABLE
+      # WRITE QUERY OUTPUT TO TEMP REPORT TABLE
       sql_data_tbl << [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]]
 
       buffer1 = ""
@@ -448,7 +448,7 @@ class Metasploit3 < Msf::Auxiliary
       )
     end
 
-    #CONVERT TABLE TO CSV AND WRITE TO FILE
+    # CONVERT TABLE TO CSV AND WRITE TO FILE
     if (save_loot=="yes")
       filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
       path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results",this_service)

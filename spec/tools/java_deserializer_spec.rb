@@ -47,14 +47,32 @@ describe JavaDeserializer do
     end
 
     context "when file contains a valid stream" do
-      it "prints the stream contents" do
-        expect(File).to receive(:new) do
-          contents = valid_stream
-          StringIO.new(contents)
+      before(:each) do
+        $stdout.string = ''
+      end
+
+      context "when no options" do
+        it "prints the stream contents" do
+          expect(File).to receive(:new) do
+            contents = valid_stream
+            StringIO.new(contents)
+          end
+          deserializer.file = 'sample'
+          deserializer.run
+          expect($stdout.string).to include('[7e0001] NewArray { char, ["97", "98"] }')
         end
-        deserializer.file = 'sample'
-        deserializer.run
-        expect($stdout.string).to include('[7e0001] NewArray { char, ["97", "98"] }')
+      end
+
+      context "when :array in options" do
+        it "prints the array contents" do
+          expect(File).to receive(:new) do
+            contents = valid_stream
+            StringIO.new(contents)
+          end
+          deserializer.file = 'sample'
+          deserializer.run({:array => '0'})
+          expect($stdout.string).to include('Array Type: char')
+        end
       end
     end
 
@@ -69,6 +87,5 @@ describe JavaDeserializer do
         expect($stdout.string).to include('[-] Failed to unserialize Stream')
       end
     end
-
   end
 end

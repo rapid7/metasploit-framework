@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
       'Description'   => 'WordPress Authentication Brute Force and User Enumeration Utility',
       'Author'        =>
         [
-          'Alligator Security Team',
           'Tiago Ferreira <tiago.ccna[at]gmail.com>',
           'Zach Grace <zgrace[at]404labs.com>',
           'Christian Mehlmauer'

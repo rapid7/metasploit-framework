@@ -37,12 +37,12 @@ class Metasploit3 < Msf::Auxiliary
           ])
       ], self.class)
 
-    # "Set to false to prevent account lockouts - it will!"
+    # Set to false to prevent account lockouts - it will!
     deregister_options('BLANK_PASSWORDS')
   end
 
   def target_url
-    #Function to display correct protocol and host/vhost info
+    # Function to display correct protocol and host/vhost info
     if rport == 443 or ssl
       proto = "https"
     else
@@ -74,8 +74,8 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
 
-      #Check for HTTP 200 response.
-      #Numerous versions and configs make if difficult to further fingerprint.
+      # Check for HTTP 200 response.
+      # Numerous versions and configs make if difficult to further fingerprint.
       if (res and res.code == 200)
         print_status("Ektron CMS400.NET install found at #{target_url}  [HTTP 200]")
 
@@ -110,8 +110,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def get_version
-      #Attempt to retrieve the version of CMS400.NET installed.
-      #Not always possible based on version/config.
+      # Attempt to retrieve the version of CMS400.NET installed.
+      # Not always possible based on version/config.
       payload = "http://#{vhost}:#{rport}/WorkArea/java/ektron.site-data.js.ashx"
       res = send_request_cgi(
       {

@@ -28,7 +28,7 @@ require 'msf/core/payload_generator'
 
   # Creates a new framework object.
   #
-  # @note Ignores any previously cached value
+  # @note Ignores any previously cached value.
   # @param (see ::Msf::Simple::Framework.create)
   # @return [Msf::Framework]
   def init_framework(create_opts={})
@@ -66,7 +66,7 @@ require 'msf/core/payload_generator'
       end
     end
 
-    opt.on('-l', '--list       [module_type]', Array, 'List a module type example: payloads, encoders, nops, all') do |l|
+    opt.on('-l', '--list       [module_type]', Array, 'List a module type. Options are: payloads, encoders, nops, all') do |l|
       if l.nil? or l.empty?
         l = ["all"]
       end
@@ -297,8 +297,14 @@ if __FILE__ == $0
       exit
     end
 
-    $stderr.puts "Options for #{payload_mod.fullname}\n\n"
-    $stdout.puts ::Msf::Serializer::ReadableText.dump_module(payload_mod,'    ')
+    $stderr.puts "Options for #{payload_mod.fullname}:\n\n"
+    $stdout.puts ::Msf::Serializer::ReadableText.dump_module(payload_mod, '    ')
+
+    $stderr.puts "Advanced options for #{payload_mod.fullname}:\n\n"
+    $stdout.puts ::Msf::Serializer::ReadableText.dump_advanced_options(payload_mod, '    ')
+
+    $stderr.puts "Evasion options for #{payload_mod.fullname}:\n\n"
+    $stdout.puts ::Msf::Serializer::ReadableText.dump_evasion_options(payload_mod, '    ')
     exit(0)
   end
 
@@ -331,6 +337,8 @@ if __FILE__ == $0
     output_stream = $stdout
     output_stream.binmode
     output_stream.write payload
+    # trailing newline for pretty output
+    $stderr.puts unless payload =~ /\n$/
   end
 
 end

@@ -32,10 +32,6 @@ Copyright: 2003-2010 Mark Borgerding
            2009-2012 H D Moore <hdm[at]rapid7.com>
 License: BSD-3-clause
 
-Files: external/ruby-lorcon/*
-Copyright: 2005, dragorn and Joshua Wright
-License: LGPL-2.1
-
 Files: external/source/exploits/IE11SandboxEscapes/*
 Copyright: James Forshaw, 2014
 License: GPLv3

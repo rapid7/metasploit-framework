@@ -5,7 +5,7 @@
 
 class Metasploit3 < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::SMB
+  include Msf::Exploit::Remote::SMB::Client
   include Auxiliary::Dos
 
   def initialize(info = {})

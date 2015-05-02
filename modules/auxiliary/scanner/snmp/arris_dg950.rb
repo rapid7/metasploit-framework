@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       print_line("Password: #{password}")
       wifi_info << "Password: #{password}" << "\n"
     else
-      fail_with("Does not appear to be an Arris DG950A")
+      fail_with(Failure::NoTarget, "Does not appear to be an Arris DG950A")
     end
 
     # check WPA Encryption Algorithm
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
         print_line('Open Access Wifi is Enabled')
         wifi_info << 'Open Access WIFI is Enabled' << '\n'
 
-      # Wep enabled
+      # WEP enabled
       elsif wifi_version == '1'
         wep_type = snmp.get_value('1.3.6.1.4.1.4115.1.20.1.1.3.23.1.2.12')
         case wep_type

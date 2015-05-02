@@ -28,7 +28,6 @@ class Console::CommandDispatcher::Core
     self.extensions = []
     self.bgjobs     = []
     self.bgjob_id   = 0
-
   end
 
   @@load_opts = Rex::Parser::Arguments.new(
@@ -50,6 +49,7 @@ class Console::CommandDispatcher::Core
       "irb"        => "Drop into irb scripting mode",
       "use"        => "Deprecated alias for 'load'",
       "load"       => "Load one or more meterpreter extensions",
+      "machine_id" => "Get the MSF ID of the machine attached to the session",
       "quit"       => "Terminate the meterpreter session",
       "resource"   => "Run the commands stored in a file",
       "read"       => "Reads data from a channel",
@@ -65,10 +65,17 @@ class Console::CommandDispatcher::Core
     if client.passive_service
       c["detach"] = "Detach the meterpreter session (for http/https)"
     end
-    # The only meterp that implements this right now is native Windows and for
-    # whatever reason it is not adding core_migrate to its list of commands.
-    # Use a dumb platform til it gets sorted.
-    #if client.commands.include? "core_migrate"
+
+    # Currently we have some windows-specific core commands`
+    if client.platform =~ /win/
+      # only support the SSL switching for HTTPS
+      if client.passive_service && client.sock.type? == 'tcp-ssl'
+        c["ssl_verify"] = "Modify the SSL certificate verification setting"
+      end
+
+      c["transport"] = "Change the current transport mechanism"
+    end
+
     if client.platform =~ /win/ || client.platform =~ /linux/
       c["migrate"] = "Migrate the server to another process"
     end
@@ -318,6 +325,188 @@ class Console::CommandDispatcher::Core
     session = client
     framework = client.framework
     Rex::Ui::Text::IrbShell.new(binding).run
+  end
+
+  #
+  # Get the machine ID of the target
+  #
+  def cmd_machine_id(*args)
+    print_good("Machine ID: #{client.core.machine_id}")
+  end
+
+  #
+  # Arguments for ssl verification
+  #
+  @@ssl_verify_opts = Rex::Parser::Arguments.new(
+    '-e' => [ false, 'Enable SSL certificate verification' ],
+    '-d' => [ false, 'Disable SSL certificate verification' ],
+    '-q' => [ false, 'Query the statis of SSL certificate verification' ],
+    '-h' => [ false, 'Help menu' ])
+
+  #
+  # Help for ssl verification
+  #
+  def cmd_ssl_verify_help
+    print_line('Usage: ssl_verify [options]')
+    print_line
+    print_line('Change and query the current setting for SSL verification')
+    print_line('Only one of the following options can be used at a time')
+    print_line(@@ssl_verify_opts.usage)
+  end
+
+  #
+  # Handle the SSL verification querying and setting function.
+  #
+  def cmd_ssl_verify(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      cmd_ssl_verify_help
+      return
+    end
+
+    query = false
+    enable = false
+    disable = false
+
+    settings = 0
+
+    @@ssl_verify_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-q'
+        query = true
+        settings += 1
+      when '-e'
+        enable = true
+        settings += 1
+      when '-d'
+        disable = true
+        settings += 1
+      end
+    end
+
+    # Make sure only one action has been chosen
+    if settings != 1
+      cmd_ssl_verify_help
+      return
+    end
+
+    if query
+      hash = client.core.get_ssl_hash_verify
+      if hash
+        print_good("SSL verification is enabled. SHA1 Hash: #{hash.unpack("H*")[0]}")
+      else
+        print_good("SSL verification is disabled.")
+      end
+
+    elsif enable
+      hash = client.core.enable_ssl_hash_verify
+      if hash
+        print_good("SSL verification has been enabled. SHA1 Hash: #{hash.unpack("H*")[0]}")
+      else
+        print_error("Failed to enable SSL verification")
+      end
+
+    else
+      if client.core.disable_ssl_hash_verify
+        print_good('SSL verification has been disabled')
+      else
+        print_error("Failed to disable SSL verification")
+      end
+    end
+
+  end
+
+  #
+  # Arguments for transport switching
+  #
+  @@transport_opts = Rex::Parser::Arguments.new(
+    '-t'  => [ true,  "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}" ],
+    '-l'  => [ true,  'LHOST parameter (for reverse transports)' ],
+    '-p'  => [ true,  'LPORT parameter' ],
+    '-ua' => [ true,  'User agent for http(s) transports (optional)' ],
+    '-ph' => [ true,  'Proxy host for http(s) transports (optional)' ],
+    '-pp' => [ true,  'Proxy port for http(s) transports (optional)' ],
+    '-pu' => [ true,  'Proxy username for http(s) transports (optional)' ],
+    '-ps' => [ true,  'Proxy password for http(s) transports (optional)' ],
+    '-pt' => [ true,  'Proxy type for http(s) transports (optional: http, socks; default: http)' ],
+    '-c'  => [ true,  'SSL certificate path for https transport verification (optional)' ],
+    '-to' => [ true,  "Comms timeout (seconds) for http(s) transports (default: #{Rex::Post::Meterpreter::ClientCore::DEFAULT_COMMS_TIMEOUT})" ],
+    '-ex' => [ true,  "Expiration timout (seconds) for http(s) transports (default: #{Rex::Post::Meterpreter::ClientCore::DEFAULT_SESSION_EXPIRATION})" ],
+    '-h'  => [ false, 'Help menu' ])
+
+  #
+  # Display help for transport switching
+  #
+  def cmd_transport_help
+    print_line('Usage: transport [options]')
+    print_line
+    print_line('Change the current Meterpreter transport mechanism')
+    print_line(@@transport_opts.usage)
+  end
+
+  #
+  # Change the current transport setings.
+  #
+  def cmd_transport(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      cmd_transport_help
+      return
+    end
+
+    opts = {
+      :transport     => nil,
+      :lhost         => nil,
+      :lport         => nil,
+      :ua            => nil,
+      :proxy_host    => nil,
+      :proxy_port    => nil,
+      :proxy_type    => nil,
+      :proxy_user    => nil,
+      :proxy_pass    => nil,
+      :comms_timeout => nil,
+      :session_exp   => nil,
+      :cert          => nil
+    }
+
+    @@transport_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-c'
+        opts[:cert] = val
+      when '-ph'
+        opts[:proxy_host] = val
+      when '-pp'
+        opts[:proxy_port] = val.to_i
+      when '-pt'
+        opts[:proxy_type] = val
+      when '-pu'
+        opts[:proxy_user] = val
+      when '-ps'
+        opts[:proxy_pass] = val
+      when '-ua'
+        opts[:ua] = val
+      when '-to'
+        opts[:comms_timeout] = val.to_i if val
+      when '-ex'
+        opts[:session_exp] = val.to_i if val
+      when '-p'
+        opts[:lport] = val.to_i if val
+      when '-l'
+        opts[:lhost] = val
+      when '-t'
+        unless client.core.valid_transport?(val)
+          cmd_transport_help
+          return
+        end
+        opts[:transport] = val
+      end
+    end
+
+    print_status("Swapping transport ...")
+    if client.core.transport_change(opts)
+      client.shutdown_passive_dispatcher
+      shell.stop
+    else
+      print_error("Failed to switch transport, please check the parameters")
+    end
   end
 
   def cmd_migrate_help

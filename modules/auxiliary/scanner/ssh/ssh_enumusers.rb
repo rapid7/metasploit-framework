@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
     while attempt_num <= retry_num and (ret.nil? or ret == :connection_error)
       if attempt_num > 0
         Rex.sleep(2 ** attempt_num)
-        print_debug "#{peer(ip)} Retrying '#{user}' due to connection error"
+        vprint_status("#{peer(ip)} Retrying '#{user}' due to connection error")
       end
 
       ret = check_user(ip, user, rport)
@@ -161,12 +161,12 @@ class Metasploit3 < Msf::Auxiliary
   def show_result(attempt_result, user, ip)
     case attempt_result
     when :success
-      print_good "#{peer(ip)} User '#{user}' found"
+      print_good("#{peer(ip)} User '#{user}' found")
       do_report(ip, user, rport)
     when :connection_error
-      print_error "#{peer(ip)} User '#{user}' on could not connect"
+      print_error("#{peer(ip)} User '#{user}' on could not connect")
     when :fail
-      print_debug "#{peer(ip)} User '#{user}' not found"
+      print_error("#{peer(ip)} User '#{user}' not found")
     end
   end
 

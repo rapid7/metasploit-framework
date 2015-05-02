@@ -14,7 +14,8 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'F5 BigIP Backend Cookie Disclosure',
       'Description'    => %q{
         This module identifies F5 BigIP load balancers and leaks backend
-        information (pool name, backend's IP address and port, routed domain) through cookies inserted by the BigIP system.
+        information (pool name, backend's IP address and port, routed domain)
+        through cookies inserted by the BigIP system.
       },
       'Author'         =>
         [
@@ -104,7 +105,6 @@ class Metasploit3 < Msf::Auxiliary
         (rd\d+o([a-f0-9]{32})o(\d{1,5})))
         (?:$|,|;|\s)
       /x
-
       m = res.get_cookies.match(regexp)
       cookie[:id] = (m.nil?) ? nil : m[1]
       cookie[:value] = (m.nil?) ? nil : m[2]

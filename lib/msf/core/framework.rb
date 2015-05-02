@@ -172,7 +172,7 @@ class Framework
   attr_reader   :datastore
   #
   # The framework instance's aux manager.  The aux manager is responsible
-  # for collecting and catalogging all aux information that comes in from
+  # for collecting and cataloging all aux information that comes in from
   # aux modules.
   #
   attr_reader   :auxmgr
