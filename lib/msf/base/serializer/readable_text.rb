@@ -536,6 +536,7 @@ class ReadableText
       ]
 
     columns << 'Via' if verbose
+    columns << 'CheckIn' if verbose
     columns << 'PayloadId' if verbose
 
     tbl = Rex::Ui::Text::Table.new(
@@ -554,11 +555,16 @@ class ReadableText
 
       row = [ session.sid.to_s, session.type.to_s, sinfo, session.tunnel_to_s + " (#{session.session_host})" ]
       if session.respond_to? :platform
-        row[1] += " " + session.platform
+        row[1] << (" " + session.platform)
       end
 
       if verbose
         row << session.via_exploit.to_s
+        if session.respond_to?(:last_checkin) && session.last_checkin
+          row << "#{(Time.now.to_i - session.last_checkin.to_i)}s"
+        else
+          row << ''
+        end
         row << session.payload_uuid.to_s
       end
 

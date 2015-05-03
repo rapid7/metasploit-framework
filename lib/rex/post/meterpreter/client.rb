@@ -464,6 +464,10 @@ class Client
   # A list of the commands
   #
   attr_reader :commands
+  #
+  # The timestamp of the last received response
+  #
+  attr_accessor :last_checkin
 
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:
