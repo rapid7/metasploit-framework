@@ -113,8 +113,8 @@ private
 
   def extension_block(ext_name, file_extension)
     ext_name = ext_name.strip.downcase
-    ext, o = load_rdi_dll(MeterpreterBinaries.path("ext_server_#{ext_name}",
-                                                   file_extension))
+    ext, o = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
+                                                              file_extension))
 
     extension_data = [ ext.length, ext ].pack("VA*")
   end

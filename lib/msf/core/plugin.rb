@@ -120,13 +120,6 @@ class Plugin
   end
 
   #
-  # Prints a 'debug' message.
-  #
-  def print_debug(msg='')
-    output.print_debug(msg) if (output)
-  end
-
-  #
   # Prints a status line.
   #
   def print_status(msg='')

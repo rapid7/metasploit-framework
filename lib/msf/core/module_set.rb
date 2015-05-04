@@ -315,21 +315,40 @@ class Msf::ModuleSet < Hash
   # @return [Array<Array<String, Class>>] Array of arrays where the inner array is a pair of the module reference name
   #   and the module class.
   def rank_modules
-    self.mod_ranked = self.sort { |a, b|
-      a_name, a_mod = a
-      b_name, b_mod = b
-
-      # Dynamically loads the module if needed
-      a_mod = create(a_name) if a_mod == Msf::SymbolicModule
-      b_mod = create(b_name) if b_mod == Msf::SymbolicModule
-
-      # Extract the ranking between the two modules
-      a_rank = a_mod.const_defined?('Rank') ? a_mod.const_get('Rank') : Msf::NormalRanking
-      b_rank = b_mod.const_defined?('Rank') ? b_mod.const_get('Rank') : Msf::NormalRanking
+    self.mod_ranked = self.sort { |a_pair, b_pair|
+      a_rank = module_rank(*a_pair)
+      b_rank = module_rank(*b_pair)
 
       # Compare their relevant rankings.  Since we want highest to lowest,
       # we compare b_rank to a_rank in terms of higher/lower precedence
       b_rank <=> a_rank
     }
+  end
+
+  # Retrieves the rank from a loaded, not-yet-loaded, or unloadable Metasploit Module.
+  #
+  # @param reference_name [String] The reference name of the Metasploit Module
+  # @param metasploit_module_class [Class<Msf::Module>, Msf::SymbolicModule] The loaded `Class` for the Metasploit
+  #   Module, or {Msf::SymbolicModule} if the Metasploit Module is not loaded yet.
+  # @return [Integer] an `Msf::*Ranking`.  `Msf::ManualRanking` if `metasploit_module_class` is `nil` or
+  #   {Msf::SymbolicModule} and it could not be loaded by {#create}.  Otherwise, the `Rank` constant of the
+  #   `metasploit_module_class` or {Msf::NormalRanking} if `metasploit_module_class` does not define `Rank`.
+  def module_rank(reference_name, metasploit_module_class)
+    if metasploit_module_class.nil?
+      Msf::ManualRanking
+    elsif metasploit_module_class == Msf::SymbolicModule
+      # TODO don't create an instance just to get the Class.
+      created_metasploit_module_instance = create(reference_name)
+
+      if created_metasploit_module_instance.nil?
+        module_rank(reference_name, nil)
+      else
+        module_rank(reference_name, created_metasploit_module_instance.class)
+      end
+    elsif metasploit_module_class.const_defined? :Rank
+      metasploit_module_class.const_get :Rank
+    else
+      Msf::NormalRanking
+    end
   end
 end

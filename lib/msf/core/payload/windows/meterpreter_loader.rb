@@ -68,7 +68,7 @@ module Payload::Windows::MeterpreterLoader
 
   def stage_meterpreter(stageless=false)
     # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x86.dll'))
+    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll'))
 
     asm_opts = {
       :rdi_offset => offset,

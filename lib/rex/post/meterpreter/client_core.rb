@@ -272,7 +272,7 @@ class ClientCore < Extension
       # Get us to the installation root and then into data/meterpreter, where
       # the file is expected to be
       modname = "ext_server_#{mod.downcase}"
-      path = MeterpreterBinaries.path(modname, client.binary_suffix)
+      path = MetasploitPayloads.meterpreter_path(modname, client.binary_suffix)
 
       if opts['ExtensionPath']
         path = ::File.expand_path(opts['ExtensionPath'])
@@ -697,10 +697,7 @@ class ClientCore < Extension
   end
 
   def generate_linux_stub
-    file = ::File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
-    blob = ::File.open(file, "rb") {|f|
-      f.read(f.stat.size)
-    }
+    blob = MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
 
     blob
   end

@@ -50,7 +50,6 @@ class Console::CommandDispatcher::Core
       "use"        => "Deprecated alias for 'load'",
       "load"       => "Load one or more meterpreter extensions",
       "machine_id" => "Get the MSF ID of the machine attached to the session",
-      "uuid"       => "Get the UUID for the current session",
       "quit"       => "Terminate the meterpreter session",
       "resource"   => "Run the commands stored in a file",
       "read"       => "Reads data from a channel",
@@ -78,7 +77,12 @@ class Console::CommandDispatcher::Core
     end
 
     if client.platform =~ /win/ || client.platform =~ /linux/
+      # Migration only supported on windows and linux
       c["migrate"] = "Migrate the server to another process"
+
+      # UUID functionality isn't yet available on other platforms
+      c["uuid"] = "Get the UUID for the current session",
+
       # Yet to implement transport hopping for other meterpreters.
       # Works for posix and native windows though.
       c["transport"] = "Change the current transport mechanism"
@@ -791,8 +795,8 @@ class Console::CommandDispatcher::Core
       case opt
       when "-l"
         exts = SortedSet.new
-        msf_path = MeterpreterBinaries.metasploit_data_dir
-        gem_path = MeterpreterBinaries.local_dir
+        msf_path = MetasploitPayloads.msf_meterpreter_dir
+        gem_path = MetasploitPayloads.local_meterpreter_dir
         [msf_path, gem_path].each do |path|
           ::Dir.entries(path).each { |f|
             if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
@@ -839,8 +843,8 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
-    msf_path = MeterpreterBinaries.metasploit_data_dir
-    gem_path = MeterpreterBinaries.local_dir
+    msf_path = MetasploitPayloads.msf_meterpreter_dir
+    gem_path = MetasploitPayloads.local_meterpreter_dir
     [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
