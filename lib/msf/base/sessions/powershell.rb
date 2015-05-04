@@ -33,4 +33,27 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   def desc
     "Powershell session"
   end
+
+  #
+  # Takes over the shell_command of the parent 
+  #
+  def shell_command(cmd)
+    # Send the command to the session's stdin.
+    shell_write(cmd + "\n")
+
+    timeo = 5
+    etime = ::Time.now.to_f + timeo
+    buff = ""
+
+    # Keep reading data until no more data is available or the timeout is
+    # reached.
+    while (::Time.now.to_f < etime and (self.respond_to?(:ring) or ::IO.select([rstream], nil, nil, timeo)))
+      res = shell_read(-1, 0.01)
+      res.gsub!(/PS .*>/, '')
+      buff << res if res
+      timeo = etime - ::Time.now.to_f
+    end
+
+    buff
+  end
 end
