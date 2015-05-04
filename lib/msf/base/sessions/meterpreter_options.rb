@@ -76,7 +76,10 @@ module MeterpreterOptions
     end
 
     # Terminate the session without cleanup if it did not validate
-    session.kill(true) if not valid
+    if not valid
+      session.skip_cleanup = true
+      session.kill
+    end
 
     }
 

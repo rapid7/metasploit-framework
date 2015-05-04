@@ -84,8 +84,8 @@ class Client
   #
   # Cleans up the meterpreter instance, terminating the dispatcher thread.
   #
-  def cleanup_meterpreter(dirty)
-    if not dirty
+  def cleanup_meterpreter
+    if not self.skip_cleanup
       ext.aliases.each_value do | extension |
         extension.cleanup if extension.respond_to?( 'cleanup' )
       end
@@ -93,7 +93,7 @@ class Client
 
     dispatcher_thread.kill if dispatcher_thread
 
-    if not dirty
+    if not self.skip_cleanup
       core.shutdown rescue nil
     end
 

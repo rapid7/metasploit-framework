@@ -252,12 +252,13 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Terminates the session
   #
-  def kill(dirty=false)
+  def kill
     begin
-      cleanup_meterpreter(dirty)
+      cleanup_meterpreter
       self.sock.close if self.sock
     rescue ::Exception
     end
+    # deregister will actually trigger another cleanup
     framework.sessions.deregister(self)
   end
 
@@ -466,6 +467,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   attr_accessor :binary_suffix
   attr_accessor :console # :nodoc:
   attr_accessor :skip_ssl
+  attr_accessor :skip_cleanup
   attr_accessor :target_id
 
 protected
