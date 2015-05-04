@@ -75,7 +75,8 @@ module MeterpreterOptions
       end
     end
 
-    session.kill if not valid
+    # Terminate the session without cleanup if it did not validate
+    session.kill(true) if not valid
 
     }
 

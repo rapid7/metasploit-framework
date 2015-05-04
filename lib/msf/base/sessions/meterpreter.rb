@@ -252,10 +252,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Terminates the session
   #
-  def kill
+  def kill(dirty=false)
     begin
-      cleanup_meterpreter
-      self.sock.close
+      cleanup_meterpreter(dirty)
+      self.sock.close if self.sock
     rescue ::Exception
     end
     framework.sessions.deregister(self)
