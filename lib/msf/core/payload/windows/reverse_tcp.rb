@@ -19,13 +19,6 @@ module Payload::Windows::ReverseTcp
   include Msf::Payload::Windows::Exitfunk
 
   #
-  # Register reverse_tcp specific options
-  #
-  def initialize(*args)
-    super
-  end
-
-  #
   # Generate the first stage
   #
   def generate
