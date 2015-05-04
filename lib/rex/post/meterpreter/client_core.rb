@@ -100,6 +100,32 @@ class ClientCore < Extension
     commands
   end
 
+  def transport_list
+    request = Packet.create_request('core_transport_list')
+    response = client.send_request(request)
+
+    result = {
+      :session_exp => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
+      :transports  => []
+    }
+
+    response.each(TLV_TYPE_TRANS_GROUP) { |t|
+      result[:transports] << {
+        :url          => t.get_tlv_value(TLV_TYPE_TRANS_URL),
+        :comm_timeout => t.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
+        :retry_total  => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
+        :retry_wait   => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT),
+        :ua           => t.get_tlv_value(TLV_TYPE_TRANS_UA),
+        :proxy_host   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_HOST),
+        :proxy_user   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_USER),
+        :proxy_pass   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_PASS),
+        :cert_hash    => t.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
+      }
+    }
+
+    result
+  end
+
   def set_transport_timeouts(opts={})
     request = Packet.create_request('core_transport_set_timeouts')
 
@@ -620,7 +646,7 @@ class ClientCore < Extension
         prefix = 'http://'
         prefix = 'socks=' if opts[:proxy_type] == 'socks'
         proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
-        request.add_tlv(TLV_TYPE_TRANS_PROXY_INFO, proxy)
+        request.add_tlv(TLV_TYPE_TRANS_PROXY_HOST, proxy)
 
         if opts[:proxy_user]
           request.add_tlv(TLV_TYPE_TRANS_PROXY_USER, opts[:proxy_user])

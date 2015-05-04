@@ -379,10 +379,18 @@ class Console::CommandDispatcher::Core
   end
 
   def print_timeouts(timeouts)
-    print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
-    print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")
-    print_line("Retry Total Time: #{timeouts[:retry_total]} seconds")
-    print_line("Retry Wait Time : #{timeouts[:retry_wait]} seconds")
+    if timeouts[:session_exp]
+      print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
+    end
+    if timeouts[:comm_timeout]
+      print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")
+    end
+    if timeouts[:retry_total]
+      print_line("Retry Total Time: #{timeouts[:retry_total]} seconds")
+    end
+    if timeouts[:retry_wait]
+      print_line("Retry Wait Time : #{timeouts[:retry_wait]} seconds")
+    end
   end
 
   #
@@ -500,14 +508,16 @@ class Console::CommandDispatcher::Core
     '-ex' => [ true,  'Expiration timout (seconds) (default: same as current session)' ],
     '-rt' => [ true,  'Retry total time (seconds) (default: same as current session)' ],
     '-rw' => [ true,  'Retry wait time (seconds) (default: same as current session)' ],
+    '-v'  => [ false, 'Show the verbose format of the transport list' ],
     '-h'  => [ false, 'Help menu' ])
 
   #
   # Display help for transport management.
   #
   def cmd_transport_help
-    print_line('Usage: transport <change|add|next|prev> [options]')
+    print_line('Usage: transport <list|change|add|next|prev> [options]')
     print_line
+    print_line('   list: list the currently active transports.')
     print_line('    add: add a new transport to the transport list.')
     print_line(' change: same as add, but changes directly to the added entry.')
     print_line('   next: jump to the next transport in the list (no options).')
@@ -525,7 +535,7 @@ class Console::CommandDispatcher::Core
     end
 
     command = args.shift
-    unless ['add', 'change', 'prev', 'next'].include?(command)
+    unless ['list', 'add', 'change', 'prev', 'next'].include?(command)
       cmd_transport_help
       return
     end
@@ -544,7 +554,8 @@ class Console::CommandDispatcher::Core
       :session_exp   => nil,
       :retry_total   => nil,
       :retry_wait    => nil,
-      :cert          => nil
+      :cert          => nil,
+      :verbose       => false
     }
 
     @@transport_opts.parse(args) do |opt, idx, val|
@@ -575,6 +586,8 @@ class Console::CommandDispatcher::Core
         opts[:lport] = val.to_i if val
       when '-l'
         opts[:lhost] = val
+      when '-v'
+        opts[:verbose] = true
       when '-t'
         unless client.core.valid_transport?(val)
           cmd_transport_help
@@ -585,6 +598,51 @@ class Console::CommandDispatcher::Core
     end
 
     case command
+    when 'list'
+      result = client.core.transport_list
+      # this will output the session timeout first
+      print_timeouts(result)
+
+      columns =[
+        'Curr',
+        'URL',
+        'Comms T/O',
+        'Retry Total',
+        'Retry Wait'
+      ]
+
+      if opts[:verbose]
+        columns << 'User Agent'
+        columns << 'Proxy Host'
+        columns << 'Proxy User'
+        columns << 'Proxy Pass'
+        columns << 'Cert Hash'
+      end
+
+      # next draw up a table of transport entries
+      tbl = Rex::Ui::Text::Table.new(
+        'Indent'  => 4,
+        'Columns' => columns)
+
+      first = true
+      result[:transports].each do |t|
+        entry = [ first ? '*' : '', t[:url], t[:comm_timeout],
+                  t[:retry_total], t[:retry_wait] ]
+
+        first = false
+
+        if opts[:verbose]
+          entry << t[:ua]
+          entry << t[:proxy_host]
+          entry << t[:proxy_user]
+          entry << t[:proxy_pass]
+          entry << (t[:cert_hash] || '').unpack("H*")[0]
+        end
+
+        tbl << entry
+      end
+
+      print("\n" + tbl.to_s + "\n")
     when 'next'
       print_status("Changing to next transport ...")
       if client.core.transport_next
