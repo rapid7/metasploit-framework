@@ -38,7 +38,7 @@ module Metasploit4
   end
 
   def generate
-    stage_meterpreter + generate_config
+    stage_meterpreter(true) + generate_config
   end
 
   def generate_config(opts={})

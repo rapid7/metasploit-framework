@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/transport_config'
 require 'msf/core/handler/bind_tcp'
-require 'msf/core/payload/windows/_meterpreter_loader'
+require 'msf/core/payload/windows/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
 
@@ -39,7 +39,7 @@ module Metasploit4
   end
 
   def generate
-    stage_meterpreter + generate_config
+    stage_meterpreter(true) + generate_config
   end
 
   def generate_config(opts={})

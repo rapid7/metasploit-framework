@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/transport_config'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/core/payload/windows/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x86_win'
@@ -13,6 +14,7 @@ module Metasploit3
 
   CachedSize = :dynamic
 
+  include Msf::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Single
   include Msf::Payload::Windows::MeterpreterLoader
@@ -37,7 +39,7 @@ module Metasploit3
   end
 
   def generate
-    stage_meterpreter + generate_config
+    stage_meterpreter(true) + generate_config
   end
 
   def generate_config(opts={})

