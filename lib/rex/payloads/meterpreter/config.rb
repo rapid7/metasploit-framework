@@ -18,6 +18,11 @@ class Rex::Payloads::Meterpreter::Config
 
   def initialize(opts={})
     @opts = opts
+    if opts[:ascii_str] && opts[:ascii_str] == true
+      @to_str = self.method(:to_ascii)
+    else
+      @to_str = self.method(:to_wchar_t)
+    end
   end
 
   def to_b
@@ -30,13 +35,25 @@ private
     @opts[:arch] == ARCH_X86
   end
 
+  def to_str(item, size)
+    @to_str.call(item, size)
+  end
+
   def to_wchar_t(item, size)
-    item.to_s.ljust(size, "\x00").unpack("C*").pack("v*")
+    to_ascii(item, size).unpack("C*").pack("v*")
+  end
+
+  def to_ascii(item, size)
+    item.to_s.ljust(size, "\x00")
   end
 
   def session_block(opts)
-    uuid = to_wchar_t(opts[:uuid].to_raw, UUID_SIZE)
-    exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
+    uuid = to_str(opts[:uuid].to_raw, UUID_SIZE)
+    if opts[:exitfunk]
+      exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
+    else
+      exit_func = 0
+    end
 
     session_data = [
       0,                  # comms socket, patched in by the stager
@@ -63,17 +80,17 @@ private
     # of other stuff
     pack = 'A*VVV'
     transport_data = [
-      to_wchar_t(url, URL_SIZE), # transport URL
+      to_str(url, URL_SIZE),     # transport URL
       opts[:comm_timeout],       # communications timeout
       opts[:retry_total],        # retry total time
       opts[:retry_wait]          # retry wait time
     ]
 
     if url.start_with?('http')
-      proxy_host = to_wchar_t(opts[:proxy_host] || '', PROXY_HOST_SIZE)
-      proxy_user = to_wchar_t(opts[:proxy_user] || '', PROXY_USER_SIZE)
-      proxy_pass = to_wchar_t(opts[:proxy_pass] || '', PROXY_PASS_SIZE)
-      ua = to_wchar_t(opts[:ua] || '', UA_SIZE)
+      proxy_host = to_str(opts[:proxy_host] || '', PROXY_HOST_SIZE)
+      proxy_user = to_str(opts[:proxy_user] || '', PROXY_USER_SIZE)
+      proxy_pass = to_str(opts[:proxy_pass] || '', PROXY_PASS_SIZE)
+      ua = to_str(opts[:ua] || '', UA_SIZE)
 
       cert_hash = "\x00" * CERT_HASH_SIZE
       cert_hash = opts[:ssl_cert_hash] if opts[:ssl_cert_hash]
