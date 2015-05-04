@@ -5,7 +5,6 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_http'
-require 'msf/core/handler/reverse_http/stageless'
 require 'msf/core/payload/windows/x64/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
@@ -18,7 +17,6 @@ module Metasploit4
   include Msf::Payload::Windows
   include Msf::Payload::Single
   include Msf::Payload::Windows::MeterpreterLoader_x64
-  include Msf::Handler::ReverseHttp::Stageless
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
@@ -34,7 +32,9 @@ module Metasploit4
       'Session'     => Msf::Sessions::Meterpreter_x64_Win
       ))
 
-    initialize_stageless
+    register_options([
+      OptString.new('EXTENSIONS', [false, "Comma-separate list of extensions to load"]),
+    ], self.class)
   end
 
   def generate
