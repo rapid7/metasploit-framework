@@ -250,7 +250,7 @@ module ReverseHopHttp
     #
     # Patch options into the payload
     #
-    Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
+    Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
       :ssl            => ssl?,
       :url            => url,
       :expiration     => datastore['SessionExpirationTimeout'],
@@ -260,7 +260,7 @@ module ReverseHopHttp
       :proxy_port     => datastore['PayloadProxyPort'],
       :proxy_type     => datastore['PayloadProxyType'],
       :proxy_user     => datastore['PayloadProxyUser'],
-      :proxy_pass     => datastore['PayloadProxyPass']
+      :proxy_pass     => datastore['PayloadProxyPass'])
 
     blob = encode_stage(blob)
 

@@ -169,12 +169,21 @@ module ReverseTcp
             break
           end
 
+          # Timeout and datastore options need to be passed through to the client
+          opts = {
+            :datastore    => datastore,
+            :expiration   => datastore['SessionExpirationTimeout'].to_i,
+            :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+            :retry_total  => datastore['SessionRetryTotal'].to_i,
+            :retry_wait   => datastore['SessionRetryWait'].to_i
+          }
+
           if datastore['ReverseListenerThreaded']
             self.conn_threads << framework.threads.spawn("ReverseTcpHandlerSession-#{local_port}-#{client.peerhost}", false, client) { |client_copy|
-              handle_connection(wrap_aes_socket(client_copy), { datastore: datastore })
+              handle_connection(wrap_aes_socket(client_copy), opts)
             }
           else
-            handle_connection(wrap_aes_socket(client), { datastore: datastore })
+            handle_connection(wrap_aes_socket(client), opts)
           end
         rescue ::Exception
           elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
