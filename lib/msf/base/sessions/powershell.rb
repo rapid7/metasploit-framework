@@ -35,7 +35,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   end
 
   #
-  # Takes over the shell_command of the parent 
+  # Takes over the shell_command of the parent
   #
   def shell_command(cmd)
     # Send the command to the session's stdin.
