@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 
@@ -14,6 +15,7 @@ module Msf
 
 module Payload::Windows::ReverseTcp
 
+  include Msf::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
@@ -42,15 +44,8 @@ module Payload::Windows::ReverseTcp
     generate_reverse_tcp(conf)
   end
 
-  def generate_transport_config(opts={})
-    {
-      :scheme       => 'tcp',
-      :lhost        => datastore['LHOST'],
-      :lport        => datastore['LPORT'].to_i,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+  def transport_config(opts={})
+    transport_config_reverse_tcp(opts)
   end
 
   #

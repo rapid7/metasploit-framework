@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/transport_config'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -14,6 +15,7 @@ module Msf
 
 module Payload::Windows::ReverseTcp_x64
 
+  include Msf::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
@@ -66,15 +68,8 @@ module Payload::Windows::ReverseTcp_x64
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
   end
 
-  def generate_transport_config(opts={})
-    {
-      :scheme       => 'tcp',
-      :lhost        => datastore['LHOST'],
-      :lport        => datastore['LPORT'].to_i,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+  def transport_config(opts={})
+    transport_config_reverse_tcp(opts)
   end
 
   #

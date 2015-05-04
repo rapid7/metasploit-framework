@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/transport_config'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -14,6 +15,7 @@ module Msf
 
 module Payload::Windows::BindTcp_x64
 
+  include Msf::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
@@ -42,14 +44,8 @@ module Payload::Windows::BindTcp_x64
     generate_bind_tcp(conf)
   end
 
-  def generate_transport_config(opts={})
-    {
-      :scheme       => 'tcp',
-      :lport        => datastore['LPORT'].to_i,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+  def transport_config(opts={})
+    transport_config_bind_tcp(opts)
   end
 
   #

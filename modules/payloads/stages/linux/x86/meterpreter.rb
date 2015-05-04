@@ -175,7 +175,7 @@ module Metasploit3
       :exitfunk   => nil,
       :expiration => datastore['SessionExpirationTimeout'].to_i,
       :uuid       => opts[:uuid],
-      :transports => [ generate_transport_config(opts) ],
+      :transports => [transport_config(opts)],
       :extensions => [],
       :ascii_str  => true
     }

@@ -74,6 +74,7 @@ private
     end
 
     url = "#{opts[:scheme]}://#{lhost}:#{opts[:lport]}"
+    url << "?#{opts[:scope_id]}" if opts[:scope_id]
     url << "#{opts[:uri]}/" if opts[:uri]
 
     # if the transport URI is for a HTTP payload we need to add a stack

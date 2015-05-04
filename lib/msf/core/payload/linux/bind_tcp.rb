@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/transport_config'
 
 module Msf
 
@@ -14,6 +15,7 @@ module Msf
 
 module Payload::Linux::BindTcp
 
+  include Msf::TransportConfig
   include Msf::Payload::Linux
 
   #
@@ -44,14 +46,8 @@ module Payload::Linux::BindTcp
     Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
   end
 
-  def generate_transport_config(opts={})
-    {
-      :scheme       => 'tcp',
-      :lport        => datastore['LPORT'].to_i,
-      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
-      :retry_total  => datastore['SessionRetryTotal'].to_i,
-      :retry_wait   => datastore['SessionRetryWait'].to_i
-    }
+  def transport_config(opts={})
+    transport_config_bind_tcp(opts)
   end
 
   #

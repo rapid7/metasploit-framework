@@ -50,7 +50,7 @@ module Metasploit4
       :exitfunk   => datastore['EXITFUNC'],
       :expiration => datastore['SessionExpirationTimeout'].to_i,
       :uuid       => opts[:uuid],
-      :transports => [ generate_transport_config(opts) ],
+      :transports => [transport_config(opts)],
       :extensions => []
     }
 

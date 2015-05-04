@@ -5,13 +5,11 @@ require 'msf/core/reflective_dll_loader'
 
 module Msf
 
-
 ###
 #
 # Common module stub for ARCH_X86 payloads that make use of Meterpreter.
 #
 ###
-
 
 module Payload::Windows::MeterpreterLoader
 
@@ -34,7 +32,7 @@ module Payload::Windows::MeterpreterLoader
       ))
   end
 
-  def asm_invoke_dll(opts={})
+  def asm_invoke_metsrv(opts={})
     asm = %Q^
         ; prologue
           dec ebp               ; 'M'
@@ -69,7 +67,7 @@ module Payload::Windows::MeterpreterLoader
       :length     => dll.length
     }
 
-    asm = asm_invoke_dll(asm_opts)
+    asm = asm_invoke_metsrv(asm_opts)
 
     # generate the bootstrap asm
     bootstrap = Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string

