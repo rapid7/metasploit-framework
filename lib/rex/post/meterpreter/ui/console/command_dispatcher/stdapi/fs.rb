@@ -386,7 +386,13 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias cmd_getlwd cmd_lpwd
 
-  def list_path(path, columns, sort, order, short, recursive = false)
+  def list_path(path, columns, sort, order, short, recursive = false, depth = 0)
+
+    # avoid infinite recursion
+    if depth > 100
+      return
+    end
+
     tbl = Rex::Ui::Text::Table.new(
       'Header'  => "Listing: #{path}",
       'SortIndex' => columns.index(sort),
@@ -423,7 +429,7 @@ class Console::CommandDispatcher::Stdapi::Fs
             child_path = path + ::File::SEPARATOR + fname
           end
           begin
-            list_path(child_path, columns, sort, order, short, recursive)
+            list_path(child_path, columns, sort, order, short, recursive, depth + 1)
           rescue RequestError
           end
         end
