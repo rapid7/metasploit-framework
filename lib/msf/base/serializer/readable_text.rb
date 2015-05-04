@@ -597,7 +597,7 @@ class ReadableText
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin
-        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s Ago @ #{session.last_checkin.to_s}"
+        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
       end
 
       out << "  Session ID: #{sess_id}\n"

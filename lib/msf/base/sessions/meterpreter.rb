@@ -299,6 +299,24 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   #
+  # Validate session information by checking for a machine_id response
+  #
+  def is_valid_session?(timeout=10)
+    return true if self.machine_id
+
+    begin
+      self.machine_id = self.core.machine_id(timeout)
+      return true
+    rescue ::Rex::Post::Meterpreter::RequestError
+      # This meterpreter doesn't support core_machine_id
+      return true
+    rescue ::Exception => e
+      dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
+    end
+    false
+  end
+
+  #
   # Populate the session information.
   #
   # Also reports a session_fingerprint note for host os normalization.

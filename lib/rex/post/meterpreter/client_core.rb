@@ -245,14 +245,16 @@ class ClientCore < Extension
     return true
   end
 
-  def machine_id
+  def machine_id(timeout=nil)
     request = Packet.create_request('core_machine_id')
 
-    response = client.send_request(request)
+    args = [ request ]
+    args << timeout if timeout
 
-    id = response.get_tlv_value(TLV_TYPE_MACHINE_ID)
-    # TODO: Determine if we're going to MD5/SHA1 this
-    return Rex::Text.md5(id)
+    response = client.send_request(*args)
+
+    mid = response.get_tlv_value(TLV_TYPE_MACHINE_ID)
+    return Rex::Text.md5(mid)
   end
 
   def transport_change(opts={})
