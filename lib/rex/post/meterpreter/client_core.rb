@@ -8,9 +8,6 @@ require 'rex/post/meterpreter/client'
 # argument for moving the meterpreter client into the Msf namespace.
 require 'msf/core/payload/windows'
 
-# Provides methods to patch options into the metsrv stager.
-require 'rex/payloads/meterpreter/patch'
-
 # URI uuid and checksum stuff
 require 'msf/core/payload/uuid'
 require 'rex/payloads/meterpreter/uri_checksum'

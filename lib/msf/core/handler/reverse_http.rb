@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'rex/payloads/meterpreter/patch'
 require 'rex/payloads/meterpreter/uri_checksum'
 require 'rex/post/meterpreter/packet'
 require 'rex/parser/x509_certificate'
