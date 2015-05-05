@@ -226,8 +226,6 @@ module Payload::Windows::ReverseTcp
       add ebx, eax           ; buffer += bytes_received
       sub esi, eax           ; length -= bytes_received, will set flags
       jnz read_more          ; continue if we have more to read
-                             ; esi at this point is zero, which is what we need to
-                             ; pass to the second stage in the case of Meterpreter.
       ret                    ; return into the second stage
       ^
 
