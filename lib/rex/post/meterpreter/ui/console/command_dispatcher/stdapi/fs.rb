@@ -317,6 +317,7 @@ class Console::CommandDispatcher::Stdapi::Fs
             dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
 
             client.fs.file.download(dest_path, src_path) do |step, src, dst|
+              puts step
               print_status("#{step.ljust(11)}: #{src} -> #{dst}")
               client.framework.events.on_session_download(client, src, dest) if msf_loaded?
             end
@@ -336,7 +337,7 @@ class Console::CommandDispatcher::Stdapi::Fs
           end
         elsif (stat.file?)
           client.fs.file.download(dest, src) do |step, src, dst|
-            print_status("#step.ljust(11)}: #{src} -> #{dst}")
+            print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
         end
