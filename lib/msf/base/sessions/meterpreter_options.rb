@@ -12,11 +12,17 @@ module MeterpreterOptions
     register_advanced_options(
       [
         OptBool.new('AutoLoadStdapi', [true, "Automatically load the Stdapi extension", true]),
+        OptBool.new('AutoVerifySession', [true, "Automatically verify and drop invalid sessions", true]),
         OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
         OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", '']),
         OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
         OptBool.new('EnableUnicodeEncoding', [true, "Automatically encode UTF-8 strings as hexadecimal", Rex::Compat.is_windows]),
-        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format, ignored for HTTP transports"])
+        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format, ignored for HTTP transports"]),
+        OptBool.new('StagerCloseListenSocket', [false, "Close the listen socket in the stager", false]),
+        OptInt.new('SessionRetryTotal', [false, "Number of seconds try reconnecting for on network failure", Rex::Post::Meterpreter::ClientCore::TIMEOUT_RETRY_TOTAL]),
+        OptInt.new('SessionRetryWait', [false, "Number of seconds to wait between reconnect attempts", Rex::Post::Meterpreter::ClientCore::TIMEOUT_RETRY_WAIT]),
+        OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', Rex::Post::Meterpreter::ClientCore::TIMEOUT_SESSION]),
+        OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', Rex::Post::Meterpreter::ClientCore::TIMEOUT_COMMS])
       ], self.class)
   end
 
@@ -35,43 +41,49 @@ module MeterpreterOptions
 
     session.init_ui(self.user_input, self.user_output)
 
-    if (datastore['AutoLoadStdapi'] == true)
+    valid = true
 
-      session.load_stdapi
-
-      if datastore['AutoSystemInfo']
-        session.load_session_info
+    if datastore['AutoVerifySession'] == true
+      if not session.is_valid_session?
+        print_error("Meterpreter session #{session.sid} is not valid and will be closed")
+        valid = false
       end
+    end
 
-=begin
-      admin = false
-      begin
-        ::Timeout.timeout(30) do
-          if session.railgun and session.railgun.shell32.IsUserAnAdmin()["return"] == true
-            admin = true
-            session.info += " (ADMIN)"
-          end
+    if valid
+
+      if datastore['AutoLoadStdapi'] == true
+
+        session.load_stdapi
+
+        if datastore['AutoSystemInfo']
+          session.load_session_info
         end
-      rescue ::Exception
+
+        if session.platform =~ /win32|win64/i
+          session.load_priv rescue nil
+        end
       end
-=end
-      if session.platform =~ /win32|win64/i
-        session.load_priv rescue nil
+
+      if session.platform =~ /android/i
+        if datastore['AutoLoadAndroid']
+          session.load_android
+        end
+      end
+
+      [ 'InitialAutoRunScript', 'AutoRunScript' ].each do |key|
+        if (datastore[key].empty? == false)
+          args = Shellwords.shellwords( datastore[key] )
+          print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+          session.execute_script(args.shift, *args)
+        end
       end
     end
 
-    if session.platform =~ /android/i
-      if datastore['AutoLoadAndroid']
-        session.load_android
-      end
-    end
-
-    [ 'InitialAutoRunScript', 'AutoRunScript' ].each do |key|
-      if (datastore[key].empty? == false)
-        args = Shellwords.shellwords( datastore[key] )
-        print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
-        session.execute_script(args.shift, *args)
-      end
+    # Terminate the session without cleanup if it did not validate
+    if not valid
+      session.skip_cleanup = true
+      session.kill
     end
 
     }

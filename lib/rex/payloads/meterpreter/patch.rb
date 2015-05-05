@@ -10,13 +10,17 @@ module Rex
       ###
       module Patch
 
+        #
         # Replace the transport string
+        #
         def self.patch_transport!(blob, ssl)
           str = ssl ? "METERPRETER_TRANSPORT_HTTPS\x00" : "METERPRETER_TRANSPORT_HTTP\x00"
           patch_string!(blob, "METERPRETER_TRANSPORT_SSL", str)
         end
 
+        #
         # Replace the URL
+        #
         def self.patch_url!(blob, url)
           unless patch_string!(blob, "https://#{'X' * 512}", url)
             # If the patching failed this could mean that we are somehow
@@ -26,34 +30,28 @@ module Rex
           end
         end
 
-        # Replace the session expiration timeout
-        def self.patch_expiration!(blob, expiration)
-
-          i = blob.index([0xb64be661].pack("V"))
+        #
+        # Replace the timeout data with the actual timeout values.
+        #
+        def self.patch_timeouts!(blob, opts)
+          i = blob.index("METERP_TIMEOUTS\x00")
           if i
-            str = [ expiration ].pack("V")
-            blob[i, str.length] = str
+            data = [opts[:expiration].to_i, opts[:comm_timeout].to_i,
+                    opts[:retry_total].to_i, opts[:retry_wait].to_i].pack("VVVV")
+            blob[i, data.length] = data
           end
-
         end
 
-        # Replace the session communication timeout
-        def self.patch_comm_timeout!(blob, comm_timeout)
-
-          i = blob.index([0xaf79257f].pack("V"))
-          if i
-            str = [ comm_timeout ].pack("V")
-            blob[i, str.length] = str
-          end
-
-        end
-
+        #
         # Replace the user agent string with our option
+        #
         def self.patch_ua!(blob, ua)
           patch_string!(blob, "METERPRETER_UA\x00", ua[0,255] + "\x00")
         end
 
+        #
         # Activate a custom proxy
+        #
         def self.patch_proxy!(blob, proxyhost, proxyport, proxy_type)
 
           if proxyhost && proxyhost.to_s != ""
@@ -73,7 +71,9 @@ module Rex
           end
         end
 
+        #
         # Proxy authentification
+        #
         def self.patch_proxy_auth!(blob, proxy_username, proxy_password, proxy_type)
 
           return if proxy_type.nil? || proxy_type.upcase == 'SOCKS'
@@ -93,7 +93,9 @@ module Rex
           end
         end
 
+        #
         # Patch the ssl cert hash
+        #
         def self.patch_ssl_check!(blob, ssl_cert_hash)
           # SSL cert location is an ASCII string, so no need for
           # WCHAR support
@@ -105,24 +107,25 @@ module Rex
           end
         end
 
+        #
         # Patch options into metsrv for reverse HTTP payloads
-        def self.patch_passive_service!(blob, options)
+        #
+        def self.patch_passive_service!(blob, opts)
 
-          patch_transport!(blob, options[:ssl])
-          patch_url!(blob, options[:url])
-          patch_expiration!(blob, options[:expiration])
-          patch_comm_timeout!(blob, options[:comm_timeout])
-          patch_ua!(blob, options[:ua])
-          patch_ssl_check!(blob, options[:ssl_cert_hash])
+          patch_transport!(blob, opts[:ssl])
+          patch_url!(blob, opts[:url])
+          patch_timeouts!(blob, opts)
+          patch_ua!(blob, opts[:ua])
+          patch_ssl_check!(blob, opts[:ssl_cert_hash])
           patch_proxy!(blob,
-            options[:proxy_host],
-            options[:proxy_port],
-            options[:proxy_type]
+            opts[:proxy_host],
+            opts[:proxy_port],
+            opts[:proxy_type]
           )
           patch_proxy_auth!(blob,
-            options[:proxy_user],
-            options[:proxy_pass],
-            options[:proxy_type]
+            opts[:proxy_user],
+            opts[:proxy_pass],
+            opts[:proxy_type]
           )
 
         end

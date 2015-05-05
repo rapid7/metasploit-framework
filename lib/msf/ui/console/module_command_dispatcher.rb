@@ -132,7 +132,7 @@ module ModuleCommandDispatcher
         hosts = Rex::Socket::RangeWalker.new(opt.normalize(ip_range_arg))
 
         # Check multiple hosts
-        last_rhost_opt = mod.rhost
+        last_rhost_opt = mod.datastore['RHOST']
         last_rhosts_opt = mod.datastore['RHOSTS']
         mod.datastore['RHOSTS'] = ip_range_arg
         begin
@@ -169,7 +169,7 @@ module ModuleCommandDispatcher
       instance = mod 
     end
 
-    rhost = instance.rhost
+    rhost = instance.datastore['RHOST']
     rport = nil
     peer = rhost
     if instance.datastore['rport']
