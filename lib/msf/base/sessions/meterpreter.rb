@@ -329,9 +329,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         username = self.sys.config.getuid
         sysinfo  = self.sys.config.sysinfo
 
-        # TODO: use one of these to determine of the end shell is dead?
         self.payload_uuid = self.core.uuid
-        self.machinie_id = self.core.machine_id
 
         safe_info = "#{username} @ #{sysinfo['Computer']}"
         safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
