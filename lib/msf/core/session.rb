@@ -377,10 +377,6 @@ module Session
   #
   attr_accessor :info
   #
-  # The identifier for the machine of the current session
-  #
-  attr_accessor :machine_id
-  #
   # The unique identifier of this session
   #
   attr_accessor :uuid
@@ -392,6 +388,10 @@ module Session
   # The unique identifier of the payload that created this session
   #
   attr_accessor :payload_uuid
+  #
+  # The unique machine identifier for the host that created this session
+  #
+  attr_accessor :machine_id
   #
   # The actual exploit module instance that created this session
   #
