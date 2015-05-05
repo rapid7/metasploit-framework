@@ -9,6 +9,7 @@ require 'msf/core/transport_config'
 require 'msf/core/payload/windows/x64/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
+require 'rex/payloads/meterpreter/config'
 
 module Metasploit4
 

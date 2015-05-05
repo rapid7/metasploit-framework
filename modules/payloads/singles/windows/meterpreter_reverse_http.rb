@@ -9,6 +9,7 @@ require 'msf/core/handler/reverse_http'
 require 'msf/core/payload/windows/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
+require 'rex/payloads/meterpreter/config'
 
 module Metasploit4
 
