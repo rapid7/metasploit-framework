@@ -1772,10 +1772,7 @@ class Core
               rescue Rex::TimeoutError
                 print_error("Operation timed out")
               end
-            elsif session.type == 'shell'
-              output = session.shell_command(cmd)
-              print_line(output) if output
-            elsif session.type == 'powershell'
+            elsif session.type == 'shell' || session.type == 'powershell'
               output = session.shell_command(cmd)
               print_line(output) if output
             end
