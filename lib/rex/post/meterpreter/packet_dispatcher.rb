@@ -79,7 +79,11 @@ module PacketDispatcher
 
   def shutdown_passive_dispatcher
     return if not self.passive_service
-    self.passive_service.remove_resource(self.conn_id  + "/")
+
+    # Ensure that there is only one leading and trailing slash on the URI
+    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+
+    self.passive_service.remove_resource(resource_uri)
 
     # If there are no more resources registered on the service, stop it entirely
     if self.passive_service.resources.empty?
@@ -101,6 +105,8 @@ module PacketDispatcher
     resp = Rex::Proto::Http::Response.new(200, "OK")
     resp['Content-Type'] = 'application/octet-stream'
     resp['Connection']   = 'close'
+
+    self.last_checkin = Time.now
 
     # If the first 4 bytes are "RECV", return the oldest packet from the outbound queue
     if req.body[0,4] == "RECV"
@@ -493,6 +499,9 @@ module PacketDispatcher
     if (client == nil)
       client = self
     end
+
+    # Update our last reply time
+    client.last_checkin = Time.now
 
     # If the packet is a response, try to notify any potential
     # waiters

@@ -12,7 +12,7 @@ private
   end
 
   def find_workspace(wspace = nil)
-    if(wspace and wspace != "")
+    if wspace and wspace != ""
       return self.framework.db.find_workspace(wspace) || error(500, "Invalid workspace")
     end
     self.framework.db.workspace
@@ -104,36 +104,58 @@ private
     return opts, opts[:workspace]
   end
 
+  def get_notes(xopts)
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    opts, wspace = init_db_opts_workspace(xopts)
+    notes = []
+
+    host = self.framework.db.get_host(opts)
+    return notes if not host
+
+    if opts[:proto] && opts[:port]
+      services = []
+      nret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
+      return ret if nret == nil
+      services << nret if nret.class == ::Mdm::Service
+      services |= nret if nret.class == Array
+
+      services.each do |s|
+        nret = nil
+        if opts[:ntype]
+          nret = s.notes.find_by_ntype(opts[:ntype])
+        else
+          nret = s.notes
+        end
+        next if nret == nil
+        notes << nret if nret.class == ::Mdm::Note
+        notes |= nret if nret.class == Array
+      end
+    else
+      notes = host.notes
+    end
+    notes
+  }
+  end
+
 public
 
 
-  # Creates a credential.
+  # Creates a cracked credential.
   #
-  # @note Despite the fact the method name for this is called "rpc_create_cracked_credential", it
-  #       does not actually call the create_cracked_credential API in metasploit-credential. Instead,
-  #       it calls create_credential.
-  # @todo This method needs to call create_cracked_credential, not create_credential.
   # @param [Hash] xopts Credential options. (See #create_credential Documentation)
   # @return [Metasploit::Credential::Core]
   # @see https://github.com/rapid7/metasploit-credential/blob/master/lib/metasploit/credential/creation.rb#L107 #create_credential Documentation.
   # @see #rpc_create_credential
   # @example Here's how you would use this from the client:
   #  opts = {
-  #   origin_type: :service,
-  #   address: '192.168.1.100',
-  #   port: 445,
-  #   service_name: 'smb',
-  #   protocol: 'tcp',
-  #   module_fullname: 'auxiliary/scanner/smb/smb_login',
-  #   workspace_id: myworkspace_id,
-  #   private_data: 'password1',
-  #   private_type: :password,
-  #   username: 'Administrator'
+  #    username: username,
+  #    password: password,
+  #    core_id: core_id
   #  }
   #  rpc.call('db.create_cracked_credential', opts)
   def rpc_create_cracked_credential(xopts)
     opts = fix_cred_options(xopts)
-    create_credential(opts)
+    create_cracked_credential(opts)
   end
 
 
@@ -427,7 +449,7 @@ public
     wspace.vulns.includes(:service).where(conditions).offset(offset).limit(limit).each do |v|
       vuln = {}
       reflist = v.refs.map { |r| r.name }
-      if(v.service)
+      if v.service
         vuln[:port] = v.service.port
         vuln[:proto] = v.service.proto
       else
@@ -506,7 +528,7 @@ public
     wspace = find_workspace(wspace)
     ret = {}
     ret[:workspace] = []
-    if(wspace)
+    if wspace
       w = {}
       w[:name] = wspace.name
       w[:id] = wspace.id
@@ -521,7 +543,11 @@ public
   # Sets a workspace.
   #
   # @param [String] wspace Workspace name.
-  # @raise [Msf::RPC::Exception] 500 Database not loaded.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace
+  #  * 404 Workspace not found.
   # @return [Hash] A hash indicating whether the action was successful or not. You will get:
   #  * 'result' [String] A message that says either 'success' or 'failed'
   # @example Here's how you would use this from the client:
@@ -530,8 +556,8 @@ public
   def rpc_set_workspace(wspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
-    workspace = self.framework.db.find_workspace(wspace)
-    if(workspace)
+    workspace = find_workspace(wspace)
+    if workspace
       self.framework.db.workspace = workspace
       return { 'result' => "success" }
     end
@@ -555,7 +581,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
     # Delete workspace
-    workspace = self.framework.db.find_workspace(wspace)
+    workspace = find_workspace(wspace)
     if workspace.nil?
       error(404, "Workspace not found: #{wspace}")
     elsif workspace.default?
@@ -587,7 +613,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
     wspace = self.framework.db.add_workspace(wspace)
-    return { 'result' => 'success' } if(wspace)
+    return { 'result' => 'success' } if wspace
     { 'result' => 'failed' }
   }
   end
@@ -627,7 +653,7 @@ public
     ret[:host] = []
     opts = fix_options(xopts)
     h = self.framework.db.get_host(opts)
-    if(h)
+    if h
       host = {}
       host[:created_at] = h.created_at.to_i
       host[:address] = h.address.to_s
@@ -676,7 +702,7 @@ public
     opts, wspace = init_db_opts_workspace(xopts)
 
     res = self.framework.db.report_host(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -702,7 +728,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
     res = self.framework.db.report_service(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -742,16 +768,16 @@ public
     services = []
     sret = nil
 
-    if(host && opts[:proto] && opts[:port])
+    if host && opts[:proto] && opts[:port]
       sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
-    elsif(opts[:proto] && opts[:port])
+    elsif opts[:proto] && opts[:port]
       conditions = {}
       conditions[:state] = [Msf::ServiceState::Open] if opts[:up]
       conditions[:proto] = opts[:proto] if opts[:proto]
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]
       sret = wspace.services.where(conditions).order("hosts.address, port")
-    else
+    elsif host
       sret = host.services
     end
     return ret if sret == nil
@@ -776,10 +802,12 @@ public
   }
   end
 
-
   # Returns a note.
   #
   # @param [Hash] xopts Options.
+  # @option xopts [String] :addr Host address.
+  # @option xopts [String] :address Same as :addr.
+  # @option xopts [String] :host Same as :address.
   # @option xopts [String] :proto Protocol.
   # @option xopts [Fixnum] :port Port.
   # @option xopts [String] :ntype Note type.
@@ -801,37 +829,11 @@ public
   # @example Here's how you would use this from the client:
   #  rpc.call('db.get_note', {:proto => 'tcp', :port => 80})
   def rpc_get_note(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-
     ret = {}
     ret[:note] = []
 
-    host = self.framework.db.get_host(opts)
+    notes = get_notes(xopts)
 
-    return ret if( not host)
-    notes = []
-    if(opts[:proto] && opts[:port])
-      services = []
-      nret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
-      return ret if nret == nil
-      services << nret if nret.class == ::Mdm::Service
-      services |= nret if nret.class == Array
-
-      services.each do |s|
-        nret = nil
-        if opts[:ntype]
-          nret = s.notes.find_by_ntype(opts[:ntype])
-        else
-          nret = s.notes
-        end
-        next if nret == nil
-        notes << nret if nret.class == ::Mdm::Note
-        notes |= nret if nret.class == Array
-      end
-    else
-      notes = host.notes
-    end
     notes.each do |n|
       note = {}
       host = n.host
@@ -849,7 +851,6 @@ public
       ret[:note] << note
     end
     ret
-  }
   end
 
 
@@ -879,7 +880,7 @@ public
     ret = {}
     ret[:client] = []
     c = self.framework.db.get_client(opts)
-    if(c)
+    if c
       client = {}
       host = c.host
       client[:host] = host.address
@@ -916,7 +917,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
     res = self.framework.db.report_client(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -951,12 +952,16 @@ public
       addr = opts[:host] || opts[:address]
       wspace = opts[:workspace] || self.framework.db.workspace
       host = wspace.hosts.find_by_address(addr)
-      service = host.services.find_by_proto_and_port(opts[:proto],opts[:port]) if host.services.count > 0
-      opts[:service] = service if service
+      if host && host.services.count > 0
+        service = host.services.find_by_proto_and_port(opts[:proto],opts[:port])
+        if service
+          opts[:service] = service
+        end
+      end
     end
 
     res = self.framework.db.report_note(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -994,7 +999,7 @@ public
     conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions[:ntype] = opts[:ntype] if opts[:ntype]
-    conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:port]
+    conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
     conditions["services.proto"] = opts[:proto] if opts[:proto]
 
     ret = {}
@@ -1004,8 +1009,8 @@ public
       note[:time] = n.created_at.to_i
       note[:host] = ""
       note[:service] = ""
-      note[:host] = n.host.address if(n.host)
-      note[:service] = n.service.name || n.service.port  if(n.service)
+      note[:host] = n.host.address if n.host
+      note[:service] = n.service.name || n.service.port  if n.service
       note[:type ] = n.ntype.to_s
       note[:data] = n.data.inspect
       ret[:notes] << note
@@ -1059,19 +1064,20 @@ public
   def rpc_del_vuln(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
+    opts[:workspace] = opts[:workspace].name
     hosts  = []
     services = []
     vulns = []
 
     if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(opts)
+      hosts = opts_to_hosts(xopts)
     end
 
     if opts[:port] or opts[:proto]
       if opts[:host] or opts[:address] or opts[:addresses]
-        services = opts_to_services(hosts,opts)
+        services = opts_to_services(hosts,xopts)
       else
-        services = opts_to_services([],opts)
+        services = opts_to_services([],xopts)
       end
     end
 
@@ -1150,58 +1156,8 @@ public
   # @example Here's how you would use this from the client:
   #  rpc.call('db.del_note', {:workspace=>'default', :host=>ip, :port=>443, :proto=>'tcp'})
   def rpc_del_note(xopts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    opts, wspace = init_db_opts_workspace(xopts)
-    hosts  = []
-    services = []
-    notes = []
+    notes = get_notes(xopts)
 
-    if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(opts)
-    end
-
-    if opts[:port] or opts[:proto]
-      if opts[:host] or opts[:address] or opts[:addresses]
-        services = opts_to_services(hosts,opts)
-      else
-        services = opts_to_services([],opts)
-      end
-    end
-
-    if opts[:port] or opts[:proto]
-      services.each do |s|
-        nret = nil
-        if opts[:ntype]
-          nret = s.notes.find_by_ntype(opts[:ntype])
-        else
-          nret = s.notes
-        end
-        next if nret == nil
-        notes << nret if nret.class == ::Mdm::Note
-        notes |= nret if nret.class == Array
-      end
-    elsif opts[:address] or opts[:host] or opts[:addresses]
-      hosts.each do |h|
-        nret = nil
-        if opts[:ntype]
-          nret = h.notes.find_by_ntype(opts[:ntype])
-        else
-          nret = h.notes
-        end
-        next if nret == nil
-        notes << nret if nret.class == ::Mdm::Note
-        notes |= nret if nret.class == Array
-      end
-    else
-      nret = nil
-      if opts[:ntype]
-        nret = wspace.notes.find_by_ntype(opts[:ntype])
-      else
-        nret = wspace.notes
-      end
-      notes << nret if nret.class == ::Mdm::Note
-      notes |= nret if nret.class == Array
-    end
     deleted = []
     notes.each do |n|
       dent = {}
@@ -1214,7 +1170,6 @@ public
     end
 
     return { :result => 'success', :deleted => deleted }
-  }
   end
 
 
@@ -1366,7 +1321,7 @@ public
     opts = fix_options(xopts)
     opts[:workspace] = find_workspace(opts[:workspace]) if opts[:workspace]
     res = self.framework.db.report_vuln(opts)
-    return { :result => 'success' } if(res)
+    return { :result => 'success' } if res
     { :result => 'failed' }
   }
   end
@@ -1404,12 +1359,12 @@ public
 
     wspace.events.offset(offset).limit(limit).each do |e|
       event = {}
-      event[:host] = e.host.address if(e.host)
+      event[:host] = e.host.address if e.host
       event[:created_at] = e.created_at.to_i
       event[:updated_at] = e.updated_at.to_i
       event[:name] = e.name
-      event[:critical] = e.critical if(e.critical)
-      event[:username] = e.username if(e.username)
+      event[:critical] = e.critical if e.critical
+      event[:username] = e.username if e.username
       event[:info] = e.info
       ret[:events] << event
     end
@@ -1436,7 +1391,7 @@ public
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
     res = self.framework.db.report_event(opts)
-    { :result => 'success' } if(res)
+    { :result => 'success' } if res
   }
   end
 
@@ -1471,7 +1426,7 @@ public
     end
 
     res = self.framework.db.report_loot(opts)
-    { :result => 'success' } if(res)
+    { :result => 'success' } if res
   }
   end
 
@@ -1509,8 +1464,8 @@ public
     ret[:loots] = []
     wspace.loots.offset(offset).limit(limit).each do |l|
       loot = {}
-      loot[:host] = l.host.address if(l.host)
-      loot[:service] = l.service.name || l.service.port  if(l.service)
+      loot[:host] = l.host.address if l.host
+      loot[:service] = l.service.name || l.service.port  if l.service
       loot[:ltype] = l.ltype
       loot[:ctype] = l.content_type
       loot[:data] = l.data
@@ -1611,10 +1566,10 @@ public
 
     host = self.framework.db.get_host(opts)
 
-    return ret if( not host)
+    return ret if not host
     vulns = []
 
-    if(opts[:proto] && opts[:port])
+    if opts[:proto] && opts[:port]
       services = []
       sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
       return ret if sret == nil
@@ -1731,7 +1686,7 @@ public
     clients = []
 
     if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(opts)
+      hosts = opts_to_hosts(xopts)
     else
       hosts = wspace.hosts
     end
@@ -1806,7 +1761,7 @@ public
   #  rpc.call('db.connect', {:driver=>'postgresql'})
   def rpc_connect(xopts)
     opts = fix_options(xopts)
-    if(not self.framework.db.driver and not opts[:driver])
+    if not self.framework.db.driver and not opts[:driver]
       return { :result => 'failed' }
     end
 

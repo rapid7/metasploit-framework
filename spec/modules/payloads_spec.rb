@@ -1348,7 +1348,7 @@ describe 'modules/payloads', :content do
                               'stagers/linux/x86/bind_tcp',
                               'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/bind_tcp'
   end
@@ -1455,7 +1455,7 @@ describe 'modules/payloads', :content do
                               'stagers/linux/x86/bind_tcp',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/bind_tcp'
   end
@@ -2285,7 +2285,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/dllinject'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/dllinject/bind_tcp'
   end
@@ -2571,7 +2571,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/bind_tcp'
   end
@@ -2789,7 +2789,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/patchupdllinject'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupdllinject/bind_tcp'
   end
@@ -2932,7 +2932,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/patchupmeterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_tcp'
   end
@@ -3075,7 +3075,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/shell'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_tcp'
   end
@@ -3268,7 +3268,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/upexec'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/upexec/bind_tcp'
   end
@@ -3411,7 +3411,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/bind_tcp',
                               'stages/windows/vncinject'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_tcp'
   end
@@ -3552,7 +3552,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/bind_tcp'
   end
@@ -3574,7 +3574,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/meterpreter'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_tcp'
   end
@@ -3635,7 +3635,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/shell'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell/bind_tcp'
   end
@@ -3646,7 +3646,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/shell'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/shell/reverse_tcp'
   end
@@ -3677,7 +3677,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/x64/bind_tcp',
                               'stages/windows/x64/vncinject'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/bind_tcp'
   end
@@ -3688,7 +3688,7 @@ describe 'modules/payloads', :content do
                               'stagers/windows/x64/reverse_tcp',
                               'stages/windows/x64/vncinject'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/reverse_tcp'
   end

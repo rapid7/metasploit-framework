@@ -255,9 +255,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def kill
     begin
       cleanup_meterpreter
-      self.sock.close
+      self.sock.close if self.sock
     rescue ::Exception
     end
+    # deregister will actually trigger another cleanup
     framework.sessions.deregister(self)
   end
 
@@ -296,6 +297,24 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     console.disable_output = true
     console.run_single('load priv')
     console.disable_output = original
+  end
+
+  #
+  # Validate session information by checking for a machine_id response
+  #
+  def is_valid_session?(timeout=10)
+    return true if self.machine_id
+
+    begin
+      self.machine_id = self.core.machine_id(timeout)
+      return true
+    rescue ::Rex::Post::Meterpreter::RequestError
+      # This meterpreter doesn't support core_machine_id
+      return true
+    rescue ::Exception => e
+      dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
+    end
+    false
   end
 
   #
@@ -448,6 +467,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   attr_accessor :binary_suffix
   attr_accessor :console # :nodoc:
   attr_accessor :skip_ssl
+  attr_accessor :skip_cleanup
   attr_accessor :target_id
 
 protected

@@ -579,6 +579,7 @@ class Client
 
       rv = nil
       while (
+               not conn.closed? and
                rv != Packet::ParseCode::Completed and
                rv != Packet::ParseCode::Error
               )
