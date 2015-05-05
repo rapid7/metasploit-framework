@@ -58,6 +58,8 @@ module Handler::ReverseHttp::Stageless
         :ssl_cert_hash => verify_cert_hash,
         :expiration    => datastore['SessionExpirationTimeout'].to_i,
         :comm_timeout  => datastore['SessionCommunicationTimeout'].to_i,
+        :retry_total   => datastore['SessionRetryTotal'].to_i,
+        :retry_wait    => datastore['SessionRetryWait'].to_i,
         :ua            => datastore['MeterpreterUserAgent'],
         :proxy_host    => datastore['PayloadProxyHost'],
         :proxy_port    => datastore['PayloadProxyPort'],

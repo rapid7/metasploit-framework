@@ -56,6 +56,8 @@ class Console::CommandDispatcher::Core
       "run"        => "Executes a meterpreter script or Post module",
       "bgrun"      => "Executes a meterpreter script as a background thread",
       "bgkill"     => "Kills a background meterpreter script",
+      "get_timeouts" => "Get the current session timeout values",
+      "set_timeouts" => "Set the current session timeout values",
       "bglist"     => "Lists running background scripts",
       "write"      => "Writes data to a channel",
       "enable_unicode_encoding"  => "Enables encoding of unicode strings",
@@ -72,12 +74,13 @@ class Console::CommandDispatcher::Core
       if client.passive_service && client.sock.type? == 'tcp-ssl'
         c["ssl_verify"] = "Modify the SSL certificate verification setting"
       end
-
-      c["transport"] = "Change the current transport mechanism"
     end
 
     if client.platform =~ /win/ || client.platform =~ /linux/
       c["migrate"] = "Migrate the server to another process"
+      # Yet to implement transport hopping for other meterpreters.
+      # Works for posix and native windows though.
+      c["transport"] = "Change the current transport mechanism"
     end
 
     if (msf_loaded?)
@@ -327,6 +330,64 @@ class Console::CommandDispatcher::Core
     Rex::Ui::Text::IrbShell.new(binding).run
   end
 
+  @@set_timeouts_opts = Rex::Parser::Arguments.new(
+    '-c' => [ true,  'Comms timeout (seconds)' ],
+    '-x' => [ true,  'Expiration timout (seconds)' ],
+    '-t' => [ true,  'Retry total time (seconds)' ],
+    '-w' => [ true,  'Retry wait time (seconds)' ],
+    '-h' => [ false, 'Help menu' ])
+
+  def cmd_set_timeouts_help
+    print_line('Usage: set_timeouts [options]')
+    print_line
+    print_line('Set the current timeout options.')
+    print_line('Any or all of these can be set at once.')
+    print_line(@@set_timeouts_opts.usage)
+  end
+
+  def cmd_set_timeouts(*args)
+    if ( args.length == 0 or args.include?("-h") )
+      cmd_set_timeouts_help
+      return
+    end
+
+    opts = {}
+
+    @@set_timeouts_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-c'
+        opts[:comm_timeout] = val.to_i if val
+      when '-x'
+        opts[:session_exp] = val.to_i if val
+      when '-t'
+        opts[:retry_total] = val.to_i if val
+      when '-w'
+        opts[:retry_wait] = val.to_i if val
+      end
+    end
+
+    if opts.keys.length == 0
+      print_error("No options set")
+    else
+      timeouts = client.core.set_transport_timeouts(opts)
+      print_timeouts(timeouts)
+    end
+  end
+
+  def cmd_get_timeouts(*args)
+    # Calling set without passing values is the same as
+    # getting all the current timeouts
+    timeouts = client.core.set_transport_timeouts
+    print_timeouts(timeouts)
+  end
+
+  def print_timeouts(timeouts)
+    print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
+    print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")
+    print_line("Retry Total Time: #{timeouts[:retry_total]} seconds")
+    print_line("Retry Wait Time : #{timeouts[:retry_wait]} seconds")
+  end
+
   #
   # Get the machine ID of the target
   #
@@ -429,8 +490,10 @@ class Console::CommandDispatcher::Core
     '-ps' => [ true,  'Proxy password for http(s) transports (optional)' ],
     '-pt' => [ true,  'Proxy type for http(s) transports (optional: http, socks; default: http)' ],
     '-c'  => [ true,  'SSL certificate path for https transport verification (optional)' ],
-    '-to' => [ true,  "Comms timeout (seconds) for http(s) transports (default: #{Rex::Post::Meterpreter::ClientCore::DEFAULT_COMMS_TIMEOUT})" ],
-    '-ex' => [ true,  "Expiration timout (seconds) for http(s) transports (default: #{Rex::Post::Meterpreter::ClientCore::DEFAULT_SESSION_EXPIRATION})" ],
+    '-to' => [ true,  'Comms timeout (seconds) (default: same as current session)' ],
+    '-ex' => [ true,  'Expiration timout (seconds) (default: same as current session)' ],
+    '-rt' => [ true,  'Retry total time (seconds) (default: same as current session)' ],
+    '-rw' => [ true,  'Retry wait time (seconds) (default: same as current session)' ],
     '-h'  => [ false, 'Help menu' ])
 
   #
@@ -462,8 +525,10 @@ class Console::CommandDispatcher::Core
       :proxy_type    => nil,
       :proxy_user    => nil,
       :proxy_pass    => nil,
-      :comms_timeout => nil,
+      :comm_timeout  => nil,
       :session_exp   => nil,
+      :retry_total   => nil,
+      :retry_wait    => nil,
       :cert          => nil
     }
 
@@ -484,9 +549,13 @@ class Console::CommandDispatcher::Core
       when '-ua'
         opts[:ua] = val
       when '-to'
-        opts[:comms_timeout] = val.to_i if val
+        opts[:comm_timeout] = val.to_i if val
       when '-ex'
         opts[:session_exp] = val.to_i if val
+      when '-rt'
+        opts[:retry_total] = val.to_i if val
+      when '-rw'
+        opts[:retry_wait] = val.to_i if val
       when '-p'
         opts[:lport] = val.to_i if val
       when '-l'
@@ -620,8 +689,8 @@ class Console::CommandDispatcher::Core
       case opt
       when "-l"
         exts = SortedSet.new
-        msf_path = MeterpreterBinaries.metasploit_data_dir
-        gem_path = MeterpreterBinaries.local_dir
+        msf_path = MetasploitPayloads.msf_meterpreter_dir
+        gem_path = MetasploitPayloads.local_meterpreter_dir
         [msf_path, gem_path].each do |path|
           ::Dir.entries(path).each { |f|
             if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
@@ -668,8 +737,8 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
-    msf_path = MeterpreterBinaries.metasploit_data_dir
-    gem_path = MeterpreterBinaries.local_dir
+    msf_path = MetasploitPayloads.msf_meterpreter_dir
+    gem_path = MetasploitPayloads.local_meterpreter_dir
     [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
       if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )

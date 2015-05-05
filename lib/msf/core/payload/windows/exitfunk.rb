@@ -2,8 +2,8 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows'
-module Msf
 
+module Msf
 
 ###
 #

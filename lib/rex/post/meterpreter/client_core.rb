@@ -39,8 +39,10 @@ class ClientCore < Extension
   METERPRETER_TRANSPORT_HTTP  = 1
   METERPRETER_TRANSPORT_HTTPS = 2
 
-  DEFAULT_SESSION_EXPIRATION = 24*3600*7
-  DEFAULT_COMMS_TIMEOUT = 300
+  TIMEOUT_SESSION = 24*3600*7  # 1 week
+  TIMEOUT_COMMS = 300          # 5 minutes
+  TIMEOUT_RETRY_TOTAL = 60*60  # 1 hour
+  TIMEOUT_RETRY_WAIT = 10      # 10 seconds
 
   VALID_TRANSPORTS = {
     'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
@@ -63,7 +65,7 @@ class ClientCore < Extension
   # Core commands
   #
   ##
-  #
+
   #
   # Get a list of loaded commands for the given extension.
   #
@@ -96,6 +98,32 @@ class ClientCore < Extension
     }
 
     commands
+  end
+
+  def set_transport_timeouts(opts={})
+    request = Packet.create_request('core_transport_set_timeouts')
+
+    if opts[:session_exp]
+      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+    end
+    if opts[:comm_timeout]
+      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
+    end
+    if opts[:retry_total]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
+    end
+    if opts[:retry_wait]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
+    end
+
+    response = client.send_request(request)
+
+    {
+      :session_exp  => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
+      :comm_timeout => response.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
+      :retry_total  => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
+      :retry_wait   => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT)
+    }
   end
 
   #
@@ -221,7 +249,7 @@ class ClientCore < Extension
       # Get us to the installation root and then into data/meterpreter, where
       # the file is expected to be
       modname = "ext_server_#{mod.downcase}"
-      path = MeterpreterBinaries.path(modname, client.binary_suffix)
+      path = MetasploitPayloads.meterpreter_path(modname, client.binary_suffix)
 
       if opts['ExtensionPath']
         path = ::File.expand_path(opts['ExtensionPath'])
@@ -245,14 +273,16 @@ class ClientCore < Extension
     return true
   end
 
-  def machine_id
+  def machine_id(timeout=nil)
     request = Packet.create_request('core_machine_id')
 
-    response = client.send_request(request)
+    args = [ request ]
+    args << timeout if timeout
 
-    id = response.get_tlv_value(TLV_TYPE_MACHINE_ID)
-    # TODO: Determine if we're going to MD5/SHA1 this
-    return Rex::Text.md5(id)
+    response = client.send_request(*args)
+
+    mid = response.get_tlv_value(TLV_TYPE_MACHINE_ID)
+    return Rex::Text.md5(mid)
   end
 
   def transport_change(opts={})
@@ -275,6 +305,22 @@ class ClientCore < Extension
     scheme = opts[:transport].split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
 
+    if opts[:comm_timeout]
+      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
+    end
+
+    if opts[:session_exp]
+      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+    end
+
+    if opts[:retry_total]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
+    end
+
+    if opts[:retry_wait]
+      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
+    end
+
     # do more magic work for http(s) payloads
     unless opts[:transport].ends_with?('tcp')
       sum = uri_checksum_lookup(:connect)
@@ -287,12 +333,6 @@ class ClientCore < Extension
         })
       end
       url << generate_uri_uuid(sum, uuid) + '/'
-
-      opts[:comms_timeout] ||= DEFAULT_COMMS_TIMEOUT
-      request.add_tlv(TLV_TYPE_TRANS_COMMS_TIMEOUT, opts[:comms_timeout])
-
-      opts[:session_exp] ||= DEFAULT_SESSION_EXPIRATION
-      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
 
       # TODO: randomise if not specified?
       opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
@@ -595,41 +635,49 @@ class ClientCore < Extension
     # Create the migrate stager
     migrate_stager = c.new()
 
-    dll = MeterpreterBinaries.path('metsrv',binary_suffix)
+    dll = MetasploitPayloads.meterpreter_path('metsrv', binary_suffix)
     if dll.nil?
       raise RuntimeError, "metsrv.#{binary_suffix} not found", caller
     end
     migrate_stager.datastore['DLL'] = dll
 
+    # Pass the timeout information to the RDI loader so that it correctly
+    # patches the timeouts into the binary.
+    migrate_stager.datastore['SessionExpirationTimeout']    = self.client.expiration
+    migrate_stager.datastore['SessionCommunicationTimeout'] = self.client.comm_timeout
+    migrate_stager.datastore['SessionRetryTotal']           = self.client.retry_total
+    migrate_stager.datastore['SessionRetryWait']            = self.client.retry_wait
+
     blob = migrate_stager.stage_payload
 
     if client.passive_service
-
-      #
-      # Patch options into metsrv for reverse HTTP payloads
-      #
-      Rex::Payloads::Meterpreter::Patch.patch_passive_service! blob,
-        :ssl            =>  client.ssl,
-        :url            =>  self.client.url,
-        :expiration     => self.client.expiration,
-        :comm_timeout   =>  self.client.comm_timeout,
-        :ua             =>  client.exploit_datastore['MeterpreterUserAgent'],
-        :proxy_host     =>  client.exploit_datastore['PayloadProxyHost'],
-        :proxy_port     =>  client.exploit_datastore['PayloadProxyPort'],
-        :proxy_type     =>  client.exploit_datastore['PayloadProxyType'],
-        :proxy_user     =>  client.exploit_datastore['PayloadProxyUser'],
-        :proxy_pass     =>  client.exploit_datastore['PayloadProxyPass']
-
+      # Patch options into metsrv for reverse HTTP payloads.
+      Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
+        :ssl          => client.ssl,
+        :url          => self.client.url,
+        :expiration   => self.client.expiration,
+        :comm_timeout => self.client.comm_timeout,
+        :retry_total  => self.client.retry_total,
+        :retry_wait   => self.client.retry_wait,
+        :ua           => client.exploit_datastore['MeterpreterUserAgent'],
+        :proxy_host   => client.exploit_datastore['PayloadProxyHost'],
+        :proxy_port   => client.exploit_datastore['PayloadProxyPort'],
+        :proxy_type   => client.exploit_datastore['PayloadProxyType'],
+        :proxy_user   => client.exploit_datastore['PayloadProxyUser'],
+        :proxy_pass   => client.exploit_datastore['PayloadProxyPass'])
     end
 
     blob
   end
 
   def generate_linux_stub
-    file = ::File.join(Msf::Config.data_directory, "meterpreter", "msflinker_linux_x86.bin")
-    blob = ::File.open(file, "rb") {|f|
-      f.read(f.stat.size)
-    }
+    blob = MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
+
+    Rex::Payloads::Meterpreter::Patch.patch_timeouts!(blob,
+      :expiration   => self.client.expiration,
+      :comm_timeout => self.client.comm_timeout,
+      :retry_total  => self.client.retry_total,
+      :retry_wait   => self.client.retry_wait)
 
     blob
   end
