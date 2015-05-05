@@ -97,9 +97,11 @@ module Msf::HTTP::Wordpress::Version
     )
 
     # file not found
-    return Msf::Exploit::CheckCode::Unknown if res.nil? || res.code != 200
+    unless res && res.code == 200
+      return Msf::Exploit::CheckCode::Unknown
+    end
 
-    return extract_and_check_version(res.body.to_s, :custom, 'custom file', fixed_version, vuln_introduced_version, regex)
+    extract_and_check_version(res.body.to_s, :custom, 'custom file', fixed_version, vuln_introduced_version, regex)
   end
 
   private

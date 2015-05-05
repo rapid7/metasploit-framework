@@ -238,7 +238,6 @@ describe Msf::HTTP::Wordpress::Version do
     end
   end
 
-
   describe '#check_version_from_custom_file' do
     before :each do
       allow(subject).to receive(:send_request_cgi) do |opts|
