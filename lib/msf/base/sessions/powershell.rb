@@ -38,22 +38,27 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   # Takes over the shell_command of the parent
   #
   def shell_command(cmd)
-    # Send the command to the session's stdin.
+    # Clear the previous buffer
+    rstream = nil
+
+    # Send the shell channel's stdin.
     shell_write(cmd + "\n")
 
-    timeo = 5
-    etime = ::Time.now.to_f + timeo
+    timeout = 1800 # 30 minute timeout
+    etime = ::Time.now.to_f + timeout
+
     buff = ""
-
-    # Keep reading data until no more data is available or the timeout is
-    # reached.
-    while (::Time.now.to_f < etime and (self.respond_to?(:ring) or ::IO.select([rstream], nil, nil, timeo)))
-      res = shell_read(-1, 0.01)
-      res.gsub!(/PS .*>/, '')
-      buff << res if res
-      timeo = etime - ::Time.now.to_f
+    # Keep reading data until the marker has been received or the 30 minture timeout has occured
+    while (::Time.now.to_f < etime)
+      res = shell_read(-1, timeout)
+      break unless res
+      timeout = etime - ::Time.now.to_f
+      buff << res
+      if buff.match(/PS .*>/)
+        buff.gsub!(/PS .*>/, '')
+        return buff
+      end
     end
-
     buff
   end
 end
