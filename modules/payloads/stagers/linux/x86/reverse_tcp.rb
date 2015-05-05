@@ -19,7 +19,7 @@ module Metasploit4
     super(merge_info(info,
       'Name'        => 'Reverse TCP Stager',
       'Description' => 'Connect back to the attacker',
-      'Author'      => [ 'skape', 'egypt', ],
+      'Author'      => [ 'skape', 'egypt' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'linux',
       'Arch'        => ARCH_X86,

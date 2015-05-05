@@ -8,9 +8,6 @@ require 'msf/base/sessions/meterpreter_x86_linux'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/elfparsey'
 
-# Provides methods to patch options into the metsrv stager.
-require 'rex/payloads/meterpreter/patch'
-
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
 
