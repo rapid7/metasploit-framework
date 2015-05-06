@@ -55,7 +55,7 @@ module Payload::Linux::BindTcp
   #
   def required_space
     # Start with our cached default generated size
-    space = cached_size
+    space = 104
 
     # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
     space += 14
@@ -119,6 +119,7 @@ module Payload::Linux::BindTcp
         int 0x80
         xchg eax,edi                  ; restore the socket handle
         add esp, 0x14
+        pop ecx
       ^
     end
 
