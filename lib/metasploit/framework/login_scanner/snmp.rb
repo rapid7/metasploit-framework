@@ -11,6 +11,7 @@ module Metasploit
       class SNMP
         include Metasploit::Framework::LoginScanner::Base
 
+        DEFAULT_TIMEOUT      = 2
         DEFAULT_PORT         = 161
         DEFAULT_RETRIES      = 0
         DEFAULT_VERSION      = 'all'
@@ -117,7 +118,7 @@ module Metasploit
         # Sets the connection timeout appropriately for SNMP
         # if the user did not set it.
         def set_sane_defaults
-          self.connection_timeout = 2 if self.connection_timeout.nil?
+          self.connection_timeout = DEFAULT_TIMEOUT if self.connection_timeout.nil?
           self.port = DEFAULT_PORT if self.port.nil?
           self.retries = DEFAULT_RETRIES if self.retries.nil?
           self.version = DEFAULT_VERSION if self.version.nil?
