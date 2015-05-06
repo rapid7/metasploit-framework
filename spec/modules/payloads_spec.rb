@@ -1348,7 +1348,7 @@ describe 'modules/payloads', :content do
                               'stagers/linux/x86/bind_tcp',
                               'stages/linux/x86/meterpreter'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/meterpreter/bind_tcp'
   end
@@ -1455,7 +1455,7 @@ describe 'modules/payloads', :content do
                               'stagers/linux/x86/bind_tcp',
                               'stages/linux/x86/shell'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell/bind_tcp'
   end

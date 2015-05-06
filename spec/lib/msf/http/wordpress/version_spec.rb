@@ -238,4 +238,92 @@ describe Msf::HTTP::Wordpress::Version do
     end
   end
 
+  describe '#check_version_from_custom_file' do
+    before :each do
+      allow(subject).to receive(:send_request_cgi) do |opts|
+        res = Rex::Proto::Http::Response.new
+        res.code = wp_code
+        res.body = wp_body
+        res
+      end
+    end
+
+    let(:wp_code) { 200 }
+    let(:wp_body) { nil }
+    let(:wp_path) { '/test/' }
+    let(:wp_fixed_version) { nil }
+    let(:wp_regex) { /(?:Version):\s*([0-9a-z.-]+)/i }
+
+    context 'when no file is found' do
+      let(:wp_code) { 404 }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version)).to be(Msf::Exploit::CheckCode::Unknown) }
+    end
+
+    context 'when no version can be extracted from style' do
+      let(:wp_code) { 200 }
+      let(:wp_body) { 'invalid content' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version)).to be(Msf::Exploit::CheckCode::Detected) }
+    end
+
+    context 'when version from style has arbitrary leading whitespace' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.0.1' }
+      let(:wp_body) { 'Version:  1.0.0' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version)).to be(Msf::Exploit::CheckCode::Appears) }
+      let(:wp_body) { 'Version:1.0.0' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version)).to be(Msf::Exploit::CheckCode::Appears) }
+    end
+
+    context 'when installed version is vulnerable' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.0.1' }
+      let(:wp_body) { 'Version: 1.0.0' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version)).to be(Msf::Exploit::CheckCode::Appears) }
+    end
+
+    context 'when installed version is not vulnerable' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.0.1' }
+      let(:wp_body) { 'Version: 1.0.2' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version)).to be(Msf::Exploit::CheckCode::Safe) }
+    end
+
+    context 'when installed version is vulnerable (version range)' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.0.2' }
+      let(:wp_introd_version) { '1.0.0' }
+      let(:wp_body) { 'Version: 1.0.1' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version, wp_introd_version)).to be(Msf::Exploit::CheckCode::Appears) }
+    end
+
+    context 'when installed version is older (version range)' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.0.1' }
+      let(:wp_introd_version) { '1.0.0' }
+      let(:wp_body) { 'Version: 0.0.9' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version, wp_introd_version)).to be(Msf::Exploit::CheckCode::Safe) }
+    end
+
+    context 'when installed version is newer (version range)' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.0.1' }
+      let(:wp_introd_version) { '1.0.0' }
+      let(:wp_body) { 'Version: 1.0.2' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version, wp_introd_version)).to be(Msf::Exploit::CheckCode::Safe) }
+    end
+
+    context 'when installed version is newer (text in version number)' do
+      let(:wp_code) { 200 }
+      let(:wp_fixed_version) { '1.5.3' }
+      let(:wp_body) { 'Version: 2.0.0-beta1' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex, wp_fixed_version)).to be(Msf::Exploit::CheckCode::Safe) }
+    end
+
+    context 'when all versions are vulnerable' do
+      let(:wp_code) { 200 }
+      let(:wp_body) { 'Version: 1.0.0' }
+      it { expect(subject.send(:check_version_from_custom_file, wp_path, wp_regex)).to be(Msf::Exploit::CheckCode::Appears) }
+    end
+  end
+
 end
