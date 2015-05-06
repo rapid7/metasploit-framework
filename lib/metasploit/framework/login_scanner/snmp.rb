@@ -114,7 +114,7 @@ module Metasploit
 
         end
 
-        # Sets the connection timeout approrpiately for SNMP
+        # Sets the connection timeout appropriately for SNMP
         # if the user did not set it.
         def set_sane_defaults
           self.connection_timeout = 2 if self.connection_timeout.nil?
