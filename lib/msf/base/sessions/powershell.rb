@@ -39,11 +39,11 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   #
   def shell_command(cmd)
     # insert random marker
-    strm = Rex::Text.rand_text_numeric(15)
-    endm = Rex::Text.rand_text_numeric(15)
+    strm = Rex::Text.rand_text_alpha(15)
+    endm = Rex::Text.rand_text_alpha(15)
 
     # Send the shell channel's stdin.
-    shell_write(";#{strm};#{cmd};#{endm};\n")
+    shell_write(";'#{strm}'\n" + cmd + "\n'#{endm}';\n")
 
     timeout = 1800 # 30 minute timeout
     etime = ::Time.now.to_f + timeout
