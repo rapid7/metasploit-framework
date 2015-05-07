@@ -138,7 +138,7 @@ module Msf
         @tasks[@hid_tasks[args[0]]] = @manager.get_options(@hid_tasks[args[0]])['options']
 
         print_line
-        print_status('URL: ' + @tasks[@hid_tasks[args[0]]]['url'])
+        print_status("URL: #{@tasks[@hid_tasks[args[0]]]['url']}")
 
         res = @manager.get_task_data(@hid_tasks[args[0]])
 
@@ -236,7 +236,7 @@ module Msf
         @tasks[@hid_tasks[arg]] = task_options['options']
 
         if @tasks[@hid_tasks[arg]]
-          print_good(args[1] + ': ' + @tasks[@hid_tasks[arg]][args[1]].to_s)
+          print_good("#{args[1]} : #{@tasks[@hid_tasks[arg]][args[1]]}")
         else
           print_error("Option #{arg} doesn't exist")
         end
