@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
         execution. This module will try to cause a denial-of-service.
 
         Please note that a valid file resource must be supplied for the TARGETURI option.
-        By default, IIS, provides 'welcome.png' and 'iis-85.png' as resources.
+        By default, IIS provides 'welcome.png' and 'iis-85.png' as resources.
         Others may also exist, depending on configuration options.
       },
       'Author'         =>
