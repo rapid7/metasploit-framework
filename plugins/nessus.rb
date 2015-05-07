@@ -4,14 +4,13 @@ require 'rex/parser/nessus_xml'
 
 module Msf
 
+  PLUGIN_NAME        = 'Nessus'
+  PLUGIN_DESCRIPTION = 'Nessus Bridge for Metasploit'
+
   class Plugin::Nessus < Msf::Plugin
 
     def name
-      "Nessus"
-    end
-
-    def desc
-        "Nessus Bridge for Metasploit"
+      PLUGIN_NAME
     end
 
     def desc
@@ -22,7 +21,7 @@ module Msf
       include Msf::Ui::Console::CommandDispatcher
       
       def name
-        "Nessus"
+        PLUGIN_NAME
       end
 
       def xindex
@@ -455,7 +454,7 @@ module Msf
           print_status("Returns a list of information about the scan or policy templates..")
           return
         end
-        if type.downcase.in?(['scan', 'policy'])
+        if type.in?(['scan', 'policy'])
           list=@n.list_template(type)
         else
           print_error("Only scan and policy are valid templates")
@@ -1188,7 +1187,7 @@ module Msf
         when 2
           scan_id = args[0]
           category = args[1]
-          if category.downcase.in?(['info', 'hosts', 'vulnerabilities', 'history'])
+          if category.in?(['info', 'hosts', 'vulnerabilities', 'history'])
             category = args[1]
           else
             print_error("Invalid category. The available categories are info, hosts, vulnerabilities, and history")
@@ -1265,7 +1264,7 @@ module Msf
         case args.length
         when 2
           scan_id = args[0]
-          format = args[1]
+          format = args[1].downcase
         else
           print_status("Usage: ")
           print_status("nessus_scan_export <scan ID> <export format>")
@@ -1273,19 +1272,15 @@ module Msf
           print_status("Use nessus_scan_list to list all available scans with their corresponding scan IDs")
           return
         end
-        if format.downcase.in?(['nessus','html','pdf','csv','db'])
+        if format.in?(['nessus','html','pdf','csv','db'])
           export = @n.scan_export(scan_id, format)
           if export["file"]
             file_id = export["file"]
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
             print_status("Checking export status...")
-            code, body = @n.scan_export_status(scan_id, file_id)
-            if code == "200"
-              if body =~ /ready/
-                print_good("The status of scan ID #{scan_id} export is ready")
-              else
-                print_status("Scan result not ready for download. Please check again after a few seconds")
-              end
+            status = @n.scan_export_status(scan_id, file_id)
+            if status == "ready"
+              print_good("The status of scan ID #{scan_id} export is ready")
             else
               print_error("There was some problem in exporting the scan. The error message is #{status}")
             end
@@ -1310,30 +1305,16 @@ module Msf
         when 2
           scan_id = args[0]
           file_id = args[1]
-          check_export_status(scan_id, file_id)
+          status = @n.scan_export_status(scan_id, file_id)
+          if status == "ready"
+            print_status("The status of scan ID #{scan_id} export is ready")
+          else
+            print_error("There was some problem in exporting the scan. The error message is #{status}")
+          end
         else
           print_status("Usage: ")
           print_status("nessus_scan_export_status <scan ID> <file ID>")
           print_status("Use nessus_scan_export <scan ID> <format> to export a scan and get its file ID")
-        end
-      end
-
-      def check_export_status(scan_id, file_id, attempt = 0)
-        code, body = @n.scan_export_status(scan_id, file_id)
-        if code == "200"
-          if body.to_s =~ /ready/
-            print_status("The status of scan ID #{scan_id} export is ready")
-          else
-            if attempt < 3
-              print_status("Scan result not ready for download. Checking again...")
-              select(nil, nil, nil, 1)
-              attempt = attempt + 1
-              print_error("Current value of attempt is #{attempt}")
-              check_export_status(scan_id, file_id, attempt)
-            end
-          end
-        else
-          print_error("There was some problem in exporting the scan. The error message is #{body}")
         end
       end
 
@@ -1691,7 +1672,7 @@ module Msf
     def initialize(framework, opts)
       super
       add_console_dispatcher(ConsoleCommandDispatcher)
-      print_status("Nessus Bridge for Metasploit")
+      print_status(PLUGIN_DESCRIPTION)
       print_status("Type %bldnessus_help%clr for a command listing")
     end
 

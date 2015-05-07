@@ -181,7 +181,12 @@ module Nessus
       request = Net::HTTP::Get.new("/scans/#{scan_id}/export/#{file_id}/status")
       request.add_field("X-Cookie", @token)
       res = @connection.request(request)
-      return res.code, JSON.parse(res.body)
+      if res.code == "200"
+        return "ready"
+      else
+        res = JSON.parse(res.body)
+        return res
+      end
     end
 
     def policy_delete(policy_id)
