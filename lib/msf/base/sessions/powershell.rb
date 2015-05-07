@@ -38,11 +38,12 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   # Takes over the shell_command of the parent
   #
   def shell_command(cmd)
-    # Clear the previous buffer
-    rstream = nil
+    # insert random marker
+    strm = Rex::Text.rand_text_alpha(15)
+    endm = Rex::Text.rand_text_alpha(15)
 
     # Send the shell channel's stdin.
-    shell_write(cmd + "\n")
+    shell_write("'#{strm}';#{cmd};'#{endm}';\n")
 
     timeout = 1800 # 30 minute timeout
     etime = ::Time.now.to_f + timeout
@@ -53,10 +54,14 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       res = shell_read(-1, timeout)
       break unless res
       timeout = etime - ::Time.now.to_f
+
       buff << res
-      if buff.match(/PS .*>/)
-        buff.gsub!(/PS .*>/, '')
-        return buff
+      if buff.match(/#{endm}/)
+        # if you see the end marker, read the buffer from the start marker to the end and then display back to screen
+        newbuff = buff.split(/#{strm}/)[-1]
+        newbuff.gsub!(/PS .*>/, '')
+        newbuff.gsub!(/#{endm}/, '')
+        return newbuff
       end
     end
     buff
