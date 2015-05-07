@@ -20,10 +20,6 @@ module Payload::Windows::BindTcp_x64
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
 
-  def close_listen_socket
-    datastore['StagerCloseListenSocket'].nil? || datastore['StagerCloseListenSocket'] == true
-  end
-
   #
   # Generate the first stage
   #
@@ -31,7 +27,8 @@ module Payload::Windows::BindTcp_x64
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
       return generate_bind_tcp({
-        :port => datastore['LPORT']
+        :port => datastore['LPORT'],
+        :reliable => false
       })
     end
 
@@ -70,20 +67,16 @@ module Payload::Windows::BindTcp_x64
   def required_space
     # Start with our cached default generated size
     # TODO: need help with this from the likes of HD.
-    space = 277
+    space = cached_size
 
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
 
     # EXITFUNK unset will still call ExitProces, which adds 7 bytes (accounted for above)
 
+    # TODO: this is coming soon
     # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
     #space += 14
-
-    # if the payload doesn't need the listen socket closed then we save space. This is
-    # the case for meterpreter payloads, as metsrv now closes the listen socket once it
-    # kicks off (needed for more reliable shells).
-    space -= 11 unless close_listen_socket
 
     # The final estimated size
     space
