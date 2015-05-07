@@ -16,13 +16,13 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'MS15-034 HTTP Protocol Stack Request Handling Denial-of-Service',
       'Description'    => %q{
-        This module will check if your hosts are vulnerable to CVE-2015-1635 (MS15-034). A
-        vulnerability in the HTTP Protocol stack (HTTP.sys) that could result in arbitrary code
+        This module will check if scanned hosts are vulnerable to CVE-2015-1635 (MS15-034), a
+        vulnerability in the HTTP protocol stack (HTTP.sys) that could result in arbitrary code
         execution. This module will try to cause a denial-of-service.
 
-        Please note that you must supply a valid file resource for the TARGETURI option.
-        By default, IIS may come with these settings that you could try: iisstart.htm,
-        welcome.png, iis-85.png, etc.
+        Please note that a valid file resource must be supplied for the TARGETURI option.
+        By default, IIS provides 'welcome.png' and 'iis-85.png' as resources.
+        Others may also exist, depending on configuration options.
       },
       'Author'         =>
         [

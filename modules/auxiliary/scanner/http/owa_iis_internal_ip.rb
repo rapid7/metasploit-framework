@@ -14,7 +14,8 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'           => 'Outlook Web App (OWA) / Client Access Server (CAS) IIS HTTP Internal IP Disclosure',
       'Description'    => %q{
-        This module tests vulnerable IIS HTTP header file paths on Microsoft Exchange OWA 2003, CAS 2007, 2010, 2013 servers.
+        This module tests vulnerable IIS HTTP header file paths on Microsoft
+        Exchange OWA 2003 and CAS 2007, 2010, and 2013 servers.
       },
       'Author'         =>
         [
