@@ -91,7 +91,7 @@ module Payload::Windows::ReverseHttp
   # Generate the transport-specific configuration
   #
   def transport_config(opts={})
-    transport_config_reverse_https(opts)
+    transport_config_reverse_http(opts)
   end
 
   #
