@@ -177,10 +177,10 @@ or editor -- we'll get to those next.
 ----
 ```bash
 curl -sSL https://rvm.io/mpapis.asc | gpg --import - &&
-curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.5 &&
+curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.6 &&
 source $HOME/.rvm/scripts/rvm &&
 gem install bundler &&
-ruby -v && # See that it's 2.1.5
+ruby -v && # See that it's 2.1.6
 sudo gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
   --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true
 ```
@@ -202,7 +202,7 @@ curl -sSL https://rvm.io/mpapis.asc | gpg --import -
 Next, get RVM itself:
 
 ```
-curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.5
+curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.6
 ```
 
 This does pipe straight to bash, which can be a [sensitive
@@ -211,14 +211,14 @@ issue][dont-pipe]. For the longer, safer way:
 ```
 curl - rvm.sh -L https://get.rvm.io
 cat rvm.sh # Read it and see it's all good
-cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.5
+cat rvm.sh | bash -s stable --autolibs=enabled --ruby=2.1.6
 ```
 
 Once that's done, fix your current terminal to use RVM's version of ruby:
 
 ```
 source $HOME/.rvm/scripts/rvm
-ruby -v # See that it's 2.1.5
+ruby -v # See that it's 2.1.6
 ```
 
 And finally, install the `bundler` gem in order to get all the other gems you'll need:
@@ -243,13 +243,13 @@ as a login shell**. It looks like this:
 
 [[/screens/kali-gnome-terminal.png]]
 
-Finally, see that you're now running Ruby 2.1.5:
+Finally, see that you're now running Ruby 2.1.6:
 
 ```
 ruby -v
 ```
 
-It should say `ruby 2.1.5p273`, unless there is a later version and this doc hasn't been updated yet.
+It should say `ruby 2.1.6p336`, unless there is a later version and this doc hasn't been updated yet.
 
 # Install an Editor
 
@@ -886,10 +886,10 @@ echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS apt-get -y install \
 ----
 ```bash
 curl -sSL https://rvm.io/mpapis.asc | gpg --import - &&
-curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.5 &&
+curl -L https://get.rvm.io | bash -s stable --autolibs=enabled --ruby=2.1.6 &&
 source $HOME/.rvm/scripts/rvm &&
 gem install bundler &&
-ruby -v && # See that it's 2.1.5
+ruby -v && # See that it's 2.1.6
 sudo gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults \
   --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true
 ```
