@@ -410,9 +410,7 @@ describe Rex::SSLScan::Result do
   context "checking for weak ciphers" do
     context "when weak ciphers are supported" do
       before(:each) do
-        skip("Fix #5319, deal with system libs not supporting weak ciphers") do
-          subject.add_cipher(:SSLv3, "EXP-RC4-MD5", 40, :accepted)
-        end
+        subject.add_cipher(:SSLv3, "EXP-RC4-MD5", 40, :accepted)
         subject.add_cipher(:SSLv3, "DES-CBC-SHA", 56, :accepted)
       end
       it "should return an array of weak ciphers from #weak_ciphers" do
@@ -460,10 +458,8 @@ describe Rex::SSLScan::Result do
     end
 
     it "should return false if weak ciphers are supported" do
-      skip("Fix #5319, deal with system libs not supporting weak ciphers") do
-        subject.add_cipher(:SSLv3, "EXP-RC2-CBC-MD5", 40, :accepted)
-        subject.standards_compliant?.should == false
-      end
+      subject.add_cipher(:SSLv3, "EXP-RC2-CBC-MD5", 40, :accepted)
+      subject.standards_compliant?.should == false
     end
 
     it "should return true if SSLv2 and Weak Ciphers are disabled" do
@@ -492,10 +488,7 @@ describe Rex::SSLScan::Result do
         subject.add_cipher(:SSLv3, "AES256-SHA", 256, :accepted)
         subject.add_cipher(:TLSv1, "AES256-SHA", 256, :accepted)
         subject.add_cipher(:SSLv3, "AES128-SHA", 128, :accepted)
-
-        skip("Fix #5319, deal with system libs not supporting weak ciphers") do
-          subject.add_cipher(:SSLv3, "EXP-RC2-CBC-MD5", 40, :accepted)
-        end
+        subject.add_cipher(:SSLv3, "EXP-RC2-CBC-MD5", 40, :accepted)
 
         cert = OpenSSL::X509::Certificate.new
         key = OpenSSL::PKey::RSA.new 2048
