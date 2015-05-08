@@ -52,17 +52,15 @@ class Metasploit3 < Msf::Auxiliary
               return true if server =~ /BIG\-IP/  || server =~ /BigIP/
             end
         rescue ::Rex::ConnectionRefused
-          print_status("#{ip}:#{port} - TCP port closed") if verbose
+          vprint_error("#{ip}:#{port} - Connection refused")
         rescue ::Rex::ConnectionError
-          print_error("#{ip}:#{port} - Connection error")
+          vprint_error("#{ip}:#{port} - Connection error")
         rescue ::OpenSSL::SSL::SSLError
-          print_error("#{ip}:#{port} - SSL/TLS connection error")
-        rescue => e
-          print_error("#{ip}:#{port} - Connection failed") if verbose
+          vprint_error("#{ip}:#{port} - SSL/TLS connection error")
         end
       end
     rescue Timeout::Error
-      print_error("#{ip}:#{port} - HTTP connection timed out") if verbose
+      vprint_error("#{ip}:#{port} - HTTP connection timed out") if verbose
     end
     return false
   end
@@ -74,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
     ports.each do |port|
       next if port == 443
       if bigip_http?(ip, port, ssl = false, verbose)
-        print_status("#{ip}:#{port} - BigIP HTTP virtual server found")
+        print_good("#{ip}:#{port} - BigIP HTTP virtual server found")
         ports.delete(port)
       end
     end
@@ -82,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
     ports.each do |port|
       next if port == 80
       if bigip_http?(ip, port, ssl = true, verbose)
-        print_status("#{ip}:#{port} - BigIP HTTP virtual server found")
+        print_good("#{ip}:#{port} - BigIP HTTP virtual server found")
       end
     end
 
