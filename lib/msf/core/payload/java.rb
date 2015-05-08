@@ -17,7 +17,7 @@ module Msf::Payload::Java
   def generate_stage
     stage = ''
     @stage_class_files.each do |path|
-      data = MetasploitPayloads.read("java", path)
+      data = MetasploitPayloads.read('java', path)
       stage << ([data.length].pack("N") + data)
     end
     stage << [0].pack("N")
