@@ -115,9 +115,9 @@ class Console::CommandDispatcher::Stdapi::Fs
     opts.parse(args) { | opt, idx, val |
       case opt
         when "-h"
-          print_line "Usage: search [-d dir] [-r recurse] -f pattern"
-          print_line "Search for files."
-          print_line opts.usage
+          print_line("Usage: search [-d dir] [-r recurse] -f pattern")
+          print_line("Search for files.")
+          print_line(opts.usage)
           return
         when "-d"
           root = val
@@ -129,23 +129,23 @@ class Console::CommandDispatcher::Stdapi::Fs
     }
 
     if not glob
-      print_error "You must specify a valid file glob to search for, e.g. >search -f *.doc"
+      print_error("You must specify a valid file glob to search for, e.g. >search -f *.doc")
       return
     end
 
     files = client.fs.file.search(root, glob, recurse)
 
     if not files.empty?
-      print_line "Found #{files.length} result#{ files.length > 1 ? 's' : '' }..."
+      print_line("Found #{files.length} result#{ files.length > 1 ? 's' : '' }...")
       files.each do | file |
         if file['size'] > 0
-          print "    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n"
+          print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n")
         else
-          print "    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n"
+          print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n")
         end
       end
     else
-      print_line "No files matching your search were found."
+      print_line("No files matching your search were found.")
     end
 
   end
@@ -242,9 +242,9 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 
   def cmd_download_help
-    print_line "Usage: download [options] src1 src2 src3 ... destination"
+    print_line("Usage: download [options] src1 src2 src3 ... destination")
     print_line
-    print_line "Downloads remote files and directories to the local machine."
+    print_line("Downloads remote files and directories to the local machine.")
     print_line @@download_opts.usage
   end
 
@@ -501,7 +501,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     if stat.directory?
       list_path(path, columns, sort, order, short, recursive)
     else
-      print_line "#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}"
+      print_line("#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
     end
 
     return true
@@ -552,9 +552,9 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   def cmd_upload_help
-    print_line "Usage: upload [options] src1 src2 src3 ... destination"
+    print_line("Usage: upload [options] src1 src2 src3 ... destination")
     print_line
-    print_line "Uploads local files and directories to the remote machine."
+    print_line("Uploads local files and directories to the remote machine.")
     print_line @@upload_opts.usage
   end
 
