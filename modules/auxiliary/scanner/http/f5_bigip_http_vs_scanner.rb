@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
         'uri' => '/',
         'rport' => port,
         'SSL' => ssl,
-        'timeout' => 1
+        'timeout' => datastore['TIMEOUT']
       )
       return false unless res
       server = res.headers['Server']
