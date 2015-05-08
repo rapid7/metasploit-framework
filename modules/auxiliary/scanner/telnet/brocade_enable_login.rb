@@ -113,7 +113,7 @@ class Metasploit4 < Msf::Auxiliary
           send_delay: datastore['TCP::send_delay'],
           banner_timeout: datastore['TelnetBannerTimeout'],
           telnet_timeout: datastore['TelnetTimeout'],
-          pre_login: lambda{ |s| raw_send("enable\r\n", nsock = s.sock) },
+          pre_login: lambda { |s| raw_send("enable\r\n", s.sock) },
           framework: framework,
           framework_module: self,
       )
