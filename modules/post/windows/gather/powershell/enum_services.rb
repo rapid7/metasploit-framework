@@ -27,11 +27,9 @@ class Metasploit3 < Msf::Post
     print_good("Running the post module: #{name} on: " + session.shell_command('$env:COMPUTERNAME').gsub!(/(\r\n)/, ''))
     # Get all the services that are not in  "C:\Windows\System32\"
     pscommand = '$services = Get-WmiObject win32_service | ?{$_} | where {($_.pathname -ne $null) -and ($_.pathname -notmatch ".*system32.*")} ; $servicepaths = New-Object System.Collections.ArrayList'
-    print(session.shell_command(pscommand))
-
+    session.shell_command(pscommand)
     pscommand = 'foreach ($service in $services) { if ($service.PathName -Match "^(.+?)\.exe") {$servicepaths.Add($Matches[0].Replace(\'"\',\'\')) > $null} }'
-    print(session.shell_command(pscommand))
-
+    session.shell_command(pscommand)
     pscommand = 'foreach ($service in $servicepaths) { "`n"+$service; get-acl $service | select-object -expandproperty AccessToString }'
     print(session.shell_command(pscommand))
   end
