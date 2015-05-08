@@ -64,6 +64,13 @@ module Payload::Windows::ReverseHttps
     generate_reverse_https(conf)
   end
 
+  #
+  # Generate the transport-specific configuration
+  #
+  def transport_config(opts={})
+    transport_config_reverse_https(opts)
+  end
+
 end
 
 end
