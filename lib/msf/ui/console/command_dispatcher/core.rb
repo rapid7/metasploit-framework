@@ -1996,6 +1996,12 @@ class Core
   # Sets a name to a value in a context aware environment.
   #
   def cmd_set(*args)
+    # Special-case Browser AutoPwn because set payload can only set one payload, but BAP can
+    # do multiple. So let BAP handle this.
+    if args[0] && args[0].upcase == 'PAYLOAD' && active_module.kind_of?(Msf::Exploit::Remote::BrowserAutopwnv2) && active_module.respond_to?(:set_payload)
+      active_module.set_payload
+      return
+    end
 
     # Figure out if these are global variables
     global = false
@@ -2110,7 +2116,6 @@ class Core
   # at least 1 when tab completion has reached this stage since the command itself has been completed
 
   def cmd_set_tabs(str, words)
-
     # A value has already been specified
     return [] if words.length > 2
 
