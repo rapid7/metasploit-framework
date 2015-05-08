@@ -66,7 +66,6 @@ module Payload::Windows::BindTcp_x64
   #
   def required_space
     # Start with our cached default generated size
-    # TODO: need help with this from the likes of HD.
     space = cached_size
 
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
