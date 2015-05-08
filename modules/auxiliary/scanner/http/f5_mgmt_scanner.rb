@@ -11,9 +11,10 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'F5 Management Interface Scanner',
+      'Name'          => 'F5 Networks Devices Management Interface Scanner',
       'Description'   => %q{
-        This module simply detects web management interface of the following F5 Networks devices: BigIP, BigIQ, Enterprise Manager, ARX, and FirePass.
+        This module scans for web management interfaces of the following F5 Networks devices:
+        BigIP, BigIQ, Enterprise Manager, ARX, and FirePass.
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
@@ -31,76 +32,63 @@ class Metasploit3 < Msf::Auxiliary
     ))
 
     register_options(
-        [
-          OptInt.new('TIMEOUT', [true, "Timeout for the HTTPS probe in milliseconds", 1000])
-        ], self.class)
+      [
+        OptInt.new('TIMEOUT', [true, 'HTTPS connect/read timeout in seconds', 1])
+      ], self.class)
   end
 
-  def port_open?(to, verbose)
+  def port_open?
     begin
-      ::Timeout.timeout(to) do
-        begin
-          res = send_request_raw('method' => 'GET', 'uri' => '/')
-          return true if res
-        rescue ::Rex::ConnectionRefused
-          print_status("#{peer} - TCP port closed") if verbose
-          return false
-        rescue ::Rex::ConnectionError
-          print_error("#{peer} - Connection failed") if verbose
-          return false
-        rescue ::OpenSSL::SSL::SSLError
-          print_error("#{peer} - SSL/TLS connection error") if verbose
-          return false
-        rescue => e
-          print_error("#{peer} - Connection failed") if verbose
-        end
-      end
-    rescue Timeout::Error
-      print_error("#{peer} - HTTP connection timed out") if verbose
+      res = send_request_raw('method' => 'GET', 'uri' => '/', 'timeout' => datastore['TIMEOUT'])
+      return true if res
+    rescue ::Rex::ConnectionRefused
+      vprint_status("#{peer} - Connection refused")
+      return false
+    rescue ::Rex::ConnectionError
+      vprint_error("#{peer} - Connection failed")
+      return false
+    rescue ::OpenSSL::SSL::SSLError
+      vprint_error("#{peer} - SSL/TLS connection error")
       return false
     end
   end
 
   def run_host(ip)
-    # Test if a RPORT on a remote host is reachable using HTTPClient
-    to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
-    verbose = datastore['VERBOSE']
-    return unless port_open?(to, verbose)
+    return unless port_open?
 
     res = send_request_raw('method' => 'GET', 'uri' => '/')
     if res && res.code == 200
 
       # Detect BigIP management interface
       if res.body =~ /<title>BIG\-IP/
-        print_status("#{peer} - F5 BigIP web management interface found")
+        print_good("#{peer} - F5 BigIP web management interface found")
         return
       end
 
       # Detect EM management interface
       if res.body =~ /<title>Enterprise Manager/
-        print_status("#{peer} - F5 Enterprise Manager web management interface found")
+        print_good("#{peer} - F5 Enterprise Manager web management interface found")
         return
       end
 
       # Detect ARX management interface
       if res.body =~ /<title>F5 ARX Manager Login<\/title>/
-        print_status("#{peer} - ARX web management interface found")
+        print_good("#{peer} - ARX web management interface found")
         return
       end
     end
 
-    res = send_request_raw('method' => 'GET', 'uri' => '/ui/login/', 'rport' => rport)
-
     # Detect BigIQ management interface
+    res = send_request_raw('method' => 'GET', 'uri' => '/ui/login/')
     if res && res.code == 200 && res.body =~ /<title>BIG\-IQ/
-      print_status("#{peer} - F5 BigIQ web management interface found")
+      print_good("#{peer} - F5 BigIQ web management interface found")
       return
     end
 
     # Detect FirePass management interface
     res = send_request_raw('method' => 'GET', 'uri' => '/admin/', 'rport' => rport)
     if res && res.code == 200 && res.body =~ /<br><br><br><big><b>&nbsp;FirePass/
-      print_status("#{peer} - F5 FirePass web management interface found")
+      print_good("#{peer} - F5 FirePass web management interface found")
       return
     end
   end
