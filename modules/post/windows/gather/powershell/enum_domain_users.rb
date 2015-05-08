@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
     # Find all domain users
     pscommand = '$searcher = new-object System.DirectoryServices.DirectorySearcher ; $searcher.filter = "(&(objectClass=user)(sAMAccountName=*))"; $colResults = $searcher.findall()'
     print(session.shell_command(pscommand))
-    pscommand = '"`nDomain Users`n=============";foreach ($objResult in $colResults) {$objItem = $objResult.Properties; $objItem.samaccountname } ; "`n"'
+    pscommand = 'foreach ($objResult in $colResults) {$objItem = $objResult.Properties; $objItem.samaccountname } ; "`n"'
     print(session.shell_command(pscommand))
   end
 end
