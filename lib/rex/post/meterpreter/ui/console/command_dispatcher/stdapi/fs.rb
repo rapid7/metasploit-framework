@@ -245,7 +245,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     print_line("Usage: download [options] src1 src2 src3 ... destination")
     print_line
     print_line("Downloads remote files and directories to the local machine.")
-    print_line @@download_opts.usage
+    print_line(@@download_opts.usage)
   end
 
   #
@@ -470,13 +470,13 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     # Check for cries of help
     if args.length > 1 || args.any? { |a| a[0] == '-' }
-      print_line 'Usage: ls [dir] [-x] [-S] [-t] [-r]'
-      print_line '   -x Show short file names'
-      print_line '   -S Sort by size'
-      print_line '   -t Sort by time modified'
-      print_line '   -r Reverse sort order'
-      print_line '   -l List in long format (default)'
-      print_line '   -R Recursively list subdirectories encountered.'
+      print_line('Usage: ls [dir] [-x] [-S] [-t] [-r]')
+      print_line('   -x Show short file names')
+      print_line('   -S Sort by size')
+      print_line('   -t Sort by time modified')
+      print_line('   -r Reverse sort order')
+      print_line('   -l List in long format (default)')
+      print_line('   -R Recursively list subdirectories encountered.')
       return true
     end
 
@@ -491,7 +491,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     is_glob = client.fs.file.is_glob?(path)
     if is_glob
       if !client.commands.include?('stdapi_fs_search')
-        print_line 'File globbing not supported with this session'
+        print_line('File globbing not supported with this session')
         return
       end
       stat_path = ::File.dirname(path)
@@ -555,7 +555,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     print_line("Usage: upload [options] src1 src2 src3 ... destination")
     print_line
     print_line("Uploads local files and directories to the remote machine.")
-    print_line @@upload_opts.usage
+    print_line(@@upload_opts.usage)
   end
 
   #
