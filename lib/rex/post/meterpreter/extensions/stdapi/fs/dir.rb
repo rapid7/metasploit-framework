@@ -231,7 +231,7 @@ class Dir < Rex::Post::Dir
         end
 
         stat.call('mirroring', src_item, dst_item) if (stat)
-        download(dst_item, src_item, recursive, force, &stat)
+        download(dst_item, src_item, recursive, force, glob, &stat)
         stat.call('mirrored', src_item, dst_item) if (stat)
       end
     }
