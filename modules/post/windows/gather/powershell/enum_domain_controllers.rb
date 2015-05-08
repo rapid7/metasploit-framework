@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 
   # Run Method called when command run is issued
   def run
-    print_good("Running the post module: #{name} on" + session.shell_command('$env:COMPUTERNAME'))
+    print_good("Running the post module: #{name} on: " + session.shell_command('$env:COMPUTERNAME').gsub!(/(\r\n)/, ''))
 
     pscommand='$root = New-Object DirectoryServices.DirectoryEntry "LDAP://RootDSE"; $root.Properties["dnsHostName"][0].ToString()'
     print(session.shell_command(pscommand))

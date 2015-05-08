@@ -24,8 +24,7 @@ class Metasploit3 < Msf::Post
 
   # Run Method called when command run is issued
   def run
-    print_good("Running the post module: #{name} on" + session.shell_command('$env:COMPUTERNAME'))
-
+    print_good("Running the post module: #{name} on: " + session.shell_command('$env:COMPUTERNAME').gsub!(/(\r\n)/, ''))
     # Find all domain users
     pscommand = '$searcher = new-object System.DirectoryServices.DirectorySearcher ; $searcher.filter = "(&(objectClass=user)(sAMAccountName=*))"; $colResults = $searcher.findall()'
     print(session.shell_command(pscommand))
