@@ -43,12 +43,13 @@ class Metasploit3 < Msf::Auxiliary
   def bigip_http?(ip, port, ssl)
     begin
       res = send_request_raw(
-        'method' => 'GET',
-        'uri' => '/',
-        'rport' => port,
-        'SSL' => ssl,
-        'timeout' => datastore['TIMEOUT']
-      )
+        {
+          'method' => 'GET',
+          'uri' => '/',
+          'rport' => port,
+          'ssl' => ssl,
+        },
+        datastore['TIMEOUT'])
       return false unless res
       server = res.headers['Server']
       return true if server =~ /BIG\-IP/ || server =~ /BigIP/

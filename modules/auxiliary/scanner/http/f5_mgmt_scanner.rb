@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def port_open?
     begin
-      res = send_request_raw('method' => 'GET', 'uri' => '/', 'timeout' => datastore['TIMEOUT'])
+      res = send_request_raw({'method' => 'GET', 'uri' => '/'}, datastore['TIMEOUT'])
       return true if res
     rescue ::Rex::ConnectionRefused
       vprint_status("#{peer} - Connection refused")
