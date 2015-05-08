@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
 
     # Parse Returned data
     members = get_members(usr_res.split("\n"))
-    domain = client.sys.config.getenv("USERDOMAIN")
+    domain = get_env("USERDOMAIN")
 
     # Show results if we have any, Error if we don't
     if ! members.empty?
