@@ -73,13 +73,18 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     ports.each do |port|
-      if bigip_http?(ip, port, false)
-        print_good("#{ip}:#{port} - BigIP HTTP virtual server found")
-        next
+
+      unless port == 443 # Skip http check for 443
+        if bigip_http?(ip, port, false)
+          print_good("#{ip}:#{port} - BigIP HTTP virtual server found")
+          next
+        end
       end
 
-      if bigip_http?(ip, port, true)
-        print_good("#{ip}:#{port} - BigIP HTTPS virtual server found")
+      unless port == 80 # Skip https check for 80
+        if bigip_http?(ip, port, true)
+          print_good("#{ip}:#{port} - BigIP HTTPS virtual server found")
+        end
       end
     end
   end
