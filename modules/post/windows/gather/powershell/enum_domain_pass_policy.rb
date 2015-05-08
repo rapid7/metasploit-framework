@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
         'Name'          => 'Enum Domain Password Policy',
         'Description'   => %Q{ This module will enumerate the domain password policy },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Ben Turner <@benpturner>','Dave Hardy <@davehardy20>'],
+        'Author'        => [ 'Ben Turner <benpturner[at]yahoo.com>','Dave Hardy <davehardy20[at]gmail.com>'],
         'Platform'      => [ 'win' ],
         'SessionTypes'  => [ 'powershell' ]
       ))
@@ -24,9 +24,9 @@ class Metasploit3 < Msf::Post
 
   # Run Method called when command run is issued
   def run
-    #enumerate the domain password policy
     print_good("Running the post module: #{name} on" + session.shell_command('$env:COMPUTERNAME'))
-    pscommand='net accounts'
+
+    pscommand='net accounts /domain'
     print(session.shell_command(pscommand))
   end
 end

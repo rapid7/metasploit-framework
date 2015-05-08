@@ -13,8 +13,8 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Enum PowerShell Version',
-        'Description'   => %Q{ This module will enumerate the local powershell version },
+        'Name'          => 'Enum Domain Controllors via PowerShell',
+        'Description'   => %Q{ This module will enumerate Domain Controllors },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Ben Turner <benpturner[at]yahoo.com>','Dave Hardy <davehardy20[at]gmail.com>'],
         'Platform'      => [ 'win' ],
@@ -26,8 +26,7 @@ class Metasploit3 < Msf::Post
   def run
     print_good("Running the post module: #{name} on" + session.shell_command('$env:COMPUTERNAME'))
 
-    # Enumerate powershell version
-    pscommand='$psversiontable'
+    pscommand='$root = New-Object DirectoryServices.DirectoryEntry "LDAP://RootDSE"; $root.Properties["dnsHostName"][0].ToString()'
     print(session.shell_command(pscommand))
   end
 end
