@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Enum Domain Password Policy',
-        'Description'   => %Q{ This module will enumerate Domain Controllors },
+        'Description'   => %Q{ This module will enumerate the domain password policy },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Ben Turner <@benpturner>','Dave Hardy <@davehardy20>'],
         'Platform'      => [ 'win' ],
