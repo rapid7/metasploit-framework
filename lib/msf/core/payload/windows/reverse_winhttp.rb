@@ -18,6 +18,7 @@ module Msf
 
 module Payload::Windows::ReverseWinHttp
 
+  include Msf::TransportConfig
   include Msf::Payload::Windows::ReverseHttp
 
   #
