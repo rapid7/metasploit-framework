@@ -16,7 +16,6 @@ module Msf
 
 module Payload::Windows::ReverseWinHttps
 
-  include Msf::TransportConfig
   include Msf::Payload::Windows::ReverseWinHttp
   include Msf::Payload::Windows::VerifySsl
 
@@ -25,8 +24,8 @@ module Payload::Windows::ReverseWinHttps
   #
   def initialize(*args)
     super
-    register_advanced_options(
-      [
+
+    register_advanced_options([
         OptBool.new('StagerVerifySSLCert', [false, 'Whether to verify the SSL certificate hash in the handler', false])
       ], self.class)
   end
