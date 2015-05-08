@@ -52,7 +52,6 @@ class Metasploit3 < Msf::Auxiliary
   def run
     # Main function
     rlimit = datastore['RLIMIT']
-    proto = datastore['SSL'] ? 'https' : 'http'
     force_attack = datastore['FORCE']
 
     # Send an initial test request
