@@ -1778,7 +1778,9 @@ class Core
             end
           ensure
             # Restore timeout for each session
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout)
+              session.response_timeout = last_known_timeout if last_known_timeout
+            end
           end
           # If the session isn't a meterpreter or shell type, it
           # could be a VNC session (which can't run commands) or
