@@ -7,24 +7,23 @@ require 'msf/core'
 require 'rex'
 
 class Metasploit3 < Msf::Post
-
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather Enumerate Domain Group',
-        'Description'   => %q{ This module extracts user accounts from specified group
-          and stores the results in the loot. It will also verify if session
-          account is in the group. Data is stored in loot in a format that
-          is compatible with the token_hunter plugin. This module should be
-          run over as session with domain credentials.},
-        'License'       => MSF_LICENSE,
-        'Author'        =>
-          [
-            'Carlos Perez <carlos_perez[at]darkoperator.com>',
-            'Stephen Haywood <haywoodsb[at]gmail.com>'
-          ],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Windows Gather Enumerate Domain Group',
+      'Description'   => %q( This module extracts user accounts from specified group
+        and stores the results in the loot. It will also verify if session
+        account is in the group. Data is stored in loot in a format that
+        is compatible with the token_hunter plugin. This module should be
+        run over as session with domain credentials.),
+      'License'       => MSF_LICENSE,
+      'Author'        =>
+        [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>',
+          'Stephen Haywood <haywoodsb[at]gmail.com>'
+        ],
+      'Platform'      => [ 'win' ],
+      'SessionTypes'  => [ 'meterpreter' ]
+    ))
     register_options(
       [
         OptString.new('GROUP', [true, 'Domain Group to enumerate', nil])
@@ -47,7 +46,7 @@ class Metasploit3 < Msf::Post
     domain = get_env("USERDOMAIN")
 
     # Show results if we have any, Error if we don't
-    if ! members.empty?
+    if !members.empty?
 
       print_status("Found users in #{datastore['GROUP']}")
 
@@ -59,9 +58,9 @@ class Metasploit3 < Msf::Post
 
       # Is our current user a member of this domain and group
       if is_member(cur_domain, cur_user, domain, members)
-        print_status("Current sessions running as #{cur_domain}\\#{cur_user} is a member of #{datastore['GROUP']}!!")
+        print_good("Current sessions running as #{cur_domain}\\#{cur_user} is a member of #{datastore['GROUP']}!")
       else
-        print_error("Current session running as #{cur_domain}\\#{cur_user} is not a member of #{datastore['GROUP']}")
+        print_status("Current session running as #{cur_domain}\\#{cur_user} is not a member of #{datastore['GROUP']}")
       end
 
       # Store the captured data in the loot.
@@ -70,7 +69,6 @@ class Metasploit3 < Msf::Post
     else
       print_error("No members found for #{datastore['GROUP']}")
     end
-
   end
 
   def get_members(results)
@@ -88,7 +86,7 @@ class Metasploit3 < Msf::Post
       end
     end
 
-    return members
+    members
   end
 
   def is_member(cur_dom, cur_user, dom, users)
