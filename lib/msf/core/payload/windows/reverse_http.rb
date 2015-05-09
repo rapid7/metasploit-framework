@@ -43,7 +43,7 @@ module Payload::Windows::ReverseHttp
   #
   def generate(opts={})
     conf = {
-      :ssl         => opts[ssl] || false,
+      :ssl         => opts[:ssl] || false,
       :host        => datastore['LHOST'],
       :port        => datastore['LPORT'],
       :url         => generate_small_uri,
