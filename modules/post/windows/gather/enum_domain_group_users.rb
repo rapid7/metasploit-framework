@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
     ctype = "text/plain"
 
     # Get Data
-    usr_res = run_cmd("net groups \"#{datastore['GROUP']}\" /domain")
+    usr_res = cmd_exec("net groups \"#{datastore['GROUP']}\" /domain")
 
     # Parse Returned data
     members = get_members(usr_res.split("\n"))
@@ -92,28 +92,17 @@ class Metasploit3 < Msf::Post
   end
 
   def is_member(cur_dom, cur_user, dom, users)
-
     member = false
 
     if cur_dom == dom
       users.each do |u|
-        if u.downcase == cur_user.downcase then member = true end
+        if u.downcase == cur_user.downcase
+          member = true
+          break
+        end
       end
     end
 
-    return member
+    member
   end
-
-  def run_cmd(cmd)
-    process = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
-    res = ""
-    while (d = process.channel.read)
-      break if d == ""
-      res << d
-    end
-    process.channel.close
-    process.close
-    return res
-  end
-
 end
