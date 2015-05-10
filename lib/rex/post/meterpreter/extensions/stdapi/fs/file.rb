@@ -152,8 +152,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    # This is not really a file name, but a raw hash in bytes
-    return response.get_tlv_value(TLV_TYPE_FILE_NAME)
+    return response.get_tlv_value(TLV_TYPE_FILE_HASH)
   end
 
   #
@@ -166,8 +165,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    # This is not really a file name, but a raw hash in bytes
-    return response.get_tlv_value(TLV_TYPE_FILE_NAME)
+    return response.get_tlv_value(TLV_TYPE_FILE_HASH)
   end
 
   #
