@@ -82,8 +82,8 @@ class Metasploit3 < Msf::Auxiliary
       port = nil
     end
 
-    backend[:host] = (host.nil?) ? nil : host
-    backend[:port] = (port.nil?) ? nil : port
+    backend[:host] = host.nil? ? nil : host
+    backend[:port] = port.nil? ? nil : port
     backend
   end
 
@@ -146,8 +146,11 @@ class Metasploit3 < Msf::Auxiliary
 
     # Reporting found backends in database
     unless backends.empty?
-      report_note(host: rhost, type: "f5_load_balancer_backends", data: backends)
+      report_note(host: rhost, type: 'f5_load_balancer_backends', data: backends)
     end
+
+    rescue ::Rex::ConnectionRefused
+      print_error("#{peer} - Network connection error")
     rescue ::Rex::ConnectionError
       print_error("#{peer} - Network connection error")
     rescue ::OpenSSL::SSL::SSLError
