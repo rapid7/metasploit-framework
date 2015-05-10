@@ -778,6 +778,16 @@ describe 'modules/payloads', :content do
                           reference_name: 'cmd/windows/powershell_reverse_tcp'
   end
 
+  context 'cmd/windows/powershell_reverse_tcp_ssl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/windows/powershell_reverse_tcp_ssl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/windows/powershell_reverse_tcp_ssl'
+  end
+
   context 'cmd/windows/reverse_lua' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3832,6 +3842,16 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell_reverse_tcp'
+  end
+
+  context 'windows/powershell_reverse_tcp_ssl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/powershell_reverse_tcp_ssl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/powershell_reverse_tcp_ssl'
   end
 
   context 'windows/shell/bind_hidden_ipknock_tcp' do
