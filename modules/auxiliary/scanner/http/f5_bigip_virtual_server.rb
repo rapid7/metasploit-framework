@@ -20,9 +20,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'      =>
         [
-          'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
-          'Nikita Oleksov <neoleksov[at]gmail.com>',
           'Denis Kolegov <dnkolegov[at]gmail.com>',
+          'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
+          'Nikita Oleksov <neoleksov[at]gmail.com>'
         ],
       'License'     => MSF_LICENSE,
       'References'     =>
@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
           'method' => 'GET',
           'uri' => '/',
           'rport' => port,
-          'ssl' => ssl,
+          'SSL' => ssl,
         },
         datastore['TIMEOUT'])
       return false unless res

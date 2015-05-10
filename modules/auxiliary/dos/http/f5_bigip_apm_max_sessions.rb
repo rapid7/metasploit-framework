@@ -25,9 +25,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
+          'Denis Kolegov <dnkolegov[at]gmail.com>',
           'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
-          'Nikita Oleksov <neoleksov[at]gmail.com>',
-          'Denis Kolegov <dnkolegov[at]gmail.com>'
+          'Nikita Oleksov <neoleksov[at]gmail.com>'
         ],
       'References'     =>
         [
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptInt.new('RLIMIT', [true, 'The number of requests to send', 10000]),
-        OptBool.new('FORCE', [true, 'Proceed with attack even if a BigIP virtual isn\'t detected', false])
+        OptBool.new('FORCE', [true, 'Proceed with attack even if a BigIP virtual server isn\'t detected', false])
       ], self.class)
   end
 
@@ -89,10 +89,12 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{peer} - Result is undefined. Try to manually determine DoS attack result")
     end
 
+    rescue ::Errno::ECONNRESET
+      print_error("#{peer} - The connection was reset. Maybe BigIP 'Max In Progress Sessions Per Client IP' counter was reached")
     rescue ::Rex::ConnectionRefused
-      print_error("#{peer} - Unable to connect to BigIP. Maybe BigIP 'Max In Progress Sessions Per Client IP' counter was reached")
+      print_error("#{peer} - Unable to connect to BigIP")
     rescue ::Rex::ConnectionTimeout
-      print_error("#{peer} - Unable to connect to BigIP.")
+      print_error("#{peer} - Unable to connect to BigIP. Please check options")
     rescue ::OpenSSL::SSL::SSLError
       print_error("#{peer} - SSL/TLS connection error")
   end

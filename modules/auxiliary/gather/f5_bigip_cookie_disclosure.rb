@@ -128,18 +128,18 @@ class Metasploit3 < Msf::Auxiliary
 
       # Print the cookie name on the first request
       if i == 1
-        print_status("#{peer} - F5 BigIP load balancing cookie \"#{cookie[:id]} = #{cookie[:value]}\" found")
+        print_good("#{peer} - F5 BigIP load balancing cookie \"#{cookie[:id]} = #{cookie[:value]}\" found")
         if cookie[:id].start_with?('BIGipServer')
-          print_status("#{peer} - Load balancing pool name \"#{cookie[:id].split('BIGipServer')[1]}\" found")
+          print_good("#{peer} - Load balancing pool name \"#{cookie[:id].split('BIGipServer')[1]}\" found")
         end
         if cookie[:value].start_with?('rd')
-          print_status("#{peer} - Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
+          print_good("#{peer} - Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
         end
       end
 
       backend = cookie_decode(cookie[:value])
       unless backend[:host].nil? || backends.include?(backend)
-        print_status("#{peer} - Backend #{backend[:host]}:#{backend[:port]} found")
+        print_good("#{peer} - Backend #{backend[:host]}:#{backend[:port]} found")
         backends.push(backend)
       end
     end
