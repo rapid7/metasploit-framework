@@ -31,4 +31,5 @@ module Metasploit4
       'Convention'  => 'sockrdi http',
       'Stager'      => { 'Payload' => '' }))
   end
+
 end
