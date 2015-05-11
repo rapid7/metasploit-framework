@@ -37,10 +37,10 @@ module Payload::Windows::ReverseWinHttps_x64
     verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
                                          datastore['HandlerSSLCert'])
 
-    super({
-      :ssl              => true,
-      :verify_cert_hash => verify_cert_hash
-    })
+    super(
+      ssl:              true,
+      verify_cert_hash: verify_cert_hash
+    )
   end
 
   def transport_config(opts={})
