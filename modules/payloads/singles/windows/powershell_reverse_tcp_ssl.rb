@@ -15,7 +15,7 @@ require 'msf/core/handler/reverse_tcp_ssl'
 ###
 module Metasploit3
 
-  CachedSize = 1707
+  CachedSize = 1703
 
   include Msf::Payload::Windows::Exec
   include Rex::Powershell::Command
