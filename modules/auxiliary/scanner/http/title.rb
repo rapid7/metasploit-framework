@@ -51,13 +51,18 @@ class Metasploit3 < Msf::Auxiliary
 
         if !res.body.nil?
           # Very basic, just match the first title tag we come to.
-          rx = %r{<title>[\n\t\s]*(?<title>.+?)[\s\n\t]*</title>}im.match(res.body.to_s.strip)
-          if rx && rx[:title] != ''
-            rx_title = CGI.unescapeHTML(rx[:title])
-            print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}") if datastore['SHOW_TITLES'] == true
-            if datastore['STORE_NOTES'] == true
-              notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header }
-              report_note(host: target_host, type: "http.title", data: notedata)
+          rx = %r{<title>[\n\t\s]*(?<title>.+?)[\s\n\t]*</title>}im.match(res.body.to_s)
+          if rx
+            rx[:title].strip!
+            if rx[:title] != ''
+              rx_title = CGI.unescapeHTML(rx[:title])
+              print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}") if datastore['SHOW_TITLES'] == true
+              if datastore['STORE_NOTES'] == true
+                notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header }
+                report_note(host: target_host, type: "http.title", data: notedata)
+              end
+            else
+              print_error("No webpage title from #{target_host}:#{rport}") if datastore['SHOW_ERRORS'] == true
             end
           else
             print_error("No webpage title from #{target_host}:#{rport}") if datastore['SHOW_ERRORS'] == true
