@@ -11,14 +11,11 @@ module Metasploit
         # The size, in Bytes, of a batch of NTDS accounts
         BATCH_SIZE = 78960
 
-        # @!attribute channel
-        #   @return [Rex::Post::Meterpreter::Channels::Pool] The Meterpreter NTDS Parser Channel
+        #@return [Rex::Post::Meterpreter::Channels::Pool] The Meterpreter NTDS Parser Channel
         attr_accessor :channel
-        # @!attribute client
-        #   @return [Msf::Session] The Meterpreter Client
+        #@return [Msf::Session] The Meterpreter Client
         attr_accessor :client
-        # @!attribute file_path
-        #   @return [String] The path to the NTDS.dit file on the remote system
+        #@return [String] The path to the NTDS.dit file on the remote system
         attr_accessor :file_path
 
         def initialize(client, file_path='')
@@ -31,8 +28,9 @@ module Metasploit
         # Yields a [Metasploit::Framework::NTDS::Account] for each account found
         # in the remote NTDS.dit file.
         #
+        # @yield [account]
         # @yieldparam account [Metasploit::Framework::NTDS::Account] an AD user account
-        # @return [void] does not return a value
+        # @yieldreturn [void] does not return a value
          def each_account
            raw_batch_data = pull_batch
            until raw_batch_data.nil?
