@@ -3590,6 +3590,28 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/meterpreter/reverse_tcp'
   end
 
+  context 'windows/x64/meterpreter/reverse_winhttp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_winhttp',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/reverse_winhttp'
+  end
+
+  context 'windows/x64/meterpreter/reverse_winhttps' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_winhttps',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/reverse_winhttps'
+  end
+
   context 'windows/x64/meterpreter_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
