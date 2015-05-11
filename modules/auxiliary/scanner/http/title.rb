@@ -30,6 +30,15 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('VHOST')
   end
 
+  def run
+
+    if datastore['STORE_NOTES']==false && datastore['SHOW_ERRORS']==false && datastore['SHOW_TITLES']==false
+        print_error("Notes storage is false, errors have been turned off and titles are not being shown on the console. There isn't much point in running this module.")
+    else
+        super
+    end
+  end
+
   def run_host(target_host)
     begin
       res = send_request_cgi('uri'          => '/',
