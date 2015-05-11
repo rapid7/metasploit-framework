@@ -57,8 +57,7 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 0                ;
         pop rcx               ; set the exit function parameter
-        mov ebx, 0x#{Msf::Payload::Windows.exit_types['process'].to_s(16)}
-        mov r10d, ebx         ; place the correct EXITFUNK into r10d
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
         call rbp              ; ExitProcess(0)
       ^
 
@@ -66,8 +65,7 @@ module Payload::Windows::Exitfunk_x64
       asm << %Q^
         push 300000           ; 300 seconds
         pop rcx               ; set the sleep function parameter
-        mov ebx, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
-        mov r10d, ebx         ; place the correct EXITFUNK into r10d
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
         call rbp              ; Sleep(30000)
         jmp exitfunk          ; repeat
       ^

