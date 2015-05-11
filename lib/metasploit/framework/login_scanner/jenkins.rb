@@ -17,6 +17,8 @@ module Metasploit
           self.uri = "/j_acegi_security_check" if self.uri.nil?
           self.method = "POST" if self.method.nil?
 
+          self.uri = normalize_uri(self.uri)
+
           super
         end
 
