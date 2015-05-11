@@ -15,8 +15,12 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'HTTP HTML <title> tag content grabber',
-      'Description' => 'Generates a GET request to the webservers provided and returns the server header, HTML title attribute and location header (if set). Useful for rapidly identifying all webservers on a network and identifying interesting hosts en mass.',
-      'Author'       => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'],
+      'Description' => %q{
+        Generates a GET request to the webservers provided and returns the server header,
+        HTML title attribute and location header (if set). Useful for rapidly identifying
+        interesting web applications en mass.
+      },
+      'Author'       => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
       'License'     => MSF_LICENSE,
     )
 
