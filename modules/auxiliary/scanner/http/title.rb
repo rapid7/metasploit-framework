@@ -4,7 +4,6 @@
 ##
 
 require 'msf/core'
-require 'cgi'
 
 class Metasploit3 < Msf::Auxiliary
   # Exploit mixins should be called first
@@ -86,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
         # Last bit of logic to capture the title
         rx[:title].strip!
         if rx[:title] != ''
-          rx_title = CGI.unescapeHTML(rx[:title])
+          rx_title = Rex::Text.html_decode(rx[:title])
           print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}") if datastore['SHOW_TITLES'] == true
           if datastore['STORE_NOTES'] == true
             notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header }
