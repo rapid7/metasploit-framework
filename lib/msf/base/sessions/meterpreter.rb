@@ -329,7 +329,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         username = self.sys.config.getuid
         sysinfo  = self.sys.config.sysinfo
 
-        self.payload_uuid = self.core.uuid
+        self.payload_uuid = self.core.uuid unless self.payload_uuid
 
         safe_info = "#{username} @ #{sysinfo['Computer']}"
         safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
