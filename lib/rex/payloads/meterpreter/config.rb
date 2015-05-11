@@ -88,7 +88,13 @@ private
     ]
 
     if url.start_with?('http')
-      proxy_host = to_str(opts[:proxy_host] || '', PROXY_HOST_SIZE)
+      proxy_host = ''
+      if opts[:proxy_host] && opts[:proxy_port]
+        prefix = 'http://'
+        prefix = 'socks=' if opts[:proxy_type].downcase == 'socks'
+        proxy_host = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+      end
+      proxy_host = to_str(proxy_host || '', PROXY_HOST_SIZE)
       proxy_user = to_str(opts[:proxy_user] || '', PROXY_USER_SIZE)
       proxy_pass = to_str(opts[:proxy_pass] || '', PROXY_PASS_SIZE)
       ua = to_str(opts[:ua] || '', UA_SIZE)
@@ -120,7 +126,6 @@ private
   end
 
   def config_block
-
     # start with the session information
     config = session_block(@opts)
 
