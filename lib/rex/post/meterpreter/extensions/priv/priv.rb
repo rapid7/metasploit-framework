@@ -103,7 +103,7 @@ class Priv < Extension
     if channel_id.nil?
       raise Exception, "We did not get a channel back!"
     end
-    channel = Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "priv_ntds", CHANNEL_FLAG_SYNCHRONOUS)
+    Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "priv_ntds", CHANNEL_FLAG_SYNCHRONOUS)
   end
 
   #

@@ -5,73 +5,47 @@ module Metasploit
       # priv extension.
       class Account
 
-        # @!attribute description
-        #   @return [String] The AD Account Description
+        #@return [String] The AD Account Description
         attr_accessor :description
-        # @!attribute disabled
-        #   @return [TrueClass] If the AD account is disabled
-        #   @return [FalseClass] If the AD account is not disabled
+        #@return [Boolean] If the AD account is disabled
         attr_accessor :disabled
-        # @!attribute expired
-        #   @return [TrueClass] If the AD account password is expired
-        #   @return [FalseClass] If the AD account password is not expired
+        #@return [Boolean] If the AD account password is expired
         attr_accessor :expired
-        # @!attribute expiry_date
-        #   @return [String] Human Readable Date for the account's password expiration
+        #@return [String] Human Readable Date for the account's password expiration
         attr_accessor :expiry_date
-        # @!attribute lm_hash
-        #   @return [String] The LM Hash of the current password
+        #@return [String] The LM Hash of the current password
         attr_accessor :lm_hash
-        # @!attribute lm_history
-        #   @return [Array<String>] The LM hashes for previous passwords, up to 24
+        #@return [Array<String>] The LM hashes for previous passwords, up to 24
         attr_accessor :lm_history
-        # @!attribute lm_history_count
-        #   @return [Fixnum] The count of historical LM hashes
+        #@return [Fixnum] The count of historical LM hashes
         attr_accessor :lm_history_count
-        # @!attribute locked
-        #   @return [TrueClass] If the AD account is locked
-        #   @return [FalseClass] If the AD account is not locked
+        #@return [Boolean] If the AD account is locked
         attr_accessor :locked
-        # @!attribute logon_count
-        #   @return [Fixnum] The number of times this account has logged in
+        #@return [Fixnum] The number of times this account has logged in
         attr_accessor :logon_count
-        # @!attribute logon_date
-        #   @return [String] Human Readable Date for the last time the account logged in
+        #@return [String] Human Readable Date for the last time the account logged in
         attr_accessor :logon_date
-        # @!attribute logon_time
-        #   @return [String] Human Readable Time for the last time the account logged in
+        #@return [String] Human Readable Time for the last time the account logged in
         attr_accessor :logon_time
-        # @!attribute name
-        #   @return [String] The samAccountName of the account
+        #@return [String] The samAccountName of the account
         attr_accessor :name
-        # @!attribute no_expire
-        #   @return [TrueClass] If the AD account password does not expire
-        #   @return [FalseClass] If the AD account password does expire
+        #@return [Boolean] If the AD account password does not expire
         attr_accessor :no_expire
-        # @!attribute no_pass
-        #   @return [TrueClass] If the AD account does not require a password
-        #   @return [FalseClass] If the AD account does require a password
+        #@return [Boolean] If the AD account does not require a password
         attr_accessor :no_pass
-        # @!attribute nt_hash
-        #   @return [String] The NT Hash of the current password
+        #@return [String] The NT Hash of the current password
         attr_accessor :nt_hash
-        # @!attribute nt_history
-        #   @return [Array<String>] The NT hashes for previous passwords, up to 24
+        #@return [Array<String>] The NT hashes for previous passwords, up to 24
         attr_accessor :nt_history
-        # @!attribute nt_history_count
-        #   @return [Fixnum] The count of historical NT hashes
+        #@return [Fixnum] The count of historical NT hashes
         attr_accessor :nt_history_count
-        # @!attribute pass_date
-        #   @return [String] Human Readable Date for the last password change
+        #@return [String] Human Readable Date for the last password change
         attr_accessor :pass_date
-        # @!attribute pass_time
-        #   @return [String] Human Readable Time for the last password change
+        #@return [String] Human Readable Time for the last password change
         attr_accessor :pass_time
-        # @!attribute rid
-        #   @return [Fixnum] The Relative ID of the account
+        #@return [Fixnum] The Relative ID of the account
         attr_accessor :rid
-        # @!attribute sid
-        #   @return [String] Byte String for the Account's SID
+        #@return [String] Byte String for the Account's SID
         attr_accessor :sid
 
         # @param raw_data [String] the raw 3948 byte string from the wire
@@ -105,17 +79,17 @@ module Metasploit
 
         # @return [String] String representation of the account data
         def to_s
-          <<EOS
-#{@name} (#{@description})
-#{ntlm_hash}
-Password Expires: #{@expiry_date}
-Last Password Change: #{@pass_time} #{@pass_date}
-Last Logon: #{@logon_time} #{@logon_date}
-Logon Count: #{@logon_count}
-#{uac_string}
-Hash History:
-#{hash_history}
-EOS
+          <<-EOS.strip_heredoc
+          #{@name} (#{@description})
+          #{ntlm_hash}
+          Password Expires: #{@expiry_date}
+          Last Password Change: #{@pass_time} #{@pass_date}
+          Last Logon: #{@logon_time} #{@logon_date}
+          Logon Count: #{@logon_count}
+          #{uac_string}
+          Hash History:
+          #{hash_history}
+          EOS
         end
 
         # @return [String] the NTLM hash string for the current password
