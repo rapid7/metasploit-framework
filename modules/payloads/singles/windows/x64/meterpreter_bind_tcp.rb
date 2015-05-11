@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/transport_config'
+require 'msf/core/payload/transport_config'
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/windows/x64/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x64_win'
@@ -15,7 +15,7 @@ module Metasploit4
 
   CachedSize = 1128098
 
-  include Msf::TransportConfig
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Single
   include Msf::Payload::Windows::MeterpreterLoader_x64
@@ -45,20 +45,20 @@ module Metasploit4
 
   def generate_config(opts={})
     unless opts[:uuid]
-      opts[:uuid] = Msf::Payload::UUID.new({
-        :platform => 'windows',
-        :arch     => ARCH_X64
-      })
+      opts[:uuid] = Msf::Payload::UUID.new(
+        platform: 'windows',
+        arch:     ARCH_X64
+      )
     end
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
-      :arch       => opts[:uuid].arch,
-      :exitfunk   => datastore['EXITFUNC'],
-      :expiration => datastore['SessionExpirationTimeout'].to_i,
-      :uuid       => opts[:uuid],
-      :transports => [transport_config_bind_tcp(opts)],
-      :extensions => (datastore['EXTENSIONS'] || '').split(',')
+      arch:       opts[:uuid].arch,
+      exitfunk:   datastore['EXITFUNC'],
+      expiration: datastore['SessionExpirationTimeout'].to_i,
+      uuid:       opts[:uuid],
+      transports: [transport_config_bind_tcp(opts)],
+      extensions: (datastore['EXTENSIONS'] || '').split(',')
     }
 
     # create the configuration instance based off the parameters

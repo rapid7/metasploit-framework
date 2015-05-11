@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/transport_config'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/reverse_winhttp'
 require 'msf/core/payload/windows/verify_ssl'
 require 'rex/payloads/meterpreter/uri_checksum'
@@ -16,6 +16,7 @@ module Msf
 
 module Payload::Windows::ReverseWinHttps
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows::ReverseWinHttp
   include Msf::Payload::Windows::VerifySsl
 
@@ -38,10 +39,10 @@ module Payload::Windows::ReverseWinHttps
     verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
                                          datastore['HandlerSSLCert'])
 
-    super({
-      :ssl              => true,
-      :verify_cert_hash => verify_cert_hash
-    })
+    super(
+      ssl:              true,
+      verify_cert_hash: verify_cert_hash
+    )
   end
 
   def transport_config(opts={})

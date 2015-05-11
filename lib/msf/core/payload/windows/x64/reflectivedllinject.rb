@@ -76,8 +76,8 @@ module Payload::Windows::ReflectiveDllInject_x64
     dll, offset = load_rdi_dll(library_path)
 
     asm_opts = {
-      :rdi_offset => offset,
-      :exitfunk   => 'thread'     # default to 'thread' for migration
+      rdi_offset: offset,
+      exitfunk:   'thread'  # default to 'thread' for migration
     }
 
     asm = asm_invoke_dll(asm_opts)
@@ -86,9 +86,8 @@ module Payload::Windows::ReflectiveDllInject_x64
     bootstrap = Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
-    if( bootstrap.length > 62 )
-      print_error( "Reflective Dll Injection (x64) generated an oversized bootstrap!" )
-      return
+    if bootstrap.length > 62
+      raise RuntimeError, "Reflective DLL Injection (x64) generated an oversized bootstrap!"
     end
 
     # patch the bootstrap code into the dll's DOS header...

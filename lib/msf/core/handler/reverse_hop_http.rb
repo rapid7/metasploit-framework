@@ -252,10 +252,10 @@ module ReverseHopHttp
     url = full_uri + conn_id + "/\x00"
 
     print_status("Preparing stage for next session #{conn_id}")
-    blob = stage_payload({
-      :uuid => uuid,
-      :uri  => conn_id
-    })
+    blob = stage_payload(
+      uuid: uuid,
+      uri:  conn_id
+    )
 
     #send up
     crequest = mclient.request_raw(
