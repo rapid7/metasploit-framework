@@ -45,8 +45,10 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(target_host)
     begin
         # Send a normal GET request
-        res = send_request_cgi('uri'          => '/',
-                               'method'       => 'GET')
+        res = send_request_cgi(
+          'uri' => '/',
+          'method' => 'GET'
+        )
 
         # If no response, quit now
         if res.nil?
