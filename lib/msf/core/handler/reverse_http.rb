@@ -325,10 +325,10 @@ protected
 
         # generate the stage, but pass in the existing UUID and connection id so that
         # we don't get new ones generated.
-        blob = obj.stage_payload({
-          :uuid => uuid,
-          :uri  => conn_id
-        })
+        blob = obj.stage_payload(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         resp.body = encode_stage(blob)
 

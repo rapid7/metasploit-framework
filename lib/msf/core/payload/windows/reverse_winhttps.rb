@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/transport_config'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/reverse_winhttp'
 require 'msf/core/payload/windows/verify_ssl'
 require 'rex/payloads/meterpreter/uri_checksum'
@@ -18,7 +18,7 @@ module Msf
 
 module Payload::Windows::ReverseWinHttps
 
-  include Msf::TransportConfig
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows::ReverseWinHttp
   include Msf::Payload::Windows::VerifySsl
 

@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/transport_config'
+require 'msf/core/payload/transport_config'
 require 'msf/core/handler/reverse_http'
 require 'msf/core/payload/windows/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x86_win'
@@ -15,7 +15,7 @@ module Metasploit4
 
   CachedSize = 907954
 
-  include Msf::TransportConfig
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Single
   include Msf::Payload::Windows::MeterpreterLoader
@@ -45,20 +45,20 @@ module Metasploit4
 
   def generate_config(opts={})
     unless opts[:uuid]
-      opts[:uuid] = Msf::Payload::UUID.new({
-        :platform => 'windows',
-        :arch     => ARCH_X86
-      })
+      opts[:uuid] = Msf::Payload::UUID.new(
+        platform: 'windows',
+        arch:     ARCH_X86
+      )
     end
 
     # create the configuration block
     config_opts = {
-      :arch       => opts[:uuid].arch,
-      :exitfunk   => datastore['EXITFUNC'],
-      :expiration => datastore['SessionExpirationTimeout'].to_i,
-      :uuid       => opts[:uuid],
-      :transports => [transport_config_reverse_http(opts)],
-      :extensions => (datastore['EXTENSIONS'] || '').split(',')
+      arch:       opts[:uuid].arch,
+      exitfunk:   datastore['EXITFUNC'],
+      expiration: datastore['SessionExpirationTimeout'].to_i,
+      uuid:       opts[:uuid],
+      transports: [transport_config_reverse_http(opts)],
+      extensions: (datastore['EXTENSIONS'] || '').split(',')
     }
 
     # create the configuration instance based off the parameters

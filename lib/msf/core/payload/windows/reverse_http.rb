@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/transport_config'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 require 'msf/core/payload/uuid_options'
@@ -18,7 +18,7 @@ module Msf
 
 module Payload::Windows::ReverseHttp
 
-  include Msf::TransportConfig
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
