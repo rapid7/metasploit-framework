@@ -1,10 +1,12 @@
 bundler_args: --without coverage development pcap
 cache: bundler
 env:
-  - RAKE_TASKS="cucumber cucumber:boot"
-  - RAKE_TASKS=spec SPEC_OPTS="--tag content"
-  - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
-  - TRAVIS_CI_TEST_ENVIRONMENT=1
+  global:
+    - TRAVIS_CI_TEST_ENVIRONMENT="true"
+  matrix:
+    - RAKE_TASKS="cucumber cucumber:boot"
+    - RAKE_TASKS=spec SPEC_OPTS="--tag content"
+    - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
 
 language: ruby
 matrix:
