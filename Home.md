@@ -69,6 +69,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[What does my Rex::Proto::SMB Error mean?]]
 - [[How to use msfvenom]]
 - [[How to use exim_gethostbyname_bof.rb (Exim GHOST Buffer Overflow)]]
+- [[How to write a HTTP LoginScanner Module]]
 
 # GitHub Resources #
 
