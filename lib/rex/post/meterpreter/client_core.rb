@@ -296,10 +296,12 @@ class ClientCore < Extension
     return true
   end
 
-  def uuid
+  def uuid(timeout=nil)
     request = Packet.create_request('core_uuid')
 
-    response = client.send_request(request)
+    args = [ request ]
+    args << timeout if timeout
+    response = client.send_request(*args)
 
     id = response.get_tlv_value(TLV_TYPE_UUID)
 
