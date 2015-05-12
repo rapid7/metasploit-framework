@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'HTTP HTML Title tag content grabber',
+      'Name'        => 'HTTP HTML Title Tag Content Grabber',
       'Description' => %q{
         Generates a GET request to the webservers provided and returns the server header,
         HTML title attribute and location header (if set). Useful for rapidly identifying
