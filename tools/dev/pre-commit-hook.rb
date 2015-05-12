@@ -58,7 +58,13 @@ else
   changed_files = %x[git diff --cached --name-only]
 end
 
-signature_check = %x{git log --show-signature -1}
+# Travis's merges always include one extra merge, so we
+# need to step back one if we're on Travis.
+if ENV['TRAVIS_CI_TEST_ENVIRONMENT']
+  signature_check = %x{git log --show-signature HEAD~ -1}
+else
+  signature_check = %x{git log --show-signature -1}
+end
 
 changed_files.each_line do |fname|
   fname.strip!
@@ -97,8 +103,8 @@ unless valid
 end
 
 if base_caller == :post_merge
-  if signature_check.include? "gpg: Good signature from"
-    puts "[+] Signature check passed."
+  if signature_check =~ /\ngpg: Good signature from /m
+    puts "[+] Merge commit signature check passed."
   else
     puts signed_error_message
     exit(0x11)

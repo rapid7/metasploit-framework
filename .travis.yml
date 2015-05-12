@@ -4,6 +4,7 @@ env:
   - RAKE_TASKS="cucumber cucumber:boot"
   - RAKE_TASKS=spec SPEC_OPTS="--tag content"
   - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
+  - TRAVIS_CI_TEST_ENVIRONMENT=1
 
 language: ruby
 matrix:
@@ -15,7 +16,7 @@ before_install:
   - bash ./tools/dev/import-dev-keys.sh
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
-  # What does travis actually see?
+  # Note which commit we're really on
   - git log --format=full --show-signature -2
   - ./.git/hooks/post-merge
 before_script:
