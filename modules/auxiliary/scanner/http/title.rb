@@ -45,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
     begin
         # Send a normal GET request
         res = send_request_cgi(
-          'uri': '/',
-          'method': 'GET'
+          uri: '/',
+          method: 'GET'
         )
 
         # If no response, quit now
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
           print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}") if datastore['SHOW_TITLES'] == true
           if datastore['STORE_NOTES'] == true
             notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header }
-            report_note(host: target_host, type: "http.title", data: notedata)
+            report_note(host: target_host, port: rport, type: "http.title", data: notedata, unique: :unique_data)
           end
         else
           print_error("[#{target_host}:#{rport}] No webpage title") if datastore['SHOW_ERRORS'] == true
