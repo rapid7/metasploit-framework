@@ -16,7 +16,7 @@ before_install:
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
   # What does travis actually see?
-  - git log --show-signature -5
+  - git log --format=full --show-signature -2
   - ./.git/hooks/post-merge
 before_script:
   - cp config/database.yml.travis config/database.yml
