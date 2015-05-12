@@ -27,7 +27,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptBool.new('STORE_NOTES', [ true, 'Store the captured information in notes. Use "notes -t http.title" to view', true ]),
         OptBool.new('SHOW_ERRORS', [ true, 'Show error messages relating to grabbing titles on the console', true ]),
-        OptBool.new('SHOW_TITLES', [ true, 'Show the titles on the console as they are grabbed', true ])
+        OptBool.new('SHOW_TITLES', [ true, 'Show the titles on the console as they are grabbed', true ]),
+        OptString.new('TARGETURI', [true, 'The base path', '/'])
       ], self.class)
 
     deregister_options('VHOST')
@@ -45,8 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
         # Send a normal GET request
         res = send_request_cgi(
-          uri: '/',
-          method: 'GET'
+          'uri' => normalize_uri(target_uri.path)
         )
 
         # If no response, quit now
