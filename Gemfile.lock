@@ -7,8 +7,8 @@ PATH
       bcrypt
       jsobfu (~> 0.2.0)
       json
-      metasploit-concern (= 1.0.0.pre.rails.pre.4.0)
-      metasploit-model (= 1.0.0.pre.rails.pre.4.0)
+      metasploit-concern (~> 1.0)
+      metasploit-model (~> 1.0)
       metasploit-payloads (= 0.0.3)
       msgpack
       nokogiri
@@ -22,9 +22,9 @@ PATH
       tzinfo
     metasploit-framework-db (4.11.0.pre.dev)
       activerecord (>= 4.0.9, < 4.1.0)
-      metasploit-credential (= 1.0.0.pre.rails.pre.4.0c)
+      metasploit-credential (~> 1.0)
       metasploit-framework (= 4.11.0.pre.dev)
-      metasploit_data_models (= 1.0.0.pre.rails.pre.4.0b)
+      metasploit_data_models (~> 1.0)
       pg (>= 0.11)
     metasploit-framework-pcap (4.11.0.pre.dev)
       metasploit-framework (= 4.11.0.pre.dev)
@@ -107,28 +107,29 @@ GEM
     json (1.8.2)
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
-    metasploit-concern (1.0.0.pre.rails.pre.4.0)
+    metasploit-concern (1.0.0)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
-    metasploit-credential (1.0.0.pre.rails.pre.4.0c)
-      metasploit-concern (= 1.0.0.pre.rails.pre.4.0)
-      metasploit-model (= 1.0.0.pre.rails.pre.4.0)
-      metasploit_data_models (= 1.0.0.pre.rails.pre.4.0b)
+    metasploit-credential (1.0.0)
+      metasploit-concern (~> 1.0)
+      metasploit-model (~> 1.0)
+      metasploit_data_models (~> 1.0)
       pg
       railties
       rubyntlm
       rubyzip (~> 1.1)
-    metasploit-model (1.0.0.pre.rails.pre.4.0)
+    metasploit-model (1.0.0)
+      activemodel (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       railties (>= 4.0.9, < 4.1.0)
     metasploit-payloads (0.0.3)
-    metasploit_data_models (1.0.0.pre.rails.pre.4.0b)
+    metasploit_data_models (1.0.1)
       activerecord (>= 4.0.9, < 4.1.0)
       activesupport (>= 4.0.9, < 4.1.0)
       arel-helpers
-      metasploit-concern (= 1.0.0.pre.rails.pre.4.0)
-      metasploit-model (= 1.0.0.pre.rails.pre.4.0)
+      metasploit-concern (~> 1.0)
+      metasploit-model (~> 1.0)
       pg
       postgres_ext
       railties (>= 4.0.9, < 4.1.0)
@@ -173,7 +174,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (10.4.2)
     rb-readline-r7 (0.5.2.0)
-    recog (1.0.27)
+    recog (1.0.29)
       nokogiri
     redcarpet (3.2.3)
     rkelly-remix (0.0.6)
