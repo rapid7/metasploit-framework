@@ -59,10 +59,10 @@ Gem::Specification.new do |spec|
   # Needed for some admin modules (scrutinizer_add_user.rb)
   spec.add_runtime_dependency 'json'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern', '0.4.0'
+  spec.add_runtime_dependency 'metasploit-concern', '~> 1.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model', '~> 0.29.0'
+  spec.add_runtime_dependency 'metasploit-model', '~> 1.0'
   # Needed for Meterpreter on Windows, soon others.
   spec.add_runtime_dependency 'metasploit-payloads', '0.0.3'
   # Needed by msfgui and other rpc components
