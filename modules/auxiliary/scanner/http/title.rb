@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'HTTP HTML <title> tag content grabber',
+      'Name'        => 'HTTP HTML Title tag content grabber',
       'Description' => %q{
         Generates a GET request to the webservers provided and returns the server header,
         HTML title attribute and location header (if set). Useful for rapidly identifying
@@ -45,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
     begin
         # Send a normal GET request
         res = send_request_cgi(
-          'uri' => '/',
-          'method' => 'GET'
+          'uri': '/',
+          'method': 'GET'
         )
 
         # If no response, quit now
