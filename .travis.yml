@@ -1,9 +1,10 @@
 bundler_args: --without coverage development pcap
 cache: bundler
 env:
-  - RAKE_TASKS="cucumber cucumber:boot"
-  - RAKE_TASKS=spec SPEC_OPTS="--tag content"
-  - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
+  matrix:
+    - RAKE_TASKS="cucumber cucumber:boot"
+    - RAKE_TASKS=spec SPEC_OPTS="--tag content"
+    - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
 
 language: ruby
 matrix:
@@ -12,8 +13,11 @@ before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
   # Fail build if msftidy is not successful
+  - bash ./tools/dev/import-dev-keys.sh
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
+  # Note which commit we're really on
+  - git log --format=full --show-signature -2
   - ./.git/hooks/post-merge
 before_script:
   - cp config/database.yml.travis config/database.yml
