@@ -103,6 +103,7 @@ unless valid
 end
 
 if base_caller == :post_merge
+  puts signature_check.inspect # Sanity check
   if signature_check =~ /^commit .*\ngpg: Good signature from .*\nMerge: /m
     puts "[+] Merge commit signature check passed."
   else
