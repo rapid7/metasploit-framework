@@ -45,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
     begin
         # Send a normal GET request
         res = send_request_cgi(
-          'uri': '/',
-          'method': 'GET'
+          uri: '/',
+          method: 'GET'
         )
 
         # If no response, quit now
