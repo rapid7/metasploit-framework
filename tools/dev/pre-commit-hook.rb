@@ -103,10 +103,13 @@ unless valid
 end
 
 if base_caller == :post_merge
-  if signature_check =~ /\ngpg: Good signature from /m
+  if signature_check =~ /^commit .*\ngpg: Good signature from .*\nMerge: /m
     puts "[+] Merge commit signature check passed."
   else
-    puts signed_error_message
-    exit(0x11)
+    unless signature_check =~ /^commit .*\nMerge: /m
+      puts signature_check
+      puts signed_error_message
+      exit(0x11)
+    end
   end
 end
