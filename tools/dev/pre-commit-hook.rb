@@ -26,6 +26,16 @@ def merge_error_message
   puts "-" * 72
 end
 
+def signed_error_message
+  msg = []
+  msg << "[*] This merge was not signed with a known key"
+  msg << "[*] Please fix this if you intend to publish this"
+  msg << "[*] merge commit to the rapid7 master branch"
+  puts "-" * 72
+  puts msg.join("\n")
+  puts "-" * 72
+end
+
 valid = true # Presume validity
 files_to_check = []
 
@@ -48,6 +58,8 @@ else
   changed_files = %x[git diff --cached --name-only]
 end
 
+signature_check = %x{git log --show-signature -1}
+
 changed_files.each_line do |fname|
   fname.strip!
   next unless File.exist?(fname)
@@ -57,9 +69,9 @@ changed_files.each_line do |fname|
 end
 
 if files_to_check.empty?
-  puts "--- No Metasploit modules to check ---"
+  puts "[*] No Metasploit modules to check"
 else
-  puts "--- Checking new and changed module syntax with tools/msftidy.rb ---"
+  puts "[*] Checking new and changed module syntax with tools/msftidy.rb"
   files_to_check.each do |fname|
     cmd = "ruby ./tools/msftidy.rb  #{fname}"
     msftidy_output= %x[ #{cmd} ]
@@ -82,5 +94,13 @@ unless valid
     puts "-" * 72
     exit(0x01)
   end
+end
 
+if base_caller == :post_merge
+  if signature_check.include? "gpg: Good signature from"
+    puts "[+] Signature check passed."
+  else
+    puts signed_error_message
+    exit(0x11)
+  end
 end
