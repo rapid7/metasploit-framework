@@ -9,7 +9,7 @@ PATH
       json
       metasploit-concern (= 0.4.0)
       metasploit-model (~> 0.29.0)
-      metasploit-payloads (= 0.0.3)
+      metasploit-payloads (= 0.0.5)
       msgpack
       nokogiri
       packetfu (= 1.1.9)
@@ -123,7 +123,7 @@ GEM
     metasploit-model (0.29.2)
       activesupport
       railties (< 4.0.0)
-    metasploit-payloads (0.0.3)
+    metasploit-payloads (0.0.5)
     metasploit_data_models (0.24.0)
       activerecord (>= 3.2.13, < 4.0.0)
       activesupport
