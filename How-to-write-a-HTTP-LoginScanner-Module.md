@@ -281,11 +281,7 @@ end
 
 Save it under modules/auxiliary/scanner/http/.
 
-Our main method is #run_host, so we'll begin there.
-
-First off, you must initialize your LoginScanner object. The following is an example of how you will probably write it.
-
-Notice that this scanner method can be called multiple times, but the use lambda will allow the LoginScanner object to initialize only once. After that first time, every time the method is called, it will just return @scanner instead of going through the whole initialization process again.
+Our main method is #run_host, so we'll begin there. But before we do, we must initialize your LoginScanner object. The following is an example of how you will probably write it.
 
 ```ruby
 def scanner(ip)
@@ -312,6 +308,9 @@ def scanner(ip)
     }.call
 end
 ```
+
+
+Notice that this scanner method can be called multiple times, but the use of [lambda](http://rubymonk.com/learning/books/1-ruby-primer/chapters/34-lambdas-and-blocks-in-ruby/lessons/77-lambdas-in-ruby) will allow the LoginScanner object to initialize only once. After that first time, every time the method is called, it will just return @scanner instead of going through the whole initialization process again.
 
 In some cases you might need to pass more datastore options, maybe not. For example, if you want to allow the URI to be configurable (which is also already an accessor in [Metasploit::Framework::LoginScanner::HTTP](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/login_scanner/http.rb#L26)), then you have to create and pass datastore['URI'] to configure_http_login_scanner too, like so:
 
