@@ -346,35 +346,30 @@ The credential API knows a lot about a credential, such as when it was used, how
 # @param [Result] The Result object
 # @return [void]
 def report_good_cred(ip, port, result)
-  cred_info = {}
-
-  # Save the service data
-  cred_info.merge!({
+  service_data = {
     address: ip,
     port: port,
     service_name: 'http',
     protocol: 'tcp',
     workspace_id: myworkspace_id
-  })
+  }
 
-  # Save the credential data
-  cred_info.merge!({
+  credential_data = {
     module_fullname: self.fullname,
     origin_type: :service,
     private_data: result.credential.private,
     private_type: :password,
-    username: result.credential.public
-  })
+    username: result.credential.public,
+  }.merge(service_data)
 
-  # Save the login data
-  cred_info.merge!({
+  login_data = {
     core: create_credential(credential_data),
     last_attempted_at: DateTime.now,
     status: result.status,
     proof: result.proof
-  })
+  }.merge(service_data)
 
-  create_credential_login(cred_info)
+  create_credential_login(login_data)
 end
 ```
 
