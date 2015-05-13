@@ -213,6 +213,98 @@ def do_login(username, password)
 end
 ```
 
+The exact statuses you can return can be found here:
+https://github.com/rapid7/metasploit-model/blob/d4c4f444c79937698dc703f89c0a4c576cde628c/lib/metasploit/model/login/status.rb
+
 ## Step 4: Write the auxiliary module
 
 The auxiliary module acts more like an user-interface. You describe what the module does, handles options, initializes objects, and do reporting.
+
+A basic auxiliary module template in our case would be something like this:
+
+```ruby
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'metasploit/framework/login_scanner/symantec_web_gateway'
+require 'metasploit/framework/credential_collection'
+
+class Metasploit3 < Msf::Auxiliary
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'        => 'Symantec Web Gateway Login Utility',
+      'Description' => %q{
+        This module will attempt to authenticate to a Symantec Web Gateway.
+      },
+      'Author'      => [ 'sinn3r' ],
+      'License'     => MSF_LICENSE,
+      'DefaultOptions' =>
+        {
+          'RPORT'      => 443,
+          'SSL'        => true,
+          'SSLVersion' => 'TLS1'
+        }
+    ))
+  end
+
+  def run_host(ip)
+  end
+
+end
+```
+
+Our main method is #run_host, so we'll begin there.
+
+First off, you must initialize a CredentialCollection object, also your LoginScanner object. Your very first lines of code will always look sort of like this:
+
+```ruby
+    @cred_collection = Metasploit::Framework::CredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file:       datastore['PASS_FILE'],
+      password:        datastore['PASSWORD'],
+      user_file:       datastore['USER_FILE'],
+      userpass_file:   datastore['USERPASS_FILE'],
+      username:        datastore['USERNAME'],
+      user_as_pass:    datastore['USER_AS_PASS']
+    )
+
+    @scanner = Metasploit::Framework::LoginScanner::SymantecWebGateway.new(
+      configure_http_login_scanner(
+        host: ip,
+        port: datastore['RPORT'],
+        cred_details:       @cred_collection,
+        stop_on_success:    datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5
+      )
+    )
+```
+
+In some cases you might need to pass more datastore options, maybe not. For example, if you want to allow the URI to be configurable (which is also already an accessor in [Metasploit::Framework::LoginScanner::HTTP](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/login_scanner/http.rb#L26)), then you have to create and pass datastore['URI'] to configure_http_login_scanner too, like so:
+
+```ruby
+uri: datastore['URI']
+```
+
+And then in your LoginScanner, pass ```uri``` to #send_request:
+
+```ruby
+send_request({'uri'=>uri})
+```
+
+At this point, ```@scanner``` holds our Metasploit::Framework::LoginScanner::SymantecWebGateway object. If we call the #scan! method, it will trigger the #attempt_login method we wrote earlier, and then yield the Result object. Basically like this:
+
+```ruby
+@scanner.scan! do |result|
+  # result = Our Result object
+end
+```
