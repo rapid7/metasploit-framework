@@ -98,6 +98,8 @@ module Metasploit
 end
 ```
 
+Save it under lib/metasploit/framework/login_scanner/.
+
 **The #attempt_login method**
 
 The #attempt_login is called automatically. You can write your entire login code there, but it's better to break in down into multiple methods so that the code is cleaner, and easier to document and rspec. Typically, all you want #attempt_login to do is focusing on crafting the Result object, pass it to a custom #login routine, and then return the Result object. It almost always looks something like this:
@@ -276,6 +278,8 @@ class Metasploit3 < Msf::Auxiliary
 
 end
 ```
+
+Save it under modules/auxiliary/scanner/http/.
 
 Our main method is #run_host, so we'll begin there.
 
