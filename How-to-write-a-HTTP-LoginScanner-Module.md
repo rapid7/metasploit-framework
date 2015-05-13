@@ -179,9 +179,9 @@ res = send_request({
 
 Now that the request is sent, we need to check the response (the res variable). Typically, you have a few choices to determine a successful login:
 
-* Check the HTTP response code. In this case, we have a 302 (redirect), but know that sometimes the response code can lie so this should not be your first choice.
-* Check the HTML. With some web applications, you might get a "successful login" message, and you can regex that. This is most likely the most accurate way.
-* Check the location header. In our case, Symantec returns a 302 and contains no body. But it redirects us to a spywall/executive_summary.php page in the location header, so we can use that. We can also try to access executive_summary.php with a renewed session ID, and make sure we can actually see the admin interface, but requesting an extra page adds more penalty to performance, so this is up to you.
+* **Check the HTTP response code**. In this case, we have a 302 (redirect), but know that sometimes the response code can lie so this should not be your first choice.
+* **Check the HTML**. With some web applications, you might get a "successful login" message, and you can regex that. This is most likely the most accurate way.
+* **Check the location header**. In our case, Symantec returns a 302 and contains no body. But it redirects us to a spywall/executive_summary.php page in the location header, so we can use that. We can also try to access executive_summary.php with a renewed session ID, and make sure we can actually see the admin interface, but requesting an extra page adds more penalty to performance, so this is up to you.
 
 In the end, your custom login method will probably look something like this:
 
