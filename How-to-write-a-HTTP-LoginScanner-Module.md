@@ -213,8 +213,23 @@ def do_login(username, password)
 end
 ```
 
-The exact statuses you can return can be found here:
-https://github.com/rapid7/metasploit-model/blob/d4c4f444c79937698dc703f89c0a4c576cde628c/lib/metasploit/model/login/status.rb
+The [exact statuses](https://github.com/rapid7/metasploit-model/blob/d4c4f444c79937698dc703f89c0a4c576cde628c/lib/metasploit/model/login/status.rb) you can return are:
+
+| Constant | Purpose |
+| ------------- | --------- |
+| Metasploit::Model::Login::Status::DENIED_ACCESS | Access is denied |
+| Metasploit::Model::Login::Status::DISABLED | Account is disabled |
+| Metasploit::Model::Login::Status::INCORRECT | Credential is incorrect |
+| Metasploit::Model::Login::Status::LOCKED_OUT | Account has been locked out |
+| Metasploit::Model::Login::Status::NO_AUTH_REQUIRED | No authentication |
+| Metasploit::Model::Login::Status::SUCCESSFUL | Successful login |
+| Metasploit::Model::Login::Status::UNABLE_TO_CONNECT | Unable to connect to the service |
+| Metasploit::Model::Login::Status::UNTRIED | Credential has not been tried |
+| Metasploit::Model::Login::Status::ALL | All the above (An array) |
+
+When you're done, your code will look something like this:
+
+https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/login_scanner/symantec_web_gateway.rb
 
 ## Step 4: Write the auxiliary module
 
@@ -267,7 +282,7 @@ Our main method is #run_host, so we'll begin there.
 First off, you must initialize a CredentialCollection object, also your LoginScanner object. Your very first lines of code will always look sort of like this:
 
 ```ruby
-    @cred_collection = Metasploit::Framework::CredentialCollection.new(
+    cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file:       datastore['PASS_FILE'],
       password:        datastore['PASSWORD'],
@@ -281,7 +296,7 @@ First off, you must initialize a CredentialCollection object, also your LoginSca
       configure_http_login_scanner(
         host: ip,
         port: datastore['RPORT'],
-        cred_details:       @cred_collection,
+        cred_details:       cred_collection,
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5
@@ -307,4 +322,105 @@ At this point, ```@scanner``` holds our Metasploit::Framework::LoginScanner::Sym
 @scanner.scan! do |result|
   # result = Our Result object
 end
+```
+
+With the Result object, we can start reporting. In most cases, you will probably be using #create_credential_login to report a successful login. And use #invalidate_login to report a bad one.
+
+**Reporting a valid credential**
+
+The credential API knows a lot about a credential, such as when it was used, how it was used, serviced tried, target IP, port, etc, etc. So when you report you should just as much. To save you the trouble, here's an example of how you will probably write the method:
+
+```ruby
+# Reports a good credential.
+#
+# @param [String] ip Target host
+# @param [Fixnum] port Target port
+# @param [Result] The Result object
+# @return [void]
+def report_good_cred(ip, port, result)
+  cred_info = {}
+
+  # Save the service data
+  cred_info.merge!({
+    address: ip,
+    port: port,
+    service_name: 'http',
+    protocol: 'tcp',
+    workspace_id: myworkspace_id
+  })
+
+  # Save the credential data
+  cred_info.merge!({
+    module_fullname: self.fullname,
+    origin_type: :service,
+    private_data: result.credential.private,
+    private_type: :password,
+    username: result.credential.public
+  })
+
+  # Save the login data
+  cred_info.merge!({
+    core: create_credential(credential_data),
+    last_attempted_at: DateTime.now,
+    status: result.status,
+    proof: result.proof
+  })
+
+  create_credential_login(cred_info)
+end
+```
+
+**Report an invalid credential**
+
+Here's another example you can use:
+
+```ruby
+# Reports a bad credential.
+#
+# @param [String] ip Target host
+# @param [Fixnum] port Target port
+# @param [Result] The Result object
+# @return [void]
+def report_bad_cred(ip, rport, result)
+  invalidate_login(
+    address: ip,
+    port: rport,
+    protocol: 'tcp',
+    public: result.credential.public,
+    private: result.credential.private,
+    realm_key: result.credential.realm_key,
+    realm_value: result.credential.realm,
+    status: result.status,
+    proof: result.proof
+  )
+end
+```
+
+At this point, you're pretty much done with the auxiliary module. It will probably look something like this:
+https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/http/symantec_web_gateway_login.rb
+
+## Test
+
+And finally, make sure your module actually works.
+
+Test for a successful login:
+
+```
+msf auxiliary(symantec_web_gateway_login) > run
+
+[+] 192.168.1.176:443 SYMANTEC_WEB_GATEWAY - Success: 'sinn3r:GoodPassword'
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf auxiliary(symantec_web_gateway_login) > 
+```
+
+Test for a failed login:
+
+```
+msf auxiliary(symantec_web_gateway_login) > run
+
+[-] 192.168.1.176:443 SYMANTEC_WEB_GATEWAY - Failed: 'sinn3r:BadPass'
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf auxiliary(symantec_web_gateway_login) >
 ```
