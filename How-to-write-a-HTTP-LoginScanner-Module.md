@@ -283,9 +283,13 @@ Save it under modules/auxiliary/scanner/http/.
 
 Our main method is #run_host, so we'll begin there.
 
-First off, you must initialize a CredentialCollection object, also your LoginScanner object. Your very first lines of code will always look sort of like this:
+First off, you must initialize your LoginScanner object. The following is an example of how you will probably write it.
+
+Notice that this scanner method can be called multiple times, but the use lambda will allow the LoginScanner object to initialize only once. After that first time, every time the method is called, it will just return @scanner instead of going through the whole initialization process again.
 
 ```ruby
+def scanner(ip)
+  @scanner ||= lambda {
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file:       datastore['PASS_FILE'],
@@ -296,7 +300,7 @@ First off, you must initialize a CredentialCollection object, also your LoginSca
       user_as_pass:    datastore['USER_AS_PASS']
     )
 
-    @scanner = Metasploit::Framework::LoginScanner::SymantecWebGateway.new(
+    return Metasploit::Framework::LoginScanner::SymantecWebGateway.new(
       configure_http_login_scanner(
         host: ip,
         port: datastore['RPORT'],
@@ -304,8 +308,9 @@ First off, you must initialize a CredentialCollection object, also your LoginSca
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5
-      )
-    )
+      ))
+    }.call
+end
 ```
 
 In some cases you might need to pass more datastore options, maybe not. For example, if you want to allow the URI to be configurable (which is also already an accessor in [Metasploit::Framework::LoginScanner::HTTP](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/login_scanner/http.rb#L26)), then you have to create and pass datastore['URI'] to configure_http_login_scanner too, like so:
@@ -320,10 +325,10 @@ And then in your LoginScanner, pass ```uri``` to #send_request:
 send_request({'uri'=>uri})
 ```
 
-At this point, ```@scanner``` holds our Metasploit::Framework::LoginScanner::SymantecWebGateway object. If we call the #scan! method, it will trigger the #attempt_login method we wrote earlier, and then yield the Result object. Basically like this:
+At this point, the scanner method holds our Metasploit::Framework::LoginScanner::SymantecWebGateway object. If we call the #scan! method, it will trigger the #attempt_login method we wrote earlier, and then yield the Result object. Basically like this:
 
 ```ruby
-@scanner.scan! do |result|
+scanner(ip).scan! do |result|
   # result = Our Result object
 end
 ```
