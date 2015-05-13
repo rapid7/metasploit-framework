@@ -7,6 +7,8 @@ require 'msf/core'
 require 'msf/core/payload/windows/exec'
 require 'msf/core/payload/windows/powershell'
 require 'msf/base/sessions/powershell'
+require 'msf/core/handler/reverse_tcp_ssl'
+
 ###
 #
 # Extends the Exec payload to add a new user.
