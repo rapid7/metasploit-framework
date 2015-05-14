@@ -11,7 +11,10 @@ module Metasploit
       class SNMP
         include Metasploit::Framework::LoginScanner::Base
 
+        DEFAULT_TIMEOUT      = 2
         DEFAULT_PORT         = 161
+        DEFAULT_RETRIES      = 0
+        DEFAULT_VERSION      = 'all'
         LIKELY_PORTS         = [ 161, 162 ]
         LIKELY_SERVICE_NAMES = [ 'snmp' ]
         PRIVATE_TYPES        = [ :password ]
@@ -112,11 +115,13 @@ module Metasploit
 
         end
 
-        # Sets the connection timeout approrpiately for SNMP
+        # Sets the connection timeout appropriately for SNMP
         # if the user did not set it.
         def set_sane_defaults
-          self.connection_timeout = 2 if self.connection_timeout.nil?
+          self.connection_timeout = DEFAULT_TIMEOUT if self.connection_timeout.nil?
           self.port = DEFAULT_PORT if self.port.nil?
+          self.retries = DEFAULT_RETRIES if self.retries.nil?
+          self.version = DEFAULT_VERSION if self.version.nil?
         end
 
         # This method takes an snmp client and tests whether

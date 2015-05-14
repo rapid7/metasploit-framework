@@ -6,7 +6,7 @@ module Metasploit
 
       # The Metasploit ecosystem is not ready for Rails 4 as it uses features of
       # Rails 3.X that are removed in Rails 4.
-      RAILS_VERSION = [ '>= 3.2.21', '< 4.0.0' ]
+      RAILS_VERSION = [ '>= 4.0.9', '< 4.1.0' ]
     end
   end
 end
