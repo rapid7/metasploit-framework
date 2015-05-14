@@ -195,7 +195,7 @@ module ShadowCopy
     else
       print_status("Software Shadow Copy service not running. Starting it now...")
       if service_restart("swprv", START_TYPE_MANUAL)
-        print_good("Swoftware Shadow Copy started successfully.")
+        print_good("Software Shadow Copy started successfully.")
       else
         print_error("Insufficient Privs to start service!")
         return false
