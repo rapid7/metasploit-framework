@@ -61,7 +61,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 
   context '#with_connection' do
     def reserved_connection_count
-      connection_pool.instance_variable_get(:@reserved_connections).length
+      connection_pool.instance_variable_get(:@reserved_connections).size
     end
 
     let(:connection_id) do

