@@ -54,12 +54,16 @@ class Metasploit3 < Msf::Auxiliary
       print_error("#{peer} - Failed to authenticate. Invalid username/password.")
       return
     elsif res.code == 200 && res.headers.include?('X-Influxdb-Version') && res.body.length > 0
-      print_status('Enumerating...')
+      print_status("#{peer} - Enumerating...")
       begin
         temp = JSON.parse(res.body)
+        if temp.blank?
+          print_status("#{peer} - Json data is empty")
+          return
+        end
         results = JSON.pretty_generate(temp)
       rescue JSON::ParserError
-        print_error('Unable to parse JSON data.')
+        print_error("#{peer} - Unable to parse JSON data.")
         return
       end
       print_good("Found:\n\n#{results}\n")
