@@ -265,6 +265,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     stat.call('uploaded', src_file, dest_file) if (stat)
   end
 
+  def File.is_glob?(name)
+    /\*|\[|\?/ === name
+  end
+
   #
   # Download one or more files from the remote computer to the local
   # directory supplied in destination.
@@ -281,10 +285,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       end
 
       stat.call('downloading', src, dest) if (stat)
-
-      download_file(dest, src)
-
-      stat.call('downloaded', src, dest) if (stat)
+      result = download_file(dest, src)
+      stat.call(result, src, dest) if (stat)
     }
   end
 
@@ -293,6 +295,17 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   def File.download_file(dest_file, src_file)
     src_fd = client.fs.file.new(src_file, "rb")
+
+    # Check for changes
+    src_stat = client.fs.filestat.new(src_file)
+    if ::File.exists?(dest_file)
+      dst_stat = ::File.stat(dest_file)
+      if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
+        return 'skipped'
+      end
+    end
+
+    # Make the destination path if necessary
     dir = ::File.dirname(dest_file)
     ::FileUtils.mkdir_p(dir) if dir and not ::File.directory?(dir)
 
@@ -308,6 +321,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       src_fd.close
       dst_fd.close
     end
+
+    # Clone the times from the remote file
+    ::File.utime(src_stat.atime, src_stat.mtime, dest_file)
+    return 'download'
   end
 
   #

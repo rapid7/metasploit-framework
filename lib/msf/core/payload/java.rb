@@ -17,9 +17,7 @@ module Msf::Payload::Java
   def generate_stage
     stage = ''
     @stage_class_files.each do |path|
-      fd = File.open(File.join( Msf::Config.data_directory, "java", path ), "rb")
-      data = fd.read(fd.stat.size)
-      fd.close
+      data = MetasploitPayloads.read('java', path)
       stage << ([data.length].pack("N") + data)
     end
     stage << [0].pack("N")
@@ -36,8 +34,8 @@ module Msf::Payload::Java
 
   #
   # Used by stagers to create a jar file as a {Rex::Zip::Jar}.  Stagers
-  # define a list of class files in @class_files which are pulled from
-  # {Msf::Config.data_directory}.  The configuration file is created by
+  # define a list of class files in @class_files which are pulled from the
+  # MetasploitPayloads gem. The configuration file is created by
   # the payload's #config method.
   #
   # @option opts :main_class [String] the name of the Main-Class
@@ -58,7 +56,7 @@ module Msf::Payload::Java
     jar = Rex::Zip::Jar.new
     jar.add_sub("metasploit") if opts[:random]
     jar.add_file("metasploit.dat", config)
-    jar.add_files(paths, File.join(Msf::Config.data_directory, "java"))
+    jar.add_files(paths, MetasploitPayloads.path('java'))
     jar.build_manifest(:main_class => main_class)
 
     jar
@@ -103,7 +101,7 @@ module Msf::Payload::Java
     zip.add_file('WEB-INF/', '')
     zip.add_file('WEB-INF/web.xml', web_xml)
     zip.add_file("WEB-INF/classes/", "")
-    zip.add_files(paths, File.join(Msf::Config.data_directory, "java"), "WEB-INF/classes/")
+    zip.add_files(paths, MetasploitPayloads.path('java'), 'WEB-INF/classes/')
     zip.add_file("WEB-INF/classes/metasploit.dat", config)
 
     zip

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/reverse_http'
 
 module Msf
@@ -15,6 +16,7 @@ module Msf
 
 module Payload::Windows::ReverseHttps
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows::ReverseHttp
 
   #
@@ -62,6 +64,13 @@ module Payload::Windows::ReverseHttps
     }
 
     generate_reverse_https(conf)
+  end
+
+  #
+  # Generate the transport-specific configuration
+  #
+  def transport_config(opts={})
+    transport_config_reverse_https(opts)
   end
 
 end
