@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/powershell'
 require 'msf/core/payload/windows/powershell'
 require 'msf/core/handler/bind_tcp'
@@ -20,13 +21,11 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Windows Interactive Powershell Session, Bind TCP',
       'Description'   => 'Interacts with a powershell session on an established socket connection',
-      'Author'        =>
-        [
+      'Author'        => [
           'Ben Turner', # benpturner
           'Dave Hardy' # davehardy20
         ],
-      'References'    =>
-        [
+      'References'    => [
           ['URL', 'https://www.nettitude.co.uk/interactive-powershell-session-via-metasploit/']
         ],
       'License'       => MSF_LICENSE,
@@ -35,14 +34,9 @@ module Metasploit3
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::PowerShell,
       'RequiredCmd'   => 'generic',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
+      'Payload'       => { 'Payload' => '' }
       ))
-      register_options(
-      [
+      register_options( [
         OptString.new('LOAD_MODULES', [ false, "A list of powershell modules seperated by a comma to download over the web", nil ]),
       ], self.class)
   end

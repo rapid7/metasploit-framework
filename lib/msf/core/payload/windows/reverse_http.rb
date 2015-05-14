@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 require 'msf/core/payload/uuid_options'
@@ -17,6 +18,7 @@ module Msf
 
 module Payload::Windows::ReverseHttp
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
@@ -83,6 +85,13 @@ module Payload::Windows::ReverseHttp
       #{asm_reverse_http(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
+  end
+
+  #
+  # Generate the transport-specific configuration
+  #
+  def transport_config(opts={})
+    transport_config_reverse_http(opts)
   end
 
   #

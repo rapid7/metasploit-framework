@@ -1,8 +1,10 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/reverse_winhttp'
 require 'msf/core/payload/windows/verify_ssl'
+require 'rex/payloads/meterpreter/uri_checksum'
 
 module Msf
 
@@ -16,6 +18,7 @@ module Msf
 
 module Payload::Windows::ReverseWinHttps
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows::ReverseWinHttp
   include Msf::Payload::Windows::VerifySsl
 
@@ -80,6 +83,10 @@ module Payload::Windows::ReverseWinHttps
     }
 
     generate_reverse_winhttps(conf)
+  end
+
+  def transport_config(opts={})
+    transport_config_reverse_https(opts)
   end
 
   #
