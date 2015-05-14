@@ -404,7 +404,8 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
         'Name'          => 'SSL Labs API Client',
         'Description'   => %q{
-          This module is a simple client for the SSL Labs APIs, designed for SSL/TLS assessment during a penetration testing.
+          This module is a simple client for the SSL Labs APIs, designed for
+          SSL/TLS assessment during a penetration test.
         },
         'License'       => MSF_LICENSE,
         'Author'         =>

@@ -37,8 +37,6 @@ describe Metasploit::Framework::LoginScanner::SNMP do
       snmp_scanner.host = '127.0.0.1'
       snmp_scanner.port = 161
       snmp_scanner.connection_timeout = 1
-      snmp_scanner.retries = 0
-      snmp_scanner.version = 'all'
       snmp_scanner.stop_on_success = true
       snmp_scanner.cred_details = detail_group
     end

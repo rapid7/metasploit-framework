@@ -13,10 +13,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'           => 'Embedthis GoAhead Embedded Web Server Directory Traversal',
+      'Name'           => 'Embedthis GoAhead Embedded Web Server Directory Traversal',
       'Description'    => %q{
-        This module exploits a directory traversal vulnerability in the Embedthis GoAhead Web Server v3.4.1,
-        allowing to read arbitrary files with the web server privileges.
+        This module exploits a directory traversal vulnerability in the Embedthis
+        GoAhead Web Server v3.4.1, allowing an attacker to read arbitrary files
+        with the web server privileges.
       },
       'References'     =>
         [
