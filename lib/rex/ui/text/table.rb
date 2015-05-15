@@ -238,6 +238,34 @@ class Table
     return tbl
   end
 
+  #
+  # Build table from CSV dump
+  #
+  def self.new_from_csv(csv)
+    # Read in or keep data, get CSV or die
+    if csv.is_a?(String)
+      csv = File.file?(csv) ? CSV.read(csv) : CSV.parse(csv)
+    end
+    # Adjust for skew
+    if csv.first == ["Keys", "Values"]
+      csv.shift # drop marker
+      cols = []
+      rows = []
+      csv.each do |row|
+        cols << row.shift
+        rows << row
+      end
+      tbl = self.new('Columns' => cols)
+      rows.in_groups_of(cols.count) {|r| tbl << r.flatten}
+    else
+      tbl = self.new('Columns' => csv.shift)
+      while !csv.empty? do
+        tbl << csv.shift
+      end
+    end
+    return tbl
+  end
+
   def [](*col_names)
     tbl = self.class.new('Indent' => self.indent,
                          'Header' => self.header,
