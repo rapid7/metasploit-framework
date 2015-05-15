@@ -328,9 +328,9 @@ protected
         padding = pad(' ', last_col, last_idx)
         nameline << padding
         remainder = padding.length - cellpad
-        if (remainder < 0)
-          remainder = 0
-        end
+      if (remainder < 0)
+        remainder = 0
+      end
         barline << (' ' * (cellpad + remainder))
       end
 
@@ -391,7 +391,7 @@ protected
     if (use_cell_pad)
       val << ' ' * cellpad
     end
-
+    
     return val
   end
 

@@ -235,19 +235,19 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_del :cmd_rm
 
-        #
-        # Move source to destination
-        #
-        def cmd_mv(*args)
-                if (args.length < 2)
-                        print_line("Usage: mv oldfile newfile")
-                        return true
-                end
-                client.fs.file.mv(args[0],args[1])
-                return true
-        end
+  #
+  # Move source to destination
+  #
+  def cmd_mv(*args)
+    if (args.length < 2)
+      print_line("Usage: mv oldfile newfile")
+      return true
+    end
+    client.fs.file.mv(args[0],args[1])
+    return true
+  end
 
-        alias :cmd_move :cmd_mv
+  alias :cmd_move :cmd_mv
   alias :cmd_rename :cmd_mv
 
   #
