@@ -323,14 +323,17 @@ protected
     last_idx = nil
     columns.each_with_index { |col,idx|
       if (last_col)
-        nameline << pad(' ', last_col, last_idx)
-
-        remainder = colprops[last_idx]['MaxWidth'] - last_col.length
+        # This produces clean to_s output without truncation
+        # Preserves full string in cells for to_csv output
+        padding = pad(' ', last_col, last_idx)
+        nameline << padding
+        remainder = padding.length - cellpad
         if (remainder < 0)
           remainder = 0
         end
         barline << (' ' * (cellpad + remainder))
       end
+
       nameline << col
       barline << ('-' * col.length)
 
@@ -359,7 +362,6 @@ protected
       if (idx != 0)
         line << pad(' ', last_cell.to_s, last_idx)
       end
-      # line << pad(' ', cell.to_s, idx)
       # Limit wide cells
       if colprops[idx]['MaxChar']
         last_cell = cell.to_s[0..colprops[idx]['MaxChar'].to_i]
@@ -379,8 +381,12 @@ protected
   # some text and a column index.
   #
   def pad(chr, buf, colidx, use_cell_pad = true) # :nodoc:
-    remainder = colprops[colidx]['MaxWidth'] - buf.length
-    val       = chr * remainder;
+    # Ensure we pad the minimum required amount
+    max = colprops[colidx]['MaxChar'] || colprops[colidx]['MaxWidth']
+    max = colprops[colidx]['MaxWidth'] if max.to_i > colprops[colidx]['MaxWidth'].to_i
+    remainder = max - buf.length
+    remainder = 0 if remainder < 0
+    val       = chr * remainder
 
     if (use_cell_pad)
       val << ' ' * cellpad
