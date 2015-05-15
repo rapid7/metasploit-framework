@@ -221,6 +221,23 @@ class Table
   #
   # Returns new sub-table with headers and rows maching column names submitted
   #
+  #
+  # Flips table 90 degrees left
+  #
+  def drop_left
+    tbl = self.class.new(
+      'Columns' => Array.new(self.rows.count+1,'  '),
+      'Header' => self.header,
+      'Indent' => self.indent)
+    (self.columns.count+1).times do |ti|
+      row = self.rows.map {|r| r[ti]}.unshift(self.columns[ti]).flatten
+      # insert our col|row break. kind of hackish
+      row[1] = "| #{row[1]}" unless row.all? {|e| e.nil? || e.empty?}
+      tbl << row
+    end
+    return tbl
+  end
+
   def [](*col_names)
     tbl = self.class.new('Indent' => self.indent,
                          'Header' => self.header,
