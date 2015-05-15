@@ -38,20 +38,20 @@ module Metasploit4
 
   def generate_config(opts={})
     unless opts[:uuid]
-      opts[:uuid] = Msf::Payload::UUID.new({
-        :platform => 'windows',
-        :arch     => ARCH_X86
-      })
+      opts[:uuid] = Msf::Payload::UUID.new(
+        platform: 'windows',
+        arch:     ARCH_X86
+      )
     end
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
-      :arch       => opts[:uuid].arch,
-      :exitfunk   => datastore['EXITFUNC'],
-      :expiration => datastore['SessionExpirationTimeout'].to_i,
-      :uuid       => opts[:uuid],
-      :transports => [transport_config(opts)],
-      :extensions => []
+      arch:       opts[:uuid].arch,
+      exitfunk:   datastore['EXITFUNC'],
+      expiration: datastore['SessionExpirationTimeout'].to_i,
+      uuid:       opts[:uuid],
+      transports: [transport_config(opts)],
+      extensions: []
     }
 
     # create the configuration instance based off the parameters

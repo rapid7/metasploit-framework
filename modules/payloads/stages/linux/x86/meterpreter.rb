@@ -142,9 +142,9 @@ module Metasploit3
 
   end
 
-  def generate_stage
+  def generate_stage(opts={})
     meterpreter = generate_meterpreter
-    config = generate_config
+    config = generate_config(opts)
     meterpreter + config
   end
 

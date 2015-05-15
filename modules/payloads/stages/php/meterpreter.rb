@@ -23,12 +23,23 @@ module Metasploit3
       'Session'       => Msf::Sessions::Meterpreter_Php_Php))
   end
 
-  def generate_stage
+  def generate_stage(opts={})
     file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.php")
 
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
+
+    unless opts[:uuid]
+      uuid = Msf::Payload::UUID.new(
+        platform: 'php',
+        arch:     ARCH_PHP
+      )
+    end
+
+    bytes = uuid.to_raw.map { |c| '\x%.2x' % c }.join('')
+    met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
+
     #met.gsub!(/#.*?$/, '')
     #met = Rex::Text.compress(met)
     met

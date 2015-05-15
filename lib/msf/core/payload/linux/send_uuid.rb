@@ -1,0 +1,53 @@
+# -*- coding: binary -*-
+
+require 'msf/core'
+require 'msf/core/payload/uuid'
+
+module Msf
+
+###
+#
+# Basic send_uuid stub for Linux ARCH_X86 payloads
+#
+###
+
+module Payload::Linux::SendUUID
+
+  #
+  # Generate assembly code that writes the UUID to the socket.
+  #
+  # This code assumes that the communications socket handle is in edi.
+  #
+  def asm_send_uuid(uuid=nil)
+    unless uuid
+      uuid = Msf::Payload::UUID.new(
+        platform: 'linux',
+        arch:     ARCH_X86
+      )
+    end
+
+    uuid_raw = uuid.to_raw
+
+    asm =%Q^
+      send_uuid:
+        push 0                        ; terminate the args array
+        push #{uuid_raw.length}       ; length of the UUID
+        call get_uuid_address         ; put uuid buffer on tehe stack
+        db #{raw_to_db(uuid_raw)}     ; UUID itself
+      get_uuid_address:
+        push edi                      ; socket handle
+        mov ecx, esp                  ; store the pointer to the argument arra
+        push 0x9                      ; SYS_SEND
+        pop ebx
+        push 0x66                     ; sys_socketcall
+        pop eax
+        int 0x80
+    ^
+
+    asm
+  end
+
+end
+
+end
+

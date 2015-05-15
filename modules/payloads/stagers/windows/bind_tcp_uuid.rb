@@ -10,16 +10,20 @@ require 'msf/core/payload/windows/bind_tcp'
 
 module Metasploit4
 
-  CachedSize = 285
+  CachedSize = 318
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::BindTcp
 
+  def self.handler_type_alias
+    'bind_tcp_uuid'
+  end
+
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Bind TCP Stager (Windows x86)',
-      'Description' => 'Listen for a connection (Windows x86)',
-      'Author'      => ['hdm', 'skape', 'sf'],
+      'Name'        => 'Windows x86 Bind TCP Stager, sending UUID',
+      'Description' => 'Listen for a connection, send UUID (Windows x86)',
+      'Author'      => ['OJ Reeves'],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_X86,
@@ -27,6 +31,14 @@ module Metasploit4
       'Convention'  => 'sockedi',
       'Stager'      => { 'RequiresMidstager' => false }
     ))
+  end
+
+  #
+  # Override the uuid function and opt-in for sending the
+  # UUID in the stage.
+  #
+  def include_send_uuid
+    true
   end
 
 end

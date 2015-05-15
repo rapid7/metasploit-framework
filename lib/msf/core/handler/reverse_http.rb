@@ -254,7 +254,10 @@ protected
         url = payload_uri(req) + conn_id + '/'
 
         blob = ""
-        blob << obj.generate_stage
+        blob << obj.generate_stage(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         var_escape = lambda { |txt|
           txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
@@ -291,7 +294,10 @@ protected
         url = payload_uri(req) + conn_id + "/\x00"
 
         blob = ""
-        blob << obj.generate_stage
+        blob << obj.generate_stage(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         # This is a TLV packet - I guess somewhere there should be an API for building them
         # in Metasploit :-)

