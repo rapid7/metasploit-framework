@@ -72,6 +72,7 @@ class Table
     self.prefix   = opts['Prefix']  || ''
     self.postfix  = opts['Postfix'] || ''
     self.colprops = []
+    self.scterm  = opts['SearchTerm'] ? /#{opts['SearchTerm']}/mi : /./
 
     self.sort_index  = opts['SortIndex'] || 0
     self.sort_order  = opts['SortOrder'] || :forward
@@ -113,7 +114,7 @@ class Table
       if (is_hr(row))
         str << hr_to_s
       else
-        str << row_to_s(row)
+        str << row_to_s(row) if row_to_s(row).match(self.scterm)
       end
     }
 
@@ -129,7 +130,7 @@ class Table
     str = ''
     str << ( columns.join(",") + "\n" )
     rows.each { |row|
-      next if is_hr(row)
+      next if is_hr(row) or !(row_to_s(row).match(self.scterm))
       str << ( row.map{|x|
         x = x.to_s
 
@@ -175,7 +176,10 @@ class Table
       raise RuntimeError, 'Invalid number of columns!'
     end
     fields.each_with_index { |field, idx|
+      # Remove whitespace and ensure String format
+      field = field.to_s.strip
       if (colprops[idx]['MaxWidth'] < field.to_s.length)
+        old = colprops[idx]['MaxWidth']
         colprops[idx]['MaxWidth'] = field.to_s.length
       end
     }
@@ -245,7 +249,7 @@ class Table
   attr_accessor :columns, :rows, :colprops # :nodoc:
   attr_accessor :width, :indent, :cellpad # :nodoc:
   attr_accessor :prefix, :postfix # :nodoc:
-  attr_accessor :sort_index, :sort_order # :nodoc:
+  attr_accessor :sort_index, :sort_order, :scterm # :nodoc:
 
 protected
 
