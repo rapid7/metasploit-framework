@@ -1132,6 +1132,7 @@ require 'msf/core/exe/segment_appender'
     # Intialize rig and value names
     rig = Rex::RandomIdentifierGenerator.new()
     rig.init_var(:var_shell)
+    rig.init_var(:var_fso)
 
     hash_sub = rig.to_h
     hash_sub[:powershell] = powershell
