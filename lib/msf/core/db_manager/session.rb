@@ -95,7 +95,6 @@ module Msf::DBManager::Session
       if session.exploit.user_data_is_match?
         MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
           match: session.exploit.user_data[:match],
-          match_set: session.exploit.user_data[:match_set],
           run: session.exploit.user_data[:run],
           state: 'succeeded',
         )

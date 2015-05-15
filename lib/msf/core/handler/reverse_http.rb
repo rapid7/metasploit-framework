@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'rex/payloads/meterpreter/patch'
 require 'rex/payloads/meterpreter/uri_checksum'
 require 'rex/post/meterpreter/packet'
 require 'rex/parser/x509_certificate'
@@ -324,27 +323,12 @@ protected
 
         resp['Content-Type'] = 'application/octet-stream'
 
-        blob = obj.stage_payload
-
-        verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                             datastore['HandlerSSLCert'])
-        #
-        # Patch options into the payload
-        #
-        Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
-          :ssl           => ssl?,
-          :url           => url,
-          :ssl_cert_hash => verify_cert_hash,
-          :expiration    => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout  => datastore['SessionCommunicationTimeout'].to_i,
-          :retry_total   => datastore['SessionRetryTotal'].to_i,
-          :retry_wait    => datastore['SessionRetryWait'].to_i,
-          :ua            => datastore['MeterpreterUserAgent'],
-          :proxy_host    => datastore['PayloadProxyHost'],
-          :proxy_port    => datastore['PayloadProxyPort'],
-          :proxy_type    => datastore['PayloadProxyType'],
-          :proxy_user    => datastore['PayloadProxyUser'],
-          :proxy_pass    => datastore['PayloadProxyPass'])
+        # generate the stage, but pass in the existing UUID and connection id so that
+        # we don't get new ones generated.
+        blob = obj.stage_payload(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         resp.body = encode_stage(blob)
 

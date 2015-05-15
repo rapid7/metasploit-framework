@@ -307,6 +307,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     begin
       self.machine_id = self.core.machine_id(timeout)
+      self.payload_uuid ||= self.core.uuid(timeout)
+
       return true
     rescue ::Rex::Post::Meterpreter::RequestError
       # This meterpreter doesn't support core_machine_id
@@ -326,8 +328,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     begin
       ::Timeout.timeout(60) do
         # Gather username/system information
-        username  = self.sys.config.getuid
-        sysinfo   = self.sys.config.sysinfo
+        username = self.sys.config.getuid
+        sysinfo  = self.sys.config.sysinfo
 
         safe_info = "#{username} @ #{sysinfo['Computer']}"
         safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)

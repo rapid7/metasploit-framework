@@ -77,7 +77,12 @@ class Console::CommandDispatcher::Core
     end
 
     if client.platform =~ /win/ || client.platform =~ /linux/
+      # Migration only supported on windows and linux
       c["migrate"] = "Migrate the server to another process"
+
+      # UUID functionality isn't yet available on other platforms
+      c["uuid"] = "Get the UUID for the current session"
+
       # Yet to implement transport hopping for other meterpreters.
       # Works for posix and native windows though.
       c["transport"] = "Change the current transport mechanism"
@@ -280,10 +285,6 @@ class Console::CommandDispatcher::Core
   # Disconnects the session
   #
   def cmd_detach(*args)
-    if not client.passive_service
-      print_error("Detach is only possible for non-stream sessions (http/https)")
-      return
-    end
     client.shutdown_passive_dispatcher
     shell.stop
   end
@@ -382,17 +383,34 @@ class Console::CommandDispatcher::Core
   end
 
   def print_timeouts(timeouts)
-    print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
-    print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")
-    print_line("Retry Total Time: #{timeouts[:retry_total]} seconds")
-    print_line("Retry Wait Time : #{timeouts[:retry_wait]} seconds")
+    if timeouts[:session_exp]
+      print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
+    end
+    if timeouts[:comm_timeout]
+      print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")
+    end
+    if timeouts[:retry_total]
+      print_line("Retry Total Time: #{timeouts[:retry_total]} seconds")
+    end
+    if timeouts[:retry_wait]
+      print_line("Retry Wait Time : #{timeouts[:retry_wait]} seconds")
+    end
   end
 
   #
   # Get the machine ID of the target
   #
   def cmd_machine_id(*args)
-    print_good("Machine ID: #{client.core.machine_id}")
+    client.machine_id = client.core.machine_id unless client.machine_id
+    print_good("Machine ID: #{client.machine_id}")
+  end
+
+  #
+  # Get the machine ID of the target
+  #
+  def cmd_uuid(*args)
+    client.payload_uuid = client.core.uuid unless client.payload_uuid
+    print_good("UUID: #{client.payload_uuid}")
   end
 
   #
@@ -494,20 +512,25 @@ class Console::CommandDispatcher::Core
     '-ex' => [ true,  'Expiration timout (seconds) (default: same as current session)' ],
     '-rt' => [ true,  'Retry total time (seconds) (default: same as current session)' ],
     '-rw' => [ true,  'Retry wait time (seconds) (default: same as current session)' ],
+    '-v'  => [ false, 'Show the verbose format of the transport list' ],
     '-h'  => [ false, 'Help menu' ])
 
   #
-  # Display help for transport switching
+  # Display help for transport management.
   #
   def cmd_transport_help
-    print_line('Usage: transport [options]')
+    print_line('Usage: transport <list|change|add|next|prev> [options]')
     print_line
-    print_line('Change the current Meterpreter transport mechanism')
+    print_line('   list: list the currently active transports.')
+    print_line('    add: add a new transport to the transport list.')
+    print_line(' change: same as add, but changes directly to the added entry.')
+    print_line('   next: jump to the next transport in the list (no options).')
+    print_line('   prev: jump to the previous transport in the list (no options).')
     print_line(@@transport_opts.usage)
   end
 
   #
-  # Change the current transport setings.
+  # Manage transports
   #
   def cmd_transport(*args)
     if ( args.length == 0 or args.include?("-h") )
@@ -515,7 +538,14 @@ class Console::CommandDispatcher::Core
       return
     end
 
+    command = args.shift
+    unless ['list', 'add', 'change', 'prev', 'next'].include?(command)
+      cmd_transport_help
+      return
+    end
+
     opts = {
+      :uuid          => client.payload_uuid,
       :transport     => nil,
       :lhost         => nil,
       :lport         => nil,
@@ -529,9 +559,11 @@ class Console::CommandDispatcher::Core
       :session_exp   => nil,
       :retry_total   => nil,
       :retry_wait    => nil,
-      :cert          => nil
+      :cert          => nil,
+      :verbose       => false
     }
 
+    valid = true
     @@transport_opts.parse(args) do |opt, idx, val|
       case opt
       when '-c'
@@ -560,21 +592,104 @@ class Console::CommandDispatcher::Core
         opts[:lport] = val.to_i if val
       when '-l'
         opts[:lhost] = val
+      when '-v'
+        opts[:verbose] = true
       when '-t'
         unless client.core.valid_transport?(val)
           cmd_transport_help
           return
         end
         opts[:transport] = val
+      else
+        valid = false
       end
     end
 
-    print_status("Swapping transport ...")
-    if client.core.transport_change(opts)
-      client.shutdown_passive_dispatcher
-      shell.stop
-    else
-      print_error("Failed to switch transport, please check the parameters")
+    unless valid
+      cmd_transport_help
+      return
+    end
+
+    case command
+    when 'list'
+      result = client.core.transport_list
+      # this will output the session timeout first
+      print_timeouts(result)
+
+      columns =[
+        'Curr',
+        'URL',
+        'Comms T/O',
+        'Retry Total',
+        'Retry Wait'
+      ]
+
+      if opts[:verbose]
+        columns << 'User Agent'
+        columns << 'Proxy Host'
+        columns << 'Proxy User'
+        columns << 'Proxy Pass'
+        columns << 'Cert Hash'
+      end
+
+      # next draw up a table of transport entries
+      tbl = Rex::Ui::Text::Table.new(
+        'Indent'  => 4,
+        'Columns' => columns)
+
+      first = true
+      result[:transports].each do |t|
+        entry = [ first ? '*' : '', t[:url], t[:comm_timeout],
+                  t[:retry_total], t[:retry_wait] ]
+
+        first = false
+
+        if opts[:verbose]
+          entry << t[:ua]
+          entry << t[:proxy_host]
+          entry << t[:proxy_user]
+          entry << t[:proxy_pass]
+          entry << (t[:cert_hash] || '').unpack("H*")[0]
+        end
+
+        tbl << entry
+      end
+
+      print("\n" + tbl.to_s + "\n")
+    when 'next'
+      print_status("Changing to next transport ...")
+      if client.core.transport_next
+        print_good("Successfully changed to the next transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'prev'
+      print_status("Changing to previous transport ...")
+      if client.core.transport_prev
+        print_good("Successfully changed to the previous transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'change'
+      print_status("Changing to new transport ...")
+      if client.core.transport_change(opts)
+        print_good("Successfully added #{opts[:transport]} transport, killing current session.")
+        client.shutdown_passive_dispatcher
+        shell.stop
+      else
+        print_error("Failed to change transport, please check the parameters")
+      end
+    when 'add'
+      print_status("Adding new transport ...")
+      if client.core.transport_add(opts)
+        print_good("Successfully added #{opts[:transport]} transport.")
+      else
+        print_error("Failed to add transport, please check the parameters")
+      end
     end
   end
 
