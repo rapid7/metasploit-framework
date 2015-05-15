@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
         host name etc.
 
         If a private key is configured, an attempt will be made to download and store it in loot.
-        },
+       },
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
       'SessionTypes'    => ['meterpreter'],
@@ -90,15 +90,21 @@ class Metasploit3 < Msf::Post
         # Take the key and split up host, port and fingerprint type. If it matches, store the information
         # in the hash for later.
         split_hostporttype = rx_split_hostporttype.match(key.to_s)
-        unless split_hostporttype
+        if split_hostporttype
+
+            # Extract the host, port and key type into the hash
             newkey['host'] = split_hostporttype[:host]
             newkey['port'] = split_hostporttype[:port]
             newkey['type'] = split_hostporttype[:type]
+
+            # Form the key 
             host_port = "#{newkey['host']}:#{newkey['port']}"
-            all_ssh_host_keys[host_port] = true
+
+            # Add it to the consolidation hash. If the same IP has different key types, append to the array
+            all_ssh_host_keys[host_port] = [] if all_ssh_host_keys[host_port].nil?
+            all_ssh_host_keys[host_port] << newkey['type']
         end
     end 
-    puts all_ssh_host_keys.inspect
     all_ssh_host_keys
   end
 
@@ -109,12 +115,13 @@ class Metasploit3 < Msf::Post
       'Header'     => "Stored SSH host key fingerprints",
       'Indent'     => 1,
       'SortIndex'  => -1,
-      'Columns'    => ['SSH Endpoint']
+      'Columns'    => ['SSH Endpoint', 'Key Type(s)']
     )
 
     info.each do |key,result|
       row = []
       row << key
+      row << result.join(', ')
       results_table << row
     end
 
@@ -161,8 +168,6 @@ class Metasploit3 < Msf::Post
 
     end
 
-    #binding.pry
-
     # Now search for SSH stored keys. These could be useful because it shows hosts that the user
     # has previously connected to and accepted a key from. 
     print_status("Looking for previously stored SSH host key fingerprints")
@@ -176,10 +181,14 @@ class Metasploit3 < Msf::Post
 	    # Retrieve the saved session details & print them to the screen in a report
 	    print_status("Downloading stored key fingerprints...")
 	    all_stored_keys = get_stored_host_key_details(stored_ssh_host_keys)
-	    print_status("Unique host:port pairs are shown in the table below. All other details, including the actual fingerprint, are stored in notes (putty.ssh.fingerprint)")
-        display_stored_host_keys_report(all_stored_keys) 
-
+        if all_stored_keys.nil? || all_stored_keys.empty?
+    	    print_status("Unique host:port pairs are shown in the table below. All other details, including the actual fingerprint, are stored in notes (putty.ssh.fingerprint)")
+            display_stored_host_keys_report(all_stored_keys) 
+        else
+            print_error("No stored key fingerprints found")
+        end
     end
+
   end
 
 end
