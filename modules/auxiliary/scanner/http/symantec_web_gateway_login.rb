@@ -105,13 +105,13 @@ end
     scanner(ip).scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
         report_good_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute :level => :verror, :ip => ip, :msg => result.proof
+        vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
         report_bad_cred(ip, rport, result)
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'")
         report_bad_cred(ip, rport, result)
       end
     end
@@ -121,7 +121,7 @@ end
   # Start here
   def run_host(ip)
     unless scanner(ip).check_setup
-      print_brute :level => :error, :ip => ip, :msg => 'Target is not Symantec Web Gateway'
+      print_brute(:level => :error, :ip => ip, :msg => 'Target is not Symantec Web Gateway')
       return
     end
 
