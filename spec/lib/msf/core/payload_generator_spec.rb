@@ -606,7 +606,7 @@ describe Msf::PayloadGenerator do
       }
 
       it 'calls generate_java_payload' do
-        payload_generator.should_receive(:generate_java_payload)
+        payload_generator.should_receive(:generate_java_payload).and_call_original
         payload_generator.generate_payload
       end
     end

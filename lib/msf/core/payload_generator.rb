@@ -276,12 +276,15 @@ module Msf
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
       if platform == "java" or arch == "java" or payload.start_with? "java/"
-        generate_java_payload
+        p = generate_java_payload
+        cli_print "Payload size: #{p.length} bytes"
+        p
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
         encoded_payload = encode_payload(raw_payload)
         encoded_payload = prepend_nops(encoded_payload)
+        cli_print "Payload size: #{encoded_payload.length} bytes"
         format_payload(encoded_payload)
       end
     end
