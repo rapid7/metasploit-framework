@@ -243,14 +243,26 @@ class Console::CommandDispatcher::Stdapi::Fs
                         print_line("Usage: mv oldfile newfile")
                         return true
                 end
-
                 client.fs.file.mv(args[0],args[1])
-
                 return true
         end
 
         alias :cmd_move :cmd_mv
   alias :cmd_rename :cmd_mv
+
+  #
+  # Move source to destination
+  #
+  def cmd_cp(*args)
+    if (args.length < 2)
+      print_line("Usage: cp oldfile newfile")
+      return true
+    end
+    client.fs.file.cp(args[0],args[1])
+    return true
+  end
+
+  alias :cmd_copy :cmd_cp
 
 
   def cmd_download_help
