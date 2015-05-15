@@ -2,23 +2,68 @@ require 'uri'
 
 module Msf
 
-class Plugin::HTTPRequests < Msf::Plugin
+class Plugin::Requests < Msf::Plugin
 
   class ConsoleCommandDispatcher
     include Msf::Ui::Console::CommandDispatcher
 
     def name
-      'HTTP Requests'
+      'Request'
     end
 
     def commands
       {
-        'httpr' => 'Make an HTTP request'
+        'request' => 'Make a request of the specified type',
       }
     end
 
-    def parse_args(args)
-      help_line = 'Usage: httpr [options] uri'
+    def types
+      # dynamically figure out what types are supported based on parse_args_*
+      parse_methods = self.public_methods.select {|m| m.to_s =~ /^parse_args_/}
+      parse_methods.collect {|m| m.to_s.split('_').slice(2..-1).join('_')}
+    end
+
+    def cmd_request(*args)
+      # grab and validate the first arg as type, which will affect how the
+      # remaining args are parsed
+      type = args.shift
+      # short circuit the whole deal if they need help
+      return help if (!type || type =~ /^-?-h(?:elp)?$/)
+      type.downcase!
+      opts, opt_parser = parse_args(type, args)
+      if opts && opt_parser
+        if opts[:output_file]
+          begin
+            opts[:output_file] = File.new(opts[:output_file], 'w')
+          rescue ::Errno::EACCES, Errno::EISDIR, Errno::ENOTDIR
+            return help(opt_parser, 'Failed to open the specified file for output')
+          end
+        end
+        handler_method = "handle_request_#{type}".to_sym
+        if self.respond_to?(handler_method)
+          # call the appropriate request handler
+          self.send(handler_method, opts, opt_parser)
+        else
+          help(opt_parser, "No request handler found for type (#{type.to_s}).")
+        end
+      else
+        help(opt_parser, "No valid options provided for request #{type}")
+      end
+    end
+
+    def parse_args(type, args)
+      type.downcase!
+      #print_line "type is #{type}"
+      parse_method = "parse_args_#{type}".to_sym
+      if self.respond_to?(parse_method)
+        self.send(parse_method, args, type)
+      else
+        print_line('Unrecognized type.')
+        help
+      end
+    end
+
+    def parse_args_http(args = [], type = 'http')
       opt_parser = Rex::Parser::Arguments.new(
         '-0' => [ false, 'Use HTTP 1.0' ],
         '-1' => [ false, 'Use TLSv1 (SSL)' ],
@@ -37,15 +82,10 @@ class Plugin::HTTPRequests < Msf::Plugin
       )
 
       options = {
-        :auth_password   => nil,
-        :auth_username   => nil,
-        :headers         => { },
+        :headers         => {},
         :print_body      => true,
         :print_headers   => false,
-        :method          => nil,
-        :output_file     => nil,
         :ssl_version     => 'Auto',
-        :uri             => nil,
         :user_agent      => Rex::Proto::Http::Client::DefaultUserAgent,
         :version         => '1.1'
       }
@@ -68,11 +108,9 @@ class Plugin::HTTPRequests < Msf::Plugin
         when '-G'
           options[:method] = 'GET'
         when '-h'
-          print_line(help_line)
-          print_line(opt_parser.usage)
-          return
+          return help(opt_parser, "Usage: request #{type} [options] uri")
         when '-H'
-          name, _, value = val.partition(':')
+          name, _, value = val.split(':')
           options[:headers][name] = value.strip
         when '-i'
           options[:print_headers] = true
@@ -83,25 +121,83 @@ class Plugin::HTTPRequests < Msf::Plugin
         when '-o'
           options[:output_file] = File.expand_path(val)
         when '-u'
-          val = val.partition(':')
-          options[:auth_username] = val[0]
-          options[:auth_password] = val[2]
+          options[:auth_username] = val
+        when '-p'
+          options[:auth_password] = val
         when '-X'
           options[:method] = val
         else
           options[:uri] = val
         end
       end
-
-      if options[:uri].nil?
-        print_line(help_line)
-        print_line(opt_parser.usage)
-        return
+      unless options[:uri]
+        return help(opt_parser, "Usage: request #{type} [options] uri")
       end
-
       options[:method] ||= 'GET'
       options[:uri] = URI(options[:uri])
-      options
+      [options, opt_parser]
+    end
+
+    def handle_request_http(opts, opt_parser)
+      uri = opts[:uri]
+      http_client = Rex::Proto::Http::Client.new(
+        uri.host,
+        uri.port,
+        {'Msf' => framework},
+        uri.scheme == 'https',
+        opts[:ssl_version]
+      )
+
+      if opts[:auth_username]
+        auth_str = opts[:auth_username] + ':' + opts[:auth_password]
+        auth_str = 'Basic ' + Rex::Text.encode_base64(auth_str)
+        opts[:headers]['Authorization'] = auth_str
+      end
+
+      uri.path = '/' if uri.path.length == 0
+
+      begin
+        http_client.connect
+        req = http_client.request_cgi(
+          'agent'    => opts[:user_agent],
+          'data'     => opts[:data],
+          'headers'  => opts[:headers],
+          'method'   => opts[:method],
+          'password' => opts[:auth_password],
+          'query'    => uri.query,
+          'uri'      => uri.path,
+          'username' => opts[:auth_username],
+          'version'  => opts[:version]
+        )
+
+        response = http_client.send_recv(req)
+      rescue ::OpenSSL::SSL::SSLError
+        print_error('Encountered an SSL error')
+      rescue ::Errno::ECONNRESET => ex
+        print_error('The connection was reset by the peer')
+      rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+        print_error('Encountered an error')
+      #rescue ::Exception => ex
+      #  print_line("An error of type #{ex.class} happened, message is #{ex.message}")
+      ensure
+        http_client.close
+      end
+
+      unless response
+        opts[:output_file].close if opts[:output_file]
+        return nil
+      end
+
+      if opts[:print_headers]
+        output_line(opts, response.cmd_string)
+        output_line(opts, response.headers.to_s)
+      end
+
+      output_line(opts, response.body) if opts[:print_body]
+      if opts[:output_file]
+        print_status("Wrote #{opts[:output_file].tell} bytes to #{opts[:output_file].path}")
+        opts[:output_file].close
+      end
     end
 
     def output_line(opts, line)
@@ -118,79 +214,15 @@ class Plugin::HTTPRequests < Msf::Plugin
       end
     end
 
-    def cmd_httpr(*args)
-      opts = parse_args(args)
-      return unless opts
-
-      unless opts[:output_file].nil?
-        begin
-          opts[:output_file] = File.new(opts[:output_file], 'w')
-        rescue ::Errno::EACCES, Errno::EISDIR, Errno::ENOTDIR
-          print_error('Failed to open the specified file for output')
-          return
-        end
-      end
-
-      uri = opts[:uri]
-      http_client = Rex::Proto::Http::Client.new(
-        uri.host,
-        uri.port,
-        {'Msf' => framework},
-        uri.scheme == 'https',
-        opts[:ssl_version]
-      )
-
-      unless opts[:auth_username].nil?
-        auth_str = opts[:auth_username].to_s + ':' + opts[:auth_password].to_s
-        auth_str = 'Basic ' + Rex::Text.encode_base64(auth_str)
-        opts[:headers]['Authorization'] = auth_str
-      end
-
-      uri.path = '/' if uri.path.length == 0
-
-      begin
-        http_client.connect
-        request = http_client.request_cgi(
-          'agent'    => opts[:user_agent],
-          'data'     => opts[:data],
-          'headers'  => opts[:headers],
-          'method'   => opts[:method],
-          'password' => opts[:auth_password],
-          'query'    => uri.query,
-          'uri'      => uri.path,
-          'username' => opts[:auth_username],
-          'version'  => opts[:version]
-        )
-
-        response = http_client.send_recv(request)
-      rescue ::OpenSSL::SSL::SSLError
-        print_error('Encountered an SSL error')
-      rescue ::Errno::ECONNRESET => ex
-        print_error('The connection was reset by the peer')
-      rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
-        print_error('Encountered an error')
-      #rescue ::Exception => ex
-      #  print_line("An error of type #{ex.class} happened, message is #{ex.message}")
-      ensure
-        http_client.close
-      end
-
-      unless response
-        opts[:output_file].close unless opts[:output_file].nil?
-        return
-      end
-
-      if opts[:print_headers]
-        output_line(opts, response.cmd_string)
-        output_line(opts, response.headers.to_s)
-      end
-
-      output_line(opts, response.body) if opts[:print_body]
-      unless opts[:output_file].nil?
-        print_status("Wrote #{opts[:output_file].tell} bytes to #{opts[:output_file].path}")
-        opts[:output_file].close
+    def help(opt_parser = nil, msg = 'Usage: request type [options]')
+      print_line(msg)
+      if opt_parser
+        print_line(opt_parser.usage)
+      else
+        print_line("Valid types are: #{types.join(', ')}")
       end
     end
+
   end
 
   def initialize(framework, opts)
@@ -199,18 +231,17 @@ class Plugin::HTTPRequests < Msf::Plugin
   end
 
   def cleanup
-    remove_console_dispatcher('HTTP Requests')
+    remove_console_dispatcher('Request')
   end
 
   def name
-    'HTTP Requests'
+    'Request'
   end
 
   def desc
-    'Make HTTP requests from within Metasploit.'
+    'Make requests from within Metasploit using various protocols.'
   end
 
-protected
-end
+end # end class
 
-end
+end # end module
