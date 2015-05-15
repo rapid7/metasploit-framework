@@ -63,8 +63,8 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options for the 'ps' command.
   #
   @@ps_opts = Rex::Parser::Arguments.new(
+    "-S" => [ true,  "String to search for (converts to regex)"                ],
     "-h" => [ false, "Help menu."                                              ],
-    "-S" => [ true,  "Filters processes on the process name using the supplied RegEx"],
     "-A" => [ true,  "Filters processes on architecture (x86 or x86_64)"       ],
     "-s" => [ false, "Show only SYSTEM processes"                              ],
     "-U" => [ true,  "Filters processes on the user using the supplied RegEx"  ])
@@ -422,23 +422,27 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Lists running processes.
   #
   def cmd_ps(*args)
+    # Init vars
     processes = client.sys.process.get_processes
-    @@ps_opts.parse(args) do |opt, idx, val|
+    search_term = nil
+
+    # Parse opts
+    @@ps_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-h"
-        cmd_ps_help
+        when '-S'
+          search_term = val
+          if search_term.nil?
+            print_error("Enter a search term")
         return true
-      when "-S"
-        print_line "Filtering on process name..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          if val.nil? or val.empty?
-            print_line "You must supply a search term!"
-            return false
           end
-          searched_procs << proc  if proc["name"].match(/#{val}/)
-        end
-        processes = searched_procs
+        when '-h'
+          print_line "Usage: ps [ options ]"
+          print_line
+          print_line "OPTIONS:"
+          print_line " -S       Search string to filter by"
+          print_line " -h 		This help menu"
+          print_line
+          return 0
       when "-A"
         print_line "Filtering on arch..."
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
@@ -470,12 +474,44 @@ class Console::CommandDispatcher::Stdapi::Sys
         end
         processes = searched_procs
       end
+    }
+
+    tbl = Rex::Ui::Text::Table.new(
+      'Header'  => "Process list",
+      'Indent'  => 1,
+      'Columns' =>
+        [
+          "PID",
+          "Name",
+          "Arch",
+          "Session",
+          "User",
+          "Path"
+        ],
+      'SearchTerm' => search_term)
+
+    processes.each { |ent|
+
+      session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
+      arch    = ent['arch']
+
+      # for display and consistency with payload naming we switch the internal 'x86_64' value to display 'x64'
+      if( arch == ARCH_X86_64 )
+        arch = "x64"
     end
+
+      row = [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
+
+      tbl << row #if (search_term.nil? or row.join(' ').to_s.match(search_term))
+
+
+    }
+
     if (processes.length == 0)
       print_line("No running processes were found.")
     else
       print_line
-      print_line(processes.to_table("Indent" => 1).to_s)
+      print("\n" + tbl.to_s + "\n")
       print_line
     end
     return true
@@ -672,7 +708,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
           open_key.set_value(value, client.sys.registry.type2str(type), data)
 
-          print_line("Successful set #{value}.")
+          print_line("Successfully set #{value} of #{type}.")
 
         when "deleteval"
           if (value == nil)
@@ -912,4 +948,3 @@ end
 end
 end
 end
-
