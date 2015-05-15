@@ -152,7 +152,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    return response.get_tlv_value(TLV_TYPE_FILE_HASH)
+    # older meterpreter binaries will send FILE_NAME containing the hash
+    hash = response.get_tlv_value(TLV_TYPE_FILE_HASH) ||
+      response.get_tlv_value(TLV_TYPE_FILE_NAME)
+    return hash
   end
 
   #
@@ -165,7 +168,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     response = client.send_request(request)
 
-    return response.get_tlv_value(TLV_TYPE_FILE_HASH)
+    # older meterpreter binaries will send FILE_NAME containing the hash
+    hash = response.get_tlv_value(TLV_TYPE_FILE_HASH) ||
+      response.get_tlv_value(TLV_TYPE_FILE_NAME)
+    return hash
   end
 
   #
