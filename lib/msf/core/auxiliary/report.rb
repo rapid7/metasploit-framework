@@ -169,7 +169,7 @@ module Auxiliary::Report
   # @option opts [String] :user The username for the cred
   # @option opts [String] :pass The private part of the credential (e.g. password)
   def report_auth_info(opts={})
-    print_error "*** #{self.fullname} is still calling the deprecated report_auth_info method! This needs to be updated!"
+    print_warning("*** #{self.fullname} is still calling the deprecated report_auth_info method! This needs to be updated!")
     return if not db
     raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
     raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)

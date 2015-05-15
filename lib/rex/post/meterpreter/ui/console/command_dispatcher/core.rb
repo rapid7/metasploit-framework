@@ -81,7 +81,7 @@ class Console::CommandDispatcher::Core
       c["migrate"] = "Migrate the server to another process"
 
       # UUID functionality isn't yet available on other platforms
-      c["uuid"] = "Get the UUID for the current session",
+      c["uuid"] = "Get the UUID for the current session"
 
       # Yet to implement transport hopping for other meterpreters.
       # Works for posix and native windows though.
