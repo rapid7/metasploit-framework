@@ -52,9 +52,10 @@ class Dir < Rex::Post::Dir
   #
   # Enumerates all of the files/folders in a given directory.
   #
-  def Dir.entries(name = getwd)
+  def Dir.entries(name = getwd, glob = nil)
     request = Packet.create_request('stdapi_fs_ls')
     files   = []
+    name = name + ::File::SEPARATOR + glob if glob
 
     request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode(name))
 
@@ -194,9 +195,9 @@ class Dir < Rex::Post::Dir
   # Downloads the contents of a remote directory a
   # local directory, optionally in a recursive fashion.
   #
-  def Dir.download(dst, src, recursive = false, force = true, &stat)
+  def Dir.download(dst, src, recursive = false, force = true, glob = nil, &stat)
 
-    self.entries(src).each { |src_sub|
+    self.entries(src, glob).each { |src_sub|
       dst_item = dst + ::File::SEPARATOR + client.unicode_filter_encode(src_sub)
       src_item = src + client.fs.file.separator + client.unicode_filter_encode(src_sub)
 
@@ -209,8 +210,8 @@ class Dir < Rex::Post::Dir
       if (src_stat.file?)
         stat.call('downloading', src_item, dst_item) if (stat)
         begin
-          client.fs.file.download(dst_item, src_item)
-          stat.call('downloaded', src_item, dst_item) if (stat)
+          result = client.fs.file.download_file(dst_item, src_item)
+          stat.call(result, src_item, dst_item) if (stat)
         rescue ::Rex::Post::Meterpreter::RequestError => e
           if force
             stat.call('failed', src_item, dst_item) if (stat)
@@ -230,7 +231,7 @@ class Dir < Rex::Post::Dir
         end
 
         stat.call('mirroring', src_item, dst_item) if (stat)
-        download(dst_item, src_item, recursive, force, &stat)
+        download(dst_item, src_item, recursive, force, glob, &stat)
         stat.call('mirrored', src_item, dst_item) if (stat)
       end
     }

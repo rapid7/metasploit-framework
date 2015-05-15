@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'        => 'Java RMI Registry Interfaces Enumeration',
       'Description'    => %q{
         This module gathers information from an RMI endpoint running an RMI registry
-        interface. It enumerates the names bound into a registry and lookups each
+        interface. It enumerates the names bound in a registry and looks up each
         remote reference.
       },
       'Author'      => ['juan vazquez'],
