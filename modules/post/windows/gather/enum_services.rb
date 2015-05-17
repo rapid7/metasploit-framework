@@ -47,7 +47,9 @@ class Metasploit3 < Msf::Post
           'Columns'    => ['Name', 'Credentials', 'Command', 'Startup']
     )
 
-    if session.type == "powershell"
+    case session.type
+
+    when "powershell"
       print_good("Running the post module: #{name} on: " + session.shell_command('$env:COMPUTERNAME').gsub!(/(\r\n)/, ''))
 
       pscommand = '$services = Get-WmiObject win32_service | ?{$_} | where {($_.pathname -ne $null)} ; $servicepaths = New-Object System.Collections.ArrayList'
@@ -66,7 +68,7 @@ class Metasploit3 < Msf::Post
       pscommand = 'foreach ($service in $servicepaths) { "`n"+$service; get-acl $service | select-object -expandproperty AccessToString }'
       session.shell_command(pscommand)
 
-    elsif session.type == "meterpreter"
+    when "meterpreter"
       # set vars
       credentialCount = {}
       qcred = datastore["CRED"] || nil
