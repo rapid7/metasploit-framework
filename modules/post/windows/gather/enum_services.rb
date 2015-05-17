@@ -55,7 +55,6 @@ class Metasploit3 < Msf::Post
       pscommand = 'foreach ($service in $services) { if ($service.PathName -Match "^(.+?)\.exe") {$service.Name + " :: " + $Matches[0].Replace(\'"\',\'\') + " :: " + $service.StartName + " :: " + $service.StartMode }}'
       services = session.shell_command(pscommand)
 
-      services_details = []
       services.each_line do |line|
         linestr = line.chop
         unless linestr == ''
@@ -66,6 +65,7 @@ class Metasploit3 < Msf::Post
       session.shell_command(pscommand)
       pscommand = 'foreach ($service in $servicepaths) { "`n"+$service; get-acl $service | select-object -expandproperty AccessToString }'
       session.shell_command(pscommand)
+
     elsif session.type == "meterpreter"
       # set vars
       credentialCount = {}
