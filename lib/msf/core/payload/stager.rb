@@ -31,8 +31,16 @@ module Msf::Payload::Stager
   # Override this in stages/stagers to use specific transports
   #
   def transport_config(opts={})
-    transport_name = "transport_config_#{self.refname =~ /reverse_/ ? 'reverse' : 'bind'}" +
-      "_#{self.refname =~ /_tcp/ ? 'tcp' : 'http'}"
+    direction = self.refname =~ /reverse_/ ? 'reverse' : 'bind'
+    transport = case self.refname
+    when /_tcp/
+      'tcp'
+    when /_https/
+      'https'
+    else
+      'http'
+    end
+    transport_name = "transport_config_#{direction}_#{transport}"
     send(transport_name.to_sym,opts)
   end 
 
