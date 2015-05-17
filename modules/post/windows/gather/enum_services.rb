@@ -66,7 +66,6 @@ class Metasploit3 < Msf::Post
       session.shell_command(pscommand)
       pscommand = 'foreach ($service in $servicepaths) { "`n"+$service; get-acl $service | select-object -expandproperty AccessToString }'
       session.shell_command(pscommand)
-    
     elsif session.type == "meterpreter"
       # set vars
       credentialCount = {}
