@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
         },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
+      'SessionTypes'         => ['meterpreter','powershell'],
       'Author'               => ['Keith Faber', 'Kx499']
     ))
     register_options(
@@ -39,89 +39,110 @@ class Metasploit3 < Msf::Post
 
 
   def run
-
-    # set vars
-    credentialCount = {}
-    qcred = datastore["CRED"] || nil
-    qpath = datastore["PATH"] || nil
-
-    if datastore["TYPE"] == "All"
-      qtype = nil
-    else
-      qtype = datastore["TYPE"].downcase
-    end
-
-    if qcred
-      qcred = qcred.downcase
-      print_status("Credential Filter: #{qcred}")
-    end
-
-    if qpath
-      qpath = qpath.downcase
-      print_status("Executable Path Filter: #{qpath}")
-    end
-
-    if qtype
-      print_status("Start Type Filter: #{qtype}")
-    end
-
+    # Define the results table
     results_table = Rex::Ui::Text::Table.new(
-        'Header'     => 'Services',
-        'Indent'     => 1,
-        'SortIndex'  => 0,
-        'Columns'    => ['Name', 'Credentials', 'Command', 'Startup']
+          'Header'     => 'Services',
+          'Indent'     => 1,
+          'SortIndex'  => 0,
+          'Columns'    => ['Name', 'Credentials', 'Command', 'Startup']
     )
 
-    print_status("Listing Service Info for matching services, please wait...")
-    service_list.each do |srv|
-      srv_conf = {}
+    if session.type == "powershell"
+      print_good("Running the post module: #{name} on: " + session.shell_command('$env:COMPUTERNAME').gsub!(/(\r\n)/, ''))
 
-      # make sure we got a service name
-      if srv[:name]
-        begin
-          srv_conf = service_info(srv[:name])
-          if srv_conf[:startname]
-            # filter service based on filters passed, the are cumulative
-            if qcred && !srv_conf[:startname].downcase.include?(qcred)
-              next
-            end
+      pscommand = '$services = Get-WmiObject win32_service | ?{$_} | where {($_.pathname -ne $null)} ; $servicepaths = New-Object System.Collections.ArrayList'
+      session.shell_command(pscommand)
+      pscommand = 'foreach ($service in $services) { if ($service.PathName -Match "^(.+?)\.exe") {$service.Name + " :: " + $Matches[0].Replace(\'"\',\'\') + " :: " + $service.StartName + " :: " + $service.StartMode }}'
+      services = session.shell_command(pscommand)
 
-            if qpath && !srv_conf[:path].downcase.include?(qpath)
-              next
-            end
-
-            # There may not be a 'Startup', need to check nil
-            if qtype && !(START_TYPE[srv_conf[:starttype]] || '').downcase.include?(qtype)
-              next
-            end
-
-            # count the occurance of specific credentials services are running as
-            serviceCred = srv_conf[:startname].upcase
-            unless serviceCred.empty?
-              if credentialCount.has_key?(serviceCred)
-                credentialCount[serviceCred] += 1
-              else
-                credentialCount[serviceCred] = 1
-                # let the user know a new service account has been detected for possible lateral
-                # movement opportunities
-                print_good("New service credential detected: #{srv[:name]} is running as '#{srv_conf[:startname]}'")
-              end
-            end
-
-            results_table << [srv[:name],
-                              srv_conf[:startname],
-                              START_TYPE[srv_conf[:starttype]],
-                              srv_conf[:path]]
-          end
-
-        rescue RuntimeError => e
-          print_error("An error occurred enumerating service: #{srv[:name]}: #{e}")
+      services_details = []
+      services.each_line do |line|
+        linestr = line.chop
+        unless linestr == ''
+          results_table << [linestr.split(" :: ")[0], linestr.split(" :: ")[-2],linestr.split(" :: ")[-3],linestr.split(" :: ")[-1]]
         end
+      end
+      pscommand = 'foreach ($service in $services) { if ($service.PathName -Match "^(.+?)\.exe") {$servicepaths.Add($Matches[0].Replace(\'"\',\'\')) > $null} }'
+      session.shell_command(pscommand)
+      pscommand = 'foreach ($service in $servicepaths) { "`n"+$service; get-acl $service | select-object -expandproperty AccessToString }'
+      session.shell_command(pscommand)
+    
+    elsif session.type == "meterpreter"
+      # set vars
+      credentialCount = {}
+      qcred = datastore["CRED"] || nil
+      qpath = datastore["PATH"] || nil
+
+      if datastore["TYPE"] == "All"
+        qtype = nil
       else
-        print_error("Problem enumerating service - no service name found")
+        qtype = datastore["TYPE"].downcase
+      end
+
+      if qcred
+        qcred = qcred.downcase
+        print_status("Credential Filter: #{qcred}")
+      end
+
+      if qpath
+        qpath = qpath.downcase
+        print_status("Executable Path Filter: #{qpath}")
+      end
+
+      if qtype
+        print_status("Start Type Filter: #{qtype}")
+      end
+
+      print_status("Listing Service Info for matching services, please wait...")
+      service_list.each do |srv|
+        srv_conf = {}
+
+        # make sure we got a service name
+        if srv[:name]
+          begin
+            srv_conf = service_info(srv[:name])
+            if srv_conf[:startname]
+              # filter service based on filters passed, the are cumulative
+              if qcred && !srv_conf[:startname].downcase.include?(qcred)
+                next
+              end
+
+              if qpath && !srv_conf[:path].downcase.include?(qpath)
+                next
+              end
+
+              # There may not be a 'Startup', need to check nil
+              if qtype && !(START_TYPE[srv_conf[:starttype]] || '').downcase.include?(qtype)
+                next
+              end
+
+              # count the occurance of specific credentials services are running as
+              serviceCred = srv_conf[:startname].upcase
+              unless serviceCred.empty?
+                if credentialCount.has_key?(serviceCred)
+                  credentialCount[serviceCred] += 1
+                else
+                  credentialCount[serviceCred] = 1
+                  # let the user know a new service account has been detected for possible lateral
+                  # movement opportunities
+                  print_good("New service credential detected: #{srv[:name]} is running as '#{srv_conf[:startname]}'")
+                end
+              end
+
+              results_table << [srv[:name],
+                                srv_conf[:startname],
+                                START_TYPE[srv_conf[:starttype]],
+                                srv_conf[:path]]
+            end
+
+          rescue RuntimeError => e
+            print_error("An error occurred enumerating service: #{srv[:name]}: #{e}")
+          end
+        else
+          print_error("Problem enumerating service - no service name found")
+        end
       end
     end
-
     print_line results_table.to_s
 
     # store loot on completion of collection
