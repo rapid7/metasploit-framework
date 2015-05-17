@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/core'
 require 'msf/core/option_container'
+require 'msf/core/payload/transport_config'
 
 ###
 #
@@ -8,6 +9,8 @@ require 'msf/core/option_container'
 #
 ###
 module Msf::Payload::Stager
+
+  include Msf::Payload::TransportConfig
 
   def initialize(info={})
     super
@@ -21,6 +24,25 @@ module Msf::Payload::Stager
       ], Msf::Payload::Stager)
 
   end
+
+  #
+  # Perform attempt at detecting the appropriate transport config.
+  # Call the determined config with passed options.
+  # Override this in stages/stagers to use specific transports
+  #
+  def transport_config(opts={})
+    direction = self.refname =~ /reverse_/ ? 'reverse' : 'bind'
+    transport = case self.refname
+    when /_tcp/
+      'tcp'
+    when /_https/
+      'https'
+    else
+      'http'
+    end
+    transport_name = "transport_config_#{direction}_#{transport}"
+    send(transport_name.to_sym,opts)
+  end 
 
   #
   # Sets the payload type to a stager.
