@@ -52,6 +52,13 @@ class Console::CommandDispatcher::Stdapi::Net
     "-L" => [ true,  "The local host to listen on (optional)." ])
 
   #
+  # Options for the netstat command.
+  #
+  @@netstat_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner." ],
+    "-S" => [ true, "Search string." ])
+
+  #
   # List of supported commands.
   #
   def commands
@@ -107,6 +114,23 @@ class Console::CommandDispatcher::Stdapi::Net
   #
   def cmd_netstat(*args)
     connection_table = client.net.config.netstat
+    search_term = nil
+    @@netstat_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        else
+          search_term = /#{search_term}/nmi
+        end
+      when "-h"
+        cmd_netstat_help
+        return 0
+
+      end
+    }
     tbl = Rex::Ui::Text::Table.new(
     'Header'  => "Connection list",
     'Indent'  => 4,
@@ -119,7 +143,8 @@ class Console::CommandDispatcher::Stdapi::Net
         "User",
         "Inode",
         "PID/Program name"
-      ])
+      ],
+     'SearchTerm' => search_term)
 
     connection_table.each { |connection|
       tbl << [ connection.protocol, connection.local_addr_str, connection.remote_addr_str,
