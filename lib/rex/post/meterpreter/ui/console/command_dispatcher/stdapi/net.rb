@@ -59,6 +59,13 @@ class Console::CommandDispatcher::Stdapi::Net
     "-S" => [ true, "Search string." ])
 
   #
+  # Options for ARP command.
+  #
+  @@arp_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner." ],
+    "-S" => [ true, "Search string." ])
+
+  #
   # List of supported commands.
   #
   def commands
@@ -126,7 +133,7 @@ class Console::CommandDispatcher::Stdapi::Net
           search_term = /#{search_term}/nmi
         end
       when "-h"
-        cmd_netstat_help
+        @@netstat_opts.usage
         return 0
 
       end
@@ -163,6 +170,23 @@ class Console::CommandDispatcher::Stdapi::Net
   #
   def cmd_arp(*args)
     arp_table = client.net.config.arp_table
+    search_term = nil
+    @@arp_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        else
+          search_term = /#{search_term}/nmi
+        end
+      when "-h"
+        @@arp_opts.usage
+        return 0
+
+      end
+    }
     tbl = Rex::Ui::Text::Table.new(
     'Header'  => "ARP cache",
     'Indent'  => 4,
@@ -171,7 +195,8 @@ class Console::CommandDispatcher::Stdapi::Net
         "IP address",
         "MAC address",
         "Interface"
-      ])
+      ],
+    'SearchTerm' => search_term)
 
     arp_table.each { |arp|
       tbl << [ arp.ip_addr, arp.mac_addr, arp.interface ]
