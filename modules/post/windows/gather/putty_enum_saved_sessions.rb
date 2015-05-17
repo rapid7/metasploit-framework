@@ -43,6 +43,7 @@ class Metasploit3 < Msf::Post
             newses[key] = registry_getvaldata("HKCU\\Software\\SimonTatham\\PuTTY\\Sessions\\#{ses}", key).to_s
         end
         all_sessions << newses
+        report_note(host: target_host, type: "putty.savedsession", data: newses, update: :unique_data)
     end 
     all_sessions
   end
@@ -104,6 +105,7 @@ class Metasploit3 < Msf::Post
             all_ssh_host_keys[host_port] = [] if all_ssh_host_keys[host_port].nil?
             all_ssh_host_keys[host_port] << newkey['type']
         end
+        report_note(host: target_host, type: "putty.storedfingerprint", data: newkey, update: :unique_data)
     end 
     all_ssh_host_keys
   end
@@ -189,7 +191,7 @@ class Metasploit3 < Msf::Post
         if all_stored_keys.nil? || all_stored_keys.empty?
             print_error("No stored key fingerprints found")
         else
-    	    print_status("Unique host:port pairs are shown in the table below. All other details, including the actual fingerprint, are stored in notes. Use 'notes -t putty.storedhostfp to view'.")
+    	    print_status("Unique host:port pairs are shown in the table below. All other details, including the actual fingerprint, are stored in notes. Use 'notes -t putty.storedfingerprint to view'.")
             display_stored_host_keys_report(all_stored_keys) 
         end
     end
