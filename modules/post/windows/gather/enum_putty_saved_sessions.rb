@@ -69,7 +69,10 @@ class Metasploit3 < Msf::Post
       results_table << row
     end
 
+    print_line
     print_line results_table.to_s
+    stored_path = store_loot('putty.sessions.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Saved Sessions List")
+    print_status("PuTTY saved sessions list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.savedsession' to view).")
   end
 
   def get_stored_host_key_details(allkeys)
@@ -129,7 +132,10 @@ class Metasploit3 < Msf::Post
       results_table << row
     end
 
+    print_line
     print_line results_table.to_s
+    stored_path = store_loot('putty.storedfingerprints.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Stored SSH Host Keys List")
+    print_status("PuTTY stored host keys list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.storedfingerprint' to view).")
   end
 
   def grab_private_keys(sessions)
@@ -169,7 +175,6 @@ class Metasploit3 < Msf::Post
 	    # Retrieve the saved session details & print them to the screen in a report
 	    all_saved_sessions = get_saved_session_details(saved_sessions)
 	    display_saved_sessions_report(all_saved_sessions)
-    	print_status("Session data also stored in notes. Use 'notes -t putty.savedsessions to view'.")
 	
 	    # If the private key file has been configured, retrieve it and save it to loot
 	    print_status("Downloading private keys...")
@@ -193,7 +198,6 @@ class Metasploit3 < Msf::Post
         if all_stored_keys.nil? || all_stored_keys.empty?
             print_error("No stored key fingerprints found")
         else
-    	    print_status("Unique host:port pairs are shown in the table below. All other details, including the actual fingerprint, are stored in notes. Use 'notes -t putty.storedfingerprint to view'.")
             display_stored_host_keys_report(all_stored_keys) 
         end
     end
