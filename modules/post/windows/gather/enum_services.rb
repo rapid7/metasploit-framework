@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
       'SessionTypes'         => ['meterpreter','powershell'],
-      'Author'               => ['Keith Faber', 'Kx499']
+      'Author'               => ['Keith Faber', 'Kx499', 'benpturner']
     ))
     register_options(
       [
