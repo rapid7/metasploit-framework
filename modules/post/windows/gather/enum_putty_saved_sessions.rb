@@ -24,9 +24,10 @@ class Metasploit3 < Msf::Post
         This module will identify whether Pageant (PuTTY Agent) is running and obtain saved session
         information from the registry. PuTTY is very configurable; some users may have configured
         saved sessions which could include a username, private key file to use when authenticating,
-        host name etc.
-
-        If a private key is configured, an attempt will be made to download and store it in loot.
+        host name etc.  If a private key is configured, an attempt will be made to download and store 
+        it in loot. It will also record the SSH host keys which have been stored. These will be connections that
+        the user has previously after accepting the host SSH fingerprint and therefore are of particular
+        interest if they are within scope of a penetration test.
        },
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
