@@ -307,9 +307,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     begin
       self.machine_id = self.core.machine_id(timeout)
-      # This is causing breakages thanks to Meterpeter not doing what it should
-      # be doing with the uuid.
-      #self.payload_uuid ||= self.core.uuid(timeout)
+      self.payload_uuid ||= self.core.uuid(timeout)
 
       return true
     rescue ::Rex::Post::Meterpreter::RequestError
