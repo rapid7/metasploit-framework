@@ -86,6 +86,10 @@ class Console::CommandDispatcher::Core
       # Yet to implement transport hopping for other meterpreters.
       # Works for posix and native windows though.
       c["transport"] = "Change the current transport mechanism"
+
+      # sleep functionality relies on the transport features, so only
+      # wire that in with the transport stuff.
+      c["sleep"] = "Force Meterpreter to go quiet, then re-establish session."
     end
 
     if (msf_loaded?)
@@ -495,6 +499,45 @@ class Console::CommandDispatcher::Core
   end
 
   #
+  # Display help for the sleep.
+  #
+  def cmd_sleep_help
+    print_line('Usage: sleep <time>')
+    print_line
+    print_line('  time: Number of seconds to wait (positive integer)')
+    print_line
+    print_line('  This command tells Meterpreter to go to sleep for the specified')
+    print_line('  number of seconds. Sleeping will result in the transport being')
+    print_line('  shut down and restarted after the designated timeout.')
+  end
+
+  #
+  # Handle the sleep command.
+  #
+  def cmd_sleep(*args)
+    if args.length == 0
+      cmd_sleep_help
+      return
+    end
+
+    seconds = args.shift.to_i
+
+    if seconds <= 0
+      cmd_sleep_help
+      return
+    end
+
+    print_status("Telling the target instance to sleep for #{seconds} seconds ...")
+    if client.core.transport_sleep(seconds)
+      print_good("Target instance has gone to sleep, terminating current session.")
+      client.shutdown_passive_dispatcher
+      shell.stop
+    else
+      print_error("Target instance failed to go to sleep.")
+    end
+  end
+
+  #
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
@@ -634,8 +677,9 @@ class Console::CommandDispatcher::Core
 
       # next draw up a table of transport entries
       tbl = Rex::Ui::Text::Table.new(
-        'Indent'  => 4,
-        'Columns' => columns)
+        'SortIndex' => -1,       # disable any sorting
+        'Indent'    => 4,
+        'Columns'   => columns)
 
       first = true
       result[:transports].each do |t|

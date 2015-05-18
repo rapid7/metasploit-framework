@@ -19,6 +19,7 @@ define("TLV_TYPE_FILE_NAME",           TLV_META_TYPE_STRING  | 1201);
 define("TLV_TYPE_FILE_PATH",           TLV_META_TYPE_STRING  | 1202);
 define("TLV_TYPE_FILE_MODE",           TLV_META_TYPE_STRING  | 1203);
 define("TLV_TYPE_FILE_SIZE",           TLV_META_TYPE_UINT    | 1204);
+define("TLV_TYPE_FILE_HASH",           TLV_META_TYPE_RAW     | 1206);
 
 define("TLV_TYPE_STAT_BUF",            TLV_META_TYPE_COMPLEX | 1220);
 
@@ -533,8 +534,7 @@ function stdapi_fs_md5($req, &$pkt) {
         $md5 = md5(file_get_contents($path));
     }
     $md5 = pack("H*", $md5);
-    # Ghetto abuse of file name type to indicate the md5 result
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $md5));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_HASH, $md5));
     return ERROR_SUCCESS;
 }
 }
@@ -552,8 +552,7 @@ function stdapi_fs_sha1($req, &$pkt) {
         $sha1 = sha1(file_get_contents($path));
     }
     $sha1 = pack("H*", $sha1);
-    # Ghetto abuse of file name type to indicate the sha1 result
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $sha1));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_HASH, $sha1));
     return ERROR_SUCCESS;
 }
 }

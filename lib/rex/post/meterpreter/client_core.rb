@@ -340,6 +340,18 @@ class ClientCore < Extension
     return true
   end
 
+  def transport_sleep(seconds)
+    return false if seconds == 0
+
+    request = Packet.create_request('core_transport_sleep')
+
+    # we're reusing the comms timeout setting here instead of
+    # creating a whole new TLV value
+    request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, seconds)
+    client.send_request(request)
+    return true
+  end
+
   def transport_next
     request = Packet.create_request('core_transport_next')
     client.send_request(request)
