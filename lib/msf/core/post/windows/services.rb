@@ -38,6 +38,8 @@ module Services
   SERVICE_PAUSE_PENDING     = 6
   SERVICE_PAUSED            = 7
 
+  SERVICES = []
+
   include ::Msf::Post::Windows::Error
   include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
@@ -181,32 +183,60 @@ module Services
   # @todo Rewrite to allow operating on a remote host
   #
   def service_list
-    if load_extapi
-      return session.extapi.service.enumerate
-    else
-      serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-      a =[]
-      services = []
-      keys = registry_enumkeys(serviceskey)
-      keys.each do |s|
-        if a.length >= 10
-          a.first.join
-          a.delete_if {|x| not x.alive?}
-        end
-        t = framework.threads.spawn(self.refname+"-ServiceRegistryList",false,s) { |sk|
-          begin
-            srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
-            if srvtype == "32" or srvtype == "16"
-              services << {:name => sk }
-            end
-          rescue
+    case session.type
+    when "powershell"
+      pscommand = '$services = Get-WmiObject win32_service | ?{$_} | where {($_.pathname -ne $null)}'
+      session.shell_command(pscommand)
+      pscommand = 'foreach ($service in $services) {$service.Name+" :: "+$service.PathName+" :: "+$service.StartName+" :: "+$service.StartMode}'
+      serviceslist = session.shell_command(pscommand)
+      serviceslist.each_line do |line|
+        linestr = line.chop
+        unless linestr == ''
+          case linestr.split(" :: ")[-1]
+            when "Disabled" then startup_number  = START_TYPE_DISABLED
+            when "Boot" then startup_number     = START_TYPE_BOOT
+            when "System" then startup_number   = START_TYPE_SYSTEM
+            when "Auto" then startup_number     = START_TYPE_AUTO
+            when "Manual" then startup_number   = START_TYPE_MANUAL
           end
-        }
-        a.push(t)
+          SERVICES << {
+          :name        => linestr.split(" :: ")[0],
+          :display     => linestr.split(" :: ")[0],
+          :starttype   => startup_number,
+          :path        => linestr.split(" :: ")[-3],
+          :startname   => linestr.split(" :: ")[-2],
+          :dacl        => nil,
+          :logroup     => nil,
+          :interactive => nil    
+          }
+        end
+      end
+    when "meterpreter"
+      if load_extapi
+        return session.extapi.service.enumerate
+      else
+        serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
+        a =[]
+        keys = registry_enumkeys(serviceskey)
+        keys.each do |s|
+          if a.length >= 10
+            a.first.join
+            a.delete_if {|x| not x.alive?}
+          end
+          t = framework.threads.spawn(self.refname+"-ServiceRegistryList",false,s) { |sk|
+            begin
+              srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
+              if srvtype == "32" or srvtype == "16"
+                SERVICES << {:name => sk }
+              end
+            rescue
+            end
+          }
+          a.push(t)
+        end
       end
     end
-
-    return services
+    return SERVICES
   end
 
   #
@@ -229,23 +259,37 @@ module Services
   def service_info(name)
     service = {}
 
-    if load_extapi
-      begin
-        return session.extapi.service.query(name)
-      rescue Rex::Post::Meterpreter::RequestError => e
-        vprint_error("Request Error #{e} falling back to registry technique")
+    case session.type
+    when "powershell"
+      SERVICES.each do |srv|
+        if srv[:name] == name
+          service[:display]     = srv[:name]
+          service[:starttype]   = srv[:starttype]
+          service[:path]        = srv[:path]
+          service[:startname]   = srv[:startname]
+          service[:dacl]        = nil
+          service[:logroup]     = nil
+          service[:interactive] = nil
+        end
       end
+    when "meterpreter"  
+      if load_extapi
+        begin
+          return session.extapi.service.query(name)
+        rescue Rex::Post::Meterpreter::RequestError => e
+          vprint_error("Request Error #{e} falling back to registry technique")
+        end
+      end
+
+      servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
+      service[:display]     = registry_getvaldata(servicekey,"DisplayName").to_s
+      service[:starttype]   = registry_getvaldata(servicekey,"Start").to_i
+      service[:path]        = registry_getvaldata(servicekey,"ImagePath").to_s
+      service[:startname]   = registry_getvaldata(servicekey,"ObjectName").to_s
+      service[:dacl]        = nil
+      service[:logroup]     = nil
+      service[:interactive] = nil
     end
-
-    servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-    service[:display]     = registry_getvaldata(servicekey,"DisplayName").to_s
-    service[:starttype]   = registry_getvaldata(servicekey,"Start").to_i
-    service[:path]        = registry_getvaldata(servicekey,"ImagePath").to_s
-    service[:startname]   = registry_getvaldata(servicekey,"ObjectName").to_s
-    service[:dacl]        = nil
-    service[:logroup]     = nil
-    service[:interactive] = nil
-
     return service
   end
 
@@ -331,41 +375,48 @@ module Services
   # @return [GetLastError] 0 if the function succeeds
   #
   def service_create(name, opts, server=nil)
-    access = "SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE | SC_MANAGER_QUERY_LOCK_STATUS"
-    open_sc_manager(:host=>server, :access=>access) do |manager|
+    case session.type
+    when "powershell"
+      pscommand = "New-Service -Name #{name} -BinaryPathName #{opts[:display]} -DisplayName #{opts[:display]} -StartupType #{opts[:starttype]}"
+      response = session.shell_command(pscommand)
+      return response
+    when "meterpreter"
+      access = "SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE | SC_MANAGER_QUERY_LOCK_STATUS"
+      open_sc_manager(:host=>server, :access=>access) do |manager|
 
-      opts[:display]             ||= Rex::Text.rand_text_alpha(8)
-      opts[:desired_access]      ||= "SERVICE_START"
-      opts[:service_type]        ||= "SERVICE_WIN32_OWN_PROCESS"
-      opts[:starttype]           ||= START_TYPE_AUTO
-      opts[:error_control]       ||= "SERVICE_ERROR_IGNORE"
-      opts[:path]                ||= nil
-      opts[:logroup]             ||= nil
-      opts[:tag_id]              ||= nil
-      opts[:dependencies]        ||= nil
-      opts[:startname]           ||= nil
-      opts[:password]            ||= nil
+        opts[:display]             ||= Rex::Text.rand_text_alpha(8)
+        opts[:desired_access]      ||= "SERVICE_START"
+        opts[:service_type]        ||= "SERVICE_WIN32_OWN_PROCESS"
+        opts[:starttype]           ||= START_TYPE_AUTO
+        opts[:error_control]       ||= "SERVICE_ERROR_IGNORE"
+        opts[:path]                ||= nil
+        opts[:logroup]             ||= nil
+        opts[:tag_id]              ||= nil
+        opts[:dependencies]        ||= nil
+        opts[:startname]           ||= nil
+        opts[:password]            ||= nil
 
-      newservice = advapi32.CreateServiceA(manager,
-                                      name,
-                                      opts[:display],
-                                      opts[:desired_access],
-                                      opts[:service_type],
-                                      opts[:starttype],
-                                      opts[:error_control],
-                                      opts[:path],
-                                      opts[:logroup],
-                                      opts[:tag_id], # out
-                                      opts[:dependencies],
-                                      opts[:startname],
-                                      opts[:password]
-      )
+        newservice = advapi32.CreateServiceA(manager,
+                                        name,
+                                        opts[:display],
+                                        opts[:desired_access],
+                                        opts[:service_type],
+                                        opts[:starttype],
+                                        opts[:error_control],
+                                        opts[:path],
+                                        opts[:logroup],
+                                        opts[:tag_id], # out
+                                        opts[:dependencies],
+                                        opts[:startname],
+                                        opts[:password]
+        )
 
-      if newservice
-        close_service_handle(newservice["return"])
+        if newservice
+          close_service_handle(newservice["return"])
+        end
+
+        return newservice["GetLastError"]
       end
-
-      return newservice["GetLastError"]
     end
   end
 
@@ -382,11 +433,18 @@ module Services
   # @raise [RuntimeError] if OpenServiceA failed
   #
   def service_start(name, server=nil)
-    open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
-      open_service_handle(manager, name, "SERVICE_START") do |service_handle|
-        retval = advapi32.StartServiceA(service_handle,0,nil)
+    case session.type
+    when "powershell"
+      pscommand = "Start-Service #{name}"
+      response = session.shell_command(pscommand)
+      return response
+    when "meterpreter"
+      open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
+        open_service_handle(manager, name, "SERVICE_START") do |service_handle|
+          retval = advapi32.StartServiceA(service_handle,0,nil)
 
-        return retval["GetLastError"]
+          return retval["GetLastError"]
+        end
       end
     end
   end
@@ -402,21 +460,28 @@ module Services
   # @raise (see #service_start)
   #
   def service_stop(name, server=nil)
-    open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
-      open_service_handle(manager, name, "SERVICE_STOP") do |service_handle|
+    case session.type
+    when "powershell"
+      pscommand = "Stop-Service #{name}"
+      response = session.shell_command(pscommand)
+      return response
+    when "meterpreter"
+      open_sc_manager(:host=>server, :access=>"SC_MANAGER_CONNECT") do |manager|
+        open_service_handle(manager, name, "SERVICE_STOP") do |service_handle|
 
-        retval = advapi32.ControlService(service_handle,1,28)
-        case retval["GetLastError"]
-        when Error::SUCCESS,
-            Error::INVALID_SERVICE_CONTROL,
-            Error::SERVICE_CANNOT_ACCEPT_CTRL,
-            Error::SERVICE_NOT_ACTIVE
-          status = parse_service_status_struct(retval['lpServiceStatus'])
-        else
-          status = nil
+          retval = advapi32.ControlService(service_handle,1,28)
+          case retval["GetLastError"]
+          when Error::SUCCESS,
+              Error::INVALID_SERVICE_CONTROL,
+              Error::SERVICE_CANNOT_ACCEPT_CTRL,
+              Error::SERVICE_NOT_ACTIVE
+            status = parse_service_status_struct(retval['lpServiceStatus'])
+          else
+            status = nil
+          end
+
+          return retval["GetLastError"]
         end
-
-        return retval["GetLastError"]
       end
     end
   end
@@ -427,10 +492,17 @@ module Services
   # @param (see #service_start)
   #
   def service_delete(name, server=nil)
-    open_sc_manager(:host=>server) do |manager|
-      open_service_handle(manager, name, "DELETE") do |service_handle|
-        ret = advapi32.DeleteService(service_handle)
-        return ret["GetLastError"]
+    case session.type
+    when "powershell"
+      pscommand = "$service = Get-WmiObject -Class Win32_Service -Filter 'Name=\"#{name}\"'; $service.delete()"
+      response = session.shell_command(pscommand)
+      return response
+    when "meterpreter"
+      open_sc_manager(:host=>server) do |manager|
+        open_service_handle(manager, name, "DELETE") do |service_handle|
+          ret = advapi32.DeleteService(service_handle)
+          return ret["GetLastError"]
+        end
       end
     end
   end
@@ -446,21 +518,26 @@ module Services
   #
   #
   def service_status(name, server=nil)
-    ret = nil
+    case session.type
+    when "powershell"
+      pscommand = "$service = Get-WmiObject -Class Win32_Service -Filter 'Name=\"#{name}\"'; $service.status"
+      response = session.shell_command(pscommand)
+      return response
+    when "meterpreter"
+      ret = nil
+      open_sc_manager(:host => server, :access => "GENERIC_READ") do |manager|
+        open_service_handle(manager, name, "GENERIC_READ") do |service_handle|
+          status = advapi32.QueryServiceStatus(service_handle,28)
 
-    open_sc_manager(:host => server, :access => "GENERIC_READ") do |manager|
-      open_service_handle(manager, name, "GENERIC_READ") do |service_handle|
-        status = advapi32.QueryServiceStatus(service_handle,28)
-
-        if (status["return"] == 0)
-          raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{status["ErrorMessage"]}")
-        else
-          ret = parse_service_status_struct(status['lpServiceStatus'])
+          if (status["return"] == 0)
+            raise RuntimeError.new("Could not query service. QueryServiceStatus error: #{status["ErrorMessage"]}")
+          else
+            ret = parse_service_status_struct(status['lpServiceStatus'])
+          end
         end
       end
+      return ret
     end
-
-    return ret
   end
 
   #
@@ -476,50 +553,57 @@ module Services
   #
   #
   def service_restart(name, start_type=START_TYPE_AUTO, server=nil)
-    tried = false
+    case session.type
+    when "powershell"
+      pscommand = "Restart-Service #{name}"
+      response = session.shell_command(pscommand)
+      return response
+    when "meterpreter"
+      tried = false
 
-    begin
-      status = service_start(name, server)
+      begin
+        status = service_start(name, server)
 
-      if status == Error::SUCCESS
-        vprint_good("[#{name}] Service started")
-        return true
-      else
-        raise RuntimeError, status
-      end
-    rescue RuntimeError => s
-      if tried
-        vprint_error("[#{name}] Unhandled error: #{s}")
-        return false
-      else
-        tried = true
-      end
-
-      case s.message.to_i
-      when Error::ACCESS_DENIED
-        vprint_error("[#{name}] Access denied")
-      when Error::INVALID_HANDLE
-        vprint_error("[#{name}] Invalid handle")
-      when Error::PATH_NOT_FOUND
-        vprint_error("[#{name}] Service binary could not be found")
-      when Error::SERVICE_ALREADY_RUNNING
-        vprint_status("[#{name}] Service already running attempting to stop and restart")
-        stopped = service_stop(name, server)
-        if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
-          retry
+        if status == Error::SUCCESS
+          vprint_good("[#{name}] Service started")
+          return true
         else
-          vprint_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
+          raise RuntimeError, status
         end
-      when Error::SERVICE_DISABLED
-        vprint_status("[#{name}] Service disabled attempting to set to manual")
-        if (service_change_config(name, {:starttype => start_type}, server) == Error::SUCCESS)
-          retry
+      rescue RuntimeError => s
+        if tried
+          vprint_error("[#{name}] Unhandled error: #{s}")
+          return false
         else
-          vprint_error("[#{name}] Service disabled, unable to change start type")
+          tried = true
         end
-      else
-        vprint_error("[#{name}] Unhandled error: #{s}")
-        return false
+
+        case s.message.to_i
+        when Error::ACCESS_DENIED
+          vprint_error("[#{name}] Access denied")
+        when Error::INVALID_HANDLE
+          vprint_error("[#{name}] Invalid handle")
+        when Error::PATH_NOT_FOUND
+          vprint_error("[#{name}] Service binary could not be found")
+        when Error::SERVICE_ALREADY_RUNNING
+          vprint_status("[#{name}] Service already running attempting to stop and restart")
+          stopped = service_stop(name, server)
+          if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
+            retry
+          else
+            vprint_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")
+          end
+        when Error::SERVICE_DISABLED
+          vprint_status("[#{name}] Service disabled attempting to set to manual")
+          if (service_change_config(name, {:starttype => start_type}, server) == Error::SUCCESS)
+            retry
+          else
+            vprint_error("[#{name}] Service disabled, unable to change start type")
+          end
+        else
+          vprint_error("[#{name}] Unhandled error: #{s}")
+          return false
+        end
       end
     end
   end
