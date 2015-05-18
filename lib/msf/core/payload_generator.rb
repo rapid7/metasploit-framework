@@ -375,7 +375,7 @@ module Msf
           e.datastore.import_options_from_hash(datastore)
           encoders << e if e
         end
-        encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
+        encoders.select{ |my_encoder| my_encoder.rank != ManualRanking }.sort_by { |my_encoder| my_encoder.rank }.reverse
       else
         encoders
       end
