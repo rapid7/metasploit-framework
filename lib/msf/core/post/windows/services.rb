@@ -183,6 +183,7 @@ module Services
   # @todo Rewrite to allow operating on a remote host
   #
   def service_list
+    SERVICES.clear
     case session.type
     when "powershell"
       pscommand = '$services = Get-WmiObject win32_service | ?{$_} | where {($_.pathname -ne $null)}'
