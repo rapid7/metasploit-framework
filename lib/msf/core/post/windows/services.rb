@@ -318,22 +318,29 @@ module Services
       end
     end
 
-    if session.railgun
-      begin
-        ret = service_change_config(name, {:starttype => startup_number}, server)
-        return (ret == Error::SUCCESS)
-      rescue Rex::Post::Meterpreter::RequestError => e
-        if server
-          # Cant do remote registry changes at present
-          return false
-        else
-          vprint_error("Request Error #{e} falling back to registry technique")
+    case session.type
+    when "powershell"
+      pscommand = "Set-Service -Name #{name} -StartupType #{mode}"
+      response = session.shell_command(pscommand)
+      return response
+    when "meterpreter"
+      if session.railgun
+        begin
+          ret = service_change_config(name, {:starttype => startup_number}, server)
+          return (ret == Error::SUCCESS)
+        rescue Rex::Post::Meterpreter::RequestError => e
+          if server
+            # Cant do remote registry changes at present
+            return false
+          else
+            vprint_error("Request Error #{e} falling back to registry technique")
+          end
         end
       end
-    end
 
-    servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-    registry_setvaldata(servicekey,"Start",startup_number,"REG_DWORD")
+      servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
+      registry_setvaldata(servicekey,"Start",startup_number,"REG_DWORD")
+    end
   end
 
   #
