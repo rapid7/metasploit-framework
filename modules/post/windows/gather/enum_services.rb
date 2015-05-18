@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Post
         print_error("Problem enumerating service - no service name found")
       end
     end
-    
+
     print_line results_table.to_s
 
     # store loot on completion of collection

@@ -207,7 +207,7 @@ module Services
           :startname   => linestr.split(" :: ")[-2],
           :dacl        => nil,
           :logroup     => nil,
-          :interactive => nil    
+          :interactive => nil
           }
         end
       end
@@ -272,7 +272,7 @@ module Services
           service[:interactive] = nil
         end
       end
-    when "meterpreter"  
+    when "meterpreter"
       if load_extapi
         begin
           return session.extapi.service.query(name)
