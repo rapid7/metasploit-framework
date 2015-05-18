@@ -8,7 +8,6 @@ class Rex::Payloads::Meterpreter::Config
 
   include Msf::ReflectiveDLLLoader
 
-  UUID_SIZE = 64
   URL_SIZE = 512
   UA_SIZE = 256
   PROXY_HOST_SIZE = 128
@@ -48,7 +47,7 @@ private
   end
 
   def session_block(opts)
-    uuid = to_str(opts[:uuid].to_raw, UUID_SIZE)
+    uuid = opts[:uuid].to_raw
     exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
 
     session_data = [
