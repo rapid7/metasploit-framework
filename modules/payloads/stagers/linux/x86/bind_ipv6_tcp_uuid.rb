@@ -17,14 +17,14 @@ module Metasploit4
   include Msf::Payload::Linux::BindTcp
 
   def self.handler_type_alias
-    'bind_ipv6_tcp'
+    'bind_ipv6_tcp_uuid'
   end
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Bind IPv6 TCP Stager (Linux x86)',
-      'Description'   => 'Listen for an IPv6 connection (Linux x86)',
-      'Author'        => [ 'kris katterjohn', 'egypt' ],
+      'Name'          => 'Bind IPv6 TCP Stager with UUID support (Linux x86)',
+      'Description'   => 'Listen for an IPv6 connection with UUID support (Linux x86)',
+      'Author'        => [ 'kris katterjohn', 'egypt', 'OJ Reeves' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,
@@ -35,6 +35,10 @@ module Metasploit4
   end
 
   def use_ipv6
+    true
+  end
+
+  def include_send_uuid
     true
   end
 
