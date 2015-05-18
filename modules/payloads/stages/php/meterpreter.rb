@@ -40,7 +40,7 @@ module Metasploit4
     met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
 
     met.gsub!(/#.*?$/, '')
-    met = Rex::Text.compress(met)
+    #met = Rex::Text.compress(met)
     met
   end
 end
