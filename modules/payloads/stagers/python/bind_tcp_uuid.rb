@@ -10,9 +10,9 @@ require 'msf/core/payload/python/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module Metasploit4
 
-  CachedSize = 374
+  CachedSize = 474
 
   include Msf::Payload::Stager
   include Msf::Payload::Python
