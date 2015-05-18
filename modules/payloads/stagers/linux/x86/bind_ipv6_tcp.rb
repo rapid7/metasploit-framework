@@ -11,7 +11,7 @@ require 'msf/core/payload/linux/bind_tcp'
 
 module Metasploit4
 
-  CachedSize = 110
+  CachedSize = 120
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux::BindTcp

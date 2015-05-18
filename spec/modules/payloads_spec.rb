@@ -1331,6 +1331,17 @@ describe 'modules/payloads', :content do
                           reference_name: 'linux/x86/meterpreter/bind_ipv6_tcp'
   end
 
+  context 'linux/x86/meterpreter/bind_ipv6_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/linux/x86/bind_ipv6_tcp_uuid',
+                              'stages/linux/x86/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/meterpreter/bind_ipv6_tcp_uuid'
+  end
+
   context 'linux/x86/meterpreter/bind_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
