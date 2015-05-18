@@ -30,6 +30,8 @@ module Payload::Linux::SendUUID
 
     asm =%Q^
       send_uuid:
+        push ebx                      ; store ebx for later
+        push ecx                      ; store ecx for later
         push 0                        ; terminate the args array
         push #{uuid_raw.length}       ; length of the UUID
         call get_uuid_address         ; put uuid buffer on tehe stack
@@ -42,6 +44,9 @@ module Payload::Linux::SendUUID
         push 0x66                     ; sys_socketcall
         pop eax
         int 0x80
+        add esp, 16                   ; put the stack back how it was
+        pop ecx                       ; restore ecx
+        pop ebx                       ; restore ebx
     ^
 
     asm

