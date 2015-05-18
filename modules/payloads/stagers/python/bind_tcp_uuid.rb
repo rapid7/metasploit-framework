@@ -18,17 +18,26 @@ module Metasploit3
   include Msf::Payload::Python
   include Msf::Payload::Python::BindTcp
 
+  def self.handler_type_alias
+    'bind_tcp_uuid'
+  end
+
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Python Bind TCP Stager',
-      'Description' => 'Listen for a connection',
-      'Author'      => 'Spencer McIntyre',
+      'Name'        => 'Python Bind TCP Stager with UUID support',
+      'Description' => 'Listen for a connection with UUID support',
+      'Author'      => 'OJ Reeves',
       'License'     => MSF_LICENSE,
       'Platform'    => 'python',
       'Arch'        => ARCH_PYTHON,
       'Handler'     => Msf::Handler::BindTcp,
       'Stager'      => {'Payload' => ""}
     ))
+  end
+
+  # Tell the reverse_tcp payload to include the UUID
+  def include_send_uuid
+    true
   end
 
 end

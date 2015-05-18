@@ -37,7 +37,7 @@ module Metasploit3
       )
     end
 
-    bytes = uuid.to_raw.map { |c| '\x%.2x' % c }.join('')
+    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
     met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
 
     #met.gsub!(/#.*?$/, '')

