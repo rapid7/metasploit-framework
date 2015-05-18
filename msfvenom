@@ -133,6 +133,10 @@ require 'msf/core/payload_generator'
       opts[:var_name] = x
     end
 
+    opt.on('--smallest', 'Generate the smallest possible payload') do
+      opts[:smallest] = true
+    end
+
     opt.on_tail('-h', '--help', 'Show this message') do
       raise UsageError, "#{opt}"
     end
