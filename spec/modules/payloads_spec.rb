@@ -2044,6 +2044,17 @@ describe 'modules/payloads', :content do
                           reference_name: 'php/meterpreter/bind_tcp'
   end
 
+  context 'php/meterpreter/bind_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/php/bind_tcp_uuid',
+                              'stages/php/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'php/meterpreter/bind_tcp_uuid'
+  end
+
   context 'php/meterpreter/bind_tcp_ipv6' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2055,6 +2066,17 @@ describe 'modules/payloads', :content do
                           reference_name: 'php/meterpreter/bind_tcp_ipv6'
   end
 
+  context 'php/meterpreter/bind_tcp_ipv6_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/php/bind_tcp_ipv6_uuid',
+                              'stages/php/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'php/meterpreter/bind_tcp_ipv6_uuid'
+  end
+
   context 'php/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2064,6 +2086,17 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter/reverse_tcp'
+  end
+
+  context 'php/meterpreter/reverse_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/php/reverse_tcp_uuid',
+                              'stages/php/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'php/meterpreter/reverse_tcp_uuid'
   end
 
   context 'php/meterpreter_reverse_tcp' do
