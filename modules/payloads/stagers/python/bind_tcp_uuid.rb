@@ -24,8 +24,8 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Python Bind TCP Stager with UUID support',
-      'Description' => 'Listen for a connection with UUID support',
+      'Name'        => 'Python Bind TCP Stager with UUID Support',
+      'Description' => 'Listen for a connection with UUID Support',
       'Author'      => 'OJ Reeves',
       'License'     => MSF_LICENSE,
       'Platform'    => 'python',

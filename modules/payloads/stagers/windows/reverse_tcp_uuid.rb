@@ -21,8 +21,8 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Reverse TCP Stager with UUID support',
-      'Description' => 'Connect back to the attacker, send UUID first',
+      'Name'        => 'Reverse TCP Stager with UUID Support',
+      'Description' => 'Connect back to the attacker with UUID Support',
       'Author'      => ['OJ Reeves'],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',

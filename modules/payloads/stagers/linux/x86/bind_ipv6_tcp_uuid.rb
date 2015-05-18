@@ -20,8 +20,8 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Bind IPv6 TCP Stager with UUID support (Linux x86)',
-      'Description' => 'Listen for an IPv6 connection with UUID support (Linux x86)',
+      'Name'        => 'Bind IPv6 TCP Stager with UUID Support (Linux x86)',
+      'Description' => 'Listen for an IPv6 connection with UUID Support (Linux x86)',
       'Author'      => [ 'kris katterjohn', 'egypt', 'OJ Reeves' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'linux',

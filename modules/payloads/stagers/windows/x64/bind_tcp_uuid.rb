@@ -20,8 +20,8 @@ module Metasploit4
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Windows x64 Bind TCP Stager, sending UUID',
-      'Description' => 'Listen for a connection, send UUID (Windows x64)',
+      'Name'        => 'Bind TCP Stager with UUID Support (Windows x64)',
+      'Description' => 'Listen for a connection with UUID Support (Windows x64)',
       'Author'      => [ 'sf' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
