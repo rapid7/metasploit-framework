@@ -578,7 +578,7 @@ class Msf::Modules::Loader::Base
     raise ::NotImplementedError
   end
 
-  # Restores the namespace module to it's original name under it's original parent Module if there was a previous
+  # Restores the namespace module to its original name under its original parent Module if there was a previous
   # namespace module.
   #
   # @param [Module] parent_module The .parent of namespace_module before it was removed from the constant tree.

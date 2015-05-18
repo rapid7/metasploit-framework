@@ -255,9 +255,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def kill
     begin
       cleanup_meterpreter
-      self.sock.close
+      self.sock.close if self.sock
     rescue ::Exception
     end
+    # deregister will actually trigger another cleanup
     framework.sessions.deregister(self)
   end
 
@@ -299,6 +300,26 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   #
+  # Validate session information by checking for a machine_id response
+  #
+  def is_valid_session?(timeout=10)
+    return true if self.machine_id
+
+    begin
+      self.machine_id = self.core.machine_id(timeout)
+      self.payload_uuid ||= self.core.uuid(timeout)
+
+      return true
+    rescue ::Rex::Post::Meterpreter::RequestError
+      # This meterpreter doesn't support core_machine_id
+      return true
+    rescue ::Exception => e
+      dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
+    end
+    false
+  end
+
+  #
   # Populate the session information.
   #
   # Also reports a session_fingerprint note for host os normalization.
@@ -307,8 +328,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     begin
       ::Timeout.timeout(60) do
         # Gather username/system information
-        username  = self.sys.config.getuid
-        sysinfo   = self.sys.config.sysinfo
+        username = self.sys.config.getuid
+        sysinfo  = self.sys.config.sysinfo
 
         safe_info = "#{username} @ #{sysinfo['Computer']}"
         safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
@@ -323,9 +344,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         nhost = find_internet_connected_address
 
         original_session_host = self.session_host
-        # If we found a better IP address for this session, change it up
-        # only handle cases where the DB is not connected here
-        if !(framework.db && framework.db.active)
+        # If we found a better IP address for this session, change it
+        # up.  Only handle cases where the DB is not connected here
+        if nhost && !(framework.db && framework.db.active)
           self.session_host = nhost
         end
 
@@ -448,6 +469,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   attr_accessor :binary_suffix
   attr_accessor :console # :nodoc:
   attr_accessor :skip_ssl
+  attr_accessor :skip_cleanup
   attr_accessor :target_id
 
 protected
@@ -461,6 +483,8 @@ protected
   # @see Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_routes
   # @return [String] The address from which this host reaches the
   #   internet, as ASCII. e.g.: "192.168.100.156"
+  # @return [nil] If there is an interface with an address that matches
+  #   {#session_host}
   def find_internet_connected_address
 
     ifaces = self.net.config.get_interfaces().flatten rescue []
@@ -497,7 +521,9 @@ protected
       end
 
       if !nhost
-        # Find the first non-loopback address
+        # No internal address matches what we see externally and no
+        # interface has a default route. Fall back to the first
+        # non-loopback address
         non_loopback = ifaces.find { |i| i.ip != "127.0.0.1" && i.ip != "::1" }
         if non_loopback
           nhost = non_loopback.ip

@@ -276,6 +276,36 @@ describe 'modules/payloads', :content do
                           reference_name: 'bsd/x86/shell_reverse_tcp_ipv6'
   end
 
+  context 'bsd/x64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/bsd/x64/exec'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'bsd/x64/exec'
+  end
+
+  context 'bsd/x64/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/bsd/x64/shell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'bsd/x64/shell_bind_tcp'
+  end
+
+  context 'bsd/x64/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/bsd/x64/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'bsd/x64/shell_reverse_tcp'
+  end
+
   context 'bsdi/x86/shell/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -726,6 +756,26 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/generic'
+  end
+
+  context 'cmd/windows/powershell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/windows/powershell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/windows/powershell_bind_tcp'
+  end
+
+  context 'cmd/windows/powershell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/windows/powershell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/windows/powershell_reverse_tcp'
   end
 
   context 'cmd/windows/reverse_lua' do
@@ -2045,6 +2095,17 @@ describe 'modules/payloads', :content do
                           reference_name: 'python/meterpreter/reverse_http'
   end
 
+  context 'python/meterpreter/reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/python/reverse_https',
+                            'stages/python/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'python/meterpreter/reverse_https'
+  end
+
   context 'python/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2437,9 +2498,19 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_bind_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_bind_tcp'
+  end
+
+  context 'windows/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter_reverse_http'
   end
 
   context 'windows/meterpreter_reverse_https' do
@@ -2447,7 +2518,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_https'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_https'
   end
@@ -2457,7 +2528,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_ipv6_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_ipv6_tcp'
   end
@@ -2467,7 +2538,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_tcp'
   end
@@ -3508,6 +3579,56 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/meterpreter/reverse_tcp'
   end
 
+  context 'windows/x64/meterpreter_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/meterpreter_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter_bind_tcp'
+  end
+
+  context 'windows/x64/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter_reverse_http'
+  end
+
+  context 'windows/x64/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter_reverse_https'
+  end
+
+  context 'windows/x64/meterpreter_reverse_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/meterpreter_reverse_ipv6_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter_reverse_ipv6_tcp'
+  end
+
+  context 'windows/x64/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/meterpreter_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter_reverse_tcp'
+  end
+
   context 'windows/x64/shell/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3691,6 +3812,26 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/patchupmeterpreter/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/powershell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/powershell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/powershell_bind_tcp'
+  end
+
+  context 'windows/powershell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/powershell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/powershell_reverse_tcp'
   end
 
   context 'windows/shell/bind_hidden_ipknock_tcp' do

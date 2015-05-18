@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         This module scans NFS mounts and their permissions.
       },
       'Author'	       => ['<tebo[at]attackresearch.com>'],
-      'References'	 =>
+      'References'     =>
         [
           ['CVE', '1999-0170'],
           ['URL',	'http://www.ietf.org/rfc/rfc1094.txt']
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       resp = sunrpc_call(procedure, "")
 
       # XXX: Assume that transport is udp and port is 2049
-      #      Technically we are talking to mountd not nfsd
+      # Technically we are talking to mountd not nfsd
 
       report_service(
         :host  => ip,

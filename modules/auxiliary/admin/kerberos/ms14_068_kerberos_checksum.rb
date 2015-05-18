@@ -13,7 +13,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'MS14-068 Microsfot Kerberos Checksum Validation Vulnerability',
+      'Name' => 'MS14-068 Microsoft Kerberos Checksum Validation Vulnerability',
       'Description' => %q{
         This module exploits a vulnerability in the Microsoft Kerberos implementation. The problem
         exists in the verification of the Privilege Attribute Certificate (PAC) from a Kerberos TGS

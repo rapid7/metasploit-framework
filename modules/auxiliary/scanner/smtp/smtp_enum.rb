@@ -30,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
       ],
         'Author'      =>
       [
-        '==[ Alligator Security Team ]==',
         'Heyder Andrade <heyder[at]alligatorteam.org>',
         'nebulus'
       ],

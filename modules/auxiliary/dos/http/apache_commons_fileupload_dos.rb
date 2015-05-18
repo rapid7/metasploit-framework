@@ -58,8 +58,8 @@ class Metasploit4 < Msf::Auxiliary
     }
 
     # XXX: There is rarely, if ever, a need for a 'for' loop in Ruby
-    #      This should be rewritten with 1.upto() or Enumerable#each or
-    #      something
+    # This should be rewritten with 1.upto() or Enumerable#each or
+    # something
     for x in 1..datastore['RLIMIT']
       print_status("Sending request #{x} to #{peer}")
       begin

@@ -331,7 +331,6 @@ protected
     begin
       client.sys.config.getprivs()
       root_key, base_key = session.sys.registry.splitkey(key)
-      #print_debug("Loading file #{file}")
       begin
         loadres = session.sys.registry.load_key(root_key, base_key, file)
       rescue Rex::Post::Meterpreter::RequestError => e
@@ -346,10 +345,9 @@ protected
           #print_error("The file you specified is currently locked by another process: #{file}")
           return false
         when /stdapi_registry_load_key: Operation failed:/
-          #print_error("An unknown error has occured: #{loadres.to_s}")
+          #print_error("An unknown error has occurred: #{loadres.to_s}")
           return false
         else
-          #print_debug("Registry Hive Loaded Successfully: #{key}")
           return true
         end
       end
@@ -374,10 +372,9 @@ protected
           #print_error("The KEY you provided does not appear to match a loaded Registry Hive: #{key}")
           return false
         when /stdapi_registry_unload_key: Operation failed:/
-          #print_error("An unknown error has occured: #{unloadres.to_s}")
+          #print_error("An unknown error has occurred: #{unloadres.to_s}")
           return false
         else
-          #print_debug("Registry Hive Unloaded Successfully: #{key}")
           return true
         end
       end

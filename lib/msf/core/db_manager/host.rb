@@ -96,8 +96,7 @@ module Msf::DBManager::Host
       norm_host = host.host
     elsif host.respond_to?(:session_host)
       # Then it's an Msf::Session object
-      thost = host.session_host
-      norm_host = thost
+      norm_host = host.session_host
     end
 
     # If we got here and don't have a norm_host yet, it could be a
@@ -158,8 +157,6 @@ module Msf::DBManager::Host
 
     if not addr.kind_of? ::Mdm::Host
       addr = normalize_host(addr)
-      addr, scope = addr.split('%', 2)
-      opts[:scope] = scope if scope
 
       unless ipv46_validator(addr)
         raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"

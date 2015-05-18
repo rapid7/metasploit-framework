@@ -7,7 +7,7 @@ module Msf::HTTP::JBoss::DeploymentFileRepositoryScripts
   # to overcome the size limit in those requests
   #
   # @param stager_base [String] The name of the base of the stager.
-  # @param stager_jsp [String] The name name of the jsp stager.
+  # @param stager_jsp_name [String] The name name of the jsp stager.
   # @return [String] The JSP head stager.
   def head_stager_jsp(stager_base, stager_jsp_name)
     content_var = Rex::Text.rand_text_alpha(8+rand(8))

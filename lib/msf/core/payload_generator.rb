@@ -23,7 +23,7 @@ module Msf
   class PayloadGenerator
 
     # @!attribute  add_code
-    #   @return [String] The path to a shellcode file to execute in a seperate thread
+    #   @return [String] The path to a shellcode file to execute in a separate thread
     attr_accessor :add_code
     # @!attribute  arch
     #   @return [String] The CPU architecture to build the payload for
@@ -117,10 +117,10 @@ module Msf
     end
 
     # This method takes the shellcode generated so far and adds shellcode from
-    # a supplied file. The added shellcode is executed in a seperate thread
+    # a supplied file. The added shellcode is executed in a separate thread
     # from the main payload.
     # @param shellcode [String] The shellcode to add to
-    # @return [String] the combined shellcode which executes the added code in a seperate thread
+    # @return [String] the combined shellcode which executes the added code in a separate thread
     def add_shellcode(shellcode)
       if add_code.present? and platform_list.platforms.include? Msf::Module::Platform::Windows and arch == "x86"
         cli_print "Adding shellcode from #{add_code} to the payload"
@@ -144,8 +144,10 @@ module Msf
       if arch.blank?
         @arch = mod.arch.first
         cli_print "No Arch selected, selecting Arch: #{arch} from the payload"
+        datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return mod.arch.first
       elsif mod.arch.include? arch
+        datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return arch
       else
         return nil
@@ -157,7 +159,10 @@ module Msf
     # @param mod [Msf::Payload] The module class to choose a platform for
     # @return [Msf::Module::PlatformList] The selected platform list
     def choose_platform(mod)
+      # By default, platform_list will at least return Msf::Module::Platform
+      # if there is absolutely no pre-configured platform info at all
       chosen_platform = platform_list
+
       if chosen_platform.platforms.empty?
         chosen_platform = mod.platform
         cli_print "No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
@@ -165,6 +170,17 @@ module Msf
       elsif (chosen_platform & mod.platform).empty?
         chosen_platform = Msf::Module::PlatformList.new
       end
+
+      begin
+        platform_object = Msf::Module::Platform.find_platform(platform)
+      rescue ArgumentError
+        platform_object = nil
+      end
+
+      if mod.kind_of?(Msf::Payload::Generic) && mod.send(:module_info)['Platform'].empty? && platform_object
+        datastore['PLATFORM'] = platform
+      end
+
       chosen_platform
     end
 
@@ -260,12 +276,15 @@ module Msf
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
       if platform == "java" or arch == "java" or payload.start_with? "java/"
-        generate_java_payload
+        p = generate_java_payload
+        cli_print "Payload size: #{p.length} bytes"
+        p
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
         encoded_payload = encode_payload(raw_payload)
         encoded_payload = prepend_nops(encoded_payload)
+        cli_print "Payload size: #{encoded_payload.length} bytes"
         format_payload(encoded_payload)
       end
     end
@@ -314,7 +333,7 @@ module Msf
     def get_encoders
       encoders = []
       if encoder.present?
-        # Allow comma seperated list of encoders so users can choose several
+        # Allow comma separated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
           e = framework.encoders.create(chosen_encoder)
           e.datastore.import_options_from_hash(datastore)

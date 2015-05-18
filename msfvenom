@@ -28,7 +28,7 @@ require 'msf/core/payload_generator'
 
   # Creates a new framework object.
   #
-  # @note Ignores any previously cached value
+  # @note Ignores any previously cached value.
   # @param (see ::Msf::Simple::Framework.create)
   # @return [Msf::Framework]
   def init_framework(create_opts={})
@@ -66,7 +66,7 @@ require 'msf/core/payload_generator'
       end
     end
 
-    opt.on('-l', '--list       [module_type]', Array, 'List a module type example: payloads, encoders, nops, all') do |l|
+    opt.on('-l', '--list       [module_type]', Array, 'List a module type. Options are: payloads, encoders, nops, all') do |l|
       if l.nil? or l.empty?
         l = ["all"]
       end

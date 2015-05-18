@@ -30,9 +30,10 @@ arguments = Rex::Parser::Arguments.new(
   "-U" => [ true,  "Specify the username to access msfrpcd"               ],
   "-P" => [ true,  "Specify the password to access msfrpcd"               ],
   "-u" => [ true,  "URI for Web server"                                   ],
-  "-S" => [ false, "Disable SSL on the RPC socket"                     ],
+  "-t" => [ true,  "Token Timeout (default 300 seconds"                   ],
+  "-S" => [ false, "Disable SSL on the RPC socket"                        ],
   "-f" => [ false, "Run the daemon in the foreground"                     ],
-  "-n" => [ false, "Disable database"                     ],
+  "-n" => [ false, "Disable database"                                     ],
   "-h" => [ false, "Help banner"                                          ])
 
 opts = {
@@ -40,7 +41,8 @@ opts = {
   'SSL'             => true,
   'ServerHost'      => '0.0.0.0',
   'ServerPort'      => 55553,
-  'ServerType'      => 'Msg'
+  'ServerType'      => 'Msg',
+  'TokenTimeout'    => 300,
 }
 
 foreground = false
@@ -60,6 +62,8 @@ arguments.parse(ARGV) { |opt, idx, val|
       opts['User'] = val
     when '-P'
       opts['Pass'] = val
+    when "-t"
+      opts['TokenTimeout'] = val.to_i
     when "-f"
       foreground = true
     when "-u"

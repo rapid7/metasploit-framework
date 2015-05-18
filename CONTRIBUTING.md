@@ -4,8 +4,8 @@ Thanks for your interest in making Metasploit -- and therefore, the
 world -- a better place!
 
 Are you about to report a bug? Sorry to hear it. Here's our [Issue tracker].
-Please try to be as specific as you can about your problem, include steps
-to reproduce (cut and paste from your console output if it's helpful), and
+Please try to be as specific as you can about your problem; include steps
+to reproduce (cut and paste from your console output if it's helpful) and
 what you were expecting to happen.
 
 Are you about to report a security vulnerability in Metasploit itself?
@@ -18,7 +18,7 @@ Metasploit module? If so, read on...
 
 # Contributing to Metasploit
 
-What you see here in CONTRIBUTING.md is a bullet-point list of the do's
+What you see here in CONTRIBUTING.md is a bullet point list of the do's
 and don'ts of how to make sure *your* valuable contributions actually
 make it into Metasploit's master branch.
 
@@ -27,7 +27,7 @@ closed. Sorry!
 
 This is intended to be a **short** list. The [wiki] is much more
 exhaustive and reveals many mysteries. If you read nothing else, take a
-look at the standard [development environment setup] guide,
+look at the standard [development environment setup] guide
 and Metasploit's [Common Coding Mistakes].
 
 ## Code Contributions
@@ -52,7 +52,7 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
 #### New Modules
 
 * **Do** run `tools/msftidy.rb` against your module and fix any errors or warnings that come up.
-  - Even better would be to set up `msftidy.rb` as a [pre-commit hook].
+  - It would be even better to set up `msftidy.rb` as a [pre-commit hook].
 * **Do** use the many module mixin [API]s. Wheel improvements are welcome; wheel reinventions, not so much.
 * **Don't** include more than one module per pull request.
 
@@ -80,11 +80,11 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
 * **Do** report vulnerabilities in Rapid7 software directly to security@rapid7.com.
 * **Do** write a detailed description of your bug and use a descriptive title.
 * **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
-* **Don't** file duplicate reports - search for your bug before filing a new report.
+* **Don't** file duplicate reports; search for your bug before filing a new report.
 
 If you need some more guidance, talk to the main body of open
-source contributors over on the [Freenode IRC channel]
-or e-mail us at [metasploit-hackers] mailing list.
+source contributors over on the [Freenode IRC channel],
+or e-mail us at the [metasploit-hackers] mailing list.
 
 Also, **thank you** for taking the few moments to read this far! You're
 already way ahead of the curve, so keep it up!
@@ -92,7 +92,7 @@ already way ahead of the curve, so keep it up!
 [Issue Tracker]:http://r-7.co/MSF-BUGv1
 [PGP key]:http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2380F85B8AD4DB8D
 [wiki]:https://github.com/rapid7/metasploit-framework/wiki
-[scripts]: https://github.com/rapid7/metasploit-framework/tree/master/scripts
+[scripts]:https://github.com/rapid7/metasploit-framework/tree/master/scripts
 [development environment setup]:http://r-7.co/MSF-DEV
 [Common Coding Mistakes]:https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes
 [Ruby style guide]:https://github.com/bbatsov/ruby-style-guide
@@ -104,10 +104,10 @@ already way ahead of the curve, so keep it up!
 [PR#2940]:https://github.com/rapid7/metasploit-framework/pull/2940
 [PR#3043]:https://github.com/rapid7/metasploit-framework/pull/3043
 [pre-commit hook]:https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb
-[API]:https://rapid7.github.io/metasploit-framework/api/
-[RSpec]:http://rspec.info/
-[Better Specs]:http://betterspecs.org/
-[YARD]:http://yardoc.org/
+[API]:https://rapid7.github.io/metasploit-framework/api
+[RSpec]:http://rspec.info
+[Better Specs]:http://betterspecs.org
+[YARD]:http://yardoc.org
 [Issues]:https://github.com/rapid7/metasploit-framework/issues
 [Freenode IRC channel]:http://webchat.freenode.net/?channels=%23metasploit&uio=d4
 [metasploit-hackers]:https://lists.sourceforge.net/lists/listinfo/metasploit-hackers
