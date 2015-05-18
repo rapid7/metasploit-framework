@@ -172,6 +172,5 @@ class Metasploit3 < Msf::Post
     password.gsub!(/[^[:print:]]/,'')
     return password
   end
-
-
 end
+
