@@ -12,7 +12,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit4
 
-  CachedSize = 374
+  CachedSize = 386
 
   include Msf::Payload::Stager
   include Msf::Payload::Python

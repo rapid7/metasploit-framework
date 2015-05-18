@@ -14,7 +14,6 @@ module Metasploit4
   CachedSize = 342
 
   include Msf::Payload::Stager
-  include Msf::Payload::Python
   include Msf::Payload::Python::ReverseTcp
 
   def initialize(info = {})

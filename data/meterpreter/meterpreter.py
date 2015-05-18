@@ -577,6 +577,14 @@ class PythonMeterpreter(object):
 		return ERROR_SUCCESS, response
 
 	def _core_machine_id(self, request, response):
+		def get_hdd_label():
+			for _, _, files in os.walk('/dev/disk/by-id/'):
+				for f in files:
+					for p in ['ata-', 'mb-']:
+						if f[:len(p)] == p:
+							return f[len(p):]
+			return ""
+
 		serial = ''
 		machine_name = platform.uname()[1]
 		if has_windll:
@@ -598,12 +606,8 @@ class PythonMeterpreter(object):
 			serial_num = serial_num.value
 			serial = "{0:04x}-{1:04x}".format((serial_num >> 16) & 0xFFFF, serial_num & 0xFFFF)
 		else:
-			for _, _, files in os.walk('/dev/disk/by-id/'):
-				for f in files:
-					for p in ['ata-', 'mb-']:
-						if f[:len(p)] == p:
-							serial = f[len(p):]
-							break
+			serial = get_hdd_label()
+
 		response += tlv_pack(TLV_TYPE_MACHINE_ID, "%s:%s" % (serial, machine_name))
 		return ERROR_SUCCESS, response
 

