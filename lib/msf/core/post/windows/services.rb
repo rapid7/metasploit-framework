@@ -261,6 +261,9 @@ module Services
 
     case session.type
     when "powershell"
+      if SERVICES.empty?
+        service_list
+      end
       SERVICES.each do |srv|
         if srv[:name] == name
           service[:display]     = srv[:name]
