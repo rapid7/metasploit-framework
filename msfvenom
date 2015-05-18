@@ -97,6 +97,10 @@ require 'msf/core/payload_generator'
       opts[:space] = s
     end
 
+    opt.on('--encoder-space      <length>', Integer, 'The maximum size of the encoded payload (defaults to the -s value)') do |s|
+      opts[:encoder_space] = s
+    end
+
     opt.on('-b', '--bad-chars  <list>', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
       opts[:badchars] = Rex::Text.hex_to_raw(b)
     end
