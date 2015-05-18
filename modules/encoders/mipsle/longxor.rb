@@ -35,8 +35,8 @@ class Metasploit3 < Msf::Encoder::Xor
 
     # add one xor operation for the key (see comment below)
     number_of_passes=state.buf.length/4+1
-    raise InvalidPayloadSizeException.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 10240
-    raise InvalidPayloadSizeException.new("The payload is not padded to 4-bytes (#{state.buf.length} bytes)") if state.buf.length%4 != 0
+    raise EncodingError.new("The payload being encoded is too long (#{state.buf.length} bytes)") if number_of_passes > 10240
+    raise EncodingError.new("The payload is not padded to 4-bytes (#{state.buf.length} bytes)") if state.buf.length%4 != 0
 
     # 16-bits not (again, see below)
     reg_14 = (number_of_passes+1)^0xFFFF
