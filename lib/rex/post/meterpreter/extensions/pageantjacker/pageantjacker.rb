@@ -45,8 +45,8 @@ class Pageantjacker < Extension
         returned_blob = response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_RETURNEDBLOB)
         error = response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_ERRORMESSAGE)
 
-        puts "Response success: #{response_success}, Response error #{error}"
-        parse_blob(returned_blob)
+#        puts "Response success: #{response_success}, Response error #{error}"
+#        parse_blob(returned_blob)
 
         if response_success
 #            puts "Received successful response: #{returned_blob.size}"
@@ -61,17 +61,17 @@ class Pageantjacker < Extension
         return nil
   end
 
-  def parse_blob(blob)
-    b = blob.unpack('NCH*')
-    puts " blob size #{blob.size}"
-    puts " blob data (20 chars: #{blob.unpack('H20').first}"
-    puts "   ssh packet size: #{b[0]}"
-    puts "   ssh type: #{b[1]}"
-    puts "   ssh data: #{b[2]}"
-  end
+#  def parse_blob(blob)
+#    b = blob.unpack('NCH*')
+#    puts " blob size #{blob.size}"
+#    puts " blob data (20 chars: #{blob.unpack('H20').first}"
+#    puts "   ssh packet size: #{b[0]}"
+#    puts "   ssh type: #{b[1]}"
+#    puts "   ssh data: #{b[2]}"
+#  end
 
-  def stop_listening
-  end
+#  def stop_listening
+#  end
 
 end
 

