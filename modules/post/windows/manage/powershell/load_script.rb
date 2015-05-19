@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
     if (encoded_expression.size > 14999)
       print_error("Compressed size: #{encoded_expression.size} This script requres a stager")
       arr = encoded_expression.chars.each_slice(14999).map(&:join)
-      print_good("Loaded " + arr.count.to_s + " chunks into stager")
+      print_good("Loading " + arr.count.to_s + " chunks into the stager.")
       vararray = []
 
       arr.each_with_index do |slice, index|
