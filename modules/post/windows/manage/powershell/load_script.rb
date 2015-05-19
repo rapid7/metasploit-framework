@@ -47,15 +47,17 @@ class Metasploit3 < Msf::Post
     # Base64 encode the unicode expression
     encoded_expression = Rex::Text.encode_base64(unicode_expression)
     # If the encoded script size is > 50000 bytes, launch a stager
-    if (encoded_expression.size > 50000)
+    if (encoded_expression.size > 9999)
       print_error("Compressed size: #{encoded_expression.size} This script requres a stager")
       error_msg =  "Compressed size may cause command to exceed "
-      arr = encoded_expression.chars.each_slice(50000).map(&:join)
+      arr = encoded_expression.chars.each_slice(9999).map(&:join)
+      print_good("Loaded " + arr.count.to_s + " chunks into stager")
       vararray = []
 
       for slice in arr 
         variable = Rex::Text.rand_text_alpha(8)
         vararray << variable
+        print_good("Loaded 1")
         session.shell_command("$#{variable} = \"#{slice}\"")
       end
       linkvars = ''
@@ -64,8 +66,6 @@ class Metasploit3 < Msf::Post
       end
       linkvars.slice!(0..2)
       session.shell_command("$script = #{linkvars}")
-      print_good("Loaded " + vararray.count.to_s + " chunks into stager")
-      session.shell_command("$script")
     else
       print_good("Compressed size: #{encoded_expression.size}")
       session.shell_command("$script = \"#{encoded_expression}\"")
