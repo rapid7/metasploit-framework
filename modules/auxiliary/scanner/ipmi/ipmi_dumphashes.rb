@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Write the rakp hash to the database
       hash = "#{rhost} #{username}:$rakp$#{sha1_salt}$#{sha1_hash}"
-      report_hash(user, hash)
+      report_hash(username, hash)
       # Write the vulnerability to the database
       unless reported_vuln
         report_vuln(
