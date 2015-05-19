@@ -87,7 +87,11 @@ class Metasploit3 < Msf::Post
           vprint_status("PageantJacker: Received data from socket (size: #{socket_request_data.first.size})")
           response = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
           if response[:success]
-            s.send response[:blob], 0
+            begin
+                s.send response[:blob], 0
+            rescue
+                break
+            end
             vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Size='#{response[:blob].size}' Error='#{response[:error]}')")
           else
             print_error("PageantJacker: Unsuccessful response received (#{response[:error]})")
