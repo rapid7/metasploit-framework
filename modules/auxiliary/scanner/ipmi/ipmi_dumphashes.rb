@@ -71,7 +71,6 @@ class Metasploit3 < Msf::Auxiliary
     passwords << ""
     passwords = passwords.uniq
 
-
     self.udp_sock = Rex::Socket::Udp.create({'Context' => {'Msf' => framework, 'MsfExploit' => self}})
     add_socket(self.udp_sock)
 
@@ -180,18 +179,8 @@ class Metasploit3 < Msf::Auxiliary
       write_output_files(rhost, username, sha1_salt, sha1_hash)
 
       # Write the rakp hash to the database
-      report_auth_info(
-        :host	=> rhost,
-        :port   => rport,
-        :proto  => 'udp',
-        :sname	=> 'ipmi',
-        :user 	=> username,
-        :pass   => "#{sha1_salt}:#{sha1_hash}",
-        :source_type => "captured",
-        :active => true,
-        :type   => 'rakp_hmac_sha1_hash'
-      )
-
+      hash = "#{rhost} #{username}:$rakp$#{sha1_salt}$#{sha1_hash}"
+      report_hash(user, hash)
       # Write the vulnerability to the database
       unless reported_vuln
         report_vuln(
@@ -216,17 +205,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{rhost}:#{rport} - IPMI - Hash for user '#{username}' matches password '#{pass}'")
 
         # Report the clear-text credential to the database
-        report_auth_info(
-          :host	=> rhost,
-          :port   => rport,
-          :proto  => 'udp',
-          :sname	=> 'ipmi',
-          :user 	=> username,
-          :pass   => pass,
-          :source_type => "cracked",
-          :active => true,
-          :type   => 'password'
-        )
+        report_cracked_cred(username, pass)
         break
       end
     end
@@ -265,6 +244,51 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def service_data
+    {
+      address: rhost,
+      port: rport,
+      service_name: 'ipmi',
+      protocol: 'udp',
+      workspace_id: myworkspace_id
+    }
+  end
+
+  def report_hash(user, hash)
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: hash,
+      private_type: :nonreplayable_hash,
+      jtr_format: 'rakp_hmac_sha1_hash',
+      username: user,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def report_cracked_cred(user, password)
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: password,
+      private_type: :password,
+      username: user,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   #
   # Helper methods (these didn't quite fit with existing mixins)
   #
@@ -292,5 +316,4 @@ class Metasploit3 < Msf::Auxiliary
   def rport
     datastore['RPORT']
   end
-
 end
