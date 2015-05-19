@@ -33,9 +33,10 @@ class Pageantjacker < Extension
   def forward_to_pageant(blob,size)
         return unless size > 0
         return unless blob.size > 0
-        puts "Request indicated size: #{size}"
-        parse_blob(blob)
+        #puts "Request indicated size: #{size}"
+        #parse_blob(blob)
 
+        # Create the packet
         packet_request = Packet.create_request('pageant_send_query')
         packet_request.add_tlv(TLV_TYPE_EXTENSION_PAGEANTJACKER_SIZE_IN, size)
         packet_request.add_tlv(TLV_TYPE_EXTENSION_PAGEANTJACKER_BLOB_IN, blob)

