@@ -6,11 +6,9 @@ module Post
 module Meterpreter
 module Ui
 
-require 'tmpdir'
-
 ###
 #
-# PageantJacker extension 
+# PageantJacker extension
 #
 ###
 class Console::CommandDispatcher::PageantJacker
@@ -23,17 +21,18 @@ class Console::CommandDispatcher::PageantJacker
     super
     print_line
     print_line
-	print_line("       .mMMMMMm.             mMMm    M  WWW   W    W  RRRRR")
-	print_line("      mMMMMMMMMMMM.            MM   MM    W   W   W    R   R")
-	print_line("     /MMMM-    -MM.            MM   MM    W   W   W    R   R")
-	print_line("    /MMM.    _  \/  ^          M M M M     W W W W     RRRR")
-	print_line("    |M.    aRRr    /W|         M M M M     W W W W     R  R")
-	print_line("    \/  .. ^^^   wWWW|         M  M  M      W   W      R   R")
-	print_line("       /WW\.  .wWWWW/          M  M  M      W   W      R    R")
-	print_line("       |WWWWWWWWWWW/")
-	print_line("         .WWWWWW.                  PageantJacker Extension")
+    print_line("       .mMMMMMm.             mMMm    M  WWW   W    W  RRRRR")
+    print_line("      mMMMMMMMMMMM.            MM   MM    W   W   W    R   R")
+    print_line("     /MMMM-    -MM.            MM   MM    W   W   W    R   R")
+    print_line("    /MMM.    _  \/  ^          M M M M     W W W W     RRRR")
+    print_line("    |M.    aRRr    /W|         M M M M     W W W W     R  R")
+    print_line("    \/  .. ^^^   wWWW|         M  M  M      W   W      R   R")
+    print_line("       /WW\.  .wWWWW/          M  M  M      W   W      R    R")
+    print_line("       |WWWWWWWWWWW/")
+    print_line("         .WWWWWW.                  PageantJacker Extension")
+    print_line("                             stuart.morgan@mwrinfosecurity.com")
     print_line
-    print_line(" Use post/windows/manage/forward_pageant to proxy agent requests through Pageant")
+    print_line(" Use post/windows/manage/forward_pageant to proxy through Pageant")
     print_line
   end
 

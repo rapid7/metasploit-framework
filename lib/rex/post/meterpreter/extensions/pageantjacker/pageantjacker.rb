@@ -33,15 +33,12 @@ class Pageantjacker < Extension
   def forward_to_pageant(blob,size)
         return unless size > 0
         return unless blob.size > 0
-        #puts "Request indicated size: #{size}"
-        #parse_blob(blob)
 
-        # Create the packet
         packet_request = Packet.create_request('pageant_send_query')
         packet_request.add_tlv(TLV_TYPE_EXTENSION_PAGEANTJACKER_SIZE_IN, size)
         packet_request.add_tlv(TLV_TYPE_EXTENSION_PAGEANTJACKER_BLOB_IN, blob)
-        
-        response = client.send_request(packet_request)  
+
+        response = client.send_request(packet_request)
         return nil if !response
 
         pageant_plugin_response = {
@@ -52,18 +49,6 @@ class Pageantjacker < Extension
 
         return pageant_plugin_response
   end
-
-#  def parse_blob(blob)
-#    b = blob.unpack('NCH*')
-#    puts " blob size #{blob.size}"
-#    puts " blob data (20 chars: #{blob.unpack('H20').first}"
-#    puts "   ssh packet size: #{b[0]}"
-#    puts "   ssh type: #{b[1]}"
-#    puts "   ssh data: #{b[2]}"
-#  end
-
-#  def stop_listening
-#  end
 
 end
 

