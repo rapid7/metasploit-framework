@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'zlib' # TODO: check if this can be done with REX
-
 require 'msf/core'
 require 'rex'
 
