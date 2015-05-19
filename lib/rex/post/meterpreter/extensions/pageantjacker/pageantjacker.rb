@@ -41,25 +41,16 @@ class Pageantjacker < Extension
         packet_request.add_tlv(TLV_TYPE_EXTENSION_PAGEANTJACKER_SIZE_IN, size)
         packet_request.add_tlv(TLV_TYPE_EXTENSION_PAGEANTJACKER_BLOB_IN, blob)
         
-        response = client.send_request(packet_request)
-        response_success = response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_STATUS)
-        returned_blob = response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_RETURNEDBLOB)
-        error = response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_ERRORMESSAGE)
+        response = client.send_request(packet_request)  
+        return nil if !response
 
-#        puts "Response success: #{response_success}, Response error #{error}"
-#        parse_blob(returned_blob)
+        pageant_plugin_response = {
+            success: response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_STATUS)
+            blob: response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_RETURNEDBLOB)
+            error: response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_ERRORMESSAGE)
+        }
 
-        if response_success
-#            puts "Received successful response: #{returned_blob.size}"
-#            puts "Error is: #{error}"
-#            puts returned_blob.unpack('NCH*')
-            return returned_blob
-        else
-#            puts "Received error message: #{error}"
-            return nil 
-        end
-
-        return nil
+        return pageant_plugin_response
   end
 
 #  def parse_blob(blob)
