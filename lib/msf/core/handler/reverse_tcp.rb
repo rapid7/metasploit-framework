@@ -21,6 +21,7 @@ module ReverseTcp
 
   include Msf::Handler
   include Msf::Handler::ReverseTcpComm
+
   #
   # Returns the string representation of the handler type, in this case
   # 'reverse_tcp'.

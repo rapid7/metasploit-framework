@@ -18,8 +18,6 @@ module ReverseTcpComm
       [
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
       ], Msf::Handler::ReverseTcpComm)
-
-    self.conn_threads = []
   end
 
   def select_comm
