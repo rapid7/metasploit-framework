@@ -260,7 +260,7 @@ class Metasploit3 < Msf::Auxiliary
       origin_type: :service,
       private_data: hash,
       private_type: :nonreplayable_hash,
-      jtr_format: 'rakp_hmac_sha1_hash',
+      jtr_format: 'rakp',
       username: user,
     }.merge(service_data)
 
