@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-      'Name'                 => "Import Scripts into PowerShell Session",
+      'Name'                 => "Load Scripts Into PowerShell Session",
       'Description'          => %q{
         This module will download and execute a PowerShell script over a meterpreter session.
         The user may also enter text substitutions to be made in memory before execution.
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
         variable = Rex::Text.rand_text_alpha(8)
         vararray << variable
         indexval = index+1
-        print_good("Loaded stage:#{indexval}")
+        vprint_good("Loaded stage:#{indexval}")
         session.shell_command("$#{variable} = \"#{slice}\"")
       end
       linkvars = ''
