@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
                       'License'       => MSF_LICENSE,
                       'Author'        => [
                         'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
-                        'Ben Campbell',
+                        'Ben Campbell', # A HUGE amount of support in this :-)
                       ],
                       'Platform'      => [ 'win' ],
                       'SessionTypes'  => [ 'meterpreter' ]
