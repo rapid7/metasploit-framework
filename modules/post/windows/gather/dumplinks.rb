@@ -1,20 +1,14 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/windows/accounts'
 
 class Metasploit3 < Msf::Post
 
   include Msf::Post::Windows::Priv
-  include Msf::Post::Common
   include Msf::Post::Windows::Accounts
 
   def initialize(info={})
@@ -59,7 +53,8 @@ class Metasploit3 < Msf::Post
     user = session.sys.config.getuid
     userpath = nil
     useroffcpath = nil
-    sysdrv = session.fs.file.expand_path("%SystemDrive%")
+    env_vars = session.sys.config.getenvs('SystemDrive', 'USERNAME')
+    sysdrv = env_vars['SystemDrive']
     if os =~ /Windows 7|Vista|2008/
       userpath = sysdrv + "\\Users\\"
       lnkpath = "\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\"
@@ -82,7 +77,7 @@ class Metasploit3 < Msf::Post
         userinfo = {}
       end
     else
-      uservar = session.fs.file.expand_path("%USERNAME%")
+      uservar = env_vars['USERNAME']
       userinfo['username'] = uservar
       userinfo['userpath'] = userpath + uservar + lnkpath
       userinfo['useroffcpath'] = userpath + uservar + officelnkpath
@@ -117,13 +112,13 @@ class Metasploit3 < Msf::Post
           record = lnk_file.sysread(0x48)
           hdr = get_headers(record)
 
-          @data_out += get_lnk_file_MAC(file_stat, path, file_name)
+          @data_out += get_lnk_file_mac(file_stat, path, file_name)
           @data_out += "Contents of #{path + file_name}:\n"
           @data_out += get_flags(hdr)
           @data_out += get_attrs(hdr)
-          @data_out += get_lnk_MAC(hdr)
+          @data_out += get_lnk_mac(hdr)
           @data_out += get_showwnd(hdr)
-          @data_out += get_lnk_MAC(hdr)
+          @data_out += get_lnk_mac(hdr)
 
           # advance the file & offset
           offset += 0x4c
@@ -205,7 +200,7 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  def get_lnk_file_MAC(file_stat, path, file_name)
+  def get_lnk_file_mac(file_stat, path, file_name)
     data_out = "#{path + file_name}:\n"
     data_out += "\tAccess Time       = #{file_stat.atime}\n"
     data_out += "\tCreation Date     = #{file_stat.ctime}\n"
@@ -245,7 +240,7 @@ class Metasploit3 < Msf::Post
     return data_out
   end
 
-  def get_lnk_MAC(hdr)
+  def get_lnk_mac(hdr)
     data_out = "\tTarget file's MAC Times stored in lnk file:\n"
     data_out += "\t\tCreation Time     = #{Time.at(hdr["ctime"])}. (UTC)\n"
     data_out += "\t\tModification Time = #{Time.at(hdr["mtime"])}. (UTC)\n"

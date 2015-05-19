@@ -1,24 +1,37 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post_mixin'
-
-module Msf
-
 #
 # A Post-exploitation module
 #
-#
-class Post < Msf::Module
-  include PostMixin
+class Msf::Post < Msf::Module
 
-  def setup; end
+  require 'msf/core/post/common'
+  require 'msf/core/post_mixin'
+
+  require 'msf/core/post/file'
+  require 'msf/core/post/webrtc'
+
+  require 'msf/core/post/linux'
+  require 'msf/core/post/osx'
+  require 'msf/core/post/solaris'
+  require 'msf/core/post/unix'
+  require 'msf/core/post/windows'
+
+  include Msf::PostMixin
+
+  def setup
+    m = replicant
+    if m.actions.length > 0 && !m.action
+      raise Msf::MissingActionError, "Please use: #{m.actions.collect {|e| e.name} * ", "}"
+    end
+  end
 
   def type
-    MODULE_POST
+    Msf::MODULE_POST
   end
 
   def self.type
-    MODULE_POST
+    Msf::MODULE_POST
   end
 
   #
@@ -38,7 +51,17 @@ class Post < Msf::Module
 
     mod
   end
-end
 
+  # This method returns the ID of the {Mdm::Session} that the post module
+  # is currently running against.
+  #
+  # @return [NilClass] if there is no database record for the session
+  # @return [Fixnum] if there is a database record to get the id for
+  def session_db_id
+    if session.db_record
+      session.db_record.id
+    else
+      nil
+    end
+  end
 end
-

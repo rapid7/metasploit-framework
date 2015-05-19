@@ -55,6 +55,7 @@ module Rex
         end
         # Reset the state once we close a host
         @state.delete_if {|k| k != :current_tag}
+        @report_data = {:wspace => args[:wspace]}
       when "Port"
         @state[:has_text] = false
         collect_port
@@ -292,7 +293,7 @@ module Rex
     # XXX: Actually implement more of these
     def process_service(service,banner)
       meth = "process_service_#{service.gsub("-","_")}"
-      if self.respond_to? meth
+      if self.respond_to?(meth, true)
         self.send meth, banner
       else
         return (first_line banner)

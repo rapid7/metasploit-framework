@@ -1,9 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
-#
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 ##
@@ -26,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'				=> 'pSnuffle Packet Sniffer',
-      'Description'       => 'This module sniffs passwords like dsniff did in the past',
-      'Author'			=> 'Max Moser  <mmo@remote-exploit.org>',
+      'Description' => 'This module sniffs passwords like dsniff did in the past',
+      'Author'			=> 'Max Moser <mmo[at]remote-exploit.org>',
       'License'			=> MSF_LICENSE,
       'Actions'			=>
         [
@@ -47,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_advanced_options([
       OptPath.new('ProtocolBase', [true,	'The base directory containing the protocol decoders',
-        File.join(Msf::Config.install_root, "data", "exploits", "psnuffle")
+        File.join(Msf::Config.data_directory, "exploits", "psnuffle")
       ]),
     ], self.class)
     deregister_options('RHOST')

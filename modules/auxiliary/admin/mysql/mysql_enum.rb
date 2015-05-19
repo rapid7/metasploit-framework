@@ -1,14 +1,13 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
+  include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MYSQL
 
   def initialize(info = {})
@@ -33,11 +32,11 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Running MySQL Enumerator...")
     print_status("Enumerating Parameters")
     #-------------------------------------------------------
-    #getting all variables
+    # getting all variables
     vparm = {}
     res = mysql_query("show variables") || []
     res.each do |row|
-      #print_status(" | #{row.join(" | ")} |")
+      # print_status(" | #{row.join(" | ")} |")
       vparm[row[0]] = row[1]
     end
 
@@ -78,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
     query = "use mysql"
     mysql_query(query)
 
-    #Account Enumeration
+    # Account Enumeration
     # Enumerate all accounts with their password hashes
     print_status("Enumerating Accounts:")
     query = "select user, host, password from mysql.user"
@@ -87,6 +86,15 @@ class Metasploit3 < Msf::Auxiliary
       print_status("\tList of Accounts with Password Hashes:")
       res.each do |row|
         print_status("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
+        report_auth_info({
+          :host  => rhost,
+          :port  => rport,
+          :user  => row[0],
+          :pass  => row[2],
+          :type  => "mysql_hash",
+          :sname => "mysql",
+          :active => true
+        })
       end
     end
     # Only list accounts that can log in with SSL if SSL is enabled

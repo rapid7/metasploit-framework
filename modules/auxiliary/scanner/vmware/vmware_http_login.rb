@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -41,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run_host(ip)
-    return unless check
+    return unless is_vmware?
     each_user_pass { |user, pass|
       result = vim_do_login(user, pass)
       case result
@@ -64,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   # Mostly taken from the Apache Tomcat service validator
-  def check
+  def is_vmware?
     soap_data =
       %Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <env:Body>
@@ -116,7 +114,12 @@ class Metasploit3 < Msf::Auxiliary
 
     if os_match and ver_match and build_match
       if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
-        this_host = report_host( :host => rhost, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+        # Report a fingerprint match for OS identification
+        report_note(
+          :host  => ip,
+          :ntype => 'fingerprint.match',
+          :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
+        )
       end
       return true
     else

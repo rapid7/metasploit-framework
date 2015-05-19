@@ -28,43 +28,43 @@ end
 @commits_by_author = {}
 
 def parse_date(date)
-	case date
-	when /([0-9]+)y(ear)?s?/
-		seconds = $1.to_i* (60*60*24*365.25)
-		calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
-	when /([0-9]+)m(onth)?s?/
-		seconds = $1.to_i* (60*60*24*(365.25 / 12))
-		calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
-	when /([0-9]+)w(eek)?s?/
-		seconds = $1.to_i* (60*60*24*7)
-		calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
-	when /([0-9]+)d(ay)?s?/
-		seconds = $1.to_i* (60*60*24)
-		calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
-	else
-		calc_date = Time.new(date).strftime("%Y-%m-%d")
-	end
+  case date
+  when /([0-9]+)y(ear)?s?/
+    seconds = $1.to_i* (60*60*24*365.25)
+    calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
+  when /([0-9]+)m(onth)?s?/
+    seconds = $1.to_i* (60*60*24*(365.25 / 12))
+    calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
+  when /([0-9]+)w(eek)?s?/
+    seconds = $1.to_i* (60*60*24*7)
+    calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
+  when /([0-9]+)d(ay)?s?/
+    seconds = $1.to_i* (60*60*24)
+    calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
+  else
+    calc_date = Time.new(date).strftime("%Y-%m-%d")
+  end
 end
 
 date = ARGV[0] || "2005-03-22" # A day before the first SVN commit.
 calc_date = parse_date(date)
 
 @history.each_line do |line|
-	parsed_line = line.match(/^([^\s+]+)\s(.{7,})\s'(.*)'\s(.*)[\r\n]*$/)
-	next unless parsed_line
-	break if calc_date == parsed_line[1]
-	@recent_history << GitLogLine.new(*parsed_line[1,4])
+  parsed_line = line.match(/^([^\s+]+)\s(.{7,})\s'(.*)'\s(.*)[\r\n]*$/)
+  next unless parsed_line
+  break if calc_date == parsed_line[1]
+  @recent_history << GitLogLine.new(*parsed_line[1,4])
 end
 
 @recent_history.each do |logline|
-	@commits_by_author[logline.author] ||= []
-	@commits_by_author[logline.author] << logline.message
+  @commits_by_author[logline.author] ||= []
+  @commits_by_author[logline.author] << logline.message
 end
 
 puts "Commits since #{calc_date}"
 puts "-" * 50
 
 @commits_by_author.sort_by {|k,v| v.size}.reverse.each do |k,v|
-	puts "%-25s %3d" % [k,v.size]
+  puts "%-25s %3d" % [k,v.size]
 end
 

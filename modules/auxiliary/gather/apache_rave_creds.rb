@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -59,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res and res.code == 302 and res.headers['Location'] !~ /authfail/ and res.headers['Set-Cookie'] =~ /JSESSIONID=(.*);/
+    if res and res.code == 302 and res.headers['Location'] !~ /authfail/ and res.get_cookies =~ /JSESSIONID=(.*);/
       return $1
     else
       return nil

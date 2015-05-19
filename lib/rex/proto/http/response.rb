@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
+require 'uri'
 require 'rex/proto/http'
+require 'nokogiri'
 
 module Rex
 module Proto
@@ -66,7 +68,7 @@ class Response < Packet
     cookies = ""
     if (self.headers.include?('Set-Cookie'))
       set_cookies = self.headers['Set-Cookie']
-      key_vals = set_cookies.scan(/\s?([^, ;]+?)=(.*?);/)
+      key_vals = set_cookies.scan(/\s?([^, ;]+?)=([^, ;]*?)[;,]/)
       key_vals.each do |k, v|
         # Dont downcase actual cookie name as may be case sensitive
         name = k.downcase
@@ -79,6 +81,34 @@ class Response < Packet
     end
 
     return cookies.strip
+  end
+
+
+  # Returns a collection of found hidden inputs
+  #
+  # @return [Array<Hash>] An array, each element represents a form that contains a hash of found hidden inputs
+  #  * 'name' [String] The hidden input's original name. The value is the hidden input's original value.
+  # @example
+  #  res = send_request_cgi('uri'=>'/')
+  #  inputs = res.get_hidden_inputs
+  #  session_id = inputs[0]['sessionid'] # The first form's 'sessionid' hidden input
+  def get_hidden_inputs
+    forms = []
+    noko = Nokogiri::HTML(self.body)
+    noko.search("form").each_entry do |form|
+      found_inputs = {}
+      form.search("input").each_entry do |input|
+        input_type = input.attributes['type'] ? input.attributes['type'].value : ''
+        next if input_type !~ /hidden/i
+
+        input_name = input.attributes['name'] ? input.attributes['name'].value : ''
+        input_value = input.attributes['value'] ? input.attributes['value'].value : ''
+        found_inputs[input_name] = input_value unless input_name.empty?
+      end
+      forms << found_inputs unless found_inputs.empty?
+    end
+
+    forms
   end
 
   #
@@ -104,6 +134,25 @@ class Response < Packet
     if self.code == 100 and (self.body_bytes_left == -1 or self.body_bytes_left == 0) and self.count_100 < 5
       self.reset_except_queue
       self.count_100 += 1
+    end
+  end
+
+  # Answers if the response is a redirection one.
+  #
+  # @return [Boolean] true if the response is a redirection, false otherwise.
+  def redirect?
+    [301, 302, 303, 307, 308].include?(code)
+  end
+
+  # Provides the uri of the redirection location.
+  #
+  # @return [URI] the uri of the redirection location.
+  # @return [nil] if the response hasn't a Location header or it isn't a valid uri.
+  def redirection
+    begin
+      URI(headers['Location'])
+    rescue ::URI::InvalidURIError
+      nil
     end
   end
 

@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -37,10 +35,6 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('URI', [false, 'URL of the Concrete5 root', '/'])
       ], self.class)
     deregister_options('RHOST')
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
   end
 
   def run_host(rhost)
@@ -111,7 +105,7 @@ class Metasploit4 < Msf::Auxiliary
       # print table
       print_line(membertbl.to_s)
 
-      #store username to loot
+      # store username to loot
       report_note({
         :host => rhost,
         :port => rport,

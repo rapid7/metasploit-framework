@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'metasm'
 
 module Rex
 module ElfScan
@@ -27,6 +28,26 @@ class Generic
           rva  = hit[0]
           message  = hit[1].is_a?(Array) ? hit[1].join(" ") : hit[1]
           $stdout.puts elf.ptr_s(rva) + " " + message
+          if(param['disasm'])
+            message.gsub!("; ", "\n")
+            if message.include?("retn")
+              message.gsub!("retn", "ret")
+            end
+
+            begin
+              d2 = Metasm::Shellcode.assemble(Metasm::Ia32.new, message).disassemble
+            rescue Metasm::ParseError
+              d2 = Metasm::Shellcode.disassemble(Metasm::Ia32.new, [message].pack('H*'))
+            end
+
+            addr = 0
+            while ((di = d2.disassemble_instruction(addr)))
+              disasm = "0x%08x\t" % (rva + addr)
+              disasm << di.instruction.to_s
+              $stdout.puts disasm
+              addr = di.next_addr
+            end
+          end
         end
       end
 
@@ -73,7 +94,7 @@ class JmpRegScanner < Generic
         return 3
     end
 
-    raise "wtf"
+    raise "Cannot read at offset: #{offset}"
   end
 
   def _parse_ret(data)
@@ -115,7 +136,7 @@ class JmpRegScanner < Generic
           message = "push #{regname}; " + _parse_ret(elf.read(offset+2, retsize))
           offset += 2 + retsize
         else
-          raise "wtf"
+          raise "Unexpected value at #{offset}"
         end
       else
         regname = Rex::Arch::X86.reg_name32(byte1 & 0x7)
@@ -203,4 +224,3 @@ end
 end
 end
 end
-

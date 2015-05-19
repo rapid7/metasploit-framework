@@ -1,35 +1,35 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#	http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'msf/core/payload/dalvik'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/meterpreter_java'
+require 'msf/base/sessions/meterpreter_android'
 require 'msf/base/sessions/meterpreter_options'
 
 
 module Metasploit3
   include Msf::Sessions::MeterpreterOptions
 
-  # The stager should have already included this
-  #include Msf::Payload::Java
-
   def initialize(info = {})
     super(update_info(info,
-      'Name'			=> 'Android Meterpreter',
-      'Description'	=> 'Run a meterpreter server on Android',
-      'Author'		=> [
+      'Name'      => 'Android Meterpreter',
+      'Description' => 'Run a meterpreter server on Android',
+      'Author'    => [
           'mihi', # all the hard work
-          'egypt' # msf integration
+          'egypt', # msf integration
+          'anwarelmakrahy' # android extension
         ],
-      'Platform'		=> 'android',
-      'Arch'			=> ARCH_DALVIK,
-      'License'		=> MSF_LICENSE,
-      'Session'		=> Msf::Sessions::Meterpreter_Java_Java))
+      'Platform'    => 'android',
+      'Arch'      => ARCH_DALVIK,
+      'License'   => MSF_LICENSE,
+      'Session'   => Msf::Sessions::Meterpreter_Java_Android))
+
+    register_options(
+    [
+      OptBool.new('AutoLoadAndroid', [true, "Automatically load the Android extension", true])
+    ], self.class)
   end
 
   #

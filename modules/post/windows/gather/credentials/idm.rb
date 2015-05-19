@@ -1,12 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
-require 'msf/core/post/windows/registry'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
@@ -27,7 +24,7 @@ class Metasploit3 < Msf::Post
       'Author'        =>
         [
           'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
-          'SecurityXploded Team <contact[at]securityxploded.com>'
+          'Unknown', # SecurityXploded Team, www.SecurityXploded.com
         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]

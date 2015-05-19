@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -16,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => 'Splunk Web interface Login Utility',
+      'Name'           => 'Splunk Web Interface Login Utility',
       'Description'    => %{
         This module simply attempts to login to a Splunk web interface.  Please note the
         free version of Splunk actually does not require any authentication, in that case
@@ -38,11 +36,11 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8000),
         OptString.new('URI', [true, "URI for Splunk Web login. Default is /en-US/account/login", "/en-US/account/login"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_userpass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
         OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ])
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ])
       ], self.class)
   end
 
@@ -84,8 +82,8 @@ class Metasploit3 < Msf::Auxiliary
     session_id      = ''
     cval            = ''
 
-    if res and res.code == 200 and res.headers['Set-Cookie']
-      res.headers['Set-Cookie'].split(';').each {|c|
+    if res and res.code == 200 and !res.get_cookies.empty?
+      res.get_cookies.split(';').each {|c|
         c.split(',').each {|v|
           if v.split('=')[0] =~ /cval/
             cval = v.split('=')[1]
@@ -156,24 +154,30 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
 
-      if not res or res.code != 303
+      if not res
+        vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' returned no response")
+        return :skip_pass
+      end
+
+      unless res.code == 303 || (res.code == 200 && res.body.to_s.index('{"status":0}'))
         vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' with code #{res.code}")
         return :skip_pass
-      else
-        print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'splunk-web',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
-        report_auth_info(report_hash)
-        return :next_user
       end
+
+      print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+
+      report_hash = {
+        :host   => datastore['RHOST'],
+        :port   => datastore['RPORT'],
+        :sname  => 'splunk-web',
+        :user   => user,
+        :pass   => pass,
+        :active => true,
+        :type => 'password'}
+
+      report_auth_info(report_hash)
+      return :next_user
+
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")
       return :abort

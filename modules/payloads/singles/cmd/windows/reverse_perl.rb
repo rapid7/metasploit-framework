@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -12,12 +10,14 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
+  CachedSize = 133
+
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Command, Double reverse TCP connection (via Perl)',
+      'Name'          => 'Windows Command, Double Reverse TCP Connection (via Perl)',
       'Description'   => 'Creates an interactive shell via perl',
       'Author'        => ['cazz', 'patrick'],
       'License'       => BSD_LICENSE,
@@ -26,6 +26,7 @@ module Metasploit3
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
+      'RequiredCmd'   => 'perl',
       'Payload'       =>
         {
           'Offsets' => { },

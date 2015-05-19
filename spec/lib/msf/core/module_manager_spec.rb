@@ -17,15 +17,7 @@ require 'tmpdir'
 require 'msf/core'
 
 describe Msf::ModuleManager do
-	include_context 'Msf::Simple::Framework'
-
-  let(:archive_basename) do
-    [basename_prefix, archive_extension]
-  end
-
-  let(:archive_extension) do
-    '.fastlib'
-  end
+  include_context 'Msf::Simple::Framework'
 
   let(:basename_prefix) do
     'rspec'

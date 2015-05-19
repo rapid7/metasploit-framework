@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -58,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       'headers' => { 'Authorization' => "Basic #{@user_pass}"}
     }, 25)
     if res
-      @vim_cookie = res.headers['Set-Cookie']
+      @vim_cookie = res.get_cookies
       if res.code== 200
         res.body.scan(/<a href="([\w\/\?=&;%]+)">/) do |match|
           link = match[0]
@@ -90,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
       'headers' => { 'Authorization' => "Basic #{@user_pass}"}
     }, 25)
     if res
-      @vim_cookie = res.headers['Set-Cookie']
+      @vim_cookie = res.get_cookies
       if res.code == 200
         img = res.body
         ss_path = store_loot("host.vmware.screenshot", "image/png", datastore['RHOST'], img, name , "Screenshot of VM #{name}")

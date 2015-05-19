@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -70,8 +68,8 @@ class Metasploit3 < Msf::Auxiliary
         'data'    => data
       }, 25)
 
-    if res and res.code == 302 and res.headers['Set-Cookie'] =~ /sid/
-      session = res.headers['Set-Cookie'].scan(/sid\=(\w+)\;*/).flatten[0] || ''
+    if res and res.code == 302 and res.get_cookies =~ /sid/
+      session = res.get_cookies.scan(/sid\=(\w+)\;*/).flatten[0] || ''
       if session and not session.empty?
         print_good "#{peer} - Authentication successful"
       else

@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 module Rex
@@ -19,7 +18,7 @@ end
 class BoundsError < ElfError
 end
 
-class WtfError < ElfError
+class ElfParseyError < ElfError
 end
 
 end

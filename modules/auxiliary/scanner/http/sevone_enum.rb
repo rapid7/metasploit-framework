@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
@@ -58,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       'method'    => 'GET'
     })
 
-    if (res and res.code.to_i == 200 and res.headers['Set-Cookie'].include?('SEVONE'))
+    if (res and res.code.to_i == 200 and res.get_cookies.include?('SEVONE'))
       version_key = /Version: <strong>(.+)<\/strong>/
       version = res.body.scan(version_key).flatten
       print_good("#{rhost}:#{rport} - Application confirmed to be SevOne Network Performance Management System version #{version}")

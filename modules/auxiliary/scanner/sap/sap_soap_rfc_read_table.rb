@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 ##
@@ -85,19 +83,21 @@ class Metasploit4 < Msf::Auxiliary
     print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_READ_TABLE request")
     begin
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+        'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
         'ctype' => 'text/xml; charset=UTF-8',
-        'headers' =>{
+        'encode_params' => false,
+        'headers' => {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-          #'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-          #'Authorization' => 'Basic ' + user_pass,
-          #'Content-Type' =>
-          }
-        })
+        },
+        'vars_get' => {
+          'sap-client'    => datastore['CLIENT'],
+          'sap-language'  => 'EN'
+        }
+      })
       if res and res.code != 500 and res.code != 200
         # to do - implement error handlers for each status code, 404, 301, etc.
         if res.body =~ /<h1>Logon failed<\/h1>/

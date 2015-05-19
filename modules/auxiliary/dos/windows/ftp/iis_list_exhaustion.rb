@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -14,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Microsoft IIS FTP Server <= 7.0 LIST Stack Exhaustion',
+      'Name'           => 'Microsoft IIS FTP Server LIST Stack Exhaustion',
       'Description'    => %q{
           This module triggers Denial of Service condition in the Microsoft Internet
         Information Services (IIS) FTP Server 5.0 through 7.0 via a list (ls) -R command
@@ -44,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    #Attempt to crash IIS FTP
+    # Attempt to crash IIS FTP
     begin
       return unless connect_login
       print_status('Checking if there is at least one directory ...')

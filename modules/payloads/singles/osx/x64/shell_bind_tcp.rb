@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -10,6 +8,8 @@ require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
 module Metasploit3
+
+  CachedSize = 136
 
   include Msf::Payload::Single
   include Msf::Payload::Osx

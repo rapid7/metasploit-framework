@@ -1,16 +1,12 @@
-
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
 require 'rex'
 require 'rexml/document'
-require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
   include Msf::Post::Windows::UserProfiles
@@ -113,14 +109,34 @@ class Metasploit3 < Msf::Post
       else
         source_id = nil
       end
-      report_auth_info(
-            :host  => host,
-            :port => port,
-            :source_id => source_id,
-            :source_type => "exploit",
-            :user => user,
-            :pass => pass
-          )
+      service_data = {
+          address: host,
+          port: port,
+          service_name: 'ftp',
+          protocol: 'tcp',
+          workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+          origin_type: :session,
+          session_id: session_db_id,
+          post_reference_name: self.refname,
+          private_type: :password,
+          private_data: pass,
+          username: user
+      }
+
+      credential_data.merge!(service_data)
+
+      credential_core = create_credential(credential_data)
+      login_data ={
+          core: credential_core,
+          status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      login_data.merge!(service_data)
+      login = create_credential_login(login_data)
+
     end
   end
 

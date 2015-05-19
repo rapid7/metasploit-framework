@@ -11,7 +11,7 @@ class Def_kernel32
 
   def self.create_dll(dll_path = 'kernel32')
     dll = DLL.new(dll_path, ApiConstants.manager)
-    
+
     dll.add_function( 'GetConsoleWindow', 'LPVOID',[])
 
     dll.add_function( 'ActivateActCtx', 'BOOL',[
@@ -496,7 +496,7 @@ class Def_kernel32
       ["HANDLE","hProcess","in"],
       ["PBLOB","lpThreadAttributes","in"],
       ["DWORD","dwStackSize","in"],
-      ["PBLOB","lpStartAddress","in"],
+      ["LPVOID","lpStartAddress","in"],
       ["PBLOB","lpParameter","in"],
       ["DWORD","dwCreationFlags","in"],
       ["PDWORD","lpThreadId","out"],
@@ -2159,13 +2159,13 @@ class Def_kernel32
       ])
 
     dll.add_function( 'InterlockedCompareExchange', 'DWORD',[
-      ["PDWORD","Destination","inout"],
+      ["PDWORD","Destination","in"],
       ["DWORD","ExChange","in"],
       ["DWORD","Comperand","in"],
       ])
 
     dll.add_function( 'InterlockedCompareExchange64', 'LPVOID',[
-      ["PBLOB","Destination","inout"],
+      ["PBLOB","Destination","in"],
       ["PBLOB","ExChange","in"],
       ["PBLOB","Comperand","in"],
       ])
@@ -2175,7 +2175,7 @@ class Def_kernel32
       ])
 
     dll.add_function( 'InterlockedExchange', 'DWORD',[
-      ["PDWORD","Target","inout"],
+      ["PDWORD","Target","in"],
       ["DWORD","Value","in"],
       ])
 
@@ -3668,11 +3668,11 @@ class Def_kernel32
     #	])
 
     dll.add_function( 'lstrlenA', 'DWORD',[
-      ["PCHAR","lpString","in"],
+      ["LPVOID","lpString","in"],
       ])
 
     dll.add_function( 'lstrlenW', 'DWORD',[
-      ["PWCHAR","lpString","in"],
+      ["LPVOID","lpString","in"],
       ])
 
 

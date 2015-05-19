@@ -12,23 +12,41 @@ require 'msf/core'
 module Msf::Payload::Windows
 
   require 'msf/core/payload/windows/prepend_migrate'
+
   # Provides the #prepends method
+  # XXX: For some unfathomable reason, the order of requires here is
+  # important. If this include happens after require'ing the files
+  # below, it causes the windows/exec payload (and probably others) to
+  # somehow not have PrependMigrate despite having Payload::Windows,
+  # which leads to a NoMethodError on #prepends
   include Msf::Payload::Windows::PrependMigrate
+
+  require 'msf/core/payload/windows/dllinject'
+  require 'msf/core/payload/windows/exec'
+  require 'msf/core/payload/windows/loadlibrary'
+  require 'msf/core/payload/windows/meterpreter_loader'
+  require 'msf/core/payload/windows/x64/meterpreter_loader'
+  require 'msf/core/payload/windows/reflectivedllinject'
+  require 'msf/core/payload/windows/x64/reflectivedllinject'
 
   #
   # ROR hash associations for some of the exit technique routines.
   #
   @@exit_types =
     {
+      nil       => 0,          # Default to nothing
+      ''        => 0,          # Default to nothing
       'seh'     => 0xEA320EFE, # SetUnhandledExceptionFilter
       'thread'  => 0x0A2A1DE0, # ExitThread
       'process' => 0x56A2B5F0, # ExitProcess
-      'none'    => 0x5DE2C5AA, # GetLastError
+      'none'    => 0x5DE2C5AA  # GetLastError
     }
 
-
-  def generate
-    return prepends(super)
+  #
+  # Implement payload prepends for Windows payloads
+  #
+  def apply_prepends(raw)
+    apply_prepend_migrate(raw)
   end
 
   #
@@ -60,7 +78,7 @@ module Msf::Payload::Windows
 
     register_options(
       [
-        Msf::OptRaw.new('EXITFUNC', [ true, "Exit technique: #{@@exit_types.keys.join(", ")}", 'process' ])
+        Msf::OptEnum.new('EXITFUNC', [true, 'Exit technique', 'process', @@exit_types.keys])
       ], Msf::Payload::Windows )
     ret
   end
@@ -136,6 +154,13 @@ module Msf::Payload::Windows
     conn.put([ payload.length ].pack('V'))
 
     return true
+  end
+
+  #
+  # Share the EXITFUNC mappings with other classes
+  #
+  def self.exit_types
+    @@exit_types.dup
   end
 
 end

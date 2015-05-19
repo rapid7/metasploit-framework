@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -12,8 +10,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
 
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
@@ -74,10 +72,10 @@ class Metasploit3 < Msf::Auxiliary
       @@target_pipes.each do |pipe|
         begin
           fid = smb_create("\\#{pipe}")
-          # print_status("Opened pipe \\#{pipe}")
+          #print_status("Opened pipe \\#{pipe}")
           pass.push(pipe)
         rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-          # print_error("Could not open \\#{pipe}: Error 0x%.8x" % e.error_code)
+          #print_error("Could not open \\#{pipe}: Error 0x%.8x" % e.error_code)
         end
       end
 
@@ -85,14 +83,14 @@ class Metasploit3 < Msf::Auxiliary
 
       break
     rescue ::Exception => e
-      # print_line($!.to_s)
-      # print_line($!.backtrace.join("\n"))
+      #print_line($!.to_s)
+      #print_line($!.backtrace.join("\n"))
     end
     end
 
     if(pass.length > 0)
       print_status("#{ip} - Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
-      #Add Report
+      # Add Report
       report_note(
         :host	=> ip,
         :proto => 'tcp',

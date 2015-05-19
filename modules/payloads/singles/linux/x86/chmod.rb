@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -13,6 +11,9 @@ require 'msf/core'
 #  Kris Katterjohn - 03/03/2008
 ###
 module Metasploit3
+
+  CachedSize = 36
+
   include Msf::Payload::Single
   include Msf::Payload::Linux
 

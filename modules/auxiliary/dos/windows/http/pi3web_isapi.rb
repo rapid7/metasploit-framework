@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -14,12 +12,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Pi3Web <=2.0.13 ISAPI DoS',
+      'Name'           => 'Pi3Web ISAPI DoS',
       'Description'    => %q{
-        The Pi3Web HTTP server crashes when a request is made
-        for an invalid DLL file in /isapi.  By default, the
-        non-DLLs in this directory after installation are
-        users.txt, install.daf and readme.daf.
+        The Pi3Web HTTP server crashes when a request is made for an invalid DLL
+        file in /isapi for versions 2.0.13 and earlier. By default, the non-DLLs
+        in this directory after installation are users.txt, install.daf and
+        readme.daf.
       },
       'Author'         => 'kris katterjohn',
       'License'        => MSF_LICENSE,

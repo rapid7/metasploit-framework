@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 #
@@ -15,7 +13,6 @@
 # openssl before rubygems mac os
 require 'msf/core'
 require 'openssl'
-require 'rubygems'
 require 'rinda/tuplespace'
 require 'pathname'
 require 'uri'
@@ -35,12 +32,12 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptString.new('PATH',	[true,	"Starting crawling path", '/']),
-      OptInt.new('RPORT', [true, "Remote port", 80 ]),
+      OptInt.new('RPORT', [true, "Remote port", 80 ])
     ], self.class)
 
     register_advanced_options([
       OptPath.new('CrawlerModulesDir', [true,	'The base directory containing the crawler modules',
-        File.join(Msf::Config.install_root, "data", "msfcrawler")
+        File.join(Msf::Config.data_directory, "msfcrawler")
       ]),
       OptBool.new('EnableUl', [ false, "Enable maximum number of request per URI", true ]),
       OptBool.new('StoreDB', [ false, "Store requests in database", false ]),
@@ -49,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('TakeTimeout', [ true, "Timeout for loop ending", 15]),
       OptInt.new('ReadTimeout', [ true, "Read timeout (-1 forever)", 3]),
       OptInt.new('ThreadNum', [ true, "Threads number", 20]),
-      OptString.new('DontCrawl',	[true,	"Filestypes not to crawl", '.exe,.zip,.tar,.bz2,.run,.asc,.gz']),
+      OptString.new('DontCrawl',	[true,	"Filestypes not to crawl", '.exe,.zip,.tar,.bz2,.run,.asc,.gz'])
     ], self.class)
   end
 
@@ -260,11 +257,6 @@ class Metasploit3 < Msf::Auxiliary
         # In case modules or crawler calls to_s on de-chunked responses
         #
         resp.transfer_chunked = false
-        if resp['Set-Cookie']
-          #puts "Set Cookie: #{resp['Set-Cookie']}"
-          #puts "Storing in cookie jar for host:port #{reqopts['rhost']}:#{reqopts['rport']}"
-          #$cookiejar["#{reqopts['rhost']}:#{reqopts['rport']}"] = resp['Set-Cookie']
-        end
 
         if datastore['StoreDB']
           storedb(reqopts,resp,$dbpathmsf)

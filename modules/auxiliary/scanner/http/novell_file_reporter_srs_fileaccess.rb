@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -40,19 +38,11 @@ class Metasploit4 < Msf::Auxiliary
     [
       Opt::RPORT(3037),
       OptBool.new('SSL', [true, 'Use SSL', true]),
-      OptString.new('RFILE', [true, 'Remote File', 'c:\\boot.ini'])
+      OptString.new('RFILE', [true, 'Remote File', 'c:\\windows\\win.ini'])
     ], self.class)
 
     register_autofilter_ports([ 3037 ])
     deregister_options('RHOST')
-  end
-
-  def rport
-    datastore['RPORT']
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
   end
 
   def run_host(ip)

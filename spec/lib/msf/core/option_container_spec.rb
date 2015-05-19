@@ -5,12 +5,12 @@ require 'msf/core/option_container'
 
 describe Msf::OptionContainer do
   it "should create new options for it's args" do
-    foo_inst = mock("foo_inst")
+    foo_inst = double("foo_inst")
     foo_inst.stub(:advanced=)
     foo_inst.stub(:evasion=)
     foo_inst.stub(:owner=)
 
-    foo_class = mock("opt_class")
+    foo_class = double("opt_class")
     foo_class.should_receive(:new).and_return(foo_inst)
 
     foo_inst.should_receive(:name).and_return("thing")

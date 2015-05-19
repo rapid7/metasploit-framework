@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 # Copyright (c) 2008 Stephen Fewer of Harmony Security (www.harmonysecurity.com)
@@ -27,11 +25,12 @@ module Metasploit3
       'Name'          => 'VNC Server (Reflective Injection)',
       'Description'   => 'Inject a VNC Dll via a reflective loader (staged)',
       'Author'        => [ 'sf' ],
-      'Session'       => Msf::Sessions::VncInject ))
+      'Session'       => Msf::Sessions::VncInject,
+      'Convention'    => 'sockedi -http -https'))
 
   end
 
   def library_path
-    File.join(Msf::Config.install_root, "data", "vncdll.dll")
+    File.join(Msf::Config.data_directory, "vncdll.x86.dll")
   end
 end

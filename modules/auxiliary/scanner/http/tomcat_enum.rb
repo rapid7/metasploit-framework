@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -28,7 +26,6 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'Alligator Security Team',
           'Heyder Andrade <heyder.andrade[at]gmail.com>',
           'Leandro Oliveira <leandrofernando[at]gmail.com>'
         ],
@@ -46,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('URI', [true, 'The path of the Apache Tomcat Administration page', '/admin/j_security_check']),
         OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt") ]),
       ], self.class)
 
     deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','USER_AS_PASS','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')
@@ -104,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
           'data'    => post_data,
         }, 20)
 
-      if res and res.code == 200 and res.headers['Set-Cookie']
+      if res and res.code == 200 and !res.get_cookies.empty?
         vprint_error("#{target_url} - Apache Tomcat #{user} not found ")
       elsif res and res.code == 200 and res.body =~ /invalid username/i
         vprint_error("#{target_url} - Apache Tomcat #{user} not found ")

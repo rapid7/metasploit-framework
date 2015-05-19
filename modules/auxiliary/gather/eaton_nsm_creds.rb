@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -14,12 +12,14 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Network Shutdown Module <= 3.21 (sort_values) Credential Dumper',
+      'Name'           => 'Network Shutdown Module sort_values Credential Dumper',
       'Description'    => %q{
-        This module will extract user credentials from Network Shutdown Module by exploiting
-        a vulnerability found in lib/dbtools.inc, which uses unsanitized user input inside a
-        eval() call.  Please note that in order to extract credentials,the vulnerable service
-        must have at least one USV module (an entry in the "nodes" table in mgedb.db)
+        This module will extract user credentials from Network Shutdown Module
+        versions 3.21 and earlier by exploiting a vulnerability found in
+        lib/dbtools.inc, which uses unsanitized user input inside a eval() call.
+        Please note that in order to extract credentials,the vulnerable service
+        must have at least one USV module (an entry in the "nodes" table in
+        mgedb.db).
       },
       'References'     =>
         [
@@ -39,10 +39,6 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(4679)
       ], self.class)
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
   end
 
   def execute_php_code(code, opts = {})

@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -19,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
           This module will allow for simple SQL statements to be executed against a
           MSSQL/MSDE instance given the appropiate credentials.
       },
-      'Author'         => [ 'tebo <tebo [at] attackresearch [dot] com>' ],
+      'Author'         => [ 'tebo <tebo[at]attackresearch.com>' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [

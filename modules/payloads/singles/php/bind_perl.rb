@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -12,6 +10,8 @@ require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
+  CachedSize = 230
+
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
@@ -19,7 +19,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'PHP Command Shell, Bind TCP (via Perl)',
       'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
-      'Author'        => ['Samy <samy@samy.pl>', 'cazz'],
+      'Author'        => ['Samy <samy[at]samy.pl>', 'cazz'],
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,

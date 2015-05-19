@@ -1,12 +1,30 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/file'
+module Msf::Post::Common
 
-module Msf
-class Post
+  def rhost
+    return nil unless session
 
-module Common
+    case session.type
+    when 'meterpreter'
+      session.sock.peerhost
+    when 'shell'
+      session.session_host
+    end
+  end
 
+  def rport
+    case session.type
+    when 'meterpreter'
+      session.sock.peerport
+    when 'shell'
+      session.session_port
+    end
+  end
+
+  def peer
+    "#{rhost}:#{rport}"
+  end
 
   #
   # Checks if the remote system has a process with ID +pid+
@@ -66,7 +84,7 @@ module Common
     case session.type
     when /meterpreter/
       #
-      # The meterpreter API requires arguments to come seperately from the
+      # The meterpreter API requires arguments to come separately from the
       # executable path. This has no effect on Windows where the two are just
       # blithely concatenated and passed to CreateProcess or its brethren. On
       # POSIX, this allows the server to execve just the executable when a
@@ -94,7 +112,14 @@ module Common
         break if d == ""
         o << d
       end
-      process.channel.close
+      o.chomp! if o
+
+      begin
+        process.channel.close
+      rescue IOError => e
+        # Channel was already closed, but we got the cmd output, so let's soldier on.
+      end
+
       process.close
     when /shell/
       o = session.shell_command_token("#{cmd} #{args}", time_out)
@@ -102,6 +127,23 @@ module Common
     end
     return "" if o.nil?
     return o
+  end
+
+  def cmd_exec_get_pid(cmd, args=nil, time_out=15)
+    case session.type
+      when /meterpreter/
+        if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
+          args = ""
+        end
+        session.response_timeout = time_out
+        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+        process.channel.close
+        pid = process.pid
+        process.close
+        pid
+      else
+        print_error "cmd_exec_get_pid is incompatible with non-meterpreter sessions"
+    end
   end
 
   #
@@ -120,6 +162,55 @@ module Common
     report_host(vm_data)
   end
 
+  #
+  # Returns the value of the environment variable +env+
+  #
+  def get_env(env)
+    case session.type
+    when /meterpreter/
+      return session.sys.config.getenv(env)
+    when /shell/
+      if session.platform =~ /win/
+        if env[0,1] == '%'
+          unless env[-1,1] == '%'
+            env << '%'
+          end
+        else
+          env = "%#{env}%"
+        end
+
+        return cmd_exec("echo #{env}")
+      else
+        unless env[0,1] == '$'
+          env = "$#{env}"
+        end
+
+        return cmd_exec("echo \"#{env}\"")
+      end
+    end
+
+    nil
+  end
+
+  #
+  # Returns a hash of environment variables +envs+
+  #
+  def get_envs(*envs)
+    case session.type
+    when /meterpreter/
+      return session.sys.config.getenvs(*envs)
+    when /shell/
+      result = {}
+      envs.each do |env|
+        res = get_env(env)
+        result[env] = res unless res.blank?
+      end
+
+      return result
+    end
+
+    nil
+  end
+
 end
-end
-end
+

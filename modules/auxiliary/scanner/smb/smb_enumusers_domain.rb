@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -12,8 +10,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
 
   # Scanner mixin should be near last
@@ -45,7 +43,6 @@ class Metasploit3 < Msf::Auxiliary
     val_actual = resp[idx,4].unpack("V")[0]
     idx += 4
     value	= resp[idx,val_actual*2]
-    #print_debug "resp[0x#{idx.to_s(16)},#{val_actual*2}] : " + value
     idx += val_actual * 2
 
     idx += val_actual % 2 * 2 # alignment
@@ -53,18 +50,15 @@ class Metasploit3 < Msf::Auxiliary
     return value,idx
   end
 
-  def parse_NetWkstaEnumUsersInfo(resp)
+  def parse_net_wksta_enum_users_info(resp)
     accounts = [ Hash.new() ]
 
-    #print_debug resp[0,20].unpack("H*")
     idx = 20
     count = resp[idx,4].unpack("V")[0] # wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> Max Count
     idx += 4
-    #print_debug "Max Count  : " + count.to_s
 
     1.upto(count) do
       # wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> Ref ID
-      # print_debug "Ref ID#{account.to_s}: " + resp[idx,4].unpack("H*").to_s
       idx += 4 # ref id name
       idx += 4 # ref id logon domain
       idx += 4 # ref id other domains
@@ -90,12 +84,20 @@ class Metasploit3 < Msf::Auxiliary
     accounts
   end
 
+  def rport
+    @rport || datastore['RPORT']
+  end
+
+  def smb_direct
+    @smbdirect || datastore['SMBDirect']
+  end
+
   def run_host(ip)
 
     [[139, false], [445, true]].each do |info|
 
-    datastore['RPORT'] = info[0]
-    datastore['SMBDirect'] = info[1]
+    @rport = info[0]
+    @smbdirect = info[1]
 
     begin
       connect()
@@ -124,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 
         resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
 
-        accounts = parse_NetWkstaEnumUsersInfo(resp)
+        accounts = parse_net_wksta_enum_users_info(resp)
         accounts.shift
 
         if datastore['VERBOSE']

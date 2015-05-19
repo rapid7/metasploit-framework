@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -43,15 +41,22 @@ class Metasploit3 < Msf::Auxiliary
 
       data = sock.get_once
 
-        if ( data and data =~ /\\*.TNSLSNR for (.*)/ )
+        if ( data && data =~ /\\*.TNSLSNR for (.*)/ )
           ora_version = data.match(/\\*.TNSLSNR for (.*)/)[1]
           report_service(
-            :host	=> ip,
-            :port	=> datastore['RPORT'],
-            :name   => "oracle",
-            :info   => ora_version
+            :host => ip,
+            :port => datastore['RPORT'],
+            :name => "oracle",
+            :info => ora_version
           )
           print_good("#{ip}:#{datastore['RPORT']} Oracle - Version: " + ora_version)
+        elsif ( data && data =~ /\(ERR=(\d+)\)/ )
+          case $1.to_i
+          when 1189
+            print_error( "#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown - Error code #{$1} - The listener could not authenticate the user")
+          else
+            print_error( "#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown - Error code #{$1}")
+          end
         else
           print_error( "#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown")
         end

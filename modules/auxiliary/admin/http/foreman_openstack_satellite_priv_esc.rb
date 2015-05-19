@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -69,7 +67,7 @@ class Metasploit4 < Msf::Auxiliary
       print_error('Authentication failed')
       return
     else
-      session = $1 if res.headers['Set-Cookie'] =~ /_session_id=([0-9a-f]*)/
+      session = $1 if res.get_cookies =~ /_session_id=([0-9a-f]*)/
 
       if session.nil?
         print_error('Failed to retrieve the current session id')

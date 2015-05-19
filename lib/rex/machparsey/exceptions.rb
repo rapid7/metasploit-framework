@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 module Rex
@@ -18,9 +17,6 @@ end
 
 class BoundsError < MachError
 end
-
-#class WtfError < MachError
-#end
 
 class FatError < ::RuntimeError
 end

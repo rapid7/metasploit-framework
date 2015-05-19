@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -50,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
     connect
 
     sock.put("GET /_vti_inf.html HTTP/1.1\r\n" + "TE: deflate,gzip;q=0.3\r\n" + "Keep-Alive: 300\r\n" +
-        "Connection: Keep-Alive, TE\r\n" + "Host: #{target_host}\r\n" + "User-Agent: " +
+        "Connection: Keep-Alive, TE\r\n" + "Host: #{vhost}\r\n" + "User-Agent: " +
         datastore['UserAgent'] + "\r\n\r\n")
 
     res = sock.get_once || ''
@@ -97,8 +95,9 @@ class Metasploit3 < Msf::Auxiliary
     method = "method=open+service:#{fpversion}&service_name=/"
 
     req = "POST /_vti_bin/_vti_aut/author.dll HTTP/1.1\r\n" + "TE: deflate,gzip;q=0.3\r\n" +
-      "Keep-Alive: 300\r\n" + "Connection: Keep-Alive, TE\r\n" + "Host: #{target_host}\r\n" +
+      "Keep-Alive: 300\r\n" + "Connection: Keep-Alive, TE\r\n" + "Host: #{vhost}\r\n" +
       "User-Agent: " + datastore['UserAgent'] + "\r\n" + "Content-Type: application/x-www-form-urlencoded\r\n" +
+      "X-Vermeer-Content-Type: application/x-www-form-urlencoded" + "\r\n" +
       "Content-Length: #{method.length}\r\n\r\n" + method + "\r\n\r\n"
 
     sock.put(req)

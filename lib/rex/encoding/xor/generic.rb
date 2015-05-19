@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/encoding/xor/exceptions'
@@ -37,7 +36,7 @@ class Generic
     return _find_good_key(data, _find_bad_keys(data, badchars), badchars)
   end
 
-  # !!! xxx MAKE THESE BITCHE PRIVATE
+  # !!! xxx MAKE THESE PRIVATE
 
   #
   # Find a list of bytes that can't be valid xor keys, from the data and badchars.

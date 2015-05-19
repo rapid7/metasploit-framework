@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -35,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "sensitive_files.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
       ], self.class)
   end
 
@@ -89,17 +87,17 @@ class Metasploit3 < Msf::Auxiliary
       if datastore['VERBOSE'] == true
         vprint_good("#{rhost}:#{rport} - Response - File #{file}:")
         res.body.each_line do |line|
-          #the following is the last line of the useless response
+          # the following is the last line of the useless response
           if line.to_s =~ /\/\/--><\/SCRIPT>/
-            #setting out = true to print all of the following stuff
+            # setting out = true to print all of the following stuff
             out = true
             next
           end
           if out == true
             if line =~ /<META/ or line =~ /<Script/
-              #we are finished :)
-              #the next line is typical code from the website and nothing from us
-              #this means we can skip this stuff ...
+              # we are finished :)
+              # the next line is typical code from the website and nothing from us
+              # this means we can skip this stuff ...
               out = false
               next
             else

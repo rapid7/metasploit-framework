@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -75,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 
     base_url = generate_base_url(cli, request)
 
-    # print_status("#{cli.peerhost} [#{cid}] Incoming #{request.method} request for #{request.uri}")
+    #print_status("#{cli.peerhost} [#{cid}] Incoming #{request.method} request for #{request.uri}")
 
     case request.uri
     when /\.js(\?|$)/

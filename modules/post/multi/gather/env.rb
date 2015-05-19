@@ -1,13 +1,10 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 
@@ -19,7 +16,7 @@ class Metasploit3 < Msf::Post
       'Description'   => %q{ This module prints out the operating system environment variables },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
-      'Platform'      => [ 'linux', 'win' ],
+      'Platform'      => %w{ linux win },
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
     @ltype = 'generic.environment'
@@ -57,9 +54,8 @@ class Metasploit3 < Msf::Post
       var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
       output = []
       var_names.delete(nil)
-      var_names.flatten.uniq.sort.each do |v|
-        # Emulate the output of set and env, e.g. VAR=VALUE
-        output << "#{v}=#{session.fs.file.expand_path("\%#{v}\%")}"
+      session.sys.config.getenvs(*var_names.flatten.uniq.sort).each do |k, v|
+        output << "#{k}=#{v}"
       end
       @output = output.join("\n")
       @ltype = "windows.environment"

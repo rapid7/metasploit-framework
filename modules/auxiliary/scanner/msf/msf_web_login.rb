@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -17,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Metasploit Web interface Login Utility',
+      'Name'           => 'Metasploit Web Interface Login Utility',
       'Description'    => %{
         This module simply attempts to login to a Metasploit
         web interface using a specific user/pass.
@@ -78,9 +76,9 @@ class Metasploit3 < Msf::Auxiliary
 
       token = ''
       uisession = ''
-      if res and res.code == 200 and res.headers['Set-Cookie']
+      if res and res.code == 200 and !res.get_cookies.empty?
         # extract tokens from cookie
-        res.headers['Set-Cookie'].split(';').each {|c|
+        res.get_cookies.split(';').each {|c|
           c.split(',').each {|v|
             if v.split('=')[0] =~ /token/
               token = v.split('=')[1]

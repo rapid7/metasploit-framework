@@ -29,6 +29,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/netware'
   require 'msf/core/payload/java'
   require 'msf/core/payload/dalvik'
+  require 'msf/core/payload/firefox'
 
   ##
   #
@@ -101,14 +102,14 @@ class Payload < Msf::Module
   # Returns MODULE_PAYLOAD to indicate that this is a payload module.
   #
   def self.type
-    return MODULE_PAYLOAD
+    return Msf::MODULE_PAYLOAD
   end
 
   #
   # Returns MODULE_PAYLOAD to indicate that this is a payload module.
   #
   def type
-    return MODULE_PAYLOAD
+    return Msf::MODULE_PAYLOAD
   end
 
   #
@@ -156,6 +157,36 @@ class Payload < Msf::Module
   #
   def staged?
     (@staged or payload_type == Type::Stager or payload_type == Type::Stage)
+  end
+
+  #
+  # This method returns an optional cached size value
+  #
+  def self.cached_size
+    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize == :dynamic ? nil : csize
+  end
+
+  #
+  # This method returns whether the payload generates variable-sized output
+  #
+  def self.dynamic_size?
+    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize == :dynamic
+  end
+
+  #
+  # This method returns an optional cached size value
+  #
+  def cached_size
+      self.class.cached_size
+  end
+
+  #
+  # This method returns whether the payload generates variable-sized output
+  #
+  def dynamic_size?
+      self.class.dynamic_size?
   end
 
   #
@@ -233,7 +264,7 @@ class Payload < Msf::Module
   # payload's convention.
   #
   def compatible_convention?(conv)
-    # If we ourself don't have a convention or our convention is equal to
+    # If we don't have a convention or our convention is equal to
     # the one supplied, then we know we are compatible.
     if ((self.convention == nil) or
         (self.convention == conv))
@@ -281,12 +312,19 @@ class Payload < Msf::Module
   end
 
   #
+  # Generates the payload and returns the raw buffer to the caller,
+  # handling any post-processing tasks, such as prepended code stubs.
+  def generate_complete
+    apply_prepends(generate)
+  end
+
+  #
   # Substitutes variables with values from the module's datastore in the
   # supplied raw buffer for a given set of named offsets.  For instance,
   # RHOST is substituted with the RHOST value from the datastore which will
   # have been populated by the framework.
   #
-  # Supprted packing types:
+  # Supported packing types:
   #
   # - ADDR  (foo.com, 1.2.3.4)
   # - ADDR6 (foo.com, fe80::1234:5678:8910:1234)
@@ -336,9 +374,9 @@ class Payload < Msf::Module
           # Check to see if the value is a hex string.  If so, convert
           # it.
           if val.kind_of?(String)
-            if val =~ /^\\x/
-              val = [ val.gsub(/\\x/, '') ].pack("H*").unpack(pack)[0]
-            elsif val =~ /^0x/
+            if val =~ /^\\x/n
+              val = [ val.gsub(/\\x/n, '') ].pack("H*").unpack(pack)[0]
+            elsif val =~ /^0x/n
               val = val.hex
             end
           end
@@ -413,7 +451,7 @@ class Payload < Msf::Module
     encoders = []
 
     framework.encoders.each_module_ranked(
-      'Arch' => self.arch) { |name, mod|
+      'Arch' => self.arch, 'Platform' => self.platform) { |name, mod|
       encoders << [ name, mod ]
     }
 
@@ -434,6 +472,13 @@ class Payload < Msf::Module
     return nops
   end
 
+  #
+  # A placeholder stub, to be overriden by mixins
+  #
+  def apply_prepends(raw)
+    raw
+  end
+
   ##
   #
   # Event notifications.
@@ -447,7 +492,6 @@ class Payload < Msf::Module
   # control to the user.
   #
   def on_session(session)
-
 
     # If this payload is associated with an exploit, inform the exploit
     # that a session has been created and potentially shut down any
@@ -499,6 +543,12 @@ class Payload < Msf::Module
   # attribute will point to that exploit instance.
   #
   attr_accessor :assoc_exploit
+
+  #
+  # The amount of space available to the payload, which may be nil,
+  # indicating that the smallest possible payload should be used.
+  #
+  attr_accessor :available_space
 
 protected
 
@@ -552,6 +602,8 @@ protected
       when ARCH_X64    then Metasm::X86_64.new
       when ARCH_PPC    then Metasm::PowerPC.new
       when ARCH_ARMLE  then Metasm::ARM.new
+      when ARCH_MIPSLE  then Metasm::MIPS.new(:little)
+      when ARCH_MIPSBE  then Metasm::MIPS.new(:big)
       else
         elog("Broken payload #{refname} has arch unsupported with assembly: #{module_info["Arch"].inspect}")
         elog("Call stack:\n#{caller.join("\n")}")

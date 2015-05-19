@@ -1,14 +1,10 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/file'
-require 'msf/core/post/windows/priv'
 
 class Metasploit3 < Msf::Post
 
@@ -289,7 +285,8 @@ class Metasploit3 < Msf::Post
     host = session.session_host
 
     #Get Google Chrome user data path
-    sysdrive = expand_path("%SYSTEMDRIVE%").strip
+    env_vars = session.sys.config.getenvs('SYSTEMDRIVE', 'USERNAME')
+    sysdrive = env_vars['SYSTEMDRIVE'].strip
     if directory?("#{sysdrive}\\Users")
       @profiles_path = "#{sysdrive}/Users"
       @data_path = "\\AppData\\Local\\Google\\Chrome\\User Data\\Default"
@@ -314,7 +311,7 @@ class Metasploit3 < Msf::Post
     else
       uid = session.sys.config.getuid
       print_status "Running as user '#{uid}'..."
-      usernames << expand_path("%USERNAME%").strip
+      usernames << env_vars['USERNAME'].strip
     end
 
     has_sqlite3 = true

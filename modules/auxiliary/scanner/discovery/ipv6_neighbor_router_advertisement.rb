@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -151,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    # Start caputure
+    # Start capture
     open_pcap({'FILTER' => "icmp6"})
 
     @netifaces = true

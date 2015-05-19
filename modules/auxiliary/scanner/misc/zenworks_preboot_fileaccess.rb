@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -65,8 +63,20 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(packet)
     sock.get_once(4, 1)
     length = sock.get_once(4, 1)
+
+    unless length
+      print_error("Unable to get length due to a timeout")
+      return
+    end
+
     sock.get_once(0x210-8, 1)
     contents = sock.get_once(length.unpack("V").first, 1)
+
+    unless contents
+      print_error("Unable to extract contents due to a timeout")
+      return
+    end
+
     disconnect
 
     print_status "File retrieved successfully!"

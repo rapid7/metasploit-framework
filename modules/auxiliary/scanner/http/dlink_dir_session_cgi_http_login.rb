@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('USERNAME',  [ false, "Username for authentication (default: admin)","admin" ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
       ], self.class)
   end
 
@@ -85,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
     }
   end
 
-  #default to user=admin without password (default on most dlink routers)
+  # default to user=admin without password (default on most dlink routers)
   def do_login(user='admin', pass='')
     vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 

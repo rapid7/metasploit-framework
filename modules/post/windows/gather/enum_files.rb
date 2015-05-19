@@ -1,12 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
-require 'msf/core/post/file'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
@@ -58,7 +55,7 @@ class Metasploit3 < Msf::Post
 
 
   def download_files(location, file_type)
-    sysdriv = client.fs.file.expand_path("%SYSTEMDRIVE%")
+    sysdriv = client.sys.config.getenv('SYSTEMDRIVE')
     sysnfo = client.sys.config.sysinfo['OS']
     profile_path_old = sysdriv + "\\Documents and Settings\\"
     profile_path_new = sysdriv + "\\Users\\"

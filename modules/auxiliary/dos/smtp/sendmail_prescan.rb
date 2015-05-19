@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -15,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Sendmail SMTP Address prescan <= 8.12.8 Memory Corruption',
+      'Name'           => 'Sendmail SMTP Address prescan Memory Corruption',
       'Description'    => %q{
         This is a proof of concept denial of service module for Sendmail versions
         8.12.8 and earlier. The vulnerability is within the prescan() method when

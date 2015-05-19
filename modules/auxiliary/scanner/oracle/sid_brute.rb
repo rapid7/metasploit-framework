@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -30,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptPath.new('SID_FILE', [ false, "File containing instance names, one per line", File.join(Msf::Config.install_root, "data", "wordlists", "sid.txt") ]),
+        OptPath.new('SID_FILE', [ false, "File containing instance names, one per line", File.join(Msf::Config.data_directory, "wordlists", "sid.txt") ]),
         OptString.new('SID', [ false, 'A specific SID to attempt.' ]),
         Opt::RPORT(1521)
       ], self.class)
@@ -94,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  # Based vaugely on each_user_pass in AuthBrute
+  # Based vaguely on each_user_pass in AuthBrute
   def each_sid(&block)
     @@oracle_sid_fail = []
     @@oracle_sid_success = []

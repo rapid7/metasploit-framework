@@ -1,3 +1,6 @@
+# -*- coding: binary -*-
+
+require 'rex/text'
 
 # A quick way to produce unique random strings that follow the rules of
 # identifiers, i.e., begin with a letter and contain only alphanumeric
@@ -66,6 +69,13 @@ class Rex::RandomIdentifierGenerator
     #}
   end
 
+  # Returns the @value_by_name hash
+  #
+  # @return [Hash]
+  def to_h
+    return @value_by_name
+  end
+
   # Return a unique random identifier for +name+, generating a new one
   # if necessary.
   #
@@ -82,6 +92,7 @@ class Rex::RandomIdentifierGenerator
     @value_by_name[name]
   end
   alias [] get
+  alias init_var get
 
   # Add a new identifier. Its name will be checked for uniqueness among
   # previously-generated names.

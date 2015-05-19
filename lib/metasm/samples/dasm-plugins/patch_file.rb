@@ -13,7 +13,7 @@ def backup_program_file
   if File.exist?(f) and not File.exist?(f + '.bak')
     File.open(f + '.bak', 'wb') { |wfd|
       File.open(f, 'rb') { |rfd|
-        while buf = rfd.read(1<<16)
+        while buf = rfd.read(1024*1024)
           wfd.write buf
         end
       }

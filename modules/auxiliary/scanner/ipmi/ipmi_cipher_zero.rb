@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -16,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'IPMI 2.0 RAKP Cipher Zero Authentication Bypass Scanner',
+      'Name'        => 'IPMI 2.0 Cipher Zero Authentication Bypass Scanner',
       'Description' => %q|
         This module identifies IPMI 2.0 compatible systems that are vulnerable
         to an authentication bypass vulnerability through the use of cipher

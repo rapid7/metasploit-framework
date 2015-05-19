@@ -34,6 +34,7 @@ class EncodedPayload
     self.framework = framework
     self.pinst     = pinst
     self.reqs      = reqs
+    self.space     = reqs['Space']
   end
 
   #
@@ -48,8 +49,6 @@ class EncodedPayload
     self.nop_sled      = nil
     self.encoder       = nil
     self.nop           = nil
-    self.iterations    = reqs['Iterations'].to_i
-    self.iterations    = 1 if self.iterations < 1
 
     # Increase thread priority as necessary.  This is done
     # to ensure that the encoding and sled generation get
@@ -64,11 +63,33 @@ class EncodedPayload
       # First, validate
       pinst.validate()
 
+      # Tell the payload how much space is available
+      pinst.available_space = self.space
+
       # Generate the raw version of the payload first
       generate_raw() if self.raw.nil?
 
-      # Encode the payload
-      encode()
+      # If encoder is set, it could be an encoders list
+      # The form is "<encoder>:<iteration>, <encoder2>:<iteration>"...
+      if reqs['Encoder']
+        encoder_str = reqs['Encoder']
+        encoder_str.scan(/([^:, ]+):?([^,]+)?/).map do |encoder_opt|
+          reqs['Encoder'] = encoder_opt[0]
+
+          self.iterations = (encoder_opt[1] || reqs['Iterations']).to_i
+          self.iterations = 1 if self.iterations < 1
+
+          # Encode the payload with every encoders in the list
+          encode()
+          # Encoded payload is now the raw payload to be encoded by the next encoder
+          self.raw = self.encoded
+        end
+      else
+        self.iterations = reqs['Iterations'].to_i
+        self.iterations = 1 if self.iterations < 1
+        # No specified encoder, let BadChars or ForceEncode do their job
+        encode()
+      end
 
       # Build the NOP sled
       generate_sled()
@@ -90,7 +111,7 @@ class EncodedPayload
   #
   # @return [String] The raw, unencoded payload.
   def generate_raw
-    self.raw = (reqs['Prepend'] || '') + pinst.generate + (reqs['Append'] || '')
+    self.raw = (reqs['Prepend'] || '') + pinst.generate_complete + (reqs['Append'] || '')
 
     # If an encapsulation routine was supplied, then we should call it so
     # that we can get the real raw payload.
@@ -106,13 +127,16 @@ class EncodedPayload
   def encode
     # If the exploit has bad characters, we need to run the list of encoders
     # in ranked precedence and try to encode without them.
-    if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
+    if reqs['BadChars'].to_s.length > 0 or reqs['Encoder'] or reqs['ForceEncode']
       encoders = pinst.compatible_encoders
 
-      # Fix encoding issue
+      # Make sure the encoder name from the user has the same String#encoding
+      # as the framework's list of encoder names so we can compare them later.
+      # This is important for when we get input from RPC.
       if reqs['Encoder']
         reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
       end
+
       # If the caller had a preferred encoder, use this encoder only
       if ((reqs['Encoder']) and (preferred = framework.encoders[reqs['Encoder']]))
         encoders = [ [reqs['Encoder'], preferred] ]
@@ -124,6 +148,17 @@ class EncodedPayload
       encoders.each { |encname, encmod|
         self.encoder = encmod.new
         self.encoded = nil
+
+        # If the encoding is requested by an exploit check compatibility
+        # options first of all. For the 'generic/none' encoder compatibility
+        # options don't apply.
+        if (reqs['Exploit'] &&
+            !reqs['Exploit'].compatible?(self.encoder) &&
+            encname !~ /generic\/none/)
+          wlog("#{pinst.refname}: Encoder #{encoder.refname} doesn't match the exploit Compat options",
+            'core', LEV_1)
+          next
+        end
 
         # If there is an encoder type restriction, check to see if this
         # encoder matches with what we're searching for.
@@ -147,6 +182,18 @@ class EncodedPayload
           next
         end
 
+        # If the caller explicitly requires register preservation, make sure
+        # that the module in question can handle it. This is mostly used by
+        # the stage encoder path.
+        if (reqs['ForceSaveRegisters'] and
+            reqs['EncoderOptions'] and
+            (reqs['EncoderOptions']['SaveRegisters'].to_s.length > 0) and
+            (! self.encoder.can_preserve_registers?))
+          wlog("#{pinst.refname}: Encoder #{encoder.refname} does not preserve registers and the caller needs #{reqs['EncoderOptions']['SaveRegisters']} preserved.",
+            'core', LEV_1)
+          next
+        end
+
         # Import the datastore from payload (and likely exploit by proxy)
         self.encoder.share_datastore(pinst.datastore)
 
@@ -164,6 +211,9 @@ class EncodedPayload
             'core', LEV_1)
           next
         end
+
+        # Tell the encoder how much space is available
+        self.encoder.available_space = self.space
 
         eout = self.raw.dup
 
@@ -198,7 +248,7 @@ class EncodedPayload
 
           # Check to see if we have enough room for the minimum requirements
           if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
-            wlog("#{err_start}: Encoded payload version is too large with encoder #{encoder.refname}",
+            wlog("#{err_start}: Encoded payload version is too large (#{eout.length} bytes) with encoder #{encoder.refname}",
               'core', LEV_1)
             next_encoder = true
             break
@@ -218,7 +268,6 @@ class EncodedPayload
       # suck at life.
       if (self.encoded == nil)
         self.encoder = nil
-
         raise NoEncodersSucceededError,
           "#{pinst.refname}: All encoders failed to encode.",
           caller
@@ -232,6 +281,7 @@ class EncodedPayload
 
     # Prefix the prepend encoder value
     self.encoded = (reqs['PrependEncoder'] || '') + self.encoded
+    self.encoded << (reqs['AppendEncoder'] || '')
   end
 
   #
@@ -393,6 +443,15 @@ class EncodedPayload
   end
 
   #
+  # An array containing the architecture(s) that this payload was made to run on
+  #
+  def arch
+    if pinst
+      pinst.arch
+    end
+  end
+
+  #
   # The raw version of the payload
   #
   attr_reader :raw
@@ -421,7 +480,10 @@ class EncodedPayload
   # The number of encoding iterations used
   #
   attr_reader :iterations
-
+  #
+  # The maximum number of bytes acceptable for the encoded payload
+  #
+  attr_reader :space
 protected
 
   attr_writer :raw # :nodoc:
@@ -432,6 +494,7 @@ protected
   attr_writer :encoder # :nodoc:
   attr_writer :nop # :nodoc:
   attr_writer :iterations # :nodoc:
+  attr_writer :space # :nodoc
 
   #
   # The payload instance used to generate the payload

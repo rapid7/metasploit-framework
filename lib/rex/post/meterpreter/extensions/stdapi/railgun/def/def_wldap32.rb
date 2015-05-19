@@ -35,6 +35,26 @@ class Def_wldap32
         ['PDWORD', 'res', 'out']
     ], 'ldap_search_sA', "cdecl")
 
+    dll.add_function('ldap_set_option', 'DWORD',[
+        ['DWORD', 'ld', 'in'],
+        ['DWORD', 'option', 'in'],
+        ['PDWORD', 'invalue', 'in']
+    ], 'ldap_set_option', "cdecl")
+
+    dll.add_function('ldap_search_ext_sA', 'DWORD',[
+        ['DWORD', 'ld', 'in'],
+        ['PCHAR', 'base', 'in'],
+        ['DWORD', 'scope', 'in'],
+        ['PCHAR', 'filter', 'in'],
+        ['PCHAR', 'attrs[]', 'in'],
+        ['DWORD', 'attrsonly', 'in'],
+        ['DWORD', 'pServerControls', 'in'],
+        ['DWORD', 'pClientControls', 'in'],
+        ['DWORD', 'pTimeout', 'in'],
+        ['DWORD', 'SizeLimit', 'in'],
+        ['PDWORD', 'res', 'out']
+    ], 'ldap_search_ext_sA', "cdecl")
+
     dll.add_function('ldap_count_entries', 'DWORD',[
         ['DWORD', 'ld', 'in'],
         ['DWORD', 'res', 'in']

@@ -1,16 +1,12 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'shellwords'
-require 'msf/core/post/osx/ruby_dl'
 
 class Metasploit3 < Msf::Post
-  include Msf::Post::Common
   include Msf::Post::File
   include Msf::Auxiliary::Report
   include Msf::Post::OSX::RubyDL
@@ -25,9 +21,9 @@ class Metasploit3 < Msf::Post
           capture (with the RECORD action) audio inputs on a remote OSX machine.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev <jvennix[at]rapid7.com>'],
+      'Author'        => [ 'joev'],
       'Platform'      => [ 'osx'],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ],
+      'SessionTypes'  => [ 'shell' ],
       'Actions'       => [
         [ 'LIST',     { 'Description' => 'Show a list of microphones' } ],
         [ 'RECORD', { 'Description' => 'Record from a selected audio input' } ]
@@ -51,8 +47,8 @@ class Metasploit3 < Msf::Post
 
 
   def run
-    fail_with("Invalid session ID selected.") if client.nil?
-    fail_with("Invalid action") if action.nil?
+    fail_with(Failure::BadConfig, "Invalid session ID selected.") if client.nil?
+    fail_with(Failure::BadConfig, "Invalid action") if action.nil?
 
     num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
     tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
@@ -109,7 +105,7 @@ class Metasploit3 < Msf::Post
             end
           end
         rescue ::Timeout::Error
-          fail_with("Client did not respond to file request after #{poll_timeout}s, exiting.")
+          fail_with(Failure::TimeoutExpired, "Client did not respond to file request after #{poll_timeout}s, exiting.")
         end
       end
     end
@@ -127,6 +123,7 @@ class Metasploit3 < Msf::Post
 
   private
 
-  def poll_timeout; POLL_TIMEOUT; end
-  def fail_with(msg); raise msg; end
+  def poll_timeout
+    POLL_TIMEOUT
+  end
 end

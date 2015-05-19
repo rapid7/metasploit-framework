@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/struct2'
@@ -214,6 +213,15 @@ class ElfBase
     [ 'uint32n', 'p_flags',  0 ],
     [ 'uint32n', 'p_align',  0 ]
   )
+
+  # p_flags  This member tells which permissions should have the segment
+
+  # Flags
+
+  PF_EXEC    = 1
+  PF_WRITE   = 2
+  PF_READ    = 4 
+
 
   #
   # p_type  This member tells what kind of segment this array element

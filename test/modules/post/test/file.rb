@@ -1,4 +1,7 @@
+require 'msf/core'
 
+lib = File.join(Msf::Config.install_root, "test", "lib")
+$:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
 #load 'test/lib/module_test.rb'
@@ -7,162 +10,167 @@ require 'module_test'
 
 class Metasploit4 < Msf::Post
 
-	include Msf::ModuleTest::PostTest
-	include Msf::Post::Common
-	include Msf::Post::File
+  include Msf::ModuleTest::PostTest
+  include Msf::Post::Common
+  include Msf::Post::File
 
-	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'Testing Remote File Manipulation',
-				'Description'   => %q{ This module will test Post::File API methods },
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'egypt'],
-				'Platform'      => [ 'windows', 'linux', 'java' ],
-				'SessionTypes'  => [ 'meterpreter', 'shell' ]
-			))
-	end
+  def initialize(info={})
+    super( update_info( info,
+        'Name'          => 'Testing Remote File Manipulation',
+        'Description'   => %q{ This module will test Post::File API methods },
+        'License'       => MSF_LICENSE,
+        'Author'        => [ 'egypt'],
+        'Platform'      => [ 'windows', 'linux', 'java' ],
+        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+      ))
 
-	#
-	# Change directory into a place that we have write access.
-	#
-	# The +cleanup+ method will change it back
-	#
-	def setup
-		@old_pwd = pwd
-		tmp = (directory?("/tmp")) ? "/tmp" : "%TMP%"
-		vprint_status("Setup: changing working directory to #{tmp}")
-		cd(tmp)
+    register_options(
+      [
+        OptString.new("BaseFileName" , [true, "File name to create", "meterpreter-test"])
+      ], self.class)
+  end
 
-		super
-	end
+  #
+  # Change directory into a place that we have write access.
+  #
+  # The +cleanup+ method will change it back
+  #
+  def setup
+    @old_pwd = pwd
+    tmp = (directory?("/tmp")) ? "/tmp" : "%TEMP%"
+    vprint_status("Setup: changing working directory to #{tmp}")
+    cd(tmp)
 
-	def test_file
-		it "should test for file existence" do
-			ret = false
-			[
-				"c:\\boot.ini",
-				"c:\\pagefile.sys",
-				"/etc/passwd",
-				"/etc/master.passwd"
-			].each { |path|
-				ret = true if file?(path)
-			}
+    super
+  end
 
-			ret
-		end
+  def test_file
+    it "should test for file existence" do
+      ret = false
+      [
+        "c:\\boot.ini",
+        "c:\\pagefile.sys",
+        "/etc/passwd",
+        "/etc/master.passwd"
+      ].each { |path|
+        ret = true if file?(path)
+      }
 
-		it "should test for directory existence" do
-			ret = false
-			[
-				"c:\\",
-				"/etc/",
-				"/tmp"
-			].each { |path|
-				ret = true if directory?(path)
-			}
+      ret
+    end
 
-			ret
-		end
+    it "should test for directory existence" do
+      ret = false
+      [
+        "c:\\",
+        "/etc/",
+        "/tmp"
+      ].each { |path|
+        ret = true if directory?(path)
+      }
 
-		it "should create text files" do
-			write_file("pwned", "foo")
+      ret
+    end
 
-			file?("pwned")
-		end
+    it "should create text files" do
+      write_file(datastore["BaseFileName"], "foo")
 
-		it "should read the text we just wrote" do
-			f = read_file("pwned")
-			ret = ("foo" == f)
-			unless ret
-				print_error("Didn't read what we wrote, actual file on target: #{f}")
-			end
+      file?(datastore["BaseFileName"])
+    end
 
-			ret
-		end
+    it "should read the text we just wrote" do
+      f = read_file(datastore["BaseFileName"])
+      ret = ("foo" == f)
+      unless ret
+        print_error("Didn't read what we wrote, actual file on target: #{f}")
+      end
 
-		it "should append text files" do
-			ret = true
-			append_file("pwned", "bar")
+      ret
+    end
 
-			ret &&= read_file("pwned") == "foobar"
-			append_file("pwned", "baz")
-			final_contents = read_file("pwned")
-			ret &&= final_contents == "foobarbaz"
-			unless ret
-				print_error("Didn't read what we wrote, actual file on target: #{final_contents}")
-			end
+    it "should append text files" do
+      ret = true
+      append_file(datastore["BaseFileName"], "bar")
 
-			ret
-		end
+      ret &&= read_file(datastore["BaseFileName"]) == "foobar"
+      append_file(datastore["BaseFileName"], "baz")
+      final_contents = read_file(datastore["BaseFileName"])
+      ret &&= final_contents == "foobarbaz"
+      unless ret
+        print_error("Didn't read what we wrote, actual file on target: #{final_contents}")
+      end
 
-		it "should delete text files" do
-			file_rm("pwned")
+      ret
+    end
 
-			not file_exist?("pwned")
-		end
+    it "should delete text files" do
+      file_rm(datastore["BaseFileName"])
 
-		it "should move files" do
-				# Make sure we don't have leftovers from a previous run
-				file_rm("meterpreter-test") rescue nil
-				file_rm("meterpreter-test-moved") rescue nil
+      not file_exist?(datastore["BaseFileName"])
+    end
 
-				# touch a new file
-				write_file("meterpreter-test", "")
+    it "should move files" do
+        # Make sure we don't have leftovers from a previous run
+        file_rm("meterpreter-test") rescue nil
+        file_rm("meterpreter-test-moved") rescue nil
 
-				rename_file("meterpreter-test", "meterpreter-test-moved")
-				res &&= exist?("meterpreter-test-moved")
-				res &&= !exist?("meterpreter-test")
+        # touch a new file
+        write_file("meterpreter-test", "")
 
-				# clean up
-				file_rm("meterpreter-test") rescue nil
-				file_rm("meterpreter-test-moved") rescue nil
-		end
+        rename_file("meterpreter-test", "meterpreter-test-moved")
+        res &&= exist?("meterpreter-test-moved")
+        res &&= !exist?("meterpreter-test")
 
-	end
+        # clean up
+        file_rm("meterpreter-test") rescue nil
+        file_rm("meterpreter-test-moved") rescue nil
+    end
 
-	def test_binary_files
+  end
 
-		#binary_data = ::File.read("/bin/ls")
-		binary_data = ::File.read("/bin/echo")
-		#binary_data = "\xff\x00\xff\xfe\xff\`$(echo blha)\`"
-		it "should write binary data" do
-			vprint_status "Writing #{binary_data.length} bytes"
-			t = Time.now
-			write_file("pwned", binary_data)
-			vprint_status("Finished in #{Time.now - t}")
+  def test_binary_files
 
-			file_exist?("pwned")
-		end
+    #binary_data = ::File.read("/bin/ls")
+    binary_data = ::File.read("/bin/echo")
+    #binary_data = "\xff\x00\xff\xfe\xff\`$(echo blha)\`"
+    it "should write binary data" do
+      vprint_status "Writing #{binary_data.length} bytes"
+      t = Time.now
+      write_file(datastore["BaseFileName"], binary_data)
+      vprint_status("Finished in #{Time.now - t}")
 
-		it "should read the binary data we just wrote" do
-			bin = read_file("pwned")
-			vprint_status "Read #{bin.length} bytes"
+      file_exist?(datastore["BaseFileName"])
+    end
 
-			bin == binary_data
-		end
+    it "should read the binary data we just wrote" do
+      bin = read_file(datastore["BaseFileName"])
+      vprint_status "Read #{bin.length} bytes"
 
-		it "should delete binary files" do
-			file_rm("pwned")
+      bin == binary_data
+    end
 
-			not file_exist?("pwned")
-		end
+    it "should delete binary files" do
+      file_rm(datastore["BaseFileName"])
 
-		it "should append binary data" do
-			write_file("pwned", "\xde\xad")
-			append_file("pwned", "\xbe\xef")
-			bin = read_file("pwned")
-			file_rm("pwned")
+      not file_exist?(datastore["BaseFileName"])
+    end
 
-			bin == "\xde\xad\xbe\xef"
-		end
+    it "should append binary data" do
+      write_file(datastore["BaseFileName"], "\xde\xad")
+      append_file(datastore["BaseFileName"], "\xbe\xef")
+      bin = read_file(datastore["BaseFileName"])
+      file_rm(datastore["BaseFileName"])
 
-	end
+      bin == "\xde\xad\xbe\xef"
+    end
 
-	def cleanup
-		vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
-		cd(@old_pwd)
-		super
-	end
+  end
+
+  def cleanup
+    vprint_status("Cleanup: changing working directory back to #{@old_pwd}")
+    cd(@old_pwd)
+    super
+  end
 
 end
 

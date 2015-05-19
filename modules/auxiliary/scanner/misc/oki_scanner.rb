@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 # TODO: Split this module into two seperate SNMP and HTTP modules.
@@ -51,8 +49,8 @@ class Metasploit3 < Msf::Auxiliary
       last_six  = mac.value.unpack("H2H2H2H2H2H2").join[-6,6].upcase
       first_six = mac.value.unpack("H2H2H2H2H2H2").join[0,6].upcase
 
-      #check if it is a OKI
-      #OUI list can be found at http://standards.ieee.org/develop/regauth/oui/oui.txt
+      # check if it is a OKI
+      # OUI list can be found at http://standards.ieee.org/develop/regauth/oui/oui.txt
       if first_six ==  "002536" || first_six == "008087" || first_six == "002536"
         sys_name = snmp.get_value('1.3.6.1.2.1.1.5.0').to_s
         print_status("Found: #{sys_name}")

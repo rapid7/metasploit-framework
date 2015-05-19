@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -18,7 +16,7 @@ class Metasploit3 < Msf::Encoder::Xor
       'Description'      => %q{
         Mips Web server exploit friendly xor encoder
       },
-      'Author'           => 'Julien Tinnes <julien at cr0.org>',
+      'Author'           => 'Julien Tinnes <julien[at]cr0.org>',
       'Arch'             => ARCH_MIPSBE,
       'License'          => MSF_LICENSE,
       'Decoder'          =>

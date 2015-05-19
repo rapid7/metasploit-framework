@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -12,8 +10,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB
-  include Msf::Exploit::Remote::SMB::Authenticated
+  include Msf::Exploit::Remote::SMB::Client
+  include Msf::Exploit::Remote::SMB::Client::Authenticated
 
   include Msf::Exploit::Remote::DCERPC
 
@@ -33,6 +31,14 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     deregister_options('RPORT', 'RHOST')
+  end
+
+  def rport
+    @rport || super
+  end
+
+  def smb_direct
+    @smbdirect || super
   end
 
   # Locate an available SMB PIPE for the specified service
@@ -134,8 +140,8 @@ class Metasploit3 < Msf::Auxiliary
 
     [[139, false], [445, true]].each do |info|
 
-    datastore['RPORT'] = info[0]
-    datastore['SMBDirect'] = info[1]
+    @rport = info[0]
+    @smbdirect = info[1]
 
     sam_pipe   = nil
     sam_handle = nil
@@ -293,7 +299,7 @@ class Metasploit3 < Msf::Auxiliary
         report_note(
           :host => ip,
           :proto => 'tcp',
-          :port => datastore['RPORT'],
+          :port => rport,
           :type => 'smb.domain.enumusers',
           :data => domains[domain]
         )

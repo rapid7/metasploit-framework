@@ -74,6 +74,7 @@ class Table
     self.colprops = []
 
     self.sort_index  = opts['SortIndex'] || 0
+    self.sort_order  = opts['SortOrder'] || :forward
 
     # Default column properties
     self.columns.length.times { |idx|
@@ -187,21 +188,22 @@ class Table
   # If the supplied index is an IPv4 address, handle it differently, but
   # avoid actually resolving domain names.
   #
-  def sort_rows(index=sort_index)
+  def sort_rows(index = sort_index, order = sort_order)
     return if index == -1
     return unless rows
     rows.sort! do |a,b|
       if a[index].nil?
-        -1
+        cmp = -1
       elsif b[index].nil?
-        1
+        cmp = 1
       elsif Rex::Socket.dotted_ip?(a[index]) and Rex::Socket.dotted_ip?(b[index])
-        Rex::Socket::addr_atoi(a[index]) <=> Rex::Socket::addr_atoi(b[index])
+        cmp = Rex::Socket::addr_atoi(a[index]) <=> Rex::Socket::addr_atoi(b[index])
       elsif a[index] =~ /^[0-9]+$/ and b[index] =~ /^[0-9]+$/
-        a[index].to_i <=> b[index].to_i
+        cmp = a[index].to_i <=> b[index].to_i
       else
-        a[index] <=> b[index] # assumes otherwise comparable.
+        cmp = a[index] <=> b[index] # assumes otherwise comparable.
       end
+      order == :forward ? cmp : -cmp
     end
   end
 
@@ -212,13 +214,38 @@ class Table
     rows << '__hr__'
   end
 
+  #
+  # Returns new sub-table with headers and rows maching column names submitted
+  #
+  def [](*col_names)
+    tbl = self.class.new('Indent' => self.indent,
+                         'Header' => self.header,
+                         'Columns' => col_names)
+    indexes = []
+
+    col_names.each do |col_name|
+      index = self.columns.index(col_name)
+      raise RuntimeError, "Invalid column name #{col_name}" if index.nil?
+      indexes << index
+    end
+
+    self.rows.each do |old_row|
+      new_row = []
+      indexes.map {|i| new_row << old_row[i]}
+      tbl << new_row
+    end
+
+    return tbl
+  end
+
+
   alias p print
 
   attr_accessor :header, :headeri # :nodoc:
   attr_accessor :columns, :rows, :colprops # :nodoc:
   attr_accessor :width, :indent, :cellpad # :nodoc:
   attr_accessor :prefix, :postfix # :nodoc:
-  attr_accessor :sort_index # :nodoc:
+  attr_accessor :sort_index, :sort_order # :nodoc:
 
 protected
 
@@ -250,9 +277,9 @@ protected
         nameline << pad(' ', last_col, last_idx)
 
         remainder = colprops[last_idx]['MaxWidth'] - last_col.length
-      if (remainder < 0)
-        remainder = 0
-      end
+        if (remainder < 0)
+          remainder = 0
+        end
         barline << (' ' * (cellpad + remainder))
       end
       nameline << col
@@ -280,12 +307,18 @@ protected
     last_cell = nil
     last_idx = nil
     row.each_with_index { |cell, idx|
-      if (last_cell)
+      if (idx != 0)
         line << pad(' ', last_cell.to_s, last_idx)
       end
-      line << cell.to_s
       # line << pad(' ', cell.to_s, idx)
-      last_cell = cell
+      # Limit wide cells
+      if colprops[idx]['MaxChar']
+        last_cell = cell.to_s[0..colprops[idx]['MaxChar'].to_i]
+        line << last_cell
+      else
+        line << cell.to_s
+        last_cell = cell
+      end
       last_idx = idx
     }
 

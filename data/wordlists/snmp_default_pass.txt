@@ -92,6 +92,7 @@ root
 router
 rw
 rwa
+s!a@m#n$p%c
 san-fran
 sanfran
 scotty

@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -36,10 +34,6 @@ class Metasploit4 < Msf::Auxiliary
       ], self.class)
     register_autofilter_ports([ 50013 ])
     deregister_options('RHOST')
-  end
-
-  def rport
-    datastore['RPORT']
   end
 
   def run_host(ip)
@@ -240,12 +234,14 @@ class Metasploit4 < Msf::Auxiliary
       if webmethods
         webmethods_output = [] # create empty webmethods array
         webmethods_arr = webmethods.split(",")
-        print_good("#{rhost}:#{rport} [SAP] Unprotected Webmethods :::")
         webmethods_arr.each do | webm |
           # Only add webmethods not found in protectedweb_arr
-          webmethods_output << webm if not protectedweb_arr.include?(webm)
+          webmethods_output << webm unless protectedweb_arr && protectedweb_arr.include?(webm)
         end
-        print_status("#{webmethods_output.join(',')}") if webmethods_output
+        if webmethods_output
+          print_good("#{rhost}:#{rport} [SAP] Unprotected Webmethods :::")
+          print_status("#{webmethods_output.join(',')}")
+        end
         report_note(:host => rhost,
               :proto => 'tcp',
               :port => rport,

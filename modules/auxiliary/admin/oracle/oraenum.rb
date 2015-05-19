@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -31,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
     return if not check_dependencies
 
     begin
-      #Get all values from v$parameter
+      # Get all values from v$parameter
       query = 'select name,value from v$parameter'
       vparm = {}
       params = prepare_exec(query)
@@ -49,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("Running Oracle Enumeration....")
 
-    #Version Check
+    # Version Check
     query =  'select * from v$version'
     ver = prepare_exec(query)
     print_status("The versions of the Components are:")
@@ -66,11 +64,11 @@ class Metasploit3 < Msf::Auxiliary
       )
     end
 
-    #Saving Major Release Number for other checks
+    # Saving Major Release Number for other checks
     majorrel = ver[0].scan(/Edition Release (\d*)./)
 
     #-------------------------------------------------------
-    #Audit Check
+    # Audit Check
     print_status("Auditing:")
     begin
       if vparm["audit_trail"] == "NONE"
@@ -124,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #Security Settings
+    # Security Settings
     print_status("Security Settings:")
     begin
 
@@ -203,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #Password Policy
+    # Password Policy
     print_status("Password Policy:")
     begin
       query = %Q|
@@ -657,7 +655,7 @@ class Metasploit3 < Msf::Auxiliary
           FROM sys.user$
           where password != 'null' and  type# = 1
         |
-        ordfltpss = "#{File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_hashes.txt")}"
+        ordfltpss = "#{File.join(Msf::Config.data_directory, "wordlists", "oracle_default_hashes.txt")}"
         returnedstring = prepare_exec(query)
         accts = {}
         returnedstring.each do |record|

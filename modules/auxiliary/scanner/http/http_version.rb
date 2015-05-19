@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
@@ -20,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'HTTP Version Detection',
-      'Description' => 'Display version information about each system',
+      'Description' => 'Display version information about each system.',
       'Author'      => 'hdm',
       'License'     => MSF_LICENSE
     )
@@ -35,13 +33,12 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     begin
       connect
-
-      res = send_request_raw({'uri' => '/', 'method' => 'GET' })
-      return if not res
-
+      res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
       fp = http_fingerprint(:response => res)
       print_status("#{ip}:#{rport} #{fp}") if fp
     rescue ::Timeout::Error, ::Errno::EPIPE
+    ensure
+      disconnect
     end
   end
 

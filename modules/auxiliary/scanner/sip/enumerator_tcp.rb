@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -89,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
     case resp
     when /^401/
       print_status("Found user: #{testn} [Auth]")
-      #Add Report
+      # Add Report
       report_note(
         :host	=> rhost,
         :proto	=> 'sip',
@@ -99,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
       )
     when /^200/
       print_status("Found user: #{testn} [Open]")
-      #Add Report
+      # Add Report
       report_note(
         :host	=> rhost,
         :proto	=> 'sip',

@@ -78,7 +78,8 @@ class Railgun
     'crypt32',
     'wlanapi',
     'wldap32',
-    'version'
+    'version',
+    'psapi'
   ].freeze
 
   ##
@@ -290,7 +291,7 @@ class Railgun
   #
   def multi(functions)
     if @multicaller.nil?
-      @multicaller = MultiCaller.new(client, self)
+      @multicaller = MultiCaller.new(client, self, ApiConstants.manager)
     end
 
     return @multicaller.call(functions)

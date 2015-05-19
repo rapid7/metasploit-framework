@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -33,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2012-5204' ],
           [ 'OSVDB', '91029' ],
           [ 'BID', '58676' ],
-          [ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-13-053/' ]
+          [ 'ZDI', '13-053' ]
         ]
     ))
 
@@ -41,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'Path to HP Intelligent Management Center', '/imc']),
-        OptString.new('FILEPATH', [true, 'The name of the file to download', '/boot.ini']),
+        OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
         # By default files downloaded from C:\Program Files\iMC\client\web\apps\imc\tmp\
         OptInt.new('DEPTH', [true, 'Traversal depth', 7])
       ], self.class)

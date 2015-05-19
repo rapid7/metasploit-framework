@@ -31,8 +31,7 @@ class String
 
   # encodes the current string as a Shellcode, returns the resulting EncodedData
   def encode_edata
-    s = Metasm::Shellcode.assemble @@cpu, self
-    s.encoded
+    Metasm::Shellcode.assemble(@@cpu, self).encode.encoded
   end
 
   # encodes the current string as a Shellcode, returns the resulting binary String

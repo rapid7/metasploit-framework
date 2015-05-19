@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
@@ -49,16 +47,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_client_connect(client)
-#		print_status("New connection from #{client.peerhost}:#{client.peerport}")
+    #print_status("New connection from #{client.peerhost}:#{client.peerport}")
   end
 
   def on_client_data(client)
-#		print_status("Data from #{client.peerhost}:#{client.peerport}")
+    #print_status("Data from #{client.peerhost}:#{client.peerport}")
     process_socks(client)
   end
 
   def on_client_close(client)
-#		print_status("Closed connection from #{client.peerhost}:#{client.peerport}")
+    #print_status("Closed connection from #{client.peerhost}:#{client.peerport}")
   end
 
   def run

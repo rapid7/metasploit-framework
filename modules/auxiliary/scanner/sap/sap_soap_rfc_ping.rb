@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 ##
@@ -64,17 +62,21 @@ class Metasploit4 < Msf::Auxiliary
     print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_PING request")
     begin
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc?sap-client=' + client + '&sap-language=EN',
+        'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + client,
+        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
         'data' => data,
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
         'ctype'  => 'text/xml; charset=UTF-8',
-        'headers' =>
-          {
-            'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
-          }
-        })
+        'headers' => {
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
+        },
+        'encode_params' => false,
+        'vars_get' => {
+          'sap-client'    => client,
+          'sap-language'  => 'EN'
+        }
+      })
       if res and res.code != 500 and res.code != 200
         if res and res.body =~ /<h1>Logon failed<\/h1>/
           print_error("[SAP] #{ip}:#{rport} - login failed!")

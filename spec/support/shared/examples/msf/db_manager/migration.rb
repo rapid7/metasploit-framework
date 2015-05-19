@@ -1,143 +1,156 @@
 shared_examples_for 'Msf::DBManager::Migration' do
-	it { should be_a Msf::DBManager::Migration }
+  it { should be_a Msf::DBManager::Migration }
 
-	context '#migrate' do
-		def migrate
-			db_manager.migrate
-		end
 
-		it 'should create a connection' do
-			ActiveRecord::Base.connection_pool.should_receive(:with_connection).twice
+  context '#add_rails_engine_migration_paths' do
+    def add_rails_engine_migration_paths
+      db_manager.add_rails_engine_migration_paths
+    end
 
-			migrate
-		end
+    it 'should not add duplicate paths to ActiveRecord::Migrator.migrations_paths' do
+      add_rails_engine_migration_paths
 
-		it 'should call ActiveRecord::Migrator.migrate' do
-			ActiveRecord::Migrator.should_receive(:migrate).with(
-					ActiveRecord::Migrator.migrations_paths
-			)
+      expect {
+        add_rails_engine_migration_paths
+      }.to_not change {
+        ActiveRecord::Migrator.migrations_paths.length
+      }
 
-			migrate
-		end
+      ActiveRecord::Migrator.migrations_paths.uniq.should == ActiveRecord::Migrator.migrations_paths
+    end
+  end
 
-		it 'should return migrations that were ran from ActiveRecord::Migrator.migrate' do
-			migrations = [mock('Migration 1')]
-			ActiveRecord::Migrator.stub(:migrate => migrations)
+  context '#migrate' do
+    def migrate
+      db_manager.migrate
+    end
 
-			migrate.should == migrations
-		end
+    it 'should call ActiveRecord::Migrator.migrate' do
+      ActiveRecord::Migrator.should_receive(:migrate).with(
+          ActiveRecord::Migrator.migrations_paths
+      )
 
-		it 'should reset the column information' do
-			db_manager.should_receive(:reset_column_information)
+      migrate
+    end
 
-			migrate
-		end
+    it 'should return migrations that were ran from ActiveRecord::Migrator.migrate' do
+      migrations = [double('Migration 1')]
+      ActiveRecord::Migrator.stub(:migrate => migrations)
 
-		context 'with StandardError from ActiveRecord::Migration.migrate' do
-			let(:error) do
-				StandardError.new(message)
-			end
+      migrate.should == migrations
+    end
 
-			let(:message) do
-				"Error during migration"
-			end
+    it 'should reset the column information' do
+      db_manager.should_receive(:reset_column_information)
 
-			before(:each) do
-				ActiveRecord::Migrator.stub(:migrate).and_raise(error)
-			end
+      migrate
+    end
 
-			it 'should set Msf::DBManager#error' do
-				migrate
+    context 'with StandardError from ActiveRecord::Migration.migrate' do
+      let(:error) do
+        StandardError.new(message)
+      end
 
-				db_manager.error.should == error
-			end
+      let(:message) do
+        "Error during migration"
+      end
 
-			it 'should log error message at error level' do
-				db_manager.should_receive(:elog) do |error_message|
-					error_message.should include(error.to_s)
-				end
+      before(:each) do
+        ActiveRecord::Migrator.stub(:migrate).and_raise(error)
+      end
 
-				migrate
-			end
+      it 'should set Msf::DBManager#error' do
+        migrate
 
-			it 'should log error backtrace at debug level' do
-				db_manager.should_receive(:dlog) do |debug_message|
-					debug_message.should include('Call stack')
-				end
+        db_manager.error.should == error
+      end
 
-				migrate
-			end
-		end
+      it 'should log error message at error level' do
+        db_manager.should_receive(:elog) do |error_message|
+          error_message.should include(error.to_s)
+        end
 
-		context 'with verbose' do
-			def migrate
-				db_manager.migrate(verbose)
-			end
+        migrate
+      end
 
-			context 'false' do
-				let(:verbose) do
-					false
-				end
+      it 'should log error backtrace at debug level' do
+        db_manager.should_receive(:dlog) do |debug_message|
+          debug_message.should include('Call stack')
+        end
 
-				it 'should set ActiveRecord::Migration.verbose to false' do
-					ActiveRecord::Migration.should_receive(:verbose=).with(verbose)
+        migrate
+      end
+    end
 
-					migrate
-				end
-			end
+    context 'with verbose' do
+      def migrate
+        db_manager.migrate(verbose)
+      end
 
-			context 'true' do
-				let(:verbose) do
-					true
-				end
+      context 'false' do
+        let(:verbose) do
+          false
+        end
 
-				it 'should set ActiveRecord::Migration.verbose to true' do
-					ActiveRecord::Migration.should_receive(:verbose=).with(verbose)
+        it 'should set ActiveRecord::Migration.verbose to false' do
+          ActiveRecord::Migration.should_receive(:verbose=).with(verbose)
 
-					migrate
-				end
-			end
-		end
+          migrate
+        end
+      end
 
-		context 'without verbose' do
-			it 'should set ActiveRecord::Migration.verbose to false' do
-				ActiveRecord::Migration.should_receive(:verbose=).with(false)
+      context 'true' do
+        let(:verbose) do
+          true
+        end
 
-				db_manager.migrate
-			end
-		end
-	end
+        it 'should set ActiveRecord::Migration.verbose to true' do
+          ActiveRecord::Migration.should_receive(:verbose=).with(verbose)
 
-	context '#migrated' do
-		it { should respond_to :migrated }
-		it { should respond_to :migrated= }
-	end
+          migrate
+        end
+      end
+    end
 
-	context '#reset_column_information' do
-		def reset_column_information
-			db_manager.send(:reset_column_information)
-		end
+    context 'without verbose' do
+      it 'should set ActiveRecord::Migration.verbose to false' do
+        ActiveRecord::Migration.should_receive(:verbose=).with(false)
 
-		it 'should use ActiveRecord::Base.descendants to find both direct and indirect subclasses' do
-			ActiveRecord::Base.should_receive(:descendants).and_return([])
+        db_manager.migrate
+      end
+    end
+  end
 
-			reset_column_information
-		end
+  context '#migrated' do
+    it { should respond_to :migrated }
+    it { should respond_to :migrated= }
+  end
 
-		it 'should reset column information on each descendant of ActiveRecord::Base' do
-			descendants = []
+  context '#reset_column_information' do
+    def reset_column_information
+      db_manager.send(:reset_column_information)
+    end
 
-			1.upto(2) do |i|
-				descendants << mock("Descendant #{i}")
-			end
+    it 'should use ActiveRecord::Base.descendants to find both direct and indirect subclasses' do
+      ActiveRecord::Base.should_receive(:descendants).and_return([])
 
-			ActiveRecord::Base.stub(:descendants => descendants)
+      reset_column_information
+    end
 
-			descendants.each do |descendant|
-				descendant.should_receive(:reset_column_information)
-			end
+    it 'should reset column information on each descendant of ActiveRecord::Base' do
+      descendants = []
 
-			reset_column_information
-		end
-	end
+      1.upto(2) do |i|
+        descendants << double("Descendant #{i}")
+      end
+
+      ActiveRecord::Base.stub(:descendants => descendants)
+
+      descendants.each do |descendant|
+        descendant.should_receive(:reset_column_information)
+      end
+
+      reset_column_information
+    end
+  end
 end

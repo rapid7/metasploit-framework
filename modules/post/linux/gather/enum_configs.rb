@@ -1,19 +1,12 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/linux/system'
 
 class Metasploit3 < Msf::Post
 
-  include Msf::Post::Common
-  include Msf::Post::File
   include Msf::Post::Linux::System
 
   def initialize(info={})
@@ -30,8 +23,8 @@ class Metasploit3 < Msf::Post
         [
           'ohdae <bindshell[at]live.com>',
         ],
-      'Platform'      => [ 'linux' ],
-      'SessionTypes'  => [ 'shell' ]
+      'Platform'      => ['linux'],
+      'SessionTypes'  => ['shell', 'meterpreter']
     ))
   end
 
@@ -81,7 +74,7 @@ class Metasploit3 < Msf::Post
 
     configs.each do |f|
       output = read_file("#{f}")
-      save(f,  output) if output !~ /No such file or directory/
+      save(f,  output) if output && output !~ /No such file or directory/
     end
   end
 end

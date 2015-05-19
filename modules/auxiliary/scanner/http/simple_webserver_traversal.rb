@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -37,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('FILEPATH', [true, 'The name of the file to download', 'boot.ini']),
+        OptString.new('FILEPATH', [true, 'The name of the file to download', 'windows\\win.ini']),
         OptInt.new('DEPTH',       [true, 'The max traversal depth', 8])
       ], self.class)
 

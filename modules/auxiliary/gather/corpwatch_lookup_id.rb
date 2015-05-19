@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -30,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('CW_ID', [ true, "The CorpWatch ID of the company", ""]),
-        OptInt.new('YEAR', [ false, "Year to look up"]),
+        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1]),
         OptBool.new('GET_LOCATIONS', [ false, "Get locations for company", true]),
         OptBool.new('GET_NAMES', [ false, "Get all registered names ofr the company", true]),
         OptBool.new('GET_FILINGS', [ false, "Get all filings", false ]),
@@ -42,19 +40,15 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST', 'RPORT', 'VHOST', 'Proxies')
   end
 
-  def cleanup
-    datastore['RHOST'] = @old_rhost
-    datastore['RPORT'] = @old_rport
+  def rhost_corpwatch
+    'api.corpwatch.org'
+  end
+
+  def rport_corpwatch
+    80
   end
 
   def run
-    # Save the original rhost/rport in case the user was exploiting something else
-    @old_rhost = datastore['RHOST']
-    @old_rport = datastore['RPORT']
-
-    # Initial api.corpwatch.org's rhost and rport for HttpClient
-    datastore['RHOST'] = 'api.corpwatch.org'
-    datastore['RPORT'] = 80
 
     loot = ""
     uri = "/"
@@ -62,6 +56,8 @@ class Metasploit3 < Msf::Auxiliary
     uri << ("/companies/" + datastore['CW_ID'])
 
     res = send_request_cgi({
+      'rhost'    => rhost_corpwatch,
+      'rport'    => rport_corpwatch,
       'uri'      => uri + ".xml",
       'method'   => 'GET'
     }, 25)
@@ -87,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 
     elements = root.get_elements("result")
 
-    if elements == nil || elements.length == 0
+    if elements.blank? || elements.length == 0
       print_error("No results returned")
       return
     end
@@ -159,6 +155,8 @@ class Metasploit3 < Msf::Auxiliary
 
       res = send_request_cgi(
       {
+        'rhost'   => rhost_corpwatch,
+        'rport'   => rport_corpwatch,
         'uri'     => uri + "/locations.xml",
         'method'  => 'GET'
       }, 25)
@@ -229,6 +227,8 @@ class Metasploit3 < Msf::Auxiliary
 
       res = send_request_cgi(
       {
+        'rhost'   => rhost_corpwatch,
+        'rport'   => rport_corpwatch,
         'uri'     => uri + "/names.xml",
         'method'  => 'GET'
       }, 25)
@@ -289,6 +289,8 @@ class Metasploit3 < Msf::Auxiliary
 
       res = send_request_cgi(
       {
+        'rhost'   => rhost_corpwatch,
+        'rport'   => rport_corpwatch,
         'uri'     => uri + "/filings.xml",
         'method'  => 'GET'
       }, 25)
@@ -367,6 +369,8 @@ class Metasploit3 < Msf::Auxiliary
 
       res = send_request_cgi(
       {
+        'rhost'   => rhost_corpwatch,
+        'rport'   => rport_corpwatch,
         'uri'      => child_uri,
         'method'   => 'GET'
       }, 25)
@@ -446,6 +450,8 @@ class Metasploit3 < Msf::Auxiliary
     if datastore['GET_HISTORY']
 
       res = send_request_cgi({
+        'rhost'   => rhost_corpwatch,
+        'rport'   => rport_corpwatch,
         'uri'     => uri + "/history.xml",
         'method'  => 'GET'
       }, 25)

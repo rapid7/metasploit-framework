@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -40,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    #read input register=func:04, register 1
+    # read input register=func:04, register 1
     sploit="\x21\x00\x00\x00\x00\x06\x01\x04\x00\x01\x00\x00"
     sploit[6] = [datastore['UNIT_ID']].pack("C")
     connect()

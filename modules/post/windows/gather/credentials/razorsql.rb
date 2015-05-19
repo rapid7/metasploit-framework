@@ -1,13 +1,10 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/user_profiles'
 require 'msf/core/auxiliary/report'
 
 class Metasploit3 < Msf::Post
@@ -130,19 +127,18 @@ class Metasploit3 < Msf::Post
       "n" => "p" , "m" => "q" , "l" => "r" , "k" => "s" , "j" => "t" ,
       "i" => "u" , "h" => "v" , "P" => "w" , "Q" => "x" , "R" => "y" ,
       "o" => "z" , "p" => "A" , "q" => "B" , "r" => "C" , "t" => "D" ,
-      "s" => "E" , "L" => "F" , "N" => "G" , "M" => "H" , "O" => "I" ,
-      "N" => "J" , "J" => "K" , "v" => "L" , "u" => "M" , "z" => "N" ,
-      "y" => "O" , "w" => "P" , "x" => "Q" , "G" => "R" , "H" => "S" ,
-      "A" => "T" , "B" => "U" , "D" => "V" , "C" => "W" , "E" => "X" ,
-      "F" => "Y" , "I" => "Z" , "?" => "1" , "3" => "2" , "4" => "3" ,
-      "5" => "4" , "6" => "5" , "7" => "6" , "8" => "7" , "9" => "8" ,
-      "2" => "9" , "." => "0" , "+" => "+" , "\"" => "\"" , "*" => "*" ,
-      "%" => "%" , "&" => "&" , "Z" => "/" , "(" => "(" , ")" => ")" ,
-      "=" => "=" , "," => "?" , "!" => "!" , "$" => "$" , "-" => "-" ,
-      "_" => "_" , "b" => ":" , "0" => "." , ";" => ";" , "1" => "," ,
-      "\\" => "\\" , "a" => "<" , "Y" => ">" , "'" => "'" , "^" => "^" ,
-      "{" => "{" , "}" => "}" , "[" => "[" , "]" => "]" , "~" => "~" ,
-      "`" => "`"
+      "s" => "E" , "L" => "F" , "M" => "H" , "O" => "I" , "N" => "J" ,
+      "J" => "K" , "v" => "L" , "u" => "M" , "z" => "N" , "y" => "O" ,
+      "w" => "P" , "x" => "Q" , "G" => "R" , "H" => "S" , "A" => "T" ,
+      "B" => "U" , "D" => "V" , "C" => "W" , "E" => "X" , "F" => "Y" ,
+      "I" => "Z" , "?" => "1" , "3" => "2" , "4" => "3" , "5" => "4" ,
+      "6" => "5" , "7" => "6" , "8" => "7" , "9" => "8" , "2" => "9" ,
+      "." => "0" , "+" => "+" , "\"" => "\"" , "*" => "*" , "%" => "%" ,
+      "&" => "&" , "Z" => "/" , "(" => "(" , ")" => ")" , "=" => "=" ,
+      "," => "?" , "!" => "!" , "$" => "$" , "-" => "-" , "_" => "_" ,
+      "b" => ":" , "0" => "." , ";" => ";" , "1" => "," , "\\" => "\\" ,
+      "a" => "<" , "Y" => ">" , "'" => "'" , "^" => "^" , "{" => "{" ,
+      "}" => "}" , "[" => "[" , "]" => "]" , "~" => "~" , "`" => "`"
     }
     password=''
     for letter in encrypted_password.chomp.each_char

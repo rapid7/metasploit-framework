@@ -10,7 +10,7 @@ require 'abbrev'
 class Msf::Module::Platform
 
   Rank  = 0
-  # actually, having a argument of '' is what to do for wanting 'all'
+  # actually, having an argument of '' is what to do for wanting 'all'
   Short = "all"
 
   class << self
@@ -18,7 +18,7 @@ class Msf::Module::Platform
   end
 
   #
-  # Returns the "real" name of the module instance, accouting for potentially
+  # Returns the "real" name of the module instance, accounting for potentially
   # aliased class names.
   #
   def self.realname
@@ -321,6 +321,11 @@ class Msf::Module::Platform
       Rank = 600
       RealName = "7"
     end
+
+    class W8 < Windows
+      Rank = 700
+      RealName = "8"
+    end
   end
 
   #
@@ -488,19 +493,35 @@ class Msf::Module::Platform
     Alias = "php"
   end
 
-        #
-        # JavaScript
-        #
-        class JavaScript < Msf::Module::Platform
-                Rank = 100
-                Alias = "js"
-        end
+  #
+  # JavaScript
+  #
+  class JavaScript < Msf::Module::Platform
+    Rank = 100
+    Alias = "js"
+  end
 
-        #
-        # Python
-        #
-        class Python < Msf::Module::Platform
-                Rank = 100
-                Alias = "python"
-        end
+  #
+  # Python
+  #
+  class Python < Msf::Module::Platform
+    Rank = 100
+    Alias = "python"
+  end
+
+  #
+  # Node.js
+  #
+  class NodeJS < Msf::Module::Platform
+    Rank = 100
+    Alias = "nodejs"
+  end
+
+  #
+  # Firefox
+  #
+  class Firefox < Msf::Module::Platform
+    Rank = 100
+    Alias = "firefox"
+  end
 end

@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -51,12 +49,6 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('RHOST')
   end
 
-
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
-
   def auth(username, password, sid, last_login)
     res = send_request_cgi({
       'method'    => 'POST',
@@ -94,8 +86,8 @@ class Metasploit3 < Msf::Auxiliary
     last_login = ''  #A hidden field in the login page
 
     res = send_request_raw({'uri'=>'/brightmail/viewLogin.do'})
-    if res and res.headers['Set-Cookie']
-      sid = res.headers['Set-Cookie'].scan(/JSESSIONID=([a-zA-Z0-9]+)/).flatten[0] || ''
+    if res and !res.get_cookies.empty?
+      sid = res.get_cookies.scan(/JSESSIONID=([a-zA-Z0-9]+)/).flatten[0] || ''
     end
 
     if res

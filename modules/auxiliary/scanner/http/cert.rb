@@ -1,8 +1,6 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
@@ -33,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('ISSUER', [ true,  "Show a warning if the Issuer doesn't match this regex", '.*']),
+        OptRegexp.new('ISSUER', [ true,  "Show a warning if the Issuer doesn't match this regex", '.*']),
         OptBool.new('SHOWALL', [ false, "Show all certificates (issuer,time) regardless of match", false]),
       ], self.class)
   end

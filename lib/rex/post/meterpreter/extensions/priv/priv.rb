@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/priv/tlv'
@@ -46,13 +45,10 @@ class Priv < Extension
 
     elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
 
-    if( client.platform == 'x64/win64' )
-      elevator_path = ::File.join( Msf::Config.install_root, "data", "meterpreter", "elevator.x64.dll" )
-    else
-      elevator_path = ::File.join( Msf::Config.install_root, "data", "meterpreter", "elevator.dll" )
+    elevator_path = MetasploitPayloads.meterpreter_path('elevator', client.binary_suffix)
+    if elevator_path.nil?
+      raise RuntimeError, "elevator.#{binary_suffix} not found", caller
     end
-
-    elevator_path = ::File.expand_path( elevator_path )
 
     elevator_data = ""
 
