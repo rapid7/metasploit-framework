@@ -45,8 +45,8 @@ class Pageantjacker < Extension
         return nil if !response
 
         pageant_plugin_response = {
-            success: response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_STATUS)
-            blob: response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_RETURNEDBLOB)
+            success: response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_STATUS),
+            blob: response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_RETURNEDBLOB),
             error: response.get_tlv_value(TLV_TYPE_EXTENSION_PAGEANTJACKER_ERRORMESSAGE)
         }
 
