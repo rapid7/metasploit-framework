@@ -31,12 +31,12 @@ class Metasploit3 < Msf::Post
 
     ## load incognito
     if(!session.pageantjacker)
-      print_status("Loading PageantJacker extension on #{session.sid} (#{session.session_host})")
+      print_status("Loading PageantJacker extension on session #{session.sid} (#{session.session_host})")
       session.core.use("pageantjacker")
     end
 
     if(!session.pageantjacker)
-      print_error("Failed to load PageantJacker on #{session.sid} (#{session.session_host})")
+      print_error("Failed to load PageantJacker on session #{session.sid} (#{session.session_host})")
       return false
     end
 
