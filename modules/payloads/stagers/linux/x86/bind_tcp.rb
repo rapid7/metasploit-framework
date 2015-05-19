@@ -10,7 +10,7 @@ require 'msf/core/payload/linux/bind_tcp'
 
 module Metasploit4
 
-  CachedSize = :dynamic
+  CachedSize = 110
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux::BindTcp
@@ -19,7 +19,7 @@ module Metasploit4
     super(merge_info(info,
       'Name'          => 'Bind TCP Stager (Linux x86)',
       'Description'   => 'Listen for a connection (Linux x86)',
-      'Author'        => [ 'skape', 'egypt', ],
+      'Author'        => [ 'skape', 'egypt' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,

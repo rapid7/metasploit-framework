@@ -64,6 +64,9 @@ module Msf
     # @!attribute  space
     #   @return [Fixnum] The maximum size in bytes of the payload
     attr_accessor :space
+    # @!attribute  encoder_space
+    #   @return [Fixnum] The maximum size in bytes of the encoded payload
+    attr_accessor :encoder_space
     # @!attribute  stdin
     #   @return [String] The raw bytes of a payload taken from STDIN
     attr_accessor :stdin
@@ -85,6 +88,7 @@ module Msf
     # @option opts [String] :badchars (see #badchars)
     # @option opts [String] :template (see #template)
     # @option opts [Fixnum] :space (see #space)
+    # @option opts [Fixnum] :encoder_space (see #encoder_space)
     # @option opts [Fixnum] :nops (see #nops)
     # @option opts [String] :add_code (see #add_code)
     # @option opts [Boolean] :keep (see #keep)
@@ -109,6 +113,7 @@ module Msf
       @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
       @var_name   = opts.fetch(:var_name, 'buf')
+      @encoder_space = opts.fetch(:encoder_space, @space)
 
       @framework  = opts.fetch(:framework)
 
@@ -200,7 +205,7 @@ module Msf
         encoder_list.each do |encoder_mod|
           cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
           begin
-            encoder_mod.available_space = @space
+            encoder_mod.available_space = @encoder_space
             return run_encoder(encoder_mod, shellcode.dup)
           rescue ::Msf::EncoderSpaceViolation => e
             cli_print "#{encoder_mod.refname} failed with #{e.message}"
@@ -276,12 +281,15 @@ module Msf
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
       if platform == "java" or arch == "java" or payload.start_with? "java/"
-        generate_java_payload
+        p = generate_java_payload
+        cli_print "Payload size: #{p.length} bytes"
+        p
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
         encoded_payload = encode_payload(raw_payload)
         encoded_payload = prepend_nops(encoded_payload)
+        cli_print "Payload size: #{encoded_payload.length} bytes"
         format_payload(encoded_payload)
       end
     end
@@ -392,7 +400,7 @@ module Msf
       iterations.times do |x|
         shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
         cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
-        if shellcode.length > space
+        if shellcode.length > encoder_space
           raise EncoderSpaceViolation, "encoder has made a buffer that is too big"
         end
       end
