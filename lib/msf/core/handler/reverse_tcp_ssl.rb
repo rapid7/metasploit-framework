@@ -61,14 +61,9 @@ module ReverseTcpSsl
 
     ex = false
 
-    comm = case datastore['ReverseListenerComm'].to_s
-      when "local"; ::Rex::Socket::Comm::Local
-      when /\A[0-9]+\Z/; framework.sessions[datastore['ReverseListenerComm'].to_i]
-      else; nil
-      end
-    unless comm.is_a? ::Rex::Socket::Comm
-      comm = nil
-    end
+    # Identify the comm to use from
+    # Msf::Handler::ReverseTcpComm.select_comm
+    comm = select_comm
 
     local_port = bind_port
     addrs = bind_address

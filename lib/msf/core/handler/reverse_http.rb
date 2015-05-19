@@ -50,7 +50,7 @@ module ReverseHttp
 
     register_advanced_options(
       [
-        OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
+#        OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
         OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),

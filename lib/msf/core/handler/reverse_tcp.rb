@@ -2,6 +2,8 @@
 require 'rex/socket'
 require 'thread'
 
+require 'msf/core/handler/reverse_tcp_comm'
+
 module Msf
 module Handler
 
@@ -18,7 +20,7 @@ module Handler
 module ReverseTcp
 
   include Msf::Handler
-
+  include Msf::Handler::ReverseTcpComm
   #
   # Returns the string representation of the handler type, in this case
   # 'reverse_tcp'.
@@ -54,7 +56,6 @@ module ReverseTcp
         OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
         OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
         OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
       ], Msf::Handler::ReverseTcp)
@@ -74,14 +75,9 @@ module ReverseTcp
 
     ex = false
 
-    comm = case datastore['ReverseListenerComm'].to_s
-      when "local"; ::Rex::Socket::Comm::Local
-      when /\A[0-9]+\Z/; framework.sessions[datastore['ReverseListenerComm'].to_i]
-      else; nil
-      end
-    unless comm.is_a? ::Rex::Socket::Comm
-      comm = nil
-    end
+    # Identify the comm to use from
+    # Msf::Handler::ReverseTcpComm.select_comm
+    comm = select_comm
 
     local_port = bind_port
     addrs = bind_address
