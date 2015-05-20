@@ -31,11 +31,7 @@ module Metasploit4
       f.read(f.stat.size)
     }
 
-    uuid = opts[:uuid] || Msf::Payload::UUID.new(
-      platform: 'php',
-      arch:     ARCH_PHP
-    )
-
+    uuid = opts[:uuid] || generate_payload_uuid
     bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
     met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
 

@@ -37,11 +37,7 @@ module Metasploit3
       met = met.sub("DEBUGGING = False", "DEBUGGING = True")
     end
 
-    uuid = opts[:uuid] || Msf::Payload::UUID.new(
-      platform: 'python',
-      arch:     ARCH_PYTHON
-    )
-
+    uuid = opts[:uuid] || generate_payload_uuid
     bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
     met = met.sub("PAYLOAD_UUID = \"\"", "PAYLOAD_UUID = \"#{bytes}\"")
 

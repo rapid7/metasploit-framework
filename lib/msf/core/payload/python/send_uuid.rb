@@ -20,11 +20,7 @@ module Payload::Python::SendUUID
   def py_send_uuid(opts={})
     sock_var = opts[:sock_var] || 's'
 
-    uuid = opts[:uuid] || Msf::Payload::UUID.new(
-      platform: 'python',
-      arch:     ARCH_PYTHON
-    )
-
+    uuid = opts[:uuid] || generate_payload_uuid
     uuid_raw = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
 
     "#{sock_var}.send(\"#{uuid_raw}\")\n"

@@ -20,13 +20,7 @@ module Payload::Windows::SendUUID_x64
   # the communications socket handle is in rdi.
   #
   def asm_send_uuid(uuid=nil)
-    unless uuid
-      uuid = Msf::Payload::UUID.new(
-        platform: 'windows',
-        arch:     ARCH_X86_64
-      )
-    end
-
+    uuid ||= generate_payload_uuid
     uuid_raw = uuid.to_raw
 
     asm =%Q^
