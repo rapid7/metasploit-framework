@@ -33,14 +33,8 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    # Get datastore values
-    script_in = read_script(datastore['SCRIPT'])
-
-    # Convert expression to unicode
-    unicode_expression = Rex::Text.to_unicode(script_in)
-
-    # Base64 encode the unicode expression
-    encoded_expression = Rex::Text.encode_base64(unicode_expression)
+    # Get datastore values and encode the file
+    encoded_expression = Rex::Powershell::Command.encode_script(read_script(datastore['SCRIPT']))
 
     # If the encoded script size more than 15000 bytes, launch a stager
     if (encoded_expression.size > 14999)
@@ -48,7 +42,6 @@ class Metasploit3 < Msf::Post
       arr = encoded_expression.chars.each_slice(14999).map(&:join)
       print_good("Loading " + arr.count.to_s + " chunks into the stager.")
       vararray = []
-
       arr.each_with_index do |slice, index|
         variable = Rex::Text.rand_text_alpha(8)
         vararray << variable
