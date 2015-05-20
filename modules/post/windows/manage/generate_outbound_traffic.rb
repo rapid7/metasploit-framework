@@ -20,6 +20,12 @@ class Metasploit3 < Msf::Post
         All it does is generate traffic on the port range you specify; it is up to you to
         run a listener or wireshark or something on the endpoint to determine which packets
         made it through.
+
+        It will not honour any metasploit/meterpreter specific routes for the very good reason
+        that the purpose is to judge connectivity from the box on its own, not to channel 
+        this traffic through existing established connections.
+
+        It does not require administrative privileges and will use normal connection APIs.
       },
       'License'       => MSF_LICENSE,
       'Author'        => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
@@ -31,21 +37,29 @@ class Metasploit3 < Msf::Post
       [
         OptAddress.new('TARGET' , [ true, 'Destination IP address.']),
         OptString.new('PORTS', [true, 'Ports to test (e.g. 80,443,100-110).','80,443']),
-        OptEnum.new('PROTOCOL', [ true, 'Protocol to use', 'TCP', [ 'TCP' ]]),
+        OptEnum.new('PROTOCOL', [ true, 'Protocol to use', 'TCP', [ 'TCP', 'UDP' ]]),
         OptInt.new('THREADS' , [true, 'Number of simultaneous threads/connections to try.','20']),
       ], self.class)
   end
 
-  def tcp_setup
-    client.railgun.ws2_32.socket('AF_INET', 'SOCK_STREAM', 'IPPROTO_TCP')
+  def create_socket(proto)
+    if (proto=='TCP')
+        client.railgun.ws2_32.socket('AF_INET', 'SOCK_STREAM', 'IPPROTO_TCP')
+    elsif (proto=='UDP')
+        client.railgun.ws2_32.socket('AF_INET', 'SOCK_DGRAM', 'IPPROTO_UDP')
+    end
   end
 
-  def connections(remote, dst_port, h_tcp)
+  def make_connection(remote, dst_port, hSocket, proto)
     sock_addr = "\x02\x00"
     sock_addr << [dst_port].pack('n')
     sock_addr << Rex::Socket.addr_aton(remote)
     sock_addr << "\x00" * 8
-    r = client.railgun.ws2_32.connect(h_tcp, sock_addr, 16)
+    if (proto=='TCP')
+        r = client.railgun.ws2_32.connect(hSocket, sock_addr, 16)
+    elsif (proto=='UDP')
+        r = client.railgun.ws2_32.sendto(hSocket,"",0,0, sock_addr, 16)
+    end
   end
 
   def run
@@ -87,27 +101,30 @@ class Metasploit3 < Msf::Post
 
     print_status("Generating #{proto} traffic to #{remote}...")
  
+    # This creates its own socket for each of the threads because, when I tested it, there seemed to be problems with
+    # multiple connections on the same socket. It may be possible to do this more elegantly with non blocking sockets
+    # and feel free to improve this as you see fit, but this seems solid and stable and works for now.
     a = []
     0.upto(thread_num-1) do |num|
           a << framework.threads.spawn("Module(#{self.refname})", false, workload_ports[num]) do |portlist|
-            h_tcp = tcp_setup
-            if h_tcp['return'] == 0
-                print_error("[#{num}] Error setting up socket for #{remote}; Error: #{h_tcp['GetLastError']}")
+            hSocket = create_socket(proto)
+            if hSocket['return'] == 0
+                print_error("[#{num}] Error setting up socket for #{remote}; Error: #{hSocket['GetLastError']}")
                 break
             else
-                print_status("[#{num}] Set up socket for #{remote} to cover #{portlist.count} #{proto} port(s) (Handle: #{h_tcp['return']})")
+                print_status("[#{num}] Set up socket for #{remote} to cover #{portlist.count} #{proto} port(s) (Handle: #{hSocket['return']})")
             end
 
             portlist.each do |dport|
             vprint_status("[#{num}] Connecting to #{remote}:#{proto}/#{dport}")
-            r = connections(remote, dport, h_tcp['return'])
+            r = make_connection(remote, dport, hSocket['return'], proto)
             if r['GetLastError'] == 0
-                vprint_status("[#{num}] Connection made successfully #{proto}/#{dport}")
+                vprint_status("[#{num}] Connection packet sent successfully #{proto}/#{dport}")
             else
-                vprint_status("[#{num}] There was an error setting the #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
+                vprint_status("[#{num}] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
             end
             end
-            client.railgun.ws2_32.closesocket(h_tcp['return'])
+            client.railgun.ws2_32.closesocket(hSocket['return'])
           end
   end
   a.map { |x| x.join }
