@@ -72,7 +72,7 @@ class Table
     self.prefix   = opts['Prefix']  || ''
     self.postfix  = opts['Postfix'] || ''
     self.colprops = []
-    self.scterm  = opts['SearchTerm'] ? /#{opts['SearchTerm']}/mi : /./
+    self.scterm   = /#{opts['SearchTerm']}/mi if opts['SearchTerm']
 
     self.sort_index  = opts['SortIndex'] || 0
     self.sort_order  = opts['SortOrder'] || :forward
@@ -114,7 +114,7 @@ class Table
       if (is_hr(row))
         str << hr_to_s
       else
-        str << row_to_s(row) if row_to_s(row).match(self.scterm)
+        str << row_to_s(row) if row_visible(row)
       end
     }
 
@@ -130,10 +130,9 @@ class Table
     str = ''
     str << ( columns.join(",") + "\n" )
     rows.each { |row|
-      next if is_hr(row) or !(row_to_s(row).match(self.scterm))
+      next if is_hr(row) || !row_visible(row)
       str << ( row.map{|x|
         x = x.to_s
-
         x.gsub(/[\r\n]/, ' ').gsub(/\s+/, ' ').gsub('"', '""')
       }.map{|x| "\"#{x}\"" }.join(",") + "\n" )
     }
@@ -299,6 +298,14 @@ class Table
 protected
 
   #
+  # Returns if a row should be visible or not
+  #
+  def row_visible(row)
+    return true if self.scterm.nil?
+    row_to_s(row).match(self.scterm)
+  end
+
+  #
   # Defaults cell widths and alignments.
   #
   def defaults # :nodoc:
@@ -328,9 +335,7 @@ protected
         padding = pad(' ', last_col, last_idx)
         nameline << padding
         remainder = padding.length - cellpad
-      if (remainder < 0)
-        remainder = 0
-      end
+        remainder = 0 if remainder < 0
         barline << (' ' * (cellpad + remainder))
       end
 
@@ -391,7 +396,7 @@ protected
     if (use_cell_pad)
       val << ' ' * cellpad
     end
-    
+
     return val
   end
 
