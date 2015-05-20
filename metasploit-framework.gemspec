@@ -27,23 +27,7 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files`.split($/).reject { |file|
     file =~ /^config/
   }
-  spec.bindir = '.'
-  spec.executables   = [
-      'msfbinscan',
-      'msfcli',
-      'msfconsole',
-      'msfd',
-      'msfelfscan',
-      'msfencode',
-      'msfmachscan',
-      'msfpayload',
-      'msfpescan',
-      'msfrop',
-      'msfrpc',
-      'msfrpcd',
-      'msfupdate',
-      'msfvenom'
-  ]
+
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
