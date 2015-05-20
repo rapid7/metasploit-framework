@@ -110,15 +110,15 @@ class Metasploit3 < Msf::Post
     a = []
     0.upto(thread_num - 1) do |num|
       a << framework.threads.spawn("Module(#{refname})", false, workload_ports[num]) do |portlist|
+        portlist.each do |dport|
         socket_handle = create_socket(proto)
         if socket_handle['return'] == 0
-          print_error("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
+          vprint_status("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
           break
         else
-          print_status("[#{num}] Set up socket for #{remote} to cover #{portlist.count} #{proto} port(s) (Handle: #{socket_handle['return']})")
+          vprint_status("[#{num}] Set up socket for #{remote} to cover #{portlist.count} #{proto} port(s) (Handle: #{socket_handle['return']})")
         end
 
-        portlist.each do |dport|
           vprint_status("[#{num}] Connecting to #{remote}:#{proto}/#{dport}")
           r = make_connection(remote, dport, socket_handle['return'], proto)
           if r['GetLastError'] == 0
@@ -126,8 +126,8 @@ class Metasploit3 < Msf::Post
           else
             vprint_status("[#{num}] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
           end
-        end
         client.railgun.ws2_32.closesocket(socket_handle['return'])
+        end
       end
     end
     a.map(&:join)
