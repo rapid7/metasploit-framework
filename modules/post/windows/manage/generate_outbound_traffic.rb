@@ -97,9 +97,9 @@ class Metasploit3 < Msf::Post
 
     if completed_cycle == false && thread_num > workload_cycle
       thread_num = workload_cycle
-      print_status("Reduced threads to #{thread_num} because there is not enough work for the remaining threads.")
+      print_status("Reduced threads to #{thread_num}.")
     else
-      print_status("Number of threads: #{thread_num}")
+      print_status("Number of threads: #{thread_num}.")
     end
 
     print_status("Generating #{proto} traffic to #{remote}...")
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Post
             vprint_status("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
             break
           else
-            vprint_status("[#{num}] Set up socket for #{remote} to cover #{portlist.count} #{proto} port(s) (Handle: #{socket_handle['return']})")
+            vprint_status("[#{num}] Set up socket for #{remote} port #{proto}/#{dport} (Handle: #{socket_handle['return']})")
           end
 
           vprint_status("[#{num}] Connecting to #{remote}:#{proto}/#{dport}")
