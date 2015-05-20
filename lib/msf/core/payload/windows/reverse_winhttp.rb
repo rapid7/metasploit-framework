@@ -76,8 +76,11 @@ module Payload::Windows::ReverseWinHttp
     # Add 100 bytes for the encoder to have some room
     space += 100
 
-    # Make room for the maximum possible URL length
-    space += 256
+    # Make room for the maximum possible URL length (wchars)
+    space += 512 * 2
+
+    # proxy (wchars)
+    space += 128 * 2
 
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
