@@ -72,6 +72,7 @@ class Table
     self.prefix   = opts['Prefix']  || ''
     self.postfix  = opts['Postfix'] || ''
     self.colprops = []
+    self.scterm  = opts['SearchTerm'] ? /#{opts['SearchTerm']}/mi : /./
 
     self.sort_index  = opts['SortIndex'] || 0
     self.sort_order  = opts['SortOrder'] || :forward
@@ -113,7 +114,7 @@ class Table
       if (is_hr(row))
         str << hr_to_s
       else
-        str << row_to_s(row)
+        str << row_to_s(row) if row_to_s(row).match(self.scterm)
       end
     }
 
@@ -129,7 +130,7 @@ class Table
     str = ''
     str << ( columns.join(",") + "\n" )
     rows.each { |row|
-      next if is_hr(row)
+      next if is_hr(row) or !(row_to_s(row).match(self.scterm))
       str << ( row.map{|x|
         x = x.to_s
 
@@ -175,7 +176,10 @@ class Table
       raise RuntimeError, 'Invalid number of columns!'
     end
     fields.each_with_index { |field, idx|
+      # Remove whitespace and ensure String format
+      field = field.to_s.strip
       if (colprops[idx]['MaxWidth'] < field.to_s.length)
+        old = colprops[idx]['MaxWidth']
         colprops[idx]['MaxWidth'] = field.to_s.length
       end
     }
@@ -217,6 +221,51 @@ class Table
   #
   # Returns new sub-table with headers and rows maching column names submitted
   #
+  #
+  # Flips table 90 degrees left
+  #
+  def drop_left
+    tbl = self.class.new(
+      'Columns' => Array.new(self.rows.count+1,'  '),
+      'Header' => self.header,
+      'Indent' => self.indent)
+    (self.columns.count+1).times do |ti|
+      row = self.rows.map {|r| r[ti]}.unshift(self.columns[ti]).flatten
+      # insert our col|row break. kind of hackish
+      row[1] = "| #{row[1]}" unless row.all? {|e| e.nil? || e.empty?}
+      tbl << row
+    end
+    return tbl
+  end
+
+  #
+  # Build table from CSV dump
+  #
+  def self.new_from_csv(csv)
+    # Read in or keep data, get CSV or die
+    if csv.is_a?(String)
+      csv = File.file?(csv) ? CSV.read(csv) : CSV.parse(csv)
+    end
+    # Adjust for skew
+    if csv.first == ["Keys", "Values"]
+      csv.shift # drop marker
+      cols = []
+      rows = []
+      csv.each do |row|
+        cols << row.shift
+        rows << row
+      end
+      tbl = self.new('Columns' => cols)
+      rows.in_groups_of(cols.count) {|r| tbl << r.flatten}
+    else
+      tbl = self.new('Columns' => csv.shift)
+      while !csv.empty? do
+        tbl << csv.shift
+      end
+    end
+    return tbl
+  end
+
   def [](*col_names)
     tbl = self.class.new('Indent' => self.indent,
                          'Header' => self.header,
@@ -245,7 +294,7 @@ class Table
   attr_accessor :columns, :rows, :colprops # :nodoc:
   attr_accessor :width, :indent, :cellpad # :nodoc:
   attr_accessor :prefix, :postfix # :nodoc:
-  attr_accessor :sort_index, :sort_order # :nodoc:
+  attr_accessor :sort_index, :sort_order, :scterm # :nodoc:
 
 protected
 
@@ -274,14 +323,17 @@ protected
     last_idx = nil
     columns.each_with_index { |col,idx|
       if (last_col)
-        nameline << pad(' ', last_col, last_idx)
-
-        remainder = colprops[last_idx]['MaxWidth'] - last_col.length
-        if (remainder < 0)
-          remainder = 0
-        end
+        # This produces clean to_s output without truncation
+        # Preserves full string in cells for to_csv output
+        padding = pad(' ', last_col, last_idx)
+        nameline << padding
+        remainder = padding.length - cellpad
+      if (remainder < 0)
+        remainder = 0
+      end
         barline << (' ' * (cellpad + remainder))
       end
+
       nameline << col
       barline << ('-' * col.length)
 
@@ -307,13 +359,13 @@ protected
     last_cell = nil
     last_idx = nil
     row.each_with_index { |cell, idx|
-      if (idx != 0)
+      if (last_cell)
         line << pad(' ', last_cell.to_s, last_idx)
       end
       # line << pad(' ', cell.to_s, idx)
       # Limit wide cells
       if colprops[idx]['MaxChar']
-        last_cell = cell.to_s[0..colprops[idx]['MaxChar'].to_i]
+        last_cell = cell.to_s[0..colprops[idx]['MaxChar'].to_i]# - 1]
         line << last_cell
       else
         line << cell.to_s
@@ -330,13 +382,17 @@ protected
   # some text and a column index.
   #
   def pad(chr, buf, colidx, use_cell_pad = true) # :nodoc:
-    remainder = colprops[colidx]['MaxWidth'] - buf.length
-    val       = chr * remainder;
+    # Ensure we pad the minimum required amount
+    max = colprops[colidx]['MaxChar'] || colprops[colidx]['MaxWidth']
+    max = colprops[colidx]['MaxWidth'] if max.to_i > colprops[colidx]['MaxWidth'].to_i
+    remainder = max - buf.length
+    remainder = 0 if remainder < 0
+    val       = chr * remainder
 
     if (use_cell_pad)
       val << ' ' * cellpad
     end
-
+    
     return val
   end
 
