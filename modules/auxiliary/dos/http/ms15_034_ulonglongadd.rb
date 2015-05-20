@@ -121,23 +121,19 @@ class Metasploit3 < Msf::Auxiliary
     return uris unless res
 
     site_uri = URI.parse(full_uri)
+    page     = Nokogiri::HTML(res.body.encode('UTF-8', invalid: :replace, undef: :replace))
 
-    Nokogiri::HTML(res.body).xpath('//link|//script|//style|//img').each do |tag|
+    page.xpath('//link|//script|//style|//img').each do |tag|
       %w(href src).each do |attribute|
-        begin
-          attr_value = tag[attribute]
+        attr_value = tag[attribute]
 
-          next unless attr_value && !attr_value.empty?
+        next unless attr_value && !attr_value.empty?
 
-          uri = site_uri.merge(URI.encode(attr_value.strip))
+        uri = site_uri.merge(URI.encode(attr_value.strip))
 
-          next unless uri.host == vhost || uri.host == rhost
+        next unless uri.host == vhost || uri.host == rhost
 
-          uris << uri.path if uri.path =~ /\.[a-z]{2,}$/i # Only keep path with a file
-        rescue => e
-          vprint_error("#{peer} - #{e}")
-          next
-        end
+        uris << uri.path if uri.path =~ /\.[a-z]{2,}$/i # Only keep path with a file
       end
     end
 
