@@ -31,6 +31,7 @@ class Metasploit3 < Msf::Post
       [
         OptAddress.new('TARGET' , [ true, 'Destination IP address.']),
         OptString.new('PORTS', [true, 'Ports to test (e.g. 80,443,100-110).','80,443']),
+        OptEnum.new('PROTOCOL', [ true, 'Protocol to use', 'TCP', [ 'TCP' ]]),
         OptInt.new('THREADS' , [true, 'Number of simultaneous threads/connections to try.','20']),
       ], self.class)
   end
@@ -49,10 +50,10 @@ class Metasploit3 < Msf::Post
 
   def run
     session.railgun.ws2_32
-    successful = []
 
     remote = datastore['TARGET']
     thread_num = datastore['THREADS']
+    proto = datastore['PROTOCOL']
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
     workload_ports = []
@@ -70,7 +71,7 @@ class Metasploit3 < Msf::Post
 
         # Now increase the cycle until it goes above threads
         workload_cycle = workload_cycle + 1
-        if workload_cycle > thread_num 
+        if workload_cycle >= thread_num 
             completed_cycle = true
             workload_cycle = 0
         end
@@ -84,8 +85,8 @@ class Metasploit3 < Msf::Post
         print_status("Number of threads: #{thread_num}")
     end
 
-    print_status("Generating traffic to #{remote}...")
-
+    print_status("Generating #{proto} traffic to #{remote}...")
+ 
     a = []
     0.upto(thread_num-1) do |num|
           a << framework.threads.spawn("Module(#{self.refname})", false, workload_ports[num]) do |portlist|
@@ -94,17 +95,16 @@ class Metasploit3 < Msf::Post
                 print_error("[#{num}] Error setting up socket for #{remote}; Error: #{h_tcp['GetLastError']}")
                 break
             else
-                print_status("[#{num}] Set up socket for #{remote}; Handle: #{h_tcp['return']}")
+                print_status("[#{num}] Set up socket for #{remote} to cover #{portlist.count} #{proto} port(s) (Handle: #{h_tcp['return']})")
             end
 
             portlist.each do |dport|
-            vprint_status("[#{num}] Connecting to #{remote}:#{dport}")
+            vprint_status("[#{num}] Connecting to #{remote}:#{proto}/#{dport}")
             r = connections(remote, dport, h_tcp['return'])
             if r['GetLastError'] == 0
-                vprint_status("[#{num}] Connection made successfully #{dport}")
-                successful << dport
+                vprint_status("[#{num}] Connection made successfully #{proto}/#{dport}")
             else
-                vprint_status("[#{num}] There was an error setting the TCP socket (port #{dport}) Error: #{r['GetLastError']}")
+                vprint_status("[#{num}] There was an error setting the #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
             end
             end
             client.railgun.ws2_32.closesocket(h_tcp['return'])
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
   end
   a.map { |x| x.join }
 
-  print_status("Traffic generation to #{remote} completed.")
+  print_status("#{proto} traffic generation to #{remote} completed.")
   return 0
 
 end
