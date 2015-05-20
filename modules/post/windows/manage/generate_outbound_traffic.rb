@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
                         this traffic through existing established connections.
 
                         It does not require administrative privileges and will use normal connection APIs.
-                                              ),
+                       ),
                       'License'       => MSF_LICENSE,
                       'Author'        => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
                       'Platform'      => 'win',
