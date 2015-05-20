@@ -63,9 +63,9 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    if !session.railgun.ws2_32
-        print_error("This module requires Windows/winsock APIs")
-        return 
+    unless session.railgun.ws2_32
+      print_error("This module requires Windows/winsock APIs")
+      return
     end
 
     remote = datastore['TARGET']
@@ -104,20 +104,17 @@ class Metasploit3 < Msf::Post
 
     print_status("Generating #{proto} traffic to #{remote}...")
 
-    # This creates its own socket for each of the threads because, when I tested it, there seemed to be problems with
-    # multiple connections on the same socket. It may be possible to do this more elegantly with non blocking sockets
-    # and feel free to improve this as you see fit, but this seems solid and stable and works for now.
     a = []
     0.upto(thread_num - 1) do |num|
       a << framework.threads.spawn("Module(#{refname})", false, workload_ports[num]) do |portlist|
         portlist.each do |dport|
-        socket_handle = create_socket(proto)
-        if socket_handle['return'] == 0
-          vprint_status("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
-          break
-        else
-          vprint_status("[#{num}] Set up socket for #{remote} to cover #{portlist.count} #{proto} port(s) (Handle: #{socket_handle['return']})")
-        end
+          socket_handle = create_socket(proto)
+          if socket_handle['return'] == 0
+            vprint_status("[#{num}] Error setting up socket for #{remote}; Error: #{socket_handle['GetLastError']}")
+            break
+          else
+            vprint_status("[#{num}] Set up socket for #{remote} to cover #{portlist.count} #{proto} port(s) (Handle: #{socket_handle['return']})")
+          end
 
           vprint_status("[#{num}] Connecting to #{remote}:#{proto}/#{dport}")
           r = make_connection(remote, dport, socket_handle['return'], proto)
@@ -126,13 +123,13 @@ class Metasploit3 < Msf::Post
           else
             vprint_status("[#{num}] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
           end
-        client.railgun.ws2_32.closesocket(socket_handle['return'])
+          client.railgun.ws2_32.closesocket(socket_handle['return'])
         end
       end
     end
     a.map(&:join)
 
     print_status("#{proto} traffic generation to #{remote} completed.")
-    return 0
+    0
 end
 end
