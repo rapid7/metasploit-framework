@@ -15,7 +15,10 @@ module Payload::Windows::Exitfunk_x64
 
   def asm_exitfunk(opts={})
 
-    asm = "exitfunk:\n"
+    asm = %Q^
+      exitfunk:
+        pop rax               ; won't be returning, realign the stack with a pop
+    ^
 
     case opts[:exitfunk]
 

