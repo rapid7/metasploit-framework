@@ -18,7 +18,6 @@ module MeterpreterOptions
         OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
         OptBool.new('EnableUnicodeEncoding', [true, "Automatically encode UTF-8 strings as hexadecimal", Rex::Compat.is_windows]),
         OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format, ignored for HTTP transports"]),
-        OptBool.new('StagerCloseListenSocket', [false, "Close the listen socket in the stager", false]),
         OptInt.new('SessionRetryTotal', [false, "Number of seconds try reconnecting for on network failure", Rex::Post::Meterpreter::ClientCore::TIMEOUT_RETRY_TOTAL]),
         OptInt.new('SessionRetryWait', [false, "Number of seconds to wait between reconnect attempts", Rex::Post::Meterpreter::ClientCore::TIMEOUT_RETRY_WAIT]),
         OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', Rex::Post::Meterpreter::ClientCore::TIMEOUT_SESSION]),

