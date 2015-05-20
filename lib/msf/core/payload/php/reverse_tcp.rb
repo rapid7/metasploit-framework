@@ -3,6 +3,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/php/send_uuid'
+require 'msf/core/payload/uuid_options'
 
 module Msf
 
@@ -15,6 +16,7 @@ module Msf
 module Payload::Php::ReverseTcp
 
   include Msf::Payload::Php::SendUUID
+  include Msf::Payload::UUIDOptions
 
   #
   # Generate the first stage

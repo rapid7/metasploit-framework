@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
+require 'msf/core/payload/php/reverse_tcp'
 require 'msf/base/sessions/meterpreter_php'
 require 'msf/base/sessions/meterpreter_options'
 
@@ -14,6 +15,7 @@ module Metasploit4
   CachedSize = 25532
 
   include Msf::Payload::Single
+  include Msf::Payload::Php::ReverseTcp
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
