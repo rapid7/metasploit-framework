@@ -13,12 +13,12 @@ class Metasploit3 < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'          => 'Windows Generate Outbound Traffic On Port Sequence',
+                      'Name'          => 'Generate TCP/UDP Outbound Traffic On Multiple Ports',
                       'Description'   => %q(
                         This module is designed to generate TCP or UDP traffic across a sequence of ports.
                         It is essentially designed to help to find firewall holes and egress filtering.
                         All it does is generate traffic on the port range you specify; it is up to you to
-                        run a listener or wireshark or something on the endpoint to determine which packets
+                        run a listener/tcpdump or something on the endpoint to determine which packets
                         made it through.
 
                         It will not honour any metasploit/meterpreter specific routes for the very good reason
@@ -36,8 +36,8 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptAddress.new('TARGET', [ true, 'Destination IP address.']),
-        OptString.new('PORTS', [true, 'Ports to test (e.g. 80,443,100-110).', '80,443']),
-        OptEnum.new('PROTOCOL', [ true, 'Protocol to use', 'TCP', [ 'TCP', 'UDP' ]]),
+        OptString.new('PORTS', [true, 'Ports to test.', '22,23,53,80,88,443,445']),
+        OptEnum.new('PROTOCOL', [ true, 'Protocol to use.', 'TCP', [ 'TCP', 'UDP' ]]),
         OptInt.new('THREADS', [true, 'Number of simultaneous threads/connections to try.', '20'])
       ], self.class)
   end
@@ -63,7 +63,10 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    session.railgun.ws2_32
+    if !session.railgun.ws2_32
+        print_error("This module requires Windows/winsock APIs")
+        return 
+    end
 
     remote = datastore['TARGET']
     thread_num = datastore['THREADS']
@@ -130,6 +133,6 @@ class Metasploit3 < Msf::Post
     a.map(&:join)
 
     print_status("#{proto} traffic generation to #{remote} completed.")
-    0
+    return 0
 end
 end
