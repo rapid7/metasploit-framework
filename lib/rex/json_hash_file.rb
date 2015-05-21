@@ -1,6 +1,7 @@
 # -*- coding => binary -*-
 
 require 'json'
+require 'fileutils'
 
 #
 # This class provides a thread-friendly hash file store in JSON format
@@ -15,6 +16,7 @@ class JSONHashFile
     @lock = Mutex.new
     @hash = {}
     @last = 0
+    ::FileUtils.mkdir_p(::File.dirname(path))
     synced_update
   end
 
