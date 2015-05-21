@@ -18,7 +18,7 @@ module Msf::Payload::UUID::Options
         Msf::OptString.new('PayloadUUIDSeed', [ false, 'A string to use when generating the payload UUID (deterministic)']),
         Msf::OptString.new('PayloadUUIDRaw', [ false, 'A hex string representing the raw 8-byte PUID value for the UUID']),
         Msf::OptString.new('PayloadUUIDName', [ false, 'A human-friendly name to reference this unique payload (requires tracking)']),
-        Msf::OptBool.new('PayloadUUIDTracking', [ true, 'Whether or not to automatically register generated UUIDs', true]),
+        Msf::OptBool.new('PayloadUUIDTracking', [ true, 'Whether or not to automatically register generated UUIDs', false]),
       ], self.class)
   end
 
