@@ -25,6 +25,7 @@ def initialize(info = {})
   deregister_options('RHOST')
 
   register_advanced_options([
+    OptBool.new('RandomizeHostOrder', [true, 'Randomize the order in which hosts are scanned', true]),
     OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
     OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10])
   ], Auxiliary::Scanner)
@@ -50,7 +51,7 @@ def run
   @show_progress = datastore['ShowProgress']
   @show_percent  = datastore['ShowProgressPercent'].to_i
 
-  ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
+  ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'], (datastore['RandomizeHostOrder'] ? 128 : 0))
   @range_count   = ar.length || 0
   @range_done    = 0
   @range_percent = 0
@@ -165,7 +166,7 @@ def run
 
     size = run_batch_size()
 
-    ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
+    ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'], (datastore['RandomizeHostOrder'] ? 128 : 0))
 
     while(true)
       nohosts = false
