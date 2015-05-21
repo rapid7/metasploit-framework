@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # Write the rakp hash to the database
       hash = "#{rhost} #{username}:$rakp$#{sha1_salt}$#{sha1_hash}"
-      report_hash(username, hash)
+      core_id = report_hash(username, hash)
       # Write the vulnerability to the database
       unless reported_vuln
         report_vuln(
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{rhost}:#{rport} - IPMI - Hash for user '#{username}' matches password '#{pass}'")
 
         # Report the clear-text credential to the database
-        report_cracked_cred(username, pass)
+        report_cracked_cred(username, pass, core_id)
         break
       end
     end
@@ -269,24 +269,18 @@ class Metasploit3 < Msf::Auxiliary
       status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
-    create_credential_login(login_data)
+    cl = create_credential_login(login_data)
+    cl.core_id
   end
 
-  def report_cracked_cred(user, password)
-    credential_data = {
-      module_fullname: self.fullname,
-      origin_type: :service,
-      private_data: password,
-      private_type: :password,
+  def report_cracked_cred(user, password, core_id)
+    cred_data = {
+      core_id: core_id,
       username: user,
-    }.merge(service_data)
+      password: password
+    }
 
-    login_data = {
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED
-    }.merge(service_data)
-
-    create_credential_login(login_data)
+    create_cracked_credential(cred_data)
   end
 
   #
