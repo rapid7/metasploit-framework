@@ -75,8 +75,10 @@ module Metasploit
       def to_s
         if realm && realm_key == Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
           "#{self.realm}\\#{self.public}:#{self.private}"
-        else
+        elsif self.private
           "#{self.public}:#{self.private}#{at_realm}"
+        else
+          self.public
         end
       end
 

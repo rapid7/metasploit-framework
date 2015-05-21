@@ -30,6 +30,18 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@upload_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
     "-r" => [ false, "Upload recursively." ])
+  #
+  # Options for the ls command
+  #
+  @@ls_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner." ],
+    "-S" => [ true, "Search string." ],
+    "-t" => [ false, "Sort by time" ],
+    "-s" => [ false, "Sort by size" ],
+    "-r" => [ false, "Reverse sort order" ],
+    "-x" => [ false, "Show short file names" ],
+    "-l" => [ false, "List in long format (default)" ],
+    "-R" => [ false, "Recursively list subdirectories encountered" ])
 
   #
   # List of supported commands.
@@ -223,22 +235,34 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_del :cmd_rm
 
-        #
-        # Move source to destination
-        #
-        def cmd_mv(*args)
-                if (args.length < 2)
-                        print_line("Usage: mv oldfile newfile")
-                        return true
-                end
+  #
+  # Move source to destination
+  #
+  def cmd_mv(*args)
+    if (args.length < 2)
+      print_line("Usage: mv oldfile newfile")
+      return true
+    end
+    client.fs.file.mv(args[0],args[1])
+    return true
+  end
 
-                client.fs.file.mv(args[0],args[1])
-
-                return true
-        end
-
-        alias :cmd_move :cmd_mv
+  alias :cmd_move :cmd_mv
   alias :cmd_rename :cmd_mv
+
+  #
+  # Move source to destination
+  #
+  def cmd_cp(*args)
+    if (args.length < 2)
+      print_line("Usage: cp oldfile newfile")
+      return true
+    end
+    client.fs.file.cp(args[0],args[1])
+    return true
+  end
+
+  alias :cmd_copy :cmd_cp
 
 
   def cmd_download_help
@@ -387,7 +411,15 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias cmd_getlwd cmd_lpwd
 
-  def list_path(path, columns, sort, order, short, recursive = false, depth = 0)
+
+  def cmd_ls_help
+    print_line "Usage: ls [options]"
+    print_line
+    print_line "Lists contents of directory or file info, searchable"
+    print_line @@ls_opts.usage
+  end
+
+  def list_path(path, columns, sort, order, short, recursive = false, depth = 0, search_term = nil)
 
     # avoid infinite recursion
     if depth > 100
@@ -398,7 +430,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       'Header'  => "Listing: #{path}",
       'SortIndex' => columns.index(sort),
       'SortOrder' => order,
-      'Columns' => columns)
+      'Columns' => columns,
+      'SearchTerm' => search_term)
 
     items = 0
 
@@ -419,8 +452,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       row.insert(4, p['FileShortName'] || '') if short
 
       if fname != '.' && fname != '..'
-        tbl << row
-        items += 1
+        if row.join(' ') =~ /#{search_term}/
+          tbl << row
+          items += 1
+        end
 
         if recursive && ffstat && ffstat.directory?
           if client.fs.file.is_glob?(path)
@@ -430,7 +465,7 @@ class Console::CommandDispatcher::Stdapi::Fs
             child_path = path + ::File::SEPARATOR + fname
           end
           begin
-            list_path(child_path, columns, sort, order, short, recursive, depth + 1)
+            list_path(child_path, columns, sort, order, short, recursive, depth + 1, search_term)
           rescue RequestError
           end
         end
@@ -448,39 +483,48 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Lists files
   #
   def cmd_ls(*args)
+    # Set defaults
+    path = client.fs.dir.getwd
+    search_term = nil
+    sort = 'Name'
+    short = nil
+    order = :forward
+    recursive = nil
 
-    # Check sort column
-    sort = args.include?('-S') ? 'Size' : 'Name'
-    sort = args.include?('-t') ? 'Last modified' : sort
-    args.delete('-S')
-    args.delete('-t')
-
-    # Check whether to include the short name option
-    short = args.include?('-x')
-    args.delete('-x')
-
-    # Check sort order
-    order = args.include?('-r') ? :reverse : :forward
-    args.delete('-r')
-
-    # Check for recursive mode
-    recursive = !args.delete('-R').nil?
-
-    args.delete('-l')
-
-    # Check for cries of help
-    if args.length > 1 || args.any? { |a| a[0] == '-' }
-      print_line('Usage: ls [dir] [-x] [-S] [-t] [-r]')
-      print_line('   -x Show short file names')
-      print_line('   -S Sort by size')
-      print_line('   -t Sort by time modified')
-      print_line('   -r Reverse sort order')
-      print_line('   -l List in long format (default)')
-      print_line('   -R Recursively list subdirectories encountered.')
-      return true
-    end
-
-    path = args[0] || client.fs.dir.getwd
+    # Parse the args
+    @@ls_opts.parse(args) { |opt, idx, val|
+      case opt
+      # Sort options
+      when '-s'
+        sort = 'Size'
+      when '-t'
+        sort = 'Last modified'
+      # Output options
+      when '-x'
+        short = true
+      when '-l'
+        short = nil
+      when '-r'
+        order = :reverse
+      when '-R'
+        recursive = true
+      # Search
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        else
+          search_term = /#{search_term}/nmi
+        end
+      # Help and path
+      when "-h"
+        cmd_ls_help
+        return 0
+      when nil
+        path = val
+      end
+    }
 
     columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
     columns.insert(4, 'Short Name') if short
@@ -499,7 +543,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     stat = client.fs.file.stat(stat_path)
     if stat.directory?
-      list_path(path, columns, sort, order, short, recursive)
+      list_path(path, columns, sort, order, short, recursive, 0, search_term)
     else
       print_line("#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
     end

@@ -1270,8 +1270,8 @@ class Db
       end
     end
     if search_term
-      note_list.delete_if do |n|
-        !n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+      note_list = note_list.select do |n|
+        n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
       end
     end
 
