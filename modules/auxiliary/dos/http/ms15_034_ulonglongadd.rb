@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
       vmessage = "#{peer} - Checking #{uri} [#{res.code}]"
 
       if res && res.body.include?('Requested Range Not Satisfiable')
-        print_status("#{vmessage} - Vulnerable")
+        print_status("#{peer} - #{uri} is vulnerable")
 
         target_uri.path = uri # Needed for the DoS attack
 
