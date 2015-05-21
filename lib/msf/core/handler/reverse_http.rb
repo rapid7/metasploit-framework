@@ -154,6 +154,10 @@ module ReverseHttp
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
     lookup_proxy_settings
+
+    if datastore['IgnoreUnknownPayloads']
+      print_status("Handler is ignoring unknown payloads, there are #{framework.uuid_db.keys.length} UUIDs whitelisted")
+    end
   end
 
   #
@@ -229,9 +233,19 @@ protected
       conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
     end
 
+    # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
-      print_status("#{cli.peerhost}:#{cli.peerport} Ignoring request with unknown UUID #{uuid.to_s}")
+      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID")
       info[:mode] = :unknown_uuid
+    end
+
+    # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
+      allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
+      unless allowed_urls.include?(req.relative_resource)
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID URL #{req.relative_resource}")
+        info[:mode] = :unknown_uuid_url
+      end
     end
 
     self.pending_connections += 1
@@ -374,7 +388,9 @@ protected
         })
 
       else
-        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} #{req.inspect}...")
+        unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
+          print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} with UA #{req.headers['User-Agent']}...")
+        end
         resp.code    = 200
         resp.message = "OK"
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s

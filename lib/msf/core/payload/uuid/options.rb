@@ -42,7 +42,11 @@ module Msf::Payload::UUID::Options
       return "/" + generate_uri_checksum(sum, len, prefix="")
     end
 
-    generate_uri_uuid(sum, generate_payload_uuid, len)
+    uuid = generate_payload_uuid
+    uri  = generate_uri_uuid(sum, uuid, len)
+    record_payload_uuid_url(uuid, uri)
+
+    uri
   end
 
   # Generate a Payload UUID
@@ -66,6 +70,10 @@ module Msf::Payload::UUID::Options
       end
       conf.delete(:seed)
       conf[:puid] = puid_raw
+    end
+
+    if datastore['PayloadUUIDName'].to_s.length > 0 && ! datastore['PayloadUUIDTracking']
+      raise ArgumentError, "The PayloadUUIDName value is ignored unless PayloadUUIDTracking is enabled"
     end
 
     # Generate the UUID object
@@ -95,6 +103,16 @@ module Msf::Payload::UUID::Options
       uuid_info[:name] = datastore['PayloadUUIDName']
     end
 
+    framework.uuid_db[uuid.puid_hex] = uuid_info
+  end
+
+  # Store a UUID URL in the JSON database if tracking is enabled
+  def record_payload_uuid_url(uuid, url)
+    return unless datastore['PayloadUUIDTracking']
+    uuid_info = framework.uuid_db[uuid.puid_hex]
+    uuid_info['urls'] ||= []
+    uuid_info['urls'] << url
+    uuid_info['urls'].uniq!
     framework.uuid_db[uuid.puid_hex] = uuid_info
   end
 
