@@ -397,6 +397,7 @@ class RPC_Session < RPC_Base
 
   # Changes the Transport of a given Meterpreter Session
   #
+  # @param sid [Fixnum] The Session ID of the `Msf::Session`
   # @option opts [String] :transport The transport protocol to use (e.g. reverse_tcp, reverse_http, bind_tcp etc)
   # @option opts [String] :lhost  The LHOST of the listener to use
   # @option opts [String] :lport The LPORT of the listener to use
