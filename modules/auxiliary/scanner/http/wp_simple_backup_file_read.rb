@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.code == 200 && res.body.length > 0 && res.headers['Content-Disposition'].include?('attachment; filename')
 
-      vprint_line("\n#{res.body}\n")
+      vprint_line("#{res.body}")
       fname = datastore['FILEPATH']
 
       path = store_loot(
