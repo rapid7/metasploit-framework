@@ -17,7 +17,7 @@ class Rex::Payloads::Meterpreter::Config
 
   def initialize(opts={})
     @opts = opts
-    if opts[:ascii_str] && opts[:ascii_str] == true
+    if opts[:ascii_str] == true
       @to_str = self.method(:to_ascii)
     else
       @to_str = self.method(:to_wchar_t)

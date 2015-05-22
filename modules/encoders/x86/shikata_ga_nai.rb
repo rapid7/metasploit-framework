@@ -281,7 +281,7 @@ protected
     begin
       # Generate a permutation saving the ECX, ESP, and user defined registers
       loop_inst.generate(block_generator_register_blacklist, nil, state.badchars)
-    rescue RuntimeError => e
+    rescue EncodingError => e
       raise EncodingError
     end
   end

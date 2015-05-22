@@ -1675,6 +1675,19 @@ module Text
     mail_address << Rex::Text.rand_hostname
   end
 
+  #
+  # Calculate the block API hash for the given module/function
+  #
+  # @param mod [String] The name of the module containing the target function.
+  # @param fun [String] The name of the function.
+  #
+  # @return [String] The hash of the mod/fun pair in string format
+  def self.block_api_hash(mod, fun)
+    unicode_mod = (mod.upcase + "\x00").unpack('C*').pack('v*')
+    mod_hash = self.ror13_hash(unicode_mod)
+    fun_hash = self.ror13_hash(fun + "\x00")
+    "0x#{(mod_hash + fun_hash & 0xFFFFFFFF).to_s(16)}"
+  end
 
   #
   # Calculate the ROR13 hash of a given string
