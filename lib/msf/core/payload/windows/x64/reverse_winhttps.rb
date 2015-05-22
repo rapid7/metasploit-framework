@@ -1,8 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/reverse_winhttp'
+require 'msf/core/payload/windows/x64/reverse_winhttp'
 require 'msf/core/payload/windows/verify_ssl'
 require 'rex/payloads/meterpreter/uri_checksum'
 
@@ -10,14 +9,13 @@ module Msf
 
 ###
 #
-# Complex payload generation for Windows ARCH_X86 that speak HTTPS using WinHTTP
+# Complex payload generation for Windows ARCH_X86_64 that speak HTTPS using WinHTTP
 #
 ###
 
-module Payload::Windows::ReverseWinHttps
+module Payload::Windows::ReverseWinHttps_x64
 
-  include Msf::Payload::TransportConfig
-  include Msf::Payload::Windows::ReverseWinHttp
+  include Msf::Payload::Windows::ReverseWinHttp_x64
   include Msf::Payload::Windows::VerifySsl
 
   #

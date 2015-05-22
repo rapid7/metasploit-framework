@@ -17,7 +17,7 @@ class Rex::Payloads::Meterpreter::Config
 
   def initialize(opts={})
     @opts = opts
-    if opts[:ascii_str] && opts[:ascii_str] == true
+    if opts[:ascii_str] == true
       @to_str = self.method(:to_ascii)
     else
       @to_str = self.method(:to_wchar_t)
@@ -39,7 +39,7 @@ private
   end
 
   def to_wchar_t(item, size)
-    to_ascii(item, size).unpack("C*").pack("v*")
+    to_ascii(item, size).unpack('C*').pack('v*')
   end
 
   def to_ascii(item, size)
@@ -57,7 +57,7 @@ private
       uuid                # the UUID
     ]
 
-    session_data.pack("VVVA*")
+    session_data.pack('VVVA*')
   end
 
   def transport_block(opts)
@@ -117,7 +117,7 @@ private
     ext, o = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
                                                               file_extension))
 
-    extension_data = [ ext.length, ext ].pack("VA*")
+    extension_data = [ ext.length, ext ].pack('VA*')
   end
 
   def config_block
@@ -143,9 +143,9 @@ private
 
     # terminate the extensions with a 0 size
     if is_x86?
-      config << [0].pack("V")
+      config << [0].pack('V')
     else
-      config << [0].pack("Q")
+      config << [0].pack('Q<')
     end
 
     # and we're done
