@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Encoder
     # Have to have these for the decoder stub, so if they're not available,
     # there's nothing we can do here.
     ["(",")",".","_","c","h","r","e","v","a","l","b","s","6","4","d","o"].each do |c|
-      raise EncodeError if state.badchars.include?(c)
+      raise BadcharError if state.badchars.include?(c)
     end
 
     # PHP escapes quotes by default with magic_quotes_gpc, so we use some

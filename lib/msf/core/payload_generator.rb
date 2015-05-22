@@ -61,9 +61,15 @@ module Msf
     # @!attribute  platform
     #   @return [String] The platform to build the payload for
     attr_accessor :platform
+    # @!attribute  smallest
+    #   @return [Boolean] Whether or not to find the smallest possible output
+    attr_accessor :smallest
     # @!attribute  space
     #   @return [Fixnum] The maximum size in bytes of the payload
     attr_accessor :space
+    # @!attribute  encoder_space
+    #   @return [Fixnum] The maximum size in bytes of the encoded payload
+    attr_accessor :encoder_space
     # @!attribute  stdin
     #   @return [String] The raw bytes of a payload taken from STDIN
     attr_accessor :stdin
@@ -85,12 +91,14 @@ module Msf
     # @option opts [String] :badchars (see #badchars)
     # @option opts [String] :template (see #template)
     # @option opts [Fixnum] :space (see #space)
+    # @option opts [Fixnum] :encoder_space (see #encoder_space)
     # @option opts [Fixnum] :nops (see #nops)
     # @option opts [String] :add_code (see #add_code)
     # @option opts [Boolean] :keep (see #keep)
     # @option opts [Hash] :datastore (see #datastore)
     # @option opts [Msf::Framework] :framework (see #framework)
     # @option opts [Boolean] :cli (see #cli)
+    # @option opts [Boolean] :smallest (see #smallest)
     # @raise [KeyError] if framework is not provided in the options hash
     def initialize(opts={})
       @add_code   = opts.fetch(:add_code, '')
@@ -109,11 +117,20 @@ module Msf
       @stdin      = opts.fetch(:stdin, nil)
       @template   = opts.fetch(:template, '')
       @var_name   = opts.fetch(:var_name, 'buf')
+      @smallest   = opts.fetch(:smallest, false)
+      @encoder_space = opts.fetch(:encoder_space, @space)
 
       @framework  = opts.fetch(:framework)
 
       raise ArgumentError, "Invalid Payload Selected" unless payload_is_valid?
       raise ArgumentError, "Invalid Format Selected" unless format_is_valid?
+
+      # In smallest mode, override the payload @space & @encoder_space settings
+      if @smallest
+        @space = 0
+        @encoder_space = 1.gigabyte
+      end
+
     end
 
     # This method takes the shellcode generated so far and adds shellcode from
@@ -194,24 +211,36 @@ module Msf
       encoder_list = get_encoders
       if encoder_list.empty?
         cli_print "No encoder or badchars specified, outputting raw payload"
-        shellcode
-      else
-        cli_print "Found #{encoder_list.count} compatible encoders"
-        encoder_list.each do |encoder_mod|
-          cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
-          begin
-            encoder_mod.available_space = @space
-            return run_encoder(encoder_mod, shellcode.dup)
-          rescue ::Msf::EncoderSpaceViolation => e
-            cli_print "#{encoder_mod.refname} failed with #{e.message}"
-            next
-          rescue ::Msf::EncodingError => e
-            cli_print "#{encoder_mod.refname} failed with #{e.message}"
-            next
-          end
+        return shellcode
+      end
+
+      results = {}
+
+      cli_print "Found #{encoder_list.count} compatible encoders"
+      encoder_list.each do |encoder_mod|
+        cli_print "Attempting to encode payload with #{iterations} iterations of #{encoder_mod.refname}"
+        begin
+          encoder_mod.available_space = @encoder_space unless @smallest
+          results[encoder_mod.refname] = run_encoder(encoder_mod, shellcode.dup)
+          break unless @smallest
+        rescue ::Msf::EncoderSpaceViolation => e
+          cli_print "#{encoder_mod.refname} failed with #{e.message}"
+          next
+        rescue ::Msf::EncodingError => e
+          cli_print "#{encoder_mod.refname} failed with #{e.message}"
+          next
         end
+      end
+
+      if results.keys.length == 0
         raise ::Msf::EncodingError, "No Encoder Succeeded"
       end
+
+      # Return the shortest encoding of the payload
+      chosen_encoder = results.keys.sort{|a,b| results[a].length <=> results[b].length}.first
+      cli_print "#{chosen_encoder} chosen with final size #{results[chosen_encoder].length}"
+
+      results[chosen_encoder]
     end
 
     # This returns a hash for the exe format generation of payloads
@@ -346,7 +375,7 @@ module Msf
           e.datastore.import_options_from_hash(datastore)
           encoders << e if e
         end
-        encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
+        encoders.select{ |my_encoder| my_encoder.rank != ManualRanking }.sort_by { |my_encoder| my_encoder.rank }.reverse
       else
         encoders
       end
@@ -395,7 +424,7 @@ module Msf
       iterations.times do |x|
         shellcode = encoder_module.encode(shellcode.dup, badchars, nil, platform_list)
         cli_print "#{encoder_module.refname} succeeded with size #{shellcode.length} (iteration=#{x})"
-        if shellcode.length > space
+        if shellcode.length > encoder_space
           raise EncoderSpaceViolation, "encoder has made a buffer that is too big"
         end
       end
