@@ -449,13 +449,10 @@ function core_machine_id($req, &$pkt) {
   $serial = "";
 
   if (is_windows()) {
-    # TODO: need help from real PHP folks who know how to do
-    # things via the Windows API. We need to:
-    # 1) get the system volume
-    # 2) get the volume information for that volume.
-    # 3) get the serial number from the extracted volume info.
-    # 4) create a serial in the format:
-    # "{0:04x}-{1:04x}".format((serial_num >> 16) & 0xFFFF, serial_num & 0xFFFF)
+    # It's dirty, but there's not really a nicer way of doing this on windows. Make sure
+    # it's lowercase as this is what the other meterpreters use.
+    $output = strtolower(shell_exec("vol %SYSTEMDRIVE%"));
+    $serial = preg_replace('/.*serial number is ([a-z0-9]{4}-[a-z0-9]{4}).*/s', '$1', $output);
   } else {
     $serial = get_hdd_label();
   }
