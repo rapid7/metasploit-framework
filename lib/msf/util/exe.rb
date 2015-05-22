@@ -525,9 +525,6 @@ require 'msf/core/exe/segment_appender'
       return injector.generate_pe
     end
 
-    #opts[:exe_type] = :exe_sub
-    #return exe_sub_method(code,opts)
-
     # Append a new section instead
     appender = Msf::Exe::SegmentAppender.new({
       :payload  => code,
@@ -549,9 +546,9 @@ require 'msf/core/exe/segment_appender'
   #
   # @return [String] Windows Service PE file
   def self.to_win32pe_service(framework, code, opts = {})
+    set_template_default(opts, "template_x86_windows_svc.exe")
     if opts[:sub_method]
       # Allow the user to specify their own service EXE template
-      set_template_default(opts, "template_x86_windows_svc.exe")
       opts[:exe_type] = :service_exe
       return exe_sub_method(code,opts)
     else
@@ -610,7 +607,12 @@ require 'msf/core/exe/segment_appender'
         "\x79\xFF\xD5\x8B\x0E\x51\x68\xC6\x96\x87\x52\xFF\xD5\x8B\x4E\x04" +
         "\x51\x68\xC6\x96\x87\x52\xFF\xD5#{code_service_stopped}"
 
-      to_winpe_only(framework, code_service + code, opts)
+      # Append a new section to the template
+      Msf::Exe::SegmentAppender.new({
+        :payload  => code_service + code,
+        :template => opts[:template],
+        :arch     => :x86
+      }).generate_pe
     end
   end
 
