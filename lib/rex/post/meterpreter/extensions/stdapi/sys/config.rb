@@ -94,6 +94,8 @@ class Config
       'OS'              => response.get_tlv_value(TLV_TYPE_OS_NAME),
       'Architecture'    => response.get_tlv_value(TLV_TYPE_ARCHITECTURE),
       'System Language' => response.get_tlv_value(TLV_TYPE_LANG_SYSTEM),
+      'Domain'          => response.get_tlv_value(TLV_TYPE_DOMAIN),
+      'Logged On Users' => response.get_tlv_value(TLV_TYPE_LOGGED_ON_USER_COUNT)
     }
   end
 

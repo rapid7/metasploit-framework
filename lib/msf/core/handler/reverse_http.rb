@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'rex/payloads/meterpreter/patch'
 require 'rex/payloads/meterpreter/uri_checksum'
 require 'rex/post/meterpreter/packet'
 require 'rex/parser/x509_certificate'
@@ -52,8 +51,6 @@ module ReverseHttp
     register_advanced_options(
       [
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', (24*3600*7)]),
-        OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', 300]),
         OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
         OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
@@ -283,6 +280,8 @@ protected
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :retry_total        => datastore['SessionRetryTotal'].to_i,
+          :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
           :payload_uuid       => uuid
         })
@@ -312,6 +311,8 @@ protected
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :retry_total        => datastore['SessionRetryTotal'].to_i,
+          :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
           :payload_uuid       => uuid
         })
@@ -322,25 +323,12 @@ protected
 
         resp['Content-Type'] = 'application/octet-stream'
 
-        blob = obj.stage_payload
-
-        verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                             datastore['HandlerSSLCert'])
-        #
-        # Patch options into the payload
-        #
-        Rex::Payloads::Meterpreter::Patch.patch_passive_service!(blob,
-          :ssl            => ssl?,
-          :url            => url,
-          :ssl_cert_hash  => verify_cert_hash,
-          :expiration     => datastore['SessionExpirationTimeout'],
-          :comm_timeout   => datastore['SessionCommunicationTimeout'],
-          :ua             => datastore['MeterpreterUserAgent'],
-          :proxy_host     => datastore['PayloadProxyHost'],
-          :proxy_port     => datastore['PayloadProxyPort'],
-          :proxy_type     => datastore['PayloadProxyType'],
-          :proxy_user     => datastore['PayloadProxyUser'],
-          :proxy_pass     => datastore['PayloadProxyPass'])
+        # generate the stage, but pass in the existing UUID and connection id so that
+        # we don't get new ones generated.
+        blob = obj.stage_payload(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         resp.body = encode_stage(blob)
 
@@ -351,6 +339,8 @@ protected
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :retry_total        => datastore['SessionRetryTotal'].to_i,
+          :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
           :payload_uuid       => uuid
         })
@@ -366,8 +356,13 @@ protected
           :passive_dispatcher => obj.service,
           :conn_id            => conn_id,
           :url                => payload_uri(req) + conn_id + "/\x00",
-          :expiration         => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          # TODO ### Figure out what to do with these options given that the payload ###
+          # settings might not match the handler, should we instead read the remote?   #
+          :expiration         => datastore['SessionExpirationTimeout'].to_i,           #
+          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,        #
+          :retry_total        => datastore['SessionRetryTotal'].to_i,                  #
+          :retry_wait         => datastore['SessionRetryWait'].to_i,                   #
+          ##############################################################################
           :ssl                => ssl?,
           :payload_uuid       => uuid
         })

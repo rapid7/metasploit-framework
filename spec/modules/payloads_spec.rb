@@ -2498,7 +2498,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_bind_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_bind_tcp'
   end
@@ -2508,7 +2508,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_http'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_http'
   end
@@ -2518,7 +2518,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_https'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_https'
   end
@@ -2528,7 +2528,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_ipv6_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_ipv6_tcp'
   end
@@ -2538,7 +2538,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter_reverse_tcp'
   end
@@ -3557,6 +3557,17 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/meterpreter/bind_tcp'
   end
 
+  context 'windows/x64/meterpreter/reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_http',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/reverse_http'
+  end
+
   context 'windows/x64/meterpreter/reverse_https' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3579,12 +3590,34 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/meterpreter/reverse_tcp'
   end
 
+  context 'windows/x64/meterpreter/reverse_winhttp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_winhttp',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/reverse_winhttp'
+  end
+
+  context 'windows/x64/meterpreter/reverse_winhttps' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_winhttps',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/reverse_winhttps'
+  end
+
   context 'windows/x64/meterpreter_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_bind_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_bind_tcp'
   end
@@ -3594,7 +3627,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_reverse_http'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_http'
   end
@@ -3604,7 +3637,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_reverse_https'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_https'
   end
@@ -3614,7 +3647,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_reverse_ipv6_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_ipv6_tcp'
   end
@@ -3624,7 +3657,7 @@ describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/windows/x64/meterpreter_reverse_tcp'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_tcp'
   end

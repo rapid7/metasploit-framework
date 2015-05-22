@@ -668,7 +668,7 @@ class Db
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address)
+          addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
         end
 
@@ -790,6 +790,7 @@ class Db
             # Same for service names
             next unless svcs.empty? or svcs.include?(vuln.service.name)
             print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
+
           else
             # This vuln has no service, so it can't match
             next unless ports.empty? and svcs.empty?
@@ -1269,8 +1270,8 @@ class Db
       end
     end
     if search_term
-      note_list.delete_if do |n|
-        !n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+      note_list = note_list.select do |n|
+        n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
       end
     end
 
@@ -1318,7 +1319,7 @@ class Db
         host = note.host
         msg << " host=#{note.host.address}"
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address)
+          addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
         end
       end

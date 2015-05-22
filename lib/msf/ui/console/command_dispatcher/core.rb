@@ -1772,13 +1772,15 @@ class Core
               rescue Rex::TimeoutError
                 print_error("Operation timed out")
               end
-            elsif session.type == 'shell'
+            elsif session.type == 'shell' || session.type == 'powershell'
               output = session.shell_command(cmd)
               print_line(output) if output
             end
           ensure
             # Restore timeout for each session
-            session.response_timeout = last_known_timeout if last_known_timeout
+            if session.respond_to?(:response_timeout)
+              session.response_timeout = last_known_timeout if last_known_timeout
+            end
           end
           # If the session isn't a meterpreter or shell type, it
           # could be a VNC session (which can't run commands) or
@@ -2074,29 +2076,6 @@ class Core
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
       return true
-    end
-
-    # If the value starts with file: exists, and size isn't too big load the file as the value
-    # Otherwise keep the old value
-    if value =~ /^file:(.*)/
-      fname = $1
-
-      begin
-        fd = ::File.new(fname, 'rb')
-      rescue ::Errno::ENOENT
-        print_error('The file name specified does not exist')
-        value = datastore[name]
-        fd = nil
-      end
-
-      if fd && fd.stat.size > (1024 * 1024)
-        print_error('The file name specified is too big (over 1Mb)')
-        value = datastore[name]
-        fd.close
-      elsif fd
-        value = fd.read(fd.stat.size)
-        fd.close
-      end
     end
 
     if append
