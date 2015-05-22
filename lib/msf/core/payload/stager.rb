@@ -156,11 +156,13 @@ module Msf::Payload::Stager
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
     if (stage_over_connection?)
-      uuid_raw = conn.get_once(16, 1)
-
       opts = {}
-      if uuid_raw
-        opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+
+      if include_send_uuid
+        uuid_raw = conn.get_once(16, 1)
+        if uuid_raw
+          opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+        end
       end
 
       p = generate_stage(opts)
