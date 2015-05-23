@@ -26,10 +26,14 @@ class CmdStagerEcho < CmdStagerBase
   # and initialize opts[:enc_format].
   #
   def generate(opts = {})
-    opts[:temp] = opts[:temp] || '/tmp/'
-    opts[:temp].gsub!(/\\/, "/")
-    opts[:temp] = opts[:temp].shellescape
-    opts[:temp] << '/' if opts[:temp][-1,1] != '/'
+    if opts[:temp] == false
+      opts[:temp] = ''
+    else
+      opts[:temp] = opts[:temp] || '/tmp/'
+      opts[:temp].gsub!(/\\/, "/")
+      opts[:temp] = opts[:temp].shellescape
+      opts[:temp] << '/' if opts[:temp][-1,1] != '/'
+    end
 
     # by default use the 'hex' encoding
     opts[:enc_format] = opts[:enc_format] || 'hex'
