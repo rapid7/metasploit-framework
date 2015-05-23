@@ -95,16 +95,22 @@ module ReverseTcpDouble
       sock_inp = nil
       sock_out = nil
 
-      print_status("Started reverse double handler")
+      unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
+        print_status("Started reverse double handler")
+      end
 
       begin
         # Accept two client connection
         begin
           client_a = self.listener_sock.accept
-          print_status("Accepted the first client connection...")
+          unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
+            print_status("Accepted the first client connection...")
+          end
 
           client_b = self.listener_sock.accept
-          print_status("Accepted the second client connection...")
+          unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
+            print_status("Accepted the second client connection...")
+          end
         rescue
           wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
           return nil
@@ -147,35 +153,35 @@ module ReverseTcpDouble
 
       print_status("Command: #{echo.strip}")
 
-      print_status("Writing to socket A")
+      print_status("Writing to socket A") unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
       sock_a.put(echo)
 
-      print_status("Writing to socket B")
+      print_status("Writing to socket B") unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
       sock_b.put(echo)
 
-      print_status("Reading from sockets...")
+      print_status("Reading from sockets...") unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
 
       resp_a = ''
       resp_b = ''
 
       if (sock_a.has_read_data?(1))
-        print_status("Reading from socket A")
+        print_status("Reading from socket A") unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
         resp_a = sock_a.get_once
         print_status("A: #{resp_a.inspect}")
       end
 
       if (sock_b.has_read_data?(1))
-        print_status("Reading from socket B")
+        print_status("Reading from socket B") unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
         resp_b = sock_b.get_once
         print_status("B: #{resp_b.inspect}")
       end
 
-      print_status("Matching...")
+      print_status("Matching...") unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
       if (resp_b.match(etag))
-        print_status("A is input...")
+        print_status("A is input...") unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
         return sock_a, sock_b
       else
-        print_status("B is input...")
+        print_status("B is input...") unless datastore['MODULEOWNER'] == Msf::Exploit::Remote::BrowserAutopwnv2
         return sock_b, sock_a
       end
 
