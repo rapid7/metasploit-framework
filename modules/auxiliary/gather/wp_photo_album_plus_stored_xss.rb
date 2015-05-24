@@ -11,7 +11,7 @@ class Metasploit3 < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(
       info,
-      'Name'            => 'WP Photo Album Plus <= 6.1.2 Stored XSS',
+      'Name'            => 'WP Photo Album Plus 6.1.2 Stored XSS',
       'Description'     => %q(
         The vulnerability exists due to the absence of filtration of user-supplied
         input passed via the "comname" and "comemail" HTTP POST parameters to
