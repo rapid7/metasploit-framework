@@ -31,7 +31,9 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'References'      =>
         [
-          ['WPVDB', '7996']
+          ['CVE', '2015-3647'],
+          ['WPVDB', '7996'],
+          ['URL', 'https://www.htbridge.com/advisory/HTB23257']
         ],
       'DisclosureDate'  => 'May 20 2015'
     ))
