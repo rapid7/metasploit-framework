@@ -236,6 +236,47 @@ module Powershell
     return
   end
 
+  #
+  # Uploads a script into a Powershell session via memory (Powershell session types only).
+  # If the script is larger than 15000 bytes the script will be uploaded in a staged approach
+  #
+  def upload_script_via_psh(script)
+    begin
+      encoded_expression = Rex::Powershell::Command.encode_script(read_script(script))
+
+      if (encoded_expression.size > 14999)
+        print_error("Compressed size: #{encoded_expression.size} This script requres a stager")
+        arr = encoded_expression.chars.each_slice(14999).map(&:join)
+        print_good("Loading " + arr.count.to_s + " chunks into the stager.")
+        vararray = []
+        arr.each_with_index do |slice, index|
+          variable = Rex::Text.rand_text_alpha(8)
+          vararray << variable
+          indexval = index+1
+          vprint_good("Loaded stage:#{indexval}")
+          session.shell_command("$#{variable} = \"#{slice}\"")
+        end
+        linkvars = ''
+        for var in vararray
+          linkvars = linkvars + " + $" + var
+        end
+        linkvars.slice!(0..2)
+        session.shell_command("$script = #{linkvars}")
+      else
+        print_good("Compressed size: #{encoded_expression.size}")
+        session.shell_command("$script = \"#{encoded_expression}\"")
+      end
+      session.shell_command("$decscript = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($script))")
+      session.shell_command("$scriptby  = [System.Text.Encoding]::UTF8.GetBytes(\"$decscript\")")
+      session.shell_command("$scriptbybase = [System.Convert]::ToBase64String($scriptby) ")
+      session.shell_command("$scriptbybasefull = ([System.Convert]::FromBase64String($scriptbybase))")
+      session.shell_command("([System.Text.Encoding]::UTF8.GetString($scriptbybasefull))|iex")
+      print_good("Module loaded")
+    rescue Errno::EISDIR => e
+      vprint_error("Unable to upload script: #{e.message}")
+    end
+  end
+
 end
 end
 end
