@@ -2642,6 +2642,17 @@ describe 'modules/payloads', :content do
                           reference_name: 'windows/meterpreter/bind_ipv6_tcp'
   end
 
+  context 'windows/meterpreter/bind_ipv6_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_ipv6_tcp_uuid',
+                              'stages/windows/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/bind_ipv6_tcp_uuid'
+  end
+
   context 'windows/meterpreter/bind_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3654,6 +3665,28 @@ describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/loadlibrary'
+  end
+
+  context 'windows/x64/meterpreter/bind_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_ipv6_tcp',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/bind_ipv6_tcp'
+  end
+
+  context 'windows/x64/meterpreter/bind_ipv6_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_ipv6_tcp_uuid',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/bind_ipv6_tcp_uuid'
   end
 
   context 'windows/x64/meterpreter/bind_tcp' do
