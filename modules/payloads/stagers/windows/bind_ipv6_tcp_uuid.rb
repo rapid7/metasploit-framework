@@ -23,7 +23,7 @@ module Metasploit4
     super(merge_info(info,
       'Name'        => 'Bind IPv6 TCP Stager with UUID Support (Windows x86)',
       'Description' => 'Listen for an IPv6 connection with UUID Support (Windows x86)',
-      'Author'      => ['hdm', 'skape', 'sf'],
+      'Author'      => [ 'hdm', 'skape', 'sf', 'OJ Reeves' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_X86,

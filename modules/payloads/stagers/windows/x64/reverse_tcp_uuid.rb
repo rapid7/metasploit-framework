@@ -22,7 +22,7 @@ module Metasploit4
     super(merge_info(info,
       'Name'        => 'Reverse TCP Stager with UUID Support (Windows x64)',
       'Description' => 'Connect back to the attacker with UUID Support (Windows x64)',
-      'Author'      => ['OJ Reeves'],
+      'Author'      => [ 'sf', 'OJ Reeves' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_X86_64,

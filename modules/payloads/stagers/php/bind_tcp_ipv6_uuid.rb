@@ -22,13 +22,13 @@ module Metasploit4
     super(merge_info(info,
       'Name'        => 'Bind TCP Stager IPv6 with UUID Support',
       'Description' => 'Listen for a connection over IPv6 with UUID Support',
-      'Author'      => ['egypt'],
+      'Author'      => [ 'egypt', 'OJ Reeves' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'php',
       'Arch'        => ARCH_PHP,
       'Handler'     => Msf::Handler::BindTcp,
       'Stager'      => { 'Payload' => "" }
-      ))
+    ))
   end
 
   def use_ipv6

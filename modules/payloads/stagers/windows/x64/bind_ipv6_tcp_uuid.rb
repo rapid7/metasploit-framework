@@ -22,14 +22,14 @@ module Metasploit4
     super(merge_info(info,
       'Name'          => 'Windows x64 IPv6 Bind TCP Stager with UUID Support',
       'Description'   => 'Listen for an IPv6 connection with UUID Support (Windows x64)',
-      'Author'        => [ 'sf' ],
+      'Author'        => [ 'sf', 'OJ Reeves' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86_64,
       'Handler'       => Msf::Handler::BindTcp,
       'Convention'    => 'sockrdi',
       'Stager'        => { 'RequiresMidstager' => false }
-      ))
+    ))
   end
 
   def use_ipv6
