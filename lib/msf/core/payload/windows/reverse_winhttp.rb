@@ -31,7 +31,7 @@ module Payload::Windows::ReverseWinHttp
   def generate(opts={})
     conf = {
       ssl:         opts[:ssl] || false,
-      host:        datastore['LHOST'],
+      host:        datastore['LHOST'] || '127.127.127.127',
       port:        datastore['LPORT'],
       uri:         generate_small_uri,
       retry_count: datastore['StagerRetryCount'],
