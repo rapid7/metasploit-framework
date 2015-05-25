@@ -90,6 +90,8 @@ module Payload::Windows::ReverseTcp_x64
     # Reliability adds 10 bytes for recv error checks
     space += 10
 
+    space += uuid_required_size if include_send_uuid
+
     # The final estimated size
     space
   end

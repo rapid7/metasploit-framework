@@ -40,6 +40,16 @@ module Payload::Windows::SendUUID_x64
     asm
   end
 
+  def uuid_required_size
+    # Start with the number of bytes required for the instructions
+    space = 25
+
+    # a UUID is 16 bytes
+    space += 16
+
+    space
+  end
+
 end
 
 end

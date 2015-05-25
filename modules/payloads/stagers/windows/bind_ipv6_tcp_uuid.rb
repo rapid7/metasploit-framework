@@ -16,13 +16,13 @@ module Metasploit4
   include Msf::Payload::Windows::BindTcp
 
   def self.handler_type_alias
-    "bind_ipv6_tcp"
+    "bind_ipv6_tcp_uuid"
   end
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Bind IPv6 TCP Stager (Windows x86)',
-      'Description' => 'Listen for an IPv6 connection (Windows x86)',
+      'Name'        => 'Bind IPv6 TCP Stager with UUID Support (Windows x86)',
+      'Description' => 'Listen for an IPv6 connection with UUID Support (Windows x86)',
       'Author'      => ['hdm', 'skape', 'sf'],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
@@ -37,4 +37,9 @@ module Metasploit4
     true
   end
 
+  def include_send_uuid
+    true
+  end
+
 end
+
