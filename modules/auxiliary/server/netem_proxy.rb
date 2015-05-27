@@ -11,13 +11,13 @@ class Metasploit3 < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'        => 'Emulate network conditions via a proxy router',
+        'Name'        => 'Emulate Network Conditions with a Router Proxy',
         'Description' =>
         %q(
-            This module will enable a local proxy router that can emulate bad
+            This module configures a local router proxy that can emulate bad
             network conditions. Traffic forwarded through the router to or from
-            the local host can emulate network bandwidth, latency and packet loss
-            conditions.
+            the local host can emulate network outages, corruption, latency,
+            and packet loss. Vagrant 1.5 or later is required to use this module.
           ),
         'License'     => MSF_LICENSE,
         'Author'      => ['bcook']
@@ -122,7 +122,7 @@ end
     }
 
     Dir.mkdir(@vagrant_dir, 0700) unless Dir.exist?(@vagrant_dir)
-    File.open(@vagrant_file, 'w') { |file| file.write(vagrant_tpl) }
+    File.open(@vagrant_file, 'wb') { |file| file.write(vagrant_tpl) }
   end
 
   def cleanup_vm(_obj)
