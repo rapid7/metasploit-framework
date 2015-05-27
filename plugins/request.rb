@@ -13,7 +13,7 @@ class Plugin::Requests < Msf::Plugin
 
     def commands
       {
-        'request' => 'Make a request of the specified type',
+        'request' => "Make a request of the specified type (#{types.join(', ')})",
       }
     end
 
@@ -31,7 +31,9 @@ class Plugin::Requests < Msf::Plugin
       return help if (!type || type =~ /^-?-h(?:elp)?$/)
       type.downcase!
       opts, opt_parser = parse_args(type, args)
+
       if opts && opt_parser
+        # handle any "global" options
         if opts[:output_file]
           begin
             opts[:output_file] = File.new(opts[:output_file], 'w')
@@ -39,6 +41,7 @@ class Plugin::Requests < Msf::Plugin
             return help(opt_parser, 'Failed to open the specified file for output')
           end
         end
+        # hand off the actual request to the appropriate request handler
         handler_method = "handle_request_#{type}".to_sym
         if self.respond_to?(handler_method)
           # call the appropriate request handler
@@ -63,6 +66,7 @@ class Plugin::Requests < Msf::Plugin
       end
     end
 
+    # arg parsing for requests of type 'http'
     def parse_args_http(args = [], type = 'http')
       opt_parser = Rex::Parser::Arguments.new(
         '-0' => [ false, 'Use HTTP 1.0' ],
@@ -78,7 +82,9 @@ class Plugin::Requests < Msf::Plugin
         '-I' => [ false, 'Show document info only' ],
         '-o' => [ true,  'Write output to <file> instead of stdout' ],
         '-u' => [ true,  'Server user and password' ],
-        '-X' => [ true,  'Request method to use' ]
+        '-X' => [ true,  'Request method to use' ],
+        '-x' => [ true,  'Proxy to use, format: [proto://][user:pass@]host[:port]' +
+                          '  Proto defaults to http:// and port to 1080'],
       )
 
       options = {
@@ -126,6 +132,8 @@ class Plugin::Requests < Msf::Plugin
           options[:auth_password] = val
         when '-X'
           options[:method] = val
+        #when '-x'
+          # @TODO proxy
         else
           options[:uri] = val
         end
@@ -138,6 +146,7 @@ class Plugin::Requests < Msf::Plugin
       [options, opt_parser]
     end
 
+    # handling for requests of type 'http'
     def handle_request_http(opts, opt_parser)
       uri = opts[:uri]
       http_client = Rex::Proto::Http::Client.new(
