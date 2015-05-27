@@ -28,17 +28,17 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new("PacketDelay",     [false, 'Packet delay in ms', 0]),
-        OptString.new("DataRate",     [false, 'Data rate in Mbps (0 is unlimited)', 0.0]),
-        OptInt.new("PacketLoss",      [false, 'Packet loss percentage', 0]),
-        OptInt.new("PacketDup",       [false, 'Packet dup percentage', 0]),
-        OptInt.new("PacketCorrupt",   [false, 'Packet corruption percentage', 0]),
-        OptInt.new("TCPFlushRate",    [false, 'Rate in seconds to flush the connection table', 0]),
+        OptInt.new("PacketDelayMs",          [false, 'Packet delay in ms', 0]),
+        OptInt.new("PacketLossPercent",      [false, 'Packet loss percentage', 0]),
+        OptInt.new("PacketDupPercent",       [false, 'Packet dup percentage', 0]),
+        OptInt.new("PacketCorruptPercent",   [false, 'Packet corruption percentage', 0]),
+        OptInt.new("NetworkOutageInterval",  [false, 'Period in seconds to simulate network outages', 0]),
+        OptInt.new("NetworkOutageDuration",  [false, 'Length in seconds of network outages', 30]),
 
-        OptString.new('VagrantName',  [true,  'Vagrant image name', name]),
-        OptString.new('VagrantBox',   [true,  'Vagrant box for the router VM', 'ubuntu/trusty64']),
-        OptString.new('VagrantNet',   [true,  'Vagrant private network', '192.168.13.2']),
-        OptBool.new('VagrantDestroy', [true,  'Destroy image on stop', false]),
+        OptString.new('VagrantName',    [true, 'Vagrant image name', name]),
+        OptString.new('VagrantBox',     [true, 'Vagrant box for the router VM', 'ubuntu/trusty64']),
+        OptString.new('VagrantNet',     [true, 'Vagrant private network', '192.168.13.2']),
+        OptEnum.new('VagrantCleanup',   [true, 'Cleanup method', 'suspend', ['suspend', 'destroy', 'none']]),
 
         OptString.new('SRVHOST',      [false, 'The address to listen on', '']),
         OptPort.new('SRVPORT',        [true,  'The port to listen on', 4445]),
@@ -55,7 +55,9 @@ class Metasploit3 < Msf::Auxiliary
   def vagrant_create_environment
     @vagrant_dir = File.join(Dir.tmpdir, datastore['VagrantName'])
     @vagrant_file = File.join(@vagrant_dir, 'Vagrantfile')
-    @vagrant_destroy = datastore['VagrantDestroy']
+    @vagrant_cleanup = datastore['VagrantCleanup']
+    @net_outage_interval = datastore['NetworkOutageInterval']
+    @net_outage_duration = datastore['NetworkOutageDuration']
     ENV['VAGRANT_CWD'] = @vagrant_dir
   end
 
@@ -74,20 +76,15 @@ class Metasploit3 < Msf::Auxiliary
     routing_cmds << "iptables -t nat -A POSTROUTING -j MASQUERADE"
 
     tc_opts = []
-    tc_opts << "delay #{datastore['PacketDelay']}ms" if datastore['PacketDelay'] > 0
-    tc_opts << "loss #{datastore['PacketLoss']}%" if datastore['PacketLoss'] > 0.0
-    tc_opts << "duplicate #{datastore['PacketDup']}%" if datastore['PacketDup'] > 0.0
-    tc_opts << "corrupt #{datastore['PacketCorrupt']}%" if datastore['PacketCorrupt'] > 0.0
+    tc_opts << "delay #{datastore['PacketDelayMs']}ms" if datastore['PacketDelayMs'] > 0
+    tc_opts << "loss #{datastore['PacketLossPercent']}%" if datastore['PacketLossPercent'] > 0.0
+    tc_opts << "duplicate #{datastore['PacketDupPercent']}%" if datastore['PacketDupPercent'] > 0.0
+    tc_opts << "corrupt #{datastore['PacketCorruptPercent']}%" if datastore['PacketCorruptPercent'] > 0.0
 
-    routing_cmds << "tc qdisc delete dev #{priv_intf} root"
+    routing_cmds << "tc qdisc delete dev #{priv_intf} root || true"
     unless tc_opts.empty?
       tc_opt = tc_opts.join(" ")
       routing_cmds << "tc qdisc add dev #{priv_intf} root netem #{tc_opt}"
-    end
-
-    kbps = datastore['DataRate'].to_f * 1000
-    if kbps > 0.0
-      routing_cmds << "tc class add dev #{priv_intf} parent 1:1 handle 10 htb rate #{kbps}Kbps"
     end
 
     routing_cmds
@@ -110,10 +107,15 @@ class Metasploit3 < Msf::Auxiliary
     vagrant_tpl = %{
 VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.provision "fix-no-tty", type: "shell" do |s|
+    s.privileged = false
+    s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
+  end
   config.vm.define "#{datastore['VagrantName']}" do |os|
     os.vm.box = "#{datastore['VagrantBox']}"
     os.vm.network #{port_forward.join(', ')}
     os.vm.network :private_network, ip: "#{datastore['VagrantNet']}"
+    os.vm.provision "shell", inline: "apt-get install -y conntrack"
     #{provision_cmds.join("\n    ")}
   end
 end
@@ -125,10 +127,11 @@ end
 
   def cleanup_vm(_obj)
     # Cleanup the VM
-    if @vagrant_destroy
+    case @vagrant_cleanup
+    when 'destroy'
       print_status("Destroying #{vagrant_image_name}")
       @vagrant.get_output('destroy -f')
-    else
+    when 'suspend'
       print_status("Suspending #{vagrant_image_name}")
       @vagrant.get_output('suspend')
     end
@@ -136,8 +139,18 @@ end
 
   def monitor_vm(_obj)
     # Sleep while waiting for the job to be killed
+    last_outage = 0
     loop do
-      sleep 10
+      sleep 1
+      last_outage += 1
+      if @net_outage_interval > 0 && last_outage >= @net_outage_interval
+        print_status("Starting network outage on #{vagrant_image_name}")
+        @vagrant.get_output('ssh -c "sudo ip link set eth1 down"')
+        sleep @net_outage_duration
+        print_status("Ending network outage on #{vagrant_image_name}")
+        @vagrant.get_output('ssh -c "sudo ip link set eth1 up"')
+        last_outage = 0
+      end
     end
   end
 
