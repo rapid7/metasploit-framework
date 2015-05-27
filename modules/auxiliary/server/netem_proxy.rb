@@ -7,19 +7,22 @@ require 'msf/core'
 require 'vagrant-wrapper'
 
 class Metasploit3 < Msf::Auxiliary
-
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Emulate network conditions via a proxy router',
-      'Description'    => %q{
-          This module will enable a local proxy router that can emulate bad
-          network conditions. Traffic forwarded through the router to or from
-          the local host can emulate network bandwidth, latency and packet loss
-          conditions.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => ['bcook'],
-    ))
+    super(
+      update_info(
+        info,
+        'Name'        => 'Emulate network conditions via a proxy router',
+        'Description' =>
+        %q(
+            This module will enable a local proxy router that can emulate bad
+            network conditions. Traffic forwarded through the router to or from
+            the local host can emulate network bandwidth, latency and packet loss
+            conditions.
+          ),
+        'License'     => MSF_LICENSE,
+        'Author'      => ['bcook']
+      )
+    )
 
     name = 'metasploit_netem_router'
 
@@ -27,9 +30,10 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptInt.new("PacketDelay",     [false, 'Packet delay in ms', 0]),
         OptString.new("DataRate",     [false, 'Data rate in Mbps (0 is unlimited)', 0.0]),
-        OptInt.new("PacketLoss",      [false, 'Packet loss percentage', 0.0]),
-        OptInt.new("PacketDup",       [false, 'Packet dup percentage', 0.0]),
-        OptInt.new("PacketCorrupt",   [false, 'Packet corruption percentage', 0.0]),
+        OptInt.new("PacketLoss",      [false, 'Packet loss percentage', 0]),
+        OptInt.new("PacketDup",       [false, 'Packet dup percentage', 0]),
+        OptInt.new("PacketCorrupt",   [false, 'Packet corruption percentage', 0]),
+        OptInt.new("TCPFlushRate",    [false, 'Rate in seconds to flush the connection table', 0]),
 
         OptString.new('VagrantName',  [true,  'Vagrant image name', name]),
         OptString.new('VagrantBox',   [true,  'Vagrant box for the router VM', 'ubuntu/trusty64']),
@@ -40,9 +44,8 @@ class Metasploit3 < Msf::Auxiliary
         OptPort.new('SRVPORT',        [true,  'The port to listen on', 4445]),
         OptEnum.new('SRVPROTO',       [true,  'The protocol to use', 'tcp', ['udp', 'tcp']]),
         OptString.new('LHOST',        [true,  'The address to forward to', '192.168.13.1']),
-        OptPort.new('LPORT',          [true,  'The port to forward to', 4444]),
+        OptPort.new('LPORT',          [true,  'The port to forward to', 4444])
       ], self.class)
-
   end
 
   def vagrant_image_name
@@ -65,8 +68,8 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     routing_cmds << "iptables -t nat -F"
-    routing_cmds << "iptables -t nat -A PREROUTING -i #{pub_intf} -p #{datastore['SRVPROTO']}" +
-                    " --dport #{datastore['SRVPORT']} -j DNAT" +
+    routing_cmds << "iptables -t nat -A PREROUTING -i #{pub_intf} -p #{datastore['SRVPROTO']}" \
+                    " --dport #{datastore['SRVPORT']} -j DNAT" \
                     " --to-destination #{datastore['LHOST']}:#{datastore['LPORT']}"
     routing_cmds << "iptables -t nat -A POSTROUTING -j MASQUERADE"
 
@@ -77,21 +80,20 @@ class Metasploit3 < Msf::Auxiliary
     tc_opts << "corrupt #{datastore['PacketCorrupt']}%" if datastore['PacketCorrupt'] > 0.0
 
     routing_cmds << "tc qdisc delete dev #{priv_intf} root"
-    if !tc_opts.empty?
+    unless tc_opts.empty?
       tc_opt = tc_opts.join(" ")
       routing_cmds << "tc qdisc add dev #{priv_intf} root netem #{tc_opt}"
     end
 
-    kbps = datastore['DataRate'] * 1000
+    kbps = datastore['DataRate'].to_f * 1000
     if kbps > 0.0
-      #routing_cmds << "tc class add dev #{priv_intf} parent 1:1 handle 10 htb rate #{kbps}Kbps"
+      routing_cmds << "tc class add dev #{priv_intf} parent 1:1 handle 10 htb rate #{kbps}Kbps"
     end
 
     routing_cmds
   end
 
   def vagrant_write_config
-
     port_forward = [':forwarded_port']
     port_forward << "guest: #{datastore['SRVPORT']}"
     port_forward << "host: #{datastore['SRVPORT']}"
@@ -105,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
       provision_cmds << "os.vm.provision \"shell\", inline: \"#{cmd}\""
     end
 
-    vagrant_tpl = %Q{
+    vagrant_tpl = %{
 VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "#{datastore['VagrantName']}" do |os|
@@ -117,11 +119,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 end
     }
 
-    Dir.mkdir(@vagrant_dir, 0700) if !Dir.exist?(@vagrant_dir)
+    Dir.mkdir(@vagrant_dir, 0700) unless Dir.exist?(@vagrant_dir)
     File.open(@vagrant_file, 'w') { |file| file.write(vagrant_tpl) }
   end
 
-  def cleanup_vm(obj)
+  def cleanup_vm(_obj)
     # Cleanup the VM
     if @vagrant_destroy
       print_status("Destroying #{vagrant_image_name}")
@@ -132,9 +134,9 @@ end
     end
   end
 
-  def monitor_vm(obj)
+  def monitor_vm(_obj)
     # Sleep while waiting for the job to be killed
-    while true
+    loop do
       sleep 10
     end
   end
@@ -145,7 +147,7 @@ end
       @vagrant = VagrantWrapper.new('> 1.5')
     rescue ::Exception => e
       print_error(e.message)
-      print_status(VagrantWrapper::install_instructions)
+      print_status(install_instructions)
       return
     end
 
@@ -159,10 +161,10 @@ end
     print_status("Vagrant router image started")
 
     framework.jobs.start_bg_job(
-      "Auxiliary: #{self.refname}",
+      "Auxiliary: #{refname}",
       self,
-      Proc.new { |ctx_| self.monitor_vm(ctx_) },
-      Proc.new { |ctx_| self.cleanup_vm(ctx_) }
+      proc { |ctx_| monitor_vm(ctx_) },
+      proc { |ctx_| cleanup_vm(ctx_) }
     )
   end
 end
