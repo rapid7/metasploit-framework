@@ -174,21 +174,48 @@ describe Rex::Socket::RangeWalker do
   end
 
   describe '#next' do
-    let(:args) { "10.1.1.1-5" }
-    it "should return all addresses" do
-      all = []
-      while ip = walker.next
-        all << ip
+
+    context "without a shuffle_size" do
+      let(:args) { "10.1.1.1-5" }
+      it "should return all addresses in order" do
+        all = []
+        while ip = walker.next
+          all << ip
+        end
+        all.should == [ "10.1.1.1", "10.1.1.2", "10.1.1.3", "10.1.1.4", "10.1.1.5", ]
       end
-      all.should == [ "10.1.1.1", "10.1.1.2", "10.1.1.3", "10.1.1.4", "10.1.1.5", ]
+
+      it "should not raise if called again after empty" do
+        expect {
+          (walker.length + 5).times { walker.next }
+        }.not_to raise_error
+      end
     end
 
-    it "should not raise if called again after empty" do
-      expect {
-        (walker.length + 5).times { walker.next }
-      }.not_to raise_error
-    end
+    context "with a shuffle_size" do
+      walker = Rex::Socket::RangeWalker.new("10.1.1.1-100", 128)
+      it "should return all addresses out of order" do
+        all = []
+        while ip = walker.next
+          all << ip
+        end
+        all.length.should == 100
+        all[0..4].should_not == [ "10.1.1.1", "10.1.1.2", "10.1.1.3", "10.1.1.4", "10.1.1.5", ]
 
+        walker_in_order = Rex::Socket::RangeWalker.new("10.1.1.1-100")
+        all_in_order = []
+        while ip = walker_in_order.next
+          all_in_order << ip
+        end
+        (all_in_order - all).should be_empty
+      end
+
+      it "should not raise if called again after empty" do
+        expect {
+          (walker.length + 5).times { walker.next }
+        }.not_to raise_error
+      end
+    end
   end
 
 end

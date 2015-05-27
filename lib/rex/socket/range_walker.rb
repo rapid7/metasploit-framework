@@ -38,12 +38,16 @@ class RangeWalker
   # Initializes a walker instance using the supplied range
   #
   # @param parseme [RangeWalker,String]
-  def initialize(parseme)
+  # @param shuffle_size [Integer] The chunk size of hosts to shuffle at a time
+  def initialize(parseme, shuffle_size = 0)
     if parseme.is_a? RangeWalker
       @ranges = parseme.ranges.dup
     else
       @ranges = parse(parseme)
     end
+
+    @shuffle_chunk = []
+    @shuffle_size = ( shuffle_size > 1 ? shuffle_size : 1 )
     reset
   end
 
@@ -184,6 +188,7 @@ class RangeWalker
     @length = 0
     @ranges.each { |r| @length += r.length }
 
+    @shuffle_chunk.clear
     self
   end
 
@@ -192,24 +197,31 @@ class RangeWalker
   # @return [String] The next address in the range
   def next_ip
     return false if not valid?
-    if (@curr_addr > @ranges[@curr_range_index].stop)
-      # Then we are at the end of this range. Grab the next one.
+    return @shuffle_chunk.shift if @shuffle_chunk.length > 0
 
-      # Bail if there are no more ranges
-      return nil if (@ranges[@curr_range_index+1].nil?)
+    @shuffle_size.times do
+      if (@curr_addr > @ranges[@curr_range_index].stop)
+        # Then we are at the end of this range. Grab the next one.
 
-      @curr_range_index += 1
+        # Bail if there are no more ranges
+        break if (@ranges[@curr_range_index+1].nil?)
 
-      @curr_addr = @ranges[@curr_range_index].start
+        @curr_range_index += 1
+
+        @curr_addr = @ranges[@curr_range_index].start
+      end
+      addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range_index].ipv6?)
+
+      if @ranges[@curr_range_index].options[:scope_id]
+        addr = addr + '%' + @ranges[@curr_range_index].options[:scope_id]
+      end
+
+      @curr_addr += 1
+      @shuffle_chunk.push(addr)
     end
-    addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range_index].ipv6?)
+    @shuffle_chunk.shuffle!
 
-    if @ranges[@curr_range_index].options[:scope_id]
-      addr = addr + '%' + @ranges[@curr_range_index].options[:scope_id]
-    end
-
-    @curr_addr += 1
-    return addr
+    return @shuffle_chunk.shift
   end
 
   alias :next :next_ip
