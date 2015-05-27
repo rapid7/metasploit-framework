@@ -92,4 +92,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3'
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
+  # required for netem_proxy
+  spec.add_runtime_dependency 'vagrant-wrapper'
 end
