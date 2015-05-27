@@ -82,9 +82,9 @@ class Plugin::Requests < Msf::Plugin
         '-I' => [ false, 'Show document info only' ],
         '-o' => [ true,  'Write output to <file> instead of stdout' ],
         '-u' => [ true,  'Server user and password' ],
-        '-X' => [ true,  'Request method to use' ],
-        '-x' => [ true,  'Proxy to use, format: [proto://][user:pass@]host[:port]' +
-                          '  Proto defaults to http:// and port to 1080'],
+        '-X' => [ true,  'Request method to use' ]
+        #'-x' => [ true,  'Proxy to use, format: [proto://][user:pass@]host[:port]' +
+        #                 '  Proto defaults to http:// and port to 1080'],
       )
 
       options = {
