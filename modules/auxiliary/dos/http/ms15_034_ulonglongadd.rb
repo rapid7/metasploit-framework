@@ -19,10 +19,6 @@ class Metasploit3 < Msf::Auxiliary
         This module will check if scanned hosts are vulnerable to CVE-2015-1635 (MS15-034), a
         vulnerability in the HTTP protocol stack (HTTP.sys) that could result in arbitrary code
         execution. This module will try to cause a denial-of-service.
-
-        Please note that a valid file resource must be supplied for the TARGETURI option.
-        By default, IIS provides 'welcome.png' and 'iis-85.png' as resources.
-        Others may also exist, depending on configuration options.
       },
       'Author'         =>
         [
