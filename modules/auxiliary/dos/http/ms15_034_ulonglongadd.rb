@@ -64,6 +64,11 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  # Needed to allow the vulnerable uri to be shared between the #check and #dos
+  def target_uri
+    @target_uri ||= super
+  end
+
   def get_file_size(ip)
     @file_size ||= lambda {
       file_size = -1
