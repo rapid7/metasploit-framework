@@ -127,7 +127,12 @@ class Plugin::Requests < Msf::Plugin
         when '-o'
           options[:output_file] = File.expand_path(val)
         when '-u'
-          options[:auth_username] = val
+          val = val.split(':', 2) # only split on first ':' as per curl:
+          # from curl man page: "The user name and passwords are split up on the
+          # first colon, which makes it impossible to use a colon in the user
+          # name with this option.  The password can, still.
+          options[:auth_username] = val.first
+          options[:auth_password] = val.last
         when '-p'
           options[:auth_password] = val
         when '-X'
@@ -186,8 +191,6 @@ class Plugin::Requests < Msf::Plugin
         print_error('The connection was reset by the peer')
       rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
         print_error('Encountered an error')
-      #rescue ::Exception => ex
-      #  print_line("An error of type #{ex.class} happened, message is #{ex.message}")
       ensure
         http_client.close
       end
