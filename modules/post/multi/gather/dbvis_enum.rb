@@ -26,6 +26,11 @@ class Metasploit3 < Msf::Post
         'Platform'      => %w{ linux win },
         'SessionTypes'  => [ 'meterpreter', 'shell']
       ))
+    register_options(
+      [
+        OptString.new('PASSPHRASE', [false, 'The hardcoded passphrase used for encryption']),
+        OptInt.new('ITERATION_COUNT', [false, 'The iteration count used in key derivation', 10])
+      ], super.class)
   end
 
   def run
@@ -315,11 +320,11 @@ class Metasploit3 < Msf::Post
   end
 
   def passphrase
-    'qinda'
+    datastore['PASSPHRASE'] || 'qinda'
   end
 
   def iteration_count
-    10
+    datastore['ITERATION_COUNT'] || 10
   end
 
 end
