@@ -31,6 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'  =>
         [
           [ 'BID', '72640' ],
+          [ 'OSVDB', '118316' ],
           [ 'URL', 'https://github.com/darkarnium/secpub/tree/master/NetGear/SOAPWNDR' ]
         ],
       'Author'      =>
