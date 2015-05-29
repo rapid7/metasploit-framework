@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
       "Port",
       "Database",
       "Namespace",
-      "Userid",
+      "UserID",
       "Password"
     ])
 
@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Post
 
         # get the user
         if line =~ /<Userid>([\S+\s+]+)<\/Userid>/i
-          db[:Userid] = $1
+          db[:UserID] = $1
         end
 
         # get user password
@@ -204,7 +204,7 @@ class Metasploit3 < Msf::Post
         report_host(:host =>  db[:Server]);
       end
 
-      db_table << [ db[:Alias], db[:Type], db[:Server], db[:Port], db[:Database], db[:Namespace], db[:Userid], db[:Password] ]
+      db_table << [ db[:Alias], db[:Type], db[:Server], db[:Port], db[:Database], db[:Namespace], db[:UserID], db[:Password] ]
     end
     return db_table
   end
@@ -258,7 +258,7 @@ class Metasploit3 < Msf::Post
 
         # get the user
         if line =~ /<Userid>([\S+\s+]+)<\/Userid>/i
-          db[:Userid] = $1
+          db[:UserID] = $1
         end
 
         #get the user password
@@ -269,7 +269,7 @@ class Metasploit3 < Msf::Post
 
         # get the server URL
         if line =~ /<Url>(\S+)<\/Url>/i
-          db[:Url] = $1
+          db[:URL] = $1
         end
 
       end
@@ -277,13 +277,13 @@ class Metasploit3 < Msf::Post
 
     # Fill the tab
     dbs.each do |db|
-      if (db[:Url] =~ /[\S+\s+]+[\/]+([\S+\s+]+):[\S+]+/i)
+      if (db[:URL] =~ /[\S+\s+]+[\/]+([\S+\s+]+):[\S+]+/i)
         if ::Rex::Socket.is_ipv4?($1.to_s)
           print_good("Reporting #{$1}")
           report_host(:host => $1.to_s)
         end
       end
-      db_table << [ db[:Alias] , db[:Type] , db[:Url], db[:Userid], db[:Password] ]
+      db_table << [ db[:Alias] , db[:Type] , db[:URL], db[:UserID], db[:Password] ]
     end
     return db_table
   end
