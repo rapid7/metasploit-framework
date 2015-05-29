@@ -144,7 +144,7 @@ module Powershell
       encoded_expression = encode_script(read_script(script))
       cleanup_commands = []
       # Add entropy to script variable names
-      script_var = = Rex::Text.rand_text_alpha(6)
+      script_var = Rex::Text.rand_text_alpha(6)
       decscript = Rex::Text.rand_text_alpha(6)
       scriptby = Rex::Text.rand_text_alpha(6)
       scriptbybase = Rex::Text.rand_text_alpha(6)
