@@ -7,7 +7,6 @@ require 'msf/core'
 require 'msf/core/auxiliary/report'
 require 'openssl'
 require 'digest/md5'
-require 'base64'
 
 class Metasploit3 < Msf::Post
 
