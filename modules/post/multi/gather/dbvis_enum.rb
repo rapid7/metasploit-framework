@@ -7,6 +7,7 @@ require 'msf/core'
 require 'msf/core/auxiliary/report'
 require 'openssl'
 require 'digest/md5'
+require 'base64'
 
 class Metasploit3 < Msf::Post
 
@@ -204,7 +205,7 @@ class Metasploit3 < Msf::Post
         report_host(:host =>  db[:Server]);
       end
 
-      db_table << [ db[:Alias], db[:Type], db[:Server], db[:Port], db[:Database], db[:Namespace], db[:Userid], db[:Password]]
+      db_table << [ db[:Alias], db[:Type], db[:Server], db[:Port], db[:Database], db[:Namespace], db[:Userid], db[:Password] ]
     end
     return db_table
   end
@@ -283,7 +284,7 @@ class Metasploit3 < Msf::Post
           report_host(:host => $1.to_s)
         end
       end
-      db_table << [ db[:Alias] , db[:Type] , db[:Url], db[:Userid] ]
+      db_table << [ db[:Alias] , db[:Type] , db[:Url], db[:Userid], db[:Password] ]
     end
     return db_table
   end
@@ -301,10 +302,10 @@ class Metasploit3 < Msf::Post
     enc_password = Rex::Text.decode_base64(enc_password)
     dk, iv = get_derived_key
     des = OpenSSL::Cipher.new('DES-CBC')
+    des.decrypt
     des.key = dk
     des.iv = iv
-
-    des.update(enc_password)
+    password = des.update(enc_password) + des.final
   end
 
   def get_derived_key
