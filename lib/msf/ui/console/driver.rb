@@ -571,7 +571,7 @@ class Driver < Msf::Ui::Driver
 
         if (framework and framework.payloads.valid?(val) == false)
           return false
-        elsif active_module.type == 'exploit' && !is_payload_compatible?(active_module, val)
+        elsif active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
           return false
         elsif (active_module)
           active_module.datastore.clear_non_user_defined
@@ -589,15 +589,6 @@ class Driver < Msf::Ui::Driver
       when "promptchar"
         update_prompt(framework.datastore['Prompt'], val, true)
     end
-  end
-
-
-  def is_payload_compatible?(m, payload_name)
-    m.compatible_payloads.each do |k|
-      return true if k[0] == payload_name
-    end
-
-    false
   end
 
   #
