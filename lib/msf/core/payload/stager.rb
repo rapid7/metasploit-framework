@@ -131,14 +131,14 @@ module Msf::Payload::Stager
   # Generates the stage payload and substitutes all offsets.
   #
   # @return [String] The generated payload stage, as a string.
-  def generate_stage
+  def generate_stage(opts={})
     # XXX: This is nearly identical to Payload#internal_generate
 
     # Compile the stage as necessary
     if stage_assembly and !stage_assembly.empty?
       raw = build(stage_assembly, stage_offsets)
     else
-      raw = stage_payload.dup
+      raw = stage_payload(opts).dup
     end
 
     # Substitute variables in the stage
@@ -156,7 +156,16 @@ module Msf::Payload::Stager
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
     if (stage_over_connection?)
-      p = generate_stage
+      opts = {}
+
+      if include_send_uuid
+        uuid_raw = conn.get_once(16, 1)
+        if uuid_raw
+          opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+        end
+      end
+
+      p = generate_stage(opts)
 
       # Encode the stage if stage encoding is enabled
       begin

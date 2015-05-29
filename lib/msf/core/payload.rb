@@ -319,6 +319,16 @@ class Payload < Msf::Module
   end
 
   #
+  # Convert raw bytes to metasm-ready 'db' encoding format
+  # eg. "\x90\xCC" => "db 0x90,0xCC"
+  #
+  # @param raw [Array] Byte array to encode.
+  #
+  def raw_to_db(raw)
+    raw.unpack("C*").map {|c| "0x%.2x" % c}.join(",")
+  end
+
+  #
   # Substitutes variables with values from the module's datastore in the
   # supplied raw buffer for a given set of named offsets.  For instance,
   # RHOST is substituted with the RHOST value from the datastore which will
