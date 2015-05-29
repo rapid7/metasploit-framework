@@ -36,12 +36,12 @@ class Metasploit3 < Msf::Post
 
   def run
     if datastore['SCRIPT']
-      upload_script_via_psh(datastore['SCRIPT'])
+      stage_psh_env(datastore['SCRIPT'])
     end
     if datastore['FOLDER']
       files = ::Dir.entries(datastore['FOLDER'])
       files.reject! { |u| %w(. ..).include?(u) }
-      files.each do |script| upload_script_via_psh(datastore['FOLDER'] + script) end
+      files.each do |script| stage_psh_env(datastore['FOLDER'] + script) end
     end
   end
 
