@@ -11,7 +11,9 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module will extract the accounts information from the AVTECH 744 DVR devices,
         including all the usernames and cleartext passwords plus the device PIN, along with
-        a few other miscellaneous details.
+        a few other miscellaneous details. In order to extract the information, hardcoded
+        credentials admin/admin are used. These credentials can't be changed from the device
+        console UI neither the web UI.
       },
       'Author'         => [ 'nstarke' ],
       'License'        => MSF_LICENSE
