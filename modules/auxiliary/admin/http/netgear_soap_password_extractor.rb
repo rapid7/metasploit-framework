@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
         This module exploits an authentication bypass vulnerability in different Netgear devices.
         It allows to extract the password for the remote management interface. This module has been
-        tested on a Netgear WNDR3700v4 - V1.0.1.42, but others devices are reported as vulnerable:
+        tested on a Netgear WNDR3700v4 - V1.0.1.42, but other devices are reported as vulnerable:
         NetGear WNDR3700v4 - V1.0.0.4SH, NetGear WNDR3700v4 - V1.0.1.52, NetGear WNR2200 - V1.0.1.88,
         NetGear WNR2500 - V1.0.0.24, NetGear WNDR3700v2 - V1.0.1.14 (Tested by Paula Thomas),
         NetGear WNDR3700v1 - V1.0.16.98 (Tested by Michal Bartoszkiewicz),
@@ -31,6 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'  =>
         [
           [ 'BID', '72640' ],
+          [ 'OSVDB', '118316' ],
           [ 'URL', 'https://github.com/darkarnium/secpub/tree/master/NetGear/SOAPWNDR' ]
         ],
       'Author'      =>

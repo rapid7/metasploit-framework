@@ -27,7 +27,7 @@ module Payload::Windows::SendUUID
       send_uuid:
         push 0                 ; flags
         push #{uuid_raw.length} ; length of the UUID
-        call get_uuid_address  ; put uuid buffer on tehe stack
+        call get_uuid_address  ; put uuid buffer on the stack
         db #{raw_to_db(uuid_raw)}  ; UUID
       get_uuid_address:
         push edi               ; saved socket

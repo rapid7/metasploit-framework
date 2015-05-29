@@ -177,11 +177,13 @@ module Payload::Windows::ReverseTcp
       end
 =end
 
+    asm << %Q^
+      connected:
+      ^
+
     asm << asm_send_uuid if include_send_uuid
 
     asm << %Q^
-      connected:
-
       recv:
         ; Receive the size of the incoming second stage...
         push 0                 ; flags

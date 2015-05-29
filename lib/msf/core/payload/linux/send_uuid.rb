@@ -28,7 +28,7 @@ module Payload::Linux::SendUUID
         push ecx                      ; store ecx for later
         push 0                        ; terminate the args array
         push #{uuid_raw.length}       ; length of the UUID
-        call get_uuid_address         ; put uuid buffer on tehe stack
+        call get_uuid_address         ; put uuid buffer on the stack
         db #{raw_to_db(uuid_raw)}     ; UUID itself
       get_uuid_address:
         push edi                      ; socket handle
