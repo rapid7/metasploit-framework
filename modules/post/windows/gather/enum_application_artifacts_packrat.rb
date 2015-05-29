@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
       # enumerates the options based on the artifacts that are defined below
       OptEnum.new('APPCATEGORY', [false, 'Category of applications to gather from', 'All', @@apps.map{ |x| x[:category] }.uniq.unshift('All')]),
       OptEnum.new('APPLICATION', [false, 'Specify application to gather from', 'All', @@apps.map{ |x| x[:application] }.uniq.unshift('All')]),
-      OptEnum.new('ARTEFACTS', [false, 'Type of artifacts to collect', 'All', @@apps.map{ |x| x[:filetypes] }.uniq.unshift('All')]),
+      OptEnum.new('ARTIFACTS', [false, 'Type of artifacts to collect', 'All', @@apps.map{ |x| x[:filetypes] }.uniq.unshift('All')]),
 ], self.class)
   end
 
@@ -846,7 +846,7 @@ class Metasploit3 < Msf::Post
   def run
     print_line("\nPackRat is searching and gathering...\n")
     print_line("Filtering based on these selections: \n")
-    print_line("\tAPPCATEGORY: #{datastore['APPCATEGORY'].capitalize}, APPLICATION: #{datastore['APPLICATION'].capitalize}, ARTEFACTS: #{datastore['ARTEFACTS'].capitalize}\n")
+    print_line("\tAPPCATEGORY: #{datastore['APPCATEGORY'].capitalize}, APPLICATION: #{datastore['APPLICATION'].capitalize}, ARTIFACTS: #{datastore['ARTIFACTS'].capitalize}\n")
 
     @@success_count = 0
     @@try_count = 0
@@ -875,7 +875,7 @@ class Metasploit3 < Msf::Post
     path = opts[:path]
 
     # filter based on options
-    if (cat != datastore['APPCATEGORY'] && datastore['APPCATEGORY'] != 'All') || (app != datastore['APPLICATION'] && datastore['APPLICATION'] != 'All') || (ft != datastore['ARTEFACTS'] && datastore['ARTEFACTS'] != 'All')
+    if (cat != datastore['APPCATEGORY'] && datastore['APPCATEGORY'] != 'All') || (app != datastore['APPLICATION'] && datastore['APPLICATION'] != 'All') || (ft != datastore['ARTIFACTS'] && datastore['ARTIFACTS'] != 'All')
       # doesn't match search criteria, skip this artifact
       return false
     end
