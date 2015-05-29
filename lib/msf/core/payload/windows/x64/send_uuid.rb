@@ -28,7 +28,7 @@ module Payload::Windows::SendUUID_x64
         xor r9, r9              ; flags
         push #{uuid_raw.length} ; length of the UUID
         pop r8
-        call get_uuid_address  ; put uuid buffer on tehe stack
+        call get_uuid_address  ; put uuid buffer on the stack
         db #{raw_to_db(uuid_raw)}  ; UUID
       get_uuid_address:
         pop rdx                ; UUID address
