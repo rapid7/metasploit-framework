@@ -7,7 +7,7 @@ require 'rex/payloads/meterpreter/uri_checksum'
 #
 # This module provides datastore option definitions and helper methods for payload modules that support UUIDs
 #
-module Msf::Payload::UUIDOptions
+module Msf::Payload::UUID::Options
 
   include Rex::Payloads::Meterpreter::UriChecksum
 
@@ -17,6 +17,8 @@ module Msf::Payload::UUIDOptions
       [
         Msf::OptString.new('PayloadUUIDSeed', [ false, 'A string to use when generating the payload UUID (deterministic)']),
         Msf::OptString.new('PayloadUUIDRaw', [ false, 'A hex string representing the raw 8-byte PUID value for the UUID']),
+        Msf::OptString.new('PayloadUUIDName', [ false, 'A human-friendly name to reference this unique payload (requires tracking)']),
+        Msf::OptBool.new('PayloadUUIDTracking', [ true, 'Whether or not to automatically register generated UUIDs', false]),
       ], self.class)
   end
 
@@ -31,7 +33,7 @@ module Msf::Payload::UUIDOptions
   def generate_uri_uuid_mode(mode,len=nil)
     sum = uri_checksum_lookup(mode)
 
-    # The URI length may not have room for an embedded checksum
+    # The URI length may not have room for an embedded UUID
     if len && len < URI_CHECKSUM_UUID_MIN_LEN
       # Throw an error if the user set a seed, but there is no room for it
       if datastore['PayloadUUIDSeed'].to_s.length > 0 ||datastore['PayloadUUIDRaw'].to_s.length > 0
@@ -40,7 +42,11 @@ module Msf::Payload::UUIDOptions
       return "/" + generate_uri_checksum(sum, len, prefix="")
     end
 
-    generate_uri_uuid(sum, generate_payload_uuid, len)
+    uuid = generate_payload_uuid
+    uri  = generate_uri_uuid(sum, uuid, len)
+    record_payload_uuid_url(uuid, uri)
+
+    uri
   end
 
   # Generate a Payload UUID
@@ -66,7 +72,48 @@ module Msf::Payload::UUIDOptions
       conf[:puid] = puid_raw
     end
 
-    Msf::Payload::UUID.new(conf)
+    if datastore['PayloadUUIDName'].to_s.length > 0 && ! datastore['PayloadUUIDTracking']
+      raise ArgumentError, "The PayloadUUIDName value is ignored unless PayloadUUIDTracking is enabled"
+    end
+
+    # Generate the UUID object
+    uuid = Msf::Payload::UUID.new(conf)
+    record_payload_uuid(uuid)
+
+    uuid
+  end
+
+  # Store a UUID in the JSON database if tracking is enabled
+  def record_payload_uuid(uuid, info={})
+    return unless datastore['PayloadUUIDTracking']
+
+    uuid_info = info.merge({
+      arch: uuid.arch,
+      platform: uuid.platform,
+      timestamp: uuid.timestamp,
+      payload: self.fullname,
+      datastore: self.datastore
+    })
+
+    if datastore['PayloadUUIDSeed'].to_s.length > 0
+      uuid_info[:seed] = datastore['PayloadUUIDSeed']
+    end
+
+    if datastore['PayloadUUIDName'].to_s.length > 0
+      uuid_info[:name] = datastore['PayloadUUIDName']
+    end
+
+    framework.uuid_db[uuid.puid_hex] = uuid_info
+  end
+
+  # Store a UUID URL in the JSON database if tracking is enabled
+  def record_payload_uuid_url(uuid, url)
+    return unless datastore['PayloadUUIDTracking']
+    uuid_info = framework.uuid_db[uuid.puid_hex]
+    uuid_info['urls'] ||= []
+    uuid_info['urls'] << url
+    uuid_info['urls'].uniq!
+    framework.uuid_db[uuid.puid_hex] = uuid_info
   end
 
 end

@@ -5,7 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_http'
-require 'msf/core/payload/uuid_options'
+require 'msf/core/payload/uuid/options'
 
 module Metasploit3
 
@@ -13,7 +13,7 @@ module Metasploit3
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
-  include Msf::Payload::UUIDOptions
+  include Msf::Payload::UUID::Options
 
   def self.handler_type_alias
     "reverse_http_proxy_pstore"
