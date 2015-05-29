@@ -54,7 +54,10 @@ require 'msf/core/payload_generator'
     opts = {}
     datastore = {}
     opt = OptionParser.new
-    opt.banner = "Usage: #{$0} [options] <var=val>"
+    banner  = "MsfVenom - a Metasploit standalone payload generator.\n"
+    banner << "Also a replacement for msfpayload and msfencode.\n"
+    banner << "Usage: #{$0} [options] <var=val>"
+    opt.banner = banner
     opt.separator('')
     opt.separator('Options:')
 
@@ -292,7 +295,14 @@ if __FILE__ == $0
           $stdout.puts dump_encoders
           $stdout.puts dump_nops
         else
-          $stderr.puts "Invalid module type"
+          if mod == 'payload'
+            question = ". Do you mean 'payloads'?"
+          elsif mod == 'encoder'
+            question = ". Do you mean 'encoders'?"
+          elsif mod == 'nop'
+            quesetion = ". Do you mean 'nops'?"
+          end
+          $stderr.puts "Invalid module type#{question}"
       end
     end
     exit(0)
