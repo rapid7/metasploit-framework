@@ -69,8 +69,8 @@ class Metasploit3 < Msf::Post
       :artifact=> "Deleted Items.dbx",
       :description => "Outlook's Deleted emails"},
     {
-      :category => "emails",
       :application=> 'outlook',
+      :category => "emails",
       :filetypes => "draft_emails",
       :path => 'LocalAppData',
       :dir => 'Identities',
@@ -101,8 +101,8 @@ class Metasploit3 < Msf::Post
       :artifact=> "Offline.dbx",
       :description => "Outlook's offline emails"},
     {
-      :category => "emails",
       :application=> 'outlook',
+      :category => "emails",
       :filetypes => "email_logs",
       :path => 'LocalAppData',
       :dir => 'Identities',
@@ -118,8 +118,8 @@ class Metasploit3 < Msf::Post
       :description => "Outlook's sent emails"},
     ## Opera Mail
     {
-      :category => "emails",
       :application=> 'operamail',
+      :category => "emails",
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Opera Mail',
@@ -159,8 +159,8 @@ class Metasploit3 < Msf::Post
       :artifact=> "*.msf",
       :description => "Postbox's sent and received emails"},
     {
-      :category => "emails",
       :application=> 'postbox',
+      :category => "emails",
       :filetypes => "email_logs",
       :path => 'AppData',
       :dir => 'Postbox',
@@ -175,8 +175,8 @@ class Metasploit3 < Msf::Post
       :artifact=> "Bulk Mail.msf",
       :description => "Postbox's junk emails"},
     {
-      :category => "emails",
       :application=> 'postbox',
+      :category => "emails",
       :filetypes => "draft_emails",
       :path => 'AppData',
       :dir => 'Postbox',
@@ -264,8 +264,8 @@ class Metasploit3 < Msf::Post
       :artifact=> "Sent",
       :description => "Thunderbird's Send emails"},
     {
-      :category => "emails",
       :application=> 'thunderbird',
+      :category => "emails",
       :filetypes => "deleted_emails",
       :path => 'AppData',
       :dir => 'Thunderbird',
@@ -280,8 +280,8 @@ class Metasploit3 < Msf::Post
       :artifact=> "Drafts",
       :description => "Thunderbird's unsent emails"},
     {
-      :category => "emails",
       :application=> 'thunderbird',
+      :category => "emails",
       :filetypes => "database",
       :path => 'AppData',
       :dir => 'Thunderbird',
@@ -326,7 +326,7 @@ class Metasploit3 < Msf::Post
     ## GaduGadu, popular Polish chat (Poland country)
     {
       :application=> 'gadugadu',
-     :category => "chats",
+      :category => "chats",
       :filetypes => "chat_logs",
       :path => 'GG dysk',
       :dir => 'Galeria',
@@ -413,7 +413,7 @@ class Metasploit3 < Msf::Post
     ## Tango - Texts and videos chat for mobiles and PCs
     {
       :application=> 'tango',
-     :category => "chats",
+      :category => "chats",
       :filetypes => "database",
       :path => 'LocalAppData',
       :dir => 'tango',
@@ -480,7 +480,7 @@ class Metasploit3 < Msf::Post
       :description => "Viber's Contact's profile images in Thumbs.db file"},
     {
       :application=> 'viber',
-     :category => "chats",
+      :category => "chats",
       :filetypes => "images",
       :path => 'AppData',
       :dir => 'ViberPC',
@@ -550,7 +550,7 @@ class Metasploit3 < Msf::Post
       :description => "Comodo's History"},
     {
       :application=> "comodo",
-     :category => "browsers",
+      :category => "browsers",
       :filetypes => "web_history",
       :path => 'LocalAppData',
       :dir =>'COMODO',
