@@ -52,6 +52,7 @@ class Console::CommandDispatcher::Core
       "machine_id" => "Get the MSF ID of the machine attached to the session",
       "quit"       => "Terminate the meterpreter session",
       "resource"   => "Run the commands stored in a file",
+      "uuid"       => "Get the UUID for the current session",
       "read"       => "Reads data from a channel",
       "run"        => "Executes a meterpreter script or Post module",
       "bgrun"      => "Executes a meterpreter script as a background thread",
@@ -80,8 +81,6 @@ class Console::CommandDispatcher::Core
       # Migration only supported on windows and linux
       c["migrate"] = "Migrate the server to another process"
 
-      # UUID functionality isn't yet available on other platforms
-      c["uuid"] = "Get the UUID for the current session"
 
       # Yet to implement transport hopping for other meterpreters.
       # Works for posix and native windows though.

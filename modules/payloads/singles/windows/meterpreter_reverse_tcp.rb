@@ -44,12 +44,7 @@ module Metasploit3
   end
 
   def generate_config(opts={})
-    unless opts[:uuid]
-      opts[:uuid] = Msf::Payload::UUID.new(
-        platform: 'windows',
-        arch:     ARCH_X86
-      )
-    end
+    opts[:uuid] ||= generate_payload_uuid
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {

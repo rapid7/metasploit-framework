@@ -9,7 +9,8 @@ require 'msf/base/sessions/meterpreter_php'
 require 'msf/base/sessions/meterpreter_options'
 
 
-module Metasploit3
+module Metasploit4
+
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
@@ -23,13 +24,18 @@ module Metasploit3
       'Session'       => Msf::Sessions::Meterpreter_Php_Php))
   end
 
-  def generate_stage
+  def generate_stage(opts={})
     file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.php")
 
-    met = File.open(file, "rb") {|f|
+    met = File.open(file, "rb") { |f|
       f.read(f.stat.size)
     }
-    #met.gsub!(/#.*?$/, '')
+
+    uuid = opts[:uuid] || generate_payload_uuid
+    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
+    met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
+
+    met.gsub!(/#.*?$/, '')
     #met = Rex::Text.compress(met)
     met
   end
