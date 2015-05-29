@@ -7,6 +7,8 @@ class Plugin::Requests < Msf::Plugin
   class ConsoleCommandDispatcher
     include Msf::Ui::Console::CommandDispatcher
 
+    HELP_REGEX = /^-?-h(?:elp)?$/
+
     def name
       'Request'
     end
@@ -24,14 +26,21 @@ class Plugin::Requests < Msf::Plugin
     end
 
     def cmd_request(*args)
-      # grab and validate the first arg as type, which will affect how the
-      # remaining args are parsed
-      type = args.shift
       # short circuit the whole deal if they need help
-      return help if (!type || type =~ /^-?-h(?:elp)?$/)
-      type.downcase!
-      opts, opt_parser = parse_args(type, args)
+      return help if args.length == 0
+      return help if args.length == 1 && args.first =~ HELP_REGEX
 
+      # detect the request type from the uri which must be the last arg given
+      uri = args.last
+      if uri && uri =~ /^[A-Za-z]{3,5}:\/\//
+        type = uri.split('://', 2).first
+      else
+        print_error("The last argument must be a valid and supported URI")
+        return help
+      end
+
+      # parse options
+      opts, opt_parser = parse_args(args, type)
       if opts && opt_parser
         # handle any "global" options
         if opts[:output_file]
@@ -47,23 +56,32 @@ class Plugin::Requests < Msf::Plugin
           # call the appropriate request handler
           self.send(handler_method, opts, opt_parser)
         else
+          # this should be dead code if parse_args is doing it's job correctly
           help(opt_parser, "No request handler found for type (#{type.to_s}).")
         end
       else
-        help(opt_parser, "No valid options provided for request #{type}")
+        if types.include? type
+          help(opt_parser)
+        else
+          help
+        end
       end
     end
 
-    def parse_args(type, args)
+    def parse_args(args, type = 'http')
       type.downcase!
-      #print_line "type is #{type}"
       parse_method = "parse_args_#{type}".to_sym
       if self.respond_to?(parse_method)
         self.send(parse_method, args, type)
       else
-        print_line('Unrecognized type.')
-        help
+        print_error("Unsupported URI type: #{type}")
       end
+    end
+
+    # arg parsing for requests of type 'http'
+    def parse_args_https(args = [], type = 'https')
+      # just let http do it
+      parse_args_http(args, type)
     end
 
     # arg parsing for requests of type 'http'
@@ -113,10 +131,12 @@ class Plugin::Requests < Msf::Plugin
           options[:method] ||= 'POST'
         when '-G'
           options[:method] = 'GET'
-        when '-h'
-          return help(opt_parser, "Usage: request #{type} [options] uri")
+        when HELP_REGEX
+          #help(opt_parser)
+          # guard to prevent further option processing & stymie request handling
+          return [nil, opt_parser]
         when '-H'
-          name, _, value = val.split(':')
+          name, value = val.split(':', 2)
           options[:headers][name] = value.strip
         when '-i'
           options[:print_headers] = true
@@ -144,11 +164,17 @@ class Plugin::Requests < Msf::Plugin
         end
       end
       unless options[:uri]
-        return help(opt_parser, "Usage: request #{type} [options] uri")
+        help(opt_parser)
       end
       options[:method] ||= 'GET'
       options[:uri] = URI(options[:uri])
       [options, opt_parser]
+    end
+
+    # handling for requests of type 'https'
+    def handle_request_https(opts, opt_parser)
+      # let http do it
+      handle_request_http(opts, opt_parser)
     end
 
     # handling for requests of type 'http'
@@ -226,12 +252,13 @@ class Plugin::Requests < Msf::Plugin
       end
     end
 
-    def help(opt_parser = nil, msg = 'Usage: request type [options]')
+    def help(opt_parser = nil, msg = 'Usage: request [options] uri')
       print_line(msg)
       if opt_parser
         print_line(opt_parser.usage)
       else
-        print_line("Valid types are: #{types.join(', ')}")
+        print_line("Supported uri types are: #{types.collect{|t| t + '://'}.join(', ')}")
+        print_line("To see usage for a specific uri type, use request -h uri")
       end
     end
 
