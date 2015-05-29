@@ -26,11 +26,10 @@ class CmdStagerEcho < CmdStagerBase
   # and initialize opts[:enc_format].
   #
   def generate(opts = {})
-    if opts[:temp] == false
-      opts[:temp] = ''
-    else
-      opts[:temp] = opts[:temp] || '/tmp/'
-      opts[:temp].gsub!(/\\/, "/")
+    opts[:temp] = opts[:temp] || '/tmp/'
+
+    unless opts[:temp].empty?
+      opts[:temp].gsub!(/\\/, '/')
       opts[:temp] = opts[:temp].shellescape
       opts[:temp] << '/' if opts[:temp][-1,1] != '/'
     end
