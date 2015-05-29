@@ -22,7 +22,7 @@ before_script:
   - bundle exec rake db:migrate
 script:
   # fail build if db/schema.rb update is not committed
-  - git diff --exit-code && bundle exec rake $RAKE_TASKS
+  - git diff --exit-code db/schema.rb && bundle exec rake $RAKE_TASKS
 sudo: false
 rvm:
   - '2.1.6'
