@@ -122,4 +122,10 @@ module Msf::HTTP::Wordpress::URIs
     normalize_uri(target_uri.path, 'xmlrpc.php')
   end
 
+  # Returns the WordPress plugin installer URL
+  #
+  # @return [String] WordPress plugin installer URL
+  def wordpress_url_plugin_install
+    normalize_uri(wordpress_url_backend, 'plugin-install.php')
+  end
 end
