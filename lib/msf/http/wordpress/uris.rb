@@ -128,4 +128,11 @@ module Msf::HTTP::Wordpress::URIs
   def wordpress_url_plugin_install
     normalize_uri(wordpress_url_backend, 'plugin-install.php')
   end
+
+  # Returns the WordPress new user URL
+  #
+  # @return [String] WordPress new user URL
+  def wordpress_url_new_user
+    normalize_uri(wordpress_url_backend, 'user-new.php')
+  end
 end
