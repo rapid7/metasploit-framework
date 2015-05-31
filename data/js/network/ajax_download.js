@@ -9,10 +9,25 @@ function ajax_download(oArg) {
     xmlHttp.overrideMimeType("text/plain; charset=x-user-defined");
   }
 
-  xmlHttp.open(oArg.method, oArg.path, false);
-  xmlHttp.send(oArg.data);
-  if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-    return xmlHttp.responseText;
+  xmlHttp.open(oArg.method, oArg.path, !!oArg.cb);
+
+  if (oArg.cb) {
+    xmlHttp.onreadystatechange = function() {
+      if (xmlHttp.readyState == 4) { 
+        oArg.cb.apply(this);
+      }
+    };
+
+    xmlHttp.send(oArg.data);
   }
-  return null;
+  else {
+    xmlHttp.send(oArg.data);
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+      return xmlHttp.responseText;
+    }
+
+    return null;
+  }
+
+  return xmlHttp;
 }
