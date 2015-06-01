@@ -73,7 +73,7 @@ class Framework
   require 'msf/core/plugin_manager'
   require 'msf/core/db_manager'
   require 'msf/core/event_dispatcher'
-
+  require 'rex/json_hash_file'
 
   #
   # Creates an instance of the framework context.
@@ -91,6 +91,7 @@ class Framework
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
     self.plugins   = PluginManager.new(self)
+    self.uuid_db   = Rex::JSONHashFile.new(::File.join(Msf::Config.config_directory, "payloads.json"))
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
@@ -187,6 +188,12 @@ class Framework
   # unloading of plugins.
   #
   attr_reader   :plugins
+  #
+  # The framework instance's payload uuid database.  The payload uuid
+  # database is used to record and match the unique ID values embedded
+  # into generated payloads.
+  #
+  attr_reader   :uuid_db
 
   # The framework instance's db manager. The db manager
   # maintains the database db and handles db events
@@ -243,6 +250,7 @@ protected
   attr_writer   :jobs # :nodoc:
   attr_writer   :plugins # :nodoc:
   attr_writer   :db # :nodoc:
+  attr_writer   :uuid_db # :nodoc:
 end
 
 class FrameworkEventSubscriber

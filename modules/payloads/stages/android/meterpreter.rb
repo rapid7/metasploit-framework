@@ -36,7 +36,8 @@ module Metasploit3
   # Override the Payload::Dalvik version so we can load a prebuilt jar to be
   # used as the final stage
   #
-  def generate_stage
+  def generate_stage(opts={})
+    # TODO: wire the UUID into the stage
     clazz = 'androidpayload.stage.Meterpreter'
     file = File.join(Msf::Config.data_directory, "android", "metstage.jar")
     metstage = File.open(file, "rb") {|f| f.read(f.stat.size) }

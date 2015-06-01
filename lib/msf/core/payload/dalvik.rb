@@ -17,7 +17,7 @@ module Msf::Payload::Dalvik
   #
   # We could compile the .class files with dx here
   #
-  def generate_stage
+  def generate_stage(opts={})
   end
 
   #

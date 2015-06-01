@@ -10,6 +10,9 @@ class Metasploit3 < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2015, 6, 28), 'auxiliary/scanner/http/coldfusion_version')
 
   def initialize
     super(

