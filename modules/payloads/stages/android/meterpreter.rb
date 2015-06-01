@@ -39,11 +39,8 @@ module Metasploit3
   def generate_stage(opts={})
     # TODO: wire the UUID into the stage
     clazz = 'androidpayload.stage.Meterpreter'
-    file = File.join(Msf::Config.data_directory, "android", "metstage.jar")
-    metstage = File.open(file, "rb") {|f| f.read(f.stat.size) }
-
-    file = File.join(Msf::Config.data_directory, "android", "meterpreter.jar")
-    met = File.open(file, "rb") {|f| f.read(f.stat.size) }
+    metstage = MetasploitPayloads.read("android", "metstage.jar")
+    met = MetasploitPayloads.read("android", "meterpreter.jar")
 
     # Name of the class to load from the stage, the actual jar to load
     # it from, and then finally the meterpreter stage
