@@ -56,7 +56,8 @@ module ReverseHttp
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptBool.new('OverrideRequestHost', [ false, 'Forces clients to connect to LHOST:LPORT instead of keeping original payload host', false ]),
-        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
+        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ]),
+        OptBool.new('IgnoreUnknownPayloads', [false, 'Whether to drop connections from payloads using unknown UUIDs', false])
       ], Msf::Handler::ReverseHttp)
   end
 
@@ -153,6 +154,10 @@ module ReverseHttp
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri}")
     lookup_proxy_settings
+
+    if datastore['IgnoreUnknownPayloads']
+      print_status("Handler is ignoring unknown payloads, there are #{framework.uuid_db.keys.length} UUIDs whitelisted")
+    end
   end
 
   #
@@ -228,6 +233,21 @@ protected
       conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
     end
 
+    # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
+      print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID")
+      info[:mode] = :unknown_uuid
+    end
+
+    # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
+      allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
+      unless allowed_urls.include?(req.relative_resource)
+        print_status("#{cli.peerhost}:#{cli.peerport} (UUID: #{uuid.to_s}) Ignoring request with unknown UUID URL #{req.relative_resource}")
+        info[:mode] = :unknown_uuid_url
+      end
+    end
+
     self.pending_connections += 1
 
     # Process the requested resource.
@@ -254,7 +274,10 @@ protected
         url = payload_uri(req) + conn_id + '/'
 
         blob = ""
-        blob << obj.generate_stage
+        blob << obj.generate_stage(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         var_escape = lambda { |txt|
           txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
@@ -291,7 +314,10 @@ protected
         url = payload_uri(req) + conn_id + "/\x00"
 
         blob = ""
-        blob << obj.generate_stage
+        blob << obj.generate_stage(
+          uuid: uuid,
+          uri:  conn_id
+        )
 
         # This is a TLV packet - I guess somewhere there should be an API for building them
         # in Metasploit :-)
@@ -368,7 +394,9 @@ protected
         })
 
       else
-        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} #{req.inspect}...")
+        unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
+          print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} with UA #{req.headers['User-Agent']}...")
+        end
         resp.code    = 200
         resp.message = "OK"
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s

