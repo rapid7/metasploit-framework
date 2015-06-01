@@ -17,11 +17,7 @@ Incidentally, if you install the [Janus Distribution](https://github.com/carlhud
     set expandtab
     " Highlight spaces at EOL and mixed tabs and spaces.
     hi BogusWhitespace ctermbg=darkgreen guibg=darkgreen
-    " Note that this regex matches spaces at the beggining of lines which can
-    " get annoying when editing other kinds of files that use spaces for tabs.
-    " If you want this match to apply only to ruby files, see the augroup
-    " implementation below.
-    match BogusWhitespace /\s\+$\|^\t\+ \+\|^ \+\t*/
+    match BogusWhitespace /\s\+$\|^\t\+ \+\|^ \+\t+/
 
 
 If you'd rather these settings only apply to ruby files, you can use an autogroup and autocommands.
@@ -32,7 +28,7 @@ If you'd rather these settings only apply to ruby files, you can use an autogrou
             au FileType ruby set shiftwidth=2 tabstop=2 softtabstop=2 textwidth=78
             au FileType ruby set expandtab
             au FileType ruby hi BogusWhitespace ctermbg=darkgreen guibg=darkgreen
-            au FileType ruby match BogusWhitespace /\s\+$\|^\t\+ \+\|^ \+\t*/
+            au FileType ruby match BogusWhitespace /\s\+$\|^\t\+ \+\|^ \+\t+/
         augroup END
     endif
 
