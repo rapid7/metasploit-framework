@@ -54,11 +54,15 @@ require 'msf/core/payload_generator'
     opts = {}
     datastore = {}
     opt = OptionParser.new
-    opt.banner = "Usage: #{$0} [options] <var=val>"
+    banner  = "MsfVenom - a Metasploit standalone payload generator.\n"
+    banner << "Also a replacement for msfpayload and msfencode.\n"
+    banner << "Usage: #{$0} [options] <var=val>"
+    opt.banner = banner
     opt.separator('')
     opt.separator('Options:')
 
-    opt.on('-p', '--payload    <payload>', String, 'Payload to use. Specify a \'-\' or stdin to use custom payloads') do |p|
+    opt.on('-p', '--payload       <payload>', String,
+      'Payload to use. Specify a \'-\' or stdin to use custom payloads') do |p|
       if p == '-'
         opts[:payload] = 'stdin'
       else
@@ -66,50 +70,67 @@ require 'msf/core/payload_generator'
       end
     end
 
-    opt.on('-l', '--list       [module_type]', Array, 'List a module type. Options are: payloads, encoders, nops, all') do |l|
+    opt.on('--payload-options', "List the payload's standard options") do
+      opts[:list_options] = true
+    end
+
+    opt.on('-l', '--list          [type]', Array, 'List a module type. Options are: payloads, encoders, nops, all') do |l|
       if l.nil? or l.empty?
         l = ["all"]
       end
       opts[:list] = l
     end
 
-    opt.on('-n', '--nopsled    <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
+    opt.on('-n', '--nopsled       <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
       opts[:nops] = n.to_i
     end
 
-    opt.on('-f', '--format     <format>', String, "Output format (use --help-formats for a list)") do |f|
+    opt.on('-f', '--format        <format>', String, "Output format (use --help-formats for a list)") do |f|
       opts[:format] = f
     end
 
-    opt.on('-e', '--encoder    [encoder]', String, 'The encoder to use') do |e|
+    opt.on('--help-formats', String, "List available formats") do
+      init_framework(:module_types => [])
+      msg = "Executable formats\n" +
+            "\t" + ::Msf::Util::EXE.to_executable_fmt_formats.join(", ") + "\n" +
+            "Transform formats\n" +
+            "\t" + ::Msf::Simple::Buffer.transform_formats.join(", ")
+      raise UsageError, msg
+    end
+
+    opt.on('-e', '--encoder       <encoder>', String, 'The encoder to use') do |e|
       opts[:encoder] = e
     end
 
-    opt.on('-a', '--arch       <architecture>', String, 'The architecture to use') do |a|
+    opt.on('-a', '--arch          <arch>', String, 'The architecture to use') do |a|
       opts[:arch] = a
     end
 
-    opt.on('--platform   <platform>', String, 'The platform of the payload') do |l|
+    opt.on('--platform      <platform>', String, 'The platform of the payload') do |l|
       opts[:platform] = l
     end
 
-    opt.on('-s', '--space      <length>', Integer, 'The maximum size of the resulting payload') do |s|
+    opt.on('-s', '--space         <length>', Integer, 'The maximum size of the resulting payload') do |s|
       opts[:space] = s
     end
 
-    opt.on('-b', '--bad-chars  <list>', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
+    opt.on('--encoder-space <length>', Integer, 'The maximum size of the encoded payload (defaults to the -s value)') do |s|
+      opts[:encoder_space] = s
+    end
+
+    opt.on('-b', '--bad-chars     <list>', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
       opts[:badchars] = Rex::Text.hex_to_raw(b)
     end
 
-    opt.on('-i', '--iterations <count>', Integer, 'The number of times to encode the payload') do |i|
+    opt.on('-i', '--iterations    <count>', Integer, 'The number of times to encode the payload') do |i|
       opts[:iterations] = i
     end
 
-    opt.on('-c', '--add-code   <path>', String, 'Specify an additional win32 shellcode file to include') do |x|
+    opt.on('-c', '--add-code      <path>', String, 'Specify an additional win32 shellcode file to include') do |x|
       opts[:add_code] = x
     end
 
-    opt.on('-x', '--template   <path>', String, 'Specify a custom executable file to use as a template') do |x|
+    opt.on('-x', '--template      <path>', String, 'Specify a custom executable file to use as a template') do |x|
       opts[:template] = x
     end
 
@@ -117,29 +138,20 @@ require 'msf/core/payload_generator'
       opts[:keep] = true
     end
 
-    opt.on('--payload-options', "List the payload's standard options") do
-      opts[:list_options] = true
-    end
-
-    opt.on('-o', '--out   <path>', 'Save the payload') do |x|
+    opt.on('-o', '--out           <path>', 'Save the payload') do |x|
       opts[:out] = x
     end
 
-    opt.on('-v', '--var-name <name>', String, 'Specify a custom variable name to use for certain output formats') do |x|
+    opt.on('-v', '--var-name      <name>', String, 'Specify a custom variable name to use for certain output formats') do |x|
       opts[:var_name] = x
+    end
+
+    opt.on('--smallest', 'Generate the smallest possible payload') do
+      opts[:smallest] = true
     end
 
     opt.on_tail('-h', '--help', 'Show this message') do
       raise UsageError, "#{opt}"
-    end
-
-    opt.on_tail('--help-formats', String, "List available formats") do
-      init_framework(:module_types => [])
-      msg = "Executable formats\n" +
-            "\t" + ::Msf::Util::EXE.to_executable_fmt_formats.join(", ") + "\n" +
-            "Transform formats\n" +
-            "\t" + ::Msf::Simple::Buffer.transform_formats.join(", ")
-      raise UsageError, msg
     end
 
     begin
@@ -283,7 +295,14 @@ if __FILE__ == $0
           $stdout.puts dump_encoders
           $stdout.puts dump_nops
         else
-          $stderr.puts "Invalid module type"
+          if mod == 'payload'
+            question = ". Do you mean 'payloads'?"
+          elsif mod == 'encoder'
+            question = ". Do you mean 'encoders'?"
+          elsif mod == 'nop'
+            quesetion = ". Do you mean 'nops'?"
+          end
+          $stderr.puts "Invalid module type#{question}"
       end
     end
     exit(0)

@@ -5,14 +5,14 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
-require 'msf/core/payload/uuid_options'
+require 'msf/core/payload/uuid/options'
 
 module Metasploit3
 
   CachedSize = 742
 
   include Msf::Payload::Stager
-  include Msf::Payload::UUIDOptions
+  include Msf::Payload::UUID::Options
 
   def initialize(info = {})
     super(merge_info(info,
