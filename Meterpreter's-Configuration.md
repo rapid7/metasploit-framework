@@ -1,6 +1,6 @@
 # Meterpreter's Configuration
 
-Meterpreter has always had the need to be configured on the fly so that it knows how to talk to Metasploit. For many years, this configuration management has been done by hot-patching a copy of the `metsrv` DLL using a simple "string replace" approach. This worked well enough to support a number of situations, but restricted the flexibility of Meterpreter and its support for handling multiple transports.
+Meterpreter has always had the need to be configured on the fly so that it knows how to talk to Metasploit. For many years, this configuration management was achieved by hot-patching a copy of the `metsrv` DLL/binary using a simple "string replace" approach. This worked well enough to support a number of situations, but restricted the flexibility of Meterpreter and its support for handling multiple transports.
 
 It wasn't just transports that were locked down, but the ability to provide payloads that contained way more than the core Meterpreter (metsrv) itself. It was also not easy to pass other forms of information on the fly to the Meterpreter instance because the stagers were only able to pass in a copy of the active socket handle.
 
