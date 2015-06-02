@@ -31,6 +31,11 @@ module Msf::Payload::Dalvik
     [str.length].pack("N") + str
   end
 
+  def apply_options(classes)
+    string_sub(classes, 'TTTT                                ', "TTTT" + datastore['SessionRetryTotal'].to_s)
+    string_sub(classes, 'SSSS                                ', "SSSS" + datastore['SessionRetryWait'].to_s)
+  end
+
   def string_sub(data, placeholder="", input="")
     data.gsub!(placeholder, input + ' ' * (placeholder.length - input.length))
   end
