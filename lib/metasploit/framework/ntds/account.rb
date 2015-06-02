@@ -6,17 +6,17 @@ module Metasploit
       class Account
 
         # Size of an NTDS Account Struct on the Wire
-        ACCOUNT_SIZE = 3948
+        ACCOUNT_SIZE = 2908
         # Size of a Date or Time Format String on the Wire
         DATE_TIME_STRING_SIZE = 30
         # Size of the AccountDescription Field
-        DESCRIPTION_SIZE =2048
+        DESCRIPTION_SIZE =1024
         # Size of a Hash History Record
         HASH_HISTORY_SIZE = 792
         # Size of a Hash String
         HASH_SIZE = 33
         # Size of the samAccountName field
-        NAME_SIZE = 40
+        NAME_SIZE = 20
 
         #@return [String] The AD Account Description
         attr_accessor :description

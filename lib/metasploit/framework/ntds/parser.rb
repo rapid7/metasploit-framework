@@ -6,10 +6,8 @@ module Metasploit
       # to provide a simple interface for enumerating AD user accounts.
       class Parser
 
-        # The size, in bytes, of an NTDS account object
-        ACCOUNT_SIZE = 3948
         # The size, in Bytes, of a batch of NTDS accounts
-        BATCH_SIZE = 78960
+        BATCH_SIZE = (Metasploit::Framework::NTDS::Account::ACCOUNT_SIZE * 20)
 
         #@return [Rex::Post::Meterpreter::Channels::Pool] The Meterpreter NTDS Parser Channel
         attr_accessor :channel
@@ -36,7 +34,7 @@ module Metasploit
            until raw_batch_data.nil?
              batch = raw_batch_data.dup
              while batch.present?
-               raw_data = batch.slice!(0,ACCOUNT_SIZE)
+               raw_data = batch.slice!(0,Metasploit::Framework::NTDS::Account::ACCOUNT_SIZE)
                # Make sure our data isn't all Null-bytes
                if raw_data.match(/[^\x00]/)
                  account = Metasploit::Framework::NTDS::Account.new(raw_data)
