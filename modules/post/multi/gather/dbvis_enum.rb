@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Post
 
         # get the type
         if line =~ /<Type>([\S+\s+]+)<\/Type>/i
-          db[:Type] = $1 
+          db[:Type] = $1
         end
 
         # get the user
