@@ -34,6 +34,32 @@ export LD_LIBRARY_PATH=/opt/oracle/instantclient_10_2
 export ORACLE_HOME=/opt/oracle/instantclient_10_2
 ```
 
+# Additional steps for Kali Linux
+
+If you are using Kali Linux, you need to perform a couple of additional steps before the Oracle client gem will build properly. First, set your path to prefer the correct version of ruby so that Metasploit can use it:
+```
+root@kali:~/ruby-oci8-ruby-oci8-2.1.8# export PATH=/opt/metasploit/ruby/bin:$PATH
+```
+
+Next, install libgmp (needed to build the gem):
+```
+root@kali:~/ruby-oci8-ruby-oci8-2.1.8# apt-get install libgmp-dev
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Suggested packages:
+  libgmp10-doc libmpfr-dev
+The following NEW packages will be installed:
+  libgmp-dev
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/610 kB of archives.
+After this operation, 1,740 kB of additional disk space will be used.
+Selecting previously unselected package libgmp-dev:amd64.
+(Reading database ... 322643 files and directories currently installed.)
+Unpacking libgmp-dev:amd64 (from .../libgmp-dev_2%3a5.0.5+dfsg-2_amd64.deb) ...
+Setting up libgmp-dev:amd64 (2:5.0.5+dfsg-2) ...
+```
+
 # Install the gem
 
 Back in your Metasploit directory, copy `Gemfile.local.example` to `Gemfile.local`, then add the following line to the `:local` group
