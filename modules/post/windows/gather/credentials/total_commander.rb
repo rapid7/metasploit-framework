@@ -120,6 +120,32 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def get_ini(filename)
     config = client.fs.file.new(filename,'r')
     parse = config.read
@@ -142,14 +168,13 @@ class Metasploit3 < Msf::Post
       else
         source_id = nil
       end
-      report_auth_info(
-        :host  => host,
-        :port => port,
-        :sname => 'ftp',
-        :source_id => source_id,
-        :source_type => "exploit",
-        :user => username,
-        :pass => passwd
+
+      report_cred(
+        ip: host,
+        port: port,
+        service_name: 'ftp',
+        user: username,
+        password: passwd
       )
     end
   end
