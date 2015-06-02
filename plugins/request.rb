@@ -137,7 +137,7 @@ class Plugin::Requests < Msf::Plugin
           return [nil, opt_parser]
         when '-H'
           name, value = val.split(':', 2)
-          options[:headers][name] = value.strip
+          options[:headers][name] = value.to_s.strip
         when '-i'
           options[:print_headers] = true
         when '-I'
