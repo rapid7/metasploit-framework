@@ -12,7 +12,9 @@ This document contains information on the structure and layout of the new config
 
 In the past Meterpreter has required that the stager (or stage0 as some like to call it) pass in a handle to the active socket so that it can take over communications without creating a new socket (at least in the case of `TCP` connections). While this feature is still required, it doesn't happen in the way that it used to. Instead, Meterpreter now requires that the stager pass in a pointer to the start of the configuration block. The configuration block can be anywhere in memory, so long as the memory region is marked as `RWX`.
 
-Stage 1 of loading Meterpreter now utilises a new loader, called [meterpreter_loader][], which does the following:
+### Loading configuration in Windows Meterpreter
+
+Stage 1 of loading Windows Meterpreter now utilises a new loader, called `meterpreter_loader` ([Win x86](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/payload/windows/meterpreter_loader.rb), [Win x64](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/payload/windows/x64/meterpreter_loader.rb)), which does the following:
 
 * Loads the `metsrv` DLL from disk.
 * Patches the DOS header of the DLL so that it contains executable shellcode that correctly initialises `metsrv` and calculates the location that points to the end of `metsrv` in memory. It also takes any existing socket value (found in `edi` or `rdi` depending on the architecture) and writes that directly to the configuration (more on this later).
@@ -35,6 +37,24 @@ The result is that the payload has the following structure once it has been prep
   +--------------+
 ```
 
+### Loading configuration in POSIX Meterpreter
+
+POSIX Meterpreter functions in the same way, except that it doesn't have patched header that does the bootstrapping. The format of the payload is otherwise the same, and hence looks like this:
+
+```
+  +--------------+
+  |              |
+  .              .
+  .  metsrv bin  .
+  .              .
+  |              |
+  +--------------+
+  | config block |
+  +--------------+
+```
+
+**TODO: confirm with @bcook-r7 that this is correct**
+
 The structure of the configuration block is documented next.
 
 ## Configuration Block Structure
@@ -52,9 +72,9 @@ Each of these blocks are described in detail in the sections below.
 The notion of a session configuration block is used to wrap up the following values:
 
 * Socket handle - When Meterpreter is invoked with TCP communications, an active socket is already in use. This socket handle is intended to be reused by Meterpreter when `metsrv` executes. This socket handle is written to the configuration block on the fly by the loader. It is stored in the Session configuration block so that it has a known location. This value is always a 32-bit DWORD, even on 64-bit platforms.
-* Exit func - This value is a 32-bit DWORD value that identifies the method that should be used when terminating the Meterpreter session. This value is the equivalent of the [Block API Hash][] that represents the function to be invoked. Meterpreter used to delegate the responsibility of handling this to the stager that had invoked it. Meterpreter no longer does this, instead it handles the closing of the Meterpreter session by itself, and hence the chosen method for termination must be made known in the configuration.
-* Session expiry value - This is a 32-bit DWORD that contains the number of seconds that the Meterpreter session should last for. While Meterpreter is running, this value is continually checked, and if the session expiry time is reached, then Meterpreter shuts itself down. For more information, please read the [Timeout documentation][].
-* UUID - This is a 16-byte value that represents a payload UUID. A UUID is a new concept that has come to Metasploit with a goal of tracking payload type and origin, and validing that sessions received by Metasploit are intended for use by the current installation. For more information, please read the [UUID documentation][].
+* Exit func - This value is a 32-bit DWORD value that identifies the method that should be used when terminating the Meterpreter session. This value is the equivalent of the [Block API Hash](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/text.rb#L1685) that represents the function to be invoked. Meterpreter used to delegate the responsibility of handling this to the stager that had invoked it. Meterpreter no longer does this, instead it handles the closing of the Meterpreter session by itself, and hence the chosen method for termination must be made known in the configuration.
+* Session expiry value - This is a 32-bit DWORD that contains the number of seconds that the Meterpreter session should last for. While Meterpreter is running, this value is continually checked, and if the session expiry time is reached, then Meterpreter shuts itself down. For more information, please read the **Timeout documentation** (link coming soon).
+* UUID - This is a 16-byte value that represents a payload UUID. A UUID is a new concept that has come to Metasploit with a goal of tracking payload type and origin, and validing that sessions received by Metasploit are intended for use by the current installation. For more information, please read the **UUID documentation** (link coming soon).
 
 The layout of this block in memory looks like this:
 
@@ -100,9 +120,9 @@ The values that are common to both `HTTP(S)` and `TCP` transports are:
     * `tcp://:<port>` - indicates that this payload is a _bind_ payload listening on the specified port (note that no host is specifed).
     * `http://<host>:<port>/<uri>` - indicates that this payload is an HTTP connection (can only be _reverse_).
     * `https://<host>:<port>/<uri>` - indicates that this payload is an HTTPS connection (can only be _reverse_).
-* Communications expiry - This value is another 32-bit DWORD value that represents the number of seconds to wait between successful packet/receive calls. For more information, please read the [Timeout documentation][].
-* Retry total - This value is 32-bit DWORD value that represents the number of seconds that Meterpreter should continue to attempt to reconnect on this transport before giving up. For more information, please read the [Timeout documentation][].
-* Retry wait - This value is 32-bit DWORD value that represents the number of seconds between each attempt that Meterpreter makes to reconnect on this transport. For more information, please read the [Timeout documentation][].
+* Communications expiry - This value is another 32-bit DWORD value that represents the number of seconds to wait between successful packet/receive calls. For more information, please read the **Timeout documentation** (link coming soon).
+* Retry total - This value is 32-bit DWORD value that represents the number of seconds that Meterpreter should continue to attempt to reconnect on this transport before giving up. For more information, please read the **Timeout documentation** (link coming soon).
+* Retry wait - This value is 32-bit DWORD value that represents the number of seconds between each attempt that Meterpreter makes to reconnect on this transport. For more information, please read the **Timeout documentation** (link coming soon).
 
 The layout of this block in memory looks like the following:
 
@@ -143,7 +163,7 @@ At this time, there are no `TCP`-specific configuration values, as the common co
 * Proxy user name - Some proxies require authentication. In such cases, this value contains the username that should be used to authenticate with the given proxy. This field is `64` characters in size (`wchar_t`).
 * Proxy password - This value will accompany the user name field in the case where proxy authentication is required. It contains the password used to authenticate with the proxy, and is also `64` characters in size (`wchar_t`).
 * User agent string - Customisable user agent string. This changes the user agent that is used when `HTTP/S` requests are made to Metasploit. This field is `256` characters in size (`wchar_t`).
-* Expected SSL certificate hash - Meterpreter has the capability of validating the SSL certificate that Metasploit presents when using `HTTPS`. This value contains the `20`-byte SHA1 hash of the expected certificate. For more information, please read the [SSL certificate validation documentation][].
+* Expected SSL certificate hash - Meterpreter has the capability of validating the SSL certificate that Metasploit presents when using `HTTPS`. This value contains the `20`-byte SHA1 hash of the expected certificate. For more information, please read the **SSL certificate validation documentation** (link coming soon).
 
 All values that are shown above need to be specified in the configuration, including SSL certificate validation for plain `HTTP` connections. Values that are not used should be zeroed out.
 
@@ -189,7 +209,7 @@ As already mentioned, more than one of these transport configuration blocks can 
 
 ### Extension configuration block
 
-The extension configuration block is designed to allow Meterpreter payloads to contain any extra extensions that the user wants to bundle in. The goal is to provide the ability to have [Stageless payloads][], and to provide the means for sharing of extensions during migration (though this hasn't been implemented yet). Each of the extensions must have been compiled with [Reflective DLL Injection][] support, as this is the mechanism that is used to load the extensions when Meterpreter starts. For more information on this facility, please see the [Stageless payloads][] documentation.
+The extension configuration block is designed to allow Meterpreter payloads to contain any extra extensions that the user wants to bundle in. The goal is to provide the ability to have **Stageless payloads** (link coming soon), and to provide the means for sharing of extensions during migration (though this hasn't been implemented yet). Each of the extensions must have been compiled with [Reflective DLL Injection][] support, as this is the mechanism that is used to load the extensions when Meterpreter starts. For more information on this facility, please see the **Stageless payloads** (link coming soon) documentation.
 
 The extension configuration block also functions as a "list" to allow for an arbitrary number of extensions to be included. Each extension entry needs to contain the following:
 
