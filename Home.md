@@ -70,7 +70,7 @@ to [[Setting Up a Metasploit Development Environment]].
 - [[How to use msfvenom]]
 - [[How to use exim_gethostbyname_bof.rb (Exim GHOST Buffer Overflow)]]
 - [[How to write a HTTP LoginScanner Module]]
-- [[How to get Oracle Support working with Kali Linux]]
+- [[Oracle Usage]]
 
 # GitHub Resources #
 
