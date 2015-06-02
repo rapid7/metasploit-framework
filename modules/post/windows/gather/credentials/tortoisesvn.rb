@@ -133,6 +133,7 @@ class Metasploit3 < Msf::Post
     }
 
     credential_data = {
+      module_fullname: fullname,
       post_reference_name: self.refname,
       session_id: session_db_id,
       origin_type: :session,
