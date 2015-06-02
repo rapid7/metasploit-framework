@@ -1,7 +1,18 @@
 # -*- coding: binary -*-
 require 'msf/core'
 
+module Msf
+
 module Msf::Payload::Dalvik
+
+  def initialize(info = {})
+    super(info)
+
+    register_advanced_options(
+      [
+        OptInt.new('PayloadExpiryOffset', [ false, 'The number of seconds from this machines current epoch timestamp until the payload expires' ])
+      ], self.class)
+  end
 
   #
   # Fix the dex header checksum and signature
@@ -34,6 +45,11 @@ module Msf::Payload::Dalvik
   def apply_options(classes)
     string_sub(classes, 'TTTT                                ', "TTTT" + datastore['SessionRetryTotal'].to_s)
     string_sub(classes, 'SSSS                                ', "SSSS" + datastore['SessionRetryWait'].to_s)
+
+    if datastore['PayloadExpiryOffset'] and datastore['PayloadExpiryOffset'].to_i > 0
+      expiry_time = Time.now.to_i + datastore['PayloadExpiryOffset'].to_i
+      string_sub(classes, 'UUUU0                               ', "UUUU" + expiry_time.to_s)
+    end
   end
 
   def string_sub(data, placeholder="", input="")
@@ -71,5 +87,7 @@ module Msf::Payload::Dalvik
 
     return cert, key
   end
+end
+
 end
 
