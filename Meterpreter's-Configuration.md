@@ -209,7 +209,7 @@ As already mentioned, more than one of these transport configuration blocks can 
 
 ### Extension configuration block
 
-The extension configuration block is designed to allow Meterpreter payloads to contain any extra extensions that the user wants to bundle in. The goal is to provide the ability to have **Stageless payloads** (link coming soon), and to provide the means for sharing of extensions during migration (though this hasn't been implemented yet). Each of the extensions must have been compiled with [Reflective DLL Injection][] support, as this is the mechanism that is used to load the extensions when Meterpreter starts. For more information on this facility, please see the **Stageless payloads** (link coming soon) documentation.
+The extension configuration block is designed to allow Meterpreter payloads to contain any extra extensions that the user wants to bundle in. The goal is to provide the ability to have **Stageless payloads** (link coming soon), and to provide the means for sharing of extensions during migration (though this hasn't been implemented yet). Each of the extensions must have been compiled with [Reflective DLL Injection](https://github.com/rapid7/ReflectiveDLLInjection/) support, as this is the mechanism that is used to load the extensions when Meterpreter starts. For more information on this facility, please see the **Stageless payloads** (link coming soon) documentation.
 
 The extension configuration block also functions as a "list" to allow for an arbitrary number of extensions to be included. Each extension entry needs to contain the following:
 
