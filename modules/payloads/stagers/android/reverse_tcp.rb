@@ -28,6 +28,10 @@ module Metasploit3
     ))
   end
 
+  def include_send_uuid
+      false
+  end
+
   def generate_jar(opts={})
     jar = Rex::Zip::Jar.new
 
