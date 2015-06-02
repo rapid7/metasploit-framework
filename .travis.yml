@@ -15,6 +15,9 @@ before_install:
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
+install:
+  - gem uninstall bundler
+  - gem install bundler --version '1.9.2'
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
