@@ -16,9 +16,9 @@ The general steps to getting Oracle support working are to install the Oracle In
 ## Install the Oracle Instant Client
 As root, create the directory `/opt/oracle`. Then download the [Oracle Instant Client](http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html) packages for your version of Kali Linux. The packages you will need are:
 
- *) instantclient-basic-linux-12.1.0.1.0.zip
- *) instantclient-sqlplus-linux-12.1.0.1.0.zip
- *) instantclient-sdk-linux-12.1.0.1.0.zip
+* instantclient-basic-linux-12.1.0.1.0.zip
+* instantclient-sqlplus-linux-12.1.0.1.0.zip
+* instantclient-sdk-linux-12.1.0.1.0.zip
 
 Unzip these under `/opt/oracle`, and you should now have a path called `/opt/oracle/instantclient_12_1/`. Next symlink the shared library that we need to access the library from oracle:
 
