@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 
       print_good("#{peer} - File saved in: #{path}")
     else
-      print_error("#{peer} - Nothing was downloaded. You can try to change the DEPTH parameter.")
+      print_error("#{peer} - Nothing was downloaded. You can try to change the DEPTH parameter or verify the correct filename.")
     end
   end
 end
