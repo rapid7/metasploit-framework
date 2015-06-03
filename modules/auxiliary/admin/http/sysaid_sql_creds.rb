@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'References' =>
         [
-          [ 'CVE', 'CVE-2015-2996' ],
-          [ 'CVE', 'CVE-2015-2998' ],
+          [ 'CVE', '2015-2996' ],
+          [ 'CVE', '2015-2998' ],
           [ 'OSVDB', 'TODO' ],
           [ 'OSVDB', 'TODO' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt' ],
