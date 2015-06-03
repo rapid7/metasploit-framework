@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'References' =>
         [
-          [ 'CVE', 'CVE-2015-2993' ],
+          [ 'CVE', '2015-2993' ],
           [ 'OSVDB', 'TODO' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt' ],
           [ 'URL', 'TODO_FULLDISC_URL' ]
