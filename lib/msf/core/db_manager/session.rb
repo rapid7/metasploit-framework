@@ -49,7 +49,7 @@ module Msf::DBManager::Session
   #   Creates an Mdm::Session from Mdm::Host.
   #
   #   @param opts [Hash{Symbol => Object}] options
-  #   @option opts [DateTime, Time] :closed_at The date and time the sesion was
+  #   @option opts [DateTime, Time] :closed_at The date and time the session was
   #     closed.
   #   @option opts [String] :close_reason Reason the session was closed.
   #   @option opts [Hash] :datastore {Msf::DataStore#to_h}.
@@ -95,7 +95,6 @@ module Msf::DBManager::Session
       if session.exploit.user_data_is_match?
         MetasploitDataModels::AutomaticExploitation::MatchResult.create!(
           match: session.exploit.user_data[:match],
-          match_set: session.exploit.user_data[:match_set],
           run: session.exploit.user_data[:run],
           state: 'succeeded',
         )
@@ -125,6 +124,11 @@ module Msf::DBManager::Session
         mod_fullname = session.via_exploit
       end
       mod_detail = ::Mdm::Module::Detail.find_by_fullname(mod_fullname)
+      if mod_detail.nil?
+        # Then the cache isn't built yet, take the hit for instantiating the
+        # module
+        mod_detail = framework.modules.create(mod_fullname)
+      end
       mod_name = mod_detail.name
 
       vuln_info = {

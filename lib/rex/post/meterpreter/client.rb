@@ -85,11 +85,18 @@ class Client
   # Cleans up the meterpreter instance, terminating the dispatcher thread.
   #
   def cleanup_meterpreter
-    ext.aliases.each_value do | extension |
-      extension.cleanup if extension.respond_to?( 'cleanup' )
+    if not self.skip_cleanup
+      ext.aliases.each_value do | extension |
+        extension.cleanup if extension.respond_to?( 'cleanup' )
+      end
     end
+
     dispatcher_thread.kill if dispatcher_thread
-    core.shutdown rescue nil
+
+    if not self.skip_cleanup
+      core.shutdown rescue nil
+    end
+
     shutdown_passive_dispatcher
   end
 
@@ -111,6 +118,8 @@ class Client
     self.ssl          = opts[:ssl]
     self.expiration   = opts[:expiration]
     self.comm_timeout = opts[:comm_timeout]
+    self.retry_total  = opts[:retry_total]
+    self.retry_wait   = opts[:retry_wait]
     self.passive_dispatcher = opts[:passive_dispatcher]
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
@@ -194,6 +203,7 @@ class Client
     self.sock.extend(Rex::Socket::SslTcp)
     self.sock.sslsock = ssl
     self.sock.sslctx  = ctx
+    self.sock.sslhash = Rex::Text.sha1_raw(ctx.cert.to_der)
 
     tag = self.sock.get_once(-1, 30)
     if(not tag or tag !~ /^GET \//)
@@ -206,6 +216,7 @@ class Client
     self.sock.sslsock.close
     self.sock.sslsock = nil
     self.sock.sslctx  = nil
+    self.sock.sslhash = nil
     self.sock = self.sock.fd
     self.sock.extend(::Rex::Socket::Tcp)
   end
@@ -451,6 +462,14 @@ class Client
   #
   attr_accessor :comm_timeout
   #
+  # The total time for retrying connections
+  #
+  attr_accessor :retry_total
+  #
+  # The time to wait between retry attempts
+  #
+  attr_accessor :retry_wait
+  #
   # The Passive Dispatcher
   #
   attr_accessor :passive_dispatcher
@@ -462,6 +481,10 @@ class Client
   # A list of the commands
   #
   attr_reader :commands
+  #
+  # The timestamp of the last received response
+  #
+  attr_accessor :last_checkin
 
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:

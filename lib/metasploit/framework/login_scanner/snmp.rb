@@ -11,11 +11,48 @@ module Metasploit
       class SNMP
         include Metasploit::Framework::LoginScanner::Base
 
+        DEFAULT_TIMEOUT      = 2
         DEFAULT_PORT         = 161
+        DEFAULT_RETRIES      = 0
+        DEFAULT_VERSION      = 'all'
         LIKELY_PORTS         = [ 161, 162 ]
         LIKELY_SERVICE_NAMES = [ 'snmp' ]
         PRIVATE_TYPES        = [ :password ]
         REALM_KEY            = nil
+
+        # The number of retries per community string
+        # @return [Fixnum]
+        attr_accessor :retries
+
+        # The SNMP version to scan
+        # @return [String]
+        attr_accessor :version
+
+        validates :retries,
+                  presence: true,
+                  numericality: {
+                    only_integer: true,
+                    greater_than_or_equal_to: 0
+                  }
+
+        validates :version,
+                  presence: true,
+                  inclusion: {
+                    in: ['1', '2c', 'all']
+                  }
+
+        # This method returns an array of versions to scan
+        # @return [Array] An array of versions
+        def versions
+          case version
+          when '1'
+            [:SNMPv1]
+          when '2c'
+            [:SNMPv2c]
+          when 'all'
+            [:SNMPv1, :SNMPv2c]
+          end
+        end
 
         # This method attempts a single login with a single credential against the target
         # @param credential [Credential] The credential object to attmpt to login with
@@ -29,14 +66,14 @@ module Metasploit
               service_name: 'snmp'
           }
 
-          [:SNMPv1, :SNMPv2c].each do |version|
+          versions.each do |version|
             snmp_client = ::SNMP::Manager.new(
                 :Host      => host,
                 :Port      => port,
                 :Community => credential.public,
                 :Version => version,
                 :Timeout => connection_timeout,
-                :Retries => 2,
+                :Retries => retries,
                 :Transport => ::SNMP::RexUDPTransport,
                 :Socket => ::Rex::Socket::Udp.create('Context' => { 'Msf' => framework, 'MsfExploit' => framework_module })
             )
@@ -78,11 +115,13 @@ module Metasploit
 
         end
 
-        # Sets the connection timeout approrpiately for SNMP
+        # Sets the connection timeout appropriately for SNMP
         # if the user did not set it.
         def set_sane_defaults
-          self.connection_timeout = 2 if self.connection_timeout.nil?
+          self.connection_timeout = DEFAULT_TIMEOUT if self.connection_timeout.nil?
           self.port = DEFAULT_PORT if self.port.nil?
+          self.retries = DEFAULT_RETRIES if self.retries.nil?
+          self.version = DEFAULT_VERSION if self.version.nil?
         end
 
         # This method takes an snmp client and tests whether

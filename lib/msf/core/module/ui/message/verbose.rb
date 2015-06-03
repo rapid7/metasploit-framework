@@ -1,9 +1,4 @@
 module Msf::Module::UI::Message::Verbose
-  # Verbose version of #print_debug
-  def vprint_debug(msg)
-    print_debug(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
-  end
-
   # Verbose version of #print_error
   def vprint_error(msg)
     print_error(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']

@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
       else
         res = Rex::Arch::X86.geteip_fpu(state.badchars)
         if (not res)
-          raise RuntimeError, "Unable to generate geteip code"
+          raise EncodingError, "Unable to generate geteip code"
         end
       buf, reg, off = res
       end

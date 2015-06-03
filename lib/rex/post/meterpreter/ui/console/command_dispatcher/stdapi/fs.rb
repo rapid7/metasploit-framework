@@ -30,6 +30,18 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@upload_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
     "-r" => [ false, "Upload recursively." ])
+  #
+  # Options for the ls command
+  #
+  @@ls_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner." ],
+    "-S" => [ true, "Search string." ],
+    "-t" => [ false, "Sort by time" ],
+    "-s" => [ false, "Sort by size" ],
+    "-r" => [ false, "Reverse sort order" ],
+    "-x" => [ false, "Show short file names" ],
+    "-l" => [ false, "List in long format (default)" ],
+    "-R" => [ false, "Recursively list subdirectories encountered" ])
 
   #
   # List of supported commands.
@@ -99,7 +111,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   # Search for files.
   #
-  def cmd_search( *args )
+  def cmd_search(*args)
 
     root    = nil
     glob    = nil
@@ -115,37 +127,37 @@ class Console::CommandDispatcher::Stdapi::Fs
     opts.parse(args) { | opt, idx, val |
       case opt
         when "-h"
-          print_line( "Usage: search [-d dir] [-r recurse] -f pattern" )
-          print_line( "Search for files." )
-          print_line( opts.usage )
+          print_line("Usage: search [-d dir] [-r recurse] -f pattern")
+          print_line("Search for files.")
+          print_line(opts.usage)
           return
         when "-d"
           root = val
         when "-f"
           glob = val
         when "-r"
-          recurse = false if( val =~ /^(f|n|0)/i )
+          recurse = false if val =~ /^(f|n|0)/i
       end
     }
 
-    if( not glob )
-      print_error( "You must specify a valid file glob to search for, e.g. >search -f *.doc" )
+    if not glob
+      print_error("You must specify a valid file glob to search for, e.g. >search -f *.doc")
       return
     end
 
-    files = client.fs.file.search( root, glob, recurse )
+    files = client.fs.file.search(root, glob, recurse)
 
-    if( not files.empty? )
-      print_line( "Found #{files.length} result#{ files.length > 1 ? 's' : '' }..." )
+    if not files.empty?
+      print_line("Found #{files.length} result#{ files.length > 1 ? 's' : '' }...")
       files.each do | file |
-        if( file['size'] > 0 )
-          print( "    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n" )
+        if file['size'] > 0
+          print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']} (#{file['size']} bytes)\n")
         else
-          print( "    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n" )
+          print("    #{file['path']}#{ file['path'].empty? ? '' : '\\' }#{file['name']}\n")
         end
       end
     else
-      print_line( "No files matching your search were found." )
+      print_line("No files matching your search were found.")
     end
 
   end
@@ -223,29 +235,41 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_del :cmd_rm
 
-        #   
-        # Move source to destination
-        #   
-        def cmd_mv(*args)
-                if (args.length < 2)
-                        print_line("Usage: mv oldfile newfile")
-                        return true
-                end 
+  #
+  # Move source to destination
+  #
+  def cmd_mv(*args)
+    if (args.length < 2)
+      print_line("Usage: mv oldfile newfile")
+      return true
+    end
+    client.fs.file.mv(args[0],args[1])
+    return true
+  end
 
-                client.fs.file.mv(args[0],args[1])
-
-                return true
-        end 
-
-        alias :cmd_move :cmd_mv
+  alias :cmd_move :cmd_mv
   alias :cmd_rename :cmd_mv
+
+  #
+  # Move source to destination
+  #
+  def cmd_cp(*args)
+    if (args.length < 2)
+      print_line("Usage: cp oldfile newfile")
+      return true
+    end
+    client.fs.file.cp(args[0],args[1])
+    return true
+  end
+
+  alias :cmd_copy :cmd_cp
 
 
   def cmd_download_help
-    print_line "Usage: download [options] src1 src2 src3 ... destination"
+    print_line("Usage: download [options] src1 src2 src3 ... destination")
     print_line
-    print_line "Downloads remote files and directories to the local machine."
-    print_line @@download_opts.usage
+    print_line("Downloads remote files and directories to the local machine.")
+    print_line(@@download_opts.usage)
   end
 
   #
@@ -289,24 +313,62 @@ class Console::CommandDispatcher::Stdapi::Fs
       dest = last
     end
 
+    # Download to a directory, not a pattern
+    if client.fs.file.is_glob?(dest)
+      dest = ::File.dirname(dest)
+    end
+
     # Go through each source item and download them
     src_items.each { |src|
-      stat = client.fs.file.stat(src)
+      glob = nil
+      if client.fs.file.is_glob?(src)
+        glob = ::File.basename(src)
+        src = ::File.dirname(src)
+      end
 
-      if (stat.directory?)
-        client.fs.dir.download(dest, src, recursive, true) { |step, src, dst|
-          print_status("#{step.ljust(11)}: #{src} -> #{dst}")
-          client.framework.events.on_session_download(client, src, dest) if msf_loaded?
-        }
-      elsif (stat.file?)
-        client.fs.file.download(dest, src) { |step, src, dst|
-          print_status("#{step.ljust(11)}: #{src} -> #{dst}")
-          client.framework.events.on_session_download(client, src, dest) if msf_loaded?
-        }
+      # Use search if possible for recursive pattern matching. It will work
+      # more intuitively since it will not try to match on intermediate
+      # directories, only file names.
+      if glob && recursive && client.commands.include?('stdapi_fs_search')
+
+        files = client.fs.file.search(src, glob, recursive)
+        if !files.empty?
+          print_line("Downloading #{files.length} file#{files.length > 1 ? 's' : ''}...")
+
+          files.each do |file|
+            src_separator = client.fs.file.separator
+            src_path = file['path'] + client.fs.file.separator + file['name']
+            dest_path = src_path.tr(src_separator, ::File::SEPARATOR)
+
+            client.fs.file.download(dest_path, src_path) do |step, src, dst|
+              puts step
+              print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+              client.framework.events.on_session_download(client, src, dest) if msf_loaded?
+            end
+          end
+
+        else
+          print_status("No matching files found for download")
+        end
+
+      else
+        # Perform direct matching
+        stat = client.fs.file.stat(src)
+        if (stat.directory?)
+          client.fs.dir.download(dest, src, recursive, true, glob) do |step, src, dst|
+            print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+            client.framework.events.on_session_download(client, src, dest) if msf_loaded?
+          end
+        elsif (stat.file?)
+          client.fs.file.download(dest, src) do |step, src, dst|
+            print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+            client.framework.events.on_session_download(client, src, dest) if msf_loaded?
+          end
+        end
       end
     }
 
-    return true
+    true
   end
 
   #
@@ -324,16 +386,8 @@ class Console::CommandDispatcher::Stdapi::Fs
     meterp_temp.binmode
     temp_path = meterp_temp.path
 
-    begin
-      # Download the remote file to the temporary file
-      client.fs.file.download_file(temp_path, args[0])
-    rescue RequestError => re
-      # If the file doesn't exist, then it's okay.  Otherwise, throw the
-      # error.
-      if re.result != 2
-        raise $!
-      end
-    end
+    # Try to download the file, but don't worry if it doesn't exist
+    client.fs.file.download_file(temp_path, args[0]) rescue nil
 
     # Spawn the editor (default to vi)
     editor = Rex::Compat.getenv('EDITOR') || 'vi'
@@ -357,72 +411,139 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias cmd_getlwd cmd_lpwd
 
+
+  def cmd_ls_help
+    print_line "Usage: ls [options]"
+    print_line
+    print_line "Lists contents of directory or file info, searchable"
+    print_line @@ls_opts.usage
+  end
+
+  def list_path(path, columns, sort, order, short, recursive = false, depth = 0, search_term = nil)
+
+    # avoid infinite recursion
+    if depth > 100
+      return
+    end
+
+    tbl = Rex::Ui::Text::Table.new(
+      'Header'  => "Listing: #{path}",
+      'SortIndex' => columns.index(sort),
+      'SortOrder' => order,
+      'Columns' => columns,
+      'SearchTerm' => search_term)
+
+    items = 0
+
+    # Enumerate each item...
+    # No need to sort as Table will do it for us
+    client.fs.dir.entries_with_info(path).each do |p|
+
+      ffstat = p['StatBuf']
+      fname = p['FileName'] || 'unknown'
+
+      row = [
+          ffstat ? ffstat.prettymode : '',
+          ffstat ? ffstat.size       : '',
+          ffstat ? ffstat.ftype[0,3] : '',
+          ffstat ? ffstat.mtime      : '',
+          fname
+        ]
+      row.insert(4, p['FileShortName'] || '') if short
+
+      if fname != '.' && fname != '..'
+        if row.join(' ') =~ /#{search_term}/
+          tbl << row
+          items += 1
+        end
+
+        if recursive && ffstat && ffstat.directory?
+          if client.fs.file.is_glob?(path)
+            child_path = ::File.dirname(path) + ::File::SEPARATOR + fname
+            child_path += ::File::SEPARATOR + ::File.basename(path)
+          else
+            child_path = path + ::File::SEPARATOR + fname
+          end
+          begin
+            list_path(child_path, columns, sort, order, short, recursive, depth + 1, search_term)
+          rescue RequestError
+          end
+        end
+      end
+    end
+
+    if items > 0
+      print_line(tbl.to_s)
+    else
+      print_line("No entries exist in #{path}")
+    end
+  end
+
   #
   # Lists files
   #
   def cmd_ls(*args)
+    # Set defaults
+    path = client.fs.dir.getwd
+    search_term = nil
+    sort = 'Name'
+    short = nil
+    order = :forward
+    recursive = nil
 
-    # Check sort column
-    sort = args.include?('-S') ? 'Size' : 'Name'
-    sort = args.include?('-t') ? 'Last modified' : sort
-    args.delete('-S')
-    args.delete('-t')
-
-    # Check whether to include the short name option
-    short = args.include?('-x')
-    args.delete('-x')
-
-    # Check sort order
-    order = args.include?('-r') ? :reverse : :forward
-    args.delete('-r')
-
-    # Check for cries of help
-    if args.length > 1 || args.any? { |a| a[0] == '-' }
-      print_line('Usage: ls [dir] [-x] [-S] [-t] [-r]')
-      print_line('   -x Show short file names')
-      print_line('   -S Sort by size')
-      print_line('   -t Sort by time modified')
-      print_line('   -r Reverse sort order')
-      return true
-    end
-
-    path = args[0] || client.fs.dir.getwd
+    # Parse the args
+    @@ls_opts.parse(args) { |opt, idx, val|
+      case opt
+      # Sort options
+      when '-s'
+        sort = 'Size'
+      when '-t'
+        sort = 'Last modified'
+      # Output options
+      when '-x'
+        short = true
+      when '-l'
+        short = nil
+      when '-r'
+        order = :reverse
+      when '-R'
+        recursive = true
+      # Search
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        else
+          search_term = /#{search_term}/nmi
+        end
+      # Help and path
+      when "-h"
+        cmd_ls_help
+        return 0
+      when nil
+        path = val
+      end
+    }
 
     columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
     columns.insert(4, 'Short Name') if short
 
-    tbl  = Rex::Ui::Text::Table.new(
-      'Header'  => "Listing: #{path}",
-      'SortIndex' => columns.index(sort),
-      'SortOrder' => order,
-      'Columns' => columns)
+    stat_path = path
 
-    items = 0
-    stat = client.fs.file.stat(path)
-    if stat.directory?
-      # Enumerate each item...
-      # No need to sort as Table will do it for us
-      client.fs.dir.entries_with_info(path).each { |p|
-
-        row = [
-            p['StatBuf'] ? p['StatBuf'].prettymode : '',
-            p['StatBuf'] ? p['StatBuf'].size       : '',
-            p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '',
-            p['StatBuf'] ? p['StatBuf'].mtime      : '',
-            p['FileName'] || 'unknown'
-          ]
-        row.insert(4, p['FileShortName'] || '') if short
-
-        tbl << row
-
-        items += 1
-      }
-
-      if (items > 0)
-        print("\n" + tbl.to_s + "\n")
-      else
-        print_line("No entries exist in #{path}")
+    # Check session capabilities
+    is_glob = client.fs.file.is_glob?(path)
+    if is_glob
+      if !client.commands.include?('stdapi_fs_search')
+        print_line('File globbing not supported with this session')
+        return
       end
+      stat_path = ::File.dirname(path)
+    end
+
+    stat = client.fs.file.stat(stat_path)
+    if stat.directory?
+      list_path(path, columns, sort, order, short, recursive, 0, search_term)
     else
       print_line("#{stat.prettymode}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
     end
@@ -475,10 +596,10 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   def cmd_upload_help
-    print_line "Usage: upload [options] src1 src2 src3 ... destination"
+    print_line("Usage: upload [options] src1 src2 src3 ... destination")
     print_line
-    print_line "Uploads local files and directories to the remote machine."
-    print_line @@upload_opts.usage
+    print_line("Uploads local files and directories to the remote machine.")
+    print_line(@@upload_opts.usage)
   end
 
   #

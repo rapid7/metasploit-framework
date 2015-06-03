@@ -330,7 +330,7 @@ class Metasploit3 < Msf::Auxiliary
     i, a = 0, []
     # Most common SRV Records
     srvrcd = [
-      "_gc._tcp.","_kerberos._tcp.", "_kerberos._udp.","_ldap._tcp","_test._tcp.",
+      "_gc._tcp.","_kerberos._tcp.", "_kerberos._udp.","_ldap._tcp.","_test._tcp.",
       "_sips._tcp.","_sip._udp.","_sip._tcp.","_aix._tcp.","_aix._tcp.","_finger._tcp.",
       "_ftp._tcp.","_http._tcp.","_nntp._tcp.","_telnet._tcp.","_whois._tcp.","_h323cs._tcp.",
       "_h323cs._udp.","_h323be._tcp.","_h323be._udp.","_h323ls._tcp.","_h323ls._udp.",

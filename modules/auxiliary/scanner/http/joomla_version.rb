@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def os_fingerprint(response)
     if not response.headers.has_key?('Server')
-      return "Unkown OS (No Server Header)"
+      return "Unknown OS (No Server Header)"
     end
 
     case response.headers['Server']

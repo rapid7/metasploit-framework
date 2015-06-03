@@ -43,8 +43,8 @@ module Msf::DBManager::WMAP
   }
   end
 
-  # This method iterates the requests table identifiying possible targets
-  # This method wiil be remove on second phase of db merging.
+  # This method iterates the requests table identifying possible targets
+  # This method will be removed on second phase of db merging.
   def each_distinct_target(&block)
     request_distinct_targets.each do |target|
       block.call(target)
@@ -111,7 +111,7 @@ module Msf::DBManager::WMAP
   end
 
   # This method returns a list of all possible targets available in requests
-  # This method wiil be remove on second phase of db merging.
+  # This method will be removed on second phase of db merging.
   def request_distinct_targets
   ::ActiveRecord::Base.connection_pool.with_connection {
     ::Mdm::WmapRequest.select('DISTINCT host,address,port,ssl')

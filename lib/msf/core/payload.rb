@@ -264,7 +264,7 @@ class Payload < Msf::Module
   # payload's convention.
   #
   def compatible_convention?(conv)
-    # If we ourself don't have a convention or our convention is equal to
+    # If we don't have a convention or our convention is equal to
     # the one supplied, then we know we are compatible.
     if ((self.convention == nil) or
         (self.convention == conv))
@@ -319,12 +319,22 @@ class Payload < Msf::Module
   end
 
   #
+  # Convert raw bytes to metasm-ready 'db' encoding format
+  # eg. "\x90\xCC" => "db 0x90,0xCC"
+  #
+  # @param raw [Array] Byte array to encode.
+  #
+  def raw_to_db(raw)
+    raw.unpack("C*").map {|c| "0x%.2x" % c}.join(",")
+  end
+
+  #
   # Substitutes variables with values from the module's datastore in the
   # supplied raw buffer for a given set of named offsets.  For instance,
   # RHOST is substituted with the RHOST value from the datastore which will
   # have been populated by the framework.
   #
-  # Supprted packing types:
+  # Supported packing types:
   #
   # - ADDR  (foo.com, 1.2.3.4)
   # - ADDR6 (foo.com, fe80::1234:5678:8910:1234)
