@@ -82,7 +82,8 @@ class Webcam
   def record_mic(duration)
     request = Packet.create_request('webcam_audio_record')
     request.add_tlv(TLV_TYPE_AUDIO_DURATION, duration)
-    response = client.send_request(request, duration + 1)
+    # Wait for a response proportional to the record duration
+    response = client.send_request(request, duration * 2)
     response.get_tlv( TLV_TYPE_AUDIO_DATA ).value
   end
 
