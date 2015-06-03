@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     unless res && res.body
-      vprint_error("#{peer} - Server did not respond in an expected way.")
+      fail_with(Failure::Unknown, "#{peer} - Server did not respond in an expected way.")
       return
     end
 
