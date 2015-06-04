@@ -5,7 +5,7 @@
 
 require 'msf/core'
 require 'msf/core/handler/reverse_https'
-require 'msf/core/payload/uuid_options'
+require 'msf/core/payload/uuid/options'
 
 module Metasploit3
 
@@ -13,7 +13,7 @@ module Metasploit3
 
   include Msf::Payload::Stager
   include Msf::Payload::Java
-  include Msf::Payload::UUIDOptions
+  include Msf::Payload::UUID::Options
 
   def initialize(info = {})
     super(merge_info(info,

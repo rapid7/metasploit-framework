@@ -28,7 +28,7 @@ module Metasploit3
       ], self.class)
   end
 
-  def generate_stage
+  def generate_stage(opts={})
     cmd = (datastore['CMD'] || '') << "\x00"
     call = "\xe8" + [cmd.length].pack('V')
     payload =

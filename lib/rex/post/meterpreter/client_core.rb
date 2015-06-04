@@ -317,6 +317,11 @@ class ClientCore < Extension
     response = client.send_request(*args)
 
     mid = response.get_tlv_value(TLV_TYPE_MACHINE_ID)
+
+    # Normalise the format of the incoming machine id so that it's consistent
+    # regardless of case and leading/trailing spaces. This means that the
+    # individual meterpreters don't have to care
+    mid.downcase!.strip! if mid
     return Rex::Text.md5(mid)
   end
 
