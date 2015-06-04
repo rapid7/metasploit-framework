@@ -436,12 +436,7 @@ class Console::CommandDispatcher::Stdapi::Sys
             return true
           end
         when '-h'
-          print_line "Usage: ps [ options ]"
-          print_line
-          print_line "OPTIONS:"
-          print_line " -S       Search string to filter by"
-          print_line " -h 		This help menu"
-          print_line
+          cmd_ps_help
           return 0
       when "-A"
         print_line "Filtering on arch..."
@@ -491,7 +486,6 @@ class Console::CommandDispatcher::Stdapi::Sys
       'SearchTerm' => search_term)
 
     processes.each { |ent|
-
       session = ent['session'] == 0xFFFFFFFF ? '' : ent['session'].to_s
       arch    = ent['arch']
 
@@ -503,8 +497,6 @@ class Console::CommandDispatcher::Stdapi::Sys
       row = [ ent['pid'].to_s, ent['name'], arch, session, ent['user'], ent['path'] ]
 
       tbl << row #if (search_term.nil? or row.join(' ').to_s.match(search_term))
-
-
     }
 
     if (processes.length == 0)
