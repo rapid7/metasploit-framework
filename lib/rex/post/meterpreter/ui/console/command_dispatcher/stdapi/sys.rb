@@ -429,15 +429,15 @@ class Console::CommandDispatcher::Stdapi::Sys
     # Parse opts
     @@ps_opts.parse(args) { |opt, idx, val|
       case opt
-        when '-S'
-          search_term = val
-          if search_term.nil?
-            print_error("Enter a search term")
-            return true
-          end
-        when '-h'
-          cmd_ps_help
-          return 0
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        end
+      when '-h'
+        cmd_ps_help
+        return true
       when "-A"
         print_line "Filtering on arch..."
         searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
@@ -510,6 +510,8 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   def cmd_ps_help
+    print_line "Usage: ps [ options ]"
+    print_line
     print_line "Use the command with no arguments to see all running processes."
     print_line "The following options can be used to filter those results:"
 
