@@ -335,7 +335,7 @@ the web interface.
 
 ## Create an .ssh/config entry for Github
 
-One you have your new SSH key all set up, add this to your
+Once you have your new SSH key all set up, add this to your
 $HOME/.ssh/config -- create that file if you don't have one
 already.
 
