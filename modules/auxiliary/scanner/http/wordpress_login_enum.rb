@@ -100,18 +100,49 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: ssl ? 'https' : 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user]
+    }.merge(service_data)
+
+    if opts[:password]
+      credential_data.merge!(
+        private_data: opts[:password],
+        private_type: :password
+      )
+    end
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
   def validate_user(user=nil)
     print_status("#{target_uri} - WordPress User-Validation - Checking Username:'#{user}'")
 
     exists = wordpress_user_exists?(user)
     if exists
       print_good("#{target_uri} - WordPress User-Validation - Username: '#{user}' - is VALID")
-      report_auth_info(
-          :host => rhost,
-          :sname => (ssl ? 'https' : 'http'),
-          :user => user,
-          :port => rport,
-          :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
+
+      report_cred(
+        ip: rhost,
+        port: rport,
+        user: user
       )
 
       @users_found[user] = :reported
@@ -130,15 +161,14 @@ class Metasploit3 < Msf::Auxiliary
 
     if cookie
       print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
-      report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => (ssl ? 'https' : 'http'),
-          :user => user,
-          :pass => pass,
-          :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}, COOKIE=#{cookie}",
-          :active => true
+
+      report_cred(
+        ip: rhost,
+        port: rport,
+        user: user,
+        password: pass
       )
+
       return :next_user
     else
       vprint_error("#{target_uri} - WordPress Brute Force - Failed to login as '#{user}'")
