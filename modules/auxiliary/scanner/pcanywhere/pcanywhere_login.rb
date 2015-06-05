@@ -44,14 +44,12 @@ class Metasploit3 < Msf::Auxiliary
       case result
       when :success
         print_good "#{ip}:#{rport} Login Successful #{user}:#{pass}"
-        report_auth_info(
-          :host        => rhost,
-          :port        => datastore['RPORT'],
-          :sname       => 'pcanywhere_data',
-          :user        => user,
-          :pass        => pass,
-          :source_type => "user_supplied",
-          :active      => true
+        report_cred(
+          ip: rhost,
+          port: datastore['RPORT'],
+          service_name: 'pcanywhere',
+          user: user,
+          password: pass,
         )
         return if datastore['STOP_ON_SUCCESS']
         print_status "Waiting to Re-Negotiate Connection (this may take a minute)..."
@@ -71,6 +69,31 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def do_login(user, pass, nsock=self.sock)
