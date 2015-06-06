@@ -8,7 +8,7 @@ This document describes how multiple transports are added on the fly to an exist
 
 ## Transport configuration
 
-At this point in time it is not possible to add multiple transports to payloads or exploits prior to launching them. This is due the fact that `msfvenom` the built-in payload mechanisms in Metasploit need to be modified to allow for multiple transports to be selected prior to the generation of the payload. This work is ongoing, and hopefully it'll be implemented soon. In the mean time, a single transport has to be chosen, using the same mechanism that has always been in use.
+At this point in time it is not possible to add multiple transports to payloads or exploits prior to launching them. This is due to the fact that `msfvenom` the built-in payload mechanisms in Metasploit need to be modified to allow for multiple transports to be selected prior to the generation of the payload. This work is ongoing, and hopefully it'll be implemented soon. In the mean time, a single transport has to be chosen, using the same mechanism that has always been in use.
 
 ## The `transport` command
 
