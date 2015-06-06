@@ -153,6 +153,9 @@ module Metasploit
             # Associate the community with the original credential
             result_options[:credential] = credential_map[result_options.delete(:community)]
 
+            # In the rare chance that we got a result for a community we didn't scan...
+            next unless result_options[:credential]
+
             # Create, freeze, and yield the result
             result = ::Metasploit::Framework::LoginScanner::Result.new(result_options)
             result.freeze
