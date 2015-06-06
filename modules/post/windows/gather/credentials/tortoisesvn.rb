@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Post
     end
 
     report_cred(
-      host: ::Rex::Socket.resolv(http_proxy_host), # TODO: Fix up report_host?
+      ip: ::Rex::Socket.resolv(http_proxy_host), # TODO: Fix up report_host?
       port: http_proxy_port,
       service_name: 'http',
       user: http_proxy_username,
@@ -232,8 +232,8 @@ class Metasploit3 < Msf::Post
     else
       print_status("Searching for TortoiseSVN...")
       prepare_railgun
-      get_config_files()
-      get_proxy_data()
+      get_config_files
+      get_proxy_data
     end
 
     print_status("Complete")
