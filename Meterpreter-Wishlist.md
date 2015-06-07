@@ -129,9 +129,9 @@ Related open tickets (slightly broader than Meterpreter):
  * URLs can be anywhere from 30 to 128 bytes long [**DONE**]
 
 ### Meterpreter Proxy Support
- * Use Windows Credentials with NTLM Authentication to connect via System Proxy back to attacker [*DONE**]
+ * Use Windows Credentials with NTLM Authentication to connect via System Proxy back to attacker [**DONE**]
  * If Meterpreter executes as system - option to find a user, and use that users proxy settings for comms (temporarily or cleanup on exit) - maybe something like RunAsCurrentUser
- * Better proxy support and the ability to sleep [**DONE**] (still more to done on burstable updates)
+ * Better proxy support and the ability to sleep [**DONE**]. Still more to done on burstable updates
 
 ### Communication Protection
  * Authenticated callbacks: This is pretty straight forward, when a pentester no longer controls the IP they were attacking from and failed to clean up every binary and phishing email there is a chance of compromise by proxy. The problem was somewhat solved with  SessionExpirationTimeout and SessionCommunicationTimeout but both of them are loaded in the stage, not hard coded into any binary built, so it’s very easy to get into this situation. Authenticated callbacks would allow a pentester to add a small layer of protections if this event were to happen and a callback from a client was sent to an IP no longer in the pentester’s control
