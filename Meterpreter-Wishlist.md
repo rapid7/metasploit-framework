@@ -160,7 +160,6 @@ Related open tickets (slightly broader than Meterpreter):
  * Generate a unique ID for each session (target-side) [**DONE**]
  * Generate a unique ID for each generated payload  Backdooring/Persisting on more than 10 machines over months it gets very difficult to know when a host hasn’t called back in a while or when a new host arrives. This would need not to be based on gateway, local IP, or any other transient information. This can be processed at any step as long as when STDAPI is loaded I can quickly identify if it’s a system that I’ve known about, and how long it’s been since I’ve seen it. [**DONE**]
  * Shared listeners that can stage multiple payload architectures and platforms (using tags). Depends on new stagers and a new listener and unique IDs. [**IN PROGRESS**]
- * Handlers will stay open after a session connects in order to support re-connects [**CANCELLED**] (a different approach was taken that solves the same problem)
  * Track the last time a given session checked in [**DONE**]
  * Track user defined state data in the db, such as specific user / member of group logged in, specific shares open, certain tuple of IP:port in network connections (1.2.3.4 over 22 where 1.2.3.4 is an IP of interest)
  * Reconnecting payloads will have different IPs, take this into account for session methods (peerinfo/tunnelinfo, etc)
