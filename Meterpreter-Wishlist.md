@@ -46,11 +46,11 @@ Related open tickets (slightly broader than Meterpreter):
 
 ### Remote File Access
  * Console/Meterpreter: Support for uploading, downloading, deleting, renaming, and listing files using UTF-8 input and showing UTF-8 output, converting this in the Meterpreter payload as necessary to support accessing unicode paths on the target. [**DONE**]
- * Console: The ls command should support wildcards in the directory listing, ex: ls \*.csv [**IN PROGRESS**]
- * Console: The ls command should support sorting files by date, name, or size  [**IN PROGRESS**]
+ * Console: The ls command should support wildcards in the directory listing, ex: ls \*.csv [**DONE**]
+ * Console: The ls command should support sorting files by date, name, or size  [**DONE**]
  * Console: The ls command should support listing MSDOS 8.3 (short) names if available on Windows  [**DONE**]
- * Console: The download command should support filtering files based on a wildcard match (recursively, too)   [**IN PROGRESS**]
- * Console: The download command should mirroring an entire remote file system to a local directory (names, paths, and timestamps)  [**IN PROGRESS**]
+ * Console: The download command should support filtering files based on a wildcard match (recursively, too)   [**DONE**]
+ * Console: The download command should mirroring an entire remote file system to a local directory (names, paths, and timestamps)  [**DONE**]
 
 ### Meterpreter Features
  * Direct Powershell integration on Windows (load & run .NET runtimes from inside Meterpreter)
@@ -96,18 +96,18 @@ Related open tickets (slightly broader than Meterpreter):
 
 
 ### Metepreter Stager Support
- * Network error tolerant versions of existing stagers [**IN PROGRESS**]
- * Tagged stagers that send the payload type, arch, platform during the staging process to enable shared listeners [**IN PROGRESS**]
- * Stagers that contain an embedded unique ID that can be used to identify which payload triggered what session [**IN PROGRESS**]
+ * Network error tolerant versions of existing stagers [**DONE**]
+ * Tagged stagers that send the payload type, arch, platform during the staging process to enable shared listeners [**DONE**]
+ * Stagers that contain an embedded unique ID that can be used to identify which payload triggered what session [**DONE**]
  * Stagers that are "stageless" for Meterpreter (include the entire main Meterpreter payload, plus any required extensions). In situations of high network latency or extreme network detection a non-staged exe is the only way to go. Ulta-met is a project that does this but isn’t as stable or easy to work with as if it were just built into the binary creation options. [**DONE**]
  * Stagers that are "stageless" for Meterpreter and include all potential functionality (all extensions)  [**DONE**]
 
 ### Meterpreter Transport Flexibility
- * Support for changing the transport (host, port, URL) of a live session to a new endpoint or protocol [**IN PROGRESS**]
- * Support for multiple transports for the initial session, using the first transport that works [**IN PROGRESS**]
- * Support for multiple endpoints across multiple transports for the initial session [**IN PROGRESS**]
- * Support for automatic switching between multiple transports while the session is running [**IN PROGRESS**]
- * Support for user-configured callback frequency and endpoint rotation [**IN PROGRESS**]
+ * Support for changing the transport (host, port, URL) of a live session to a new endpoint or protocol [**DONE**]
+ * Support for multiple transports for the initial session, using the first transport that works [**DONE**]
+ * Support for multiple endpoints across multiple transports for the initial session [**DONE**]
+ * Support for automatic switching between multiple transports while the session is running [**DONE**]
+ * Support for user-configured callback frequency and endpoint rotation [**DONE**]
  * Support for Tor tunneling to .onion and internet-facing listeners 
  * Support for time-based callback, such as limiting callbacks to certain times of the day.
  * Support for P2P style callbacks. Gossip protocol to find other Meterpreters on the network and use them as exfiltration point. This callback would reduce the amount of endpoints that would call “out” to a handler to 1. Whoever the “master” was. All comms would automatically (because, math) find and delegate this master and finally send through the master all of their comms. This could happen over a named pipe, or a forwarded port or something. (DHT?)
@@ -122,16 +122,16 @@ Related open tickets (slightly broader than Meterpreter):
  * Support for Outlook callback:  This callback would use email back and forth either directly to a MSF run SMTP server or through other services, but the C2 channel would be locally (not on the exchange filter system) auto-filtered to a non-visible folder (using PidTagAttributeHidden). This type of comms would greatly increase the lag time supported in Metepreter simply due to the inherent lag in email. 
 
 ### Meterpreter HTTP Transport Options
- * Create a whitelist of allowed URLs on the handler, have these persistent between metasploit runs [**IN PROGRESS**] 
- * Indicate whether a given handler should silently accept, accept and report, or drop connections using unregistered URLs [**IN PROGRESS**]
- * Whitelisted URLs should be referencing using an alias, stored persistently with the URL [**IN PROGRESS**]
- * Session listing output should indicate what URL and URL alias a particular session is associated with [**IN PROGRESS**]
- * URLs can be anywhere from 1 to 256 bytes long [**IN PROGRESS**]
+ * Create a whitelist of allowed URLs on the handler, have these persistent between metasploit runs [**DONE**] 
+ * Indicate whether a given handler should silently accept, accept and report, or drop connections using unregistered URLs [**DONE**]
+ * Whitelisted URLs should be referencing using an alias, stored persistently with the URL [**DONE**]
+ * Session listing output should indicate what URL and URL alias a particular session is associated with [**DONE**]
+ * URLs can be anywhere from 30 to 128 bytes long [**DONE**]
 
 ### Meterpreter Proxy Support
- * Use Windows Credentials with NTLM Authentication to connect via System Proxy back to attacker [**IN PROGRESS**]
+ * Use Windows Credentials with NTLM Authentication to connect via System Proxy back to attacker [*DONE**]
  * If Meterpreter executes as system - option to find a user, and use that users proxy settings for comms (temporarily or cleanup on exit) - maybe something like RunAsCurrentUser
- * Better proxy support and the ability to sleep or perform burst updates would be fantastic [**IN PROGRESS**]
+ * Better proxy support and the ability to sleep [**DONE**] (still more to done on burstable updates)
 
 ### Communication Protection
  * Authenticated callbacks: This is pretty straight forward, when a pentester no longer controls the IP they were attacking from and failed to clean up every binary and phishing email there is a chance of compromise by proxy. The problem was somewhat solved with  SessionExpirationTimeout and SessionCommunicationTimeout but both of them are loaded in the stage, not hard coded into any binary built, so it’s very easy to get into this situation. Authenticated callbacks would allow a pentester to add a small layer of protections if this event were to happen and a callback from a client was sent to an IP no longer in the pentester’s control
@@ -140,13 +140,13 @@ Related open tickets (slightly broader than Meterpreter):
  * Embedded password to verify Meterpreter instance on the Metasploit side (challenge-response)
  * Embedded password to verify Metasploit instance on the Meterpreter side (challenge-response)
  * Enable TLS verification to verify Metasploit instance on the Meterpreter side  [**DONE**]
- * Allow open, relaxed, strict modes of payload authentication (everything, everything but flag unauthorized, drop non-authorized) [**IN PROGRESS**]
+ * Allow open, relaxed, strict modes of payload authentication (everything, everything but flag unauthorized, drop non-authorized) [**DONE**]
 
 ### Communications Evasion
  * Emulation of common web application traffic when using HTTP-based transports
  * Change web application traffic emulation fingerprints on the fly when using HTTP-based transports
- * Sleeping for a specified period of time before reconnecting to Metasploit  [**IN PROGRESS**]
- * Automatic shutdown/cleanup after a specified amount of time has passed [**IN PROGRESS**]
+ * Sleeping for a specified period of time before reconnecting to Metasploit  [**DONE**]
+ * Automatic shutdown/cleanup after a specified amount of time has passed [**DONE**]
  * Traffic shaping or malleable communications, especially for HTTP(S), can be very useful for blending in, or even for adversary simulation. See Maligno (OSS - http://www.encripto.no/tools/)
  * Malleable network signatures in general
  * Malleable file artefacts - Make Meterpreter look like PlugX / Poison Ivy / etc.
@@ -157,16 +157,16 @@ Related open tickets (slightly broader than Meterpreter):
  * Supporting a set URI path for reverse_http(s), so you can use other webservers as a reverse proxy.
 
 ### Session Handlers
- * Generate a unique ID for each session (target-side) [**IN PROGRESS**]
- * Generate a unique ID for each generated payload  Backdooring/Persisting on more than 10 machines over months it gets very difficult to know when a host hasn’t called back in a while or when a new host arrives. This would need not to be based on gateway, local IP, or any other transient information. This can be processed at any step as long as when STDAPI is loaded I can quickly identify if it’s a system that I’ve known about, and how long it’s been since I’ve seen it. [**IN PROGRESS**]
+ * Generate a unique ID for each session (target-side) [**DONE**]
+ * Generate a unique ID for each generated payload  Backdooring/Persisting on more than 10 machines over months it gets very difficult to know when a host hasn’t called back in a while or when a new host arrives. This would need not to be based on gateway, local IP, or any other transient information. This can be processed at any step as long as when STDAPI is loaded I can quickly identify if it’s a system that I’ve known about, and how long it’s been since I’ve seen it. [**DONE**]
  * Shared listeners that can stage multiple payload architectures and platforms (using tags). Depends on new stagers and a new listener and unique IDs. [**IN PROGRESS**]
- * Handlers will stay open after a session connects in order to support re-connects [**IN PROGRESS**]
- * Track the last time a given session checked in [**IN PROGRESS**]
- * Track user defined state data in the db, such as specific user / member of group logged in, specific shares open, certain tuple of IP:port in network connections (1.2.3.4 over 22 where 1.2.3.4 is an IP of interest) [**IN PROGRESS**]
- * Reconnecting payloads will have different IPs, take this into account for session methods (peerinfo/tunnelinfo, etc) [**IN PROGRESS**]
+ * Handlers will stay open after a session connects in order to support re-connects [**CANCELLED**] (a different approach was taken that solves the same problem)
+ * Track the last time a given session checked in [**DONE**]
+ * Track user defined state data in the db, such as specific user / member of group logged in, specific shares open, certain tuple of IP:port in network connections (1.2.3.4 over 22 where 1.2.3.4 is an IP of interest)
+ * Reconnecting payloads will have different IPs, take this into account for session methods (peerinfo/tunnelinfo, etc)
 
 ### Session Reliability
- * Metasploit payloads should always restore connections if there is a network error unless the user explicitly kills the session [**IN PROGRESS**]
+ * Metasploit payloads should always restore connections if there is a network error unless the user explicitly kills the session [**DONE**]
  * Improve reliability, encryption, authentication. Better integration for custom payloads. 
  * Spawn a new session before running a module that could crash the current session (mostly privilege escalation, but some buggy post modules too [railgun])
  * Meterpreter should work robustly in a VM, on a cloud server, or through corp proxies
@@ -190,8 +190,8 @@ Related open tickets (slightly broader than Meterpreter):
 ### Payload Generation
  * Msfvenom should support injecting into existing APKs for Android Meterpreter deployment. Otherwise, it's just an app the target installs for 10 seconds and removes after confirming it has no user interface, barely allowing the Meterpreter session to be created.
  * Msfvenom really needs to spit out some C# payloads. You can pretty easily modify some of the powershell ones to be C#, but there really ought to be a built in C# payload.
- * Generated payloads should default to exiting the process when the shellcode completes [**IN PROGRESS**]
- * Payload generation should allow named UUIDs to be injected into payloads [**IN PROGRESS**]
+ * Generated payloads should default to exiting the process when the shellcode completes [**DONE**]
+ * Payload generation should allow named UUIDs to be injected into payloads [**DONE**]
 
 
 ### Unit testing for payloads
