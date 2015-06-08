@@ -1004,12 +1004,38 @@ describe Rex::Arch::X86 do
       it "returns a register as third element" do
         expect(subject[2]).to be_an Fixnum
       end
+
+      context "when modified_registers passed" do
+        let(:modified_registers) { [] }
+        it "add modified registers" do
+          described_class.geteip_fpu(badchars, modified_registers)
+          expect(modified_registers).to_not be_empty
+        end
+
+        it "modifies 2 or 3 registers" do
+          described_class.geteip_fpu(badchars, modified_registers)
+          expect(modified_registers.length).to be_between(2, 3)
+        end
+
+        it "modifies ESP" do
+          described_class.geteip_fpu(badchars, modified_registers)
+          expect(modified_registers).to include(Rex::Arch::X86::ESP)
+        end
+      end
     end
 
     context "when too many badchars" do
       let(:badchars) { (0x00..0xff).to_a.pack("C*") }
 
       it { is_expected.to be_nil }
+
+      context "when modified_registers passed" do
+        let(:modified_registers) { [] }
+        it "doesn't add any register" do
+          described_class.geteip_fpu(badchars, modified_registers)
+          expect(modified_registers).to be_empty
+        end
+      end
     end
   end
 
