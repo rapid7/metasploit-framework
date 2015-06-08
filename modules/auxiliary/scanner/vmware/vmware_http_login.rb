@@ -17,9 +17,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'VMWare Web Login Scanner',
-      'Description'    => 'This module attempts to authenticate to the VMWare HTTP service
-        for VmWare Server, ESX, and ESXI',
+      'Name'           => 'VMware Web Login Scanner',
+      'Description'    => 'This module attempts to authenticate to the VMware HTTP service
+        for VMware Server, ESX, and ESXi',
       'Author'         => ['theLightCosine'],
       'References'     =>
         [
@@ -34,9 +34,8 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443)
       ], self.class)
 
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
+    register_advanced_options([OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', true]),])
   end
-
 
   def run_host(ip)
     return unless is_vmware?
@@ -44,22 +43,20 @@ class Metasploit3 < Msf::Auxiliary
       result = vim_do_login(user, pass)
       case result
       when :success
-        print_good "#{rhost}:#{rport} - Successful Login! (#{user}:#{pass})"
-        report_auth_info(
-          :host   => rhost,
-          :port   => rport,
-          :user   => user,
-          :pass   => pass,
-          :source_type => "user_supplied",
-          :active => true
+        print_good "#{rhost}:#{rport} - Successful Login: #{user}:#{pass}"
+        report_cred(
+          ip: rhost,
+          port: rport,
+          user: user,
+          password: pass,
+          service_name: 'VMware-Web'
         )
         return if datastore['STOP_ON_SUCCESS']
       when :fail
-        print_error "#{rhost}:#{rport} - Login Failure (#{user}:#{pass})"
+        print_error "#{rhost}:#{rport} - Login Failure: #{user}:#{pass}"
       end
     }
   end
-
 
   # Mostly taken from the Apache Tomcat service validator
   def is_vmware?
@@ -83,14 +80,14 @@ class Metasploit3 < Msf::Auxiliary
       if res
         fingerprint_vmware(res)
       else
-        vprint_error("#{rhost}:#{rport} Error: no response")
+        vprint_error("#{rhost}:#{rport} - Error: no response")
       end
 
-    rescue ::Rex::ConnectionError => e
-      vprint_error("#{rhost}:#{rport} Error: could not connect")
+    rescue ::Rex::ConnectionError
+      vprint_error("#{rhost}:#{rport} - Error: could not connect")
       return false
-    rescue
-      vprint_error("#{rhost}:#{rport} Error: #{e}")
+    rescue ::Exception => e
+      vprint_error("#{rhost}:#{rport} - Error: #{e}")
       return false
     end
   end
@@ -116,18 +113,41 @@ class Metasploit3 < Msf::Auxiliary
       if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
         # Report a fingerprint match for OS identification
         report_note(
-          :host  => ip,
+          :host  => rhost,
           :ntype => 'fingerprint.match',
           :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
         )
       end
       return true
     else
-      vprint_error("#{rhost}:#{rport} Error: Could not identify as VMWare")
+      vprint_error("#{rhost}:#{rport} - Error: Could not identify as VMware")
       return false
     end
-
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
 end
