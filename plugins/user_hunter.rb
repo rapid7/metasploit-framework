@@ -15,12 +15,12 @@ class Plugin::UserHunter < Msf::Plugin
 
     def commands
       {
-        'smb_hunt'        => "Search the database for specific user(s) found via smb enumeration"
+        'user_hunt_smb'        => "Search the database for specific user(s) found via smb enumeration"
       }
     end
 
     def cmd_print_usage(opts)
-      print_line("Usage: smb_hunt [options] <username> [username] .. [username]")
+      print_line("Usage: user_hunt_smb [options] <username> [username] .. [username]")
       print_line(opts.usage)
       return
     end
@@ -34,7 +34,7 @@ class Plugin::UserHunter < Msf::Plugin
       true
     end
 
-    def cmd_smb_hunt(*args)
+    def cmd_user_hunt_smb(*args)
       return if not cmd_verify_db
 
       opts = Rex::Parser::Arguments.new(
