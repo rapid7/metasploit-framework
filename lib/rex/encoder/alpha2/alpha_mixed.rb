@@ -27,7 +27,7 @@ class AlphaMixed < Generic
     # use inc ebx as a nop here so we still pad correctly
     if offset <= 16
       nop = 'C' * offset
-      nop_regs.concat(Rex::Arch::X86::EBX)
+      nop_regs.push(Rex::Arch::X86::EBX)
 
       mod = 'I' * (16 - offset) + nop + '7QZ'    # dec ecx,,, push ecx, pop edx
       mod_regs.concat([
@@ -36,21 +36,19 @@ class AlphaMixed < Generic
       ])
 
       edxmod = 'J' * (17 - offset)
-      edx_regs.concat(Rex::Arch::X86::EDX)
+      edx_regs.push(Rex::Arch::X86::EDX)
     else
       mod = 'A' * (offset - 16)
-      mod_regs.concat(Rex::Arch::X86::ECX)
+      mod_regs.push(Rex::Arch::X86::ECX)
 
       nop = 'C' * (16 - mod.length)
-      nop_regs.concat(Rex::Arch::X86::EBX)
+      nop_regs.push(Rex::Arch::X86::EBX)
 
       mod << nop + '7QZ'
-      mod_regs.concat([
-        Rex::Arch::X86::EDX
-      ])
+      mod_regs.push(Rex::Arch::X86::EDX)
 
       edxmod = 'B' * (17 - (offset - 16))
-      edx_regs.concat(Rex::Arch::X86::EDX)
+      edx_regs.push(Rex::Arch::X86::EDX)
     end
 
     regprefix = {
@@ -74,9 +72,9 @@ class AlphaMixed < Generic
     when 'EDX'
       mod_registers.concat(edx_regs)
       mod_registers.concat(nop_regs)
-      mod_registers.concat(Rex::Arch::X86::ECX)
+      mod_registers.push(Rex::Arch::X86::ECX)
     else
-      mod_registers.concat(Rex::Arch::X86::ECX)
+      mod_registers.push(Rex::Arch::X86::ECX)
       mod_registers.concat(mod_regs)
     end
 

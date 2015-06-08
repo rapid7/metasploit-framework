@@ -475,7 +475,7 @@ module X86
 
       # If the register is not ESP, copy ESP
       if (dst != ESP)
-        mod_registers.concat(dst)
+        mod_registers.push(dst)
         next if badchars.index( (0x70 + dst).chr )
 
         if !(badchars.index("\x89") or badchars.index( (0xE0+dst).chr ))
@@ -507,7 +507,7 @@ module X86
         regs.delete(reg)
         next if reg == ESP
         next if badchars.index( (0x58 + reg).chr )
-        mod_registers.concat(reg)
+        mod_registers.push(reg)
 
         # Pop the value back out
         0.upto(pad / 4) { |c| out << (0x58 + reg).chr }
