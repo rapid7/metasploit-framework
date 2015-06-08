@@ -15,8 +15,7 @@ class Plugin::UserHunter < Msf::Plugin
 
     def commands
       {
-        'smb_hunt'        => "Search the database for specific user found via
-smb enumeration"
+        'smb_hunt'        => "Search the database for specific user(s) found via smb enumeration"
       }
     end
 
@@ -66,12 +65,14 @@ smb enumeration"
       end
 
       if(opt_userfile)
-        ::File.open(opt_userfile, "rb") do |fd|
-          fd.each_line do |line|
-            line.strip!
-            next if line.empty?
-            next if line =~ /^#/
-            opt_users << line
+        if ::File.readable?(opt_userfile)
+          ::File.open(opt_userfile, "rb") do |fd|
+            fd.each_line do |line|
+              line.strip!
+              next if line.empty?
+              next if line =~ /^#/
+              opt_users << line
+            end
           end
         end
       end
